@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "491157",
+    "ThreadId": "226594",
+    "Html": "<p>I'm trying to store a formatted date in an Excel 2007 worksheet using PHPExcel 1.7.4 and PHP 5.3.2. I'm using a Unix timestamp (stored in $timestamp) which corresponds to 2010-01-29 00:00.</p>\r\n<p>I have tried putting the Unix timestamp in manually and formatting the cell, like so:</p>\r\n<p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>$objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValueByColumnAndRow(3, $currentrow, $timestamp);\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getStyleByColumnAndRow(3, $currentrow)-&gt;getNumberFormat()-&gt;setFormatCode(<span style=\"color:#a31515\">'dd/mm/yyyy'</span>);\r\n</pre>\r\n</div>\r\nHowever, if I open the spreadsheet in OpenOffice the value is 04/07/-8814 and in Excel 2007 ##### is shown (the timestamp appears in the formula bar), even though the cell type shows as Date.</p>\r\n<p>I have also tried converting the timestamp to a string and not bothering with formatting, using the following code:</p>\r\n<p>\r\n<pre>$date = date('d/m/Y', $timestamp);\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValueByColumnAndRow(3, $currentrow, $date);</pre>\r\nThis works in Excel (cell type is General so I'm not sure if sorting will work), but in OpenOffice the cell value is '29/01/2010 - i.e. there is a quote mark before the date.</p>\r\n<p>Am I doing something wrong, or is this a known bug with dates? Ideally I would like to add the timestamp and format the cell as a Date, because that way sorting should work in the spreadsheet.</p>",
+    "PostedDate": "2010-09-09T03:16:25.56-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "491172",
+    "ThreadId": "226594",
+    "Html": "<p>PHPExcel will only convert a formatted date string to a date value automatically (like Excel) if you are using the advanced value binder (see example 29advancedvaluebinder.php in the /Tests directory of the distribution set for an example of using this).</p>\r\n<p>Otherwise, you need to store an Excel date/timestamp in the cell (rather than a Unix timestamp) and then set the cell format mask to a date format. A number of method calls are provided to allow you to convert between Excel date/timestamp values and PHP/Unix date/times:</p>\r\n<h4>PHPExcel_Shared_Date::ExcelToPHP($excelDate)</h4>\r\n<p>Converts a date/time from an Excel date timestamp to return a PHP date/time timestamp.</p>\r\n<p>Note that this method does not trap for Excel dates that fall outside of the valid range for a PHP date timestamp.</p>\r\n<h4>PHPExcel_Shared_Date::ExcelToPHPObject($excelDate)</h4>\r\n<p>Converts a date from an Excel date/time timestamp to return a PHP date/time object.</p>\r\n<h4>PHPExcel_Shared_Date::PHPToExcel($PHPDate)</h4>\r\n<p>Converts a PHP date timestamp or a PHP date/times object to return an Excel date timestamp.</p>\r\n<h4>PHPExcel_Shared_Date::FormattedPHPToExcel($year, $month, $day, $hours=0, $minutes=0, $seconds=0)</h4>\r\n<p>&nbsp;</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>$objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValueByColumnAndRow(3, $currentrow, PHPExcel_Shared_Date::PHPToExcel($timestamp));\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getStyleByColumnAndRow(3, $currentrow)-&gt;getNumberFormat()-&gt;setFormatCode(<span style=\"color:#a31515\">'dd/mm/yyyy'</span>);\r\n</pre>\r\n</div>",
+    "PostedDate": "2010-09-09T03:52:40.953-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "491209",
+    "ThreadId": "226594",
+    "Html": "<p>Thanks for the quick reply, using PHPToExcel seems to have fixed the problem - previous posts I'd found suggested that the conversion would happen automatically, but I presume they were using the advanced binder (wasn't entirely clear and I've only just started using PHPExcel).</p>",
+    "PostedDate": "2010-09-09T05:30:07.28-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "515427",
+    "ThreadId": "226594",
+    "Html": "\r\n<p>How I can set datetime value in a cell so, that it will be in Moscow timezone?</p>\r\n",
+    "PostedDate": "2010-11-01T08:04:31.447-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "515619",
+    "ThreadId": "226594",
+    "Html": "\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<strong>kabanovdmitry wrote:</strong><br>\r\n<p>How I can set datetime value in a cell so, that it will be in Moscow timezone?</p>\r\n</blockquote>\r\n<p>&nbsp;Excel does not differentiate timezones in any way, and internally PHPExcel uses Excel date/time values. This means that there is no way for you to set a cell date/time value for a specific timezone... it's whatever timezone you want it to be. Without\r\n knowing exactly what you want to achieve, it's difficult to advise you any further.</p>\r\n",
+    "PostedDate": "2010-11-01T15:04:38.957-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "515764",
+    "ThreadId": "226594",
+    "Html": "\r\n<p>I have datetime value saved as timestamp.</p>\r\n<p>I put this value in Excel worksheet with such code:</p>\r\n<p>$sheet-&gt;getCellByColumnAndRow(1, $row)-&gt;setValue(PHPExcel_Shared_Date::PHPToExcel($data['date']));<br>\r\n$sheet-&gt;getStyleByColumnAndRow(1, $row)-&gt;getNumberFormat()-&gt;setFormatCode('dd/mm/yyyy h:mm');</p>\r\n<p>&nbsp;</p>\r\n<p>Then I open the document in Excel and datetime values are in Greenwich timezone. But I want it to be in Moscow timezone.</p>\r\n<p>&nbsp;</p>\r\n<p>So I need manually add 3 hours to timestamp and after that feed that value to PHPExcel_Shared_Date::PHPToExcel() method.</p>\r\n<p>&nbsp;</p>\r\n<p>I just wanted to know if any way to tell PHPExcel to do this task instead of me)</p>\r\n",
+    "PostedDate": "2010-11-02T00:28:32.23-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "515782",
+    "ThreadId": "226594",
+    "Html": "\r\n<p>I've found another solution.</p>\r\n<p>&nbsp;</p>\r\n<p>I set datetime value as string. I formatted timestamp with PHP-function date and fed it to PHPExcel.</p>\r\n<p>&nbsp;</p>\r\n<p>Only drawback that in Excel the cell have format General, not Date.</p>\r\n",
+    "PostedDate": "2010-11-02T01:17:27.47-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,106 @@
+[
+  {
+    "Id": "532222",
+    "ThreadId": "237417",
+    "Html": "\r\n<p>Hi</p>\r\n<p>Date in the database is in mm/dd/yyyy format but when i use that in my excel sheet date changes to yyyy-mm-dd</p>\r\n<p>I have tried the following statement to change the date format, but this doesn't seems to be working.</p>\r\n<p>$DateFormatIndex = sprintf('A8:A%d',$i);<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle($DateFormatIndex)-&gt;getNumberFormat()-&gt;setFormatCode('DD MMM YYYY');</p>\r\n",
+    "PostedDate": "2010-12-07T04:40:37.54-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "532230",
+    "ThreadId": "237417",
+    "Html": "\r\n<p>Please try using&nbsp;'dd&nbsp;mmm yyyy' rather than 'DD MMM YYYY'.</p>\r\n",
+    "PostedDate": "2010-12-07T04:56:11.58-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "534826",
+    "ThreadId": "237417",
+    "Html": "\r\n<p>hi</p>\r\n<p>Mark</p>\r\n<p>I have tried your suggestion but it's still not working. Actually what I am doing is first setting the values by the following statement</p>\r\n<p>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue($cellindexcol1, odbc_result($res7,'TR_DATE'));</p>\r\n<p>then at end of data insertion in sheet</p>\r\n<p>I tried the below statement</p>\r\n<p>$DateFormatIndex = sprintf('A8:A%d',$i);<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle($DateFormatIndex)-&gt;getNumberFormat()-&gt;setFormatCode(dd mmm yyyy');</p>\r\n",
+    "PostedDate": "2010-12-12T22:58:33.373-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "534832",
+    "ThreadId": "237417",
+    "Html": "\r\n<p>I am using HTML writer</p>\r\n",
+    "PostedDate": "2010-12-12T23:45:20.753-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "534851",
+    "ThreadId": "237417",
+    "Html": "\r\n<p>Are you actually converting the database value to an Excel date at all, or simply writing it as you receive it from the database? If the latter, then you should be getting erroneous values. If the former, what datatype is the TR_DATE column in your table?</p>\r\n",
+    "PostedDate": "2010-12-13T01:02:33.9-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "534859",
+    "ThreadId": "237417",
+    "Html": "\r\n<p>I am simply writing as it is I receive it from the database</p>\r\n<p>data type for TR_DATE in database is DATE (using DB2)</p>\r\n",
+    "PostedDate": "2010-12-13T01:22:13.963-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "534879",
+    "ThreadId": "237417",
+    "Html": "\r\n<p>I can confirm that the new version is doing something different with date formats, using 1.7.4 i get dd/mm/yyyy with 1.7.5 using the exact same code i get yyyy/mm/dd.</p>\r\n",
+    "PostedDate": "2010-12-13T02:11:06.57-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "534902",
+    "ThreadId": "237417",
+    "Html": "\r\n<p>@vikastharyani</p>\r\n<p>The database query is going to be returning either a formatted date string, or a PHP date/time value. This needs to be converted to an Excel date value using the PHPExcel_Shared_Date::PHPToExcel() or PHPExcel_Shared_Date::FormattedPHPToExcel() methods before\r\n it is stored in the cell. Alternatively, if the database query returns a formatted date string, you can use the Advanced Value Binder, and PHPExcel will do the conversion automatically when you set the cell value.</p>\r\n<div>@ale1981</div>\r\n<div>I'm not aware of any code changes between 1.7.4 and 1.7.5 that could affect date formatting; but I can't find any errors in the code or replicate this problem, and need a worked example to identify where any issue might be occuring.</div>\r\n",
+    "PostedDate": "2010-12-13T02:44:46.16-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "536000",
+    "ThreadId": "237417",
+    "Html": "\r\n<p>Hi Mark</p>\r\n<p>I am also using a DB to retrieve date values, the data in the DB has not changed since I changed versions so it must be doing something, I use the following SQL to format the date from a datetime column.</p>\r\n<p>CONVERT(char(10),DATE_FIELD,103)</p>\r\n",
+    "PostedDate": "2010-12-15T01:26:11.32-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "536467",
+    "ThreadId": "237417",
+    "Html": "\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<strong>ale1981 wrote:</strong><br>\r\n<p>Hi Mark</p>\r\n<p>I am also using a DB to retrieve date values, the data in the DB has not changed since I changed versions so it must be doing something, I use the following SQL to format the date from a datetime column.</p>\r\n<p>CONVERT(char(10),DATE_FIELD,103)</p>\r\n</blockquote>\r\n<p>If you're using CONVERT to cast the value to a string in your SQL query, you should be converting it to an Excel date value; otherwise you'd just be storing a string in the cell, formatted according to the formatting rules of the database CONVERT.</p>\r\n",
+    "PostedDate": "2010-12-15T15:45:02.853-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "536562",
+    "ThreadId": "237417",
+    "Html": "\r\n<p>@mark</p>\r\n<p>Hi Mark</p>\r\n<p>I am in a doubt, that can I integrate pie charts, bar graph or any 3d UI in my reports using PHPExcel</p>\r\n",
+    "PostedDate": "2010-12-15T23:15:50.627-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "536689",
+    "ThreadId": "237417",
+    "Html": "\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<strong>vikastharyani wrote:</strong><br>\r\n<p>I am in a doubt, that can I integrate pie charts, bar graph or any 3d UI in my reports using PHPExcel</p>\r\n</blockquote>\r\n<p>&nbsp;Not in the current version.</p>\r\n",
+    "PostedDate": "2010-12-16T04:25:10.903-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "543624",
+    "ThreadId": "237417",
+    "Html": "\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<strong>MarkBaker wrote:</strong><br>\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<strong>ale1981 wrote:</strong><br>\r\n<p>Hi Mark</p>\r\n<p>I am also using a DB to retrieve date values, the data in the DB has not changed since I changed versions so it must be doing something, I use the following SQL to format the date from a datetime column.</p>\r\n<p>CONVERT(char(10),DATE_FIELD,103)</p>\r\n</blockquote>\r\n<p>If you're using CONVERT to cast the value to a string in your SQL query, you should be converting it to an Excel date value; otherwise you'd just be storing a string in the cell, formatted according to the formatting rules of the database CONVERT.</p>\r\n</blockquote>\r\n<p>The string format I am converting the datetime field to is dd/mm/yyyy and this worked fine with 1.7.4, however if I chang to 1.7.5 then the date is displayed in yyyy/mm/dd. I can not understand that if something hasnt changed between the versions how I am\r\n getting different results?!</p>\r\n",
+    "PostedDate": "2011-01-04T03:14:56.207-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

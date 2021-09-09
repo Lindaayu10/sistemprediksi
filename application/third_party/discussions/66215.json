@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "224897",
+    "ThreadId": "66215",
+    "Html": "<p>Hi</p>\r\n<p>We looked at the documentation, but could not find a way to auto-size a row.</p>\r\n<p>Any help is welcome..</p>\r\n<p>Kind regards</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-08-18T05:52:38.91-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "225031",
+    "ThreadId": "66215",
+    "Html": "<p>The short answer is that you can explicitly set auto-size on a row like this:<br><br>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre><span style=\"color:Green\">// auto-size on row 1</span>\r\n$objWorksheet-&gt;getRowDimension(<span style=\"color:#A31515\">'1'</span>)-&gt;setRowHeight(-1);\r\n</pre>\r\n</div>\r\n<br>Normally you don't have to do this because that is the default value.<br><br>The long answer is that row heights are a mess in Excel and many things are happening behind the scenes when you alter the text wrap properties etc. It will be hard to have PHPExcel to reflect this. Moreover, PHPExcel is not yet able to tell you what the actual row height (in points/pixels) is for those auto-sized rows.</p>",
+    "PostedDate": "2009-08-18T10:14:48.05-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "225298",
+    "ThreadId": "66215",
+    "Html": "<p>Thank you for your answer.</p>\r\n<p>We tried your code on our document, but it doesn't work.</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-08-19T00:13:18.823-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "225633",
+    "ThreadId": "66215",
+    "Html": "<p>Can you say whether the problem occurs with PHPExcel_Writer_Excel5 or PHPExcel_Writer_Excel2007 ? Do you have some sample code so we can reproduce this?</p>",
+    "PostedDate": "2009-08-19T15:38:55.623-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "226188",
+    "ThreadId": "66215",
+    "Html": "<p>Here is a generated file : http://www.2shared.com/file/7292998/d45602ac/2003_autosize.html</p>\r\n<p>The autosize feature works when we export the file in 2007 format, but not 2003 (using PHPExcel_Writer_Excel5).</p>\r\n<p>One of the cell in the autosized row is merged with two cells below. removing the merge code didn't help.</p>\r\n<p>&nbsp;</p>\r\n<p>code :</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre><span style=\"color:Blue\">const</span> XL_CC_LABEL_ROW = 3;\r\n<span style=\"color:Blue\">const</span> XL_2003_FORMAT = 2003;\r\n<span style=\"color:Blue\">const</span> XL_2007_FORMAT = 2007;\r\n[...]\r\n$sheet-&gt;getRowDimension(self::XL_CC_LABEL_ROW)-&gt;setRowHeight(-1);\r\n[...]\r\n$filename = <span style=\"color:#A31515\">''</span>;\r\n$objWriter = null;\r\n\r\n\r\n<span style=\"color:Blue\">switch</span> ($fileFormat){\r\n  <span style=\"color:Blue\">case</span> self::XL_2003_FORMAT :\r\n    $filename = $name.<span style=\"color:#A31515\">'.xls'</span>;\r\n    $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, <span style=\"color:#A31515\">'Excel5'</span>);\r\n    header(<span style=\"color:#A31515\">'Content-Type: application/vnd.ms-excel'</span>);\r\n    header(<span style=\"color:#A31515\">'Content-Disposition: attachment;filename=&quot;'</span>.$filename.<span style=\"color:#A31515\">'&quot;'</span>);\r\n    <span style=\"color:Blue\">break</span>;\r\n  <span style=\"color:Blue\">case</span> self::XL_2007_FORMAT :\r\n    $filename = $name.<span style=\"color:#A31515\">'.xlsx'</span>;\r\n    $objWriter = <span style=\"color:Blue\">new</span> PHPExcel_Writer_Excel2007($objPHPExcel);\r\n    <span style=\"color:Green\">//$objWriter-&gt;setPreCalculateFormulas(false);</span>\r\n    <span style=\"color:Green\">//$objWriter-&gt;setOffice2003Compatibility(true);</span>\r\n    header(<span style=\"color:#A31515\">'Content-Type: application/vnd.openxmlformats-officedocument.'</span>.\r\n      <span style=\"color:#A31515\">'spreadsheetml.sheet'</span>);\r\n    header(<span style=\"color:#A31515\">'Content-Disposition: attachment;filename=&quot;'</span>.$filename.<span style=\"color:#A31515\">'&quot;'</span>);\r\n\r\n    <span style=\"color:Blue\">break</span>;\r\n  <span style=\"color:Blue\">default</span>:dieParamError(<span style=\"color:#A31515\">&quot;unknown file format&quot;</span>);\r\n}\r\n\r\nheader(<span style=\"color:#A31515\">'Cache-Control: max-age=0'</span>);\r\n\r\n$objWriter-&gt;save(<span style=\"color:#A31515\">'php://output'</span>);\r\n</pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-08-21T00:29:52.453-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "226195",
+    "ThreadId": "66215",
+    "Html": "<p>Ok, thanks for the info. This is what I feared.</p>\r\n<p>I think it is an inherited problem from PEAR::Spreadsheet_Excel_Writer (which PHPExcel_Writer_Excel5 is based on) not dealing correctly with some row option flags. I will look at it more deeply tomorrow and create the necesasry work item. Will post back here.</p>",
+    "PostedDate": "2009-08-21T00:53:38.52-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "226519",
+    "ThreadId": "66215",
+    "Html": "<p>Fixed per work item 10503:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10503\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10503</a></p>\r\n<p>Download next source code release tomorrow:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx\">http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx</a></p>",
+    "PostedDate": "2009-08-21T13:51:08.17-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

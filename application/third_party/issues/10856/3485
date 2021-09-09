@@ -1,0 +1,33 @@
+Index: Workbook.php
+===================================================================
+--- Workbook.php	(revision 1217)
++++ Workbook.php	(working copy)
+@@ -318,13 +318,6 @@
+ 		$xfWriter->setBIFFVersion($this->_BIFF_version);
+ 		$xfWriter->setIsStyleXf($isStyleXf);
+ 
+-		$xfWriter->setFgColor($this->_addColor($style->getFill()->getStartColor()->getRGB()));
+-		$xfWriter->setBgColor($this->_addColor($style->getFill()->getEndColor()->getRGB()));
+-		$xfWriter->setBottomColor($this->_addColor($style->getBorders()->getBottom()->getColor()->getRGB()));
+-		$xfWriter->setTopColor($this->_addColor($style->getBorders()->getTop()->getColor()->getRGB()));
+-		$xfWriter->setRightColor($this->_addColor($style->getBorders()->getRight()->getColor()->getRGB()));
+-		$xfWriter->setLeftColor($this->_addColor($style->getBorders()->getLeft()->getColor()->getRGB()));
+-
+ 		// Add the font if not already added
+ 		$fontHashCode = $style->getFont()->getHashCode();
+ 
+@@ -345,6 +338,14 @@
+ 		// Assign the font index to the xf record
+ 		$xfWriter->setFontIndex($fontIndex);
+ 
++		// Background colors, best to treat these after the font so black will come after white in custom palette
++		$xfWriter->setFgColor($this->_addColor($style->getFill()->getStartColor()->getRGB()));
++		$xfWriter->setBgColor($this->_addColor($style->getFill()->getEndColor()->getRGB()));
++		$xfWriter->setBottomColor($this->_addColor($style->getBorders()->getBottom()->getColor()->getRGB()));
++		$xfWriter->setTopColor($this->_addColor($style->getBorders()->getTop()->getColor()->getRGB()));
++		$xfWriter->setRightColor($this->_addColor($style->getBorders()->getRight()->getColor()->getRGB()));
++		$xfWriter->setLeftColor($this->_addColor($style->getBorders()->getLeft()->getColor()->getRGB()));
++
+ 		// Add the number format if it is not a built-in one and not already added
+ 		if ($style->getNumberFormat()->getBuiltInFormatCode() === false) {
+ 			$numberFormatHashCode = $style->getNumberFormat()->getHashCode();

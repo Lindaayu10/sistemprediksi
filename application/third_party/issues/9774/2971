@@ -1,0 +1,28 @@
+Index: Classes/PHPExcel/Shared/Drawing.php
+===================================================================
+--- Classes/PHPExcel/Shared/Drawing.php	(revision 911)
++++ Classes/PHPExcel/Shared/Drawing.php	(working copy)
+@@ -77,7 +77,7 @@
+ 	 */
+ 	public static function cellDimensionToPixels($pValue = 0) {
+ 		if ($pValue != 0) {
+-			return $pValue * 12;
++			return $pValue * 8;
+ 		} else {
+ 			return 0;
+ 		}
+Index: Classes/PHPExcel/Writer/HTML.php
+===================================================================
+--- Classes/PHPExcel/Writer/HTML.php	(revision 912)
++++ Classes/PHPExcel/Writer/HTML.php	(working copy)
+@@ -462,7 +462,9 @@
+ 				$column = PHPExcel_Cell::columnIndexFromString($columnDimension->getColumnIndex()) - 1;
+ 
+ 				// table.sheetXXXXXX td.columnYYYYYY { }
+-				$css['table.sheet' . $hashCode . ' td.column' . $column] = 'width: ' . PHPExcel_Shared_Drawing::cellDimensionToPixels($columnDimension->getWidth()) . 'px; ';
++				$width = PHPExcel_Shared_Drawing::cellDimensionToPixels($columnDimension->getWidth());
++				$width = PHPExcel_Shared_Drawing::pixelsToPoints($width);
++				$css['table.sheet' . $hashCode . ' td.column' . $column] = 'width: ' . $width . 'pt; ';
+ 				if ($columnDimension->getVisible() === false) {
+ 					$css['table.sheet' . $hashCode . ' td.column' . $column] .= 'display: none; ';
+ 					$css['table.sheet' . $hashCode . ' td.column' . $column] .= 'visibility: hidden; ';

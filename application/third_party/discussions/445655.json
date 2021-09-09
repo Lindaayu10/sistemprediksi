@@ -1,0 +1,74 @@
+[
+  {
+    "Id": "1051496",
+    "ThreadId": "445655",
+    "Html": "Hello!\r<br />\n<br />\nMy app needs to read a 4 columns x 200k rows excel file and insert in into a database.\r<br />\n<br />\nMemory limit is 384mb and host does not provide the necessary modules for most of the caching methods described in the docs. I believe my only option is cache_to_discISAM.\r<br />\n<br />\nSo far, I've only been able to load a &quot;full&quot; .xls file (65536 rows) without problems, although a bit slow. But the real big .xlsx file with it's ~200k rows will stop after the first chunk loop (something like 2k rows). The error given depends on the chunk size: either a ERR_CONNECTION_RESET or a fatal memory limit error.\r<br />\n<br />\nAm I doing it right? Can you help me optimizing my code?\r<br />\n<br />\nThis is the reading:<br />\n<pre><code>// cache cells so PHP doesn't run out of memory\n$cache_method = PHPExcel_CachedObjectStorageFactory::cache_to_discISAM;\nif (!PHPExcel_Settings::setCacheStorageMethod($cache_method))\n    die('caching was not possible');\n\ntry {\n    // detect filetype\n    $filetype = PHPExcel_IOFactory::identify('./uploads/'.$filename);\n\n    // target sheet\n    $sheet_name = 'D2D SP';\n\n    // start and end rows by user input\n    $start_row = ($this-&gt;input-&gt;post('start_row')||$this-&gt;input-&gt;post('start_row')&lt;2)?$this-&gt;input-&gt;post('start_row'):2;\n    $end_row = ($this-&gt;input-&gt;post('end_row')||$this-&gt;input-&gt;post('end_row')&lt;=$this-&gt;input-&gt;post('start_row'))?$this-&gt;input-&gt;post('end_row'):$start_row+101;\n\n    // split sheet into chunks so MySQL doesn't run out memory\n    $chunk_size = ($end_row - $start_row)+1 &lt; 2000? $end_row - $start_row + 1 : 2000; \n    $chunkFilter = new chunkReadFilter();\n\n    // create reader based on detected filetype\n    $phpExcelReader = PHPExcel_IOFactory::createReader($filetype);\n    $phpExcelReader-&gt;setLoadSheetsOnly($sheet_name);\n    $phpExcelReader-&gt;setReadDataOnly(TRUE);\n    $phpExcelReader-&gt;setReadFilter($chunkFilter);\n\n    $count_linhas_criadas = 0;\n    $count_linhas_modificadas = 0;\n    for ($i=$start_row; $i &lt;= $end_row; $i += $chunk_size+1) {\n\n        $chunkFilter-&gt;setRows($i, $chunk_size);\n\n        // create THE object\n        $phpExcel = $phpExcelReader-&gt;load('./uploads/'.$filename);\n\n        // get worksheet dimensions\n        $sheet = $phpExcel-&gt;getActiveSheet();\n        $highest_row = $sheet-&gt;getHighestRow();\n        // $highest_col = PHPExcel_Cell::columnIndexFromString($sheet-&gt;getHighestColumn());\n        $highest_col = 'D';\n\n        $values = $sheet-&gt;rangeToArray('A'.$i.':D'.($i+$chunk_size&gt;$highest_row?$highest_row:$i+$chunk_size));\n\n        $values =   array_map(function($single_row) {\n                        $single_row = array_map(function($cell) {\n                            $CI = get_instance();\n                            return $CI-&gt;db-&gt;escape_str($cell);\n                        }, $single_row);\n                        return &quot;('&quot;.implode(&quot;','&quot;,$single_row).&quot;')&quot;;\n                    }, $values);\n\n        $num_of_rows = count($values);\n\n        $values = implode(',',$values);\n\n        if ($values) {\n\n            $this-&gt;db-&gt;query(&quot;INSERT INTO enderecos_disponiveis (logradouro, numero, cep, bairro) VALUES $values ON DUPLICATE KEY UPDATE data_base = now()&quot;);\n            $count_linhas_modificadas += $this-&gt;db-&gt;affected_rows() - $num_of_rows;\n            $count_linhas_criadas += $this-&gt;db-&gt;affected_rows() - $count_linhas_modificadas;\n\n        }\n\n    }\n\n    $this-&gt;db-&gt;select('id');\n    $this-&gt;db-&gt;from('enderecos');\n\n    $this-&gt;data['msg']['count_linhas_modificadas'] = $count_linhas_modificadas;\n    $this-&gt;data['msg']['count_linhas_criadas'] = $count_linhas_criadas;\n    $this-&gt;data['msg']['count_linhas_total'] = $this-&gt;db-&gt;count_all_results();\n    $this-&gt;data['msg_tpl'] = 'admin/msg/enderecos_atualizar_sucesso';\n\n    return $this-&gt;disponiveis();\n\n} catch(Exception $e) {\n\n    $this-&gt;data['msg'] = $e-&gt;getMessage();\n    $this-&gt;data['msg_tpl'] = 'admin/msg/enderecos_atualizar_erro_excel';\n\n    return $this-&gt;atualizar();\n\n}</code></pre>\n\nAnd this is the filter:<br />\n<pre><code>class chunkReadFilter implements PHPExcel_Reader_IReadFilter {\n\n    private $start_row = 0;\n    private $end_row = 0;\n\n    public function setRows($start_row, $chunk_size) {\n\n        $this-&gt;start_row = $start_row;\n        $this-&gt;end_row = $start_row + $chunk_size;\n\n    }\n\n    public function readCell($col, $row, $worksheet_name = '') {\n\n        if (($row == 1) || ($row&gt;= $this-&gt;start_row &amp;&amp; $row &lt; $this-&gt;end_row)) {\n            return TRUE;\n        }\n        return FALSE;\n\n    }\n\n}</code></pre>\n\nThanks in advance.<br />\n",
+    "PostedDate": "2013-06-01T03:09:27.857-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1051504",
+    "ThreadId": "445655",
+    "Html": "I'd be inclined to iterate through the rows you've read one row at a time rather than using rangeToArray() for the whole chunk that you've read: that's duplicating the chunk in memory, adding the overhead of a 2000x4 array. It might be slower, because you're then inserting each row individually into the database, but should reduce memory usage<br />\n",
+    "PostedDate": "2013-06-01T03:50:52.49-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1051563",
+    "ThreadId": "445655",
+    "Html": "Thanks for the fast reply. I'm gonna try that and report back.<br />\n<br />\nMeanwhile, can you tell if there's another reason in this case why the .xls file runs smoothly while .xlsx does not (besides of course number of rows)? How these 2 compare in terms of performance for reading with PHPExcel? I suppose .csv is the winner?<br />\n",
+    "PostedDate": "2013-06-01T10:18:52.947-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1051564",
+    "ThreadId": "445655",
+    "Html": "There's some basic stats <a href=\"https://github.com/PHPOffice/PHPExcel/wiki/Version-Performance-Statistics\" rel=\"nofollow\">here</a> (though intended primarily to compare the performance of different versions of PHPExcel) but they also show the differences in speed and memory usage between CSV, Excel5 and Excel2007.<br />\n<br />\nThe main difference is the completely different structures of the files, and the way in which they can be read/written. At the moment, we use SimpleXML for reading Excel2007 and XMLWriter for writing Excel2007 (version 2.0 will use XMLReader for reading Excel2007 to reduce the memory usage, but at a slight cost in speed), whereas the Excel5 reader and writer are working with an OLE2 BIFF binary object, so there's speed overheads there in converting packed data to PHP datatypes, but less memory overhead; and the OLE2 code more easily allows seeking in the data. CSV, of course, has the advantage of not supporting any formatting, so there's no overheads for styles.<br />\n",
+    "PostedDate": "2013-06-01T10:29:51.707-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1051568",
+    "ThreadId": "445655",
+    "Html": "Very nice.\r<br />\n<br />\nAbout .csv being faster due to lack of formatting support, if I use setReadDataOnly(TRUE) when reading xls and xlsx, does this difference still exist?<br />\n",
+    "PostedDate": "2013-06-01T10:40:39.113-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1051578",
+    "ThreadId": "445655",
+    "Html": "I've tested iterating one row at a time. It still runs out of memory after the first chunk iteration on the larger (200k rows) xlsx file and does finish executing OK the smaller (65k rows) xls file.<br />\n<br />\nWhat I don't get is why it process the first chunk and <strong>only then</strong> it runs out of memory. Does the memory usage increase after each chunk iteration? Shouldn't it be replacing the same amount of data in memory for each chunk?<br />\n<br />\nMaybe I should be killing the last chunk data in memory somehow?<br />\n<br />\n<strong>EDIT/</strong><br />\nIt certainly is that. The xls test output proves it's not filtering from where the last chunk stopped, it's loading again every row from the first to the new limit instead. For instance: the first iteration prints 1 to 2001 and the second prints 1 to 4002. I'll try moving the filter object creation into the loop and see what it does.<br />\n<br />\nCode (notice I've removed the database writing part for testing):<br />\n<pre><code>// detect filetype\n$filetype = PHPExcel_IOFactory::identify('./uploads/'.$filename);\n\n// target sheet\n$sheet_name = 'D2D SP';\n\n// start and end rows by user input\n$start_row = ($this-&gt;input-&gt;post('start_row')||$this-&gt;input-&gt;post('start_row')&lt;2)?$this-&gt;input-&gt;post('start_row'):2;\n$end_row = ($this-&gt;input-&gt;post('end_row')||$this-&gt;input-&gt;post('end_row')&lt;=$this-&gt;input-&gt;post('start_row'))?$this-&gt;input-&gt;post('end_row'):$start_row+101;\n\n// split sheet into chunks to save memory\n$chunk_size = ($end_row - $start_row)+1 &lt; 2000? $end_row - $start_row + 1 : 2000; \n$chunkFilter = new chunkReadFilter();\n\n// create reader based on detected filetype\n$phpExcelReader = PHPExcel_IOFactory::createReader($filetype);\n$phpExcelReader-&gt;setLoadSheetsOnly($sheet_name);\n$phpExcelReader-&gt;setReadDataOnly(TRUE);\n$phpExcelReader-&gt;setReadFilter($chunkFilter);\n\nfor ($i=$start_row; $i &lt;= $end_row; $i += $chunk_size+1) {\n\n    $chunkFilter-&gt;setRows($i, $chunk_size);\n\n    // create THE object\n    $phpExcel = $phpExcelReader-&gt;load('./uploads/'.$filename);\n\n    // get worksheet dimensions\n    $sheet = $phpExcel-&gt;getActiveSheet();\n\n    foreach ($sheet-&gt;getRowIterator() as $row) {\n        echo $row-&gt;getRowIndex().'&lt;/br&gt;';\n    }\n\n    echo '======= yet another chunk =======';\n\n}</code></pre>\n\n",
+    "PostedDate": "2013-06-01T11:34:07.773-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1051592",
+    "ThreadId": "445655",
+    "Html": "No luck... no matter what I do, the filter will always start from row 1 again instead of the dynamic $start_row passed to setRows().<br />\n",
+    "PostedDate": "2013-06-01T12:43:56.5-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1051708",
+    "ThreadId": "445655",
+    "Html": "Yes, you should be clearing the last chunk from memory before loading the next, using<br />\n<div style=\"color:Black;background-color:White;\"><pre>\r\n$objPHPExcel-&gt;disconnectWorksheets();\n<span style=\"color:Blue;\">unset</span>($objPHPExcel);\r\n</pre></div>But for every loop you're iterating through all rows from row1 to rowN, no matter which chunk you've loaded. The RowIterator isn't particularly smart, and if you tell it to start from row 1 it will start from row 1 and count up 1 row at a time even though those rows have never been loaded. You can change this by telling the rowIterator where to start iterating.<br />\n<div style=\"color:Black;background-color:White;\"><pre>\r\n<span style=\"color:Blue;\">foreach</span> ($sheet-&gt;getRowIterator($i) <span style=\"color:Blue;\">as</span> $row) {\r\n</pre></div>",
+    "PostedDate": "2013-06-02T02:21:35.37-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1069519",
+    "ThreadId": "445655",
+    "Html": "<strong>RZB wrote:</strong><br />\n<blockquote>\nNo luck... no matter what I do, the filter will always start from row 1 again instead of the dynamic $start_row passed to setRows().<br />\n</blockquote>\n<pre><code>public function readCell($col, $row, $worksheet_name = '') {\n\n        if (($row == 1) || ($row&gt;= $this-&gt;start_row &amp;&amp; $row &lt; $this-&gt;end_row)) {\n            return TRUE;\n        }\n        return FALSE;\n\n    }\n\n</code></pre>\n\nRemove ($row == 1)  in condition.<br />\n",
+    "PostedDate": "2013-07-17T06:37:11.41-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

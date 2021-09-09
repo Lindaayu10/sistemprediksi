@@ -1,0 +1,29 @@
+<?php
+
+//excel//
+include 'PHPExcel.php';
+include 'PHPExcel/IOFactory.php';
+$EXCEL = new PHPExcel();
+$EXCEL->setActiveSheetIndex(0);
+$SHEET = $EXCEL->getActiveSheet();
+
+//layout//
+$SHEET->getColumnDimension('A')->setAutoSize(true);
+$SHEET->getColumnDimension('C')->setAutoSize(true);
+
+//example one//
+$SHEET->getStyle('A1')->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_CURRENCY_USD_SIMPLE);
+$SHEET->setCellValueByColumnAndRow(0, 1, "9");
+
+//example two//
+$SHEET->getStyle('C1')->getNumberFormat()->setFormatCode('0000');
+$SHEET->setCellValueByColumnAndRow(2, 1, "9");
+
+//output//
+$WRITER = PHPExcel_IOFactory::createWriter($EXCEL, 'Excel2007');
+header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+header('Content-Disposition: attachment;filename="Test.xlsx"');
+header('Cache-Control: max-age=0');
+$WRITER->save("php://output");
+
+?>

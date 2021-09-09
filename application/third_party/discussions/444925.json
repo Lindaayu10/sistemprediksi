@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "1048384",
+    "ThreadId": "444925",
+    "Html": "I am trying to create a spreadsheet using PHP Excel 1.7.8 on PHP 4.0 running on Windows 7 (IIS 7.5) that is 25 columns wide and 50,000 rows long but am getting a memory error.\r<br />\n<br />\nI tried increasing my memory to 1GB but I am  still running out of memory before it can be fully executed. I have cache set up using the following<br />\n<blockquote>\n<pre><code>$cacheMethod = PHPExcel_CachedObjectStorageFactory::cache_to_discISAM;\n$cacheSettings = array('dir' =&gt; '/usr/local/tmp');\nPHPExcel_Settings::setCacheStorageMethod($cacheMethod, $cacheSettings);\n</code></pre>\n\n</blockquote>\nIs it possible to create a spreadsheet this large using PHPExcel, or do I need to look into another library? Without loading PHPExcel or outputting any data to the server my script (which gets the required data from a database) uses 235,800 bytes of memory.<br />\n",
+    "PostedDate": "2013-05-24T12:01:21.397-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1048441",
+    "ThreadId": "444925",
+    "Html": "It's possible, and while caching still uses some memory to maintain an index of the caching file (only SQLite doesn't maintain any form of in-memory index). 1GB seems excessive though if you're using disk caching... good luck finding any library that will handle it if PHPExcel can't when caching is being used... with the exception of commercial libraries such as libXL, all other PHP libraries work purely in memory. My normal estimate is about 1k/cell (depending on content) when maintained fully in memory (1.6k/cell if using 64-bit PHP), with caching reducing that while adding a performance overhead. Styling information isn't cached, so that is still maintained fully in memory, so using a lot of individual styles is an overhead: setting styles for a range of cells rather than for each individual cell reduces this memory overhead.\r<br />\nIf you're building an array from your database, it would be more efficient to write it directly to PHPExcel rather than build the array and then write that to PHPExcel.<br />\n",
+    "PostedDate": "2013-05-24T13:45:18.137-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

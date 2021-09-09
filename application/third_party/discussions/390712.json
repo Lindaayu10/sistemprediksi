@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "896950",
+    "ThreadId": "390712",
+    "Html": "\r\n<p>Hello,</p>\r\n<p>&nbsp; &nbsp; &nbsp;I seem to be having a little trouble formatting 2 columns and I was wondering if someone could give me a few pointers as too how I can format these columns. One column I am trying to format is a date column. My code reads an Excel spreadsheet\r\n and returns numbers like&nbsp;<span>40809, and the date should read 9/23/2011. The next column I am trying to format contains prices. When my code reads the $ column it returns numbers like 200000...instead of $200,000. Here is my code</span></p>\r\n<p><span></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>&lt;?php\r\n$saveTimeZone = date_default_timezone_get();\r\ndate_default_timezone_set(<span style=\"color:#a31515\">'UTC'</span>); <span style=\"color:green\">// Php's date function uses this value!</span>\r\n\r\n\r\n\r\n<span style=\"color:blue\">require_once</span> <span style=\"color:#a31515\">'C:\\wamp\\www\\PHPExcel\\Classes\\PHPExcel\\IOFactory.php'</span>;\r\n$objPHPExcel = PHPExcel_IOFactory::load(<span style=\"color:#a31515\">&quot;worksheet.xls&quot;</span>);\r\n<span style=\"color:blue\">foreach</span> ($objPHPExcel-&gt;getWorksheetIterator() <span style=\"color:blue\">as</span> $worksheet) {\r\n    $worksheetTitle     = $worksheet-&gt;getTitle();\r\n    $highestRow         = $worksheet-&gt;getHighestRow(); <span style=\"color:green\">// e.g. 10</span>\r\n    $highestColumn      = $worksheet-&gt;getHighestColumn(); <span style=\"color:green\">// e.g 'F'</span>\r\n    $highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn);\r\n    $nrColumns = ord($highestColumn) - 64;\r\n    <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">&quot;&lt;br&gt;The Worksheet &quot;</span>.$worksheetTitle.<span style=\"color:#a31515\">&quot; has &quot;</span>;\r\n    <span style=\"color:blue\">echo</span> $nrColumns . <span style=\"color:#a31515\">' columns (A-'</span> . $highestColumn . <span style=\"color:#a31515\">') '</span>;\r\n    <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">' and '</span> . $highestRow . <span style=\"color:#a31515\">' rows.'</span>;\r\n    <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;br&gt;Data: &lt;table border=&quot;1&quot;&gt;&lt;tr&gt;'</span>;\r\n    <span style=\"color:blue\">for</span> ($row = 1; $row &lt;= $highestRow; &#43;&#43; $row) {\r\n        <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;tr&gt;'</span>;\r\n        <span style=\"color:blue\">for</span> ($col = 0; $col &lt; $highestColumnIndex; &#43;&#43; $col) {\r\n            $cell = $worksheet-&gt;getCellByColumnAndRow($col, $row);\r\n            $val = $cell-&gt;getValue();\r\n            $dataType = PHPExcel_Cell_DataType::dataTypeForValue($val);\r\n            <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;td&gt;'</span> . $val . <span style=\"color:#a31515\">'&lt;br&gt; &lt;/td&gt;'</span>;\r\n        }\r\n        <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;/tr&gt;'</span>;\r\n    }\r\n    <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;/table&gt;'</span>;\r\n}\r\n\r\ndate_default_timezone_set($saveTimeZone);\r\n?&gt;\r\n</pre>\r\n</div>\r\nAny help would be greatly appreciated!! Thanks guys!!</span>\r\n<p></p>\r\n",
+    "PostedDate": "2012-08-08T06:58:40.693-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "896981",
+    "ThreadId": "390712",
+    "Html": "<p>&nbsp;</p>\r\n<pre>$val = $cell-&gt;getFormattedValue(); // Returns formatted cell data.</pre>",
+    "PostedDate": "2012-08-08T07:39:30.423-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "896996",
+    "ThreadId": "390712",
+    "Html": "<p>COOL BEANS!!!! Thanks schirl1964!!! I went back to my code and changed &nbsp;</p>\r\n<pre>$val = $cell-&gt;getValue(); to <pre>$val = $cell-&gt;getFormattedValue();</pre>\r\n<pre><br /></pre>\r\n<pre>and it worked perfect!! Thanks again!!</pre>\r\n</pre>",
+    "PostedDate": "2012-08-08T07:56:46.007-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

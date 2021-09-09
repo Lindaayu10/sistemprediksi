@@ -1,0 +1,96 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "All",
+      "DisplayName": "All"
+    },
+    "ClosedComment": "Fixed in SVN",
+    "ClosedDate": "2009-07-03T17:10:29.693-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "From thread:\nhttp://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=61324\n \nHaving to set up an include_path pointing to the directory containing PHPExcel.php is not very convenient. It has been noted that an include path is not strictly necessary.\n \nFor example, if one replaced lines like this in all the PHPExcel class files:\n \nrequire_once 'PHPExcel/Cell.php';\n \nwith absolute paths\n \nrequire_once dirname(__FILE__) . '/PHPExcel/Cell.php';\n \nthen the library will function without the include_path.\n \nWhat are advantages / disadvantages?",
+    "LastUpdatedDate": "2013-05-16T05:42:34.68-07:00",
+    "PlannedForRelease": "PHPExcel 1.7.0 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-07-02T10:44:43.01-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Eliminate dependency of an include path pointing to class directory",
+    "Type": {
+      "Name": "Feature",
+      "Id": 1
+    },
+    "VoteCount": 2,
+    "Id": 10251
+  },
+  "FileAttachments": [
+    {
+      "FileId": 3176,
+      "FileName": "wi-10251.patch",
+      "DownloadUrl": ".\\3176"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "As per the thread content: If people are accessing PHPExcel via an include to PHPExcel.php (and not the subsequent folders), a simple constant definition could occur above the includes.\r\n\r\nOr a check for a constant that exists, set the constant in the file (relative to how to get to root of PHPExcel installation).  Basic code (can be much more optimized, but it would work): \r\n\r\nif (!defined('PHPEXCELBASEDIR')) {\r\n  $arrStack = explode(\"/\", dirname(__FILE__));\r\n\r\n  // If in subfolder - repeat for number of levels deep\r\n  $arrStack = array_pop($arrStack);\r\n  $arrStack = \"/\" . implode(\"/\", $arrStack) . \"/\";\r\n\r\n  define(\"PHPEXCELBASEDIR\", $arrStack);\r\n}",
+      "PostedDate": "2009-07-02T13:39:46.087-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Current require path styles is based on Zend Framework.\r\n\r\nWe can perhaps go for something like this:\r\n\r\nif(!defined('PHPEXCEL_ROOT')) {\r\n  define('PHPEXCEL_ROOT', dirname(__FILE__) . '../../../etc/etc/etc/');\r\n}\r\nrequire_once PHPEXCEL_ROOT . 'xxx.php';\r\n\r\nThe define will of course be different for each file, but should get the right root folder every time.",
+      "PostedDate": "2009-07-03T05:27:00.257-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I did a quick test and it looks ok, Maarten. (except there should be an extra slash at the beginning: '/../../../etc/etc/etc/')\r\n\r\nAttached sample patch for PHPExcel/Worksheet.php\r\n\r\nIf ok, we can assign this to me and I will update all files.",
+      "PostedDate": "2009-07-03T09:16:01.68-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-07-03T09:16:05.6-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Looks perfect!",
+      "PostedDate": "2009-07-03T09:36:45.117-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-07-03T09:38:38.193-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "- Class files updated\r\n- Examples in the \"Tests\" folder updated\r\n- One paragraph removed in \"PHPExcel developer documentation\" 2.2 \"Installation instructions\"",
+      "PostedDate": "2009-07-03T17:10:14.333-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-07-03T17:10:29.693-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:03:53.74-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:34.68-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

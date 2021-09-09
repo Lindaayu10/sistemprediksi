@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "546565",
+    "ThreadId": "241121",
+    "Html": "\r\n<p>HI PHPExcel team,</p>\r\n<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; First of all Happy New Year to all. I have a question regarding a issue coming while developing a project using PHPExcel.</p>\r\n<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Well I am generating a report xls sheet, which is having some 100 odd sheets in it, with each sheet having a different design. So it is using some 360MB memory to\r\n generate a single report xls sheet. So if I try to generate 4 reports one after other, It is using the memory as such:</p>\r\n<p><br>\r\nPeak memory usage: 358.25 MB&nbsp;&nbsp; report_one.xls</p>\r\n<p>Peak memory usage: 686 MB&nbsp;&nbsp; report_two.xls</p>\r\n<p>Peak memory usage: 1031 MB&nbsp;&nbsp; report_three.xls</p>\r\n<p>Peak memory usage: 1344.75 MB&nbsp;&nbsp; report_four.xls</p>\r\n<p>(NOTE:-&nbsp; The 1st column is the Memory usage while the 2nd column is the File name)</p>\r\n<p>So my question is Is there a way through which I can free up the memory before the process starts again for another one, like after generating the report_one.xls, it'll free up the memory space, then try to generate report_two.xls.</p>\r\n<p>Right now It looks like it is only adding up the memory usage, not freeing anything.</p>\r\n<p>So Is that possible?? Kindly let me know.</p>\r\n<p>&nbsp;</p>\r\n<p>With regards,</p>\r\n<p>MaK</p>\r\n<p><br>\r\n<br>\r\n</p>\r\n",
+    "PostedDate": "2011-01-10T03:22:16.767-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "546738",
+    "ThreadId": "241121",
+    "Html": "\r\n<p>Section 4.3 of the Developer Documentation,,, Clearing a Workbook from Memory</p>\r\n",
+    "PostedDate": "2011-01-10T07:33:07.497-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "546856",
+    "ThreadId": "241121",
+    "Html": "\r\n<p>Does this function help me at all if I am creating 10 reports within the same Excel file?</p>\r\n<p>I mean, I create the first sheet, write it and free it up. When I restart the process I need to reopen the initial excel file, using the same amount of memory again?</p>\r\n<p>Is freeing up the memory only usable when creating different excel files?</p>\r\n<p>regards,</p>\r\n<p>Kim Steinhaug</p>\r\n",
+    "PostedDate": "2011-01-10T10:30:09.837-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "546923",
+    "ThreadId": "241121",
+    "Html": "\r\n<p>These special methods to clear workbooks and worksheets from memory were written because a simple unset() will not work with PHPExcel or PHPExcel_Worksheet objects because they contain cyclic references. They do not completely unset the object, but the clear\r\n the cyclic references, allowing the object to be unset subsequently. How they are used is up to the individual developer.</p>\r\n<p>One example of use might be to load a template file, then iterate through a database... cloning the loaded template (using $activeWorkbook = $templateWorkbook-&gt;copy();), writing (say) 50k rows to the template, save the template to file, then disconnect\r\n and unset before going reiterating and processing the next 50k rows.</p>\r\n",
+    "PostedDate": "2011-01-10T12:46:33.43-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "546935",
+    "ThreadId": "241121",
+    "Html": "\r\n<p>Just as a point of reference, when you say 50K of rows, what kind of memory footprint are you usually considering for this kind of workbook. The reason I ask is because when I write a 7000 row excel file with 29 cols I get around 180mb RAM usage (with the\r\n cell caching). (reading the same file as in the examples, example 28), uses 300MB.</p>\r\n<p>Is using a 1 GB of ram &quot;recommended&quot; setting when having larger excel files?</p>\r\n",
+    "PostedDate": "2011-01-10T13:14:11.933-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "546963",
+    "ThreadId": "241121",
+    "Html": "\r\n<p>We use PHPExcel to generate big xlsx reports containing up to 400K rows with up to 36 columns. The generation of these files may take up to 45 minutes, however, the db queries to generate the data take far longer. Ive seen peak usages of 24GB(!), but in\r\n the end I'll end up with the excelsheet I wanted to.</p>\r\n<p>&nbsp;</p>\r\n<p>Mind you, we specifically upgraded our reporting server to 24GB to be able to generate the reports we need ;)</p>\r\n",
+    "PostedDate": "2011-01-10T14:18:23.487-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "546974",
+    "ThreadId": "241121",
+    "Html": "\r\n<p>&gt;&nbsp;24GB</p>\r\n<p>OH LORD! I see the headache. Well, in a way I agree that this is not a problem really aslong as you control the server which is running the system. It is nice though to see that huge amounts of RAM is required for this process, as this means I shouldt waste\r\n to much time in trying to optimize something that isn't possible to optimize. Better invest a few bucks into more RAM on the production server and force our customers using our software to have webhosting on our server if they need the export/import feature.</p>\r\n<p>Thanks for your input Borf.</p>\r\n",
+    "PostedDate": "2011-01-10T14:48:09.017-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

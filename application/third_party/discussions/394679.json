@@ -1,0 +1,66 @@
+[
+  {
+    "Id": "909309",
+    "ThreadId": "394679",
+    "Html": "\r\n<p>Hi!<br>\r\n<br>\r\nFirst, congratulations for great code for PHP!!<br>\r\n<br>\r\nI downloaded the source code of PHPExcel, but am having trouble exporting files ....\r\n<br>\r\n<br>\r\nI did the installation, and when I export a sample file (MySQL SELECT from table) works if mysql table have any less than 10,000 rows of data... When you have more than 10,000 rows of data, generates the error:<br>\r\n<strong><em>&quot;Fatal error: Allowed memory size of 536870912 bytes exhausted (tried to allocate 24 bytes) in / var / www / xls / Classes / PHPExcel / Cell.php on line 506&quot;</em></strong><br>\r\n<br>\r\nIn my PHP file for generation, i'm setting:<br>\r\n<strong><em>ini_set (&quot;memory_limit&quot;, &quot;512M&quot;);</em></strong><br>\r\n<strong><em>ini_set (&quot;max_execution_time&quot;, &quot;300&quot;);</em></strong><br>\r\n<br>\r\nBut if i increasing the memory_limit of PHP, the server will drop....</p>\r\n<p>What should I do?<br>\r\n<br>\r\nPlease I need urgent help!!</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks Diego !!</p>\r\n<p></p>\r\n<hr>\r\n<p></p>\r\n<p>&nbsp;</p>\r\n<p>Complementing:<br>\r\n<br>\r\nThe files that I export to Excel, has averaged 250,000 rows of data....</p>\r\n",
+    "PostedDate": "2012-09-06T11:37:58.527-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "909330",
+    "ThreadId": "394679",
+    "Html": "<p>So have you tried using any of the cell caching techniques to reduce memory consumption?</p>",
+    "PostedDate": "2012-09-06T12:57:00.137-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "909342",
+    "ThreadId": "394679",
+    "Html": "<p>Thanks for response! <br /><br />No.... How can I do this??</p>",
+    "PostedDate": "2012-09-06T13:41:00.57-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "909503",
+    "ThreadId": "394679",
+    "Html": "<p>Start by reading section 4.2.1 of the PHPExcel developer documentation in /Documentation. This describes the options available for cell caching and how to use it</p>",
+    "PostedDate": "2012-09-07T01:33:31.793-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "913759",
+    "ThreadId": "394679",
+    "Html": "<p>Hi MarkBaker!<br /><br />I studied and applied cell caching but I'm still having a strange problem ...<br /><br />I'm using 'cache_in_memory_serialized' to build a worksheet, and after exactly 70 seconds, the process in the server stop and the page stay open to expecting a response from the server ...<br /><br />I applied also the 'CacheTime' to '999999 'to inhibit but the problem was not solved. I also made the following settings in PHP/PHPExcel:<br /><br /><strong><em>ini_set (\"memory_limit\", \"512M\");</em></strong><br /><strong><em>set_time_limit (999999);</em></strong><br /><strong><em>ini_set ('mysql.connect_timeout', 999999);</em></strong><br /><strong><em>ini_set ('default_socket_timeout', 999999);</em></strong><br /><strong><em>ini_set ('max_execution_time', 999999);</em></strong><br /><strong><em>ini_set ('max_input_time', 999999);</em></strong><br /><strong><em>ini_set ('expect.timeout', 999999);</em></strong><br /><br /><em><strong>$cacheMethod = PHPExcel_CachedObjectStorageFactory :: cache_in_memory_serialized;</strong></em><br /><em><strong>$cacheSettings = array ('CacheTime' =&gt; '999999');</strong></em><br /><br /><em><strong>PHPExcel_Settings :: setCacheStorageMethod ($cacheMethod, $cacheSettings);</strong></em><br /><br /><em><strong>$objPHPExcel = new PHPExcel();</strong></em><br />....<br /><br />But not solved to generated worksheet with more of 250000 rows of data ...</p>\r\n<p><span style=\"color: #ff0000;\"><em>An important observation is that a small worksheet with 10000 rows of data is normally generated with setup above.... (</em>with 'LIMIT' on query<em>)</em></span></p>\r\n<p>What should I do?</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks a lot!!!</p>",
+    "PostedDate": "2012-09-17T12:46:55.71-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "913835",
+    "ThreadId": "394679",
+    "Html": "<p>Have you tried the other caching methods? Each of the different methods is a different trade-off between memory usage and performance, or suited to specific circumstances (e.g. access to memcache). Serialized is not the most efficient memory conservation: the table in <a href=\"http://phpexcel.codeplex.com/discussions/234150?ProjectName=phpexcel\">this thread </a>gives an indication of the relative memory/performance of each different method.</p>\r\n<p>If you're working with such large volumes of data, you should really be using a background process to handle the export ratehr than forcing the user to wait.</p>",
+    "PostedDate": "2012-09-17T15:38:44.49-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "913937",
+    "ThreadId": "394679",
+    "Html": "\r\n<p>I used to use PHPExcel for that kind of volumes, and it took my server somewhere in the ballpark of 24GB (depending on the no of worksheets and columns), to generate xlsx documents with 200K rows. So, I'm guessing your memory limit of 512MB is way too low,\r\n and your php process just dies because it is out of memory. Chec your servers error logs, and php error logs!</p>\r\n<p>&nbsp;</p>\r\n<p>Furthermore, if you are running out of memory, don't use in memory cell caching!</p>\r\n",
+    "PostedDate": "2012-09-17T23:48:13.46-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "914255",
+    "ThreadId": "394679",
+    "Html": "\r\n<p>Hi!<br>\r\n<br>\r\nGuys, I guess that half the puzzle was discovered ... The problem before the 70 seconds was actually server memory (parameterized before with '512M ')...<br>\r\n<br>\r\nAnalyzing these last days, I believe the real problem is the method I'm filling cells ... I studied the section '4 .5.5 Looping cells', but I could not transfer the method for 'foreach' (as recommended according to the documentation ...)<br>\r\n<br>\r\nIf you can help me I appreciate it! Part of code for generation the following:</p>\r\n<p><strong>$sql2 = &quot;SELECT * FROM $table&quot;;</strong></p>\r\n<p><strong>$result2 = mysql_query($sql2);</strong><br>\r\n<br>\r\n<strong>$count = mysql_num_rows($result2);</strong><br>\r\n<br>\r\n<strong>$colunas = mysql_num_fields($result2);</strong><br>\r\n<br>\r\n<strong>$i = 2;</strong><br>\r\n<br>\r\n<strong>while($temp2 = mysql_fetch_array($result2)) {</strong><br>\r\n<strong>&nbsp;&nbsp;&nbsp; for($k=1;$k&lt;$colunas&#43;1;$k&#43;&#43;){</strong><br>\r\n<strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $campo_ativo = &quot;r&quot;.$k;</strong><br>\r\n<strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue($celulas[$k-1].$i, $temp2[$campo_ativo]);</strong><br>\r\n<strong>&nbsp;&nbsp;&nbsp; }</strong><br>\r\n<strong>&nbsp;&nbsp;&nbsp; $i&#43;&#43;;</strong><br>\r\n<strong>}</strong>Complementing:</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks a lot for help!!!<strong>&nbsp;</strong></p>\r\n<p>&nbsp;</p>\r\n<p></p>\r\n<hr>\r\n<p></p>\r\n<p>Complementing:</p>\r\n<p>I change cache method for PHPExcel_CachedObjectStorageFactory::cache_to_discISAM</p>\r\n<p><strong><br>\r\n</strong></p>\r\n",
+    "PostedDate": "2012-09-18T11:18:18.28-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

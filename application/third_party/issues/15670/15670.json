@@ -1,0 +1,65 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "If the OFFSET function refers to a cell on a different worksheet and that cell is empty, the OFFSET function evaluates as if the same cell on the *current* worksheet was referred. So for example OFFSET(SomeOtherSheet!A1:1:1) is evaluated as (A1:1:1) if cell A1 on worksheet SomeOtherSheet is empty.\n \nThis occurs in version 71420 of the source code.",
+    "LastUpdatedDate": "2013-03-27T07:30:44.863-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2011-04-08T01:50:10.07-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "OFFSET from null value cell fails",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 2,
+    "Id": 15670
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "Hi,\r\nI used this code\r\n----\r\n$objPHPExcel = new PHPExcel();\r\n//$objPHPExcel->getActiveSheet()->setCellValue('A1', '1');\r\n$objPHPExcel->getActiveSheet()->setCellValue('A2', '123');\r\n$objPHPExcel->getActiveSheet()->setCellValue('B1', '1231');\r\n$objPHPExcel->getActiveSheet()->setCellValue('B2', 'XXX');\r\n$objPHPExcel->getActiveSheet()->setTitle('asdasda');\r\n$objPHPExcel->createSheet(1);\r\n$objPHPExcel->setActiveSheetIndex(1);\r\n$objPHPExcel->getActiveSheet()->setCellValue('A2', '22222');\r\n$objPHPExcel->getActiveSheet()->setCellValue('B1', '12414');\r\n$objPHPExcel->getActiveSheet()->setCellValue('A1', '=OFFSET(asdasda!A1,1,1)');\r\necho 'RESULTTT in A1|', $objPHPExcel->getActiveSheet()->getCell('A1')->getCalculatedValue();\r\n-----------\r\nNow it return 0 for me. If i uncomment 2nd line, then it works just fine and returns \"XXX\". Is this the error you're experiencing?\r\n",
+      "PostedDate": "2011-04-16T05:34:04.527-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Yes, this is exactly the issue I was talking about. If you add a cell value to cell B2 on sheet 1, it becomes more clear. So this code:\r\n\r\n----\r\n$objPHPExcel = new PHPExcel();\r\n//$objPHPExcel->getActiveSheet()->setCellValue('A1', '1');\r\n$objPHPExcel->getActiveSheet()->setCellValue('A2', '123');\r\n$objPHPExcel->getActiveSheet()->setCellValue('B1', '1231');\r\n$objPHPExcel->getActiveSheet()->setCellValue('B2', 'XXX');\r\n$objPHPExcel->getActiveSheet()->setTitle('asdasda');\r\n$objPHPExcel->createSheet(1);\r\n$objPHPExcel->setActiveSheetIndex(1);\r\n$objPHPExcel->getActiveSheet()->setCellValue('A2', '22222');\r\n$objPHPExcel->getActiveSheet()->setCellValue('B1', '12414');\r\n$objPHPExcel->getActiveSheet()->setCellValue('B2', 'THIS IS NOT WHAT I AM LOOKING FOR');\r\n$objPHPExcel->getActiveSheet()->setCellValue('A1', '=OFFSET(asdasda!A1,1,1)');\r\necho 'RESULTTT in A1|', $objPHPExcel->getActiveSheet()->getCell('A1')->getCalculatedValue();\r\n----\r\n\r\nreturns this for me:\r\n\r\nRESULTTT in A1|THIS IS NOT WHAT I AM LOOKING FOR",
+      "PostedDate": "2011-04-16T09:03:29.313-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I think this might be a solution:\r\nin Calculation.php change line 3203 \r\nfrom: $cellRef = $matches[6].$matches[7];\r\nto:  $cellRef = $matches[1].$matches[6].$matches[7]; //this will take in the spreadsheet name stored in matched[1]\r\nAlthough I'm not sure if this will brake the code, it solved the issue for me.",
+      "PostedDate": "2011-04-17T11:52:08.23-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:02:26.487-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-03-27T07:30:44.863-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

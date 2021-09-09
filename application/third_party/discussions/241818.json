@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "549451",
+    "ThreadId": "241818",
+    "Html": "\r\n<p>I am often getting</p>\r\n<p><br>\r\nPHP Fatal error:&nbsp; Uncaught exception 'Exception' with message 'Could not close zip file cache/DailyReport_14012011.xlsx.' in /var/www/html/dailyreport/classes/PHPExcel/Writer/Excel2007.php:340<br>\r\nStack trace:<br>\r\n#0 /var/www/html/dailyreport/excel_creation.php(809): PHPExcel_Writer_Excel2007-&gt;save('cache/DailyRepo...')<br>\r\n#1 /var/www/html/dailyreport/cronjobs/customers_stats_new_live.php(311): require_once('/var/www/html/d...')<br>\r\n#2 {main}<br>\r\n&nbsp; thrown in /var/www/html/dailyreport/classes/PHPExcel/Writer/Excel2007.php on line 340</p>\r\n<p>i know its a problem in the $objExcel itself and not in the writing process.</p>\r\n<p>The weird bit is that if i undo back to where i know it was working, i still get the error.</p>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2011-01-14T08:52:25.727-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "549633",
+    "ThreadId": "241818",
+    "Html": "\r\n<p>Hello,</p>\r\n<p>I just has this error and it was because the path where I wanted to save the file didn't exist...</p>\r\n<p>Regards</p>\r\n",
+    "PostedDate": "2011-01-14T14:17:12.647-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "549648",
+    "ThreadId": "241818",
+    "Html": "\r\n<p>@Zick</p>\r\n<p>You're right! This error will generally only occur if the directory path doesn't exist, or if your PHP doesn't have sufficient privileges to access the filepath or any existing&nbsp;file (if overwriting a file)</p>\r\n",
+    "PostedDate": "2011-01-14T14:47:39.987-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "551066",
+    "ThreadId": "241818",
+    "Html": "\r\n<p>ok after fiddling about with this, the reason is&nbsp; i was not using the full path.</p>\r\n<p>If i use $objWriter-&gt;save('cache/'.$filename);</p>\r\n<p>it dies with the following error</p>\r\n<p>PHP Fatal error:&nbsp; Uncaught exception 'Exception' with message 'Could not close zip file cache/DailyReport_18012011.xlsx.' in /var/www/html/dailyreport/classes/PHPExcel/Writer/Excel2007.php:340<br>\r\nStack trace:<br>\r\n#0 /var/www/html/dailyreport/excel_creation.php(1304): PHPExcel_Writer_Excel2007-&gt;save('cache/DailyRepo...')<br>\r\n#1 /var/www/html/dailyreport/cronjobs/customers_stats_new_live.php(314): require_once('/var/www/html/d...')<br>\r\n#2 {main}<br>\r\n&nbsp; thrown in /var/www/html/dailyreport/classes/PHPExcel/Writer/Excel2007.php on line 340</p>\r\n<p>&nbsp;</p>\r\n<p>If i use $objWriter-&gt;save('/var/www/html/dailyreport/cache/'.$filename);</p>\r\n<p>everything is fine.</p>\r\n",
+    "PostedDate": "2011-01-18T00:58:53.01-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "551348",
+    "ThreadId": "241818",
+    "Html": "\r\n<p>'cache/'.$filename would be relative to the executing script's current working directory; '/var/www/html/dailyreport/cache/'.$filename is explicit from the filesystem root. The relative reference would only be valid if the script's cwd was /var/www/html/dailyreport\r\n so perhaps it's executing with a different cwd.</p>\r\n",
+    "PostedDate": "2011-01-18T09:18:54.713-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "551761",
+    "ThreadId": "241818",
+    "Html": "\r\n<p>thats part of the weird bit to be honest.</p>\r\n<p>&nbsp;</p>\r\n<p>The script was and is sitting in /var/www/html/dailyreport, also the cache/'.$filename has DEFINATELY worked several times already, but after i have made changes in the script, it then sometimes failed.</p>\r\n<p>I'm not sure exactly where the problem is, but using the full path seems to have solved it at the moment</p>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2011-01-19T00:37:59.717-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "551767",
+    "ThreadId": "241818",
+    "Html": "\r\n<p>The directory where the script file is located, and the directory where PHP is running aren't necessarily the same... you can use PHP's getcwd() function to identify the current working directory when PHP is executing.</p>\r\n",
+    "PostedDate": "2011-01-19T01:05:08.133-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

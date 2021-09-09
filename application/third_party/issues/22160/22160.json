@@ -1,0 +1,50 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "The sum() function does not work properly. Maybe a bug in PHPExcel? 3.5 is not valid.\n\n\nNote: you have to set the 1904-Calendar fomat. (Or use the attached -1904 calendar). How to set that option in phpExcel?\n\n\nThe Document is being created with this code:\n\n```\n<?php\n/**\n * PHPExcel\n *\n * Copyright (C) 2006 - 2014 PHPExcel\n *\n * This library is free software; you can redistribute it and/or\n * modify it under the terms of the GNU Lesser General Public\n * License as published by the Free Software Foundation; either\n * version 2.1 of the License, or (at your option) any later version.\n *\n * This library is distributed in the hope that it will be useful,\n * but WITHOUT ANY WARRANTY; without even the implied warranty of\n * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU\n * Lesser General Public License for more details.\n *\n * You should have received a copy of the GNU Lesser General Public\n * License along with this library; if not, write to the Free Software\n * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA\n *\n * @category   PHPExcel\n * @package    PHPExcel\n * @copyright  Copyright (c) 2006 - 2014 PHPExcel (http://www.codeplex.com/PHPExcel)\n * @license    http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt\tLGPL\n * @version    1.8.0, 2014-03-02\n */\n\n/** Error reporting */\nerror_reporting(E_ALL);\nini_set('display_errors', TRUE);\nini_set('display_startup_errors', TRUE);\ndate_default_timezone_set('Europe/London');\nsetlocale(LC_TIME, \"de_DE.utf8\");\n\nif (PHP_SAPI == 'cli')\n\tdie('This example should only be run from a Web Browser');\n\n/** Include PHPExcel */\nrequire_once dirname(__FILE__) . '/PHPExcel.php';\n\n\n//Variablen:\n$soll = \"04:00\";\n$jahr = 2016;\n\nfunction days_in_month($month, $year)\n{\n// calculate number of days in a month\nreturn $month == 2 ? ($year % 4 ? 28 : ($year % 100 ? 29 : ($year % 400 ? 28 : 29))) : (($month - 1) % 7 % 2 ? 30 : 31);\n} \n\n\n// Create new PHPExcel object\n$objPHPExcel = new PHPExcel();\n\n//static boolean setExcelCalendar(1904) ;\n// Set document properties\n$objPHPExcel->getProperties()->setCreator(\"Maarten Balliauw\")\n\t\t\t\t\t\t\t ->setLastModifiedBy(\"Maarten Balliauw\")\n\t\t\t\t\t\t\t ->setTitle(\"Office 2007 XLSX Test Document\")\n\t\t\t\t\t\t\t ->setSubject(\"Office 2007 XLSX Test Document\")\n\t\t\t\t\t\t\t ->setDescription(\"Test document for Office 2007 XLSX, generated using PHP classes.\")\n\t\t\t\t\t\t\t ->setKeywords(\"office 2007 openxml php\")\n\t\t\t\t\t\t\t ->setCategory(\"Test result file\");\n\n\n$monate = array(1=>\"Januar\",\n                2=>\"Februar\",\n                3=>\"März\",\n                4=>\"April\",\n                5=>\"Mai\",\n                6=>\"Juni\",\n                7=>\"Juli\",\n                8=>\"August\",\n                9=>\"September\",\n                10=>\"Oktober\",\n                11=>\"November\",\n                12=>\"Dezember\");\t\t\t\t\t\t\t \n$tagearr = array(\"So\", \"Mo\", \"Di\", \"Mi\", \"Do\", \"Fr\", \"Sa\");\n\t\t\t\t\t\t\t \n$excelBold = array(\n    \"font\" => array(\n        \"bold\" => true,\n        \n    ),\n);\t\n\n\n$borderArray = array(\n      'borders' => array(\n          'allborders' => array(\n              'style' => PHPExcel_Style_Border::BORDER_THIN\n          )\n      )\n  );\n\n  \n  $borderBoldArray = array(\n      'borders' => array(\n          'allborders' => array(\n              'style' => PHPExcel_Style_Border::BORDER_MEDIUM\n          )\n      )\n  );\n\n\n//cellColor('A30:Z30', 'F28A8C');\nfunction cellColor($cells,$color){\n    global $objPHPExcel;\n\n    $objPHPExcel->getActiveSheet()->getStyle($cells)->getFill()->applyFromArray(array(\n        'type' => PHPExcel_Style_Fill::FILL_SOLID,\n        'startcolor' => array(\n             'rgb' => $color\n        )\n    ));\n}\n\n\n\n\n$objPHPExcel->getDefaultStyle()\n    ->getAlignment()\n    ->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);\t\t\t\t\t\t \n\t\t\t\t\t\t\t \n\t\t\t\t\t\t\t \n\t\t\t\t\t\t\t \n// Add some data\n//Datum\t\tAnfang\tEnde\tPause\tSumme\tSoll\tDifferenz\n\n\n    //First sheet\n    $sheet = $objPHPExcel->getActiveSheet();\n\n    //Start adding next sheets\n    $i=0;\n    foreach($monate as $key=>$monat) {\n\t\t$tage = days_in_month($key,2016);\n\t\t\n\t\t// Add new sheet\n\t\t$objWorkSheet = $objPHPExcel->createSheet($i); //Setting index when creating\n\n\t\n\t\t\n\t\t//Überschrift\n\t\t$objWorkSheet->setCellValue('B2', 'Datum')\n\t\t\t\t\t ->setCellValue('D2', 'Anfang')\n\t\t\t\t\t ->setCellValue('E2', 'Ende')\n\t\t\t\t\t ->setCellValue('F2', 'Pause')\n\t\t\t\t\t ->setCellValue('G2', 'Summe')\n\t\t\t\t\t ->setCellValue('H2', 'Soll')\n\t\t\t\t\t ->setCellValue('I2', 'Differenz');\t\t\t \n\t\t$objWorkSheet->getStyle('B2:I2')->applyFromArray($excelBold);\t\n\t\t$objPHPExcel->getActiveSheet()->getColumnDimension('B')->setWidth(10);\n\t\t\n\t\t$objWorkSheet->setCellValue('B3', 'Übertrag');\n\t\t$objWorkSheet->getStyle('D3:I3')->getNumberFormat()\n\t\t\t\t\t\t\t\t\t\t\t\t\t   ->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_DATE_TIME3);\n\t\tcellColor('B3:I3', 'A0D98D');\t\t\t\t\t\t\t\t\t\t\t   \n\t\t\t\t\t\t\t\t\t\t\t\t\t   \n\t\tfor ($x = 1; $x <= $tage; $x++) {\n\t\t\t$row = $x + 3;\n\t\t\t$datum = strtotime($x.\".\".$key.\".\".$jahr);\n\t\t\t$objWorkSheet->setCellValue('B'.$row,    date(\"d.m.Y\", $datum) );\n\t\t\t$objWorkSheet->setCellValue('C'.$row,    $tagearr[date(\"w\", $datum)] );\n\t\t\t\n\t\t\t//Wochenende:\n\t\t\tif(date(\"w\", $datum) == 0 || date(\"w\", $datum) == 6){\n\t\t\t\tcellColor('B'.$row.':I'.$row, 'cccccc');\n\t\t\t}else{\n\t\t\t\n\t\t\t$objWorkSheet->setCellValue('D'.$row, '00:00')\n\t\t\t\t\t\t ->setCellValue('E'.$row, '00:00')\n\t\t\t\t\t\t ->setCellValue('F'.$row, '00:00')\n\t\t\t\t\t\t ->setCellValue('G'.$row, '=(E'.$row.'-F'.$row.'-D'.$row.')')\n\t\t\t\t\t\t \n\t\t\t\t\t\t ->setCellValue('H'.$row, $soll)\n\t\t\t\t\t\t ->setCellValue('I'.$row, '=(G'.$row.'-H'.$row.')');\n\t\t\t}\t\t\t \n\t\t\t$objWorkSheet->getStyle('D'.$row.':I'.$row)->getNumberFormat()\n\t\t\t\t\t\t\t\t\t\t\t\t\t   ->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_DATE_TIME3);\n\t\t\t\n\t\t}\t\t\n\t\t\n\t\t//Summe:\n\t\t$objWorkSheet->setCellValue('B'.($row+1), 'Summe:')\n\t\t\t\t\t ->setCellValue('H'.($row+1), '=SUM(H3:H'.$row.')')\n\t\t\t\t\t ->setCellValue('I'.($row+1), '=SUM(I3:I'.$row.')');\n\t\t\n\t\t//Border\n\t\t$objPHPExcel->getActiveSheet()->getStyle('B2:I'.($row+1))->applyFromArray($borderArray);\n\t\t$objPHPExcel->getActiveSheet()->getStyle('B'.($row+1).':I'.($row+1))->applyFromArray($borderBoldArray);\n\t\t// Rename sheet\n\t\t$objWorkSheet->setTitle($monat);\n\n\t\t$i++;\n\t\t\n\t\t\n\t\t\n\t\t\n    }\n\t$objPHPExcel->removeSheetByIndex(12);\n\n\n\n\n\n\n// Set active sheet index to the first sheet, so Excel opens this as the first sheet\n$objPHPExcel->setActiveSheetIndex(0);\n\n\n// Redirect output to a client’s web browser (Excel2007)\nheader('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');\nheader('Content-Disposition: attachment;filename=\"Stunden '.$jahr.'.xlsx\"');\nheader('Cache-Control: max-age=0');\n// If you're serving to IE 9, then the following may be needed\nheader('Cache-Control: max-age=1');\n\n// If you're serving to IE over SSL, then the following may be needed\nheader ('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Date in the past\nheader ('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT'); // always modified\nheader ('Cache-Control: cache, must-revalidate'); // HTTP/1.1\nheader ('Pragma: public'); // HTTP/1.0\n\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');\n$objWriter->save('php://output');\nexit;\n\n```",
+    "LastUpdatedDate": "2016-02-04T06:32:59.823-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2016-02-04T06:30:27.137-08:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "SUM() does not work with Hours & Minutes",
+    "Type": {
+      "Name": "Unassigned",
+      "Id": 5
+    },
+    "VoteCount": 1,
+    "Id": 22160
+  },
+  "FileAttachments": [
+    {
+      "FileId": 9916,
+      "FileName": "Stunden 2016.xlsx",
+      "DownloadUrl": ".\\9916"
+    },
+    {
+      "FileId": 9917,
+      "FileName": "Stunden 2016 -1904 calendar.xlsx",
+      "DownloadUrl": ".\\9917"
+    }
+  ],
+  "Comments": []
+}

@@ -1,0 +1,106 @@
+[
+  {
+    "Id": "200048",
+    "ThreadId": "59084",
+    "Html": "<p>Hi, my first post, I have been using the PEAR Spreadsheet_Writer for a while now but am starting to convert to PHPExcel.</p>\r\n<p>I am trying to write a formula to column K but can not get it working, the spreadsheet has 13 columns and maybe 12,000 rows.</p>\r\n<p>&lt;!-- this is the formula I need in column K =IF(I' .$row. '&gt;0.01,(100-I' .$row. ')*G' .$row. '%,J' .$row. '*H' .$row. ') --&gt;</p>\r\n<p>My code;</p>\r\n<p>&nbsp;&nbsp;&nbsp; $objPHPExcel = new PHPExcel();<br>&nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('A1','PRCSHID');<br>&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('B1','GROUP NO');<br>&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('C1','GROUP DESC');<br>&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('D1','ITEM NO');<br>&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('E1','ITEM DESC');<br>&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('F1','LIST PRICE');<br>&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('G1','PRICE PER');<br>&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('H1','PER');<br>&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('I1','%DISCOUNT');<br>&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('J1','NETT PRICE');<br>&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('K1','NETT PER');<br>&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('L1','COST');<br>&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('M1','MARGIN');<br>&nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;freezePane('A2');<br>&nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp; $row = 2;<br>&nbsp;&nbsp;&nbsp; while ($data = mssql_fetch_row($result)) {<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $col = 0;<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; foreach ($data as $key =&gt; $value) {<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow($col, $row, $value);<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $col++;</p>\r\n<p>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $row++;<br>&nbsp;&nbsp;&nbsp; }<br><br>&nbsp;&nbsp;&nbsp; // close and write the excel file<br>&nbsp;&nbsp;&nbsp; $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');<br>&nbsp;&nbsp;&nbsp; $objWriter-&gt;save($dir . $filename);</p>",
+    "PostedDate": "2009-06-10T08:53:52.32-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "200372",
+    "ThreadId": "59084",
+    "Html": "<p>PHPExcel_Writer_Excel5 is based on PEAR Spreadsheet_Excel_Writer. Formula bugs have not been fixed yet. <br> <a href=\"../WorkItem/View.aspx?WorkItemId=7895\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=7895</a><br> <br> Can you try to avoid % in the formula, perhaps divide by 100 instead? It is not working with Excel5 writer. I think PHPExcel_Writer_2007 will be ok, however.</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-06-11T05:11:46.687-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "200465",
+    "ThreadId": "59084",
+    "Html": "<p>I can use the 2007 writer instead, but how would i add that formula to my code so it was in column K?</p>",
+    "PostedDate": "2009-06-11T09:17:30.467-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "200468",
+    "ThreadId": "59084",
+    "Html": "<p>Is it not working with e.g. ?<br> <br> <span style=\"font-family:Courier New\">$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('K2', '=IF(I' . $row . '&gt;0.01, (100-I' . $row. ')*G' . $row . '%, J' . $row . '*H' . $row . ')');</span><br></p>",
+    "PostedDate": "2009-06-11T09:30:33.827-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "200852",
+    "ThreadId": "59084",
+    "Html": "<p>But that will just repeat the formula in cell K2?</p>\r\n<p>How can i dynamically add it to column K on every row?</p>",
+    "PostedDate": "2009-06-12T08:20:21.517-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "201062",
+    "ThreadId": "59084",
+    "Html": "<p>Not sure what you mean by dynamically? To write the formula in other rows, you would need some loop to handle this.</p>",
+    "PostedDate": "2009-06-12T19:30:10.56-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "201506",
+    "ThreadId": "59084",
+    "Html": "<p>I have tried to put it in the while loop i already have which writes the rows but can not get it to work correctly;</p>\r\n<p>&nbsp;</p>\r\n<p>while ($data = mssql_fetch_row($result)) {<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $col = <span title=\"Convert this amount\">0</span>;<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; foreach ($data as $key =&gt; $value) {<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow($col, $row, $value);</p>\r\n<p><span style=\"font-family:Courier New\">$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('K<span title=\"Convert this amount\">' .$row. '</span>, '=IF(I' . $row . '&gt;<span title=\"Convert this amount\">0.01</span>, (<span title=\"Convert this amount\">100</span>-I' . $row. ')*G' . $row . '%, J' . $row . '*H' . $row . ')');</span></p>\r\n<p>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $col++; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</p>\r\n<p>}</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-06-15T02:44:52.617-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "201795",
+    "ThreadId": "59084",
+    "Html": "<p>Can you try to run this code? It is working ok for me?<br><br><span style=\"font-family:Courier New\">&lt;?php</span><br><span style=\"font-family:Courier New\">$excel = new PHPExcel();</span><br><span style=\"font-family:Courier New\">$sheet = $excel-&gt;getActiveSheet();</span><br><br><span style=\"font-family:Courier New\">$row = 1;</span><br><br><span style=\"font-family:Courier New\">$sheet-&gt;setCellValue('G1', 60);</span><br><span style=\"font-family:Courier New\">$sheet-&gt;setCellValue('I1', 0.05);</span><br><span style=\"font-family:Courier New\">$sheet-&gt;setCellValue('K' . $row, '=IF(I' . $row . '&gt;0.01, (100-I' . $row. ')*G' . $row . '%, J' . $row . '*H' . $row . ')');</span><br><br><span style=\"font-family:Courier New\">$writer = PHPExcel_IOFactory::createWriter($excel, 'Excel2007');</span><br><span style=\"font-family:Courier New\">$writer-&gt;save('write.xlsx');</span><br><span style=\"font-family:Courier New\">?&gt;</span><br><br><a href=\"http://img197.imageshack.us/img197/6693/writel.png\"><img src=\"http://img197.imageshack.us/img197/6693/writel.th.png\" border=0 alt=\"\"></a></p>",
+    "PostedDate": "2009-06-15T16:09:12.403-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "201984",
+    "ThreadId": "59084",
+    "Html": "<p>Hi,</p>\r\n<p>Looks like it was the Excel5 writer causing the problem, the following code works with Excel2007;</p>\r\n<p>&nbsp;&nbsp;&nbsp; $row = 2;<br>&nbsp;&nbsp;&nbsp; while ($data = mssql_fetch_row($result)) {<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $col = 0;<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; foreach ($data as $key =&gt; $value) {<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $sheet-&gt;setCellValueByColumnAndRow($col, $row, $value);<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $col++;<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $sheet-&gt;setCellValue('K' . $row, '=IF(I' . $row . '&gt;0.01, (100-I' . $row. ')*G' . $row . '%, J' . $row . '*H' . $row . ')');<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $row++;<br>&nbsp;&nbsp;&nbsp; }</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks for your help.</p>",
+    "PostedDate": "2009-06-16T05:03:36.813-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "202000",
+    "ThreadId": "59084",
+    "Html": "<p>Excel5 writer does unfortunately not support % in formulas. Use this workaround instead:<br> <span style=\"font-family:Courier New\"><br> &lt;?php</span><br> <span style=\"font-family:Courier New\">$excel = new PHPExcel();</span><br> <span style=\"font-family:Courier New\">$sheet = $excel-&gt;getActiveSheet();</span><br> <br> <span style=\"font-family:Courier New\">$row = 1;</span><br> <br> <span style=\"font-family:Courier New\">$sheet-&gt;setCellValue('G1', 60);</span><br> <span style=\"font-family:Courier New\">$sheet-&gt;setCellValue('I1', 0.05);</span><br> <span style=\"font-family:Courier New\">$sheet-&gt;setCellValue('K' . $row, '=IF(I' . $row . '&gt;0.01, (100-I' . $row. ')*G' . $row . '<span style=\"color:#111111;font-family:Courier New;background-color:#ffff00\">/100</span>, J' . $row . '*H' . $row . ')');</span><br> <br> <span style=\"font-family:Courier New;color:#111111\">$writer = PHPExcel_IOFactory::createWriter($excel, 'Excel5');</span><br> <span style=\"font-family:Courier New\">$writer-&gt;save('write.xls');</span><br> <span style=\"font-family:Courier New\">?&gt;</span></p>\r\n<p><span style=\"font-family:Courier New\"><br></span></p>",
+    "PostedDate": "2009-06-16T05:39:41.473-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "202335",
+    "ThreadId": "59084",
+    "Html": "<p>Thanks koyama,</p>\r\n<p>without starting a new thread, is it easy to set a columns data type to &quot;text&quot;?</p>\r\n<p>In this work sheet i have some numbers with leading 0's and these get trimmed when using the general or default cell data type.</p>\r\n<p>I have attempted;</p>\r\n<p>&nbsp;&nbsp;&nbsp; $styleArray = array (<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; 'code' =&gt; PHPExcel_Cell_DataType::TYPE_STRING<br>&nbsp;&nbsp;&nbsp; );<br>&nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp; $range1 = 'B2:B' .$row;<br>&nbsp;&nbsp;&nbsp; $sheet-&gt;getStyle($range1)-&gt;applyFromArray($styleArray);</p>\r\n<p>but this does not work.</p>",
+    "PostedDate": "2009-06-17T00:33:54.13-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "202437",
+    "ThreadId": "59084",
+    "Html": "<p>You have a couple of choices. I think the best method is to preserve numbers as numbers (column A in example). But you can also store as text (column B).<br><br>Using latest source code (allowing range syntax in <span style=\"font-family:Courier New\">getStyle()</span> ):<br><br><span style=\"font-family:Courier New\">$sheet-&gt;getCell('A1')-&gt;setValue(12);</span><br><span style=\"font-family:Courier New\">$sheet-&gt;getCell('A2')-&gt;setValue(324);</span><br><span style=\"font-family:Courier New\">$sheet-&gt;getCell('A3')-&gt;setValue(4);</span><br><span style=\"font-family:Courier New\">$sheet-&gt;getStyle('A1:A3')-&gt;getNumberFormat()-&gt;setFormatCode('00000');</span><br><br><span style=\"font-family:Courier New\">$sheet-&gt;getCell('B1')-&gt;setValueExplicit('00012', PHPExcel_Cell_DataType::TYPE_STRING);</span><br><span style=\"font-family:Courier New\">$sheet-&gt;getCell('B2')-&gt;setValueExplicit('00324', PHPExcel_Cell_DataType::TYPE_STRING);</span><br><span style=\"font-family:Courier New\">$sheet-&gt;getCell('B3')-&gt;setValueExplicit('00004', PHPExcel_Cell_DataType::TYPE_STRING);</span><br><br><br> <a href=\"http://img190.imageshack.us/img190/3703/zeroy.png\"><img src=\"http://img190.imageshack.us/img190/3703/zeroy.th.png\" border=0 alt=\"\"></a> <br><br>You can unfortunately not yet set the style for a whole column in PHPExcel. There is a feature request for this:<br><a href=\"../WorkItem/View.aspx?WorkItemId=7333\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=7333</a><br><br>For now, expand the cell range in <span style=\"font-family:Courier New\">getStyle('A1:A100')</span> to the necessary row index.</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-06-17T05:03:06.58-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "202452",
+    "ThreadId": "59084",
+    "Html": "<p>Thanks,</p>\r\n<p>I worked it out and used option B as this seemed easier using the code below;</p>\r\n<p>&nbsp;&nbsp;&nbsp; while ($data = mssql_fetch_row($result)) {<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $col = 0;<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; foreach ($data as $key =&gt; $value) {<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; if ($key == 1 OR $key == 3) {<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $sheet-&gt;setCellValueExplicitByColumnAndRow($col, $row, $value, PHPExcel_Cell_DataType::TYPE_STRING);<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; } else {&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $sheet-&gt;setCellValueByColumnAndRow($col, $row, $value);<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $col++;<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $row++;<br>&nbsp;&nbsp;&nbsp; }</p>",
+    "PostedDate": "2009-06-17T05:30:37.323-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

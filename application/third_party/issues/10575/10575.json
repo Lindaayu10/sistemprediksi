@@ -1,0 +1,116 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel_Reader_Excel5",
+      "DisplayName": "PHPExcel_Reader_Excel5"
+    },
+    "ClosedComment": "",
+    "ClosedDate": "2009-09-15T10:12:38.24-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I'm having problems reading formulas in the attached XLS file.\nHere is my PHP code:\n \n/** PHPExcel */\nrequire_once 'Classes/PHPExcel.php';\n \n/** PHPExcel_IOFactory */\nrequire_once 'Classes/PHPExcel/IOFactory.php';\n \ndefine('SHEET_ROW_START', 7);\ndefine('SHEET_ROW_END', 31);\ndefine('SHEET_COL_START', 4);\ndefine('SHEET_COL_END', 18);\n \n$objPHPExcel = PHPExcel_IOFactory::load('table.xls');\n$objPHPExcel->setActiveSheetIndex(0);\n$objWorksheet = $objPHPExcel->getActiveSheet();\n \nfor ($nRow=SHEET_ROW_START+1; $nRow<=SHEET_ROW_END+1; $nRow++) {\n\tfor ($nCol=SHEET_COL_START; $nCol<=SHEET_COL_END; $nCol++) {\n\t\t$objCell = $objWorksheet->getCellByColumnAndRow($nCol,$nRow);\n\t\tif ($objCell->getDataType()=='f') {\t//If contains formulas\n\t\t\tprint ($objCell->getValue().\"<br>\");\n\t\t}\n\t}\n}\n \n \nInstead obtaining all formulas listend in E column i get only the first.\nMy output is:\n=E8+F8\n=\n=\n=\n=\n=\n \nCan someone help me?",
+    "LastUpdatedDate": "2013-05-16T05:42:26.163-07:00",
+    "PlannedForRelease": "PHPExcel 1.7.1 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-09-03T06:52:34.473-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Problem reading formulas (Excel5 reader problem with \"fake\" shared formulas)",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 10575
+  },
+  "FileAttachments": [
+    {
+      "FileId": 3342,
+      "FileName": "table.xls",
+      "DownloadUrl": ".\\3342"
+    },
+    {
+      "FileId": 3343,
+      "FileName": "table1.xls",
+      "DownloadUrl": ".\\3343"
+    },
+    {
+      "FileId": 3344,
+      "FileName": "wi-10575.patch",
+      "DownloadUrl": ".\\3344"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "With error logging, this returns a series of:\r\nNotice: Undefined index: BTRQ9 in C:\\xampp\\htdocs\\parser\\PHPExcel_NewCalc\\Classes\\PHPExcel\\Reader\\Excel5.php on line 829\r\nNotice: Undefined index: BTRQ10 in C:\\xampp\\htdocs\\parser\\PHPExcel_NewCalc\\Classes\\PHPExcel\\Reader\\Excel5.php on line 829\r\nNotice: Undefined index: BTRQ11 in C:\\xampp\\htdocs\\parser\\PHPExcel_NewCalc\\Classes\\PHPExcel\\Reader\\Excel5.php on line 829\r\nNotice: Undefined index: BTRQ12 in C:\\xampp\\htdocs\\parser\\PHPExcel_NewCalc\\Classes\\PHPExcel\\Reader\\Excel5.php on line 829\r\nNotice: Undefined index: BTRQ13 in C:\\xampp\\htdocs\\parser\\PHPExcel_NewCalc\\Classes\\PHPExcel\\Reader\\Excel5.php on line 829\r\n\r\nIf I load the workbook in MS Excel 2003 and save (table1.xls), then the formulae read correctly. Do you think that this is a BIFF5 issue Erik?\r\n",
+      "PostedDate": "2009-09-03T08:18:00.97-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-09-03T08:18:03.5-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "PS. I think we should probably add an isFormula method, rather than simply testing for getDataType()=='f'\r\nI'll do that",
+      "PostedDate": "2009-09-03T08:19:13.2-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-09-03T08:19:36.58-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-09-03T08:19:38.343-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Yes, Mark, this was an issue with Excel5 reader. The \"documentation\" was unclear at this point to put it mildly. \r\n\r\nEven when a formula is flagged as \"shared\" in the FORMULA record, this can apparently not be trusted. I updated PHPExcel_Reader_Excel5 reader to make an explicit check instead of trusting the flag. This solves the problem.",
+      "PostedDate": "2009-09-03T08:22:56.93-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-09-03T08:23:40.35-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": ">> I think we should probably add an isFormula method, rather than simply\r\n>> testing for getDataType()=='f' I'll do that\r\n\r\nI agree with you on this. Perhaps we should call it $objCell->hasFormula() since we already have methods like hasHyperlink() etc?",
+      "PostedDate": "2009-09-03T09:55:39.853-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Tankyou very much guys!\r\nIt works great.",
+      "PostedDate": "2009-09-04T01:41:30.707-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-09-15T10:12:38.24-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:03:41.203-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:26.163-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "PHPExcel has the ability to open different kinds of Excel-formats. But how can you check which reader is used to read the file? I have opened a file with the functions setReadDataOnly and setLoadSheetsOnly, but this will not work always, because these functions are not present for all readers.\nIs it possible to create dummy functions in reader/csv.php? I can only use these functions if I know if they are defined for the kind of file that was uploaded by the customer.\n \nThe zip contains: reader/csv.php",
+    "LastUpdatedDate": "2013-02-21T19:02:03.427-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2012-02-05T11:26:01.453-08:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Why are there different interfaces for different Excel-formats.",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 17354
+  },
+  "FileAttachments": [
+    {
+      "FileId": 6197,
+      "FileName": "CSV_addeddummyfunctions.zip",
+      "DownloadUrl": ".\\6197"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "What I do is just check the file extension so that I only call those functions per reader which exist, as each reader directly correlates to a unique extension (Excel5 = .xls, etc.).\r\n\r\nIt's very rare if I get an upload where the extension and format combo is not correct, and it is a public app used by non-tech clients.",
+      "PostedDate": "2012-02-10T11:59:38.437-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "The IOFactory has a public identify() method that can be used to determine which reader will be used to load() the file. It does a bit more than testing the extension, actually checking for recognisable data within the file, so it will correctly recognise an xlsx file with a .xls extension as Excel2007, etc.\r\n\r\nI'd rather use that then provide \"dummy\" functions in all readers, even where they're not relevant: a setLoadSheetsOnly() method is unnecessary for CSV of SYLK files that can only ever have one sheet, and will lead to more questions of \"why is it there when it does nothing\" in the future",
+      "PostedDate": "2012-02-11T03:14:48.583-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Sorry, I think you misunderstood my message, the calls are done in my own program, not in phpexcel.\r\nI am  using in my own program \r\n$objReader = PHPExcel_IOFactory::createReaderForFile($fn);\r\nto create the reader and then \r\n$objReader->setReadDataOnly(true);\r\n$objPHPExcel = $objReader->load($fn);\r\n$objWorksheet = $objPHPExcel->getSheet(0);\r\nto start to read only the first sheet of the excel-file. I thought that using setReadDataOnly is safer and maybe faster. The call is done in own code. Is it possible to see after the createReader, which reader will be used? Or if the function setReadDataOnly is defined for that reader?\r\n\r\nI am trying to use different excel-files from different users and I think phpexcel works very good but sometimes there can be problems with wrong extensions, but that is not a problem for phpexcel.\r\nI have a working program, but for some inputfiles I get warnings for trying to use undefined methodes. In my attachment i have made dummy methods.",
+      "PostedDate": "2012-02-11T03:19:38.747-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Thank you for your quick response. I didn't know the identify-method, but it returns the Reader that will be used.\r\nI have files with filenames as: adressen_CSV.xls and adressen_CSV.xlsx, the extensions in IOFactory are xls and xlsx.\r\nThe first file is selected for the Excel5 reader, but the canRead check failes and finally i get the CSV_reader. The file is one Excel-file and can be opened with Calc. I think it is one file created with Excel5 and updated and saved in Calc as Excel5, maybe that has made the file corrupt. I have no problems with other files so  created/updated.  I will use the identfy method.",
+      "PostedDate": "2012-02-12T02:29:59.84-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:02:03.427-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

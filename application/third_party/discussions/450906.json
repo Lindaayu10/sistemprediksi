@@ -1,0 +1,66 @@
+[
+  {
+    "Id": "1071712",
+    "ThreadId": "450906",
+    "Html": "Hello,\r<br />\n<br />\nI am trying to create an excel file containing some reports and i have a column called &quot;Image Thumbs&quot; for our picture check-ins. I need to add those images in each cell in order to be anchored  and be fixed on cell when applying some filters or sorting etc.\r<br />\n<br />\nThe main problem is that for PHPExcel_Worksheet_Drawing i got an error when trying to setPath for my images.\r<br />\n<br />\nIs there a way to add images on excel from url ? Our images are on amazon s3 bucket.<br />\n",
+    "PostedDate": "2013-07-23T04:16:52.243-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1071732",
+    "ThreadId": "450906",
+    "Html": "You need a filesystem file, not a URL. <br />\n",
+    "PostedDate": "2013-07-23T04:50:56.717-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1071781",
+    "ThreadId": "450906",
+    "Html": "This cannot be done via URL ? Only from filesystem images ? \r<br />\n<br />\nEitherway, is there a way in PHPExcel to anchor a photo to cell ? If i apply some filters and sortings on table, also images to move with rows.<br />\n",
+    "PostedDate": "2013-07-23T06:34:55.437-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1071825",
+    "ThreadId": "450906",
+    "Html": "Images in Excel are overlaid on the worksheet: either linked over a single (top-left) cell, with a height and width; or to two cells (top-left and bottom-right). In most cases with PHPExcel, we use the single anchor method<br />\n<div style=\"color:Black;background-color:White;\"><pre>\r\n$objDrawing = <span style=\"color:Blue;\">new</span> PHPExcel_Worksheet_Drawing();\n$objDrawing-&gt;setName(<span style=\"color:#A31515;\">&#39;PHPExcel logo&#39;</span>);\n$objDrawing-&gt;setDescription(<span style=\"color:#A31515;\">&#39;PHPExcel logo&#39;</span>);\n$objDrawing-&gt;setPath(<span style=\"color:#A31515;\">&#39;./images/phpexcel_logo.gif&#39;</span>);       <span style=\"color:Green;\">// filesystem reference for the image file</span>\n$objDrawing-&gt;setHeight(36);                 <span style=\"color:Green;\">// sets the image height to 36px (overriding the actual image height); </span>\n$objDrawing-&gt;setCoordinates(<span style=\"color:#A31515;\">&#39;D24&#39;</span>);    <span style=\"color:Green;\">// pins the top-left corner of the image to cell D24</span>\n$objDrawing-&gt;setOffsetX(10);                <span style=\"color:Green;\">// pins the top left corner of the image at an offset of 10 points horizontally to the right of the top-left corner of the cell</span>\n$objDrawing-&gt;setWorksheet($objPHPExcel-&gt;getActiveSheet());\r\n</pre></div>",
+    "PostedDate": "2013-07-23T08:37:15.24-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1072146",
+    "ThreadId": "450906",
+    "Html": "MarkBaker,\r<br />\n<br />\nThanks a lot for your response. This work well and it fits to cell after i set rowHeight and ColumnWidth dimensions.\r<br />\n<br />\nOne small problem i have with images that are too long, let's say 50w and 500h or 50h and 500w. It works if i set height at 50 and on images that have a long width it still get out of cell borders. It won't work if i add setHeight and setWidth both togheter.\r<br />\n<br />\nKind Regards,\r<br />\n<br />\nAndrei Kun<br />\n",
+    "PostedDate": "2013-07-24T01:25:44.073-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1102942",
+    "ThreadId": "450906",
+    "Html": "Hi,\r<br />\n<br />\nCould you help me?\r<br />\nI want to use a path which is in a variable $image, the problem is that it is not working, it works just when I type the path manually.\r<br />\nthis is my script, I hope one of you can help me.<br />\n<pre><code>$i=1\nwhile($fields = mysql_fetch_array($query)){\n    $image = $fields['bar_code'];\n    $objPHPExcel-&gt;getActiveSheet()-&gt;getRowDimension($i+1)-&gt;setRowHeight(52);\n    $objDrawing = new PHPExcel_Worksheet_Drawing();\n    $objDrawing-&gt;setName('Name');\n    $objDrawing-&gt;setDescription('Summary');\n    $objDrawing-&gt;setPath(&quot;../../img/&quot;.$img.&quot;_ch.png&quot;);\n    $objDrawing-&gt;setHeight(70);\n    $objDrawing-&gt;setCoordinates('B'.strval($i+1));\n    $objDrawing-&gt;setWorksheet($objPHPExcel-&gt;getActiveSheet());\n    $i++;\n}</code></pre>\n\n",
+    "PostedDate": "2013-10-02T14:30:56.567-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1103129",
+    "ThreadId": "450906",
+    "Html": "Do you have a 'File xxxx not found!' exception when you use a variable?\r<br />\nIf Yes, check the path, use realpath() to solve the '..' and recheck.<br />\n",
+    "PostedDate": "2013-10-03T04:23:53.483-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1103870",
+    "ThreadId": "450906",
+    "Html": "Hi, thanks,\r<br />\nThe issue was that there were some files wich didn´t exists and what I did was to use if(file_exist()) as follows:<br />\n<pre><code>    $i=1;\n    if(file_exists($imagen[$i])){\n        $objPHPExcel-&gt;getActiveSheet()-&gt;getRowDimension($i+1)-&gt;setRowHeight(52);\n        $objDrawing = new PHPExcel_Worksheet_Drawing();\n        $objDrawing-&gt;setName('Nombre');\n        $objDrawing-&gt;setDescription('Reporte de Pedidos');\n        $objDrawing-&gt;setPath($imagen[$i]);\n        $objDrawing-&gt;setHeight(70);\n        $objDrawing-&gt;setCoordinates('B'.strval($i+1));\n        $objDrawing-&gt;setWorksheet($objPHPExcel-&gt;getActiveSheet());\n        $i++;\n    }</code></pre>\n\n",
+    "PostedDate": "2013-10-04T16:35:22.037-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

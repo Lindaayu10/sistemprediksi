@@ -1,0 +1,74 @@
+[
+  {
+    "Id": "107693",
+    "ThreadId": "32462",
+    "Html": "Hello, my site where i use the PHPExcel library is in windows-1251.<br>\r\nSo when i`m entering values, i iconv() them from windows-1251 to utf-8 and they are displayed correctly.<br>\r\nBut when i try to read the file back and make some changes..all the characters form the cyrilic alphabet are missing...and the cells containing them are empty.<br>\r\n<br>\r\nSo is there any possibility to change the incoming encoding or something...I`m really confused<br>\r\n",
+    "PostedDate": "2008-07-29T05:26:47.673-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "107697",
+    "ThreadId": "32462",
+    "Html": "Is this happening with Excel 2007? Can you provide a link to some sample output showing the problem? Also, is would be helpful to see some of your code snippets.<br>\r\n",
+    "PostedDate": "2008-07-29T05:53:08.003-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "107699",
+    "ThreadId": "32462",
+    "Html": "Hello,<br>\r\nits for Excel5<br>\r\nso i`m adding values like this:<br>\r\n$objPHPExcel-&gt;setActiveSheetIndex(1);<br>\r\n<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('A3', iconv(&quot;windows-1251&quot;,&quot;utf-8&quot;, &quot;Код на ИМП&quot;));<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('B3', iconv(&quot;windows-1251&quot;,&quot;utf-8&quot;, &quot;Регистрационен номер на ЛЗ&quot;));<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('C3', iconv(&quot;windows-1251&quot;,&quot;utf-8&quot;, &quot;Булстат&quot;));<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('D3', iconv(&quot;windows-1251&quot;,&quot;utf-8&quot;, &quot;Наименование на ЛЗ&quot;));<br>\r\n<br>\r\nthen i save them, then i read them like this :<br>\r\n<br>\r\nif (file_exists(&quot;/var/www/html/xls_files/$filename.xls&quot;)) {<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $objReader = PHPExcel_IOFactory::createReader('Excel5');<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $objPHPExcel = $objReader-&gt;load(&quot;/var/www/html/xls_files/$filename.xls&quot;);<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;setActiveSheetIndex(1);<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; print $objPHPExcel-&gt;getActiveSheet()-&gt;getCell(&quot;A3&quot;)-&gt;getValue();<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; print $objPHPExcel-&gt;getActiveSheet()-&gt;getCell(&quot;B3&quot;)-&gt;getValue();<br>\r\n&nbsp;&nbsp;&nbsp; }<br>\r\n<br>\r\nWhen the values are simple english alphabet text, there is no problem...the print shows the data correctly...but when there`re cyrilic chars, they are not displayed<br>\r\nAlso when the text is like 'Text Text &quot;cyrilic chars here&quot; Text2 Text2&quot;, when i read it...it shows Text Text Text2 Text2<br>\r\n<br>\r\n10x in advance if anyone comes up with any solution :)<br>\r\n",
+    "PostedDate": "2008-07-29T06:00:08.603-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "107735",
+    "ThreadId": "32462",
+    "Html": "Yeah, there seems to be a problem with the Excel5 reader and non-ascii characters. It seems that there was no solution to a similar problem with Japanese characters:<br>\r\n<br>\r\n<a href=\"http://www.codeplex.com/PHPExcel/Thread/View.aspx?ThreadId=29270\">http://www.codeplex.com/PHPExcel/Thread/View.aspx?ThreadId=29270</a><br>\r\n<br>\r\nSo unless someone fixes the Excel5 reader then there may not be much hope.<br>\r\n",
+    "PostedDate": "2008-07-29T08:57:28.017-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "107885",
+    "ThreadId": "32462",
+    "Html": "Use Excel2007 Reader and Writer every time when possible. Looks like Excel5 never be the same functional as Ex2007.<br>\r\n",
+    "PostedDate": "2008-07-29T23:03:23.803-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "108218",
+    "ThreadId": "32462",
+    "Html": "Yeah, it seems that i`ll have to switch to the 2007 reader/writer.<br>\r\n<br>\r\n",
+    "PostedDate": "2008-07-31T05:33:17.69-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "108399",
+    "ThreadId": "32462",
+    "Html": "Ok, I tried to investigate the issue. Please try to locate in PHPExcel/Reader/Excel5.php the following line and change it from this<br>\r\n<br>\r\n<code>$this-&gt;_defaultEncoding = 'ISO-8859-1';</code><br>\r\n<br>\r\nto this<br>\r\n<br>\r\n<code>$this-&gt;_defaultEncoding = 'UTF-8';</code><br>\r\n<br>\r\nI am suspecting that this is a bug in the Excel5 reader. The PHPExcel object expects UTF-8 and not ISO-8859-1.<br>\r\n<br>\r\n<br>\r\n<br>\r\n",
+    "PostedDate": "2008-07-31T20:25:17.687-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "108408",
+    "ThreadId": "32462",
+    "Html": "Encoding is a big trouble when I try to extend PHPExcel.&nbsp; Does it optional? Can I set Encoding at once (like <code>$this-&gt;_defaultEncoding = 'UTF-8'</code>)&nbsp; for all times instead of using iconv(1251 to UTF-8) every time?\r\n",
+    "PostedDate": "2008-07-31T21:26:12.96-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "111691",
+    "ThreadId": "32462",
+    "Html": "Update: Please note that the issue has been fixed in the latest source code.<br>\r\n",
+    "PostedDate": "2008-08-17T20:16:58.8-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

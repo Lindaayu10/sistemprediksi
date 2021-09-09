@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "200977",
+    "ThreadId": "59365",
+    "Html": "<p>Hi all and thank you for this great stuff.</p>\r\n<p>I tried to find solution to my problem, but I was not succesful. I want to write formula into Excel cell and I want to set this cell to be locale dependent date number format. Because this .xls file will be downloaded by people from USA, Europe, etc. and date should be presented in this cell relative to their locale settings, for example 06/11/2009 in the USA, 11.6.2009 in the Czech republic, etc. Is it possible somehow? Or is there any other solution? Thank you very much for your help...</p>",
+    "PostedDate": "2009-06-12T13:12:29.21-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "201061",
+    "ThreadId": "59365",
+    "Html": "<p>It should be possible starting with PHPExcel 1.6.7. Example:<br> <br> <span style=\"font-family:Courier New\">$excel = new PHPExcel();</span><br style=\"font-family:Courier New\"> <span style=\"font-family:Courier New\">$sheet = $excel-&gt;getActiveSheet();</span><br style=\"font-family:Courier New\"> <br style=\"font-family:Courier New\"> <span style=\"font-family:Courier New\">$time = gmmktime(0, 0, 0, 12, 31, 2008); // int(1230681600)</span><br style=\"font-family:Courier New\"> <span style=\"font-family:Courier New\">$sheet-&gt;getCell('A1')-&gt;setValue(PHPExcel_Shared_Date::PHPToExcel($time));</span><br style=\"font-family:Courier New\"> <span style=\"font-family:Courier New\">$sheet-&gt;getStyle('A1')-&gt;getNumberFormat()-&gt;</span><span style=\"background-color:#ffff00;font-family:Courier New\">setBuiltInFormatCode(14)</span><span style=\"font-family:Courier New\">;</span><br style=\"font-family:Courier New\"> <br style=\"font-family:Courier New\"> <span style=\"font-family:Courier New\">$sheet-&gt;getColumnDimension('A')-&gt;setWidth(30);</span><br style=\"font-family:Courier New\"> <br style=\"font-family:Courier New\"> <span style=\"font-family:Courier New\">$writer = PHPExcel_IOFactory::createWriter($excel, 'Excel2007');</span><br style=\"font-family:Courier New\"> <span style=\"font-family:Courier New\">$writer-&gt;save('write.xlsx');</span><br> <br> Let's check the result. In Windows XP, going to <span style=\"font-family:Courier New\">Control Panel &gt; Regional and Language Options</span>, with English (United States) locale.<br> <br> Date shows as 12/31/2008<br> <a href=\"http://img190.imageshack.us/img190/9807/localeenus.png\">http://img190.imageshack.us/img190/9807/localeenus.png</a><br> <a href=\"http://img190.imageshack.us/img190/4253/writeenus.png\">http://img190.imageshack.us/img190/4253/writeenus.png</a><br> <br> Changing the locale to Danish and re-opening the file<br> <br> Date shows as 31-12-2008<br> <a href=\"http://img23.imageshack.us/img23/1797/localeda.png\">http://img23.imageshack.us/img23/1797/localeda.png</a><br> <a href=\"http://img23.imageshack.us/img23/3826/writeda.png\">http://img23.imageshack.us/img23/3826/writeda.png</a><br></p>\r\n<p>For this built-in number format, date shows up differently, according to system locale.</p>\r\n<p>Built-in format code <span style=\"background-color:#ffff00;font-family:Courier New\">14</span> is a locale dependent date number format. There is also built-in format code <span style=\"background-color:#ffff00;font-family:Courier New\">22</span> which is also locale dependent, but it also has a time component.</p>",
+    "PostedDate": "2009-06-12T19:25:24.493-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "201516",
+    "ThreadId": "59365",
+    "Html": "<p>Great, it works. Thank you very much.</p>\r\n<p>But I encounter another problem:<br>I also insert formula into one cell and I need to be number. This formula is DDE connection to another application. But coming number is not number even if I tried following code:<span style=\"color:#808080;font-size:x-small\"><span style=\"color:#808080;font-size:x-small\">\r\n<pre>$objPHPExcel-&gt;getActiveSheet()-&gt;getCell('F'.$radek)-&gt;setValueExplicit('25', PHPExcel_Cell_DataType::TYPE_NUMERIC);\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('F'.$radek)-&gt;getNumberFormat()-&gt;setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_NUMBER);</pre>\r\n</span></span></p>\r\n<p>Maybe the problem is in zeroes between thousands, but I am no sure. Is it possible to handle it somehow?</p>\r\n<p><a href=\"http://img7.imageshack.us/img7/931/volumeproblem.jpg\">http://img7.imageshack.us/img7/931/volumeproblem.jpg</a></p>\r\n<p>Thank you for your help...</p>",
+    "PostedDate": "2009-06-15T03:16:38.993-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "201766",
+    "ThreadId": "59365",
+    "Html": "<p>This look strange. I don't know why the number in that cell is left aligned unless the horizontal alignment has accidentally been set to 'left'. Can you send me the Excel file? (erik at phpexcel dot net)</p>",
+    "PostedDate": "2009-06-15T14:48:08.163-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

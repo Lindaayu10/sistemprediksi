@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "1216004",
+    "ThreadId": "535867",
+    "Html": "<strong>- This doesn't work for me</strong> (documentation say it should). I want to apply style to all columns in specified row/col<br />\n<pre><code>-&gt;getActiveSheet()-&gt;getStyle('A')\n-&gt;getActiveSheet()-&gt;getStyle('B:B')\n-&gt;getActiveSheet()-&gt;getStyle('1')</code></pre>\n\nI have to solve it like this:<br />\n<pre><code>$x = \\PHPExcel_Cell::stringFromColumnIndex(33);\n$headers = $report-&gt;getActiveSheet()-&gt;getStyle(&quot;A1:{$x}1&quot;);</code></pre>\n\n<strong>- Is there way to set width to many columns without using loop?</strong> Something like this:<br />\n<pre><code>$objPHPExcel-&gt;getActiveSheet()-&gt;getColumnDimension('A:F')-&gt;setWidth(12);</code></pre>\n\n<strong>- Is there option to use integers instead of letters to identify columns?</strong>\r<br />\nManual translating numbers to letters is kinda code consuming.<br />\n<pre><code>$objPHPExcel-&gt;getActiveSheet()-&gt;getColumnDimension(9)-&gt;setWidth(12);</code></pre>\n\nThx for any support!<br />\n",
+    "PostedDate": "2014-02-28T01:24:34.877-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1216020",
+    "ThreadId": "535867",
+    "Html": "Can you point me to where in the documentation it says that you can apply styles to a row or a column, because the documentation is wrong, and row/column styles have never been supported by any version of PHPExcel to date<br />\n",
+    "PostedDate": "2014-02-28T01:59:03.03-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1216052",
+    "ThreadId": "535867",
+    "Html": "Documentation just say that it apply cell range. I didn't dig deeper but Worksheet::getStyle() use Worksheet::setSelectedCells();\r<br />\n<strong>Worksheet::setSelectedCells() results for getStyle($x):</strong><br />\n<pre><code>$x = 'A1'; -&gt; A1 (works)\n$x = 'A1:B2'; -&gt; A1:B2 (works)\n$x = 'A1:B2'; -&gt; A1:A900 (works)\n$x = 'A'; -&gt; A1:A1048576 (don't)\n$x = '1' -&gt; A1:XFD1 (don't)</code></pre>\n\nMethod is selecting proper columns so I don't understand why A1:A900 is correct but A1:A1048576 is not. I wouldn't write here if I wouldn't found such functionality in code.\r<br />\n<br />\nWhat about other questions?\r<br />\n<br />\nBig thanx for help!<br />\n",
+    "PostedDate": "2014-02-28T02:59:39.107-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1228600",
+    "ThreadId": "535867",
+    "Html": "I'm having exactly same problem.\r<br />\nWhy is getActiveSheet()-&gt;getStyle('A') not working as expected ?\r<br />\nLike Jifer already said, there's some code in PHPExcel_Worksheet::setSelectedCells() to convert coordinate 'A' into 'A1:A1048576'.\r<br />\nIf it's not supported by PHPExcel, why adding such (wrong) code ? Just to avoid throwing errors when coordinates are invalid ?\r<br />\n<br />\nThanx for help.<br />\n",
+    "PostedDate": "2014-03-31T06:57:04.633-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1228787",
+    "ThreadId": "535867",
+    "Html": "There is built in function to convert integers to cols (don't have code now, so I will not paste it here). It is quite easy to know how many row/cols you want to select. So I convert it to XX:88 using built in function and then I select style (or other stuff). Easy workaround.\r<br />\n<br />\nAlso what I would notice is that above code actually works, but not as we expect. Lets say you have 10 rows. You will set style to 1000 rows. Now we have some fun, because when you open your xslx file it will have all 1000 lines visible, not 10. It will be also x times heavier. So making A1:XFD1 (A) is just impossible because of memory consumption to handle this.\r<br />\nThere should be something like getStyle('A', TRUE) which would get all used A:? fields (TRUE flag for &quot;get available&quot;).<br />\n",
+    "PostedDate": "2014-03-31T14:42:47.09-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

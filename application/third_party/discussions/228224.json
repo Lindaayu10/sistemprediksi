@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "497219",
+    "ThreadId": "228224",
+    "Html": "<p>Before I get into my issue I wanted to say thank you so much for your library, it's made my job so much easier!</p>\r\n<p>On to my issue, thanks to this library I'm able to create stylesheets with pretty colors and sparklies and all other nice things that help my users do their work. At first I was using the -&gt;getActiveSheet()-&gt;setCellValue(&quot;H&quot;.$count, $value); method to add data, but I was finding that was becoming quite cumbersome when adding a new column.</p>\r\n<p>Recently, I found out about -&gt;getActiveSheet()-&gt;fromArray(array($data), NULL, &quot;A&quot;.$count); to insert data now and it's made it even easier. The only issue that I have now is I'm having trouble figuring out how (if it's even possible) to apply overall column styles and soforth in a more dynamic manner? Currently, I've been using -&gt;getActiveSheet()-&gt;getColumnDimension(&quot;A&quot;)-&gt;setAutoSize(true); to set autosize &amp; visible and getActiveSheet()-&gt;getStyle(&quot;D2:D&quot;.$count)-&gt;to set number formatting and soforth. When adding a new column in the array for fromArray() it's almost too easy to add a new line and forget to add/shift any new style information that's already been programmed.</p>\r\n<p>So, to cut a tl;dr short, is it possible to pass a full array including value, style information, autosize setting, visibility, number formatting, etc in one fell swoop with fromArray and I'm just overlooking that functionality, or am I resigned to my current method?</p>\r\n<p>Thank you very much!</p>\r\n<p>EDIT: Forgot to mention I'm using 1.7.2 currently</p>",
+    "PostedDate": "2010-09-22T14:09:56.043-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "497254",
+    "ThreadId": "228224",
+    "Html": "<p>Take a look at the applyFromArray() method for setting styles:</p>\r\n<div>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>$styleArray = <span style=\"color:blue\">array</span>(\r\n       <span style=\"color:#a31515\">'borders'</span> =&gt; <span style=\"color:blue\">array</span>(\r\n              <span style=\"color:#a31515\">'outline'</span> =&gt; <span style=\"color:blue\">array</span>(\r\n                     <span style=\"color:#a31515\">'style'</span> =&gt; PHPExcel_Style_Border::BORDER_THICK,\r\n                     <span style=\"color:#a31515\">'color'</span> =&gt; <span style=\"color:blue\">array</span>(<span style=\"color:#a31515\">'argb'</span> =&gt; <span style=\"color:#a31515\">'FFFF0000'</span>),\r\n              ),\r\n       ),\r\n);\r\n$objWorksheet-&gt;getStyle(<span style=\"color:#a31515\">'B2:G8'</span>)-&gt;applyFromArray($styleArray);\r\n</pre>\r\n</div>\r\n<p><span style=\"font-size:10pt\" lang=NL>which can be used to apply a whole series of style features (font, cell colour/pattern, alignment, numbert format, etc. to a range of cells in one step. Appendix A of the developer documentation shows all the style features that can be set from an array.</span></p>\r\n<p><span style=\"font-size:10pt\" lang=NL>Cell value, however, always has to be set separately to style.</span></p>\r\n<p><span style=\"font-size:10pt\" lang=NL>&nbsp;</span></p>\r\n</div>",
+    "PostedDate": "2010-09-22T15:07:27.313-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

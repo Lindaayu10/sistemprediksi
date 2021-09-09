@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "610525",
+    "ThreadId": "257118",
+    "Html": "\r\n<p>Hey guys,</p>\r\n<p>Firstly I'd like to thank the&nbsp;developers&nbsp;for working on this wonderful PHP library. &nbsp;It saves me so much headache in having to&nbsp;fall back&nbsp;onto a perl alternative.</p>\r\n<p>&nbsp;</p>\r\n<p>I'm having trouble turning one XLS file with 4 worksheets into 4 individual CSV files.</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>&lt;?php\r\n<span style=\"color:green\">/** SCRIPT SETTINGS */</span>\r\nerror_reporting(E_ALL);\r\n\r\n<span style=\"color:green\">/** PHPExcel_IOFactory */</span>\r\n<span style=\"color:blue\">require_once</span> <span style=\"color:#a31515\">'../Classes/PHPExcel.php'</span>;\r\n<span style=\"color:blue\">require_once</span> <span style=\"color:#a31515\">'../Classes/PHPExcel/IOFactory.php'</span>;\r\n\r\n$objReader = PHPExcel_IOFactory::load(<span style=\"color:#a31515\">'FILE.xls'</span>);\r\n$objReader-&gt;setLoadSheetsOnly(<span style=\"color:#a31515\">'Sheet1'</span>);\r\n\r\n$writer = PHPExcel_IOFactory::createWriter($objReader);\r\n$writer-&gt;save(<span style=\"color:#a31515\">'sheet1.csv'</span>);\r\n\r\n$objReader-&gt;disconnectWorksheets();\r\n<span style=\"color:blue\">unset</span>($objReader);\r\n\r\n?&gt;</pre>\r\n<pre><span style=\"font-family:'Segoe UI','Microsoft Sans Serif',Arial,Geneva,sans-serif; white-space:normal\">This should work for one sheet, but it doesn't even do that.</span></pre>\r\n<pre><span style=\"font-family:'Segoe UI','Microsoft Sans Serif',Arial,Geneva,sans-serif; white-space:normal\">Any ideas what I'm doing wrong?</span></pre>\r\n</div>\r\n",
+    "PostedDate": "2011-05-10T13:35:17.353-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "610559",
+    "ThreadId": "257118",
+    "Html": "<p>something like this should work...</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>&lt;?\r\n<span style=\"color: green;\">/** SCRIPT SETTINGS */</span>\r\nerror_reporting(E_ALL);\r\n\r\n<span style=\"color: green;\">/** PHPExcel */</span>\r\n<span style=\"color: blue;\">require_once</span> <span style=\"color: #a31515;\">'../Classes/PHPExcel.php'</span>; <span style=\"color: green;\">// (this should include the autoloader)</span>\r\n\r\n\r\n<span style=\"color: green;\">/**\r\n * Save Excel to CSV files\r\n * may want to clean up the worksheet title used for filename???\r\n *\r\n * @param\tstring\t\t$xlsfile (full file path/name)\r\n * @param\tboolean\t\t$precalculate\r\n * @param\tarray\t\t$use_states (array of states to save to file)\r\n * @throws\tException\r\n */</span>\r\n<span style=\"color: blue;\">function</span> xls_to_csv_files($xlsfile,$precalculate=true,$use_states=<span style=\"color: blue;\">array</span>(<span style=\"color: #a31515;\">'visible'</span>)){\r\n    $objReader = <span style=\"color: blue;\">new</span> PHPExcel_Reader_Excel2007;\r\n    $objReader-&gt;setReadDataOnly(true);\r\n    $objPHPExcel = $objReader-&gt;load($xlsfile);\r\n    <span style=\"color: green;\">// save csv files to same path as the xls.</span>\r\n    $dir = dirname($xlsfile);\r\n    $base = basename($xlsfile,<span style=\"color: #a31515;\">\".xls\"</span>);\r\n\r\n    <span style=\"color: blue;\">foreach</span> ($objReader-&gt;getWorksheetIterator() <span style=\"color: blue;\">as</span> $i=&gt;$worksheet) {\r\n\t\t<span style=\"color: blue;\">if</span>(in_array($wstate,$use_states)){\r\n            $wtitle = $worksheet-&gt;getTitle();\r\n            $objReader-&gt;setLoadSheetsOnly($wtitle);\r\n\r\n            $objWriter = <span style=\"color: blue;\">new</span> PHPExcel_Writer_CSV($objPHPExcel);\r\n            $objWriter-&gt;setPreCalculateFormulas($precalculate);\r\n            $writer-&gt;save($dir.<span style=\"color: #a31515;\">'/'</span>.$base.<span style=\"color: #a31515;\">'-'</span>.$wtitle.<span style=\"color: #a31515;\">'.csv'</span>);\r\n        }\r\n    }\r\n}\r\n\r\nxls_to_csv_files(<span style=\"color: #a31515;\">'./file.xls'</span>);\r\n?&gt;\r\n</pre>\r\n</div>\r\n</p>",
+    "PostedDate": "2011-05-10T14:08:34.9-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "610699",
+    "ThreadId": "257118",
+    "Html": "<p>It's an Excel5 file, sorry should have mentionned that.</p>\n<p>&nbsp;</p>\n<p>getWorksheetIterator doesnt work on Excel5</p>",
+    "PostedDate": "2011-05-10T20:28:44.477-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "865039",
+    "ThreadId": "257118",
+    "Html": "<p>This works perfectly for me and an Excel5 spreadsheet.</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>&lt;?php\r\nerror_reporting(E_ALL);\r\nset_time_limit(0);\r\n\r\ndate_default_timezone_set(<span style=\"color: #a31515;\">'Europe/London'</span>);\r\n\r\n<span style=\"color: green;\">/** Include path **/</span>\r\nset_include_path(get_include_path() . PATH_SEPARATOR . <span style=\"color: #a31515;\">'../../../Classes/'</span>);\r\n\r\n<span style=\"color: green;\">/** PHPExcel_IOFactory */</span>\r\n<span style=\"color: blue;\">include</span> <span style=\"color: #a31515;\">'PHPExcel/IOFactory.php'</span>;\r\n\r\n$inputFileType = <span style=\"color: #a31515;\">'Excel5'</span>;\r\n$inputFileName = <span style=\"color: #a31515;\">'./sampleData/PR.xls'</span>;\r\n\r\n$objReader = PHPExcel_IOFactory::createReader($inputFileType);\r\n$objPHPExcelReader = $objReader-&gt;load($inputFileName);\r\n\r\n$loadedSheetNames = $objPHPExcelReader-&gt;getSheetNames();\r\n\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcelReader, <span style=\"color: #a31515;\">'CSV'</span>);\r\n\r\n<span style=\"color: blue;\">foreach</span>($loadedSheetNames <span style=\"color: blue;\">as</span> $sheetIndex =&gt; $loadedSheetName) {\r\n\t$objWriter-&gt;setSheetIndex($sheetIndex);\r\n\t$objWriter-&gt;save(<span style=\"color: #a31515;\">'E:/autoPTLD/uploads/IPSpreadsheet/'</span>.$loadedSheetName.<span style=\"color: #a31515;\">'.csv'</span>);\r\n\r\n}\r\n\r\n?&gt;\r\n</pre>\r\n</div>\r\n</p>",
+    "PostedDate": "2012-07-13T09:54:08.713-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,106 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel",
+      "DisplayName": "PHPExcel"
+    },
+    "ClosedComment": "Fixed in version 1.8.0",
+    "ClosedDate": "2014-03-04T03:16:49.787-08:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Phpexcel sometimes incorrectly calculates values when using absolute rows.\n\nIn the attached example you see that phpexcel does not respect the absolute $ indicator and therefor calculates incorrect values.\n\nA demo script and sheet are attached. This is the output of the script:\n\nB10           =SUM(B6:B9)      91.000      91.000          OK\nC10    =($K10-$B10)/9+B10      88.222      88.222          OK\nE10    =($K10-$D10)/9+D10      83.558      82.667       ERROR\nF10    =($K10-$E10)/9+E10      81.607      79.889       ERROR\nG10    =($K10-$F10)/9+F10      79.873      77.111       ERROR\nH10    =($K10-$G10)/9+G10      78.332      74.333       ERROR\nI10    =($K10-$H10)/9+H10      76.962      71.556       ERROR\nK10           =SUM(K6:K9)      66.000      66.000          OK",
+    "LastUpdatedDate": "2014-03-04T03:16:49.787-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Medium",
+      "Severity": 100,
+      "Id": 2
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2013-11-07T07:35:20.183-08:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Serious bug in absolute cell reference used in formula",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 20397
+  },
+  "FileAttachments": [
+    {
+      "FileId": 7248,
+      "FileName": "phpexcel-bug.xlsx",
+      "DownloadUrl": ".\\7248"
+    },
+    {
+      "FileId": 7249,
+      "FileName": "phpexcel-bug.php",
+      "DownloadUrl": ".\\7249"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "and the script",
+      "PostedDate": "2013-11-07T07:36:41.17-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "The problem isn't in the calculation - that's actually correct - it's in the formula.... look in the spreadsheet at the formula in cell E10 ( =($K10-$B10)/9+D10 ) and look at what's returned by the getValue() call for that cell ( =($K10-$D10)/9+D10 ).",
+      "PostedDate": "2013-11-07T12:34:26.883-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "The problem is why is PHPExcel changing the value of the cell?",
+      "PostedDate": "2013-11-07T12:35:49.81-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Indeed, there is no reason for PHPExcel to change / recalculate the value but that's not the cause.\nThe real problem is that PHPExcel is not respecting the absolute column marked with the dollar ($) sign.",
+      "PostedDate": "2013-11-07T13:18:04.027-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "The problem occurs in the reference helper when updating shared formulae: it's odd that the first absolute column reference ($K10) remains static (as it should), but that the second ($B10) is adjusted (when it shouldn't be); the non-absolute cell reference (B10) is correctly adjusted.",
+      "PostedDate": "2013-11-07T13:18:08.847-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I agree the title is misleading, I changed it. The problem is in the incorrect cell (column in this case) reference, not in the calculation. However, the result of this problem is still an incorrect answer and that's what people should be aware of until this issue is solved.",
+      "PostedDate": "2013-11-07T13:41:36.65-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-11-07T13:42:08.6-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Fixed in the develop branch on github",
+      "PostedDate": "2013-11-07T15:17:05.667-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-11-07T15:17:52.913-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Confirmed. Thanks.",
+      "PostedDate": "2013-11-07T23:45:30.893-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2014-03-04T03:16:49.787-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

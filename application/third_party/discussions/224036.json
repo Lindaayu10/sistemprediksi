@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "482132",
+    "ThreadId": "224036",
+    "Html": "<p>Hi. I've been able to successfully output an Excel file and also stream the file for download to the user's browser. However, when I introduce an Excel template as the basis for my file, the streaming outputs an Excel file, but it's full of errors. If I take out the streaming and just write the Excel file to the server, no problems--so I don't think it's my code to actually create the file. I've tried changing file names, etc., no luck. Any ideas for how I can use a template and stream the contents so I don't have to save Excel files on the server? Here's my code (note I'm inserting content from a database query above this code snippet):</p>\r\n<p>\r\n<pre>$objPHPexcel = PHPExcel_IOFactory::load('template.xls');\r\n\r\n$objWorksheet = $objPHPexcel-&gt;getActiveSheet();\r\n\r\n$objWorksheet-&gt;getCell('B4')-&gt;setValue(''.$row_getCompanyName['company'].'');\r\n$objWorksheet-&gt;getCell('B6')-&gt;setValue(''.$row_GetKnowBoard['project_name'].'');\r\n$objWorksheet-&gt;getCell('B7')-&gt;setValue( 'Last Updated: '.$row_GetKnowBoard['last_updated'].'');\r\n\r\n//Loop through our SQL results to populate the rows...\r\n$row = 10;\r\nwhile ($rows = mysql_fetch_array($GetItems, MYSQL_NUM)) {\r\n   $column = 'B';\r\n   foreach($rows as $columnData) {\r\n      $cellRef = $column.$row;\r\n      $objWorksheet-&gt;getCell($cellRef)-&gt;setValue($columnData);\r\n      $column++;\r\n   }\r\n   $row++;\r\n}\r\n\r\n// Output the headers so we can stream to the user's browser:\r\nheader(&quot;Pragma: public&quot;);\r\nheader(&quot;Expires: 0&quot;);\r\nheader(&quot;Cache-Control: must-revalidate, post-check=0, pre-check=0&quot;);\r\nheader(&quot;Content-Type: application/force-download&quot;);\r\nheader(&quot;Content-Type: application/octet-stream&quot;);\r\nheader(&quot;Content-Type: application/download&quot;);;\r\nheader(&quot;Content-Disposition: attachment;filename=template.xls&quot;);\r\nheader(&quot;Content-Transfer-Encoding: binary &quot;);\r\n\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');\r\n$objWriter-&gt;save('php://output');</pre>\r\nAny help would be greatly appreciated!</p>",
+    "PostedDate": "2010-08-18T20:01:04.373-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "482137",
+    "ThreadId": "224036",
+    "Html": "<p>Nevermind folks! (Can't believe I didn't catch the typo when referencing the object in createWriter.) I ended up using a different method, but problem solved nonetheless.</p>",
+    "PostedDate": "2010-08-18T20:51:14.637-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

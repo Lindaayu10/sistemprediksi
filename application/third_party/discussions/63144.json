@@ -1,0 +1,298 @@
+[
+  {
+    "Id": "214566",
+    "ThreadId": "63144",
+    "Html": "<p>Hi,</p>\r\n<p>I am having a problem with images that get modified in size as I save to a file.&nbsp; And I can't figure out why it's doing it or how to make the writer to stop re-scaling automatically.</p>\r\n<p>Basically, I have a banner image (60 x 600 pixels) in gif format and created a template file in .xlsx format.&nbsp; Then I have a separate script to load the file and save it as .xls format.&nbsp; When I open the template file in .xlsx format using MS EXcel 2007, the image looked fine and looking at the properties of the image showed as follows:</p>\r\n<p>Height: 0.63&quot;, Width: 6.25&quot;,&nbsp; Scale Height: 100%, Scale Width: 100%</p>\r\n<p>However, the image in .xls file looked fuzzy.&nbsp; the properties of the image showed as follows:</p>\r\n<p>Height: 0.62&quot;, Width: 6.24&quot;,&nbsp; Scale Height: 98%, Scale Width: 100%</p>\r\n<p>&nbsp;</p>\r\n<p>Changing the default cell size or the default font style and size also appear to affect the image size as well.&nbsp; I'd appreciate if you could share some hints or suggestions dealing with this problem.</p>\r\n<p>Thanks!</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-07-21T16:41:18.08-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "214618",
+    "ThreadId": "63144",
+    "Html": "<p>Yes, I recognize the problem you are describing. Image scaling is difficult with xls files. The difficulty arises in this file format, because what is stored is the upper-left and bottom-right position of the image. From these numbers the scaling is derived. This is not very practical when one wants to create a 3rd party xls reader/writer because these will then have to know how to calculate the exact pixel width and height of each cell in the grid (not easy).</p>\r\n<p>I will do some more testing and see if I can improve the Excel5 reader/writer so image scaling becomes more accurate, perhaps at the end of this week. Will post back here.</p>",
+    "PostedDate": "2009-07-21T22:20:44.227-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "215326",
+    "ThreadId": "63144",
+    "Html": "<p>Thank you for your response, Koyama-san.</p>\r\n<p>I now understand the reason why it is doing the re-scaling.&nbsp; Does knowing actual image size helps solving this issue easier?&nbsp; If so, PHPExcel could read it off of the image itself.&nbsp; I understand there are so many different image formats out there, but just a thought.</p>\r\n<p>For example:</p>\r\n<p>This is the first 10 bytes of my banner image in gif format, size: 600 x 60</p>\r\n<p>&nbsp;</p>\r\n<p>47 49 46 38 39 61 58 02 3c 00 ....</p>\r\n<p>&nbsp;</p>\r\n<p>And here is the detail of the 10 bytes:</p>\r\n<p>47 49 46 38 39 61&nbsp; ==&gt; GIF89a (first 6 bytes)</p>\r\n<p>58 02&nbsp; ==&gt; 0x258 = 600 (next 2 bytes)</p>\r\n<p>3c 00&nbsp; ==&gt; 0x3c = 60 (next 2 bytes)</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks!</p>",
+    "PostedDate": "2009-07-23T08:06:50.29-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "215922",
+    "ThreadId": "63144",
+    "Html": "<p><em>&gt;&gt; Does knowing actual image size helps solving this issue easier?<br></em><br> Well, that part is not really the problem. One can do like you are showing, or one can use the PHP function <span style=\"font-family:Courier New\">getimagesize()</span> to retrieve image pixel size. The tricky part is finding out the width and height of the cells in the worksheet.<br> <br> I did some minor adjustments. Image scale should be working ok with Excel5 writer as long as one uses Calibri 11 as the default font for the workbook. Later we should make sure that image scaling works correctly also for other default fonts, but as mentioned it is tricky.</p>",
+    "PostedDate": "2009-07-24T19:40:38.693-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "230290",
+    "ThreadId": "63144",
+    "Html": "<p>I've just encountered this problem.</p>\r\n<p>Images are being stretched on the horizonal x-axis.</p>\r\n<p>I tried explicitly defining the size $objDrawing-&gt;setHeight(50); $objDrawing-&gt;setWidth(100); but this didn't have any effect.</p>\r\n<p>As a temporary kludge I shrunk the width of the original image so the final result looks sort of ok.</p>\r\n<p>If you compare the &quot;ouput image width&quot; to the &quot;input imagewidth&quot; and work out the % stretch is it possible to factor this in to your scaling?</p>\r\n<p>Thanks</p>",
+    "PostedDate": "2009-09-02T09:51:41.27-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "230295",
+    "ThreadId": "63144",
+    "Html": "<p>@sparkyhd: Are you using the latest source code? There could be improvements in latest source code compared to PHPExcel 1.7.0. Do you have a sample file showing the problem? I think this may get fixed soon. We have some improved algorithms for determining column width that just have to be checked into the source code.</p>\r\n<p>If you upload the Excel file somewhere or send email to me I can check if it will get better: erik at phpexcel dot net</p>",
+    "PostedDate": "2009-09-02T10:04:55.707-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "230375",
+    "ThreadId": "63144",
+    "Html": "<p>Yes 1.7.0</p>\r\n<p>See http://www.top5000contacts.com/includes/phpexcel/Tests/sample2.php</p>\r\n<p>and the image http://www.top5000contacts.com/includes/phpexcel/images/top5000-logo-2.jpg</p>\r\n<p>Regards</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-09-02T12:40:44.743-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "230379",
+    "ThreadId": "63144",
+    "Html": "<p>Broken links?</p>",
+    "PostedDate": "2009-09-02T12:49:00.187-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "230385",
+    "ThreadId": "63144",
+    "Html": "<p>Sorry - local pc instead of server - I've edited the links above</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-09-02T12:53:35.96-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "230394",
+    "ThreadId": "63144",
+    "Html": "<p>I see the problem now. It was what I expected. PHPExcel_Writer_Excel5 does not yet deal perfectly with the full range of font sizes when positioning images. For example you have used Arial 8 as default workbook font. Arial 10, or Calibri 11 might give better results.</p>\r\n<p>Anyway, since it is a bug in PHPExcel it should be fixed. I will see how I can tweak it, but it requires a little work. Perhaps I can look at this in the weekend. Will post back here.</p>",
+    "PostedDate": "2009-09-02T13:11:12.217-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "232007",
+    "ThreadId": "63144",
+    "Html": "<p><em>&gt;&gt; Images are being stretched on the horizonal x-axis.</em></p>\r\n<p>@sparkyhd: If you try with source code release tomorrow from here:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx\">http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx</a></p>\r\n<p>some of this should have been fixed here:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10599\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10599</a></p>",
+    "PostedDate": "2009-09-07T18:44:00.303-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "232558",
+    "ThreadId": "63144",
+    "Html": "<p>Hi Koyama - I've tried the new version but don't think it's made any difference?</p>",
+    "PostedDate": "2009-09-09T00:14:54.263-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "232622",
+    "ThreadId": "63144",
+    "Html": "<p><em>&gt;&gt; Hi Koyama - I've tried the new version but don't think it's made any difference?</em></p>\r\n<p>It's squeezed in the vertical direction, but this bug with horizontal squeezing disappeared, right?</p>\r\n<p>I will see if I can solve the bug with vertical squeezing at the end of this week. Will post back here.</p>",
+    "PostedDate": "2009-09-09T04:40:01.107-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "236292",
+    "ThreadId": "63144",
+    "Html": "<p>Vertical squeeze/stretch of image should be fixed:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10661\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10661</a></p>\r\n<p>Download latest source code tomorrow:</p>\r\n<p><a href=\"../SourceControl/ListDownloadableCommits.aspx\">http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx</a></p>",
+    "PostedDate": "2009-09-18T17:19:31.2-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "237735",
+    "ThreadId": "63144",
+    "Html": "<p>Hi Koyama</p>\r\n<p>Vertical squeeze is correct but still horizontally strecthing (which give same end result as vertical squeeze)</p>\r\n<p>See <a>http://www.top5000contacts.com/images/stretch.jpg</a></p>\r\n<p>Regards</p>",
+    "PostedDate": "2009-09-23T03:05:12.483-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "237776",
+    "ThreadId": "63144",
+    "Html": "<p>@sparkyhd:</p>\r\n<p>Ah ok, I see the problem now. PHPExcel is using an approximation to calculate the pixel column width for columns with an explicitly set width. In work item 10599 I had only considered columns with no explicit width. Will see if I can get this solved later this week. Will post back here.</p>",
+    "PostedDate": "2009-09-23T04:58:47.39-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "238072",
+    "ThreadId": "63144",
+    "Html": "<p>Should be fixed in tomorrows source code:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx\">http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx</a></p>",
+    "PostedDate": "2009-09-23T16:09:22.347-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "238847",
+    "ThreadId": "63144",
+    "Html": "<p>Perfect!</p>\r\n<p>Thanks for your persistence.</p>\r\n<p>Regards</p>",
+    "PostedDate": "2009-09-25T08:49:41.42-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "249052",
+    "ThreadId": "63144",
+    "Html": "<p>Hi,</p>\r\n<p>I was excited to try out the 1.7.0 to see the better image aspect ratio saved as excel 5 format.</p>\r\n<p>Sadly, the result I see with this new version is worse than before and stretched even more.&nbsp; I may be doing something wrong and I'd appreciate if you could take a look at my code snipet below.&nbsp; I'd appreciate any suggestions you can think of to fix or ease this stretching problem. Thank you.&nbsp; :-)</p>\r\n<p>I have a gif image which size is 60(h) x 574(w), 96 dpi, 8 bit color depth.</p>\r\n<p>&nbsp;</p>\r\n<p>$objPHPExcel = new PHPExcel();<br>$objPHPExcel-&gt;setActiveSheetIndex(0);<br><br>// Set default font for the worksheet<br>$objPHPExcel-&gt;getActiveSheet()-&gt;getDefaultStyle()-&gt;getFont()-&gt;setName('Arial');<br>$objPHPExcel-&gt;getActiveSheet()-&gt;getDefaultStyle()-&gt;getFont()-&gt;setSize(10); <br><br>// Rename sheet<br>echo date('H:i:s') . &quot; Rename sheet\\n&quot;;<br>$objPHPExcel-&gt;getActiveSheet()-&gt;setTitle('Test Invoice');<br><br>// Add a drawing to the worksheet<br>echo date('H:i:s') . &quot; Add a drawing to the worksheet\\n&quot;;<br>$objDrawing = new PHPExcel_Worksheet_Drawing();<br>$objDrawing-&gt;setName('Test Logo');<br>$objDrawing-&gt;setDescription('Test Logo');<br>$objDrawing-&gt;setPath('test_invoice.gif');<br>$objDrawing-&gt;setWorksheet($objPHPExcel-&gt;getActiveSheet());<br><br>$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');<br>$objWriter-&gt;save(str_replace('.php', '.xls', __FILE__));<br>exit(&quot;Done&quot;);</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-10-23T10:16:58.723-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "249155",
+    "ThreadId": "63144",
+    "Html": "<p><em>&gt;&gt; I was excited to try out the 1.7.0 to see the better image aspect ratio saved as excel 5 format.</em></p>\r\n<p>You will need to use latest source code:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx\">http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx</a></p>\r\n<p>Can you try that?</p>",
+    "PostedDate": "2009-10-23T15:03:12.3-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "249914",
+    "ThreadId": "63144",
+    "Html": "<p>Thanks for the suggestion.</p>\r\n<p>I have been trying to download the latest revision, but it kept stalling on me.&nbsp; :-(&nbsp; As soon as&nbsp; I successfully download it, I'll give it a shot and will post the result.</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-10-26T13:41:34.187-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "250211",
+    "ThreadId": "63144",
+    "Html": "<p>Hi, Koyama-san,</p>\r\n<p>I've managed to download the latest code (29173) successfully.&nbsp; And indeed the banner looks good now.</p>\r\n<p>Thank you!</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-10-27T08:34:48.82-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "250491",
+    "ThreadId": "63144",
+    "Html": "<p>Hi,koyama:</p>\r\n<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; I have a problem with images that the size will change&nbsp;when you modify the cell size. I can't find a propertie to protect the image size. But there&nbsp;have been&nbsp;a propertie for this in open office and microsoft office, could you add this in phpexcel?</p>\r\n<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Thanks!</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-10-27T23:16:09.29-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "250992",
+    "ThreadId": "63144",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>kevingan wrote:</strong><br>\r\n<p>Hi,koyama:</p>\r\n<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; I have a problem with images that the size will change&nbsp;when you modify the cell size. I can't find a propertie to protect the image size. But there&nbsp;have been&nbsp;a propertie for this in open office and microsoft office, could you add this in phpexcel?</p>\r\n<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Thanks!</p>\r\n</blockquote>\r\n<p><span id=\"ctl00_ctl00_MasterContent_Content_TitlePanel\"><span id=\"ctl00_ctl00_MasterContent_Content_TitleLabel\">For a start Excel5 writer has just been fixed so it behaves like </span></span><span id=\"ctl00_ctl00_MasterContent_Content_TitlePanel\"><span id=\"ctl00_ctl00_MasterContent_Content_TitleLabel\">&quot;Move but don't size with cells&quot; like one would expect.<br></span></span></p>\r\n<p><a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10849\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10849</a></p>\r\n<p>It sound like this is what you want. If we need an explicit method to control this property we can perhaps look at this later.</p>",
+    "PostedDate": "2009-10-28T19:31:17.993-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "252457",
+    "ThreadId": "63144",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>koyama wrote:</strong><br>\r\n<p><em>&gt;&gt; I was excited to try out the 1.7.0 to see the better image aspect ratio saved as excel 5 format.</em></p>\r\n<p>You will need to use latest source code:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx\">http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx</a></p>\r\n<p>Can you try that?</p>\r\n</blockquote>\r\n<p>Hi Koyama,</p>\r\n<p>I have just tried build 29234, and still seem to have the image size problem...it is out by a few millimetres, but enough to make it blurry in Excel.<br>I have uploaded the Excel file here, if it will help: <a href=\"http://stashbox.org/682807/1_Water_Level_.xls\">http://stashbox.org/682807/1_Water_Level_.xls</a></p>\r\n<p>The MNS problem I had has been resolved though :)</p>\r\n<p>Thanks</p>",
+    "PostedDate": "2009-11-02T08:22:57.757-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "252459",
+    "ThreadId": "63144",
+    "Html": "<p>@gridder: I looked at the file you linked to and I see that the image is blurred.</p>\r\n<p>To figure out what the problem is, can you say how this file was created? Was this file created using an xls template, i.e. a read/write of an existing xls file, or did you insert the image using PHPExcel methods? If you can upload the template xls file and/or link to the original, unblurred image, then we can look for a solution.</p>",
+    "PostedDate": "2009-11-02T08:38:31.79-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "252693",
+    "ThreadId": "63144",
+    "Html": "<p>Thanks for having a look.&nbsp; The file was fully created with PHPExcel, using the $excel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow() function.&nbsp; I have uploaded the image here: <a href=\"http://stashbox.org/683776/water_level.png\">http://stashbox.org/683776/water_level.png</a></p>\r\n<p>The code used to insert the image is:</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$objDrawing = <span style=\"color:Blue\">new</span> PHPExcel_Worksheet_Drawing();\r\n$objDrawing-&gt;setName(<span style=\"color:#A31515\">'Water_Level'</span>);\r\n$objDrawing-&gt;setDescription(<span style=\"color:#A31515\">'Water_Level'</span>);\r\n$objDrawing-&gt;setPath(<span style=\"color:#A31515\">''</span>.$_SESSION[<span style=\"color:#A31515\">'graph_temp_path'</span>].<span style=\"color:#A31515\">'/water_level.png'</span>);\r\n$objDrawing-&gt;setHeight(450);\r\n$objDrawing-&gt;setCoordinates(<span style=\"color:#A31515\">'A'</span>.$rowindex);\r\n$objDrawing-&gt;setWorksheet($excel-&gt;getActiveSheet());</pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n<p>Thanks again.</p>",
+    "PostedDate": "2009-11-03T01:03:24.073-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "253079",
+    "ThreadId": "63144",
+    "Html": "<p>@gridder: Bug was identified:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10877\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10877</a></p>\r\n<p>Download latest source code from here tomorrow:</p>\r\n<p><a href=\"../SourceControl/ListDownloadableCommits.aspx\">http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx</a></p>",
+    "PostedDate": "2009-11-03T19:32:18.067-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "253176",
+    "ThreadId": "63144",
+    "Html": "<p>Great work!&nbsp; Its working perfectly now.&nbsp; Thanks.</p>",
+    "PostedDate": "2009-11-04T02:40:50.503-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "486425",
+    "ThreadId": "63144",
+    "Html": "<p>Hi,</p>\r\n<p>Could it be that this bug was reintroduced in version 1.7.4? I was using version 1.7.3c and my images in Excel (logo) looked good. I upgraded to 1.7.4 and the image is now stretched to cell width?</p>\r\n<p>This is the code I use to include the image:</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre><span style=\"color:blue\">if</span>(is_file(<span style=\"color:#a31515\">'imagepath'</span>)) {\r\n  $objDrawing = <span style=\"color:blue\">new</span> PHPExcel_Worksheet_Drawing();\r\n  $objDrawing-&gt;setName($author . <span style=\"color:#a31515\">' Logo'</span>);\r\n  $objDrawing-&gt;setDescription($author . <span style=\"color:#a31515\">' Logo'</span>);\r\n  $objDrawing-&gt;setPath(<span style=\"color:#a31515\">'imagepath'</span>);\r\n  $objDrawing-&gt;setCoordinates(<span style=\"color:#a31515\">'A1'</span>);\r\n  $objDrawing-&gt;getShadow()-&gt;setVisible(true);\r\n  $objDrawing-&gt;setWorksheet($objPHPExcel-&gt;getActiveSheet());\r\n  $objPHPExcel-&gt;getActiveSheet()-&gt;getRowDimension(<span style=\"color:#a31515\">'1'</span>)-&gt;setRowHeight(50);\r\n}\r\n</pre>\r\n</div>\r\n<p>Edit: I'm saving the file as an Excel 2003 file (.xls)</p>\r\n<p>I downgraded back to 1.7.3c in the meantime and the image is shown in correct aspect ratio's.</p>\r\n<p>Any ideas?</p>",
+    "PostedDate": "2010-08-30T07:53:00.817-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "487542",
+    "ThreadId": "63144",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>UwICTPartner wrote:</strong><br>\r\n<p>Could it be that this bug was reintroduced in version 1.7.4? I was using version 1.7.3c and my images in Excel (logo) looked good. I upgraded to 1.7.4 and the image is now stretched to cell width?</p>\r\n<p>&nbsp;downgraded back to 1.7.3c in the meantime and the image is shown in correct aspect ratio's.</p>\r\n<p>Any ideas?</p>\r\n</blockquote>\r\n<p>&nbsp;No ideas at the moment, but it is possible. I'll see if I can identify the problem.</p>",
+    "PostedDate": "2010-09-01T05:20:25.45-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "550603",
+    "ThreadId": "63144",
+    "Html": "\r\n<p>@Developer Team</p>\r\n<p><span id=\"x_result_box\" lang=\"en\"><span title=\"Zur Anzeige alternativer Übersetzungen klicken\">I</span>\r\n<span title=\"Zur Anzeige alternativer Übersetzungen klicken\">came across</span> <span title=\"Zur Anzeige alternativer Übersetzungen klicken\">\r\nthe same</span> <span title=\"Zur Anzeige alternativer Übersetzungen klicken\">problem.</span>\r\n<span title=\"Zur Anzeige alternativer Übersetzungen klicken\">In</span> <span title=\"Zur Anzeige alternativer Übersetzungen klicken\">\r\ncomparing</span> <span title=\"Zur Anzeige alternativer Übersetzungen klicken\">the</span>\r\n<span title=\"Zur Anzeige alternativer Übersetzungen klicken\">version</span> <span title=\"Zur Anzeige alternativer Übersetzungen klicken\">\r\n1.7.3c</span> <span title=\"Zur Anzeige alternativer Übersetzungen klicken\">and</span>\r\n<span title=\"Zur Anzeige alternativer Übersetzungen klicken\">1.7.4</span><span title=\"Zur Anzeige alternativer Übersetzungen klicken\">, I noticed</span>\r\n<span title=\"Zur Anzeige alternativer Übersetzungen klicken\">that something is</span>\r\n<span title=\"Zur Anzeige alternativer Übersetzungen klicken\">missing</span> <span title=\"Zur Anzeige alternativer Übersetzungen klicken\">\r\nin the code</span><span title=\"Zur Anzeige alternativer Übersetzungen klicken\">.</span>\r\n<span title=\"Zur Anzeige alternativer Übersetzungen klicken\">I</span> <span title=\"Zur Anzeige alternativer Übersetzungen klicken\">\r\nhave</span> <span title=\"Zur Anzeige alternativer Übersetzungen klicken\">added it</span>\r\n<span title=\"Zur Anzeige alternativer Übersetzungen klicken\">to</span> <span title=\"Zur Anzeige alternativer Übersetzungen klicken\">\r\nversion</span> <span title=\"Zur Anzeige alternativer Übersetzungen klicken\">1.7.5</span>\r\n<span title=\"Zur Anzeige alternativer Übersetzungen klicken\">and the</span> <span title=\"Zur Anzeige alternativer Übersetzungen klicken\">\r\nproblem was</span> <span title=\"Zur Anzeige alternativer Übersetzungen klicken\">fixed</span><span title=\"Zur Anzeige alternativer Übersetzungen klicken\">. I have only change this line:\r\n</span></span></p>\r\n<p>$escher = new PHPExcel_Shared_Escher(); to $escher = $this-&gt;_escher;</p>\r\n<p><br>\r\nFile: Classes\\PHPExcel\\Writer\\Excel5\\Worksheet.php <strong>function _writeMsoDrawing()</strong></p>\r\n<p><strong><br>\r\n</strong></p>\r\n<p><strong></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><span style=\"color:green\"><strong>// create intermediate Escher object</strong></span>\r\n<strong>$escher = <span style=\"color:blue\">new</span> PHPExcel_Shared_Escher();\r\n\r\n<span style=\"color:green\">// dgContainer</span>\r\n$dgContainer = <span style=\"color:blue\">new</span> PHPExcel_Shared_Escher_DgContainer();\r\n\r\n<span style=\"color:green\">// set the drawing index (we use sheet index &#43; 1)</span>\r\n$dgContainer-&gt;setDgId($this-&gt;_phpSheet-&gt;getParent()-&gt;getIndex($this-&gt;_phpSheet) &#43; 1);\r\n$escher-&gt;setDgContainer($dgContainer);\r\n\r\n<span style=\"color:green\">// spgrContainer</span>\r\n$spgrContainer = <span style=\"color:blue\">new</span> PHPExcel_Shared_Escher_DgContainer_SpgrContainer();\r\n$dgContainer-&gt;setSpgrContainer($spgrContainer);\r\n\r\n<span style=\"color:green\">// add one shape which is the group shape</span>\r\n$spContainer = <span style=\"color:blue\">new</span> PHPExcel_Shared_Escher_DgContainer_SpgrContainer_SpContainer();\r\n$spContainer-&gt;setSpgr(true);\r\n$spContainer-&gt;setSpType(0);\r\n$spContainer-&gt;setSpId(($this-&gt;_phpSheet-&gt;getParent()-&gt;getIndex($this-&gt;_phpSheet) &#43; 1) &lt;&lt; 10);\r\n$spgrContainer-&gt;addChild($spContainer);\r\n\r\n<span style=\"color:green\">// add the shapes</span>\r\n\r\n<span style=\"color:green\">// outer loop is for determining BSE index</span>\r\n$blipIndex = 0; <span style=\"color:green\">// 1-based index to BstoreContainer</span>\r\n\r\n$countShapes = 0; <span style=\"color:green\">// count number of shapes (minus group shape), in this sheet</span>\r\n\r\n<span style=\"color:blue\">foreach</span> ($this-&gt;_phpSheet-&gt;getParent()-&gt;getAllsheets() <span style=\"color:blue\">as</span> $sheet) {\r\n\t<span style=\"color:blue\">foreach</span> ($sheet-&gt;getDrawingCollection() <span style=\"color:blue\">as</span> $drawing) {\r\n\t\t&#43;&#43;$blipIndex;\r\n\r\n\t\t<span style=\"color:blue\">if</span> ($sheet === $this-&gt;_phpSheet) {\r\n\t\t\t&#43;&#43;$countShapes;\r\n\r\n\t\t\t<span style=\"color:green\">// add the shape</span>\r\n\t\t\t$spContainer = <span style=\"color:blue\">new</span> PHPExcel_Shared_Escher_DgContainer_SpgrContainer_SpContainer();\r\n\r\n\t\t\t<span style=\"color:green\">// set the shape type</span>\r\n\t\t\t$spContainer-&gt;setSpType(0x004B);\r\n\r\n\t\t\t<span style=\"color:green\">// set the shape index (we combine 1-based sheet index and $countShapes to create unique shape index)</span>\r\n\t\t\t$spId = $countShapes\r\n\t\t\t\t| ($this-&gt;_phpSheet-&gt;getParent()-&gt;getIndex($this-&gt;_phpSheet) &#43; 1) &lt;&lt; 10;\r\n\t\t\t$spContainer-&gt;setSpId($spId);\r\n\r\n\t\t\t<span style=\"color:green\">// keep track of last spId</span>\r\n\t\t\t$lastSpId = $spId;\r\n\r\n\t\t\t<span style=\"color:green\">// set the BLIP index</span>\r\n\t\t\t$spContainer-&gt;setOPT(0x4104, $blipIndex);\r\n\r\n\t\t\t<span style=\"color:green\">// set coordinates and offsets, client anchor</span>\r\n\t\t\t$coordinates = $drawing-&gt;getCoordinates();\r\n\t\t\t$offsetX = $drawing-&gt;getOffsetX();\r\n\t\t\t$offsetY = $drawing-&gt;getOffsetY();\r\n\t\t\t$width = $drawing-&gt;getWidth();\r\n\t\t\t$height = $drawing-&gt;getHeight();\r\n\r\n\t\t\t$twoAnchor = PHPExcel_Shared_Excel5::oneAnchor2twoAnchor($this-&gt;_phpSheet, $coordinates, $offsetX, $offsetY, $width, $height);\r\n\r\n\t\t\t$spContainer-&gt;setStartCoordinates($twoAnchor[<span style=\"color:#a31515\">'startCoordinates'</span>]);\r\n\t\t\t$spContainer-&gt;setStartOffsetX($twoAnchor[<span style=\"color:#a31515\">'startOffsetX'</span>]);\r\n\t\t\t$spContainer-&gt;setStartOffsetY($twoAnchor[<span style=\"color:#a31515\">'startOffsetY'</span>]);\r\n\t\t\t$spContainer-&gt;setEndCoordinates($twoAnchor[<span style=\"color:#a31515\">'endCoordinates'</span>]);\r\n\t\t\t$spContainer-&gt;setEndOffsetX($twoAnchor[<span style=\"color:#a31515\">'endOffsetX'</span>]);\r\n\t\t\t$spContainer-&gt;setEndOffsetY($twoAnchor[<span style=\"color:#a31515\">'endOffsetY'</span>]);\r\n\r\n\t\t\t$spgrContainer-&gt;addChild($spContainer);\r\n\t\t}\r\n\t}\r\n}\r\n\r\n<span style=\"color:green\">// set last shape index</span>\r\n$dgContainer-&gt;setLastSpId($lastSpId);\r\n<br></strong></pre>\r\n</div>\r\n<br>\r\n</strong>\r\n<p></p>\r\n",
+    "PostedDate": "2011-01-17T08:16:25.157-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "597123",
+    "ThreadId": "63144",
+    "Html": "<p>Seems like this issue occurs in PHPExcel 1.7.5 and 1.7.6, my image is incorrectly resized when generating an Excel 5 worksheet.</p>",
+    "PostedDate": "2011-04-14T03:18:44.897-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "626229",
+    "ThreadId": "63144",
+    "Html": "<p>I had the same issue in 1.7.6 . When using Excel5 writer, images are a bit wider than expected. Any updates on this bug would be helpful.</p>\r\n<p>Thanks!<span style=\"white-space: pre;\"> </span></p>",
+    "PostedDate": "2011-06-10T18:43:37.927-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "627042",
+    "ThreadId": "63144",
+    "Html": "<p>Guys, would really appreciate at least status on this issue. &nbsp;Would be nice to know, if there are any workarounds that we can do in order to show images correctly and/or expected timeline to fix this issue.&nbsp;</p>\r\n<p>Thanks again in advance for the help.<span style=\"white-space: pre;\"> </span></p>",
+    "PostedDate": "2011-06-13T11:49:33.29-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "627313",
+    "ThreadId": "63144",
+    "Html": "<p>@revdev</p>\r\n<p>to fix is</p>\r\n<p>Change this line:</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre><span style=\"color: green;\">// create intermediate Escher object</span>\r\n$escher = <span style=\"color: blue;\">new</span> PHPExcel_Shared_Escher();\r\n</pre>\r\n</div>\r\n</p>\r\n<p>to:</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre><span style=\"color: green;\">// create intermediate Escher object</span>\r\n$escher = $this-&gt;_escher;\r\n</pre>\r\n</div>\r\n</p>\r\n<p>in&nbsp;File: Classes\\PHPExcel\\Writer\\Excel5\\Worksheet.php -&gt;&nbsp;<strong>Function: _writeMsoDrawing()</strong></p>",
+    "PostedDate": "2011-06-13T23:46:55.82-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "712277",
+    "ThreadId": "63144",
+    "Html": "<p>I had the same isssue of bad ratio.</p>\r\n<p>I solved my issue simply in changing the output from save to 2007 file to <strong>output to browser directly</strong> !</p>",
+    "PostedDate": "2011-12-14T10:48:59.827-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

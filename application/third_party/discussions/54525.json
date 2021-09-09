@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "183808",
+    "ThreadId": "54525",
+    "Html": "I've try below code:<br>\r\n<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getHeaderFooter()-&gt;setOddHeader('&amp;16&amp;CSet the Font to 16px');<br>\r\nAND:<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getHeaderFooter()-&gt;setOddHeader('&amp;font size16&amp;CSet the Font to 16px');<br>\r\n<br>\r\nBut the font size of footer isn't changed...What's the matter? Please help me, thanks!<br>\r\n",
+    "PostedDate": "2009-04-26T12:21:00.697-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "183812",
+    "ThreadId": "54525",
+    "Html": "<code>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getHeaderFooter()-&gt;setOddHeader('&amp;C<code>&amp;16</code>Set the Font to 16px');<br>\r\n</code>\r\n<br>\r\n<strong>Tip:</strong><br>\r\n1. Create the workbook like you want it to be in MS Office Excel.<br>\r\n2. Read the file using PHPExcel_Reader_Excel2007<br>\r\n<br>\r\n<code>\r\n$reader = PHPExcel_IOFactory::createReader('Excel2007');<br>\r\n$excel = $reader-&gt;load('template.xlsx');<br>\r\n<br>\r\n$sheet = $excel-&gt;getActiveSheet();<br>\r\nvar_dump($sheet-&gt;getHeaderFooter()-&gt;getOddHeader());<br>\r\nvar_dump($sheet-&gt;getHeaderFooter()-&gt;getEvenHeader());<br>\r\nvar_dump($sheet-&gt;getHeaderFooter()-&gt;getOddFooter());<br>\r\nvar_dump($sheet-&gt;getHeaderFooter()-&gt;getEvenFooter());<br>\r\n<br>\r\n</code>This will give you how to write the header or footer.<br>\r\n<br>\r\n3. Alternatively, rename template.xlsx to template.zip, unzip it, and inspect file:<br>\r\n<code><br>\r\nworksheets/sheet1.xml<br>\r\n<br>\r\n</code>\r\nLook towards the end for something like this:<br>\r\n<br>\r\n<code>\r\n&lt;headerFooter&gt;&lt;oddHeader&gt;&amp;amp;16&amp;amp;CSet the Font to 16px&lt;/oddHeader&gt;&lt;/headerFooter&gt;<br>\r\n</code>\r\n<br>\r\nThis will also give you how to write the header or footer.<br>\r\n<br>\r\nJust keep in mind that <code>&amp;amp;</code> should be written as <code>&amp;</code> when you write the string in PHPExcel.<br>\r\n<br>\r\n",
+    "PostedDate": "2009-04-26T12:51:48.23-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "183886",
+    "ThreadId": "54525",
+    "Html": "Sorry,I can not catch your meaning, the start section of my code is as:<br>\r\n<br>\r\n$objPHPExcel = new PHPExcel();<br>\r\n<br>\r\n<br>\r\n//Set default font &amp; size of Excel File<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getDefaultStyle()-&gt;getFont()-&gt;setSize(8);<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getDefaultStyle()-&gt;getFont()-&gt;setBold(false);<br>\r\n<br>\r\n//Set Header<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getDefaultStyle()-&gt;getFont()-&gt;setName('Arial'); <br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getHeaderFooter()-&gt;setOddHeader('&amp;16&amp;CComment');<br>\r\n<br>\r\n......<br>\r\nCan you please show me how to setup it?<br>\r\nI just can found it out from the Developer documentation:<br>\r\n<table cellspacing=0 cellpadding=0 border=1 style=\"border:medium none;border-collapse:collapse\">\r\n    <tbody>\r\n        <tr>\r\n            <td valign=top style=\"border:1pt dotted windowtext;padding:0cm 5.4pt;background:#f3f3f3 none repeat scroll 0% 0%;width:133pt\">\r\n            <p><span lang=NL style=\"font-size:9pt\">&amp;N</span></p>\r\n            </td>\r\n            <td valign=top style=\"border-style:dotted dotted dotted none;border-color:windowtext windowtext windowtext -moz-use-text-color;border-width:1pt 1pt 1pt medium;padding:0cm 5.4pt;width:327.6pt\">\r\n            <p><span lang=EN-GB>Code for\r\n            &quot;total pages&quot;&lt;o:p&gt;&lt;/o:p&gt;</span></p>\r\n            </td>\r\n        </tr>\r\n        <tr>\r\n            <td valign=top style=\"border-style:none dotted dotted;border-color:-moz-use-text-color windowtext windowtext;border-width:medium 1pt 1pt;padding:0cm 5.4pt;background:#f3f3f3 none repeat scroll 0% 0%;width:133pt\">\r\n            <p><span lang=NL style=\"font-size:9pt\">&amp;font\r\n            size</span></p>\r\n            </td>\r\n            <td valign=top style=\"border-style:none dotted dotted none;border-color:-moz-use-text-color windowtext windowtext -moz-use-text-color;border-width:medium 1pt 1pt medium;padding:0cm 5.4pt;width:327.6pt\">\r\n            <p><span lang=EN-GB>Code for\r\n            &quot;text font size&quot;, where font size is a font size in points.&lt;o:p&gt;&lt;/o:p&gt;</span></p>\r\n            </td>\r\n        </tr>\r\n    </tbody>\r\n</table>\r\nbut it doesn't work when I do by following it.<br>\r\n<br>\r\nThanks!\r\n",
+    "PostedDate": "2009-04-26T19:09:41.43-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "184047",
+    "ThreadId": "54525",
+    "Html": "Try to run this:<br>\r\n<br>\r\n<code>\r\n&lt;?php<br>\r\n$objPHPExcel = new PHPExcel();<br>\r\n<br>\r\n$objWorksheet = $objPHPExcel-&gt;getActiveSheet();<br>\r\n$objWorksheet-&gt;getHeaderFooter()-&gt;setOddHeader('&amp;C&amp;16Set the Font to 16px');<br>\r\n<br>\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');<br>\r\n$objWriter-&gt;save('test.xlsx');<br>\r\n?&gt;\r\n</code>\r\n<br>\r\n<br>\r\n",
+    "PostedDate": "2009-04-27T05:23:55.57-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "184353",
+    "ThreadId": "54525",
+    "Html": "<br>\r\nI have made it by run as:<br>\r\n<br>\r\n<code>$objWorksheet-&gt;getHeaderFooter()-&gt;setOddHeader('&amp;C&amp;16Set the Font to 16px');</code>&nbsp;&nbsp; //okay!<br>\r\n<br>\r\nHowever, the differnce with my wrote code is the order sequence of &quot;&amp;C&quot; and &quot;&amp;16&quot;:<br>\r\n<br>\r\n<code>$objWorksheet-&gt;getHeaderFooter()-&gt;setOddHeader('&amp;16&amp;CSet the Font to 16px');</code>&nbsp; //don't work<br>\r\n<br>\r\nI just don't know why.<br>\r\n<br>\r\nthanks so much koyama!<br>\r\n",
+    "PostedDate": "2009-04-27T22:52:53.81-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,131 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "Calculation_Engine",
+      "DisplayName": "Calculation_Engine"
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Code working in 1.7.3c ----->\nsend_error('A');\n    $cell = $prices_sheet->getCell('A'.$row);\nsend_error('B');\n    $products_id = $cell->getCalculatedValue();\nsend_error('C');\n    check_formula($cell, 'Prices', 'A', $row, $sheet_formulas['Prices']['A']); //Product ID\nsend_error('D');\n \nFAILS on 1.7.5 at line    $products_id = $cell->getCalculatedValue();\n \nTHROWS EXCEPTION AS\nPrices!A2 -> undefined variable ','",
+    "LastUpdatedDate": "2017-11-27T22:26:36.27-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Medium",
+      "Severity": 100,
+      "Id": 2
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2011-01-05T03:51:11.803-08:00",
+    "Status": {
+      "Name": "Active",
+      "Id": 2
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "1.7.5 fails cell->getCalculatedValue()",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 15046
+  },
+  "FileAttachments": [
+    {
+      "FileId": 5253,
+      "FileName": "CreateFromBD 2011 test 1.7.5.xlsx",
+      "DownloadUrl": ".\\5253"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "Could you please try this with the latest Calculation.php from the SVN repository, accessible via the \"Source Code\" tab here on PHPExcel.net",
+      "PostedDate": "2011-01-05T04:15:34.42-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Unable to locate\r\ndiff matches version in branch 1.7.5 \r\n\r\napart from line 25\r\n* @version\t##VERSION##, ##DATE##\r\nvs\r\n* @version\t1.7.5, 2010-12-10\r\n",
+      "PostedDate": "2011-01-05T07:49:10.983-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "http://phpexcel.codeplex.com/SourceControl/changeset/view/66428#1602991\r\n\r\nThe main differences should be the regular expressions defined immediately before the class definition",
+      "PostedDate": "2011-01-05T08:08:15.737-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "that version is from Change Set 66428\r\n\r\ncauses error\r\n<b>Fatal error</b>:  Call to a member function cellExists() on a non-object in <b>PHPExcel/Classes 1.7.5/PHPExcel/Calculation.php</b> on line <b>3167</b><br />\r\n",
+      "PostedDate": "2011-01-05T08:35:51.32-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Line 3167 comes up as :-\r\nif ($pCellParent->getParent()->getSheetByName($matches[2])->cellExists($cellRef)) {\r\n",
+      "PostedDate": "2011-01-05T08:50:38.763-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "As an interim fix, edit that Change Set 66428 Calculation.php, and modify lines 43 and 45 (the CALCULATION_REGEXP_CELLREF and CALCULATION_REGEXP_NAMEDRANGE definitions) so that they read:\r\n\tdefine('CALCULATION_REGEXP_CELLREF','((([^\\s,!&%^\\/\\*\\+<>=-]*)|(\\'[^\\']*\\')|(\\\"[^\\\"]*\\\"))!)?\\$?([a-z]{1,3})\\$?(\\d{1,7})');\r\nand\r\n\tdefine('CALCULATION_REGEXP_NAMEDRANGE','((([^\\s,!&%^\\/\\*\\+<>=-]*)|(\\'[^\\']*\\')|(\\\"[^\\\"]*\\\"))!)?([_A-Z][_A-Z0-9]*)');\r\nrespectively.\r\n\r\nI need to do some more work on those regexps anyway!\r\n",
+      "PostedDate": "2011-01-05T09:50:02.917-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "fix: updated regex\r\ntested and works ok\r\n\r\nthank you",
+      "PostedDate": "2011-01-06T00:35:37.073-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2011-01-07T01:35:06.943-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2011-01-07T01:35:59.733-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I have updated the reg ex, but still don't work. I have used the same file in attachment, (CreateFromBD 2011 test 1.7.5.xlsx). I would like to open xlsx file, do some modify and after save. \r\nThis is a piece of my code\r\n\r\ndefine('TEMPLATE_XLS', \"CreateFromBD 2011 test 1.7.5.xlsx\");\r\n//file name to load and to save\r\n$floadN = './templates/' . TEMPLATE_XLS;\r\n$saveN = './output/' . TEMPLATE_XLS;\r\necho 'load file ' . $floadN;\r\n$objPHPExcel = PHPExcel_IOFactory::load($floadN );\r\nrequire_once '../Classes/PHPExcel/IOFactory.php';\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');\r\n$objWriter->save($saveN);\r\n\r\nBut i get this error:\r\n\r\nFatal error: Call to a member function cellExists() on a non-object in C:\\Programmi\\Apache Software Foundation\\Apache2.2\\htdocs\\PHPExcel\\Classes\\PHPExcel\\Calculation.php on line 3167",
+      "PostedDate": "2011-01-31T07:54:02.227-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "About this, Calculation.php line 3164\r\n....\r\necho '$cellRef='.$cellRef.' in worksheet '.$matches[2].'<br />';\r\n$this->_writeDebug('Evaluating Cell '.$cellRef.' in worksheet '.$matches[2]);\r\n\t\t\t\t\t\t\tif (!is_null($pCellParent)) {\r\n\t\t\t\t\t\t\t\tif ($pCellParent->getParent()->getSheetByName($matches[2])->cellExists($cellRef)) {\r\n....\r\n\r\nI have this output\r\n...\r\n$cellRef=E2 in worksheet Data\r\n$cellRef=E15 in worksheet C2 / SetUp\r\n....\r\n\r\nAnd this call\r\nthis call:\r\npublic function getSheetByName($pName = '')\r\n\t{\r\n\r\nwith \t\r\n\t\t$pName\t(string:11) C2 /  SetUp\t\r\nwrong name of worksheet\r\n\r\nSomething go wrong on evaluation of formula\r\n=C2 / SetUp!$E$15\r\nAt Costs!D2 \r\n",
+      "PostedDate": "2011-02-01T08:21:25.207-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "@emacchiavelli\r\nCan you please try this using the full latest daily download.\r\nCan you also identify whether you have iconv and/or mbstring enabled, and whether PREG_BAD_UTF8_ERROR is defined in your PHP!",
+      "PostedDate": "2011-02-01T13:25:22.85-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Thank you for your reply. I'm newbie from php and from this project :) . So I do the step you describe:\r\n\"http://phpexcel.codeplex.com/SourceControl/changeset/view/66428#1602991\" and\r\n\"modify lines 43 and 45 (the CALCULATION_REGEXP_CELLREF and CALCULATION_REGEXP_NAMEDRANGE definitions) \"\r\nAbout your answer: \r\nCan you please try this using the full latest daily download. -> what is? i'm svn logged and i check out the production version 1.7.5.\r\nI do the code for check iconv, mbstring anf PREG_BAD_UTF8_ERROR:\r\n....\r\necho 'test iconv is enabled = ' . PHPExcel_Shared_String::getIsIconvEnabled().'<br />';\r\necho 'test mbstring is enabled = ' . PHPExcel_Shared_String::getIsMbstringEnabled().'<br />';\r\n....\r\necho 'Is defined PREG_BAD_UTF8_ERROR '.defined('PREG_BAD_UTF8_ERROR').'<br />';\r\n....\r\n\r\nAnd this is the output:\r\n\r\ntest iconv is enabled = 1\r\ntest mbstring is enabled = 1\r\nBacktrack limit was exhausted!\r\nIs defined PREG_BAD_UTF8_ERROR 1\r\nload file ./templates/Wind Hunter 3.6.xlsx\r\nsave to file ./output/Wind Hunter 3.6.xlsx\r\n10:14:00 Peak memory usage: 19.25 MB\\r\\n\r\n10:14:00 Done writing file.\\r\\n Fatal error: Uncaught exception 'Exception' with message 'Invalid cell coordinate XFD1048576' in C:\\workspace\\php\\v1.7.5\\Classes\\PHPExcel\\Cell.php:501 Stack trace: #0 C:\\workspace\\php\\v1.7.5\\Classes\\PHPExcel\\Writer\\Excel5\\Worksheet.php(1418): PHPExcel_Cell::coordinateFromString('XFD1048576') #1 C:\\workspace\\php\\v1.7.5\\Classes\\PHPExcel\\Writer\\Excel5\\Worksheet.php(467): PHPExcel_Writer_Excel5_Worksheet->_writeSelection() #2 C:\\workspace\\php\\v1.7.5\\Classes\\PHPExcel\\Writer\\Excel5.php(171): PHPExcel_Writer_Excel5_Worksheet->close() #3 C:\\workspace\\php\\v1.7.5\\Tests\\testEH4.php(60): PHPExcel_Writer_Excel5->save('./output/Wind H...') #4 {main} thrown in C:\\workspace\\php\\v1.7.5\\Classes\\PHPExcel\\Cell.php on line 501 \r\n",
+      "PostedDate": "2011-02-02T02:20:57.077-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Please, don't look at my previous comment. I found the latest version at source changeset\r\n(link http://phpexcel.codeplex.com/SourceControl/list/changesets) and this work correctly.... \r\nFor a precisation, if the excel file has a reference to external (another files) worksheet and dont't found i have  problem and don't save. But this is because i don't have the external so... don't worry about this. I signal because the evalution of formula fail. i mean one thing like this : [/sfsdfdsf/fjdslfkdjslkf/sdfdsf.xlsx]sheet!A1\r\n\r\nThanx  a lot for your quick answer! Bye",
+      "PostedDate": "2011-02-02T08:57:15.657-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "@emacchiavelli\r\n\r\nThere is already a work item for the calculation engine to support references to external workbooks here http://phpexcel.codeplex.com/workitem/15184 but it isn't likely to be resolved for a long time. While I know (in theory) how to do this, it's a lot of work, and a big performance overhead when it encounters an external workbook reference, and still has to trap for situations where the external workbook is not available.\r\n\r\nWhat I will try to do sooner is to perform a trap for external workbook references and throw an exception when one is encountered, so that it can be handled cleanly. This change won't be in time for the next release, but I'm hoping to rework the structure of the calculation engine as part of the 1.7.7 release, and will target it as part of that change.",
+      "PostedDate": "2011-02-02T09:51:37.943-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:02:37.493-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2017-11-27T22:26:36.27-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

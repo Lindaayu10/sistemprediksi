@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "1355170",
+    "ThreadId": "581690",
+    "Html": "Hi There,\r<br />\n<br />\nI'm having issues forcing a new line in rich text as below<br />\n<pre><code>$objBold = $objRichText-&gt;createTextRun('Component '.$i.&quot;.\\n&quot;);\n$objSmall = $objRichText-&gt;createTextRun(&quot;\\r&quot;.$spec['containertype'].&quot;: &quot;.$component[1]['name'].&quot; (&quot;.$fragname.&quot;)&quot;);</code></pre>\n\nboth of those lines comprise my rich text object, and the above does not work.\r<br />\n<br />\nhowever if i do the following it does function fine<br />\n<pre><code>$objBold = $objRichText-&gt;createTextRun('Component '.$i);\n$objSmall = $objRichText-&gt;createTextRun(&quot;\\nA&quot;.$spec['containertype'].&quot;: &quot;.$component[1]['name'].&quot; (&quot;.$fragname.&quot;)&quot;);</code></pre>\n\nif i put a normal text character after the new line it works fine, but obviously I don't want that character.\r<br />\n<br />\nany ideas?<br />\n",
+    "PostedDate": "2015-02-24T03:52:08.41-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1360866",
+    "ThreadId": "581690",
+    "Html": "bump<br />\n",
+    "PostedDate": "2015-03-09T02:36:59.57-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1360870",
+    "ThreadId": "581690",
+    "Html": "<code>&quot;\\r&quot;</code> in your first example (which doesn't work) <strong><em>isn't</em></strong> a new line character, it's a return character. You correctly use a new line character (<code>&quot;\\n&quot;</code>) in the second example, which does work.\r<br />\n<br />\n<code>&quot;\\n&quot;</code> is a new line character, and will work whether it has characters after it or not<br />\n",
+    "PostedDate": "2015-03-09T02:48:27.413-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1360875",
+    "ThreadId": "581690",
+    "Html": "<strong>MarkBaker wrote:</strong><br />\n<blockquote>\n<code>&quot;\\r&quot;</code> in your first example (which doesn't work) <strong><em>isn't</em></strong> a new line character, it's a return character. You correctly use a new line character (<code>&quot;\\n&quot;</code>) in the second example, which does work.<br />\n<br />\n<code>&quot;\\n&quot;</code> is a new line character, and will work whether it has characters after it or not<br />\n</blockquote>\nThanks for the reply,\r<br />\n<br />\nUnfortunately I have to disagree<br />\n<pre><code>$objRichText = new PHPExcel_RichText();\n$objRichText-&gt;createText('');\n$objBold = $objRichText-&gt;createTextRun('Component '.$i);\n$objBold-&gt;getFont()-&gt;setBold(true);\n$objBold-&gt;getFont()-&gt;setSize(13);\n$objSmall = $objRichText-&gt;createTextRun(&quot;\\n&quot;.$spec['containertype'].&quot;: &quot;.$component[1]['name'].&quot; (&quot;.$fragname.&quot;)&quot;);\n$objSmall-&gt;getFont()-&gt;setSize(10);\n$objPHPExcel-&gt;getActiveSheet()-&gt;getCell('H1')-&gt;setValue($objRichText);</code></pre>\n\nthe above does not work, there is now new line, if after the \\n i put a standard character i.e. \\nA it does work, however i do not require or want that standard character to be apart of the string.<br />\n",
+    "PostedDate": "2015-03-09T02:58:13.783-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1361980",
+    "ThreadId": "581690",
+    "Html": "Seems to work<br />\n<pre><code>$outputFileType = 'Excel2007';\n$outputFileName = './outputTest.xlsx';\n\n$objPHPExcel = new PHPExcel();\n$worksheet = $objPHPExcel-&gt;getActiveSheet();\n\n// Plaintext example\n$worksheet-&gt;setCellValue('A1',&quot;Hello\\nWorld&quot;);\n$worksheet-&gt;getRowDimension(1)-&gt;setRowHeight(-1);\n$worksheet-&gt;getStyle('A1')-&gt;getAlignment()-&gt;setWrapText(true);\n\n// Rich text example #1\n$objRichText1 = new PHPExcel_RichText();\n$objGreen1 = $objRichText1-&gt;createTextRun(&quot;Hello&quot;);\n$objGreen1-&gt;getFont()-&gt;setColor(\n    new PHPExcel_Style_Color(PHPExcel_Style_Color::COLOR_DARKGREEN)\n);\n$objRed1 = $objRichText1-&gt;createTextRun(&quot;\\nWorld&quot;);\n$objRed1-&gt;getFont()-&gt;setColor(\n    new PHPExcel_Style_Color(PHPExcel_Style_Color::COLOR_DARKRED)\n);\n\n$worksheet-&gt;getCell('A2')-&gt;setValue($objRichText1);\n$worksheet-&gt;getRowDimension(1)-&gt;setRowHeight(-1);\n$worksheet-&gt;getStyle('A2')-&gt;getAlignment()-&gt;setWrapText(true);\n\n// Rich text example #2\n$words = ['Hello', 'World'];\n$objRichText2 = new PHPExcel_RichText();\n$objGreen2 = $objRichText2-&gt;createTextRun(&quot;\\n&quot; . $words[0]);\n$objGreen2-&gt;getFont()-&gt;setColor(\n    new PHPExcel_Style_Color(PHPExcel_Style_Color::COLOR_DARKGREEN) \n);\n$objRed2 = $objRichText2-&gt;createTextRun(&quot;\\n&quot; . $words[1] . &quot;\\n&quot;);\n$objRed2-&gt;getFont()-&gt;setColor(\n    new PHPExcel_Style_Color(PHPExcel_Style_Color::COLOR_DARKRED) \n);\n\n$worksheet-&gt;getCell('A3')-&gt;setValue($objRichText2);\n$worksheet-&gt;getRowDimension(1)-&gt;setRowHeight(-1);\n$worksheet-&gt;getStyle('A3')-&gt;getAlignment()-&gt;setWrapText(true);\n\n\n$objPHPExcelWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, $outputFileType);\n$objPHPExcel = $objPHPExcelWriter-&gt;save($outputFileName);</code></pre>\n\nI suspect that the problem is that you're not setting the cell to allow text wrapping:<br />\n<pre><code>$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('H1')-&gt;getAlignment()-&gt;setWrapText(true);</code></pre>\n\nand you may also want to set the column width to autosize as well<br />\n<pre><code>$objPHPExcel-&gt;getActiveSheet()-&gt;getColumnDimension('H')-&gt;setAutoSize(true);</code></pre>\n\n",
+    "PostedDate": "2015-03-09T15:56:29.437-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

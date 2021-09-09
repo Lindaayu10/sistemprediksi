@@ -1,0 +1,25 @@
+#!/usr/bin/php -e
+<?php
+
+set_include_path('.' . PATH_SEPARATOR . '../common/classes/PHPExcel');
+require('PHPExcel.php');
+require('PHPExcel/Writer/Excel5.php');
+
+
+$opxarr = array();
+
+for ($i=1; $i<=3; $i++) {
+	$opxarr[$i] = new PHPExcel();
+	$opxarr[$i]->setActiveSheetIndex(0);
+	$opxas = $opxarr[$i]->getActiveSheet();
+
+	$opxas->getStyle('A'.($i*2))->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
+	$opxas->getStyle('A'.($i*2))->getFill()->getStartColor()->setARGB('FFBBDDBB');
+	$opxas->setCellValue('A'.($i*2), "A".($i*2));
+
+	$filename="phpexcel_bug_".date("Ymd")."_${i}.xls";
+	$objWriter = new PHPExcel_Writer_Excel5($opxarr[$i]);
+	$objWriter->save($filename);
+	echo $filename."\n";
+}
+?>

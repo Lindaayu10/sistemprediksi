@@ -1,0 +1,20 @@
+Index: C:/xampp/htdocs/_phpexcel/PHPExcel/Classes/PHPExcel/Reader/Excel5.php
+===================================================================
+--- C:/xampp/htdocs/_phpexcel/PHPExcel/Classes/PHPExcel/Reader/Excel5.php	(revision 1120)
++++ C:/xampp/htdocs/_phpexcel/PHPExcel/Classes/PHPExcel/Reader/Excel5.php	(revision 1121)
+@@ -2765,7 +2765,14 @@
+ 			// bit: 1; mask: 0x0002; 1 = calculate on open
+ 			// bit: 2; mask: 0x0008; 1 = part of a shared formula
+ 			$isPartOfSharedFormula = (bool) (0x0008 & $options);
+-			if ($isPartOfSharedFormula) {
++
++			// WARNING:
++			// We can apparently not rely on $isPartOfSharedFormula. Even when $isPartOfSharedFormula = true
++			// the formula data may be ordinary formula data, therefore we need to check
++			// explicitly for the tExp token (0x01)
++			$isPartOfSharedFormula = $isPartOfSharedFormula && ord($formulaStructure{2}) == 0x01;
++
++			if ($isPartOfSharedFormula && ord($formulaStructure{2}) == 1) {
+ 				// part of shared formula which means there will be a formula with a tExp token and nothing else
+ 				// get the base cell, grab tExp token
+ 				$baseRow = $this->_GetInt2d($formulaStructure, 3);

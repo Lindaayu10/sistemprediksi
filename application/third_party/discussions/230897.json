@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "507202",
+    "ThreadId": "230897",
+    "Html": "<p>Hi All,</p>\r\n<p>&nbsp;</p>\r\n<p>We use phpexcel to create xlsx files with very large sql query result sets. usually the queries take multiple hours to complete (somewhere between 2 and 16 hours). This works very nice when we run 1 instance of the script (which runs in php-cli 5.3.2). However, when we run multiple instances of the script in parallel on the same machine, sometimes theresults from the queries seem to get mixed up. (ie. data from script1 ending up in query2). When we run 1 instance on multiple servers, but using the same database server (mysql 5.1) the problem does not occur. Does anyone know if this problem could somehow be related to phpexcel, perhaps some namespace collision, db connection sharing, caching problem of the sort.</p>\r\n<p>The resulting xslx files may have up to 600K rows with 50 columns. Since we cannot find the problem at the moment we are forced to run one instance. Despite this, I would still like to say that phpExcel is an excellent library! :)</p>\r\n<p>&nbsp;</p>\r\n<p>Kind regards,</p>\r\n<p>&nbsp;</p>\r\n<p>Mike</p>",
+    "PostedDate": "2010-10-14T05:49:28.07-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "511000",
+    "ThreadId": "230897",
+    "Html": "\r\n<p>Are you using any cell caching at the moment?<br>\r\nIf not, then PHP/the OS itself should maintain each CLI thread independently. If you are using cell caching, then a clash is theoretically possible. PHPExcel tries to allocate a unique prefix to each worksheet within a script based on either the result of an\r\n mt_rand or the posix pid... depending on operating platform. The _getUniqueID() method in PHPExcel_CachedObjectStorage_CacheBase handles part of this, while the cache constructor may manipulate this value further in the constructor depending on the caching\r\n method used. This does present some possibility of a cache clash between scripts.</p>\r\n",
+    "PostedDate": "2010-10-22T03:24:54.37-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "511012",
+    "ThreadId": "230897",
+    "Html": "\r\n<p>Ah, I did some experimenting with using cell caching. As said earlier, we use some extremely big data sets, causing the php script that retrieves the data and generating the excel file to use up to 23GB of memory!</p>\r\n<p>&nbsp;</p>\r\n<p>I'll try to see if I can reproduce it, we're currently working on building a testcase which makes it easy for us to assess if any corruption has taken place in order to trace the origin of it.</p>\r\n<p>For your information, we use 64bit Debian/GNU linux (stable &#43; backports), with php 5.2.6 and phpExcel 1.7.3C. (in 1.7.3 that function does not exist ;)</p>\r\n",
+    "PostedDate": "2010-10-22T03:50:47.547-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "452221",
+    "ThreadId": "215120",
+    "Html": "<p>I am using PHPExcel to spot updated records in an Excel spreadsheet and update a database. &nbsp;Having been programming in Ruby recently, it was a pleasure to find such excellent documentation here. &nbsp;All is working very well except this oddity.</p>\r\n<p>If I extract a date of birth out of the Excel with a cell value between 1 and 714, I would expect PHPExcel_Shared_Date::ExcelToPHP to convert it to a date before 14 Dec 1901. &nbsp;But for some reason, these numbers convert to dates between&nbsp;7 Feb 2036 and&nbsp;18 Jan 2038. &nbsp;Is this a known problem or am I doing something stupid?</p>\r\n<p>Test program:</p>\r\n<p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>&lt;?php\r\n\r\n<span style=\"color:green\">// Error reporting</span>\r\nerror_reporting(E_ALL);\r\n\r\n<span style=\"color:green\">// PHPExcel_IOFactory</span>\r\n<span style=\"color:blue\">require_once</span> <span style=\"color:#a31515\">'../Classes/PHPExcel/IOFactory.php'</span>;\r\n\r\n<span style=\"color:blue\">for</span> ( $i=0; $i&lt;10; $i++ ) {\r\n\r\n  <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">&quot;date $i = &quot;</span> . date( <span style=\"color:#a31515\">&quot;j M Y&quot;</span>, PHPExcel_Shared_Date::ExcelToPHP( $i ) ) . <span style=\"color:#a31515\">&quot;\\r\\n&quot;</span>;\r\n\r\n}\r\n<span style=\"color:blue\">for</span> ( $i=710; $i&lt;719; $i++ ) {\r\n\r\n  <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">&quot;date $i = &quot;</span> . date( <span style=\"color:#a31515\">&quot;j M Y&quot;</span>, PHPExcel_Shared_Date::ExcelToPHP( $i ) ) . <span style=\"color:#a31515\">&quot;\\r\\n&quot;</span>;\r\n\r\n}\r\n\r\n?&gt;\r\n\r\n</pre>\r\n</div>\r\n</p>\r\n<p>Output:</p>\r\n<p>date 0 = 6 Jun 2010<br>date 1 = 7 Feb 2036<br>date 2 = 8 Feb 2036<br>date 3 = 9 Feb 2036<br>date 4 = 10 Feb 2036<br>date 5 = 11 Feb 2036<br>date 6 = 12 Feb 2036<br>date 7 = 13 Feb 2036<br>date 8 = 14 Feb 2036<br>date 9 = 15 Feb 2036<br>date 710 = 15 Jan 2038<br>date 711 = 16 Jan 2038<br>date 712 = 17 Jan 2038<br>date 713 = 18 Jan 2038<br>date 714 = 14 Dec 1901<br>date 715 = 15 Dec 1901<br>date 716 = 16 Dec 1901<br>date 717 = 17 Dec 1901<br>date 718 = 18 Dec 1901<br><br>Note that dates are correct from 714 onwards.</p>\r\n<p>(Has my loop given away that I first learn to program in Fortran 77? :-) )</p>",
+    "PostedDate": "2010-06-06T13:24:12.6-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "452232",
+    "ThreadId": "215120",
+    "Html": "<p>The reason for this is that the PHP date/timestamp is actually an integer with a range between -2147483648 and 2147483647 on a 32-bit server. With the PHP base date of January 1st 1970 00:00:00 UTC, and the date/timestamp being measured as the number of seconds from that point, this gives a date range of between Friday, 13th December 1901 20:45:54 UTC to Tuesday, 19th January 2038 03:14:07 UTC.<br>Prior to PHP 5.1.0 on Windows servers, negative values weren't used for date/timestamps, so dates prior to 1st January 1970 weren't possible</p>\r\n<p>The Excel date is a 32-bit&nbsp;positive floating point&nbsp;value, with a (default) base date of January 1, 1900 00:00:00 (the Windows 1900 calendar) = 1.0, and measures the number of days since that base date, with times being represented by the fractional part... .25 corresponding to 6am, .5 to midday and .75 to 6pm.</p>\r\n<p>PHPExcel holds the date internally as the Excel value, and the PHPExcel_Shared_Date::ExcelToPHP() method allows you to convert that value to a PHP date/timestamp. However, it is subject to the PHP date range limitations, as you have discovered.</p>\r\n<p>&nbsp;</p>\r\n<p>There are two options that allow you to work with the full Excel date range.</p>\r\n<p>Option 1 is to work on a 64-bit PHP server, with the PHP date/timestamp as a 64-bit integer. This gives a much wider date range using the standard PHP date/timestamp.</p>\r\n<p>Option 2 is to use PHP's <a href=\"http://uk3.php.net/manual/en/class.datetime.php\">date/time objects</a>, which inherently support a much wider date range, even on 32-bit PHP. PHPExcel uses these internally to handle date conversions. The PHPExcel_Shared_Date::ExcelToPHPObject() will convert an Excel date/time to a PHP date/time object.</p>\r\n<p>&nbsp;</p>\r\n<p>A couple of other minor quirks that you may notice when playing with dates:&nbsp;29th February 1900 is a valid date in Excel, even though 1900 wasn't a leap year; and Excel workbooks&nbsp;may also have a different base date, the Mac 1904 calendar with a base date of 2nd Jan 1904 = 1.0.</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;The Fortran 77 background doesn't particularly show... if you'd tried to write it as a do loop, then I might have suspected :) but it's nice to find somebody else that still knows Fortran.</p>",
+    "PostedDate": "2010-06-06T14:43:12.317-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "452680",
+    "ThreadId": "215120",
+    "Html": "<p>Thanks for your help &nbsp;Mark. &nbsp;</p>\r\n<p>I have programmed a quick-and-dirty workaround by adding (365+365+365+366) to the number to take it four years on from the problem area,, formatting it and then taking four years back off the formatted number. &nbsp;I'm sure there are ,ore elegant solutions but this works so I will move on.</p>",
+    "PostedDate": "2010-06-07T14:08:19.833-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1214270",
+    "ThreadId": "215120",
+    "Html": "This is a input file format. How could I get these values, Could you help me ?\r<br />\n<br />\nProf: 1\r<br />\nTerm: 1\r<br />\nSubject Code: 1\r<br />\nCP: wrtnMarks\r<br />\nYear : 2014\r<br />\n<br />\nId Marks\r<br />\n<br />\n1 34\r<br />\n41 44\r<br />\n42 44\r<br />\n<br />\n<br />\n<br />\nI will insert id and marks in a table depending on top data as condition.<br />\n",
+    "PostedDate": "2014-02-25T00:01:15.493-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

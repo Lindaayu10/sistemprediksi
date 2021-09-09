@@ -1,0 +1,61 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hi there!\nI have a problem with parsing regular file. \nThere is my code \n```\n$cacheMethod = PHPExcel_CachedObjectStorageFactory::cache_to_phpTemp;\n$cacheSettings = array( ' memoryCacheSize ' => '8MB');\nPHPExcel_Settings::setCacheStorageMethod($cacheMethod, $cacheSettings);\n\n$objPHPExcel = PHPExcel_IOFactory::load($path_to_file);\n$objReader = PHPExcel_IOFactory::createReader('Excel2007');\n$sheets = $objReader->listWorksheetInfo($path_to_file);\n\nif (!empty($sheets)) {\n   $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'HTML');\n   foreach ($sheets as $key=>$sheet) {\n      print_r($sheet);\n      if ($sheet['totalRows'] > 0 && $sheet['totalColumns'] > 1) {\n         $objWriter->save($some_path);\n      }\n   }\n}\n```\nIt save me  file 167 Mb, when xls just 2 Mb.\n__print_r($sheet)__ \n    [worksheetName] => Лист1\n    [lastColumnLetter] => XFD\n    [lastColumnIndex] => 16383\n    [totalRows] => 321\n    [totalColumns] => 16384\n\n\nWhat is wrong?\nThanks in advance",
+    "LastUpdatedDate": "2013-05-30T04:05:15.473-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2013-05-23T02:42:18.543-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "PHPExcel return wrong totalColumns",
+    "Type": {
+      "Name": "Unassigned",
+      "Id": 5
+    },
+    "VoteCount": 1,
+    "Id": 19755
+  },
+  "FileAttachments": [
+    {
+      "FileId": 6971,
+      "FileName": "BIG.xlsx",
+      "DownloadUrl": ".\\6971"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "listWorksheetInfo() works by skimming through the file searching for every cell entry that has a definition in the file, it doesn't test if that row or column has any actual content in the cell; so if you \"touched\" cell IV65535 when you created the file in MS Excel, then column IV and row 65535 will have a cell entry in the file even though there is no content in that cell (even if the worksheet is otherwise completely empty)... so listWorksheetInfo() is technically correct in what it returns.\r\n\r\nThis is similar to the getHighestColumn() and getHighestRow() methods for the worksheet.\r\n\r\nWe provided the getHighestDataColumn() and getHighestDataRow() alternatives to getHighestColumn() and getHighestRow() a couple of versions ago, which return the highest row and column values that actually contain cell content.\r\n\r\nI'm leaving this issue open as a reminder that at some point in the future I might modify listWorksheetInfo() to do an equivalent check against cell content, and potentially add\n```\nlastDataColumnLetter\nlastDataColumnIndex\ntotalDataRows\ntotalDataColumns\n```\nelements to the return values",
+      "PostedDate": "2013-05-30T01:49:39.963-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-30T02:38:21.747-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Thanks for reply!",
+      "PostedDate": "2013-05-30T04:05:15.473-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

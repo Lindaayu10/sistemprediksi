@@ -1,0 +1,39 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hi,\n \nWith in memory cache, since the object is not serialized, any attribute change will be applied immediately, so notifyCacheController can be set to be called only for the first time\n \nHere is my change to PHPExcel_Cell\n \n// required attributes to save status\nprivate $_alwaysNotify = true;\nprivate $_notified = false;\n \n// in __construct\nif (PHPExcel_CachedObjectStorageFactory::getCacheStorageMethod() == PHPExcel_CachedObjectStorageFactory::cache_in_memory) {\n\t\t\t$this->_alwaysNotify = false;\n\t\t}\n \n// notifyCacheController\npublic function notifyCacheController() {\n\t\tif ($this->_alwaysNotify || ! $this->_notified) {\n\t\t\t$this->_parent->getCellCacheController()->updateCacheData($this);\n\t\t}\n\t\tif (! $this->_notified) {\n\t\t\t$this->_notified = true;\n\t\t}\n\t\treturn $this;\n\t}",
+    "LastUpdatedDate": "2013-02-21T19:02:17.22-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2011-08-09T00:26:39.733-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "[patch] With cache_in_memory, call Cell::notifyCacheController() only once",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 2,
+    "Id": 16360
+  },
+  "FileAttachments": [],
+  "Comments": []
+}

@@ -1,0 +1,56 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "It appears to me that one of the major drawbacks to PHPExcel is the inability to write large files. We needed an Excel writer for PHP that could handle writing massive files. I've attempted to use the \"cache_to_phpTemp\" option, but still run out of memory for large files. The problem is that everything has to be stored before writing. This appears to be a result of the nature of an excel file.\n\n   An XML Spreadsheet 2003 offers the possibility of writing files and committing changes as needed to remove unnecessary memory consumption.\n\nConsider the following code:\n\n```\n$data = array();\n$data2 = array(\"a\", \"b\", \"c\");\n\nfor ($x = 0; $x < 100000; ++$x) {\n    $data[] = $data2;\n}\n\n$export = new PHPExcel();\nPHPExcel_Settings::setCacheStorageMethod(PHPExcel_CachedObjectStorageFactory::cache_to_phpTemp, array('memoryCacheSize' => '256MB'));\n\n$sheet = $export->setActiveSheetIndex(0);\n\nforeach ($data as $row => $cells) {\n    foreach ($cells as $column) {\n        $sheet->setCellValue($column . ($row + 1), \"test{$column}{$row}\");\n    }\n}\n\n$write2 = PHPExcel_IOFactory::createWriter($export, 'Excel2007');\n$write2->save(\"test3.xlsx\");\n```\n\nThis code will fail with 512mb of memory available.\n\nHowever, I made some modifications to the PHPExcel main class and added a XML writer class as a test. The following takes about a minute and a half to write the file, but does so using minimal memory.\n\n```\n$data = array();\n$data2 = array(\"a\", \"b\", \"c\");\n\nfor ($x = 0; $x < 100000; ++$x) {\n    $data[] = $data2;\n}\n\n$xmlWriter = new PHPExcel_Writer_XML();\n\n$export = new PHPExcel($xmlWriter);\n\n$sheet = $export->setActiveSheetIndex(0);\n\nforeach ($data as $row => $cells) {\n    foreach ($cells as $column) {\n        $sheet->setCellValue($column . ($row + 1), \"test{$column}{$row}\");\n    }\n    $export->commitChanges(\"writeTest.xml\");\n}\n\n$export->finish();\n```\n\nThe new stuff I added was pretty rough, as it was just a proof of concept. But it shows that it is possible to write this data. I have attached the XML writer I created. It needs a lot of work to use all the data, but could be a reliable way of writing massive files on the fly.\n\nThere are a couple drawbacks here, such as not being able to edit cells once they have been committed. I feel like this should be an option that is set in the PHPExcel class.",
+    "LastUpdatedDate": "2013-05-31T15:43:25.263-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2013-05-10T08:26:52.747-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Writing Large Excel File",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 19697
+  },
+  "FileAttachments": [
+    {
+      "FileId": 6963,
+      "FileName": "XML.php",
+      "DownloadUrl": ".\\6963"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "If that's the syntax, then they're pretty major changes which make it incompatible with the way the other writers all work, e.g. adding commitChanges() and finish() methods to the PHPExcel object... note also that we do accept Pull Requests on https://github.com/PHPOffice/PHPExcel which is the code repository for PHPExcel... though I'm unlikely to accept a PR for a writer that changes the entire PHPExcel/Writer architecture in this way",
+      "PostedDate": "2013-05-31T15:42:05.553-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "That isn't to say that you can't fork PHPExcel, and rewrite it however you want",
+      "PostedDate": "2013-05-31T15:43:25.263-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

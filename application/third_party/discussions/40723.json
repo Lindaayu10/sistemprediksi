@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "135066",
+    "ThreadId": "40723",
+    "Html": "<div id=\"ctl00_ctl00_MasterContent_Content_PostRepeater_ctl00_BodyDiv\">Hi all,<br>\r\n<br>\r\nI am working on a project to out put formated data to an excel spredsheet. Currently I have the data wrtien to the spreadsheet and formatted correctly, all  I want to do now is to add in a page break at a specific point. I am using the code below to add in the page break, but it does not work even though I can not see anything wrong with the code.<br>\r\n<br>\r\n//setting page break;<br>\r\n $iRow++;<br>\r\n $sCol=&quot;A&quot;;<br>\r\n $sIndex = $sCol . $iRow;<br>\r\n $objPHPExcel-&gt;getActiveSheet()-&gt;setBreak($sIndex, PHPExcel_Worksheet::BREAK_ROW);<br>\r\n<br>\r\nI am currently using excel writer 5 and I am wrting to Excel 2007.<br>\r\n<br>\r\nMany thanks in advance for your help<br>\r\nBob  </div>\r\n",
+    "PostedDate": "2008-11-25T02:51:04.09-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "135113",
+    "ThreadId": "40723",
+    "Html": "Hmm... not sure what the problem is. I cannot reproduce the error.<br>\r\n<br>\r\nCan you please try to run the following code snippet? It is working for me with both the Excel5 and Excel2007 writer.<br>\r\n<br>\r\n<code>\r\n$excel = new PHPExcel();<br>\r\n$sheet = $excel-&gt;getActiveSheet();<br>\r\n<br>\r\n$sheet-&gt;getCell('A1')-&gt;setValue('1');<br>\r\n$sheet-&gt;getCell('A2')-&gt;setValue('2');<br>\r\n$sheet-&gt;getCell('A3')-&gt;setValue('3');<br>\r\n$sheet-&gt;getCell('A4')-&gt;setValue('4');<br>\r\n$sheet-&gt;getCell('A5')-&gt;setValue('5');<br>\r\n$sheet-&gt;getCell('A6')-&gt;setValue('6');<br>\r\n<br>\r\n$sheet-&gt;setBreak('A4', PHPExcel_Worksheet::BREAK_ROW);<br>\r\n<br>\r\n$writer = new PHPExcel_Writer_Excel2007($excel);<br>\r\n$writer-&gt;save('test.xlsx');<br>\r\n<br>\r\n$writer = new PHPExcel_Writer_Excel5($excel);<br>\r\n$writer-&gt;save('test.xls');<br>\r\n<br>\r\n</code>When you print the above sheet, there should be a horizontal break below row 4, so that row 5 will go on second page.<br>\r\n<br>\r\n",
+    "PostedDate": "2008-11-25T06:43:21.163-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "135131",
+    "ThreadId": "40723",
+    "Html": "<p>Hi,</p>\r\n<p>Your code worked perfectly. <br>\r\n<br>\r\nI went back and had a look at my code around the page break and I was adding rows to $iRow to create a gap just before the page break, it turns out that this was causing the problem all along. I have now removed my gap code as I now no longer need it thanks to the page break.<br>\r\n<br>\r\nThank you again for your help!<br>\r\nBob</p>\r\n",
+    "PostedDate": "2008-11-25T07:25:45.35-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

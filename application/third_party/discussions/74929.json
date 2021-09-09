@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "256446",
+    "ThreadId": "74929",
+    "Html": "<p>I am using PHPExcel version 1.7.1 &amp; PHP version 5.2.5.</p>\r\n<p>I am trying to open an existing excel file, change the value of one cell and output the updated file to the user's browser so they can immediately open it. The sheet contains many calculated values, all of which are based on the value of the one cell which is changed.</p>\r\n<p>The output works fine if the user has the full version of Microsoft Excel. But most of our users only have the &quot;Excel Viewer 2003&quot;. When they open the changed file, none of the values are recalculated.</p>\r\n<p>I've tried outputting the file to PDF. The values are calculated correctly, But the cell borders do not display. My research has told me that this is a known bug in the PDF export.</p>\r\n<p>Here's what I have so far:</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre><span style=\"color:Green\">/** Error reporting */</span>\r\nerror_reporting(E_ALL);\r\nini_set(<span style=\"color:#A31515\">'zend.ze1_compatibility_mode'</span>, <span style=\"color:#A31515\">'0'</span>);\r\n\r\n<span style=\"color:Green\">/** PHPExcel_IOFactory */</span>\r\n<span style=\"color:Green\">//require_once '../Classes/PHPExcel/IOFactory.php';</span>\r\n<span style=\"color:Blue\">require_once</span> <span style=\"color:#A31515\">'../Classes/PHPExcel/Writer/Excel5.php'</span>;\r\n\r\n<span style=\"color:Blue\">if</span> (!file_exists(<span style=\"color:#A31515\">&quot;CPR_Cards\\CPRCardAdolescent12yearsolderprotected.xls&quot;</span>)) {\r\n\t<span style=\"color:Blue\">exit</span>(<span style=\"color:#A31515\">&quot;CPRCardAdolescent12yearsolderprotected.xls FILE NOT FOUND!\\n&quot;</span>);\r\n}\r\n\r\n$objPHPExcel = PHPExcel_IOFactory::load(<span style=\"color:#A31515\">&quot;CPR_Cards\\CPRCardAdolescent12yearsolderprotected.xls&quot;</span>);\r\n\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(<span style=\"color:#A31515\">'C3'</span>, $_GET[<span style=\"color:#A31515\">'number'</span>]);\r\n\r\n<span style=\"color:Green\">// Set active sheet index to the first sheet, so Excel opens this as the first sheet</span>\r\n$objPHPExcel-&gt;setActiveSheetIndex(0);\r\n\r\n<span style=\"color:Green\">// Redirect output to a client&rsquo;s web browser (Excel5)</span>\r\nheader(<span style=\"color:#A31515\">'Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'</span>);\r\nheader(<span style=\"color:#A31515\">'Content-Disposition: attachment;filename=&quot;test.xls&quot;'</span>);\r\nheader(<span style=\"color:#A31515\">'Cache-Control: max-age=0'</span>);\r\n\r\n<span style=\"color:Green\">//$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');</span>\r\n$objWriter = <span style=\"color:Blue\">new</span> PHPExcel_Writer_Excel5($objPHPExcel);\r\n$objWriter-&gt;save(<span style=\"color:#A31515\">'php://output'</span>); \r\n<span style=\"color:Blue\">exit</span>;\r\n</pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n<p>Since it appears that the Excel Viewer doesn't calculate the formulas, do you have any idea what I can do to get them recalculated before the output?</p>\r\n<p>Thanks,</p>\r\n<p>Ron</p>",
+    "PostedDate": "2009-11-12T11:52:20.807-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "256511",
+    "ThreadId": "74929",
+    "Html": "<p>You are correct that PHPExcel_Writer_Excel5 does not store calculated values. Your example shows that this can be a problem. Historically, the reason why PHPExcel_Writer_Excel5 does not store calculated values is because it is based on PEAR::Spreadsheet_Excel_Writer which did not feature a calculation engine, thus such feature was not possible to implement. Today situation is different.</p>\r\n<p>I have created a work item for this. Will try put it on the to-do list for next week.</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10930\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10930</a></p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-11-12T15:34:51.75-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "257013",
+    "ThreadId": "74929",
+    "Html": "<p>Try with latest source code tomorrow:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx\">http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx</a></p>",
+    "PostedDate": "2009-11-13T21:07:01.73-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "257495",
+    "ThreadId": "74929",
+    "Html": "<p>Thanks a bunch, koyama! That seems to have fixed my problem.</p>\r\n<p>Bravo, on the quick response!!</p>\r\n<p>Ron</p>",
+    "PostedDate": "2009-11-16T06:07:49.35-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

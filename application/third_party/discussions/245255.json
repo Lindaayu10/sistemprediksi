@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "563208",
+    "ThreadId": "245255",
+    "Html": "\r\n<p>Hi,</p>\r\n<p>I've run into problems craeting an excelsheet with &gt; 100K rows. It seems phpExcel checks if a cell coordinate is valid in the following function:</p>\r\n<p></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>\t<span style=\"color:blue\">public</span> <span style=\"color:blue\">static</span> <span style=\"color:blue\">function</span> coordinateFromString($pCoordinateString = <span style=\"color:#a31515\">'A1'</span>)\r\n\t{\r\n\t\t<span style=\"color:blue\">if</span> (preg_match(<span style=\"color:#a31515\">&quot;/^([$]?[A-Z]{1,3})([$]?\\d{1,5})$/&quot;</span>, $pCoordinateString, $matches)) {\r\n\t\t\t<span style=\"color:blue\">return</span> <span style=\"color:blue\">array</span>($matches[1],$matches[2]);\r\n\t\t} <span style=\"color:blue\">elseif</span> ((strpos($pCoordinateString,<span style=\"color:#a31515\">':'</span>) !== false) || (strpos($pCoordinateString,<span style=\"color:#a31515\">','</span>) !== false)) {\r\n\t\t\t<span style=\"color:blue\">throw</span> <span style=\"color:blue\">new</span> Exception(<span style=\"color:#a31515\">'Cell coordinate string can not be a range of cells.'</span>);\r\n\t\t} <span style=\"color:blue\">elseif</span> ($pCoordinateString == <span style=\"color:#a31515\">''</span>) {\r\n\t\t\t<span style=\"color:blue\">throw</span> <span style=\"color:blue\">new</span> Exception(<span style=\"color:#a31515\">'Cell coordinate can not be zero-length string.'</span>);\r\n\t\t} <span style=\"color:blue\">else</span> {\r\n\t\t\t<span style=\"color:blue\">throw</span> <span style=\"color:blue\">new</span> Exception(<span style=\"color:#a31515\">'Invalid cell coordinate '</span>.$pCoordinateString);\r\n\t\t}\r\n\t}\r\n</pre>\r\n</div>\r\n<p></p>\r\n<p>As you can see, the regex checks for a number with up to 5 digits. This causes my script to crash attempting to add the 100000th row:</p>\r\n<p></p>\r\n<pre>20110208 17:52:57 Exception caught! exception 'Exception' with message 'Invalid cell coordinate C100000' in /home/report/trunk/MoneyMaker/PHPExcel/Cell.php:501\r\n20110208 17:52:57 Stack trace:\r\n20110208 17:52:57 #0 /home/report/trunk/MoneyMaker/PHPExcel/Worksheet.php(959): PHPExcel_Cell::coordinateFromString('C100000')\r\n20110208 17:52:57 #1 /home/report/trunk/MoneyMaker/PHPExcel/Worksheet.php(880): PHPExcel_Worksheet-&gt;getCell('C100000')\r\n20110208 17:52:57 #2 /home/report/trunk/MoneyMaker/Export.class.php(448): PHPExcel_Worksheet-&gt;setCellValueByColumnAndRow(2, 100000, '96')\r\n20110208 17:52:57 #3 /home/report/trunk/MoneyMaker/Export.class.php(429): export-&gt;addRow(Array, 100000)\r\n20110208 17:52:57 #4 /home/report/trunk/MoneyMaker/Export.class.php(211): export-&gt;runQuery('SELECT *??FROM ...', false)</pre>\r\n<p></p>\r\n<p>Changing the check seems to fix the problem.</p>\r\n<p>&nbsp;</p>\r\n<p>Mike</p>\r\n",
+    "PostedDate": "2011-02-09T02:47:21.497-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "563215",
+    "ThreadId": "245255",
+    "Html": "\r\n<p><a href=\"http://phpexcel.codeplex.com/workitem/15029\">Work Item 15029</a> - already fixed in SVN code on 4th January</p>\r\n",
+    "PostedDate": "2011-02-09T02:57:21.883-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "563232",
+    "ThreadId": "245255",
+    "Html": "\r\n<p>Ah thanks, I did not know that obviously ;) Fix seems the same as my local changes here.</p>\r\n",
+    "PostedDate": "2011-02-09T03:42:56.787-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "563286",
+    "ThreadId": "245255",
+    "Html": "\r\n<p>Yes,&nbsp;all I did to fix this was to change \\d{1,5} to \\d{1,7} in the regular expression</p>\r\n",
+    "PostedDate": "2011-02-09T05:41:08.73-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

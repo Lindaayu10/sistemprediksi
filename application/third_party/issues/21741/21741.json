@@ -1,0 +1,150 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hi,\n\nI need expert support on the following issue.\n\nI generate CHART as per following code(only the last lines) which work absolutely fine-\n\n......................\n$objWorksheet->addChart($chart);\n$objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel);\n$objWriter->setIncludeCharts(TRUE);\n$objWriter->save($file_name);\n\nI have a code file working absolutely fine to create pdf from excel data. However, when I take attempt to capture the CHART as per code below, it is not shown in pdf file. Data is shown fine. Also a warning message is shown during pdf creation which is because of \"$objWriter->setIncludeCharts(TRUE);\" line.\n\nWarning: call_user_func_array() [function.call-user-func-array]: First argument is expected to be a valid callback, 'PHPExcel_Writer_PDF_tcPDF::setIncludeCharts' was given in PDF.php on line 73\n\n..................................\n$objWorksheet->addChart($chart);\n$objWriter = new PHPExcel_Writer_PDF($objPHPExcel);\n$objWriter->setIncludeCharts(TRUE);\n$objWriter->save($file_name);\n\nIs there any straight method to do so? If not, then I suppose, by first rendering CHART into jpeg and then showing it in pdf might be an option. Please suggest how we can do it if there is no straight method?\n\nThanks,",
+    "LastUpdatedDate": "2015-03-03T09:36:37.61-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2015-02-26T21:46:40.26-08:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "To capture chart in pdf",
+    "Type": {
+      "Name": "Unassigned",
+      "Id": 5
+    },
+    "VoteCount": 1,
+    "Id": 21741
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "To \"capture\" a chart in your PDF, you must have set the graph renderer.\r\n\r\ne.g.\n```php\n$rendererName = PHPExcel_Settings::CHART_RENDERER_JPGRAPH;\n$rendererLibrary = 'jpgraph3.5.0b1/src';\n$rendererLibraryPath = '/php/libraries/Charts/' . $rendererLibrary;\r\n\r\n\nif (!PHPExcel_Settings::setChartRenderer(\n\t\t$rendererName,\n\t\t$rendererLibraryPath\n\t)) {\n\tdie(\n\t\t'NOTICE: Please set the $rendererName and $rendererLibraryPath values' .\n\t\tEOL .\n\t\t'at the top of this script as appropriate for your directory structure'\n\t);\n}\n```\nas per `36chartreadwritePDF.php` in `Examples`\r\n\r\nThe error that you're getting tells me that you haven't done this",
+      "PostedDate": "2015-02-27T00:11:34.943-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2015-02-27T00:11:53.043-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Thanks for the info. I did apply changes accordingly. Still GRAPH is not produced in PDF...only data is present. Also the same warning apperas.\r\n\r\n$rendererName = PHPExcel_Settings::PDF_RENDERER_TCPDF;\n$rendererLibrary = 'tcpdf';\n$rendererLibraryPath = $_SERVER[\"DOCUMENT_ROOT\"].'/excelwrapper/Classes/PHPExcel/Writer/PDF/'. $rendererLibrary;\nif (!PHPExcel_Settings::setPdfRenderer(\n        $rendererName,\n        $rendererLibraryPath\n    )) {\n    die(\n        'NOTICE: Please set the $rendererName and $rendererLibraryPath values' .\n        '<br />' .\n        'at the top of this script as appropriate for your directory structure'\n    );\n}\r\n\r\n$rendererName = PHPExcel_Settings::CHART_RENDERER_JPGRAPH;\n$rendererLibrary = 'jpgraph3.5.0b1/src';\n$rendererLibraryPath = $_SERVER[\"DOCUMENT_ROOT\"].'/excelwrapper/Classes/PHPExcel/Render/' . $rendererLibrary;\nif (!PHPExcel_Settings::setChartRenderer(\n\t\t$rendererName,\n\t\t$rendererLibraryPath\n\t)) {\n\tdie(\n\t\t'NOTICE: Please set the $rendererName and $rendererLibraryPath values' .\n\t\tEOL .\n\t\t'at the top of this script as appropriate for your directory structure'\n\t);\n}\r\n\r\n$objPHPExcel = new PHPExcel();\n$objWorksheet = $objPHPExcel->getActiveSheet();\n$objWorksheet->fromArray(\n        array(\n            array('',       'Rainfall (mm)',    'Temperature (°F)', 'Humidity (%)'),\n            array('Jan',        78,                 52,                 61),\n            array('Feb',        64,                 54,                 62),\n            array('Mar',        62,                 57,                 63),\n            array('Apr',        21,                 62,                 59),\n            array('May',        11,                 75,                 60),\n            array('Jun',        1,                  75,                 57),\n            array('Jul',        1,                  79,                 56),\n            array('Aug',        1,                  79,                 59),\n            array('Sep',        10,                 75,                 60),\n            array('Oct',        40,                 68,                 63),\n            array('Nov',        69,                 62,                 64),\n            array('Dec',        89,                 57,                 66),\n        )\n    );\r\n\r\n$dataseriesLabels = array(\n        new PHPExcel_Chart_DataSeriesValues('String', 'Worksheet!$B$1', NULL, 1),\n        new PHPExcel_Chart_DataSeriesValues('String', 'Worksheet!$C$1', NULL, 1),\n        new PHPExcel_Chart_DataSeriesValues('String', 'Worksheet!$D$1', NULL, 1)\n      );\r\n\r\n$xAxisTickValues = array(\n        new PHPExcel_Chart_DataSeriesValues('String', 'Worksheet!$A$2:$A$13', NULL, 4)\n      );\r\n\r\n$dataSeriesValues = array(\n        new PHPExcel_Chart_DataSeriesValues('Number', 'Worksheet!$B$2:$B$13', NULL, 4),\n        new PHPExcel_Chart_DataSeriesValues('Number', 'Worksheet!$C$2:$C$13', NULL, 4),\n        new PHPExcel_Chart_DataSeriesValues('Number', 'Worksheet!$D$2:$D$13', NULL, 4)\n      );\r\n\r\n$series = new PHPExcel_Chart_DataSeries(\n        PHPExcel_Chart_DataSeries::TYPE_BARCHART,      \n        PHPExcel_Chart_DataSeries::GROUPING_STANDARD,  \n        range(0, count($dataSeriesValues)-1),        \n        $dataseriesLabels,                          \n        $xAxisTickValues,                              \n        $dataSeriesValues                         \n      );\r\n\r\n$series->setPlotDirection(PHPExcel_Chart_DataSeries::DIRECTION_COL);\n$plotarea = new PHPExcel_Chart_PlotArea(NULL, array($series));\n$legend = new PHPExcel_Chart_Legend(PHPExcel_Chart_Legend::POSITION_RIGHT, NULL,false);\n$title = new PHPExcel_Chart_Title('Test Column Chart');\n$yAxisLabel = new PHPExcel_Chart_Title('Value qwerty');\r\n\r\n //Create the chart\n $chart = new PHPExcel_Chart(\n        'chart1',          \n        $title,            \n        $legend,          \n        $plotarea,          \n        true,          \n        0,\n        NULL,\n        $yAxisLabel      \n      );\r\n\r\n$chart->setTopLeftPosition('F2');\n$chart->setBottomRightPosition('O16');\n$objWorksheet->addChart($chart);\n//$chart->render($save_file_directory.'/'.$jpegFileName);\r\n\r\n// Rename worksheet\n$objPHPExcel->getActiveSheet()->setTitle('Simple');\n$objPHPExcel->getActiveSheet()->setShowGridLines(false);\r\n\r\n$objWriter = new PHPExcel_Writer_PDF($objPHPExcel);\n$objWriter->setIncludeCharts(TRUE);\n$objWriter->save($save_file_directory.'/'.$file_name);\n",
+      "PostedDate": "2015-02-27T19:39:51.433-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "** Closed by MarkBaker 27/02/2015 00:11",
+      "PostedDate": "2015-02-27T19:41:47.08-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2015-02-27T19:41:47.26-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Thanks for the info. I did apply changes accordingly. Still GRAPH is not produced in PDF...only data is present. Also the same warning apperas.\r\n\r\n```\n$rendererName = PHPExcel_Settings::PDF_RENDERER_TCPDF;\n$rendererLibrary = 'tcpdf';\n$rendererLibraryPath = $_SERVER[\"DOCUMENT_ROOT\"].'/excelwrapper/Classes/PHPExcel/Writer/PDF/'. $rendererLibrary;\nif (!PHPExcel_Settings::setPdfRenderer(\n        $rendererName,\n        $rendererLibraryPath\n    )) {\n    die(\n        'NOTICE: Please set the $rendererName and $rendererLibraryPath values' .\n        '<br />' .\n        'at the top of this script as appropriate for your directory structure'\n    );\n}\r\n\r\n$rendererName = PHPExcel_Settings::CHART_RENDERER_JPGRAPH;\n$rendererLibrary = 'jpgraph3.5.0b1/src';\n$rendererLibraryPath = $_SERVER[\"DOCUMENT_ROOT\"].'/excelwrapper/Classes/PHPExcel/Render/' . $rendererLibrary;\nif (!PHPExcel_Settings::setChartRenderer(\n\t\t$rendererName,\n\t\t$rendererLibraryPath\n\t)) {\n\tdie(\n\t\t'NOTICE: Please set the $rendererName and $rendererLibraryPath values' .\n\t\tEOL .\n\t\t'at the top of this script as appropriate for your directory structure'\n\t);\n}\r\n\r\n$objPHPExcel = new PHPExcel();\n$objWorksheet = $objPHPExcel->getActiveSheet();\n$objWorksheet->fromArray(\n        array(\n            array('',       'Rainfall (mm)',    'Temperature (°F)', 'Humidity (%)'),\n            array('Jan',        78,                 52,                 61),\n            array('Feb',        64,                 54,                 62),\n            array('Mar',        62,                 57,                 63),\n            array('Apr',        21,                 62,                 59),\n            array('May',        11,                 75,                 60),\n            array('Jun',        1,                  75,                 57),\n            array('Jul',        1,                  79,                 56),\n            array('Aug',        1,                  79,                 59),\n            array('Sep',        10,                 75,                 60),\n            array('Oct',        40,                 68,                 63),\n            array('Nov',        69,                 62,                 64),\n            array('Dec',        89,                 57,                 66),\n        )\n    );\r\n\r\n$dataseriesLabels = array(\n        new PHPExcel_Chart_DataSeriesValues('String', 'Worksheet!$B$1', NULL, 1),\n        new PHPExcel_Chart_DataSeriesValues('String', 'Worksheet!$C$1', NULL, 1),\n        new PHPExcel_Chart_DataSeriesValues('String', 'Worksheet!$D$1', NULL, 1)\n      );\r\n\r\n$xAxisTickValues = array(\n        new PHPExcel_Chart_DataSeriesValues('String', 'Worksheet!$A$2:$A$13', NULL, 4)\n      );\r\n\r\n$dataSeriesValues = array(\n        new PHPExcel_Chart_DataSeriesValues('Number', 'Worksheet!$B$2:$B$13', NULL, 4),\n        new PHPExcel_Chart_DataSeriesValues('Number', 'Worksheet!$C$2:$C$13', NULL, 4),\n        new PHPExcel_Chart_DataSeriesValues('Number', 'Worksheet!$D$2:$D$13', NULL, 4)\n      );\r\n\r\n$series = new PHPExcel_Chart_DataSeries(\n        PHPExcel_Chart_DataSeries::TYPE_BARCHART,      \n        PHPExcel_Chart_DataSeries::GROUPING_STANDARD,  \n        range(0, count($dataSeriesValues)-1),        \n        $dataseriesLabels,                          \n        $xAxisTickValues,                              \n        $dataSeriesValues                         \n      );\r\n\r\n$series->setPlotDirection(PHPExcel_Chart_DataSeries::DIRECTION_COL);\n$plotarea = new PHPExcel_Chart_PlotArea(NULL, array($series));\n$legend = new PHPExcel_Chart_Legend(PHPExcel_Chart_Legend::POSITION_RIGHT, NULL,false);\n$title = new PHPExcel_Chart_Title('Test Column Chart');\n$yAxisLabel = new PHPExcel_Chart_Title('Value qwerty');\r\n\r\n //Create the chart\n $chart = new PHPExcel_Chart(\n        'chart1',          \n        $title,            \n        $legend,          \n        $plotarea,          \n        true,          \n        0,\n        NULL,\n        $yAxisLabel      \n      );\r\n\r\n$chart->setTopLeftPosition('F2');\n$chart->setBottomRightPosition('O16');\n$objWorksheet->addChart($chart);\n//$chart->render($save_file_directory.'/'.$jpegFileName);\r\n\r\n// Rename worksheet\n$objPHPExcel->getActiveSheet()->setTitle('Simple');\n$objPHPExcel->getActiveSheet()->setShowGridLines(false);\r\n\r\n$objWriter = new PHPExcel_Writer_PDF($objPHPExcel);\n$objWriter->setIncludeCharts(TRUE);\n$objWriter->save($save_file_directory.'/'.$file_name);\r\n\r\n```\n",
+      "PostedDate": "2015-02-27T19:44:11.9-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "That's because you need to tell PHPExcel where you have installed a copy of the jpgraph library. If you haven't installed it, then install it. If you've set the path setting incorrectly, then set it correctly.",
+      "PostedDate": "2015-02-28T00:40:01.02-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2015-02-28T00:40:51.59-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "** Closed by MarkBaker 28/02/2015 00:40",
+      "PostedDate": "2015-02-28T05:56:59.69-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2015-02-28T05:57:00.947-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "```\nI have installed the jpgraph library and configured it correctly too. I should have got the error by the following code, otheriwse.\r\n\r\n$rendererName = PHPExcel_Settings::CHART_RENDERER_JPGRAPH;\n$rendererLibrary = 'jpgraph3.5.0b1/src';\n$rendererLibraryPath = $_SERVER[\"DOCUMENT_ROOT\"].'/excelwrapper/Classes/PHPExcel/Render/' . $rendererLibrary;\nif (!PHPExcel_Settings::setChartRenderer(\n\t\t$rendererName,\n\t\t$rendererLibraryPath\n\t)) {\n\tdie(\n\t\t'NOTICE: Please set the $rendererName and $rendererLibraryPath values' .\n\t\tEOL .\n\t\t'at the top of this script as appropriate for your directory structure'\n\t);\n}\r\n\r\n\n2. Nevrtheless, I am able to generate jpeg of GRAPH file by following call which also shows, jpggraph library is correct installed and configured.\n$chart->render($save_file_directory.'/'.$jpegFileName);\r\n\r\n3. I have also properly configured 36chartreadwritePDF.php file to work in my environment. But the same issue i.e. grpah is not shown in pdf file.\r\n\r\nSo, it seems there is some other setting which is stopping it. Please help.\n```\n",
+      "PostedDate": "2015-02-28T06:03:49.953-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "OK, so you've found a major bug.... it doesn't work. I'll stop trying to get a release out of the door (yet again) and dedicate the rest of my life to figuring out what you're doing wrong. I appreciate that you don't have the time to do any debugging yourself to help identify the cause of the problem, and it's expected that I can do so remotely with my crystal ball; but perhaps let me know if you're using a production release of PHPExcel or the development branch from github; and if you have any opportunity to do so, point out which is line 73 in which file called PDF.php would help as I can't actually see that either",
+      "PostedDate": "2015-03-01T02:24:57.513-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I have not mentioned it as BUG. Furthermore, I have asked your assitance with all possible inputs that I may supply to figure the possible reason. I have developed a lot of functionalities based on PhpExcel and worked on so many other libraries but to best of my knowledge this is not more thean second or third attempt in my life to ask for help at any forum. In all cases fortunately I could have figured out the issue either by myself or the solutions found at many of the well known forums.\r\n\r\nI don't feel good myself in setting/expecting the responsibility of someone else as soon as encountered any issue. In this case, I am fighting for more than two days but no solution.\r\n\r\nPDF.php is the standard file shipped with PhpExcel libarray and the line 73 is -\nreturn call_user_func_array(array($this->_renderer,$name),$arguments);\r\n\r\n",
+      "PostedDate": "2015-03-02T06:10:24.203-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I don't know what version of PHPExcel you're working with, but line 73 of the `/Classes/PHPExcel/Writer/PDF.php` file in both the 1.8.0 production release (https://github.com/PHPOffice/PHPExcel/blob/1.8.0/Classes/PHPExcel/Writer/PDF.php#L73) and in the develop branch (https://github.com/PHPOffice/PHPExcel/blob/develop/Classes/PHPExcel/Writer/PDF.php#L73) is a blank line.\r\n\r\nThe line you're quoting is line #87\r\n\r\nBut if you're getting the error message `First argument is expected to be a valid callback, 'PHPExcel_Writer_PDF_tcPDF::setIncludeCharts'` then it suggest that you haven't configured the PDF renderer correctly",
+      "PostedDate": "2015-03-02T07:29:05.913-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I am using @version\t\t1.7.8, 2012-10-12\nThe main code section between the two versions of this file is almost the same.\r\n\r\nIf there is problem with PDF configuration, is it possible PDF is created with data except the CHART?\n",
+      "PostedDate": "2015-03-02T09:13:22.023-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Given that charts weren't supported in the HTML or PDF Writers until version 1.7.9, then I suggest you upgrade the version of PHPExcel that you're working with",
+      "PostedDate": "2015-03-02T10:05:49.717-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2015-03-02T10:06:04.783-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "** Closed by MarkBaker 02/03/2015 10:06",
+      "PostedDate": "2015-03-03T01:24:41.93-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2015-03-03T01:24:43.153-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Good catch. I have upgraded to 1.7.9. Now there are no errors. PDF is created as before but without CHART, data is present though as before.\r\n\r\nAny suggestions.\n",
+      "PostedDate": "2015-03-03T01:26:27.87-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "First step: try generating with the HTML Writer first: this should generate the markup with embedded images for the charts. The PDF Writers use the output from the HTML Writer, and not all PDF Renderers are as capable as others. If the HTML file includes the images, then you may find that DomPDF or mPDF work where tcPDF doesn't.",
+      "PostedDate": "2015-03-03T02:33:39.407-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "ok, I tried creating HTML file but it doesn't generate embedded image. No erros and if I make a following call, image is saved successfully so no issue with chart render configuration. \n$chart->render($save_file_directory.'/'.$jpegFileName);\nI have also tried using example file which reads CHART from excel and then create HTML/PDF file but the same issue....data is available but not the chart and no erros/warnings.\r\n\r\n",
+      "PostedDate": "2015-03-03T09:36:37.61-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

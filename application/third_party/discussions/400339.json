@@ -1,0 +1,74 @@
+[
+  {
+    "Id": "930552",
+    "ThreadId": "400339",
+    "Html": "\r\n<p>Hi.</p>\r\n<p>I have a problem when I open an excel file with a graphic created with excel, then modify it and finally save it to disk.</p>\r\n<p>When I try to open de updated file using excel, the file is short and the graphics are not comleted, the doesn't have the background, the border and so on. I got the error: part of the file cannot be read Do ypu wish and repair this file?</p>\r\n<p>Is necesary to say that all the text into the file is OK but the original graphic is not the same. I have not changed by program the original graphic.</p>\r\n<p>Simple excel files without graphics works right. I have check the Test/32chartreadwrite.php example with the same results when I update a cell, I think is a bug into de code.</p>\r\n<p>The code I am using is the following:</p>\r\n<p>require_once 'Classes/PHPExcel/IOFactory.php';<br>\r\nrequire_once 'Classes/PHPExcel.php';<br>\r\n<br>\r\n<br>\r\n$inputFileType = 'Excel2007';<br>\r\n$inputFileName = 'File.xlsx';<br>\r\n$generatedFile = 'zzz.xlsx';<br>\r\n<br>\r\ntry {<br>\r\n<br>\r\n&nbsp;&nbsp;&nbsp; // Create a new Reader of the type defined in $inputFileType<br>\r\n&nbsp;&nbsp;&nbsp; $objReader = PHPExcel_IOFactory::createReader($inputFileType);<br>\r\n&nbsp;&nbsp;&nbsp; $objReader-&gt;setIncludeCharts(TRUE);<br>\r\n<br>\r\n&nbsp;&nbsp;&nbsp; //&nbsp; Load $inputFileName to a PHPExcel Object<br>\r\n&nbsp;&nbsp;&nbsp; $objPHPExcel = $objReader-&gt;load($inputFileName);<br>\r\n<br>\r\n&nbsp;&nbsp;&nbsp; // Set active sheet index to the first sheet, so Excel opens this as the first sheet<br>\r\n&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;setActiveSheetIndex(0);<br>\r\n&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('C13', '2');<br>\r\n<br>\r\n&nbsp;&nbsp;&nbsp; $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, $inputFileType);<br>\r\n&nbsp;&nbsp;&nbsp; $objWriter-&gt;setIncludeCharts(TRUE);<br>\r\n&nbsp;&nbsp;&nbsp; <br>\r\n&nbsp;&nbsp;&nbsp; if (file_exists('excel/' . $generatedFile )) {<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; unlink('excel/' . $generatedFile);<br>\r\n&nbsp;&nbsp;&nbsp; }<br>\r\n<br>\r\n&nbsp;&nbsp;&nbsp; $objWriter-&gt;save(&quot;excel/&quot;.$generatedFile);<br>\r\n&nbsp;&nbsp;&nbsp; <br>\r\n} catch (Exception $e) {<br>\r\n&nbsp;&nbsp;&nbsp; die('Error on file: ' . $e-&gt;getMessage());<br>\r\n}</p>\r\n<p>Any Ideas? I need this urgent,</p>\r\n<p>Thank you in advance.</p>\r\n",
+    "PostedDate": "2012-10-22T09:23:51.127-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "931348",
+    "ThreadId": "400339",
+    "Html": "<p>What version of PHPExcel are you using?</p>\r\n<p>And simply telling me that there is a bug somewhere in nearly 100,000 lines of code doesn't really help me narrow down any problem at all. Perhaps uploading the two files might help me a little bit.</p>",
+    "PostedDate": "2012-10-23T14:42:14.363-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "931388",
+    "ThreadId": "400339",
+    "Html": "\r\n<p>Hi,</p>\r\n<p>I am using the latest version 1.7.8.</p>\r\n<p>How Do I send you my excel File? you can use the code I copied above.</p>\r\n<p>Regards,</p>\r\n",
+    "PostedDate": "2012-10-23T16:32:19.16-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "931478",
+    "ThreadId": "400339",
+    "Html": "<p>Files can be attached to Work Item <a href=\"http://phpexcel.codeplex.com/workitem/10749?ProjectName=phpexcel\">http://phpexcel.codeplex.com/workitem/10749?ProjectName=phpexcel</a></p>",
+    "PostedDate": "2012-10-23T23:40:10.097-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "933077",
+    "ThreadId": "400339",
+    "Html": "<p>I have upload 3 files:</p>\r\n<p>jaimealvarezv_discussion_400339</p>\r\n<p>1 I Have.png</p>\r\n<p>2 I Got.png</p>\r\n<p>&nbsp;</p>\r\n<p>Thank you</p>",
+    "PostedDate": "2012-10-26T10:10:43.973-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "933154",
+    "ThreadId": "400339",
+    "Html": "\r\n<p>Is that the xlsx file written by PHPExcel, or the file you're loading into PHPExcel? I'm asuming that it's your template; but it complains about the protection when I load it in MS Excel 2010. PHPExcel has a similar problem reading the protection, and writes\r\n the workbook with an empty password which gives validation errors when tested under the OpenXML SDK Productivity Tool, related to the protected ranges.</p>\r\n<p>&nbsp;</p>\r\n<p>Looking at your template: MS Excel itself displays the message: &quot;The data range is too complex to be displayed&quot; when I try to display the data source, and I thought at first that it was probably a bit too complex for PHPExcel to handle; but subsequent investigation\r\n has revealed only a few discrepancies.</p>\r\n<p>I've modified the chart writer code to handle references to cells where data isn't pre-populated, and made a minor tweak to the order in which XML elements are written: I'll upload these fixes to github later tonight.</p>\r\n",
+    "PostedDate": "2012-10-26T13:36:18.427-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "933188",
+    "ThreadId": "400339",
+    "Html": "<p>Thank you very much! <span id=\"result_box\" class=\"short_text\" lang=\"en\"><span class=\"hps\">I hope this</span> <span class=\"hps\">solves</span> <span class=\"hps\">the problem</span><span>.</span></span></p>",
+    "PostedDate": "2012-10-26T15:50:35.363-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "933191",
+    "ThreadId": "400339",
+    "Html": "\r\n<p>It won't solve all the problems: there's something in the cell data that is still throwing up an error, I haven't been able to track that down yet; although it does seem to load up in MS Excel once the Excel loader has &quot;fixed&quot; that. I'm currently fixing\r\n the validation for the empty protected cells password.</p>\r\n<p>&nbsp;</p>\r\n<p>There's also one chart bug in the second chart: it isn't showing the legend values correctly - I still need to identify whay that's not correct.</p>\r\n<p>&nbsp;</p>\r\n<p>It's also worth noting that not all chart stylings are yet supported, so the chart background colouring and the text stylings aren't identical because they simply default. These will come in time, but getting the basic chart features such as data display\r\n correct are more important at this point in the development.</p>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2012-10-26T15:59:16.22-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "933198",
+    "ThreadId": "400339",
+    "Html": "<p>Of course, I will continue attentive to your comment. Thank you again.</p>",
+    "PostedDate": "2012-10-26T16:40:52.507-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

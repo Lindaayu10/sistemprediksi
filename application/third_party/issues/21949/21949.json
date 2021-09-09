@@ -1,0 +1,65 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I'm using PHPExcel to get calculated values from an Excel file, and a lot of the calculations involve VLOOKUPs from other sheets in the workbook. Every time I encounter an exclamation point followed by a range in a VLOOKUP, however, PHPExcel throws an \"Invalid cell coordinates\" exception. \n\nHere's an example:\n\n=IF(ISNA(VLOOKUP(A3,'Validation Table'!D:E,2,FALSE)),\"0\",VLOOKUP(A3,'Validation Table'!D:E,2,FALSE))\n\nAn exclamation point followed by a single cell value works just fine; the issue seems to be specific to the VLOOKUP and range combination. The above example gives me \"Invalid cell coordinate D\", which is one of the rows I'm looking in on the other table. It doesn't matter if the table is one word or more (I was hoping that escaping the table name in quotes might help, but it didn't.\n\nAny advice? Is this a bug in the PHPExcel_Calculation class? Feedback would be greatly appreciated,\n\nChris",
+    "LastUpdatedDate": "2015-07-23T06:32:17.057-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2015-07-22T06:33:11.503-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Invalid cell coordinates with ! separator",
+    "Type": {
+      "Name": "Unassigned",
+      "Id": 5
+    },
+    "VoteCount": 1,
+    "Id": 21949
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "The problem is more likely to be the use of row/column references, which aren't fully supported in the calculation engine (try using a cell range reference instead); rather than the use of a Sheet reference.... that shouldn't cause any problem",
+      "PostedDate": "2015-07-22T07:24:47.443-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Hi Mark,\r\n\r\nThank you for the prompt reply! That sounds promising, but I'm scratching my head as to how to extract a cell reference; I thought I was already doing so by saying, for example:\r\n\r\n\n```\n$formulas = $objPHPExcel->getSheetByName('Formulas');\n$cell = $formulas->getCell(\"B3\"); // or whatever\necho $cell->getCalculatedValue();\n```\r\n\r\nFor reference, here's the error and stack trace in full:\r\n\r\n```\nFatal error: Uncaught exception 'PHPExcxel_Calculation_Exception' with message 'Formulas!A3 -> Invalid cell coordinate D' in C:\\...\\Cell.php:300\nStack trace:\n#0 C:\\...\\test.php(33): PHPExcel_Cell->getCalculatedValue()\n#1 {main}\n   thrown in C:\\...\\Cell.php on line 300\n```\r\n\r\nI also find it odd that $worksheet->getCellCollection() claims to return an array of cell objects, but seems to return an array of plain old strings. \r\n\r\nI really appreciate your help, and I'll keep working at it here and let you know if I stumble on any breakthroughs.\r\n\r\nThanks,\nChris ",
+      "PostedDate": "2015-07-22T08:25:36.62-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I went ahead and uncommented the trace messages in Cell.php to try and debug this better, and the results are mesmerizing. Here's what I've figured out:\r\n\r\nPHPExcel always looks at the value in the 'A' column, no matter which column you ask for. \n```\nCell value for Q53 is a formula: Calculating value\nCell A53 value is a f with a value of ='Other Table'!A52\n```\r\n\r\nPHPExcel thinks strings are arrays. \n```\nA53 calculation result is Array\n```\r\n\r\nPHPExcel does not like arrays.\n```\n// We don't yet handle array results\n```\n(from Cell.php:287)\r\n\r\nDespite this, PHPExcel returns the proper results for the A column.\n```\nReturning calculated value of C-TWINSBURG for cell A53\n```\r\n\r\nI don't know why it does that, but it soldiers through the array-to-string conversion and dies right at the VLOOKUP.\n```\nCalculation exception: Invalid cell coordinate A\n```\r\n\r\nNot sure why it blames the first column for its trouble, but the error is definitely from the requested cell, not from the first cell (which returns correctly).\r\n\r\nNo clue if that helps at all, but thinking through it helps me better understand what PHPExcel is doing. Sorry to ramble :)",
+      "PostedDate": "2015-07-22T08:55:44.65-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Rather than uncommenting the debug, you can use PHPExcel's built-in formula debugger: https://gist.github.com/MarkBaker/5908357",
+      "PostedDate": "2015-07-22T09:22:40.593-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "A little update on my progress:\r\n\r\nTurns out the first column is being calculated because it's used in every other formula. It's just the natural course of things as the formula parser works.\r\n\r\nBecause there are only a few lookups, I've decided to write my own VLOOKUP function using preg_match and a switch statement. It's not particularly elegant or extensible, but it get the job done for me.\r\n\r\nThanks for all your help, Mark!\r\n\r\nChris",
+      "PostedDate": "2015-07-23T06:32:17.057-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+<?php
+define('NEW_LINE', "\n");
+define('TAB', "\t");
+
+require_once(dirname(__FILE__) . '/ExternalLibraries/PHPExcel/Classes/PHPExcel.php');
+require_once(dirname(__FILE__) . '/ExternalLibraries/PHPExcel/Classes/PHPExcel/IOFactory.php');
+
+class READ_CHUNKS implements PHPExcel_Reader_IReadFilter
+{
+    private $StartRow_;
+    private $EndRow_;
+    
+    public function setRows($StartingRow, $MaxRowsPerRead)
+    {
+        $this->StartRow_ = $StartingRow;
+        $this->EndRow_   = $StartingRow + $MaxRowsPerRead;
+    }
+    
+    public function readCell($Column, $Row, $WorksheetName = '')
+    {
+        if($Row >= $this->StartRow_ && $Row <= $this->EndRow_)
+        {
+            return TRUE;
+        }
+        return FALSE;
+    }
+}
+
+try
+{
+    $ReadFilter = new READ_CHUNKS();
+    
+    $FileName = 'Sample.xlsx';
+    $WorksheetType = PHPExcel_IOFactory::identify($FileName);
+    $ExcelReader = PHPExcel_IOFactory::createReader($WorksheetType);
+        
+    $ExcelReader->setReadDataOnly(TRUE);
+    $ExcelReader->setReadFilter($ReadFilter);
+
+    echo 'Row' . TAB . 'Data' . NEW_LINE;
+    $MaxRowsPerRead = 10;
+    $MaxRows = 100;
+    for($StartRow = 1; $StartRow <= $MaxRows; $StartRow += $MaxRowsPerRead)
+    {
+        $ReadFilter->setRows($StartRow, $MaxRowsPerRead);
+        $ExcelWorksheet = $ExcelReader->load($FileName);
+
+        $ExcelWorksheet->setActiveSheetIndex(0);        // Go to first sheet
+
+        foreach ($ExcelWorksheet->getActiveSheet()->getRowIterator() as $RowIterator)
+        {
+        	echo $RowIterator->getRowIndex() . TAB;
+			$CellIterator = $RowIterator->getCellIterator();
+			foreach ($CellIterator as $Cell)
+			{
+				if (!is_null($Cell))
+				{
+					echo $Cell->getValue() . TAB;
+				}
+			}
+			echo NEW_LINE;
+		}
+	}
+}
+
+catch (Exception $e)
+{
+    echo $e->getMessage() . NEW_LINE;
+}
+
+?>

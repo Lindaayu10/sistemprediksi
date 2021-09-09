@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "671866",
+    "ThreadId": "272595",
+    "Html": "\r\n<p>I am using PHP version 5.3.8 with PHPExcel version 1.7.6 on Windows Server 2003.&nbsp; When I try to load a .xlsx file I get this error:</p>\r\n<p><strong>Warning</strong>: ZipArchive::getFromName() [<a href=\"http://10.1.1.17/timesheets/ziparchive.getfromname\">ziparchive.getfromname</a>]: Invalid or unitialized Zip object in\r\n<strong>C:\\Inetpub\\wwwroot\\Library\\PHPExcel\\Reader\\Excel2007.php</strong> on line\r\n<strong>300</strong></p>\r\n<p>I have traced the problem down to line 369 in PHPExcel\\Reader\\Excel2007.php, where it says\r\n<em>$zip-&gt;open($pFilename); </em>&nbsp;&nbsp;&nbsp; This is returning 11 instead of the expected TRUE.&nbsp; I think this means it can't open the zip archive.</p>\r\n<p>At first I thought there was something wrong with the excel file, so I created a sample from scratch and used that, no luck.</p>\r\n<p>&nbsp;</p>\r\n<p>The code I used:</p>\r\n<p></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>$objReader = PHPExcel_IOFactory::createReader(<span style=\"color:#a31515\">'Excel2007'</span>);\r\n$objPHPExcel = $objReader-&gt;load($_FILES[<span style=\"color:#a31515\">'report1'</span>][<span style=\"color:#a31515\">'tmp_name'</span>]);\r\n</pre>\r\n</div>\r\n<p></p>\r\n",
+    "PostedDate": "2011-09-14T11:57:36.793-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "671914",
+    "ThreadId": "272595",
+    "Html": "<p>After some more research it turns out it's not a PHPExcel problem but rather it's a ZipArchive problem, see: https://bugs.php.net/bug.php?id=54128</p>\r\n<p>I temporary changed permissions on my TEMP directory (it's not a public server so I can get away with it for now) and everything works.</p>",
+    "PostedDate": "2011-09-14T13:29:49.13-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "857830",
+    "ThreadId": "272595",
+    "Html": "<p>Rather than messing with your Windows temp dir i would try editing your php.ini with a new temp upload dir and change the permissions on that instead:</p>\r\n<p>\r\n<pre>upload_tmp_dir = C:\\inetpub\\temp\\PHPUploadTemp</pre>\r\n</p>",
+    "PostedDate": "2012-07-05T05:44:23.877-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

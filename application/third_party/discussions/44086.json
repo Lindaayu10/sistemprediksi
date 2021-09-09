@@ -1,0 +1,90 @@
+[
+  {
+    "Id": "146657",
+    "ThreadId": "44086",
+    "Html": "I have a spreadsheet with a cell with the contents '=TODAY()' that works fine in OpenOffice.&nbsp; (And I assume MS Office, as that's what the client uses.)&nbsp; When I load the spreadsheet into PHPExcel and ask for the value of that cell, I get the date the spreadsheet was saved, instead of today's date.&nbsp; (OpenOffice shows today's date.)&nbsp; This happens both with local documents (loading right from hard drive) and remote scripts (upload via PHP, then load document).&nbsp; In both cases, I get the date the spreadsheet was saved on my local machine.<br>\r\n<br>\r\nI get the same result from GetValue and GetCalculatedValue.<br>\r\n<br>\r\nIs this a bug?&nbsp; Is there a workaround?&nbsp; Is there a way to refresh the cells of the database?<br>\r\n<br>\r\nFrom what I can tell, the TODAY function just calls the DATENOW function's code, but I couldn't find anything on that either.<br>\r\n<br>\r\nIf I set the cell to '=DATENOW()' and set the active worksheet again, that cell gets recalculated, but all the others based on it don't.&nbsp; If I don't set the worksheet, nothing happens.&nbsp; If I set it to '=TODAY()', I end up with something that is not a date.<br>\r\n<br>\r\nI've searched around and didn't find my issue in the forums, issue tracker, or Google.<br>\r\n",
+    "PostedDate": "2009-01-13T05:28:47.157-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "146664",
+    "ThreadId": "44086",
+    "Html": "getValue() and getCalculatedValue() should not return the same value if the cell contains a formula: getValue() should return the actual formula (&quot;=TODAY()&quot;) in this case. Can you get access to MS Excel and confirm that the cell does indeed contain a formula rather than a value.\r\n",
+    "PostedDate": "2009-01-13T05:42:04.967-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "146671",
+    "ThreadId": "44086",
+    "Html": "When I click on the cell in OpenOffice, it says the contents are '=TODAY()' and it always has the current date when I open it.&nbsp; I could probably find a computer in the office with the real Excel if it's really necessary to check it, too.&nbsp; The related cells are like '=B20+1' (to get the next day).<br>\r\n",
+    "PostedDate": "2009-01-13T06:26:43.003-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "146676",
+    "ThreadId": "44086",
+    "Html": "I just confirmed with a copy of Excel 2007 on Windows that it's the same there.<br>\r\n",
+    "PostedDate": "2009-01-13T06:44:20.04-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "146754",
+    "ThreadId": "44086",
+    "Html": "<p>The same there meaning that MS Excel works correctly? or that it too has the save date of the document?</p>\r\n<p>If the former, would it be possible to send me a copy of the spreadsheet so that I can run some tests of my own?</p>\r\n",
+    "PostedDate": "2009-01-13T10:32:07.11-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "146810",
+    "ThreadId": "44086",
+    "Html": "Meaning that MS Excel and OpenOffice behave identically, but PHPExcel does not.<br>\r\n<br>\r\nI can't give you that exact spreadsheet, but I will see about making one that I can send, along with some code that shows the issue.<br>\r\n",
+    "PostedDate": "2009-01-13T13:51:06.357-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "147338",
+    "ThreadId": "44086",
+    "Html": "Okay, I've created a spreadsheet and code that display the problem that I can share.<br>\r\n<br>\r\nThe code is below.&nbsp; The spreadsheet is at:&nbsp; http://www.mediafire.com/file/1umnuht2nmz/datetest.xls<br>\r\n<br>\r\nFor some reason, even yesterday, the date was a day off.&nbsp; Today, it's 2 days off.<br>\r\n<br>\r\nThe 'formatted/unformatted' stuff was attempting to show another issue I was having, but I didn't manage to reproduce it yet.&nbsp; It's new since I updated to the newest version of PHPExcel and I haven't tracked it down yet.&nbsp; (Basically, sometimes I get back a PHP date, and other times an Excel date...&nbsp; So it's hard to get dates accurately.)<br>\r\n<br>\r\n&lt;?php<br>\r\n&nbsp;&nbsp; &nbsp;error_reporting(E_ALL);<br>\r\n&nbsp;&nbsp;&nbsp; require_once(&quot;PHPExcel.php&quot;);<br>\r\n&nbsp;&nbsp; &nbsp;require_once(&quot;PHPExcel/Reader/Excel5.php&quot;);<br>\r\n&nbsp;&nbsp; &nbsp;require_once(&quot;PHPExcel/Shared/Date.php&quot;);<br>\r\n&nbsp;&nbsp; &nbsp;$excelReader = new PHPExcel_Reader_Excel5();<br>\r\n&nbsp;&nbsp; &nbsp;$excelReader-&gt;setReadDataOnly(true);<br>\r\n&nbsp;&nbsp; &nbsp;$excelDoc = $excelReader-&gt;load('datetest.xls');<br>\r\n&nbsp;&nbsp; &nbsp;unset($excelReader);<br>\r\n&nbsp;&nbsp; &nbsp;$activeWorksheet = $excelDoc-&gt;getActiveSheet();<br>\r\n&nbsp;&nbsp; &nbsp;echo &quot;Unformatted\\n&quot;;<br>\r\n&nbsp;&nbsp; &nbsp;$value = $activeWorksheet-&gt;getCellByColumnAndRow(0,1)-&gt;getValue();<br>\r\n&nbsp;&nbsp; &nbsp;var_dump($value);<br>\r\n&nbsp;&nbsp; &nbsp;echo 'Expected: '.date('Y-m-d').&quot;\\n&quot;;<br>\r\n&nbsp;&nbsp; &nbsp;echo 'Got: '.date('Y-m-d', PHPExcel_Shared_Date::ExcelToPHP($value)).&quot;\\n&quot;;<br>\r\n&nbsp;&nbsp; &nbsp;$value = $activeWorksheet-&gt;getCellByColumnAndRow(0,2)-&gt;getValue();<br>\r\n&nbsp;&nbsp; &nbsp;var_dump($value);<br>\r\n&nbsp;&nbsp; &nbsp;echo 'Expected: '.date('Y-m-d', strtotime('+1 days')).&quot;\\n&quot;;<br>\r\n&nbsp;&nbsp; &nbsp;echo 'Got: '.date('Y-m-d', PHPExcel_Shared_Date::ExcelToPHP($value)).&quot;\\n&quot;;<br>\r\n&nbsp;&nbsp; &nbsp;$value = $activeWorksheet-&gt;getCellByColumnAndRow(1,1)-&gt;getValue();<br>\r\n&nbsp;&nbsp; &nbsp;echo &quot;Formatted\\n&quot;;<br>\r\n&nbsp;&nbsp; &nbsp;var_dump($value);<br>\r\n&nbsp;&nbsp; &nbsp;echo 'Expected: '.date('Y-m-d').&quot;\\n&quot;;<br>\r\n&nbsp;&nbsp; &nbsp;echo 'Got: '.date('Y-m-d', PHPExcel_Shared_Date::ExcelToPHP($value)).&quot;\\n&quot;;<br>\r\n&nbsp;&nbsp; &nbsp;$value = $activeWorksheet-&gt;getCellByColumnAndRow(1,2)-&gt;getValue();<br>\r\n&nbsp;&nbsp; &nbsp;var_dump($value);<br>\r\n&nbsp;&nbsp; &nbsp;echo 'Expected: '.date('Y-m-d', strtotime('+1 days')).&quot;\\n&quot;;<br>\r\n&nbsp;&nbsp; &nbsp;echo 'Got: '.date('Y-m-d', PHPExcel_Shared_Date::ExcelToPHP($value)).&quot;\\n&quot;;<br>\r\n?&gt;<br>\r\n<br>\r\nEdit:&nbsp; Also, changing it to getCalculatedValue() doesn't change anything.<br>\r\n",
+    "PostedDate": "2009-01-15T04:56:56.543-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "147496",
+    "ThreadId": "44086",
+    "Html": "Ok, I notice the problem. As Mark says, getValue() should return the formula when the cell holds a formula.<br>\r\n<br>\r\nBut in <code>PHPExcel_Reader_Excel5</code>, there is only true formula support for BIFF8 xls files (Excel 97/2000/XP), not for BIFF5 xls files (Excel 5.0 - 95). For the latter ones just the cached (calculated) value is read and not the formula. That explains your results because your <code>datetest.xls</code> if BIFF5.<br>\r\n<br>\r\nIf you are not sure whether your xls file is of type BIFF5 or BIFF8, you can determine it as follows:<br>\r\n<br>\r\n1. Open the xls file in OpenOffice.org 3<br>\r\n2. Choose File &gt; Save As<br>\r\n3. In the &quot;Save As&quot; dialog, do nothing, but just observe what it says in the field &quot;Save as type:&quot;<br>\r\n4. If it says &quot;Microsoft Excel 5.0 (.xls)&quot; then you have a BIFF5 file, if it says &quot;Microsoft Excel 97/2000/XP (.xls)&quot; then you have a BIFF8 file<br>\r\n<br>\r\nScreen shot of &quot;Save As&quot; dialog in OpenOffice.org 3<br>\r\n<a href=\"http://img104.imageshack.us/img104/6130/saveaswi2.png\">http://img104.imageshack.us/img104/6130/saveaswi2.png</a><br>\r\n<br>\r\nIf you save your file as &quot;Microsoft Excel 97/2000/XP (.xls)&quot; then it should work as expected.<br>\r\n<br>\r\nThe question is now whether we need to add true formula support for BIFF5 ? <br>\r\n",
+    "PostedDate": "2009-01-15T14:19:12.05-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "147530",
+    "ThreadId": "44086",
+    "Html": "Ahh, I see.&nbsp; I don't actually have control of the original file...&nbsp; I have to accept whatever they give me.&nbsp; I've already contacted the client about not using TODAY() and just typing in a date and I'm waiting for a response.&nbsp; <br>\r\n<br>\r\nThanks for looking into this, both of you!<br>\r\n",
+    "PostedDate": "2009-01-15T16:05:22.44-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "147547",
+    "ThreadId": "44086",
+    "Html": "I have added a work item for this.<br>\r\n<a href=\"http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=8932\">http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=8932</a><br>\r\n<br>\r\nPlease not that it may take time to get this solved. It is not all that simple.<br>\r\n<br>\r\n",
+    "PostedDate": "2009-01-15T17:13:19.91-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "147623",
+    "ThreadId": "44086",
+    "Html": "&gt;&gt; Basically, sometimes I get back a PHP date, and other times an Excel date...<br>\r\n&gt;&gt;  So it's hard to get dates accurately<br>\r\n&gt;&gt; <br>\r\nThis is something that we're current considering how to handle. We ought to be consistent, but this isn't always the case.<br>\r\nAs a rule of thumb, if the PHP data type is a float/double, then it's an Excel datestamp; if it's an integer, then it's a PHP datestamp. This behaviour can be controlled for calculated dates by setting the ReturnDateType flag using PHPExcel_Calculation_Functions::setReturnDateType() with allowed values of RETURNDATE_PHP_NUMERIC, RETURNDATE_PHP_OBJECT or RETURNDATE_EXCEL. <br>\r\nWith effect from last night's CVS source, dates that had been entered directly into a worksheet using MS Excel, and read by PHPExcel will be correctly retrieved as float, identifying them as Excel timestamps... previously they were being read as integer, leading to some discrepancies because they would be assumed to be PHP timestamps when used in calculations. \r\n",
+    "PostedDate": "2009-01-16T00:45:29.757-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

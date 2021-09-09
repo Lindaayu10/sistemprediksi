@@ -1,0 +1,39 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel",
+      "DisplayName": "PHPExcel"
+    },
+    "ClosedComment": "Fixed in SVN",
+    "ClosedDate": "2008-09-02T01:05:17.47-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Cells that have been formatted in PHPExcel do not always come out as formatted when using the HTML, CSV, and PDF writer. They only come out as formatted when the number format is recognized as one of the number formats defined as class constants in PHPExcel_Style_NumberFormat, for example FORMAT_PERCENTAGE. This excludes user-defined number formats.\n \nI think one would expect that number formatting as seen in MS Office Excel is identical to the one seen in the HTML/CSV/PDF output. As mentioned, this does not happen with the current implementation. This has the consequence that dates having user-defined number format come out as raw unixtime, like '1230681600' when one actually expects something like '31. december 2008'.\n \nPerhaps the original (BIFF) ExcelReader at SourceForge shows how one can tackle this using preg_match and string replacements. If we could move portions of that code to the function PHPExcel_Style_NumberFormat::toFormattedString then maybe we would be back in business?\n \nThe relevant portion of code from the BIFF reader is this. Any thoughts?\n \nif (preg_match(\"/^[hmsdy]/i\", $formatstr)) {\n\t// custom datetime format\n\t// dvc: convert Excel formats to PHP date formats\n\t// first remove escapes related to non-format characters\n\t$formatstr = str_replace('\\\\', '', $formatstr);\n\t// 4-digit year\n\t$formatstr = str_replace('yyyy', 'Y', $formatstr);\n\t// 2-digit year\n\t$formatstr = str_replace('yy', 'y', $formatstr);\n\t// first letter of month - no php equivalent\n\t$formatstr = str_replace('mmmmm', 'M', $formatstr);\n\t// full month name\n\t$formatstr = str_replace('mmmm', 'F', $formatstr);\n\t// short month name\n\t$formatstr = str_replace('mmm', 'M', $formatstr);\n\t// mm is minutes if time or month w/leading zero\n\t$formatstr = str_replace(':mm', ':i', $formatstr);\n\t// tmp place holder\n\t$formatstr = str_replace('mm', 'x', $formatstr);\n\t// month no leading zero\n\t$formatstr = str_replace('m', 'n', $formatstr);\n\t// month leading zero\n\t$formatstr = str_replace('x', 'm', $formatstr);\n\t// 12-hour suffix\n\t$formatstr = str_replace('AM/PM', 'A', $formatstr);\n\t// tmp place holder\n\t$formatstr = str_replace('dd', 'x', $formatstr);\n\t// days no leading zero\n\t$formatstr = str_replace('d', 'j', $formatstr);\n\t// days leading zero\n\t$formatstr = str_replace('x', 'd', $formatstr);\n\t// seconds\n\t$formatstr = str_replace('ss', 's', $formatstr);\n\t// fractional seconds - no php equivalent\n\t$formatstr = str_replace('.S', '', $formatstr);\n\tif (! strpos($formatstr,'A')) { // 24-hour format\n\t\t$formatstr = str_replace('h', 'H', $formatstr);\n\t\t}\n\t// user defined flag symbol????\n\t$formatstr = str_replace(';@', '', $formatstr);\n\t$this->_formatRecords['xfrecords'][] = array(\n\t\t'type' => 'date',\n\t\t'format' => $formatstr,\n\t\t'code' => $indexCode\n\t);\n}\n// dvc: new code for custom percent formats\nelse if (preg_match('/%$/', $formatstr)) { // % number format\n\tif (preg_match('/\\.[#0]+/i',$formatstr,$m)) {\n\t\t$s = substr($m[0],0,1).(strlen($m[0])-1);\n\t\t$formatstr = str_replace($m[0],$s,$formatstr);\n\t}\n\tif (preg_match('/^[#0]+/',$formatstr,$m)) {\n\t\t$formatstr = str_replace($m[0],strlen($m[0]),$formatstr);\n\t}\n\t$formatstr = '%' . str_replace('%',\"f%%\",$formatstr);\n\t$this->_formatRecords['xfrecords'][] = array(\n\t\t'type' => 'percent',\n\t\t'format' => $formatstr,\n\t\t'code' => $indexCode\n\t);\n}\n// dvc: code for other unknown formats\nelse {\n\t// dvc: changed to add format to unknown for debug\n\t$this->_formatRecords['xfrecords'][] = array(\n\t\t'type' => 'other',\n\t\t'format' => $this->_defaultFormat,\n\t\t'code' => $indexCode\n\t);\n}",
+    "LastUpdatedDate": "2013-05-16T05:43:23.01-07:00",
+    "PlannedForRelease": "PHPExcel 1.6.4 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2008-08-26T19:15:50.33-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Better recognition of number format in HTML, CSV, and PDF writer",
+    "Type": {
+      "Name": "Feature",
+      "Id": 1
+    },
+    "VoteCount": 1,
+    "Id": 7432
+  },
+  "FileAttachments": [],
+  "Comments": []
+}

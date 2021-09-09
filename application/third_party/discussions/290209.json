@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "736355",
+    "ThreadId": "290209",
+    "Html": "<p>Hi folks<br /> <br /> I put this on the tracker: http://phpexcel.codeplex.com/workitem/17335<br />&nbsp;and just wanna put it here as tracker strips out Formating and Indentation</p>\n<p>_/_/ _/ _/ _/ _/ _/ _/ _/ _/ _/ _/ _/ _/ _/ _/ _/ _/ _/ _/ _/ _/ _/ _/ _/ _/ _/ _/ _/ _/ _/ _/ _/ _/ _/</p>\n<p>Version 1.7.2<br /> <br /> When there's Html markup in a cell, this code shouldnot be used:<br /> PHPExcel\\Writer\\HTML.php Line 1010+<br /> <br /> Markup like:<br /> &lt;h3&gt;Tank you&lt;/h3&gt;<br /> &lt;ul&gt;<br /> &nbsp; &nbsp;&lt;li&gt;For:<br /> &nbsp; &nbsp; &nbsp;&lt;ul&gt;<br /> &nbsp; &nbsp; &nbsp; &nbsp;&lt;li&gt;Your time&lt;/li&gt;<br /> &nbsp; &nbsp; &nbsp; &nbsp;&lt;li&gt;Your work&lt;/li&gt;<br /> &nbsp; &nbsp; &nbsp;&lt;/ul&gt;<br /> &nbsp; &nbsp;&lt;/li&gt;<br /> &lt;/ul&gt;<br /> will become:<br />&nbsp;&lt;h3&gt;Thank you&lt;/h3&gt;&lt;br/&gt;&lt;ul&gt;&lt;br/&gt;&amp;nbsp;&amp;nbsp;&amp;?nbsp;&amp;nbsp;&lt;li&gt;For:&lt;br/&gt;&amp;nbsp;&amp;nbsp?;&amp;nbsp;&amp;nbsp;&lt;ul&gt;&lt;br/&gt;&amp;nbsp;&amp;nbsp;&amp;?nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;?&lt;li&gt;Hohe Energiedichte&lt;/li&gt;&lt;br/&gt;&amp;nbsp;&amp;nbsp;?&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp?;&lt;li&gt;Your time&lt;/li&gt;&lt;br/&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nb?sp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;li&gt;Your  work&lt;/li&gt;&lt;br/&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nb?sp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;n?bsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&lt;br/&gt;&amp;nbsp;&amp;?nbsp;&amp;nbsp;&amp;nbsp;&lt;/ul&gt;&lt;br/&gt;&amp;nbsp;&amp;n?bsp;&amp;nbsp;&amp;nbsp;&lt;/li&gt;&lt;br/&gt;&lt;/ul&gt;&lt;br/?&gt;<br /> <br /> ### Solution(for me) ###<br /> if($cellData == strip_tags($cellData)){<br /> $cellData = $this-&gt;_convertNbsp($cellData);<br /> $cellData = str_replace(\"\\n\", '&lt;br/&gt;', $cellData);<br /> }<br /> <br /> Cheers</p>",
+    "PostedDate": "2012-02-02T01:53:22.477-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "736386",
+    "ThreadId": "290209",
+    "Html": "<p>Version 1.7.2 is a pretty ancient version of PHPExcel, 2 years old to be precise - 1.7.6 is the latest, with 1.7.7 only a week away from production release - and no longer contains the specific code that you're talking about.... so I'm not going to go back and patch old versions.</p>\r\n<p>Additionally, HTML markup in a spreadsheet cell isn't handled as markup by Excel itself, it's simply a string of data, so I see no reason to put in a lot of logic to try and represent something that doesn't exist in Excel/Open Office/Gnumeric/etc. If this is critical to you, then you should build your own custom HTML writer to handle markup in Excel strings</p>\r\n<p>The HTML-&gt;Rich Text Run helper that's on the roadmap for this year's releases may be of some help to you</p>",
+    "PostedDate": "2012-02-02T02:12:19.99-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "736481",
+    "ThreadId": "290209",
+    "Html": "<p>Sure it's an old Version, can not switch to newer version for now ;-)<br />But, good to hear it's no longer used.<br /><br />As for \"<em>HTML markup in a spreadsheet cell isn't handled as markup by Excel itself</em>\" <br />Im are talking about</p>\r\n<p><span style=\"color: #800000;\"><strong>$objWriterHtml-&gt;save($htmlFile);</strong></span></p>\r\n<p>and this file will be looked at in the browser, so the markup should be valid.<br />It is not about \"&nbsp;to handle markup in Excel\"<br /><br />Cheers<br /><br /><br /></p>",
+    "PostedDate": "2012-02-02T03:22:16.067-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "736492",
+    "ThreadId": "290209",
+    "Html": "<p>Just looked at latest version:</p>\r\n<p>version &nbsp; &nbsp;1.7.6, 2011-02-27</p>\r\n<p>Line 1041+</p>\r\n<p><span style=\"color: #800000;\"><strong>// Converts the cell content so that spaces occuring at beginning of each new line are replaced by &amp;nbsp;<br /></strong></span><span style=\"color: #800000;\"><strong>// Example: \"  Hello\\n to the world\" is converted to \"&amp;nbsp;&amp;nbsp;Hello\\n&amp;nbsp;to the world\"</strong></span><br /> $cellData = preg_replace(\"/(?m)(?:^|\\\\G) /\", '&amp;nbsp;', $cellData);<br /><br /> // convert newline \"\\n\" to '&lt;br&gt;'<br /> $cellData = nl2br($cellData);</p>\r\n<p>So my point still stands, this will create invalid markup when saved to a html file.<br /><br />Cheers</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2012-02-02T03:32:03.72-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

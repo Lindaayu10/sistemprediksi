@@ -1,0 +1,482 @@
+[
+  {
+    "Id": "142452",
+    "ThreadId": "42854",
+    "Html": "I am getting the following error whenever I open a file created with the PHPExcel_Writer_Excel2007 object:<br>\r\n<br>\r\n<em>Excel found unreadable content in 'test.xlsx'. Do you want to recover the contents of this workbook? If you trust the source of this workbook, click Yes</em>.<br>\r\n<br>\r\nThen when I click yes I get this:<br>\r\n<br>\r\n<em>Excel was able to open the file by repairing or removing the unreadable content.<br>\r\n<br>\r\nExcel completed file level validation and repair. Some parts of this workbook may have been repaired or discarded.<br>\r\n</em><br>\r\nAll the content is intact, but when I use Excel5 and change the file extension to .xls everything works and opens with no problems. Any ideas what is causing this?<br>\r\n",
+    "PostedDate": "2008-12-22T13:46:19.367-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "142465",
+    "ThreadId": "42854",
+    "Html": "Hmm... we will need to see the file as this is a generic error message. There could be an error in your code, or it could be a bug. Please send the file to erik (at) phpexcel (dot) net.<br>\r\n<br>\r\nWhich version of PHPExcel are you using? If you are using 1.6.4, can you also try with latest source code?<br>\r\n<a href=\"http://www.codeplex.com/PHPExcel/SourceControl/ListDownloadableCommits.aspx\">http://www.codeplex.com/PHPExcel/SourceControl/ListDownloadableCommits.aspx</a><br>\r\n<br>\r\n",
+    "PostedDate": "2008-12-22T14:27:57.757-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "142473",
+    "ThreadId": "42854",
+    "Html": "Thanks, I received your test script and I see the problem. You want to output the Excel directly to browser as attachment, and you basically have this:<br>\r\n<br>\r\n<code>\r\n&lt;?php<br>\r\n&nbsp;&nbsp;&nbsp; //Create the PHPExcel object<br>\r\n&nbsp;&nbsp;&nbsp; $objPHPExcel = new PHPExcel();<br>\r\n&nbsp;&nbsp;&nbsp; <br>\r\n&nbsp;&nbsp;&nbsp; //Add some data<br>\r\n<br>\r\n&nbsp;&nbsp;&nbsp; //Save Excel 2007 file<br>\r\n&nbsp;&nbsp;&nbsp; $objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel);<br>\r\n<br>\r\n&nbsp;&nbsp;&nbsp; // set headers<br>\r\n&nbsp;&nbsp;&nbsp; header(...);<br>\r\n<br>\r\n&nbsp;&nbsp;&nbsp; $objWriter-&gt;save('php://output');<br>\r\n&nbsp;&nbsp;&nbsp; <br>\r\n&nbsp;&nbsp;&nbsp; //Echo done<br>\r\n&nbsp;&nbsp;&nbsp; echo date('H:i:s') . &quot; Done writing file.\\r\\n&quot;;<br>\r\n?&gt;<br>\r\n<br>\r\n</code>\r\nThe problem is with your last echo statement. It is appended to the output stream and becomes part of the Excel file as can be seen if one opens the file in a HEX editor after download. There should be no echo statements in such a script where you send file as attachment for download. Remove it and it will work.<br>\r\n",
+    "PostedDate": "2008-12-22T15:08:08.357-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "142485",
+    "ThreadId": "42854",
+    "Html": "Thanks for the help, it works perfectly now<br>\r\n",
+    "PostedDate": "2008-12-22T16:58:11.187-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "142793",
+    "ThreadId": "42854",
+    "Html": "Hie,<br>\r\n<br>\r\nwhat is the difference between <br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $objWriter-&gt;save($file_name);<br>\r\n<br>\r\nand&nbsp; $objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel);<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;  &nbsp; $objWriter-&gt;save('php:/output);<br>\r\n<br>\r\nI use the first one, and i have the same error when i open the file via Excel. If i save it in excel5, i haven't got any error.<br>\r\nI try it with the version 1.6.4 and with the patch 23585, but always the same error.<br>\r\n<br>\r\n<br>\r\n",
+    "PostedDate": "2008-12-24T03:12:13.113-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "142795",
+    "ThreadId": "42854",
+    "Html": "It could be a similar problem, we will need to see the file + script. Try to send me the script: erik (at) phpexcel (dot) net.<br>\r\n",
+    "PostedDate": "2008-12-24T03:23:06.5-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "142807",
+    "ThreadId": "42854",
+    "Html": "Thanks, I received the files. Could be header problem, but not sure. Looks like you are using <code>'Content-Type: application/vnd.ms-excel'</code> also for xlsx files. This may give problems.<br>\r\n<br>\r\nWith xlsx files, the correct header is this<br>\r\n<br>\r\n<code>\r\nheader('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');<br>\r\nheader('Content-Disposition: attachment;filename=&quot;My Excel File.xlsx&quot;');<br>\r\n</code>\r\n<br>\r\nWith xls:<br>\r\n<br>\r\n<code>\r\nheader('Content-Type: application/vnd.ms-excel');<br>\r\nheader('Content-Disposition: attachment;filename=&quot;My Excel File.xls&quot;');<br>\r\n</code>\r\n",
+    "PostedDate": "2008-12-24T04:27:31.857-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "142815",
+    "ThreadId": "42854",
+    "Html": "For the time being,&nbsp; I open the file directly from the windows explorateur.<br>\r\nI checked two other exports, and i have the same problem. ok in 2003 but not in 2007.<br>\r\n<br>\r\nI made the change for the header, and i have the same problem.<br>\r\n<br>\r\nI remove all the display attribute, layout&nbsp; and i have always the same problem.<br>\r\nI try to open the xml file in the zip but i have the message echec CRC. the file is corrupted.<br>\r\nI think the problem is coming from there<br>\r\n<br>\r\nthanks<br>\r\n",
+    "PostedDate": "2008-12-24T05:15:09-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "142842",
+    "ThreadId": "42854",
+    "Html": "Hmm... do you also get corrupt xlsx file when you save regularly to disk:<br>\r\n<br>\r\n<code>\r\n$objWriter-&gt;save('test.xlsx');<br>\r\n</code>\r\n<br>\r\nOr is this happening only when you open directly in Internet Explorer?<br>\r\n<br>\r\n<code>header(...);<br>\r\n$objWriter-&gt;save('php://output');</code><br>\r\n<br>\r\n",
+    "PostedDate": "2008-12-24T07:12:05.553-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "143605",
+    "ThreadId": "42854",
+    "Html": "I'm having a similar problem except I can't get it to work at all using PHPExcel_Writer_Excel2007. I'm just running the <span id=\"ctl00_ctl00_MasterContent_Content_wikiSourceLabel\"></span><a>01simple.xlsx</a>, so it's writing to a file. Everything works fine if I swap in PHPExcel_Writer_Excel5; using PHPExcel_Writer_Excel2007, I get<br>\r\n<blockquote><em>Excel found unreadable content in 'test.xlsx'. Do you want to\r\nrecover the contents of this workbook? If you trust the source of this\r\nworkbook, click Yes</em>.<br>\r\n<br>\r\n</blockquote>But after clicking &quot;Yes,&quot; I get<br>\r\n<blockquote><em>The Workbook cannot be opened or repaired by Microsoft Excel because it is corrupt.<br>\r\n</em></blockquote>Any ideas? Thanks,<br>\r\nKevin \r\n",
+    "PostedDate": "2008-12-30T15:04:59.497-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "143612",
+    "ThreadId": "42854",
+    "Html": "You are running 01simple.php with no changes in the script? This is a strange error. However, it could be that you have a defective zip extension. I have not experienced this myself, but others have. Can you perhaps try to run the test on another server?<br>\r\n",
+    "PostedDate": "2008-12-30T16:08:22.93-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "143615",
+    "ThreadId": "42854",
+    "Html": "Hi Koyama,<br>\r\n<br>\r\nWell, I ran it on a linux box and it worked, so that is good news. It would be nice to get it working on my windows box though.. what exactly do you mean a defective zip extension? It's actually a newer version of the zip extension on my windows box which I guess could be causing a problem? Were the others you mentioned able to fix and do you know what they did?<br>\r\n<br>\r\nThanks again!<br>\r\n",
+    "PostedDate": "2008-12-30T16:35:00.713-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "143621",
+    "ThreadId": "42854",
+    "Html": "The only place I have that information is from maarten in this thread. If he does not see this thread I will try to ask him if he has more details.<br>\r\n<a href=\"http://www.codeplex.com/PHPExcel/Thread/View.aspx?ThreadId=37348\">http://www.codeplex.com/PHPExcel/Thread/View.aspx?ThreadId=37348</a><br>\r\n<br>\r\nWith your defective <code>xlsx</code> file, if you change extension to <code>zip</code>, can it be opened as a zip archive? If yes, I think it may not be the zip extension that is the problem, and the problem could be something else. But not sure. Maybe try to compare the good and bad files in hex editor and see if you can see some differences?<br>\r\n<br>\r\n",
+    "PostedDate": "2008-12-30T17:07:23.987-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "143658",
+    "ThreadId": "42854",
+    "Html": "What PHP version are you using on Windows?\r\n",
+    "PostedDate": "2008-12-30T22:45:22.57-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "143730",
+    "ThreadId": "42854",
+    "Html": "Linux:<br>\r\n<blockquote><em>PHP Version 5.2.6-3<br>\r\nZip &nbsp;&nbsp; &nbsp;enabled<br>\r\nExtension Version &nbsp;&nbsp; &nbsp;$Id: php_zip.c,v 1.1.2.43 2008/01/18 00:51:38 pajoye Exp $<br>\r\nZip version &nbsp;&nbsp; &nbsp;1.8.11<br>\r\nLibzip version &nbsp;&nbsp; &nbsp;0.8.0-compatible </em><br>\r\n</blockquote>Windows:<br>\r\n<blockquote><em>PHP Version 5.2.7<br>\r\nZip &nbsp;&nbsp; &nbsp;enabled<br>\r\nExtension Version &nbsp;&nbsp; &nbsp;$Id: php_zip.c,v 1.1.2.46 2008/11/12 17:50:37 felipe Exp $<br>\r\nZip version &nbsp;&nbsp; &nbsp;1.8.11<br>\r\nLibzip version &nbsp;&nbsp; &nbsp;0.9.0 </em><br>\r\n</blockquote>The file produced on windows is slightly larger.<br>\r\n",
+    "PostedDate": "2008-12-31T09:15:56.847-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "144390",
+    "ThreadId": "42854",
+    "Html": "Hi,<br>\r\nsorry for the delay. I was on holidays.<br>\r\nHappy new year for everyboydy.<br>\r\n<br>\r\nWindows xp SP 2<br>\r\neasyphp&nbsp; 2.0<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;  php 5.2<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; php_zip.dll : 5.2.8.8 . i just installed the last version , i have the same problem than with the 5.2.0<br>\r\n<br>\r\nI will try to implement it on the linux box and keep you inform.<br>\r\n<br>\r\nthanks<br>\r\nfred \r\n",
+    "PostedDate": "2009-01-05T06:09:40.593-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "145201",
+    "ThreadId": "42854",
+    "Html": "So far it looks like this is only happening on Windows. But it is hard to see any pattern. <br>\r\n<br>\r\nOne more case of defective zip extension. There are examples of defective xlsx files here:<br>\r\n<a href=\"http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=8840\">http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=8840</a><br>\r\n<br>\r\nHere the configuration was this:<br>\r\nwindows\r\n<br>\r\neasyphp2 with php 5.2.0\r\n<br>\r\nzip:\r\n<br>\r\nExtension Version&nbsp;&nbsp;&nbsp;&nbsp; $Id: php_zip.c,v 1.1.2.15 2006/09/24 22:27:57\r\npajoye Exp $\r\n<br>\r\nZip version&nbsp;&nbsp;&nbsp;&nbsp; 2.0.0\r\n<br>\r\nLibzip version&nbsp;&nbsp;&nbsp;&nbsp; 0.7.1\r\n<br>\r\n<br>\r\nDefective sample files provided by mmiat from thread #43553 <a href=\"View.aspx?ThreadId=43553\"></a><br>\r\n<br>\r\n<br>\r\n<br>\r\n<br>\r\n<br>\r\n\r\n",
+    "PostedDate": "2009-01-07T12:33:28.367-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "145360",
+    "ThreadId": "42854",
+    "Html": "I have also the problem on linux <br>\r\n<br>\r\nPHP Version 5.2.6<br>\r\n<h2><a name=\"module_zip\">zip</a></h2>\r\n<table width=600 cellpadding=3 border=0>\r\n    <tbody>\r\n        <tr>\r\n            <td>Zip </td>\r\n            <td>enabled </td>\r\n        </tr>\r\n        <tr>\r\n            <td>Extension Version </td>\r\n            <td>$Id: php_zip.c,v 1.1.2.43 2008/01/18 00:51:38 pajoye Exp $ </td>\r\n        </tr>\r\n        <tr>\r\n            <td>Zip version </td>\r\n            <td>1.8.11 </td>\r\n        </tr>\r\n        <tr>\r\n            <td>Libzip version </td>\r\n            <td>0.8.0-compatible </td>\r\n        </tr>\r\n    </tbody>\r\n</table>\r\n<br>\r\n",
+    "PostedDate": "2009-01-08T01:50:00.23-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "145394",
+    "ThreadId": "42854",
+    "Html": "<a href=\"http://pecl.php.net/bugs/bug.php?id=9278\">http://pecl.php.net/bugs/bug.php?id=9278</a> provides some insights. Seems like a fauly SAPI module in the web server?<br>\r\n",
+    "PostedDate": "2009-01-08T05:22:24.58-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "148913",
+    "ThreadId": "42854",
+    "Html": "I had the same problem. <br>\r\n<br>\r\nThe php_zip.dll extension tried to write in binary mode, but it cannot, so it wrote 0D0A instead of 0A. <br>\r\n<br>\r\nThe files were larger, and CRC errors all the time.<br>\r\n<br>\r\nFurther information: <a href=\"http://bugs.php.net/bug.php?id=39506\">http://bugs.php.net/bug.php?id=39506</a><br>\r\nThe dll which was good for me were here: <a href=\"http://snaps.php.net/win32/php5.2-win32-latest.zip\">http://snaps.php.net/win32/php5.2-win32-latest.zip</a>\r\n",
+    "PostedDate": "2009-01-20T14:13:47.323-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "149082",
+    "ThreadId": "42854",
+    "Html": "@tamaskoczka: Thank you for posting! Great help!<br>\r\n<br>\r\n<br>\r\n",
+    "PostedDate": "2009-01-20T23:58:41.803-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "149748",
+    "ThreadId": "42854",
+    "Html": "Hi<br>\r\n<br>\r\nI installed latest php release 5.2.8 to windows xp machine using wamp-server. After update, every file even the examples were corrupted after save. I checked new and old files with HEX-editor and there was lot of difference. Old file seems to be a little smaller. Anyway after copying zip-library (php_zip.dll 5.2.8.  -- &gt;  php_zip.dll 5.2.7.7) from older release everything seems to be fine again... Weird...<br>\r\n<br>\r\n-Jarkko \r\n",
+    "PostedDate": "2009-01-22T06:53:49.303-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "149767",
+    "ThreadId": "42854",
+    "Html": "Am I understanding this right:<br>\r\n<ul>\r\n    <li>There was first a bug with <code>php_zip.dll</code>, then it got fixed and bug was closed. Everything ok.</li>\r\n    <li>Bug has now reappeared in newest distribution and there is no open bug report? Hence we are forced to downgrade <code>php_zip.dll</code> to get things to work on Windows?</li>\r\n</ul>\r\n<br>\r\n",
+    "PostedDate": "2009-01-22T07:35:50.287-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "149824",
+    "ThreadId": "42854",
+    "Html": "In my case yes! <br>\r\n<br>\r\nHere's my story:<br>\r\nFirst I thought there were some problems with my pear spreadsheet_excel_writer but no... I uninstalled everything. Php, apache and all wamp-stuff (okay, I didn't reinstall OS and some system variables) and made blank install with newest wamp-server which includes 5.2.8 PHP. Then after setting php.ini's etc I started testing code again. My own system wasn't workin, so I tested example files. They were working neither. After downloading php 5.2.7.7. and just copy-pasting php_zip.dll from older php-release things were allright again...<br>\r\n<br>\r\n-Jarkko \r\n",
+    "PostedDate": "2009-01-22T09:57:18.043-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "149848",
+    "ThreadId": "42854",
+    "Html": "<a href=\"http://www.codeplex.com/site/users/view/koyama\" id=\"ctl00_ctl00_MasterContent_Content_PostRepeater_ctl44_UserNameLink\"><span style=\"color:#3e62a6\">koyama</span></a>: yes, i think it's absolutely a zip_php.dll bug, and a mistake from the php guys. if you try to compress the bytes #00 - #FF with the new zip_php.dll (in my case it came with the php version 5.2.5), you will get the test zip file corrupted. but the phpexcel works great after the dll change :)   (if you can of course, it's lucky, the servers at webhostings are usually run on linux :))<br>\r\n<br>\r\nps: sorry for my english\r\n",
+    "PostedDate": "2009-01-22T11:04:29.563-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "149855",
+    "ThreadId": "42854",
+    "Html": "JLoima and tamaskoczka, thank you both for your explanations and instructions how to solve this. This will help others. Things are starting to make sense now. This was really a mystery bug!<br>\r\n<br>\r\nSounds like we will have to examine whether a bug needs to be filed for this.<br>\r\n<br>\r\n",
+    "PostedDate": "2009-01-22T11:16:37.763-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "150117",
+    "ThreadId": "42854",
+    "Html": "Might also be worth putting something in the FAQ\r\n",
+    "PostedDate": "2009-01-23T00:47:33.627-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "150123",
+    "ThreadId": "42854",
+    "Html": "Will add this to FAQ. Also, I'll file a bug on bugs.php.net for this.\r\n",
+    "PostedDate": "2009-01-23T01:17:16.887-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "150125",
+    "ThreadId": "42854",
+    "Html": "Bug already fixed in PHP CVS: <a href=\"http://bugs.php.net/bug.php?id=46985\">http://bugs.php.net/bug.php?id=46985</a>\r\n",
+    "PostedDate": "2009-01-23T01:27:31.397-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "151695",
+    "ThreadId": "42854",
+    "Html": "Hello.<br>\r\n<br>\r\nGuys, unfortunately it's not working with any version on php in my case.<br>\r\n<br>\r\nWhen I save file directly to hdd, file is ok,<br>\r\nbut, file saved from browser don't want to open in Excel.<br>\r\n<br>\r\nThere is difference between those two files, bad one is 2 bytes larger than good one.<br>\r\n<br>\r\nYou can see it here: <a href=\"http://antczak.org/bug/\">http://antczak.org/bug/</a><br>\r\n<br>\r\nWhen I unzip bad file, and zip it again with 7zip, Excel can read it.<br>\r\n<br>\r\nWhat do You think about this?<br>\r\n<br>\r\nThanks for help.<br>\r\nRegards.<br>\r\n",
+    "PostedDate": "2009-01-28T03:28:45.083-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "151707",
+    "ThreadId": "42854",
+    "Html": "This sounds very strange! The strange thing is that the two files are different. That kind of rules out that it is the php_zip.dll bug the others are describing.<br>\r\n<br>\r\nJust for double checking, can you try to run your script with latest source and see if you get same error?<br>\r\n<a href=\"http://www.codeplex.com/PHPExcel/SourceControl/ListDownloadableCommits.aspx\">http://www.codeplex.com/PHPExcel/SourceControl/ListDownloadableCommits.aspx</a><br>\r\n<br>\r\n",
+    "PostedDate": "2009-01-28T04:18:26.887-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "151713",
+    "ThreadId": "42854",
+    "Html": "Upgrading to nightly version didn't help. <br>\r\nSo it probably PHP bug, what do You think about this?<br>\r\n",
+    "PostedDate": "2009-01-28T04:51:35.64-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "151728",
+    "ThreadId": "42854",
+    "Html": "Can you try to run this:<br>\r\n<br>\r\n<code>\r\n&lt;?php<br>\r\nheader('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');<br>\r\nheader('Content-Disposition: attachment;filename=&quot;myfile.xlsx&quot;');<br>\r\nheader('Cache-Control: max-age=0');<br>\r\n<br>\r\necho file_get_contents('good.xlsx');<br>\r\n?&gt;<br>\r\n</code>\r\n<br>\r\nBasically, we are here just sending the good file, and then seeing what comes out at the client's browser. This is to see if it is the browser that is somehow messing with the file.<br>\r\n<br>\r\n",
+    "PostedDate": "2009-01-28T05:10:20.107-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "151732",
+    "ThreadId": "42854",
+    "Html": "Unfortunately new saved file is corrupted.<br>\r\n<br>\r\nWhat do You think can cause this?<br>\r\n",
+    "PostedDate": "2009-01-28T05:23:07.19-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "151750",
+    "ThreadId": "42854",
+    "Html": "<ol>\r\n    <li>Can you upload the new file <code>myfile.xlsx</code> for inspection?</li>\r\n    <li>What browser are you using? Can you try with some different browsers?</li>\r\n</ol>\r\n<br>\r\n",
+    "PostedDate": "2009-01-28T05:54:13.487-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "151756",
+    "ThreadId": "42854",
+    "Html": "I've checked this in three browsers, result is same.<br>\r\nSaved version of good.xlsx You can find here: <a href=\"http://antczak.org/bug/\">http://antczak.org/bug/</a>.<br>\r\n",
+    "PostedDate": "2009-01-28T06:04:34.9-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "151765",
+    "ThreadId": "42854",
+    "Html": "Can you try to run this again:<br>\r\n<br>\r\n<code>\r\n&lt;?php<br>\r\nheader('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');<br>\r\nheader('Content-Disposition: attachment;filename=&quot;myfile.xlsx&quot;');<br>\r\nheader('Cache-Control: max-age=0');<br>\r\n<br>\r\necho file_get_contents('good.xlsx');<br>\r\n?&gt;<br>\r\n<br>\r\n</code>\r\nBut this time, remove any newline or carriage returns after the closing <code>?&gt;</code> tag. There must not be any.<br>\r\n<br>\r\n",
+    "PostedDate": "2009-01-28T06:26:44.37-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "151766",
+    "ThreadId": "42854",
+    "Html": "korro: There are newline characters at the end of your files (myfile_*.xlsx files are exactly the same).<br>\r\n<br>\r\nI think maybe they are in the original php file, try this:<br>\r\n<code>echo file_get_contents('good.xlsx');<br>\r\nexit;<br>\r\n?&gt;</code><br>\r\n<br>\r\nThe &quot;exit;&quot; command will prevent the php engine from writing anything after the file contents...<br>\r\n<br>\r\nThe second option is: the webserver writes the extra characters. In this case, we have to know the webserver's parameters (name, version, loaded modules, etc)... <br>\r\n<br>\r\n",
+    "PostedDate": "2009-01-28T06:26:47.313-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "151789",
+    "ThreadId": "42854",
+    "Html": "You're right, after adding exit; just after line witch send data everything is ok. <br>\r\nThanks guys, and sorry for rookie mistake.<br>\r\n",
+    "PostedDate": "2009-01-28T07:08:01.743-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "158462",
+    "ThreadId": "42854",
+    "Html": "I try everything and i have always the same problem. As suggest from <a href=\"../../site/users/view/maartenba\" id=\"ctl00_ctl00_MasterContent_Content_PostRepeater_ctl36_UserNameLink\">maartenba</a>, I download the version of PHP and still have the same problem.<br>\r\nI install the last version of pkzip on the linux box and nothing change.<br>\r\nEverything is ok in 2003 but always the same msg for 2007<br>\r\n",
+    "PostedDate": "2009-02-17T05:34:04.24-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "158549",
+    "ThreadId": "42854",
+    "Html": "@leursfre: Is this happening also when you create a blank workbook?<br>\r\n<br>\r\n",
+    "PostedDate": "2009-02-17T09:57:31.083-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "158983",
+    "ThreadId": "42854",
+    "Html": "i try 3 of your exemples and it works fine.<br>\r\nI try on an other pc and now it's a little bit different. I have always the message : excell found unreable content but <br>\r\nIf you click yes, i have got something now but all the function subtotal&nbsp; have disapeared and the column with if also.<br>\r\nand i have the message : Removed record : formula from /xl/worksheets/sheet1.xml part<br>\r\n<br>\r\n",
+    "PostedDate": "2009-02-18T07:09:56.1-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "159162",
+    "ThreadId": "42854",
+    "Html": "@leursfre: &quot;Excel found unreadable content&quot; is a generic message, and there could be many reasons for this error. I think your case does not have anything to do with zip extension. You would not get that message about &quot;Removed record&quot;. Can you send me the file (erik at phpexcel dot net) so we can investigate?<br>\r\n<br>\r\n",
+    "PostedDate": "2009-02-18T14:20:09.257-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "159653",
+    "ThreadId": "42854",
+    "Html": "I think i had two problems. Because before i put the last version of php and zip, i cannot open the file. and can't dezipp the xslx file manually<br>\r\nNow i can dezipp the file manually and open the file in excell. but fonction have desappeared.<br>\r\n",
+    "PostedDate": "2009-02-19T04:38:27.433-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "159665",
+    "ThreadId": "42854",
+    "Html": "@leursfre: File received. It looks like the error comes from using semicolon&nbsp;“;” as argument separator in formulas when one should use in fact use comma “,”<br>\r\nInternally, Excel always stores formulas using “,” as argument separator no matter whether you save from e.g. German or English Excel version.<br>\r\n<br>\r\n<br>\r\n",
+    "PostedDate": "2009-02-19T04:50:44.227-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "159706",
+    "ThreadId": "42854",
+    "Html": "effectively. If i change the ';' by ','. It works in 2003 and 2007. probably, the conversion is managed&nbsp; in the writer for 2003<br>\r\nIt's strange, because i have got a french and an english version of excel. In excel, for all the formula, you write them with ';'. But effectively, if you dezipp a file the functions are written with a ','.<br>\r\nI thinks, it's coming for the language you use in windows. Because for us, the decimal separator is ',' so it couldn't be also the separator for the argument of a function.<br>\r\nit's the same for the format of a numeric value. Always put '.' as decimal separator even if it's ',' in your language ( excel).<br>\r\nprobably, it could be usefull to add something about that in your documentation.<br>\r\n<br>\r\nthanks<br>\r\n",
+    "PostedDate": "2009-02-19T06:32:04.937-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "160052",
+    "ThreadId": "42854",
+    "Html": "@leursfre: Will look at documentation and make sure that things will be clear in next release.<br>\r\n<br>\r\n",
+    "PostedDate": "2009-02-20T00:14:45.72-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "161248",
+    "ThreadId": "42854",
+    "Html": "Hi,<br>\r\nI'm getting the same &quot;found unreadable content&quot; error when just opening then immediately saving an xlsx file for an invoice template, however opening and saving the xlsx file generated by 05featuredemo.php works fine. It also outputs OK in HTML format. I tried upgrading to the lastest code from the repo and it still doesn't work, however I now get this notice 32 times:<br>\r\n<pre>Notice: Array to string conversion in /home/shaun/www/herecomethelizards/htdocs/excel_test/Classes/PHPExcel/Cell.php on line 245</pre>\r\nThe code I'm using is:\r\n<pre>&lt;?php<br>error_reporting(E_ALL);<br><br>set_include_path(get_include_path() . PATH_SEPARATOR . './Classes/');<br>include 'PHPExcel/IOFactory.php';<br><br>$objReader = PHPExcel_IOFactory::createReader('Excel2007');<br>$objPHPExcel = $objReader-&gt;load(&quot;invoice.xlsx&quot;);<br><br>$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');<br>$objWriter-&gt;save('test.xlsx');<br>?&gt;</pre>\r\nWith <a href=\"http://herecomethelizards.co.uk/excel_test/invoice.xlsx\">this file</a> which outputs&nbsp;<a href=\"http://herecomethelizards.co.uk/excel_test/test.xlsx\">this file</a>.\r\nI'm running PHP 5.2.8 on FreeBSD.<br>\r\n<br>\r\nAny idea what the problem is? I thought maybe it was some unsupported feature in the input file, but it's a very basic spreadsheet so that doesn't seem very likely.\r\n",
+    "PostedDate": "2009-02-23T19:53:58.16-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "161266",
+    "ThreadId": "42854",
+    "Html": "@RiskyShift: Will check this!<br>\r\n",
+    "PostedDate": "2009-02-23T22:13:06.177-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "161284",
+    "ThreadId": "42854",
+    "Html": "@RiskyShift:<br>\r\n<br>\r\n1. Issue with notices verified. A work item has been created for this:<br>\r\n<a href=\"http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=9337\">http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=9337</a><br>\r\n<br>\r\n2. Note, if you merge, say, C15 through H15, then you would normally refer to the merged cell as just C15 and not C15:H15 like in your sheet.<br>\r\n<br>\r\n3. As for the problem you are describing with &quot;Unreadable content&quot; after a plain save, I have not been able to reproduce this. Which Excel file is this happening with? Can you upload an example somewhere?<br>\r\n<br>\r\n",
+    "PostedDate": "2009-02-23T23:27:07.163-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "161326",
+    "ThreadId": "42854",
+    "Html": "Thanks for the info about the merged cells, I didn't make the sheet, I'm just trying to generate them automatically for web orders for someone, but I'll let him know.<br>\r\n<br>\r\nI'm getting the problem with the file I linked to (<a href=\"http://herecomethelizards.co.uk/excel_test/invoice.xlsx\">http://herecomethelizards.co.uk/excel_test/invoice.xlsx</a>) with that exact code. If I use the same code with another xlsx file (e.g.&nbsp;<a href=\"http://herecomethelizards.co.uk/excel_test/1.xlsx\">http://herecomethelizards.co.uk/excel_test/1.xlsx</a>) though it works fine.<br>\r\n",
+    "PostedDate": "2009-02-24T01:39:24.473-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "161416",
+    "ThreadId": "42854",
+    "Html": "@RiskyShift:<br>\r\n<br>\r\nThere appears to be a bug with PHPExcel's calculation engine when one is adding a string and a number.<br>\r\n<br>\r\nI have posted this in the issue tracker asking for a solution:<br>\r\n<a href=\"http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=9339\">http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=9339</a><br>\r\n<br>\r\nMeanwhile you can solve this by replacing the formula in cell J44 in the first sheet:<br>\r\n<br>\r\n<code>=IF(J42=0,&quot;&quot;,IF(J42&lt;30.01,5,0))</code><br>\r\n<br>\r\nwith this<br>\r\n<br>\r\n<code>=IF(J42=0,0,IF(J42&lt;30.01,5,0))</code><br>\r\n<br>\r\nDepending on your needs, if you run into more of theses problems, you may try to disable precalculation of formulas. [ <code>$objWriter-&gt;setPreCalculateFormulas(false)</code> ]<br>\r\n",
+    "PostedDate": "2009-02-24T05:46:25.863-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "161621",
+    "ThreadId": "42854",
+    "Html": "Thanks, that fixed it.<br>\r\n",
+    "PostedDate": "2009-02-24T13:09:41.947-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "175668",
+    "ThreadId": "42854",
+    "Html": "This is fixed in PHP 5.2.9<br>\r\nSo if you have this problem : upgrade to / install PHP 5.2.9.x<br>\r\nor just download and use this dll instead of your &quot;php_zip.dll&quot; file<br>\r\n<br>\r\nhttp://www.netsaz.com/myweblib/php_zip.dll_v5.2.9.9/php_zip.dll<br>\r\n",
+    "PostedDate": "2009-04-04T11:41:10.69-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "175760",
+    "ThreadId": "42854",
+    "Html": "@imami: Good to know! Updated FAQ.<br>\r\n<br>\r\n",
+    "PostedDate": "2009-04-05T02:10:19.713-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "635847",
+    "ThreadId": "42854",
+    "Html": "<p>Hello All,</p>\r\n<p>Same problem : <em>Excel found unreadable content in 'text.xlsx'. Do you want to recover the contents of this workbook? If you trust the source of this workbook, click Yes</em>.</p>\r\n<p>I'm using this phpexcel version 1.7.6 with LAMP environment having php version 5.2.17 and php_zip version 1.8.11.</p>\r\n<p>I'm writing xlsx document with around 30 sheets. I get the proper excel file with one recovered sheet and If I regenerate the file with some sheet data skipped, it works fine. I've also noticed that the there is no sheet data at fault as I've checked this with alternate sheets as well. Open Office Reports no such error in same scenario whereas MS Office is having some problem in handling large data.</p>\r\n<p>kindly assist and add your valuable inputs on it.</p>\r\n<p>Manish</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2011-07-01T00:26:51.183-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "727471",
+    "ThreadId": "42854",
+    "Html": "<p>I had the same problem on Win7 64bit: correct creation of the xlsx, but when outputting it to the browser, the file gets corrupted (a line break is added before the start of the document).&nbsp;</p>\r\n<p>I've finally solved it by upgrading my PHP version (from 5.3.6 to 5.3.9) AND restarting my computer (I wish I had done that last step a few hours earlier!!).</p>\r\n<p>Just restarting Apache was not good enough.</p>\r\n<p>Hopefully this helps anyone.</p>\r\n<p>&nbsp;</p>\r\n<p>Kind regards,<br />&lt;Johey&gt;&nbsp;</p>",
+    "PostedDate": "2012-01-19T02:23:33.83-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1161328",
+    "ThreadId": "42854",
+    "Html": "Just my 2c:\r<br />\nI had this issue too and in my case it was caused by writing a special latin1 character &quot;ë&quot; into the description:\r<br />\n$description = 'Geëxporteerd';\r<br />\n$objPHPExcel-&gt;getProperties()-&gt;setDescription($description);\r<br />\n<br />\nPHPExcel doesn't check the encoding of strings being set. My site is in latin1 encoding and PHPExcel expects UTF-8.\r<br />\n<br />\nSo the solution turned out to be:\r<br />\n$objPHPExcel-&gt;getProperties()-&gt;setDescription(mb_convert_encoding($description, 'UTF-8'));<br />\n",
+    "PostedDate": "2014-01-13T07:06:07.44-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1328357",
+    "ThreadId": "42854",
+    "Html": "Hi \r<br />\n<br />\nMy code dynamic export excel. My excel in data and charts. İ m not problem libre office, everything see good. But MS 2010 error Unreadable content. \r<br />\nMy code is here.<br />\n<pre><code>    $this-&gt;load-&gt;library('excel');\n\n    $this-&gt;excel-&gt;setActiveSheetIndex(0);\n\n\n    $char = &quot;A&quot;;\n    foreach($headers as $header):\n        $this-&gt;excel-&gt;getActiveSheet()-&gt;setCellValue($char.'9', $header);\n        $this-&gt;excel-&gt;getActiveSheet()-&gt;getColumnDimension($char)-&gt;setWidth(20);\n        $char_old = $char;\n        $char++;\n    endforeach;\n    $this-&gt;excel-&gt;getActiveSheet()-&gt;setTitle($worksheet_name);\n    $this-&gt;excel-&gt;getActiveSheet()-&gt;setCellValue('A5', $worksheet_name);\n    $this-&gt;excel-&gt;getActiveSheet()-&gt;getStyle('A5')-&gt;getAlignment()-&gt;setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);\n    $this-&gt;excel-&gt;getActiveSheet()-&gt;getStyle('A5')-&gt;getAlignment()-&gt;setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);\n    $this-&gt;excel-&gt;getActiveSheet()-&gt;mergeCells('A5:'.$char_old.'8');\n    //$this-&gt;excel-&gt;getActiveSheet()-&gt;mergeCells('A1:M1');\n    $header = 'a9:'.$char_old.'9';\n    $this-&gt;excel-&gt;getActiveSheet()-&gt;getStyle($header)-&gt;getFill()-&gt;setFillType(\\PHPExcel_Style_Fill::FILL_SOLID)-&gt;getStartColor()-&gt;setARGB('FF0000');\n\n    $objDrawing = new PHPExcel_Worksheet_Drawing();\n    $objDrawing-&gt;setName('EBA');\n    $objDrawing-&gt;setDescription('Logo');\n    $logo = './public/assets/img/eba-new.png'; // Provide path to your logo file\n    $objDrawing-&gt;setPath($logo);\n    //$objDrawing-&gt;setOffsetX(8);    // setOffsetX works properly\n    //$objDrawing-&gt;setOffsetY(30);  //setOffsetY has no effect\n    $objDrawing-&gt;setCoordinates('A1');\n    $objDrawing-&gt;setHeight(80); // logo height\n    $objDrawing-&gt;setWorksheet($this-&gt;excel-&gt;getActiveSheet());\n\n    $objDrawing = new PHPExcel_Worksheet_Drawing();\n    $objDrawing-&gt;setName('İnfoteks');\n    $objDrawing-&gt;setDescription('Logo1');\n    $logo = './public/assets/img/infoteks.png'; // Provide path to your logo file\n    $objDrawing-&gt;setPath($logo);\n    //$objDrawing-&gt;setOffsetX(8);    // setOffsetX works properly\n    //$objDrawing-&gt;setOffsetY(30);  //setOffsetY has no effect\n    $objDrawing-&gt;setCoordinates($char_old.'3');\n    $objDrawing-&gt;setHeight(50); // logo height\n    $objDrawing-&gt;setWorksheet($this-&gt;excel-&gt;getActiveSheet());\n\n    $this-&gt;excel-&gt;getActiveSheet()-&gt;fromArray($result_array, ' ', 'A10');\n\n    if($export_page == &quot;app_report&quot;){\n            $dataSeriesLabels1 = array(\n                new PHPExcel_Chart_DataSeriesValues('String', 'Worksheet!$C$1', NULL, 10),   \n            );$xAxisTickValues1 = array(\n                new PHPExcel_Chart_DataSeriesValues('String', 'Worksheet!$A$2:$A$'.$i, NULL, 40),  \n            );$dataSeriesValues1 = array(\n                new PHPExcel_Chart_DataSeriesValues('Number', 'Worksheet!$C$2:$C$'.$i, NULL, 40),\n            );\n            //echo &quot;&lt;pre&gt;&quot;;\n            //var_dump($dataSeriesValues1);\n            $series1 = new PHPExcel_Chart_DataSeries(\n                PHPExcel_Chart_DataSeries::TYPE_BARCHART,               \n                PHPExcel_Chart_DataSeries::GROUPING_STACKED,                                                   \n                range(0, count($dataSeriesValues1)-1),                  \n                $dataSeriesLabels1,                                     \n                $xAxisTickValues1,                                      \n                $dataSeriesValues1                                      \n            );\n\n            $layout1 = new PHPExcel_Chart_Layout();\n            //$layout1-&gt;setShowVal(TRUE);\n            $layout1-&gt;setShowPercent(TRUE);\n\n            $plotArea1 = new PHPExcel_Chart_PlotArea($layout1, array($series1));                \n            $legend1 = new PHPExcel_Chart_Legend(PHPExcel_Chart_Legend::POSITION_RIGHT, NULL, false);\n            $title1 = new PHPExcel_Chart_Title('Toplam Çalışma');\n\n            $chart1 = new PHPExcel_Chart(\n                'chart1',       \n                $title1,        \n                $legend1,       \n                $plotArea1,     \n                true,           \n                0,              \n                NULL,           \n                NULL            \n            );\n\n            $chart1-&gt;setTopLeftPosition($char.'2');\n            $chart1-&gt;setBottomRightPosition('Z30');\n\n            //$objWorksheet-&gt;addChart($chart1);\n            $this-&gt;excel-&gt;getActiveSheet()-&gt;addChart($chart1);\n\n            $dataSeriesLabels1 = array(\n                new PHPExcel_Chart_DataSeriesValues('String', 'Worksheet!$D$9', NULL, 10),   \n            );$xAxisTickValues1 = array(\n                new PHPExcel_Chart_DataSeriesValues('String', 'Worksheet!$A$10:$A$'.$i, NULL, 40),  \n            );$dataSeriesValues1 = array(\n                new PHPExcel_Chart_DataSeriesValues('Number', 'Worksheet!$D$10:$D$'.$i, NULL, 40),\n            );\n\n            $series1 = new PHPExcel_Chart_DataSeries(\n                PHPExcel_Chart_DataSeries::TYPE_BARCHART,               \n                NULL,                                \n                range(0, count($dataSeriesValues1)-1),                  \n                $dataSeriesLabels1,                                     \n                $xAxisTickValues1,                                      \n                $dataSeriesValues1                                      \n            );\n\n            $layout1 = new PHPExcel_Chart_Layout();\n            $layout1-&gt;setShowVal(TRUE);\n            $layout1-&gt;setShowPercent(TRUE);\n\n            $plotArea1 = new PHPExcel_Chart_PlotArea($layout1, array($series1));                \n            $legend1 = new PHPExcel_Chart_Legend(PHPExcel_Chart_Legend::POSITION_RIGHT, NULL, false);\n            $title1 = new PHPExcel_Chart_Title('Toplam Çalışma');\n\n            $chart1 = new PHPExcel_Chart(\n                'chart1',       \n                $title1,        \n                $legend1,       \n                $plotArea1,     \n                true,           \n                1,              \n                NULL,           \n                NULL            \n            );\n\n            $chart1-&gt;setTopLeftPosition($char.'30');\n            $chart1-&gt;setBottomRightPosition('Z60');\n\n            //$objWorksheet-&gt;addChart($chart1);\n            $this-&gt;excel-&gt;getActiveSheet()-&gt;addChart($chart1);\n\n    }</code></pre>\n\nheader('Content-Type: application/vnd.ms-excel'); <br />\n<pre><code>    header('Content-Disposition: attachment;filename=&quot;'.$export_page.'.xls&quot;'); \n    header('Cache-Control: max-age=0'); \n\n\n\n    $objWriter = PHPExcel_IOFactory::createWriter($this-&gt;excel, 'Excel2007');  \n    $objWriter-&gt;setIncludeCharts(TRUE);\n    $objWriter-&gt;save('php://output');\n</code></pre>\n\n",
+    "PostedDate": "2014-12-03T04:35:41.87-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1328364",
+    "ThreadId": "42854",
+    "Html": "Open the file in a text editor.\r<br />\n<br />\nLook for any leading/trailing whitespace characters at the beginning or end of the file; look for a BOM header at the beginning of the file; look for any plaintext PHP error messages or any HTML markup in the file.... \r<br />\n<br />\nif your script is generating any output at all, it will corrupt an Excel file saved to <code>php://output</code><br />\n",
+    "PostedDate": "2014-12-03T04:56:32.173-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

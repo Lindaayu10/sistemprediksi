@@ -1,0 +1,166 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel_Writer_PDF",
+      "DisplayName": "PHPExcel_Writer_PDF"
+    },
+    "ClosedComment": "Fixed in SVN",
+    "ClosedDate": "2009-04-20T02:57:29.44-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hello! I have a trouble with generated PDF files with cyrillis words.\n \nI generat $objPHPExcel with Russian words in cells. To let it be displayed in Excel properly, I convert words from native CP1251 (windows-1251) to UTF8:  mb_convert_encoding($text, 'UTF8', 'CP1251'). It works and displayed correctly both in Excel2007 and Excel5. Then I create PDF using PHPExcel_IOFactory::createWriter($objPHPExcel, 'PDF');.  PDF file creates successfully but! Russian words are displayed like multiple question marks (\"?\" symbols). I suppose that PDF is created without necessary fonts. I look through the created file and found:\n/BaseFont /Helvetica-Bold\n/Subtype /Type1\n/Encoding /WinAnsiEncoding\n \nAs far as I know, WinAnsiEncoding has no russian letters in it. WinAnsi is 1252 - west europen charset, but I need 1251.. \n \nIn   public function __construct($orientation='P', $unit='mm', $format='A4', $unicode=true, $encoding='UTF-8', $diskcache=false) {..     I changed $unicode to false and $encoding to cp1251 (windows-1251) thinking that necessary encoding will be set. But I was wrong. It makes almost no effect. Multiple question marks just replaced with symbols like.... like \"N Ñ\" in spanish (with tilde ~ above it), strikethrough \"D Ð\", bold dots between symbols and others..\n \nCan you advice me something on how to generate PDF with russian words in it?\n \nI can send created files on email if it needed. Just let me know.",
+    "LastUpdatedDate": "2013-05-16T05:42:45.543-07:00",
+    "PlannedForRelease": "PHPExcel 1.6.7 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-04-16T00:59:25.397-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "PDF and cyrillic fonts",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 9775
+  },
+  "FileAttachments": [
+    {
+      "FileId": 2973,
+      "FileName": "wi-9775.patch",
+      "DownloadUrl": ".\\2973"
+    },
+    {
+      "FileId": 2979,
+      "FileName": "fonts.rar",
+      "DownloadUrl": ".\\2979"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "From thread:\r\nhttp://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=53317",
+      "PostedDate": "2009-04-16T01:13:02.04-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Will check if an upgrade of www.tcpdf.org helps...",
+      "PostedDate": "2009-04-16T13:57:33.82-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Do you have a script to reproduce, containing Russian characters?",
+      "PostedDate": "2009-04-16T13:59:48.93-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Can you check using the latest source control version?",
+      "PostedDate": "2009-04-16T14:12:43.367-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-04-16T14:12:43.96-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Sample script:\r\n\r\n$excel = new PHPExcel();\r\n$sheet = $excel->getActiveSheet();\r\n$sheet->getCell('A1')->setValue('АБВГДЄЖЅЗИІ');\r\n\r\n$writer = new PHPExcel_Writer_PDF($excel);\r\n$writer->save('write.pdf');\r\n\r\nExpected result:\r\n----\r\nCyrillic characters in cell A1 in generated PDF\r\n\r\nActual result:\r\n----\r\nQuestion marks in cell A1 in generated PDF\r\nhttp://img256.imageshack.us/img256/6199/cyrillic.png\r\n\r\n\r\nI played a bit with TCPDF. Shipped with TCPDF there were 3 useful examples how to use Unicode.\r\n\r\nexample_008.php\r\n$pdf->SetFont('freeserif', '', 12);\r\n\r\nexample_018.php\r\n$pdf->SetFont('dejavusans', '', 12);\r\n\r\nexample_038.php\r\n$pdf->SetFont('arialunicid0', 'U', 20);\r\n\r\nThink we can use similar solution for PHPExcel. arialunicid0 does the trick at least for Cyrillic glyphs. Fortunately, TCPDF seems to ignore the inline CSS property font-family so simple patch may suffice for now.",
+      "PostedDate": "2009-04-16T16:28:48.367-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-04-16T16:28:49.477-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Adobe Reader says that I need the Japanese Language Support package to display that page properly ;)\r\nI will try another fonts.\r\n\r\n",
+      "PostedDate": "2009-04-16T22:39:00.1-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I got something.\r\nPHPExcel\\Shared\\PDF\\fonts\\arialunicid0.php \r\n...\r\n$enc='UniJIS-UTF16-H';\r\n$cidinfo=array('Registry'=>'Adobe','Ordering'=>'Japan1','Supplement'=>5);\r\ninclude(dirname(__FILE__).'/uni2cid_aj16.php'); \r\n...\r\n\r\nI think I can make a workaround",
+      "PostedDate": "2009-04-16T22:46:24.507-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "well, I used $pdf->SetFont('dejavusans', '', 10); with fonts from tcpdf package. and it helped. but it seems there are some another problems. I check some things and post a new topic.",
+      "PostedDate": "2009-04-16T23:12:40.397-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Can you contribute your workaround? Sounds like a good option for cyrillic characters.",
+      "PostedDate": "2009-04-17T00:20:50.1-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I tested my script on all fonts that were in latest tcpdf package. I attached fonts that can be useful for cyrillic characters. \r\n\r\nI leave three of them: dejavusanscondensed, dejavusans and freesans. Text with that three fonts looked nice. \r\n\r\nIn my script I decided to use dejavusans ($pdf->SetFont('dejavusans', '', 18);) as font that display characters not very small, with not very narrow-width. But someone probably can choose another font. Tastes are different. I think you can write information of fonts-changing in developer documentation (probably section \"PHPExcel recipes\"). \r\n\r\nattached fonts should be placed to PHPExcel\\Shared\\PDF\\fonts\\ directory. \r\n\r\np.s. using $pdf->SetFont('arialunicid0', 'U', 20); gives no results probably because of Japanese language support package wasn't installed. And I think that most of people will not install it if they have no relations with Japan ;)",
+      "PostedDate": "2009-04-17T01:03:16.653-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-04-17T01:03:20.467-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Will see if I can factor this in over the weekend. Thanks for the research!",
+      "PostedDate": "2009-04-17T02:07:35.513-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Any time. Was pleased to help!",
+      "PostedDate": "2009-04-17T03:09:22.763-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Will apply freesans by default. Maps the most to Arial.",
+      "PostedDate": "2009-04-20T02:54:44.457-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-04-20T02:57:17.457-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-04-20T02:57:29.44-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "It seems that $pdf->SetFont(); works in the way we didn't think. \r\n\r\nI suppose the following:\r\n\r\nI have in my spreadsheet Tahoma as default font: $objPHPExcel->getActiveSheet()->getDefaultStyle()->getFont()->setName('Tahoma');\r\n\r\n1. If Tahoma font is located in Fonts/ directory, then text will be represented according it.\r\n\r\n2. If there are some italic or bold styles and there are no tahomai or tahomab fonts in Fonts/ directory, so it will be represented in Tahoma normal.\r\n\r\n3. If text is in Tahoma and there are no tahoma fonts in Fonts/ directory at all, the text will be represented with the font that is set by $pdf->SetFont();. \r\n\r\np.s. There are no Tahoma fonts in Fonts/ directory. I created php file for it via util in utils/ directory (read utils/README.TXT for more).\r\n\r\np.p.s. There are no Tahoma Italic fonts at all. And it's a pity. ",
+      "PostedDate": "2009-04-20T05:57:28.643-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I mean.. it's like.. it works in another way and I didn't think of it",
+      "PostedDate": "2009-04-20T06:09:56.643-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Good tip for users wanting to use their custom fonts!",
+      "PostedDate": "2009-04-20T06:11:29.037-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:04:09.163-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:45.543-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

@@ -1,0 +1,181 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "All",
+      "DisplayName": "All"
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "From discussion:\nhttp://www.codeplex.com/PHPExcel/Thread/View.aspx?ThreadId=44858\n \nAt the moment PHPExcel only seems to support defined names of the form:\n \n'Sheet'!$D$2:$D$3\n \nBut sometimes one needs e.g.\n \n'Sheet'!$D$2:$D$3,'Sheet'!$E$1:$E$3\n \nor even something entirely different?\n \nPHPExcel fails when one tries to generate xlsx from template holding such a complex defined name.\n \nTest (plain read/write):\n----\n$reader = new PHPExcel_Reader_Excel2007();\n$excel = $reader->load('read.xlsx');\n \n$writer = new PHPExcel_Writer_Excel2007($excel);\n$writer->save('write.xlsx');\n \nExpected result:\n----\nOutput is identical to input, in particular, defined names are preserved\n \nActual result:\n----\nOutput is corrupt. Errors by MS Office Excel 2007 when one tries to open it. Defined name is lost.\n \nEnvironment:\n----\nPHPExcel: 1.6.5 (and changeset 24480)",
+    "LastUpdatedDate": "2013-02-21T19:04:25.31-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-01-21T20:03:21.3-08:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Support for arbitrary defined names (named range)",
+    "Type": {
+      "Name": "Feature",
+      "Id": 1
+    },
+    "VoteCount": 1,
+    "Id": 9001
+  },
+  "FileAttachments": [
+    {
+      "FileId": 2656,
+      "FileName": "read.xlsx",
+      "DownloadUrl": ".\\2656"
+    },
+    {
+      "FileId": 2657,
+      "FileName": "write.xlsx",
+      "DownloadUrl": ".\\2657"
+    },
+    {
+      "FileId": 2672,
+      "FileName": "read.xlsx",
+      "DownloadUrl": ".\\2672"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "Maybe something like PHPExcel->addNamedRangeByFormula(\"'Sheet'!$D$2:$D$3,'Sheet'!$E$1:$E$3\") ?\r\n\r\nThe advantage with the current implementation is that when you e.g. rename a sheet, then this is reflected in your defined name, unlike with formulas. But in light of this work item, maybe give that up until we have some more advanced formula engine that can update formulas as one renames a sheet?",
+      "PostedDate": "2009-01-21T20:10:59.75-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-01-21T20:11:00.593-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-01-21T20:11:01.17-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-01-21T23:24:48.86-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I'll create a separate work item for formula engine and sheet / named range renaming.",
+      "PostedDate": "2009-01-23T00:56:16.33-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-01-23T00:56:16.987-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-01-23T00:57:23.907-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Fixed in SVN\r\n\r\n** Closed by maartenba 1/23/2009 12:57 AM",
+      "PostedDate": "2009-01-23T22:55:30.36-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Sorry for re-opening.\r\n\r\nMaarten, can you try to run this test again? I'm getting this error:\r\n\r\nFatal error: Call to a member function getDataType() on a non-object in /var/www/localhost/htdocs/test/PHPExcel/Classes/PHPExcel/ReferenceHelper.php on line 440\r\n\r\nNot sure if it is a consequence of this work item or the other?",
+      "PostedDate": "2009-01-23T22:55:30.673-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Likewise, when calling\r\n    $PHPExcelObject->getActiveSheet()->setTitle('DB Function Example');\r\n\r\nStack dump shows:\r\n( ! ) Fatal error: Call to a member function getDataType() on a non-object in C:\\xampp\\htdocs\\PHPExcel\\Classes\\PHPExcel\\ReferenceHelper.php on line 440 \r\nCall Stack \r\n# Time Memory Function Location \r\n1 0.0045 90448 {main}( ) ..\\DB.php:0 \r\n2 0.3002 7098048 PHPExcel_Worksheet->setTitle( ) ..\\DB.php:53 \r\n3 0.3006 7098936 PHPExcel_ReferenceHelper->updateNamedFormulas( ) ..\\Worksheet.php:598 \r\n",
+      "PostedDate": "2009-01-25T11:35:26.513-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-01-25T23:16:22.923-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-01-25T23:16:53.593-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Fixed in SVN\r\n\r\n** Closed by maartenba 1/25/2009 11:16 PM",
+      "PostedDate": "2009-01-26T22:48:25.713-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Ugh. There are problems with single-quote in sheet title. Can you try to run second read.xlsx ?",
+      "PostedDate": "2009-01-26T22:48:26.243-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-01-26T22:48:53.71-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-01-26T22:48:55.9-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-01-27T05:48:09.387-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-01-27T05:50:40.04-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-01-27T05:51:48.71-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Hello,\r\nI am using 1.7.2 Production PHPExcel on a Windows XP with PHP Version 5.1.4, and I want to list all Named Ranges defined in an Excel 2003 worksheet.\r\nWith my program, I'm able to list the Named Ranges defined as 'Sheet'!$D$2: $D$3 (a regular range of cells), but I'm not able to list a range defined as 'Sheet'!$D$2:$D$3, 'Sheet'!$E$1:$E$3 (an irregular range of cells)\r\nIs it possible to list the Named Ranges of an irregular range of cells with the current version of the API?\r\nThanks.\r\nThe following is the program I'm using:\r\n<?php\r\nerror_reporting(E_ALL);\r\nrequire_once 'PHPExcel.php';\r\nrequire_once 'PHPExcel/IOFactory.php';\r\n$objPHPExcel = PHPExcel_IOFactory::load(\"file1.xls\");\r\n$a=$objPHPExcel->getNamedRanges();\r\nforeach($a as $b)  \r\n      {   echo (\"dolar_namedRange = \");\r\n          echo $b->getName();\r\n          echo (\"<br>\");\r\n      }\r\n?>",
+      "PostedDate": "2010-04-01T03:54:00.65-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Fixed in SVN\n\n** Closed by maartenba 1/27/2009 5:51 AM",
+      "PostedDate": "2010-04-01T08:41:33.273-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Per comment by AgustinVivo.",
+      "PostedDate": "2010-04-01T08:41:34.02-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-04-07T18:13:31.95-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Maartenba and koyama Sorry, but I do not understand what you say. Can you be more explicit? Thanks.\r\n",
+      "PostedDate": "2010-04-07T23:49:14.713-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:04:25.31-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

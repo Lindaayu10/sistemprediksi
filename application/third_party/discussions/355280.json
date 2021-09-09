@@ -1,0 +1,82 @@
+[
+  {
+    "Id": "834588",
+    "ThreadId": "355280",
+    "Html": "\r\n<p>hello,I am using xls file which contain very complex calculations and sheet throws a no of exception when using the phpExcel. To get rid of these exception I used old calculated&nbsp; values. But now i m not getting the desired result as in excel file.</p>\r\n<p>Am I missing something.</p>\r\n",
+    "PostedDate": "2012-05-10T07:07:58.227-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "834626",
+    "ThreadId": "355280",
+    "Html": "<p>Knowing what exceptions you were getting might make it easier to answer</p>",
+    "PostedDate": "2012-05-10T08:08:54.193-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "834633",
+    "ThreadId": "355280",
+    "Html": "<p>I am getting NUM ,REF exceptions... In excel file formula is generating correct results.. But when I input values using phpExcel and then get the output it is generating REF.</p>",
+    "PostedDate": "2012-05-10T08:17:59.813-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "834692",
+    "ThreadId": "355280",
+    "Html": "<p>NUM and REF are not exceptions, they're typically Excel error codes.... if you want help, please supply a bit more detail such as the formulae that give these results, and what you expect to get instead.</p>",
+    "PostedDate": "2012-05-10T09:44:31.44-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "835032",
+    "ThreadId": "355280",
+    "Html": "<p>Thanks for clarifying the answer.</p>\r\n<p>I am getting the following exception:</p>\r\n<p><strong><span style=\"font-size: 12;\"> Uncaught exception 'Exception' with message 'Cyclic Reference in Formula'</span></strong></p>\r\n<p><strong><span style=\"font-size: 12;\">I am </span></strong><span style=\"font-size: 12;\">dealing with a excel sheet which contain very complex calculations. I can not write them all here. I am using an interface to send the values to specific cells of that excel sheet. and then getting&nbsp; back the calculated value from the output cells.</span></p>\r\n<p>&nbsp;</p>\r\n<p>use of getOldCalculatedValue() gets the correct values first Time I use it (I have no idea how)</p>\r\n<p><span style=\"font-size: 12;\">The problem with </span>getOldCalculatedValue() is that this is not the solution. also when i update my input values , output value does not change.</p>",
+    "PostedDate": "2012-05-11T03:04:57.273-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "835087",
+    "ThreadId": "355280",
+    "Html": "<p>now i checked deeply.. these are the formulas which are generating exceptions:</p>\r\n<p><strong><span style=\"font-size: 12px;\">Fatal error: Uncaught exception 'Exception' with message  'STEAM!B30 -&gt; STEAM!E57 -&gt; STEAM!B56 -&gt; STEAM!B38 -&gt;  STEAM!B89 -&gt; internal error' </span></strong></p>\r\n<p>&nbsp;</p>\r\n<p><strong><span style=\"font-size: 12px;\">B30:</span></strong>=IF(G32=1,IF(E57&lt;K33,E56,H57),IF(E45&lt;B52,IF(AND(G30&lt;&gt;0,D55&lt;&gt;0),IF(G32=1,IF(E57&lt;K33,E56,H57),IF(E57&lt;E59,E56,H57)),IF(E45&lt;B52,E56,E45)),IF(E45&lt;B46,H57,E45)))</p>\r\n<p><strong>E57: </strong>==IF(B44&lt;B56,VLOOKUP(B70,CHART,4)*B57/4*SQRT(B62/(2*(29.9^2*VLOOKUP(B70,CHART,4)^4-0.8*B62*B57^2))),E38)</p>\r\n<p><strong><span style=\"font-size: 12px;\">B56:</span></strong>=B38*SQRT(IF(E44=1,B52,1^(3/4)*B53^(1/4)*B52/E43^(3/4)/E44^(1/4))/E43)</p>\r\n<p><strong>B38:</strong> =VLOOKUP(B70,CHART,2)</p>\r\n<p><strong>B89:</strong> ==HLOOKUP($E$4,WLC2CV,VLOOKUP($B$4,WLC2CV,15))</p>",
+    "PostedDate": "2012-05-11T05:35:10.717-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "835136",
+    "ThreadId": "355280",
+    "Html": "<p>and there is warning generated, when i am handling the exception by assigning it old calculated values.</p>\n<pre class=\"cake-debug\"><a><strong>Warning</strong> (2)</a>: sqrt() expects parameter 1 to be double, string given [<strong>APP\\vendors\\Classes\\PHPExcel\\Calculation.php</strong>, line <strong>3324</strong>]<br /><br /></pre>",
+    "PostedDate": "2012-05-11T07:19:36.427-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "835399",
+    "ThreadId": "355280",
+    "Html": "<p>any clue..........................</p>",
+    "PostedDate": "2012-05-11T22:57:08.7-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "835751",
+    "ThreadId": "355280",
+    "Html": "<p><a href=\"http://phpexcel.codeplex.com/discussions/295323\">This thread </a>explains cyclic formulae.</p>\r\n<p>Without knowing the value being passed to sqrt() it's hard to say exactly why sqrt(0 is giving an error, but I'd suspect that it's the result of an error in another formula that results in (for example) a #REF! or similar Excel error value being passed to the sqrt() function.</p>\r\n<p>&nbsp;</p>\r\n<p>Standard practise debugging formulae is to enable debugging in the calculation engine using:</p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>PHPExcel_Calculation::getInstance()-&gt;writeDebugLog = true;\r\n</pre>\r\n</div>\r\n<p>then catch any exceptions and then call</p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>print_r(PHPExcel_Calculation::getInstance()-&gt;debugLog)\r\n</pre>\r\n</div>\r\n<p>to&nbsp;dump a complete history of the calculation processing</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2012-05-13T10:14:15.04-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "836039",
+    "ThreadId": "355280",
+    "Html": "<p>@mark thanks for ur support... but .. No browser is able to display the calculation processing history in my case :-(&nbsp; every browser crashes during data fetching using &nbsp; &nbsp;print_r(PHPExcel_Calculation::getInstance()-&gt;debugLog)</p>\n<pre><br />I have to start again...  :-(</pre>",
+    "PostedDate": "2012-05-14T05:26:32.817-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

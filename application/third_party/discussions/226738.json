@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "491689",
+    "ThreadId": "226738",
+    "Html": "<p>Hello,&nbsp;</p>\r\n<p>I know that we can use getValue(),&nbsp;getCalculatedValue()&nbsp;and&nbsp;getOldCalculatedValue() to get the cell value.</p>\r\n<p>For example,<br>If the cell is text, we can use getValue().<br>If the cell is formula, we can use&nbsp;getCalculatedValue().</p>\r\n<p>But i have a question. I need to get the actual value.</p>\r\n<p>***How to determine the cell format that is text or formula or &quot;VLOOKUP&quot;?</p>\r\n<p>When should I use&nbsp;getValue()?<br>When should I use&nbsp;getCalculatedValue()?<br>When should I use&nbsp;getOldCalculatedValue()?&nbsp;</p>\r\n<p>My English is so poor, sorry and thanks...&nbsp;</p>",
+    "PostedDate": "2010-09-10T02:40:10.347-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "491738",
+    "ThreadId": "226738",
+    "Html": "On 10/09/2010 10:40, rayin wrote:<br>&gt;<br>&gt; When i should use getValue()?<br>&gt; When i should use getCalculatedValue()?<br>&gt; When i should use getOldCalculatedValue()?<br>&gt;<br>You can determine whether a cell contains a formula or a value by using:<br>$getCellType = $objPHPExcel-&gt;getActiveSheet()-&gt;getCell('A1')-&gt;getDataType();<br><br>Possible values returned by this call are:<br>     PHPExcel_Cell_DataType::TYPE_STRING<br>     PHPExcel_Cell_DataType::TYPE_FORMULA<br>     PHPExcel_Cell_DataType::TYPE_NUMERIC<br>     PHPExcel_Cell_DataType::TYPE_BOOL<br>     PHPExcel_Cell_DataType::TYPE_NULL<br>     PHPExcel_Cell_DataType::TYPE_INLINE<br>     PHPExcel_Cell_DataType::TYPE_ERROR<br><br>getOldCalculatedValue() is useful when you have loaded an existing <br>workbook that was saved with the calculated values for formulae in <br>cells. Note that not all spreadsheet scripts or applications store a <br>calculated result for formulae: Gnumeric (for example) always <br>recalculates all formulae on load, so it doesn't bother storing the <br>calculated result when you save the file); likewise (when I last tested <br>it) Excel workbooks created using Apache POI.<br>When getOldCalculatedValue() does return a result, then this is static. <br>It doesn't change even if you change the underlying data used by the <br>formula (even for volatile Excel functions such as NOW() ).<br><br>We did briefly consider changing getValue() so that it always returned <br>the calculated value if the cell contained a formula, and adding <br>get/setFormula() methods, but were concerned that this would break <br>backward compatibility for a lot of scripts that already use PHPExcel.",
+    "PostedDate": "2010-09-10T05:24:44.253-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "492610",
+    "ThreadId": "226738",
+    "Html": "<p>Mark. Thank you very much.</p>",
+    "PostedDate": "2010-09-12T20:46:07.033-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

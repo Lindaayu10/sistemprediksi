@@ -1,0 +1,75 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "Calculation_Engine",
+      "DisplayName": "Calculation_Engine"
+    },
+    "ClosedComment": "Production Release 1.7.7",
+    "ClosedDate": "2012-05-20T03:08:16-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I use PHPExcelCalculation::parseFormula() to get the PHPExcel_Token_stack array, which I use to alter select tokens and rebuild the formula (if there is an easier way to copy a formula into a range and alter the relative references the way that excel does, please tell me). The token['type'] member for \"Operand Count for function ABC()\" type tokens spells out the formula in localized fashion while itself remaining English, which looks odd. Example:\n[...]\n    95: array = \n      type: string = \"Operand Count for Function WOCHENTAG()\"\n      value: long = 2\n      reference: undefined = NULL\n    96: array = \n      type: string = \"Function\"\n      value: string = \"WEEKDAY(\"\n      reference: undefined = NULL\n      localeValue: string = \"WOCHENTAG(\"\n[...]\n \nThe second issue is the different spelling of Null and NULL in lines 2738 and 2867 of Calculation.php, which leads to functionally corresponding tokens with different types (only UC/LC, but not comparing as equal). This is a nuissance which toppled my switch/case construct more than once (before I stepped though the 100+ tokens in the stack to see where/why it topples). Please fix the spelling, the stability gained surpasses the efford to fix it by far.\n[...]\n    37: array = \n      type: string = \"NULL Value\"\n      value: &undefined = NULL\n      reference: undefined = NULL\n    38: array = \n      type: string = \"Null Value\"\n      value: &undefined = NULL\n      reference: undefined = NULL\n[...]",
+    "LastUpdatedDate": "2013-05-16T05:41:45.823-07:00",
+    "PlannedForRelease": "PHPExcel 1.7.7 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2011-02-23T08:03:57.49-08:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Two easy to fix Issues concerning PHPExcel_Token_Stack (l10n/UC)",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 15405
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "Changes made as suggested in SVN code: use of English language for function name in \"Operand Count for Function WEEKDAY()\" rather than \"Operand Count for Function WOCHENTAG()\".\r\n\r\nYou may also care to look at the PHPExcel_ReferenceHelper::updateFormulaReferences() method for altering the relative references in a formula, rather than parsing the calculation stack. This is the method called internally for precisely that purpose when, for example, you insert/delete a row/column, and all the formulae within that worksheet are checked and adjusted as necessary.\r\n",
+      "PostedDate": "2011-02-27T16:29:12.783-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2011-02-27T16:30:41.537-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Thanks for the fix Mark, and thanks for the alternate solution vector. I suggest someone goes and updates the developer documentation, along the lines of a new section \"4.6.48 Copying formulas across a range\". As of version 1.7.4, ReferenceHelper is not mentioned anywhere in that document, and that's a shame, for it is a very ... er ... helpful reference.\r\n\r\nI know it sounds obnoxious, but I added a callback options parameter to my own stack walker, so if a programmer provided an array with e.g. ('binopCallback' => myfunc, 'binopCallbackParams' => array(...)), this would get called any time a binary operator was encountered. Same for 'unopCallback', 'funcCallback', 'valCallback', 'cellCallback' and 'nullCallback' - I think you get the point, excuse me if my naming convention fu is not strong.\r\n\r\nWould you care considering something along these lines for the production codebase? I'd understand if this doesn't get included anytime soon, for is this way far down \"esoteric feature road\", while a lot of urgent functionality is still in the making. Yay, keep on the good work!",
+      "PostedDate": "2011-02-27T18:47:54.583-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-05-19T18:20:39.88-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-05-20T03:08:16-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:02:32.293-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:41:45.823-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

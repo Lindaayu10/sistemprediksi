@@ -1,0 +1,90 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "Not an issue",
+    "ClosedDate": "2009-11-10T20:12:45.803-08:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "When a workbook in Excel2007 format is opened read-only, the PHPExcel_Shared_Date::isDateTime() method is not working.\n \nThis may be caused by the lines 321 and 322 in Reader/Excel2007.php:\n \n// Initialisations\n$excel = new PHPExcel;\n$excel->removeSheetByIndex(0);\nif (!$this->_readDataOnly) {\n $excel->removeCellStyleXfByIndex(0); // remove the default style\n $excel->removeCellXfByIndex(0); // remove the default style\n}\n \n \nIf the workbook is opened read-only, the default cell style \"General\" is not removed and each cell returns the style \"General\". If the default style is removed, the cell style is reported correctly as set in the workbook file.\n \nA workaround is to open the workbook not in read-only mode.\n \nIs this a expected behaviour or bug?",
+    "LastUpdatedDate": "2013-05-16T05:42:18.61-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-11-05T03:43:39.117-08:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "PHPExcel_Shared_Date::isDateTime() not working when Excel2007 workbook is opened read-only",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 10886
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": ">> Is this a expected behaviour or bug? \r\n\r\nIt is in fact expected behavior. In Excel files today, a date is really just styled number. There is no dedicated date or time type.\r\n\r\nWhen you use readDataOnly() you lose styles, hence you lose all information about which cells values were originally dates. Consequently, PHPExcel_Shared_Date::isDateTime() will always return false.",
+      "PostedDate": "2009-11-05T19:03:04.623-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Excel doesn't have a specific date type. An Excel date is simply a number like any other number. The only thing that differentiates between 39637.25 and 6am on 8th July 2008 is the formatting style. You can type 39637.25 into a cell, then change the formatting style to a date format, and you'll see a date.... or type 8-Jul-2008 06:00 into a cell and then change the formatting style to a numeric format. That's why the PHPExcel_Shared_Date::isDateTime() method in PHPExcel simply checks the formatting style.\r\nWhen a workbook is opened read only, it doesn't read in the styling information, so that sole indicator to differentiate between number and date is no longer available, and (as the default format is General) it will always return false.\r\n\r\n@Erik\r\nI've been wondering if we should differentiate between numbers and dates in PHPExcel, though it's an additional piece of information to hold against the cell, which affects the memory footprint.... ODS does differentiate between numbers and dates (it even differentiates between dates and times) and the Excel 2003 XML also identifies dates explicitly.... and it would allow formulae that return dates or times to automatically modify the default cell style to a date/time format\r\nI'm already looking at modifying the calculation engine to handle this, so that we can differentiate between strings and errors.\r\n",
+      "PostedDate": "2009-11-06T01:36:51.19-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "@Erik\r\n>> I'm already looking at modifying the calculation engine to handle this, so that we can differentiate between strings and errors\r\nAs per Work Item http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10607",
+      "PostedDate": "2009-11-06T01:39:46.31-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Thank you for the quick reply. This is not much of an issue for us, but can be a bit confusing at first.\r\n\r\nMaybe it would help to make this behaviour more explicit in the documentation.\r\n\r\nBut the point I do not understand is, that a read-only file looses its styles. If I first set a excel file read-only on the filesystem and then open it with Excel, the cell style is retrieved correctly (despite of the file being read-only). Is there definitely no way to get access to the \"real\" cell style and just falling back to the default style if no other style was explicitely set?\r\n\r\nAgain, this is not a big issue. I'm just wondering whether this could be enhanced or not.",
+      "PostedDate": "2009-11-06T04:58:27.143-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "The readDataOnly() setting in the file reader isn't related to filesystem \"read only\" settings in any way. It actually tells the reader only to read the data values from the workbook, and not to read any of the style information. The purpose of the setting is to reduce the memory footprint when a workbook is read into PHPExcel, so there is no additional memory overhead with style information",
+      "PostedDate": "2009-11-06T05:29:26.783-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Ok. Now I got it. Thank you again. I must have mixed up read-only and read-data-only.",
+      "PostedDate": "2009-11-06T06:14:04.23-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": ">> I've been wondering if we should differentiate between numbers and\r\n>> dates in PHPExcel, though it's an additional piece of information to\r\n>> hold against the cell, which affects the memory footprint....\r\n\r\nWould it suffice to have a method $cell->isDateTime() ? Essentially, it would just look up the style for the cell and check it with PHPExcel_Shared_Date::isDateTime(). We would not need more private cell properties, and we wouldn't have to worry about memory?\r\n\r\n>> ODS does differentiate between numbers and dates\r\n>> (it even differentiates between dates and times) and the Excel\r\n>> 2003 XML also identifies dates explicitly....\r\n\r\nAs far as I understand ECMA-376 (which MS Office Excel 2007 leans against) does not contain dedicated date datatype while does the newer ISO/IEC 29500:2008 (which MS Office Excel 2010 will leans against) contain dedicated datatype for ISO-dates\r\n\r\nSome discussion\r\nhttp://idippedut.dk/post/2009/11/03/Excel-2010-%28Microsoft-Office-2010-CTP-TO-do-list-%2801%29.aspx\r\n\r\nNote the new type of markup:\r\n<c r=\"A1\" t=\"d\">\r\n  <v>1900-02-28</v>\r\n</c>\r\n\r\nI guess this means that we would have to introduce additional ISO-date datatype accordingly in PHPExcel. Perhaps we are wise to wait making too many changes with date datatypes until it is clear how these are handled in MS Office Excel 2010. \r\n\r\n>> and it would allow formulae that return dates or times to\r\n>> automatically modify the default cell style to a date/time format\r\n\r\nCould this be handled by the AdvancedValueBinder.php ? For example, when you use\r\n$cell->setValue('=TODAY()')\r\n\r\nthen the cell style should update automatically like in Excel to a date format? Implementing such feature would require that we can map any formula to a format mask. I don't know how this can be done?",
+      "PostedDate": "2009-11-06T19:15:11.897-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-11-10T20:12:45.803-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:03:29.98-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:18.61-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

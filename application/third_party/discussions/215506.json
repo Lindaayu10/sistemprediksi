@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "453669",
+    "ThreadId": "215506",
+    "Html": "<p>I'm trying to use phpexcel to loop through a directory of excel sheets and I can go through and find the fields I want in one sheet but on the second sheet I receive the error</p>\r\n<p>&quot;Cannot redeclare class PHPExcel_IOFactory&quot;</p>\r\n<p>&nbsp;</p>\r\n<p>I'm using the following function</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre><span style=\"color:blue\">function</span> findValue($<span style=\"color:blue\">file</span>,$value)\r\n{\r\n\t<span style=\"color:blue\">echo</span> $<span style=\"color:blue\">file</span>.<span style=\"color:#a31515\">' '</span>.$value.<span style=\"color:#a31515\">'&lt;br&gt;'</span>;\r\n\t<span style=\"color:green\">/** Error reporting */</span>\r\n\terror_reporting(E_ALL);\r\n\t<span style=\"color:green\">/** Include path **/</span>\r\n\tini_set(<span style=\"color:#a31515\">'include_path'</span>, ini_get(<span style=\"color:#a31515\">'include_path'</span>).<span style=\"color:#a31515\">';../Classes/'</span>); <span style=\"color:green\">//Classes dir</span>\r\n\t<span style=\"color:green\">/** PHPExcel_IOFactory */</span>\r\n\t<span style=\"color:blue\">include</span> <span style=\"color:#a31515\">'PHPExcel/IOFactory.php'</span>;\r\n\t$objReader = PHPExcel_IOFactory::createReader(<span style=\"color:#a31515\">'Excel5'</span>);<span style=\"color:green\">//excel2007</span>\r\n\t$objPHPExcel = $objReader-&gt;load($<span style=\"color:blue\">file</span>); <span style=\"color:green\">//ARCHIVE excel2007 dir</span>\r\n\t$val = ($objPHPExcel-&gt;getActiveSheet()-&gt;getCell(<span style=\"color:#a31515\">'AB31'</span>)); <span style=\"color:green\">//CELL</span>\r\n\t$temp = $val-&gt;getvalue();<span style=\"color:green\">//returns the value in the cell</span>\r\n\t$objWorksheet = $objPHPExcel-&gt;getActiveSheet();\r\n\t<span style=\"color:blue\">foreach</span> ($objWorksheet-&gt;getRowIterator() <span style=\"color:blue\">as</span> $row) {\r\n\t  $cellIterator = $row-&gt;getCellIterator();\r\n\t  $cellIterator-&gt;setIterateOnlyExistingCells(false); <span style=\"color:green\">// This loops all cells,                                                     // even if it is not set.                                                     // By default, only cells                                                     // that are set will be                                                     // iterated.</span>\r\n\t  <span style=\"color:blue\">foreach</span> ($cellIterator <span style=\"color:blue\">as</span> $cell) {\r\n\t\t$searchedvalue = $cell-&gt;getValue();\r\n\t\t<span style=\"color:blue\">echo</span> $searchedvalue;\r\n\t\t<span style=\"color:blue\">if</span> ($searchedvalue=$value)\r\n\t\t{\r\n\t\t\t<span style=\"color:blue\">return</span> <span style=\"color:#a31515\">&quot;FOUND: &quot;</span>.$searchedvalue;\r\n\t\t}\r\n\t  }\r\n\t}\r\n}\r\nAny help on how to do this would be appreciated.</pre>\r\n</div>",
+    "PostedDate": "2010-06-09T12:21:03.05-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "453673",
+    "ThreadId": "215506",
+    "Html": "<p>Looks like I needed</p>\r\n<p><span style=\"color:blue\">require_once</span> <span style=\"color:#a31515\">'PHPExcel_v/Classes/PHPExcel/IOFactory.php'</span>;</p>\r\n<p>&nbsp;</p>\r\n<p>Found it in another post, sorry I had tried it earlier but left off the once.&nbsp; Reread the post.</p>",
+    "PostedDate": "2010-06-09T12:27:09.127-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

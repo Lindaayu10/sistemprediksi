@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "1011561",
+    "ThreadId": "435685",
+    "Html": "OS:Window 7 \r<br />\nPHP Version 5.4.7 \r<br />\nPHPExcel_1.7.8 \r<br />\n<br />\nI have a project to make like of google spreadsheet using PHP and jquery, right now I am able to create background color, text color, text-align, content, etc., with the help of this library PHPExcel. Right now I am focusing on how to merge a cells. I already did merge a colspan but I see that it's difficult on merging rowspan. \r<br />\n<br />\nThis is my code on merging colspan:<br />\n<pre><code> if($content-&gt;colspan){\n              \n           $matches = array();\n\n            preg_match('/([a-zA-Z]+)(\\d+)/', $content-&gt;tdid, $matches );\n\n            for($i=$matches[1],$x=0; $x&lt;$content-&gt;colspan; $x++,$i++){ \n              $str .= $i;\n            }\n            \n             $first = substr($str,0, 1);\n             $last = substr($str, -1);\n             \n             $fi = $first.$matches[2];\n             $la = $last.$matches[2];\n             \n             $worksheet-&gt;mergeCells($fi.&quot;:&quot;.$la);\n             \n             unset($str);   \n          \n      }</code></pre>\n\nand this work out fine. But now I got a problem merging rowspan. . Every cell has a diffrent ID. . &quot;$content-&gt;tdid&quot; . . \r<br />\n<br />\n Anyone that has the Idea how to do it! ?? Thanks!!<br />\n",
+    "PostedDate": "2013-03-06T22:09:10.707-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1011590",
+    "ThreadId": "435685",
+    "Html": "Answer to my question:\r<br />\n<br />\nJust a a little common sense and I got it. . <br />\n<pre><code> if($content-&gt;colspan &amp;&amp; $content-&gt;rowspan){         \n        // echo $content-&gt;tdid.'=Both&lt;br&gt;';\n         \n           $match = array();\n           \n           preg_match('/([a-zA-Z]+)(\\d+)/', $content-&gt;tdid, $match );\n           \n           $rowcount = ($match[2] - 1) + $content-&gt;rowspan;\n           \n           \n           \n           for($i=$match[1],$x=0; $x&lt;$content-&gt;colspan; $x++,$i++){ \n               \n              $str .= $i;\n              \n            }\n            \n            $last = substr($str, -1);\n            \n            $both = $last.$rowcount;\n            \n            $worksheet-&gt;mergeCells($content-&gt;tdid.':'.$both);\n            \n            unset($str); \n        \n     }elseif($content-&gt;colspan){\n        \n          //SETTING up COlspan Only \n         \n            $matches = array();\n\n            preg_match('/([a-zA-Z]+)(\\d+)/', $content-&gt;tdid, $matches );\n\n            for($i=$matches[1],$x=0; $x&lt;$content-&gt;colspan; $x++,$i++){ \n              $str .= $i;\n            }\n            \n             $first = substr($str,0, 1);\n             $last = substr($str, -1);\n             \n             $fi = $first.$matches[2];\n             $la = $last.$matches[2];\n             \n             $worksheet-&gt;mergeCells($fi.&quot;:&quot;.$la);\n             \n             unset($str); \n         \n        \n     }elseif($content-&gt;rowspan){\n         \n          //SETTING up COlspan Rowspan Only\n         \n          $matches = array();\n\n           preg_match('/([a-zA-Z]+)(\\d+)/', $content-&gt;tdid, $matches );\n           \n           $span = ($matches[2] - 1) + $content-&gt;rowspan;\n           \n           $thespan =  $content-&gt;tdid.':'.$matches[1].$span;\n           $worksheet-&gt;mergeCells($thespan);\n           \n     }   </code></pre>\n\n",
+    "PostedDate": "2013-03-06T23:51:03.21-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1024082",
+    "ThreadId": "435685",
+    "Html": "hello lilmer, \r<br />\n<br />\nThank you for making the code very great, \r<br />\n<br />\nI need help to create a rowspan, \r<br />\n<br />\nI found this code in <a href=\"http://phpexcel.codeplex.com/discussions/275807\" rel=\"nofollow\">http://phpexcel.codeplex.com/discussions/275807</a>\r<br />\n<br />\nto generate html table to excel, but does not work rowspan, could you help me?\r<br />\n<br />\nThis code is perfect, and the more perfect if it makes the code to generate rowspan. \r<br />\n<br />\nCan you help me? please \r<br />\n<br />\nthanks \r<br />\n<br />\nSorry for my bad english.<br />\n",
+    "PostedDate": "2013-04-02T00:27:04.793-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

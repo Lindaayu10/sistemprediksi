@@ -1,0 +1,80 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "Calculation_Engine",
+      "DisplayName": "Calculation_Engine"
+    },
+    "ClosedComment": "Production Release 1.7.7",
+    "ClosedDate": "2012-05-20T03:08:45.04-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Either my execution is wrong or VLOOKUP is choking on the parameters I'm sending it.\nThe following code reproduces the problem:\n \n$objPHPExcel = new PHPExcel();\n$objPHPExcel->setActiveSheetIndex(0);\n$objSheet = $objPHPExcel->getActiveSheet();\n$objSheet->setTitle('Worksheet1');\n \n$objSheet->setCellValue('A1', '10');\n$objSheet->setCellValue('B1', 'foo');\n$objSheet->setCellValue('A2', '20');\n$objSheet->setCellValue('B2', 'bar');\n \n$objPHPExcel->createSheet();\n$objPHPExcel->setActiveSheetIndex(1);\n$objSheet = $objPHPExcel->getActiveSheet();\n$objSheet->setTitle('Worksheet2');\n \n$objSheet->setCellValue('A1', '10');\n$objSheet->setCellValue('A2', '=VLOOKUP(A1,Worksheet1!$A$1:$A$2,2)');\n \n$objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel);\n$objWriter->save('test.xlsx');\n \nResulting error:\n \nFatal error: Uncaught exception 'Exception' with message 'Worksheet2!A2 -> Formula Error: Wrong number of arguments for VLOOKUP() function: 2 given, either 3 or 4 expected' in C:\\all\\dev\\daily\\PHPExcel.1.7.5\\Classes\\PHPExcel\\Cell.php:284\nStack trace:\n#0 C:\\all\\dev\\daily\\PHPExcel.1.7.5\\Classes\\PHPExcel\\Writer\\Excel2007\\Worksheet.php(965): PHPExcel_Cell->getCalculatedValue()\n#1 C:\\all\\dev\\daily\\PHPExcel.1.7.5\\Classes\\PHPExcel\\Writer\\Excel2007\\Worksheet.php(911): PHPExcel_Writer_Excel2007_Worksheet->_writeCell(Object(PHPExcel_Shared_XMLWriter), Object(PHPExcel_Worksheet), 'A2', Array, Array)\n#2 C:\\all\\dev\\daily\\PHPExcel.1.7.5\\Classes\\PHPExcel\\Writer\\Excel2007\\Worksheet.php(82): PHPExcel_Writer_Excel2007_Worksheet->_writeSheetData(Object(PHPExcel_Shared_XMLWriter), Object(PHPExcel_Worksheet), Array)\n#3 C:\\all\\dev\\daily\\PHPExcel.1.7.5\\Classes\\PHPExcel\\Writer\\Excel2007.php(264): PHPExcel_Writer_Excel2007_Worksheet->writeWorksheet(Object(PHPExcel_Worksheet), Array)\n#4 C:\\all\\dev\\daily\\test.php(23): PHPExcel_Writer_Excel2007->sav in C:\\all\\dev\\daily\\PHPExcel.1.7.5\\Classes\\PHPExcel\\Cell.php on line 284",
+    "LastUpdatedDate": "2013-05-16T05:41:49.093-07:00",
+    "PlannedForRelease": "PHPExcel 1.7.7 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2010-12-16T00:11:36.447-08:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "VLOOKUP choking on parameters in PHPExcel.1.7.5/PHPExcel_Writer_Excel2007",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 14901
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "See http://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=238704 for further details.",
+      "PostedDate": "2010-12-21T22:01:57.163-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "A quick fix is to modify line 2602 of Calculation.php (currently reads ')/si';) to make the regexp check ungreedy with the /U switch, so it reads ')/siU';\r\nI've tested this with the VLOOKUP formula, and it reads the arguments correctly; but haven't yet done any extensive testing to see if it has any adverse effects for the other regular expressions handled by $regexpMatchString.",
+      "PostedDate": "2010-12-22T13:13:47.723-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-12-22T13:28:35.553-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Hopefully, this issue is resolved with the latest changes to Calculation.php. The code can be found in the SVN Repository at http://phpexcel.codeplex.com/SourceControl/changeset/view/65727#1602991",
+      "PostedDate": "2010-12-24T04:16:09.413-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-05-20T03:01:46.96-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-05-20T03:08:45.04-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:02:38.74-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:41:49.093-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

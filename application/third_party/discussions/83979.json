@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "288373",
+    "ThreadId": "83979",
+    "Html": "<p>What is the syntax used to populate cells that have been merged together?</p>\r\n<p>I use the following syntax to merge the appropriate cells:</p>\r\n<p>$objPHPExcel-&gt;getActiveSheet()-&gt;mergeCells('A'.$maxRow.':Q'.$maxRow);</p>\r\n<p>&nbsp;</p>\r\n<p>Also, is there a module for dynamically populating cells post 1 alphabet character (EG AA, AB,AC)</p>",
+    "PostedDate": "2010-02-10T10:44:41.817-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "288424",
+    "ThreadId": "83979",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>boogyman wrote:</strong><br>\r\n<p>What is the syntax used to populate cells that have been merged together?</p>\r\n<p>I use the following syntax to merge the appropriate cells:</p>\r\n<p>$objPHPExcel-&gt;getActiveSheet()-&gt;mergeCells('A'.$maxRow.':Q'.$maxRow);</p>\r\n</blockquote>\r\n<p>when cells have been merged, I find it easiest to reference by the top-left cell of the mergeset</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$objPHPExcel-&gt;getActiveSheet()-&gt;mergeCells(<span style=\"color:#A31515\">'A'</span>.$maxRow.<span style=\"color:#A31515\">':Q'</span>.$maxRow);\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(<span style=\"color:#A31515\">'A'</span>.$maxRow, $value);\r\n</pre>\r\n</div>\r\n<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\">\r\n<p><strong>boogyman wrote:</strong></p>\r\n<p>Also, is there a module for dynamically populating cells post 1 alphabet character (EG AA, AB,AC)</p>\r\n</blockquote>\r\n<p>Simply use cell references such as AB1</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(<span style=\"color:#A31515\">'IV65535'</span>, $value);\r\n</pre>\r\n</div>\r\n<p>Note that PHP (very usefully) allows you to post-increment characters as well as numbers using ++<br>so:</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$column = <span style=\"color:#A31515\">'A'</span>;\r\n<span style=\"color:Blue\">while</span> ($column != <span style=\"color:#A31515\">'IW'</span>) {\r\n   <span style=\"color:Blue\">echo</span> $column.<span style=\"color:#A31515\">'&lt;br /&gt;'</span>;\r\n   $column++;\r\n} \r\n</pre>\r\n</div>",
+    "PostedDate": "2010-02-10T12:14:56.573-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "289049",
+    "ThreadId": "83979",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>MarkBaker wrote:</strong><br>\r\n<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\">\r\n<p><strong>boogyman wrote:</strong></p>\r\n<p>Also, is there a module for dynamically populating cells post 1 alphabet character (EG AA, AB,AC)</p>\r\n</blockquote>\r\n<p>Simply use cell references such as AB1</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(<span style=\"color:#A31515\">'IV65535'</span>, $value);\r\n</pre>\r\n</div>\r\n<p>Note that PHP (very usefully) allows you to post-increment characters as well as numbers using ++<br>so:</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$column = <span style=\"color:#A31515\">'A'</span>;\r\n<span style=\"color:Blue\">while</span> ($column != <span style=\"color:#A31515\">'IW'</span>) {\r\n   <span style=\"color:Blue\">echo</span> $column.<span style=\"color:#A31515\">'&lt;br /&gt;'</span>;\r\n   $column++;\r\n} \r\n</pre>\r\n</div>\r\n</blockquote>\r\n<p>I was thinking more along the lines of a full fledged system. There is a potential for up to 208 (12 sets of 17 columns) columns, and I would prefer to minimize the line-count for the processing as much as possible, but thank you for your suggestions. I am aware of the feature to create multiple sheets, and while it was a consideration, it was decided to use 1 row per record set, thus the dilemma</p>\r\n<p>&nbsp;</p>\r\n<p><span style=\"color:#ff0000\">// UPDATE</span></p>\r\n<p><span style=\"color:#000000\">Okay, so viewing other threads, I have found that you can set a value by it's numeric column... however I cannot find anything where there's the ability to set the style of a range of columns by their numeric column.&nbsp; setSharedStyleByColumnAndRow(1:2,2:2) &quot;A2:B2&quot;. Would I need to make a post on the features request thread to have this happen, or have I just not been able to locate such thread yet?</span></p>",
+    "PostedDate": "2010-02-11T03:32:32.473-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "290408",
+    "ThreadId": "83979",
+    "Html": "<p>Convert your column references between numeric and string using PHPExcel_Cell::stringFromColumnIndex() and PHPExcel_Cell::columnIndexFromString()</p>",
+    "PostedDate": "2010-02-13T03:03:07.403-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "971329",
+    "ThreadId": "83979",
+    "Html": "\r\n<p>Buscando una solucion encontre tu post, despues vi el codigo fuente de las librerias y edite la funcion &quot;setSharedStyle&quot; para adecuarla a nuestras necesidades..</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/discussions/418596\">http://phpexcel.codeplex.com/discussions/418596</a></p>\r\n",
+    "PostedDate": "2012-12-25T20:49:30.647-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "844177",
+    "ThreadId": "358174",
+    "Html": "\r\n<p>I'm working on a PHP script that reads in an excel template file, modifies is, then writes it to a temporary directory for pickup by a javascript function. &nbsp;For some reason, every type of read attempt listed in the PHPExcel Developer Manual causes a\r\n 500 (Internal Server Error). &nbsp;My code is as follows:</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><span style=\"color:green\">/** PHPExcel */</span>\n<span style=\"color:blue\">include</span> <span style=\"color:#a31515\">'PHPExcel.php'</span>;\n<span style=\"color:blue\">include</span> <span style=\"color:#a31515\">'PHPExcel/IOFactory.php'</span>;\n\n<span style=\"color:blue\">function</span> create_excel_file($report_row_IDs) {\n\t<span style=\"color:green\">// Create PHPExcel object from template</span>\n\t$objReader = PHPExcel_IOFactory::createReader(<span style=\"color:#a31515\">&quot;Excel2007&quot;</span>);\n\t$objPHPExcel = $objReader-&gt;load(<span style=\"color:#a31515\">&quot;../templates/Export Template.xlsx&quot;</span>);\n\n... Code to modify the <span style=\"color:blue\">file</span> ...\n\n\t$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, <span style=\"color:#a31515\">&quot;Excel2007&quot;</span>);\n\t$objWriter-&gt;save(<span style=\"color:#a31515\">'../temp-export-files/Report'</span> . $filePostfix . <span style=\"color:#a31515\">'.xlsx'</span>);\n}</pre>\r\n</div>\r\n<p>As I said, I've tried all readers (and writers) mentioned in the develop manual, but nothing seems to work for me. &nbsp;At the moment, I'm simply testing on my local machine using MAMP. &nbsp;Also worth noting is that I have been able to create a new excel\r\n file using PHPExcel, add to it, and save it to the temporary directory seen in the code above without issue. &nbsp;Thanks in advance for any advice.</p>\r\n",
+    "PostedDate": "2012-06-03T21:16:45.877-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "844304",
+    "ThreadId": "358174",
+    "Html": "\r\n<p>In what way &quot;doesn't work&quot;?</p>\r\n<p>Is any file being saved?</p>\r\n<p>Is anything being written to the output file? to PHP or Webserver error logs? or even any PHP errors being written to the generated file?</p>\r\n",
+    "PostedDate": "2012-06-04T03:47:27.253-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "844365",
+    "ThreadId": "358174",
+    "Html": "<p>I'm calling the create_excel_file(...) function using JQuery. &nbsp;When I click the button that makes the call, it thinks for a minute, then gives a 500 (Internal Server Error) message in my browser. &nbsp;The file is never picked up, altered, or written. &nbsp;I placed echo statements at the beginning of the code, and the line it's failing to process is&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>$objPHPExcel = $objReader-&gt;load(<span style=\"color: #a31515;\">\"../templates/Export Template.xlsx\"</span>);</pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n<p>In addition, I've ensured via a PHP fileexists function that ../templates/Export Template.xlsx can be found.</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre><span style=\"color: blue;\">if</span> (!file_exists(<span style=\"color: #a31515;\">\"../templates/Export Template.xlsx\"</span>)) { <span style=\"color: blue;\">echo</span>(<span style=\"color: #a31515;\">\"file does not exist\"</span>);}\r\n</pre>\r\n</div>\r\n</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2012-06-04T05:50:21.967-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "844719",
+    "ThreadId": "358174",
+    "Html": "\r\n<p>I have an update to this post. &nbsp;I used one of the example PHPExcel programs to create an Excel export, which I was able to get the following code to read in:</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><span style=\"color:green\">/** PHPExcel_Writer_Excel2007 */</span>\n<span style=\"color:blue\">include</span> <span style=\"color:#a31515\">'./PHPExcel/Writer/Excel2007.php'</span>;\n<span style=\"color:blue\">include</span> <span style=\"color:#a31515\">'./PHPExcel/Reader/Excel2007.php'</span>;\n\ncreate_excel_file(<span style=\"color:#a31515\">'1'</span>);\n\n<span style=\"color:blue\">function</span> create_excel_file($report_row_IDs) {\n\t\n\t<span style=\"color:blue\">if</span> (file_exists(<span style=\"color:#a31515\">&quot;../templates/test.xlsx&quot;</span>)) {\n\t\t<span style=\"color:blue\">echo</span>(<span style=\"color:#a31515\">&quot;test.xlsx exists\\n&quot;</span>);\n\t}\n\n        <span style=\"color:blue\">echo</span>(<span style=\"color:#a31515\">'0'</span>);\n\t$objReader = <span style=\"color:blue\">new</span> PHPExcel_Reader_Excel2007();\n        <span style=\"color:blue\">echo</span>(<span style=\"color:#a31515\">'1'</span>);\n\t$objPHPExcel = $objReader-&gt;load(<span style=\"color:#a31515\">&quot;../templates/test.xlsx&quot;</span>);\n        <span style=\"color:blue\">echo</span>(<span style=\"color:#a31515\">'2'</span>);\n}\n</pre>\r\n</div>\r\n<p>The code results in &quot;test.xlsx exists 01&quot;.</p>\r\n<p>When I deleted the content from the working Excel file and replaced it with the current content I need to get working, it failed (as seen in the &quot;code results in&quot; line). &nbsp;I'm not sure what the content of the file is that causing it to fail, or if it's\r\n a size issue (2.22 megabytes), but I'd love any input I can get. &nbsp;I'm not sure how to attach files, or else I'd include the working and non-working Excel files. &nbsp;If I get any interest, I can email the file or post it somewhere for retrieval.</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks,</p>\r\n<p>Jared</p>\r\n",
+    "PostedDate": "2012-06-04T17:15:15.003-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

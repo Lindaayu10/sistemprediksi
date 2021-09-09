@@ -1,0 +1,114 @@
+Index: PHPExcel/Reader/Excel5.php
+===================================================================
+--- PHPExcel/Reader/Excel5.php	(revision 1022)
++++ PHPExcel/Reader/Excel5.php	(working copy)
+@@ -1074,13 +1074,11 @@
+ 			break;
+ 
+ 		case 10000: //Apple Roman
+-			// currently not supported by libiconv
+-			$this->_codepage = "";
++			$this->_codepage = 'MAC';
+ 			break;
+ 
+ 		case 32768: //Apple Roman
+-			// currently not supported by libiconv
+-			$this->_codepage = "";
++			$this->_codepage = 'MAC';
+ 			break;
+ 
+ 		case 32769: //ANSI Latin I (BIFF2-BIFF3)
+Index: PHPExcel/Shared/String.php
+===================================================================
+--- PHPExcel/Shared/String.php	(revision 1018)
++++ PHPExcel/Shared/String.php	(working copy)
+@@ -155,13 +155,13 @@
+ 	 */
+ 	public static function SanitizeUTF8($value)
+ 	{
+-		if (self::getIsMbstringEnabled()) {
+-			$value = mb_convert_encoding($value, 'UTF-8', 'UTF-8');
++		if (self::getIsIconvEnabled()) {
++			$value = @iconv('UTF-8', 'UTF-8', $value);
+ 			return $value;
+ 		}
+ 
+-		if (self::getIsIconvEnabled()) {
+-			$value = @iconv('UTF-8', 'UTF-8', $value);
++		if (self::getIsMbstringEnabled()) {
++			$value = mb_convert_encoding($value, 'UTF-8', 'UTF-8');
+ 			return $value;
+ 		}
+ 
+@@ -209,7 +209,7 @@
+ 		$ln = self::CountCharacters($value, 'UTF-8');
+ 
+ 		// option flags
+-		$opt = (self::getIsMbstringEnabled() || self::getIsIconvEnabled()) ? 
++		$opt = (self::getIsIconvEnabled() || self::getIsMbstringEnabled()) ? 
+ 			0x0001 : 0x0000;
+ 
+ 		// characters
+@@ -235,7 +235,7 @@
+ 		$ln = self::CountCharacters($value, 'UTF-8');
+ 
+ 		// option flags
+-		$opt = (self::getIsMbstringEnabled() || self::getIsIconvEnabled()) ? 
++		$opt = (self::getIsIconvEnabled() || self::getIsMbstringEnabled()) ? 
+ 			0x0001 : 0x0000;
+ 
+ 		// characters
+@@ -255,13 +255,13 @@
+ 	 */
+ 	public static function ConvertEncoding($value, $to, $from)
+ 	{
+-		if (self::getIsMbstringEnabled()) {
+-			$value = mb_convert_encoding($value, $to, $from);
++		if (self::getIsIconvEnabled()) {
++			$value = iconv($from, $to, $value);
+ 			return $value;
+ 		}
+ 
+-		if (self::getIsIconvEnabled()) {
+-			$value = iconv($from, $to, $value);
++		if (self::getIsMbstringEnabled()) {
++			$value = mb_convert_encoding($value, $to, $from);
+ 			return $value;
+ 		}
+ 
+@@ -278,13 +278,13 @@
+ 	 */
+ 	public static function CountCharacters($value, $enc = 'UTF-8')
+ 	{
+-		if (self::getIsMbstringEnabled()) {
+-			$count = mb_strlen($value, $enc);
++		if (self::getIsIconvEnabled()) {
++			$count = iconv_strlen($value, $enc);
+ 			return $count;
+ 		}
+ 
+-		if (self::getIsIconvEnabled()) {
+-			$count = iconv_strlen($value, $enc);
++		if (self::getIsMbstringEnabled()) {
++			$count = mb_strlen($value, $enc);
+ 			return $count;
+ 		}
+ 
+@@ -303,13 +303,13 @@
+ 	 */
+ 	public static function Substring($pValue = '', $pStart = 0, $pLength = 0)
+ 	{
+-		if (self::getIsMbstringEnabled()) {
+-			$string = mb_substr($pValue, $pStart, $pLength, 'UTF-8');
++		if (self::getIsIconvEnabled()) {
++			$string = iconv_substr($pValue, $pStart, $pLength, 'UTF-8');
+ 			return $string;
+ 		}
+ 
+-		if (self::getIsIconvEnabled()) {
+-			$string = iconv_substr($pValue, $pStart, $pLength, 'UTF-8');
++		if (self::getIsMbstringEnabled()) {
++			$string = mb_substr($pValue, $pStart, $pLength, 'UTF-8');
+ 			return $string;
+ 		}
+ 

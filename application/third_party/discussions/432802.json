@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "999893",
+    "ThreadId": "432802",
+    "Html": "Hi,<br />\n<br />\nI have come across a perculiar cache issue when outputting to HTML/PDF and to some extent Excel (2003).  Im using PHPExcel 1.7.8<br />\n<br />\nI have a system that pulls stock items from a database.  Each stock item has a stock category, so there can be many items in a category.  I am outputting each category as its own xlsx and PDF file and im clearing the objects after each category using.<br />\n<pre><code>$objPHPExcel-&gt;disconnectWorksheets();  \nunset($objPHPExcel);</code></pre>\n\nIn general this is working great and the files export with the correct data, however if I have consecutive stock categories with the same number of stock items in them, all of the formula fields in the second xlsx/PDF output with the calculated data from the first xlsx/PDF.<br />\n<br />\nI tracked this down to the PHPExcel_Calculation cache so believe its method of deciding wether to use the cached values may be causing this?<br />\n<br />\nI can get it to work by calling<br />\n<pre><code>PHPExcel_Calculation::flushInstance(); </code></pre>\n\nbefore saving the files.  The files then all output with the correct calculated values in the first and second files.<br />\n<br />\nMaybe the cache could be flushed in the disconnectWorksheets() method as standard?<br />\n<br />\nCheers<br />\nStot<br />\n",
+    "PostedDate": "2013-02-12T01:20:18.213-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "999930",
+    "ThreadId": "432802",
+    "Html": "I'm actively rewriting the caclculation cache code to do just this as part of my conversion of the calculation engine from a singleton to a multiton. I'm hoping that it will make it into the 1.7.9 release at the end of this month, though I'm currently hitting memory and performance problems with the writers.... once they're resolved, it will be merged into the develop branch ready for release.<br />\n",
+    "PostedDate": "2013-02-12T03:05:27.65-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

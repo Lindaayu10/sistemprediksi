@@ -1,0 +1,45 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel_Reader_Excel2007",
+      "DisplayName": "PHPExcel_Reader_Excel2007"
+    },
+    "ClosedComment": "Fixed in SVN",
+    "ClosedDate": "2008-09-29T02:36:00.037-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "During read, it seems that PHPExcel_Reader_Excel2007 tries to guess cell data type rather than use the correct value.\n \nTwo cases where the error will show up:\n \n1. zero-padded string '0200' is read like it was the number 200\n2. formula-like string such as '=A1+A2' is read like it was a real formula\n \nTest: (plain read/write of Excel2007 file, see attachment)\n----\n$reader = new PHPExcel_Reader_Excel2007();\n$PHPExcel = $reader->load('2007-read.xlsx');\n$ws = $PHPExcel->getActiveSheet();\n \nvar_dump($ws->getCell('A1')->getDataType());\nvar_dump($ws->getCell('A2')->getDataType());\n \n$writer = new PHPExcel_Writer_Excel2007($PHPExcel);\n$writer->save('2007-write.xlsx');\n \nExpected result\n----\nstring(1) \"s\"\nstring(1) \"s\"\noutput spreadsheet is identical to input\n \nActual result\n----\nstring(1) \"n\"\nstring(1) \"f\"\noutput shows that data type conversion has taken place\n \nEnvironment:\n----\nPHPExcel: Latest source from SVN (1.6.3+)",
+    "LastUpdatedDate": "2013-05-16T05:43:14.97-07:00",
+    "PlannedForRelease": "PHPExcel 1.6.4 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2008-09-27T18:35:08.743-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "PHPExcel_Reader_Excel2007 ignores cell data type",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 7695
+  },
+  "FileAttachments": [
+    {
+      "FileId": 2134,
+      "FileName": "lost-datatype.zip",
+      "DownloadUrl": ".\\2134"
+    }
+  ],
+  "Comments": []
+}

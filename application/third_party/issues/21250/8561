@@ -1,0 +1,409 @@
+
+<!DOCTYPE html>
+
+<html >
+
+<head><h2 align="center">PHP Reports</h2><br></head>
+
+ 
+
+<?php
+
+ 
+
+error_reporting(E_ALL);
+
+ini_set('display_errors', TRUE);
+
+ini_set('display_startup_errors', TRUE);
+
+date_default_timezone_set('Europe/London');
+
+ 
+//connecting to the database
+
+//$con = pg_connect($hostname, $database, $username, $password) or die('Sorry, could not connect to database server');
+$con = pg_connect('host=localhost dbname=Openclinica user=postgres password=l4c@n!');
+
+ 
+/** PHPExcel */
+
+include 'C:\PHPExcel\Classes\PHPExcel.php'; 
+
+/** PHPExcel_Writer_Excel2007 */
+
+include 'C:\PHPExcel\Classes\PHPExcel\Writer\Excel2007.php';
+ 
+
+//$result = pg_query($con, "SELECT id, name, enrollment, population from countries");
+//$queryXC =pg_query($con, "SELECT fname, col1, col2, col3,col4, col5,sequences from data_review.ctms_dash_reports");
+
+$queryPerson =pg_query($con, "select p.fname, cv,ml,fd,hspt,f_1572 from data_review.ctms_dashboard d, data_review.ctms_personnel p where d.fname=p.fid");
+
+$number = 2;
+
+$piname = "Root";
+
+$sitename = "Brazil";
+
+$revexpdate= date("m-d-Y");
+
+$drugshipdate= date('m-d-Y');
+
+ 
+
+// Create new PHPExcel object
+
+//echo date('H:i:s') . " Create new PHPExcel object\n";
+
+$objPHPExcel = new PHPExcel();
+
+  
+
+// Set properties
+
+//echo date('H:i:s') . " Set properties\n";
+
+$objPHPExcel->getProperties()->setCreator("Samara Galvao");
+
+$objPHPExcel->getProperties()->setLastModifiedBy("Samara Galvao");
+
+$objPHPExcel->getProperties()->setTitle("Office 2007 XLSX Report Test");
+
+$objPHPExcel->getProperties()->setSubject("Office 2007 XLSX Report Test");
+
+$objPHPExcel->getProperties()->setDescription("Test report for Office 2007 XLSX, generated using PHP classes.");
+
+  
+
+$objPHPExcel->getActiveSheet()->setCellValue('A3', 'Document Number:  '. $number);
+
+$objPHPExcel->getActiveSheet()->getStyle('A3')->getFont()->setBold(true);
+
+//$objPHPExcel->getActiveSheet()->setCellValue('B3', $number);
+
+$objPHPExcel->getActiveSheet()->setCellValue('A4', 'PI Name:   '.$piname);
+
+$objPHPExcel->getActiveSheet()->getStyle('A4')->getFont()->setBold(true);
+
+//$objPHPExcel->getActiveSheet()->setCellValue('B4', $piname);
+
+$objPHPExcel->getActiveSheet()->setCellValue('A5', 'Site Name:   '.$sitename);
+
+$objPHPExcel->getActiveSheet()->getStyle('A5')->getFont()->setBold(true);
+
+//$objPHPExcel->getActiveSheet()->setCellValue('B5', $sitename);
+
+$objPHPExcel->getActiveSheet()->setCellValue('A6', 'Review Expiration Date:   '.$revexpdate);
+
+$objPHPExcel->getActiveSheet()->getStyle('A6')->getFont()->setBold(true);
+
+//$objPHPExcel->getActiveSheet()->setCellValue('B6', $revexpdate);
+
+$objPHPExcel->getActiveSheet()->setCellValue('A7', 'Drug Shipment Authorization:   '.$drugshipdate);
+
+$objPHPExcel->getActiveSheet()->getStyle('A7')->getFont()->setBold(true);
+
+//$objPHPExcel->getActiveSheet()->setCellValue('B7', $drugshipdate);
+
+ 
+
+$objPHPExcel->getActiveSheet()->setCellValue('A9', 'Name');
+$objPHPExcel->getActiveSheet()->setCellValue('B9', 'CV');
+$objPHPExcel->getActiveSheet()->setCellValue('C9', 'ML');
+$objPHPExcel->getActiveSheet()->setCellValue('D9', 'FD');
+$objPHPExcel->getActiveSheet()->setCellValue('E9', 'HSPT');
+$objPHPExcel->getActiveSheet()->setCellValue('F9', '1572');
+ 
+
+// Rename sheet
+
+//echo date('H:i:s') . " Rename sheet\n";
+
+$objPHPExcel->getActiveSheet()->setTitle('ReportTest');
+
+$objPHPExcel->setActiveSheetIndex(0);
+
+ 
+
+$objPHPExcel->getActiveSheet()->setCellValue('B1', 'CTMS TEST REPORT');
+
+$objPHPExcel->getActiveSheet()->setCellValue('F1', PHPExcel_Shared_Date::PHPToExcel( gmmktime(0,0,0,date('m'),date('d'),date('Y')) ));
+
+$objPHPExcel->getActiveSheet()->getStyle('F1')->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_DATE_XLSX15);
+
+ 
+
+// Set column widths
+
+//echo date('H:i:s') , " Set column widths";
+
+$objPHPExcel->getActiveSheet()->getColumnDimension('A')->setWidth(15);
+
+$objPHPExcel->getActiveSheet()->getColumnDimension('B')->setWidth(15);
+
+$objPHPExcel->getActiveSheet()->getColumnDimension('C')->setWidth(15);
+
+$objPHPExcel->getActiveSheet()->getColumnDimension('D')->setWidth(15);
+
+$objPHPExcel->getActiveSheet()->getColumnDimension('E')->setWidth(15);
+
+$objPHPExcel->getActiveSheet()->getColumnDimension('F')->setWidth(15);
+
+ 
+
+// Set fonts
+
+//echo date('H:i:s') , " Set fonts";
+
+$objPHPExcel->getActiveSheet()->getStyle('B1')->getFont()->setName('Candara');
+
+$objPHPExcel->getActiveSheet()->getStyle('B1')->getFont()->setSize(20);
+
+$objPHPExcel->getActiveSheet()->getStyle('B1')->getFont()->setBold(true);
+
+$objPHPExcel->getActiveSheet()->getStyle('B1')->getFont()->setUnderline(PHPExcel_Style_Font::UNDERLINE_SINGLE);
+
+$objPHPExcel->getActiveSheet()->getStyle('B1')->getFont()->getColor()->setARGB(PHPExcel_Style_Color::COLOR_WHITE);
+$objPHPExcel->getActiveSheet()->getStyle('E1')->getFont()->getColor()->setARGB(PHPExcel_Style_Color::COLOR_WHITE);
+
+
+
+//return records
+$rowNumber=10;
+while ($row=pg_fetch_array($queryPerson, PGSQL_ASSOC)) {
+	$col ='A';
+	$name = $row['p.fname']; //Investigator Name
+	$cv = $row['cv']; //Curriculum Vitae sign date
+	$ml = $row['ml']; //
+	$fd = $row['fd'];//
+	$hspt=$row['hspt'];//
+	$f_1572=$row['f_1572'];//Form 1572 sign date
+	$rows = array($name,$cv,$ml,$fd, $hspt, $f_1572); //this I create custom array
+	foreach($rows as $cell) {
+		$objPHPExcel->getActiveSheet(0)->setCellValue($col.$rowNumber,$cell);
+		$col++;
+	}
+	$rowNumber++;
+}
+//$resultXC1 = pg_query($queryPerson) or die ('Could not find total');  
+/*
+     For ($row=10;$resXC1= pg_fetch_array($queryPerson, PGSQL_ASSOC);$row++)
+     {
+         For ($col=0;$col<6;$col++)
+         {  
+                  $myrowperson[$row][$col]=$resXC1[$col];
+                        
+        } //2nd for
+     }//1st for             
+
+*/	 
+// Set fills
+
+//echo date('H:i:s') , " Set fills";
+
+$objPHPExcel->getActiveSheet()->getStyle('A1:D1')->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
+
+$objPHPExcel->getActiveSheet()->getStyle('A1:D1')->getFill()->getStartColor()->setARGB('FF808080');
+
+  
+
+// Set header and footer. When no different headers for odd/even are used, odd header is assumed.
+
+//echo date('H:i:s') , " Set header/footer";
+
+$objPHPExcel->getActiveSheet()->getHeaderFooter()->setOddHeader('&L&BReport&RPrinted on &D');
+
+$objPHPExcel->getActiveSheet()->getHeaderFooter()->setOddFooter('&L&B' . $objPHPExcel->getProperties()->getTitle() . '&RPage &P of &N');
+
+ 
+
+// Set page orientation and size
+
+//echo date('H:i:s') , " Set page orientation and size";
+
+$objPHPExcel->getActiveSheet()->getPageSetup()->setOrientation(PHPExcel_Worksheet_PageSetup::ORIENTATION_PORTRAIT);
+
+$objPHPExcel->getActiveSheet()->getPageSetup()->setPaperSize(PHPExcel_Worksheet_PageSetup::PAPERSIZE_A4);
+
+ 
+
+// Add a drawing to the worksheet
+
+//echo date('H:i:s') , " Add a drawing to the worksheet";
+
+$objDrawing = new PHPExcel_Worksheet_Drawing();
+
+$objDrawing->setName('Logo');
+
+$objDrawing->setDescription('Logo');
+
+$objDrawing->setPath('C:\webroot\images\logo.jpg');
+
+$objDrawing->setHeight(36);
+
+$objDrawing->setWorksheet($objPHPExcel->getActiveSheet());
+
+ 
+
+// Set style for header row using alternative method
+
+//echo date('H:i:s') , " Set style for header row using alternative method";
+
+$objPHPExcel->getActiveSheet()->getStyle('A9:F9')->applyFromArray(
+
+                              array(
+
+                                             'font'    => array(
+
+                                                            'bold'      => true
+
+                                             ),
+
+                                             'alignment' => array(
+
+                                                            'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_RIGHT,
+
+                                             ),
+
+                                             'borders' => array(
+
+                                                            'top'     => array(
+
+                                                                          'style' => PHPExcel_Style_Border::BORDER_THIN
+
+                                                           )
+
+                                             ),
+
+                                             'fill' => array(
+
+                                                           'type'       => PHPExcel_Style_Fill::FILL_GRADIENT_LINEAR,
+
+                                                            'rotation'   => 90,
+
+                                                           'startcolor' => array(
+
+                                                                          'argb' => 'FFA0A0A0'
+
+                                                           ),
+
+                                                           'endcolor'   => array(
+
+                                                                          'argb' => 'FFFFFFFF'
+
+                                                           )
+
+                                            )
+
+                              )
+
+);
+
+ 
+
+$objPHPExcel->getActiveSheet()->getStyle('A9')->applyFromArray(
+
+                              array(
+
+                                             'alignment' => array(
+
+                                                            'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_LEFT,
+
+                                             ),
+
+                                             'borders' => array(
+
+                                                            'left'     => array(
+
+                                                                          'style' => PHPExcel_Style_Border::BORDER_THIN
+
+                                                           )
+
+                                             )
+
+                              )
+
+);
+
+ 
+
+$objPHPExcel->getActiveSheet()->getStyle('B9')->applyFromArray(
+
+                              array(
+
+                                             'alignment' => array(
+
+                                                            'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_LEFT,
+
+                                             )
+
+                              )
+
+);
+
+ 
+
+              
+
+//$objPHPExcel->getActiveSheet()->getStyle('A3:A7')->applyFromArray($thick);
+
+ 
+
+$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+
+ob_end_clean();
+
+//$objWriter->setIncludeCharts(TRUE);
+
+$objWriter->save(str_replace('.php', '.xlsx', __FILE__));
+
+ 
+
+// Redirect output to a client’s web browser (Excel2007)
+
+header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+
+$filedate=date('dmY');
+
+//header('Content-Type: application/xlsx');
+
+header('Content-Disposition: attachment;filename=RegulatoryReport'.$filedate.'.xlsx');
+
+header('Cache-Control: max-age=0');
+
+// If you're serving to IE 9, then the following may be needed
+
+header('Cache-Control: max-age=1');
+
+ 
+
+// If you're serving to IE over SSL, then the following may be needed
+
+header ('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Date in the past
+
+header ('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT'); // always modified
+
+header ('Cache-Control: cache, must-revalidate'); // HTTP/1.1
+
+header ('Pragma: public'); // HTTP/1.0
+
+ 
+
+$objWriter->save('php://output');
+ob_end_clean();
+
+// Echo done
+
+//echo date('H:i:s') . " Done creating file.\r\n";
+
+mysqli_close($con);
+
+ 
+
+exit;
+
+ 
+
+?>
+

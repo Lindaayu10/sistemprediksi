@@ -1,0 +1,96 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Following the PHPExcel testcase '07reader.php', I wrote a simple PHP file in order to load Excel2007 '.xlsx' file.  As a result, it succeeded in loading a 6KB and a 28KB '.xlsx' files, BUT FAILed in loading a 1025KB '.xlsx' file with more advanced features.  Could anyone help with the loading problem?  Thanks a lot!",
+    "LastUpdatedDate": "2013-02-21T19:02:57.6-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2010-05-18T22:59:07.437-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "PHPExcel_IOFactory::load() FAILURE with a 1025KB size Excel2007 '.xlsx' file",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 13145
+  },
+  "FileAttachments": [
+    {
+      "FileId": 4483,
+      "FileName": "ECL_CM_LUPE-SS_Lundin-Petroleum.xlsx",
+      "DownloadUrl": ".\\4483"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "Is PHPExcel or PHP throwing any error?\r\n\r\nHow much PHP memory  do you have?",
+      "PostedDate": "2010-05-19T14:49:10.567-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Thanks for the suggestion!  \r\n\r\nPHP memory_limit is 128MB currently.  I enabled PHP error output in the test script code.  But I don't know how to enable PHPExcel to throw error message.  When the test script failed with PHPExcel loading the large size '.xlsx' file, the web page simply run for like 10 seconds, and then stopped without any output.  \r\n\r\nLook forward to help, truly.\r\n",
+      "PostedDate": "2010-05-23T18:02:23.88-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "There are plenty of threads here about memory problems/usage within PHPExcel, and of the steps that we are taking to try and reduce the memory overheads.\r\nTry using cell caching, as described in the documentation.",
+      "PostedDate": "2010-05-27T15:38:23.57-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Thanks for your suggestions!  Unfortunately I am very new to PHPExcel, so by going through the issues list, I don't see discussions directly fit my PHPExcel problem.  Would you like to provide more specific help?  In representing a company project, we would consider compensations in the form of donation or else as you PHPExcel developers would prefer ?",
+      "PostedDate": "2010-05-27T18:28:36.577-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Section 4.2.1 of the Developer documentation describes cell caching, which is a mechanism intended to reduce the memory required when working with large workbooks.\r\n\r\n$cacheMethod = PHPExcel_CachedObjectStorageFactory::cache_to_phpTemp;\r\nPHPExcel_Settings::setCacheStorageMethod($cacheMethod);\r\ntry {\r\n   $objPHPExcel = PHPExcel_IOFactory::load($fileName);\r\n} catch (Exception $e) {\r\n   die(\"Error loading file: \".$e->getMessage().\"<br />\\n\");\r\n}",
+      "PostedDate": "2010-05-28T00:46:37.387-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Thanks for the information!  Unfortunately, my php script still succeeds with small size '.xlsx' file, but fails with 1MB '.xlsx' file with NO error output, after adding the cache-memory exception processing code from your suggestion.  Attached is the actual '.xlsx' data file on which my program fails.  Look forward for more clues, truly.\r\n",
+      "PostedDate": "2010-05-28T02:43:20.52-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-05-28T02:43:22.127-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "The workbook file requires 179 MB of PHP memory to load without any caching, 74.25 MB when using cache_to_phpTemp\r\nIt has loaded successfully every time I've tried it, although it takes 2 minutes on my development server even without caching, and nearly 4 minutes with cache_to_phpTemp... so you may be getting a timeout on the load. I have set_time_limit(0); at the top of my test script.",
+      "PostedDate": "2010-05-28T05:58:48.517-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Thanks for the information!  Unfortunately, with 'set_time_limit(0)' added, the running problem is still the same on my development Linux server.  Is it related to the hardware or OS environment?  Also, even loading for several minutes may be too long the time for production purpose.  Expect further suggestions.  Thanks!",
+      "PostedDate": "2010-05-30T19:57:20.41-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:02:57.6-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

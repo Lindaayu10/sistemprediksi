@@ -1,0 +1,46 @@
+Index: IOFactory.php
+===================================================================
+--- IOFactory.php	(revision 924)
++++ IOFactory.php	(working copy)
+@@ -123,9 +123,7 @@
+ 				$className = str_replace('{0}', $writerType, $searchLocation['class']);
+ 				$classFile = str_replace('{0}', $writerType, $searchLocation['path']);
+ 				
+-				if (!class_exists($className)) {
+-					self::requireFile($classFile);
+-				}
++				require_once $classFile;
+ 				
+ 				$instance = new $className($phpExcel);
+ 				if (!is_null($instance)) {
+@@ -154,9 +152,7 @@
+ 				$className = str_replace('{0}', $readerType, $searchLocation['class']);
+ 				$classFile = str_replace('{0}', $readerType, $searchLocation['path']);
+ 				
+-				if (!class_exists($className)) {
+-					self::requireFile($classFile);
+-				}
++				require_once $classFile;
+ 				
+ 				$instance = new $className();
+ 				if (!is_null($instance)) {
+@@ -188,19 +184,4 @@
+ 		throw new Exception("Could not automatically determine PHPExcel_Reader_IReader for file.");
+ 	}
+ 	
+-	/**
+-	 * Require_once file
+-	 *
+-	 * @param string $filename
+-	 */
+-	private static function requireFile($filename) {
+-		$includePath = get_include_path();
+-		$includeTokens = explode(PATH_SEPARATOR, $includePath);
+-					
+-		foreach ($includeTokens as $includeToken) {
+-			if (file_exists($includeToken . '/' . $filename)) {
+-				require_once( $filename );
+-			}
+-		}
+-	}
+ }

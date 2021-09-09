@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "906172",
+    "ThreadId": "393714",
+    "Html": "\r\n<p>I'm having problems when converting dates stored as a Unix timestamp into Excel dates for inserting into a spreadsheet - from April onwards they are all off by one hour (e.g. 01/06/2012 00:00 becomes 31/05/2012 23:00).</p>\r\n<p>I've hardcoded the timestamp here, but in normal use it comes from a INT UNSIGNED column in a MySQL database:</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>date_default_timezone_set(<span style=\"color:#a31515\">'Europe/London'</span>);\n<span style=\"color:blue\">require_once</span> <span style=\"color:#a31515\">'includes/phpexcel/Classes/PHPExcel.php'</span>;\n<span style=\"color:blue\">require_once</span> <span style=\"color:#a31515\">'includes/phpexcel/Classes/PHPExcel/Writer/Excel2007.php'</span>;\n$spreadsheet = <span style=\"color:blue\">new</span> PHPExcel();\n$spreadsheet-&gt;setActiveSheetIndex(0);$worksheet = $spreadsheet-&gt;getActiveSheet();\n$php_date = 1338505200;\n<span style=\"color:blue\">print</span> date(<span style=\"color:#a31515\">'d/m/Y'</span>, $php_date) . <span style=\"color:#a31515\">&quot;\\n&quot;</span>;\n$excel_date = PHPExcel_Shared_Date::PHPToExcel($php_date);\n<span style=\"color:blue\">print</span> $excel_date . <span style=\"color:#a31515\">&quot;\\n&quot;</span>;\n$worksheet-&gt;SetCellValueByColumnAndRow(0, 1, $excel_date);$worksheet-&gt;getStyleByColumnAndRow(0, 1)-&gt;getNumberFormat()-&gt;setFormatCode(<span style=\"color:#a31515\">'dd/mm/yyyy'</span>);\n$writer = <span style=\"color:blue\">new</span> PHPExcel_Writer_Excel2007($spreadsheet);$writer-&gt;save(<span style=\"color:#a31515\">'date-test.xlsx'</span>);\n</pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n<p>When I execute this code, it prints:</p>\r\n<p>&nbsp;</p>\r\n<pre>&#65279;&#65279;&#65279;&#65279;&#65279;&#65279;&#65279;&#65279;01/06/2012\n41060.958333333</pre>\r\n<p>&nbsp;</p>\r\n<p>And A1 contains the value:&nbsp;&#65279;&#65279;31/05/2012 23:00:00 (displayed as 31/05/2012).</p>\r\n<p>I suspect the problem is due to the change in timezone (we go to BST/GMT &#43; 1 during the summer), but it seems to only affect Excel dates, not PHP ones. Is there any way to fix this? I'm using the latest stable version of PHPExcel (1.7.7).</p>\r\n",
+    "PostedDate": "2012-08-30T01:26:15.023-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "907251",
+    "ThreadId": "393714",
+    "Html": "<p>Use UST date values... the <span class=\"methodname\"><strong>gmmktime() </strong>or <strong>gmdate() </strong>functions should help here.</span></p>",
+    "PostedDate": "2012-09-01T04:20:10.163-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "907659",
+    "ThreadId": "393714",
+    "Html": "<p>I'm not sure how they would help - I have Unix timestamps already in my database. If I run them through gmdate() I will still end up with the time being one hour out.</p>\r\n<p>For the moment I'm just calling round() on the result on PHPToExcel - it's a bit of a hack but since Excel works off the number of days I can assume that the nearest whole number will be the correct day, and my timezone will never be more than 1 hour away from UTC.</p>",
+    "PostedDate": "2012-09-03T02:07:29.873-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

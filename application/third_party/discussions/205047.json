@@ -1,0 +1,122 @@
+[
+  {
+    "Id": "418465",
+    "ThreadId": "205047",
+    "Html": "<p>Hi, I am using PHPExcel v 1.7.2 on Vista x64 with Apache.</p>\r\n<p>I can create excel 2007 files with no problem if I save them locally to the server (local file system I mean), then open that file with Excel.&nbsp; However, if I try to download the file through Firefox it comes out encoded or something and Excel says it can't be opened.</p>\r\n<p>I've been through so many iterations of this code I can't really remember what I've tried, but here's what I have as of right now:</p>\r\n<p>&nbsp;</p>\r\n<p>// Create new PHPExcel object<br>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$objPHPExcel = new PHPExcel();<br>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;setActiveSheetIndex(0);<br>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue('A1', 'Hello');<br>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue('B1', 'World');<br>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue('A2', 'This is a ');<br>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue('B2', 'test');<br>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// Rename sheet<br>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$objPHPExcel-&gt;getActiveSheet()-&gt;setTitle(&quot;test&quot;);<br>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;//$filename = &quot;&quot; . date('H-i-s') . &quot;.csv&quot;;<br>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$filename = &quot;test &quot; . date('y-M-d H-i-s') . &quot;.xlsx&quot;;<br>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel);<br>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;header(&quot;Content-Transfer-Encoding: binary&quot;);<br>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$objWriter-&gt;save('php://output');</p>\r\n<p>&nbsp;</p>\r\n<p>Can anybody help me out?&nbsp; I'm really tired of banging me head on this, I can't even figure out what to google for...</p>\r\n<p>Thanks</p>",
+    "PostedDate": "2010-03-15T16:26:11.003-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "418468",
+    "ThreadId": "205047",
+    "Html": "<p>Can you try to run this example included in the Tests folder in the PHPExcel v 1.7.2 release :</p>\r\n<p>01simple-download-xlsx.php</p>",
+    "PostedDate": "2010-03-15T16:34:59.57-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "418777",
+    "ThreadId": "205047",
+    "Html": "<p>Hi koyama,</p>\r\n<p>I reconfigured my apache server to point to the Tests folder, but when I browse to the 01simple-download-xlsx.php file, I just get a blank page in the browser, and no download prompt.&nbsp; I get nothing from any of the other test files either.</p>\r\n<p>What kind of result were you hoping to get from the 01simple-download.xlsx.php file?&nbsp; The code from what I can tell is virtually identical to mine (since that is where I copied it from in the first place).</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks for your help</p>\r\n<p>&nbsp;</p>\r\n<p><strong>EDIT:&nbsp; It appears that the internet ate the previous reply that I tried to post... just jump to the next reply.</strong></p>",
+    "PostedDate": "2010-03-16T10:20:34.703-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "418788",
+    "ThreadId": "205047",
+    "Html": "<p>After replying, I reconfigured my DocumentRoot to point at the PHPExcel folder and ran the test php files directly.&nbsp; I got the exact same issue as with my test script.</p>\r\n<p>&quot;Excel cannot open the file '01simple.xlsx' because the file format or file extension is not valid.&nbsp; Verify that the file has not been corrupted and that the file extension matches the format of the file.&quot;</p>\r\n<p>&nbsp;</p>\r\n<p>As a test, I modified line 78 of the test file:</p>\r\n<p>//$objWriter-&gt;save('php://output');<br>$objWriter-&gt;save('C:/Users/Rick/Documents/text.xlsx');</p>\r\n<p>The test.xlsx file is openable directly off the hard drive with no problems.</p>",
+    "PostedDate": "2010-03-16T10:45:00.98-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "419012",
+    "ThreadId": "205047",
+    "Html": "<p>The problem is likely that there is some white space before the opening &lt;?php tag or after the closing ?&gt; tag. There must not be. Can you check?</p>\r\n<p>Otherwise try to run 01simple-download-xlsx.php even though it looks the same as what you have.</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-03-16T21:47:06.14-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "419207",
+    "ThreadId": "205047",
+    "Html": "<p>I did actually run the 01simple-download-xlsx.php file, I got the same error (see my previous reply).</p>\r\n<p>For the record, I also checked the http headers at one point, and they were identical to the headers given by a different site (using .NET) that I can download Excel 2007 files from without difficulty.</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-03-17T06:30:46.987-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "420054",
+    "ThreadId": "205047",
+    "Html": "<p>Try to open the corrupt file in a normal text editor or a HEX editor and compare it with the non-corrupt file you generated via $objWriter-&gt;save('C:/Users/Rick/Documents/text.xlsx');</p>\r\n<p>They are supposed to be the same. The comparison may reveal some difference.</p>\r\n<p>Otherwise, try to upload the corrupt file here so we can inspect:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10749\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10749</a></p>",
+    "PostedDate": "2010-03-18T17:27:16.693-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "420224",
+    "ThreadId": "205047",
+    "Html": "<p>Hello,</p>\r\n<p>I have the same problem. But when I open the corrupt file with a normal text editor, there is nothing write in the file.</p>",
+    "PostedDate": "2010-03-19T05:46:59.877-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "420249",
+    "ThreadId": "205047",
+    "Html": "<p>Thanks koyama, I had the same thought last night.&nbsp; I checked the files with a hex editor, and the obvious thing that jumped out was the 0D 0A at the start of the Zend file.&nbsp; In my Zend controller, if I comment out the actual &quot;save()&quot; call, there is no output whatsoever, so I don't think Zend is echoing a newline or anything.</p>\r\n<p>I've posted the Zend excel file to the location you linked above.</p>\r\n<p>I also downloaded a http header addon for firefox, contents posted below.</p>\r\n<p>Highlights in red:</p>\r\n<p>&nbsp;</p>\r\n<p><strong>http://localhost:8081/Tests/01simple-download-xlsx.php</strong></p>\r\n<p><strong>&nbsp;</strong><br>GET /Tests/01simple-download-xlsx.php HTTP/1.1<br>Host: localhost:8081<br>User-Agent: Mozilla/5.0 (Windows; U; Windows NT 6.0; en-US; rv:1.9.2) Gecko/20100115 Firefox/3.6<br>Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8<br>Accept-Language: en-us,en;q=0.5<br>Accept-Encoding: gzip,deflate<br>Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7<br>Keep-Alive: 115<br>Connection: keep-alive<br>Referer: http://localhost:8081/Tests/<br><br>HTTP/1.1 200 OK<br>Date: Thu, 18 Mar 2010 17:45:41 GMT<br>Server: Apache/2.2.14 (Win32) PHP/5.3.2<br>X-Powered-By: PHP/5.3.2<br>Content-Disposition: attachment;filename=&quot;01simple.xlsx&quot;<br>Cache-Control: max-age=0<br><span style=\"color:#ff0000\">Content-Length: 6440</span><br>Keep-Alive: timeout=5, max=100<br>Connection: Keep-Alive<br>Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet</p>\r\n<p><strong><br></strong></p>\r\n<p><strong>http://localhost:8081/report/export?reportName=MyReport</strong><br><br>GET /report/export?reportName=JourneyAudienceReport HTTP/1.1<br>Host: localhost:8081<br>User-Agent: Mozilla/5.0 (Windows; U; Windows NT 6.0; en-US; rv:1.9.2) Gecko/20100115 Firefox/3.6<br>Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8<br>Accept-Language: en-us,en;q=0.5<br>Accept-Encoding: gzip,deflate<br>Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7<br>Keep-Alive: 115<br>Connection: keep-alive<br>Referer: http://localhost:8081/report?reportName=MyReport&amp;execute=Execute<br><span style=\"color:#ff0000\">Cookie: PHPSESSID=pk5a7v5i17sq6kkea783u8hlg1</span><br><br>HTTP/1.1 200 OK<br>Date: Thu, 18 Mar 2010 18:11:10 GMT<br>Server: Apache/2.2.14 (Win32) PHP/5.3.2<br>X-Powered-By: PHP/5.3.2<br>Expires: Thu, 19 Nov 1981 08:52:00 GMT<br>Cache-Control: max-age=0<br>Pragma: no-cache<br>Content-Disposition: attachment;filename=&quot;01simple.xlsx&quot;<br><span style=\"color:#ff0000\">Content-Length: 6443</span><br>Keep-Alive: timeout=5, max=100<br>Connection: Keep-Alive<br>Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet</p>",
+    "PostedDate": "2010-03-19T07:05:47.517-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "420396",
+    "ThreadId": "205047",
+    "Html": "<p>Hi, I was reading through all the posts in the discussions regarding Zend, and I found this old post, which was starting to sound like my problem:</p>\r\n<p>http://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=71957</p>\r\n<p>Would the encoding affect a file saved to a local hard disk on the server?&nbsp; Or would it only affect files sent to php://output?</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-03-19T13:31:06.363-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "420399",
+    "ThreadId": "205047",
+    "Html": "<p><strong>RESOLVED:</strong></p>\r\n<p>&nbsp;</p>\r\n<p>Well I feel dumb...&nbsp; My problem turned out to be that my Zend Controller WAS in fact outputting a whilespace AFTER the &lt;?php ?&gt; tags.&nbsp; Just to reiterate, this was NOT a php_zip.dll related problem, and was NOT an actual PHPExcel issue.</p>\r\n<p>&nbsp;</p>\r\n<p>ZEND DEVELOPERS:&nbsp; PLEASE REMEMBER TO CHECK THE END OF THE FILES GENERATED IN ZEND STUDIO</p>\r\n<p>&nbsp;</p>\r\n<p><em>Edit</em>:&nbsp; Also, just for the record, putting a die() or exit() inside of a controller action function does NOT stop the whitespace after the &lt;?php ?&gt; tags from being included in the output to the browser (in fact it comes out first!)</p>\r\n<p>&nbsp;</p>\r\n<p>koyama, thanks for all your help!&nbsp; I'm excited to actually be able to use PHPExcel now.</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-03-19T13:37:20.427-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "422003",
+    "ThreadId": "205047",
+    "Html": "<p>Hello rickpelletier,</p>\r\n<p>can you show me your code please? I try and I check if I have a whitespace, but I can't find them.</p>\r\n<p>Maybe I don't understand how generate an excel file with zend framework.</p>\r\n<p>Thanks a lot</p>",
+    "PostedDate": "2010-03-22T01:02:51.6-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "422014",
+    "ThreadId": "205047",
+    "Html": "<p>for information here is my action controller</p>\r\n<p>public function exportAction(){<br>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$this-&gt;_helper-&gt;layout-&gt;disableLayout();<br>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$this-&gt;_helper-&gt;viewRenderer-&gt;setNoRender(true);<br>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$objPHPExcel = new PHPExcel();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;setActiveSheetIndex(0);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue('A1', 'Hello');<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue('B1', 'World');<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue('A2', 'This is a ');<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue('B2', 'test');<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Rename sheet<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setTitle(&quot;test&quot;);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; header('Content-type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');<br>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;header('Content-Disposition:inline;filename=test.xlsx');<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $objWriter-&gt;save('php://output');<br>&nbsp;&nbsp;&nbsp; }</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-03-22T01:32:31.98-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "422088",
+    "ThreadId": "205047",
+    "Html": "<p>Hi onguyen,</p>\r\n<p>I assume your code looks something like this:</p>\r\n<p>&nbsp;</p>\r\n<p>&lt;?php</p>\r\n<p>//requires, etc...</p>\r\n<p>class ReportController extends Zend_Controller_Action {</p>\r\n<p>public function exportAction(){<br>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$this-&gt;_helper-&gt;layout-&gt;disableLayout();<br>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$this-&gt;_helper-&gt;viewRenderer-&gt;setNoRender(true);<br>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$objPHPExcel = new PHPExcel();<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;setActiveSheetIndex(0);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue('A1', 'Hello');<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue('B1', 'World');<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue('A2', 'This is a ');<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue('B2', 'test');<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Rename sheet<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setTitle(&quot;test&quot;);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; header('Content-type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');<br>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;header('Content-Disposition:inline;filename=test.xlsx');<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $objWriter-&gt;save('php://output');<br>&nbsp;&nbsp;&nbsp; }</p>\r\n<p>}</p>\r\n<p>?&gt;</p>\r\n<p><span style=\"color:#ff0000\">[THIS IS WHERE WHITESPACE WAS SCREWING ME UP]</span></p>\r\n<p>EOF</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-03-22T06:06:33.163-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "431228",
+    "ThreadId": "205047",
+    "Html": "<p>If you have the same problem and you don't have whitespace at the end of your scritp just check there is no &quot;echo&quot; or any kind of output previusly to the code to download the file.</p>\r\n<p>Remember: <strong>No output before the code to download the file</strong>.</p>",
+    "PostedDate": "2010-04-14T19:52:34.99-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

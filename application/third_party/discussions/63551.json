@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "216100",
+    "ThreadId": "63551",
+    "Html": "<p>Hi I am newbie of PHPExcel. I have tried to use the classes of PHPExcel. But I have run in a problem for create a downable excel file. Is it using:<br>header(&quot;Pragma: public&quot;);<br>header(&quot;Expires: 0&quot;);<br>header(&quot;Cache-Control: must-revalidate, post-check=0, pre-check=0&quot;);<br>header(&quot;Content-Type: application/force-download&quot;);<br>header(&quot;Content-Type: application/octet-stream&quot;);<br>header(&quot;Content-Type: application/download&quot;);;<br>header(&quot;Content-Disposition: attachment;filename=$filename&quot;);<br>header(&quot;Content-Transfer-Encoding: binary &quot;);</p>\r\n<p>will do? I am using the example in 01simple.php. But, it seems that it is not workable. Anybody can explain to me. how i create a download excel file? Any helps is most appreciated.</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-07-25T22:59:56.323-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "216127",
+    "ThreadId": "63551",
+    "Html": "<p>Start with this:</p>\r\n<p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>&lt;?php\r\n<span style=\"color:Blue\">include</span> <span style=\"color:#A31515\">'Classes/PHPExcel.php'</span>;\r\n<span style=\"color:Blue\">include</span> <span style=\"color:#A31515\">'Classes/PHPExcel/IOFactory.php'</span>;\r\n\r\n$excel = <span style=\"color:Blue\">new</span> PHPExcel();\r\n$writer = PHPExcel_IOFactory::createWriter($excel, <span style=\"color:#A31515\">'Excel2007'</span>);\r\n\r\nheader(<span style=\"color:#A31515\">'Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'</span>);\r\nheader(<span style=\"color:#A31515\">'Content-Disposition: attachment;filename=&quot;myfile.xlsx&quot;'</span>);\r\nheader(<span style=\"color:#A31515\">'Cache-Control: max-age=0'</span>);\r\n$writer-&gt;save(<span style=\"color:#A31515\">'php://output'</span>);\r\n\r\n</pre>\r\n</div>\r\nThere is some more about this in the documentation.</p>",
+    "PostedDate": "2009-07-26T03:29:24.947-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "216154",
+    "ThreadId": "63551",
+    "Html": "<p>Thanks koyama.</p>\r\n<p>I have followed your advise and even checked the documentation. But I get an error below:<br>&quot;Cannot redeclare class PHPExcel in <strong>C:\\Program Files\\Apache Group\\Apache2\\htdocs\\vendor\\PHPExcel.php</strong> on line <strong>59</strong>&quot;</p>\r\n<p>Below is my test code:</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre><span style=\"color:Blue\">include</span> <span style=\"color:#A31515\">'PHPExcel_v/Classes/PHPExcel.php'</span>;\r\n<span style=\"color:Blue\">include</span> <span style=\"color:#A31515\">'PHPExcel_v/Classes/PHPExcel/IOFactory.php'</span>;\r\n\r\n$excel = <span style=\"color:Blue\">new</span> PHPExcel();\r\n$excel-&gt;getActiveSheet()-&gt;setCellValue(<span style=\"color:#A31515\">'A1'</span>, <span style=\"color:#A31515\">'Transactions for the Month'</span>);\r\n\r\n$writer = PHPExcel_IOFactory::createWriter($excel, <span style=\"color:#A31515\">'Excel2007'</span>);\r\n\r\nheader(<span style=\"color:#A31515\">'Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'</span>);\r\nheader(<span style=\"color:#A31515\">'Content-Disposition: attachment;filename=&quot;myfile.xlsx&quot;'</span>);\r\nheader(<span style=\"color:#A31515\">'Cache-Control: max-age=0'</span>);\r\n$writer-&gt;save(<span style=\"color:#A31515\">'php://output'</span>);\r\n<br>What is wrong here? It seems that i declared the class twice?</pre>\r\n</div>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-07-26T08:03:23.8-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "216155",
+    "ThreadId": "63551",
+    "Html": "<p>Hi, Koyama,</p>\r\n<p>Finally found the finding about the error. Mnn... I guess <span style=\"color:#000000\">PHPExcel_v/Classes/PHPExcel/IOFactory.php</span></p>\r\n<p>has included <span style=\"color:#a31515\"><span style=\"color:#000000\">PHPExcel.php. Therefore, include </span></span><span style=\"color:#000000\">PHPExcel_v/Classes/PHPExcel/IOFactory.php will do. Anyway, thanks for your hints.</span><span style=\"color:#a31515\"><br></span></p>",
+    "PostedDate": "2009-07-26T08:07:40.127-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "216156",
+    "ThreadId": "63551",
+    "Html": "<p>Sorry, I should have written like this:</p>\r\n<p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre><span style=\"color:Blue\">require_once</span> <span style=\"color:#A31515\">'PHPExcel_v/Classes/PHPExcel.php'</span>;\r\n<span style=\"color:Blue\">require_once</span> <span style=\"color:#A31515\">'PHPExcel_v/Classes/PHPExcel/IOFactory.php'</span>; \r\n</pre>\r\n</div>\r\n</p>",
+    "PostedDate": "2009-07-26T08:14:40.41-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

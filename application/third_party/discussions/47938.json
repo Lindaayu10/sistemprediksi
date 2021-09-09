@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "159928",
+    "ThreadId": "47938",
+    "Html": "The code below and variations are for the most part working. That is, I get the values expected on most cells. Ive also tried,&nbsp;$sheet_rows = $objPHPExcel-&gt;getActiveSheet()-&gt;toArray(NULL, TRUE); (loop throught). &nbsp;$objReader-&gt;setReadDataOnly(FALSE) and a few other things, but I need the value of cell H21 (should be 246) but it comes back as 0 or =SUM(I10). Its reading an xlsx created from PHPExcel as well. <br>\r\n<br>\r\ninclude 'PHPExcel.php';<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;/** PHPExcel_IOFactory */<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;include 'PHPExcel/IOFactory.php';<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; /** PHPExcel_Reader_IReadFilter */<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;require_once 'PHPExcel/Reader/IReadFilter.php';<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;//error_reporting(E_COMPILE_ERROR);<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$ext = substr($file, strrpos($file, '.') + 1);<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if($ext == 'xls') $objReader = PHPExcel_IOFactory::createReader('Excel5');<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;elseif($ext == 'xlsx') $objReader = PHPExcel_IOFactory::createReader('Excel2007');<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$objReader-&gt;setReadDataOnly(FALSE); //PROBLEM?<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$this-&gt;benchmark-&gt;mark('read_start');<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$objPHPExcel = $objReader-&gt;load($file);<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp; <br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$sheet_count = $objPHPExcel-&gt;getSheetCount();<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$sheets = array_reverse($objPHPExcel-&gt;getSheetNames(), true);<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;sort($sheets);<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; foreach ($sheets as $k =&gt; $sheet_title){<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$sheet_index = $objPHPExcel-&gt;getIndex($objPHPExcel-&gt;getSheetByName($sheet_title));<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;setActiveSheetIndex($sheet_index);<br>\r\n<br>\r\n<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; <br>\r\n<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$objWorksheet = $objPHPExcel-&gt;getActiveSheet();<br>\r\necho '&lt;table border=&quot;1&quot;&gt;' . &quot;\\n&quot;;<br>\r\nforeach ($objWorksheet-&gt;getRowIterator() as $row) {<br>\r\necho '&lt;tr&gt;' . &quot;\\n&quot;;<br>\r\n<br>\r\n$cellIterator = $row-&gt;getCellIterator();<br>\r\n$cellIterator-&gt;setIterateOnlyExistingCells(false); // This loops all cells,<br>\r\n// even if it is not set.<br>\r\n// By default, only cells<br>\r\n// that are set will be<br>\r\n// iterated.<br>\r\nforeach ($cellIterator as $cell) {<br>\r\necho '&lt;td&gt;' . $cell-&gt;getCalculatedValue() . '&lt;/td&gt;' . &quot;\\n&quot;;<br>\r\n}<br>\r\n<br>\r\necho '&lt;/tr&gt;' . &quot;\\n&quot;;<br>\r\n}<br>\r\necho '&lt;/table&gt;' . &quot;\\n&quot;;<br>\r\n",
+    "PostedDate": "2009-02-19T15:53:40.663-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "159929",
+    "ThreadId": "47938",
+    "Html": "I references a cell that has another formula, that's probably the problem right? =IF(ISERROR(G10+H10),0,G10+H10)<br>\r\n<br>\r\n<br>\r\n",
+    "PostedDate": "2009-02-19T15:57:04.593-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "159935",
+    "ThreadId": "47938",
+    "Html": "Ha! It was becuase I stored the cells as varchars in the DB and it was trying to do calcs on $123.00.<br>\r\n<br>\r\nI appreciate the hard work, but maybe a suggestion, make a debug mode or something? <br>\r\n$objReader-&gt;setDebug(TRUE);<br>\r\n<br>\r\nAnd have it dump table to the screen with errors on screwed up cells?<br>\r\n<br>\r\nAnyways Love the code thanks for the hard work!<br>\r\n",
+    "PostedDate": "2009-02-19T16:06:17.167-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

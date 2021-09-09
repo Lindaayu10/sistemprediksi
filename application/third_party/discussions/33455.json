@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "110892",
+    "ThreadId": "33455",
+    "Html": "When I enter a certain formula, i.e. =Now(), in a cell when creating a spreadsheet using PHPExcel, it is displayed as text instead of correctly acting like a formula and returning a value.&nbsp; This seems to be related to some obnoxious behavior of Excel, whereby it sometimes will display the text of a formula instead of the calculated results of a formula--probably because the cell itself is being interpreted as text.&nbsp; For some background on this problem, see <a href=\"http://www.mrexcel.com/archive2/17600/19935.htm\">http://www.mrexcel.com/archive2/17600/19935.htm</a><br>\r\n<br>\r\nNow, for the problem at hand in PHPExcel.&nbsp; The Now() formula will display as text depending on the formatting applied to it.&nbsp; If it is set to &quot;general&quot; formatting, then it displays a number.&nbsp; If it is set to any of the date formats, or if no formatting is applied, it displays the formula as text:<br>\r\n&nbsp;<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;//gives me the string &quot;=Now()&quot; in the cell<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;$excel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow(5,7, '=Now()');<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;$excel-&gt;getActiveSheet()-&gt;getStyleByColumnAndRow(5,7)-&gt;getNumberFormat()-&gt;setFormatCode('m/d/yyyy h:mm');<br>\r\n<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;//also gives me the string &quot;=Now()&quot; in the cell<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;$excel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow(5,7, '=Now()');<br>\r\n<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;//gives me&nbsp;a formula in the cell with the value&nbsp;39673.44 being returned (i.e. the current timestamp I believe)&nbsp;&nbsp;&nbsp;&nbsp;<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;$excel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow(5,7, '=Now()');<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;$excel-&gt;getActiveSheet()-&gt;getStyleByColumnAndRow(5,7)-&gt;getNumberFormat()-&gt;setFormatCode('General');<br>\r\n<br>\r\nIf in either of the first two examples after the spreadsheet is generated, I place my mouse in the cell as if I were going to edit the formula, and then simply hit &quot;ENTER&quot; as if I had edited it (but I don't change anything), then Excel seems to get itsself straigtened out, and it finally correctly interprets the cell as a formula, and displays it correctly with the formatting I had set.&nbsp; <br>\r\n<br>\r\nI have tried to explicity set the type of the cell, using the following:<br>\r\n<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;$excel-&gt;getActiveSheet()-&gt;getCellByColumnAndRow(5,7)-&gt;setValueExplicit('=Now()', PHPExcel_Cell_DataType::TYPE_FORMULA);<br>\r\n<br>\r\nbut this does not seem to help.&nbsp; <br>\r\n<br>\r\nI am using the excel5 writer, and the latest version 1.6.2 of PHPExcel.<br>\r\n<br>\r\nIs there something in PHPExcel that is not outputting the formula as a formula, but as text instead?&nbsp; Is the setValueExplicit not really tellling Excel what the cell data type is?&nbsp; Is this an unavoidable consequence of Excel not keeping track of what is a formula and what is text correctly?<br>\r\n",
+    "PostedDate": "2008-08-13T09:37:52.297-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "111244",
+    "ThreadId": "33455",
+    "Html": "I tried out your script, and I couldn't get it working either. Although, I'm not into this portion of the code, I'm not convinced that it has to do with your formula. Strange things seem to be happening even with direct entries. I have addressed the problem in the issue tracker:<br>\r\n<br>\r\n<a href=\"http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=7313\">http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=7313</a><br>\r\n<br>\r\n",
+    "PostedDate": "2008-08-14T17:53:30.083-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "111260",
+    "ThreadId": "33455",
+    "Html": "Thanks for looking into this.&nbsp; Since it appears to be a bug, I'll do some work arounds and track the issue over time for (hopefully) a fix at some point in the future.\r\n",
+    "PostedDate": "2008-08-14T19:10:57.923-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "126204",
+    "ThreadId": "33455",
+    "Html": "Update: Now fixed<br>\r\n<a href=\"http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=7849\">http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=7849</a><br>\r\n",
+    "PostedDate": "2008-10-19T19:37:20.137-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "161004",
+    "ThreadId": "33455",
+    "Html": "i want the same thing i.e. want to apply &quot;Text&quot; format rather than &quot;General&quot; format<br>\r\nnot for any single cell but for whole sheet<br>\r\nif i apply it cell by cell the page dies out of timeout<br>\r\nany thing possible here?<br>\r\n<br>\r\nthanks,<br>\r\nSam\r\n",
+    "PostedDate": "2009-02-23T09:13:42.853-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

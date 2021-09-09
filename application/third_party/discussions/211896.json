@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "440267",
+    "ThreadId": "211896",
+    "Html": "<p>I have a function that create an Excel with data from a DB and save it to a file</p>\r\n<p>I call this function for each item in a table</p>\r\n<p>Now I see than memory usage increments on every cicle. While I expect that exiting from my function memory allocated for $objPHPExcel would be released.</p>\r\n<p>If I have many items memory limit will soon be reached.</p>\r\n<p>&nbsp;</p>\r\n<p>here is the code</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<pre>foreach($item as $id)\r\n{\r\n    save_excel($id, $filename, true);\r\n}</pre>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre><span style=\"color:blue\">function</span> save_excel($item_id, $filename=<span style=\"color:#a31515\">&quot;&quot;</span>, $save=false)\r\n{\r\n    <span style=\"color:blue\">global</span> $db;\r\n\r\n    $objPHPExcel = <span style=\"color:blue\">new</span> PHPExcel();\r\n    \r\n\r\n    <span style=\"color:green\">// ... here I fill my excel with data from Mysql DB </span>\r\n\r\n\r\n    <span style=\"color:blue\">if</span>($save)\r\n    {\r\n        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, <span style=\"color:#a31515\">'Excel5'</span>);\r\n        $objWriter-&gt;save($filename);\r\n        <span style=\"color:blue\">return</span> true;\r\n    }\r\n\r\n}\r\n</pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-05-07T02:26:49.277-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "443219",
+    "ThreadId": "211896",
+    "Html": "<p>Unfortunately, a PHPExcel object comprises a series of nested objects: workbook contains worksheets, which in turn contain cells, and each also contains a reference to its parent. PHP has problems when trying to unset (even when exiting a function where anything in local scope should be unset automatically unless it's static) objects that contain such cyclic references. Supposedly this problem has been resolved in PHP 5.3.x, although I haven't confirmed that this is the case. In the interim, this leads to memory leaks that do rapidly use up to PHP's memory limit.</p>\r\n<p>The next release of PHPExcel adds a couple of new methods that break these cyclic references allowing a workbook or a worksheet to be unset after they have been called; so it will be possible to do:</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>$objPHPExcel-&gt;disconnectWorksheets();\r\n<span style=\"color:blue\">unset</span>($objPHPExcel);</pre>\r\n</div>\r\n<p>While it isn't perfect, and doesn't yet free up every byte of memory that has been used, it should certainly help resolve this issue</p>",
+    "PostedDate": "2010-05-15T04:38:11.803-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "444954",
+    "ThreadId": "211896",
+    "Html": "<p>i'm using 1.7.3 version, i only can call $objPHPExcel-&gt;disconnectWorksheets();<br>&nbsp;after i do :</p>\r\n<p>$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');</p>\r\n<p>$objWriter-&gt;save(&quot;teste.xlsx&quot;);</p>\r\n<p>and the memory leaks out int the process of save.</p>\r\n<p>when i'm doing the $objWorksheet2-&gt;setCellValue('A' . $i, 'value');</p>\r\n<p>also i can see memory runnig out.</p>\r\n<p>I'm talking about files&nbsp;2* sheets 50K cells,&nbsp;of course when i try files&nbsp;width 300K rows * 15 columns...</p>\r\n<p>I have tried all this methods:</p>\r\n<p>&nbsp;</p>\r\n<p>$cacheMethod&nbsp; = PHPExcel_CachedObjectStorageFactory::cache_in_memory_serialized;<br>#$cacheMethod&nbsp; = PHPExcel_CachedObjectStorageFactory::cache_in_memory_gzip;<br>#$cacheMethod = PHPExcel_CachedObjectStorageFactory::cache_to_discISAM;<br>#$cacheMethod = PHPExcel_CachedObjectStorageFactory::cache_to_phpTemp;&nbsp;</p>\r\n<p>no sucess.</p>\r\n<p>&nbsp;</p>\r\n<p>Is there a better way, im doing someting wrong?</p>\r\n<p>thanks</p>",
+    "PostedDate": "2010-05-19T08:50:40.25-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "446592",
+    "ThreadId": "211896",
+    "Html": "<p>@Mark</p>\r\n<p>it seems to work. I doesen't free all memory allocated but it saves enought memory for my application</p>\r\n<p>thanks</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-05-24T04:10:03.9-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "447471",
+    "ThreadId": "211896",
+    "Html": "<p>@arilia</p>\r\n<p>I'm glad that it's improved things for now.</p>\r\n<p>I'll try to ensure that it cleans up more memory leaks in subsequent releases. I know ,for example, that it isn't yet clearing up all of the shared styles, xf register, etc.</p>",
+    "PostedDate": "2010-05-26T01:03:53.973-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "447477",
+    "ThreadId": "211896",
+    "Html": "<p>@prribeiro</p>\r\n<p>The latest SVN code fixes some of the memory leaks in the writers, so you should see improvements using that, but it still isn't perfect. Cell caching isn't intended to fix memory leaks... it's purpose is to reduce the overall footprint in memory of a workbook/worksheet; but it can't eliminate the use of any memory at all no matter which caching method you use, just reduce it allowing you to work with larger workbooks than previously. The memory leaks are a separate issue, and appear to be a particular problem with the writers: this is something that I am still trying to resolve.</p>\r\n<p>Our estimate with the 1.7.2 release was an average of 1k/cell memory required, so 2 sheets of 300K rows * 15 columns would require about 9GB of PHP memory. The different caching mechanisms in 1.7.3 allow you to reduce that, perhaps by as much as half, although the leaks in the writers make this less effective.</p>",
+    "PostedDate": "2010-05-26T01:17:04.327-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

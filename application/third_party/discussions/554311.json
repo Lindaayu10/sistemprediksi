@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "1278096",
+    "ThreadId": "554311",
+    "Html": "Hi,\r<br />\nI am trying to load a template and copy or load the same template on several sheet, i have been able to load it on the first sheet but the second sheet loads without the template, can anyone assist pls.\r<br />\n<br />\nsample of my code\r<br />\n<br />\n$inputFileType = 'Excel2007';\r<br />\n$inputFileName = 'Invoice.xlsx';\r<br />\n<br />\n$outputFileType = 'Excel2007';\r<br />\n$outputFileName = 'myInvoice.xlsX';\r<br />\n<br />\n$objReader = PHPExcel_IOFactory::createReader($inputFileType);\r<br />\n$objPHPExcel = $objReader-&gt;load($inputFileName);\r<br />\n$objPHPExcel-&gt;setActiveSheetIndex(0);\r<br />\n<br />\n// Add your new data to the template\r<br />\n$objPHPExcel-&gt;getActiveSheet()-&gt;insertNewRowBefore(4,1);\r<br />\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('A3', 'ISBN 962-571-8926');\r<br />\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('B3', 'Excel for dummies');\r<br />\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('C3', 17.99);\r<br />\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('D3', 2);\r<br />\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('E3', '=C4<em>D4');\r<br />\n \r<br />\n// Write out as the new file\r<br />\n$objPHPExcel-&gt;getActiveSheet()-&gt;setTitle('commission');\r<br />\n<br />\n<br />\n$objPHPExcel-&gt;createSheet();\r<br />\n$objPHPExcel-&gt;load($inputFileName);\r<br />\n<br />\n$objPHPExcel-&gt;setActiveSheetIndex(1);\r<br />\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('A3', 'ISBN 962-571-8926');\r<br />\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('B3', 'Excel for dummies');\r<br />\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('C3', 17.99);\r<br />\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('D3', 2);\r<br />\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('E3', '=C4</em>D4');\r<br />\n<br />\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, $outputFileType);\r<br />\n$objPHPExcel-&gt;getActiveSheet()-&gt;setTitle('NEXT');\r<br />\n<br />\n// Redirect output to a client’s web browser (Excel2007)\r<br />\nheader('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');\r<br />\nheader('Content-Disposition: attachment;filename=&quot;'.$outputFileName.'&quot;');\r<br />\nheader('Cache-Control: max-age=0');\r<br />\n<br />\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');\r<br />\n$objWriter-&gt;save('php://output');<br />\n",
+    "PostedDate": "2014-07-27T00:17:27.98-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1278127",
+    "ThreadId": "554311",
+    "Html": "You might want to try <code>cloning</code> the sheet before you populate it <br />\n<div style=\"color:Black;background-color:White;\"><pre>\r\n$clonedSheet = <span style=\"color:Blue;\">clone</span> $objPHPExcel-&gt;getActiveSheet();\r\n</pre></div>then use <br />\n<div style=\"color:Black;background-color:White;\"><pre>\r\n$objPHPExcel-&gt;addSheet($clonedSheet);\r\n</pre></div>instead of<br />\n<div style=\"color:Black;background-color:White;\"><pre>\r\n$objPHPExcel-&gt;createSheet(); \n $objPHPExcel-&gt;load($inputFileName); \r\n</pre></div>",
+    "PostedDate": "2014-07-27T06:26:28.567-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1278176",
+    "ThreadId": "554311",
+    "Html": "Thanks for your reply, but I have used the clone sheet function that works well, but I would still like to kno just incase I have a case wherein I would like to have one excel file with different template , because then the clone feature wouldn't help. <br />\n",
+    "PostedDate": "2014-07-27T10:57:12.883-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1278179",
+    "ThreadId": "554311",
+    "Html": "If you're working with different templates; then you also have the option of the <code>addExternalSheet()</code> method.<br />\n",
+    "PostedDate": "2014-07-27T11:12:29.557-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1278204",
+    "ThreadId": "554311",
+    "Html": "Thanks ill try that method<br />\n",
+    "PostedDate": "2014-07-27T13:12:25.6-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

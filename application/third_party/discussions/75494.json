@@ -1,0 +1,66 @@
+[
+  {
+    "Id": "258327",
+    "ThreadId": "75494",
+    "Html": "<p>Hi,</p>\r\n<p>i know that the requirement is php 5.2, but PHPExcel is reading Excel5 files correctly in 5.1.6.</p>\r\n<p>The only problem is that string cells with only one cell come empty in $cell-&gt;getValue().&nbsp; If the cell is a number or a string that has more than 1 char, then it works great.</p>\r\n<p>Any clue on why this is happening?</p>\r\n<p>Thanks,</p>\r\n<p>Joel</p>",
+    "PostedDate": "2009-11-18T08:36:54.627-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "258481",
+    "ThreadId": "75494",
+    "Html": "<p>I've just started working with PHPExcel, and I'm encountering a similar problem --our application writes out a spreadsheet, and, if the application passes one letter to $cell-&gt;setValue(), then the cell in the written spreadsheet winds up blank. If the application passes two or more letters, then all is good.</p>\r\n<p>I haven't found a solution either, but here are some more data points:</p>\r\n<ul>\r\n<li>Debugging confirms that the application is passing the expected values into $cell-&gt;setValue().</li>\r\n<li>We have three systems running the same revision of the same PHP application.<br> \r\n<ul>\r\n<li>Staging and production systems run Debian Etch (with PHP 5.2.0-8+etch13). The problem has applied consistently in every test I run here.</li>\r\n<li>A personal development machine runs Ubuntu 8.10 (with PHP 5.2.6-2ubuntu4). I have been unable to reproduce the problem here.</li>\r\n</ul>\r\n</li>\r\n<li>Switching the file format (between &quot;Excel5&quot; and &quot;Excel2007&quot;) does not affect the outcome.</li>\r\n<li>The following command-line script does <strong><em>not</em></strong> reproduce the problem in any environment. There must be some other option or variable that needs to be set to trigger the problem.</li>\r\n</ul>\r\n<p>&nbsp;</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre><span style=\"color:Blue\">require_once</span> <span style=\"color:#A31515\">'PHPExcel.php'</span>;\r\n$excel = <span style=\"color:Blue\">new</span> PHPExcel();\r\n$worksheet = $excel-&gt;getActiveSheet();\r\n$worksheet-&gt;getCell(<span style=\"color:#A31515\">'A1'</span>)-&gt;setValue(<span style=\"color:#A31515\">'C'</span>);\r\n<br><span style=\"color:Blue\">require_once</span> <span style=\"color:#A31515\">'PHPExcel/Writer/Excel5.php'</span>;\r\n$writer = <span style=\"color:Blue\">new</span> PHPExcel_Writer_Excel5($excel);\r\n$writer-&gt;save(<span style=\"color:#A31515\">&quot;/tmp/test.xls&quot;</span>);\r\n\r\n<br></pre>\r\n</div>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-11-18T16:39:52.843-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "258512",
+    "ThreadId": "75494",
+    "Html": "<p>The problem could be a broken iconv_substr() function on those platforms.<br><a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10876\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10876</a><br><br>jalex and totten, can you try with latest source code and post back the results<br><a href=\"http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx\">http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx</a><br><br>If you have the mbstring extension enabled in PHP I think things will work with latest source code.</p>",
+    "PostedDate": "2009-11-18T19:44:11.76-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "258568",
+    "ThreadId": "75494",
+    "Html": "<p>koyama, that did it. Thanks.</p>\r\n<p>(i downloaded change set 29450)</p>\r\n<p>Regards,</p>\r\n<p>Joel</p>",
+    "PostedDate": "2009-11-19T01:09:10.687-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "258656",
+    "ThreadId": "75494",
+    "Html": "<p>Wonderful! That did it.</p>\r\n<p>Thanks for the quick reply.</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-11-19T06:20:12.51-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "422118",
+    "ThreadId": "75494",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>koyama wrote:</strong><br>\r\n<p>The problem could be a broken iconv_substr() function on those platforms.<br><a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10876\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10876</a><br><br>jalex and totten, can you try with latest source code and post back the results<br><a href=\"http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx\">http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx</a><br><br>If you have the mbstring extension enabled in PHP I think things will work with latest source code.</p>\r\n</blockquote>\r\n<p>I came across this discussion for exactly the problem I was having.&nbsp; However, when I tried the change set my app still didn't work - I tried 29450 recommended by Jalex and then the most recent one from this morning - neither made any difference.</p>\r\n<p>Any advice or guidance would be greatly appreciated.</p>",
+    "PostedDate": "2010-03-22T07:16:54.633-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "423938",
+    "ThreadId": "75494",
+    "Html": "<p>@pm1318: 1) What PHP version are you running? 2) Do you have mbstring extension enabled?</p>",
+    "PostedDate": "2010-03-26T00:08:01.167-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "423972",
+    "ThreadId": "75494",
+    "Html": "\r\n\r\n<div>I have now resolved the issue.  I did a clean install of PHPExcel on my live site and everything was fine after that.  I did have a little trouble writing a file because gettempdir isn't in the version of PHP my host has installed but that is now fixed\r\nas well.  Thanks for getting back to me about this.</div>\r\n<div> </div>\r\n<div> </div>\r\n\r\nConsider the environment before printing this email<br>\n<hr>Any views or opinions are solely those of the author \nand do not necessarily represent those of GfK NOP or \nany of its associated companies.\n<hr>The information transmitted is intended only for the \nperson or entity to which it is addressed and may contain confidential and/or privileged material. If you are not the intended recipient of this message, please do not read, copy, use or disclose this \ncommunication and notify the sender immediately. \nIt should be noted that any review, retransmission, \ndissemination or other use of, or taking action in reliance\nupon, this information by persons or entities other than\nthe intended recipient is prohibited.\n<hr>\nRecipients are warned that GfK NOP cannot guarantee that \nattachments or enclosures are secure or error-free as \ninformation could be intercepted, corrupted, or contain viruses\n<hr>GfK NOP Limited<br>Ludgate House<br>245 Blackfriars Road<br>London SE1 9UL<br>\nPlace of registration:England and Wales\nCompany number:2512551<br>\nRegistered office: GfK NOP Limited, Ludgate House, 245 Blackfriars Road, London, SE1 9UL\r\n",
+    "PostedDate": "2010-03-26T02:01:08.973-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

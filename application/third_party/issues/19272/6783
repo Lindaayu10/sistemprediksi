@@ -1,0 +1,215 @@
+<?php
+require("assets/config.php");
+
+/* Configuração das Querys de chamados Abertos & Fechados */
+$QueryAbertos = $function->GeraSqlChamadosAbertos();
+$QueryFechados = $function->GeraSqlChamadosFechados();
+
+$ChamadosAbertos = $db->get_results($QueryAbertos);
+$ChamadosFechados = $db->get_results($QueryFechados);
+$QuantidadeClientes = $function->SelecionaQuantidadeClientesProduto();
+
+foreach($ChamadosAbertos as $ChamadoAberto) {
+    //Lista de Canais
+    if(!in_array(trim($ChamadoAberto->IDCanal), $ListaCanais)) $ListaCanais[trim($ChamadoAberto->IDCanal)] = trim($ChamadoAberto->NomeCanal);
+
+    //Calcula Volumetria
+    $ValorAtual = 0;
+    $ValorAtual = (isset($VolumetriaAberto[trim($ChamadoAberto->IDCanal)][trim($ChamadoAberto->Produto)][trim($ChamadoAberto->Natureza)])?$VolumetriaAberto[trim($ChamadoAberto->IDCanal)][trim($ChamadoAberto->Produto)][trim($ChamadoAberto->Natureza)]:0);
+    $VolumetriaAberto[trim($ChamadoAberto->IDCanal)][trim($ChamadoAberto->Produto)][trim($ChamadoAberto->Natureza)] = ($ValorAtual+1);
+}
+
+foreach($ChamadosFechados as $ChamadoFechado) {
+    //Lista de Canais
+    if(!in_array(trim($ChamadoFechado->IDCanal), $ListaCanais)) $ListaCanais[trim($ChamadoFechado->IDCanal)] = trim($ChamadoFechado->NomeCanal);
+    
+    //Calcula Volumetria
+    $ValorAtual = 0;
+    $ValorAtual = (isset($VolumetriaFechado[trim($ChamadoFechado->IDCanal)][trim($ChamadoFechado->Produto)][trim($ChamadoFechado->Natureza)])?$VolumetriaFechado[trim($ChamadoFechado->IDCanal)][trim($ChamadoFechado->Produto)][trim($ChamadoFechado->Natureza)]:0);
+    $VolumetriaFechado[trim($ChamadoFechado->IDCanal)][trim($ChamadoFechado->Produto)][trim($ChamadoFechado->Natureza)] = ($ValorAtual+1);
+
+    //Calcula Nível de Solução
+    if(empty($ChamadoFechado->Tarefa)) {
+        $ValorAtualNivelChamado = 0;
+        $ValorAtualNivelChamado = (isset($GridNivelChamado[trim($ChamadoFechado->IDCanal)][trim($ChamadoFechado->Produto)]['hd1'])?$GridNivelChamado[trim($ChamadoFechado->IDCanal)][trim($ChamadoFechado->Produto)]['hd1']:0);
+        $GridNivelChamado[trim($ChamadoFechado->IDCanal)][trim($ChamadoFechado->Produto)]['hd1'] = ($ValorAtualNivelChamado+1);
+    } else {	
+        $ValorAtualNivelChamado = 0;
+        $ValorAtualNivelChamado = (isset($GridNivelChamado[trim($ChamadoFechado->IDCanal)][trim($ChamadoFechado->Produto)]['hd2'])?$GridNivelChamado[trim($ChamadoFechado->IDCanal)][trim($ChamadoFechado->Produto)]['hd2']:0);
+        $GridNivelChamado[trim($ChamadoFechado->IDCanal)][trim($ChamadoFechado->Produto)]['hd2'] = ($ValorAtualNivelChamado+1);
+
+        //Verifica se o Chamado tem Tarefa com vinculo na Tecnologia
+        $TarefaTecnologia = $function->VerificaTarefaTecnologia($ChamadoFechado->SolID);
+        if($TarefaTecnologia) {
+                $ValorAtualNivelChamado = 0;
+                $ValorAtualNivelChamado = (isset($GridNivelChamado[trim($ChamadoFechado->IDCanal)][trim($ChamadoFechado->Produto)]['hd3'])?$GridNivelChamado[trim($ChamadoFechado->IDCanal)][trim($ChamadoFechado->Produto)]['hd3']:0);
+                $GridNivelChamado[trim($ChamadoFechado->IDCanal)][trim($ChamadoFechado->Produto)]['hd3'] = ($ValorAtualNivelChamado+1);
+        }
+    }   
+
+    //Quantidade de Chamados
+    $GridNivelChamado[trim($ChamadoFechado->IDCanal)][trim($ChamadoFechado->Produto)]['clientes'] = (isset($QuantidadeClientes[trim($ChamadoFechado->IDCanal)][trim($ChamadoFechado->Produto)])?$QuantidadeClientes[trim($ChamadoFechado->IDCanal)][trim($ChamadoFechado->Produto)]:false);
+
+    //Solicitantes (Cria array para facilitar)
+    $ListaSolicitantes[trim($ChamadoFechado->IDCanal)][trim($ChamadoFechado->IDSolicitante)][] = 
+    Array(
+        'NomeSolicitante' => $ChamadoFechado->NomeSolicitante,    
+        'DadosChamado' => array(
+            'NomeCanal' => $ChamadoFechado->NomeCanal,
+            'Responsavel' => $ChamadoFechado->Responsavel,
+            'SolID' => $ChamadoFechado->SolID,
+            'Produto' => $ChamadoFechado->Produto,
+            'Natureza' => $ChamadoFechado->Natureza,
+            'Modulo' => $ChamadoFechado->Modulo,
+            'SolTitulo' => $ChamadoFechado->SolTitulo,
+            'SolData' => $ChamadoFechado->SolData,
+            'SolDataFechamento' => $ChamadoFechado->SolDataFechamento,
+            'DataUltimoTramite' => $ChamadoFechado->DataUltimoTramite,
+            'SolOrigem' => $ChamadoFechado->SolOrigem,
+            'PrioridadeChamado' => $ChamadoFechado->PrioridadeChamado,
+            'StatusChamado' => $ChamadoFechado->StatusChamado,
+            'Tarefa' => $ChamadoFechado->Tarefa,
+            'HorasTMR' => $ChamadoFechado->HorasTMR,
+            'HorasIRCA' => $ChamadoFechado->HorasIRCA
+        )    
+    );
+    
+    //Calcula Número Chamados por Solicitantes
+    $ValorAtualSolicitante = 0;
+    $ValorAtualSolicitante = (isset($VolumetriaSolicitante[trim($ChamadoFechado->IDCanal)][trim($ChamadoFechado->IDSolicitante)][trim($ChamadoFechado->Natureza)]['valor'])?$VolumetriaSolicitante[trim($ChamadoFechado->IDCanal)][trim($ChamadoFechado->IDSolicitante)][trim($ChamadoFechado->Natureza)]['valor']:0);
+    $VolumetriaSolicitante[trim($ChamadoFechado->IDCanal)][trim($ChamadoFechado->IDSolicitante)][trim($ChamadoFechado->Natureza)]['valor'] = $ValorAtualSolicitante+1;
+    $VolumetriaSolicitante[trim($ChamadoFechado->IDCanal)][trim($ChamadoFechado->IDSolicitante)]['nome'] = $ChamadoFechado->NomeSolicitante;
+}
+
+
+foreach($ListaCanais as $IDCanal => $NomeCanal) {
+    if(isset($ListaSolicitantes[$IDCanal])) {
+        /* Inicia a Classe PHPExcel, Ativa a opçãoo de Gráficos e Carrega o Template*/
+        echo 'Iniciando.. '.utf8_encode($NomeCanal)."<br />";
+        $objReader = PHPExcel_IOFactory::createReader('Excel2007');
+        $objReader->setIncludeCharts(TRUE);
+        $objPHPExcel = $objReader->load("assets/templates/template.xlsx");
+
+        /* Informa o Período e Adiciona na linha informada */
+        $objPHPExcel->getActiveSheet()->setCellValue('B2', utf8_encode($PeriodoExcel));
+        $objPHPExcel->getActiveSheet()->setCellValue('B3', utf8_encode($NomeCanal));
+
+        echo 'Populando.. '.utf8_encode($NomeCanal)."<br />";
+        /* Popula Celulas do Excel */
+        foreach($Produtos as $IDProduto => $Produto) {
+            foreach($Naturezas as $Natureza) {
+                $ValorVolumetriaAberto = (isset($VolumetriaAberto[$IDCanal][$Produto][$Natureza])?$VolumetriaAberto[$IDCanal][$Produto][$Natureza]:'0');
+                $ValorVolumetriaFechado = (isset($VolumetriaFechado[$IDCanal][$Produto][$Natureza])?$VolumetriaFechado[$IDCanal][$Produto][$Natureza]:'0');
+
+                $ValorHD1 = (isset($GridNivelChamado[$IDCanal][$Produto]['hd1'])?$GridNivelChamado[$IDCanal][$Produto]['hd1']:'0');
+                $ValorHD2 = (isset($GridNivelChamado[$IDCanal][$Produto]['hd2'])?$GridNivelChamado[$IDCanal][$Produto]['hd2']:'0');
+                $ValorHD3 = (isset($GridNivelChamado[$IDCanal][$Produto]['hd3'])?$GridNivelChamado[$IDCanal][$Produto]['hd3']:'0');
+                $QuantidadeCliente = (isset($GridNivelChamado[$IDCanal][$Produto]['clientes'])?$GridNivelChamado[$IDCanal][$Produto]['clientes']:'0');
+
+                /* Volumetria */
+                $objPHPExcel->getActiveSheet()->setCellValue($ColunasVolumetria['aberto']['natureza'][$Natureza].$LinhasProdutos['produto'][$Produto], $ValorVolumetriaAberto);
+                $objPHPExcel->getActiveSheet()->setCellValue($ColunasVolumetria['fechado']['natureza'][$Natureza].$LinhasProdutos['produto'][$Produto], $ValorVolumetriaFechado);
+
+                /* Nível Chamado */
+                $objPHPExcel->getActiveSheet()->setCellValue($NivelSolucao['natureza']['hd1'].$LinhasProdutos['produto'][$Produto], $ValorHD1);
+                $objPHPExcel->getActiveSheet()->setCellValue($NivelSolucao['natureza']['hd2'].$LinhasProdutos['produto'][$Produto], $ValorHD2);
+                $objPHPExcel->getActiveSheet()->setCellValue($NivelSolucao['natureza']['hd3'].$LinhasProdutos['produto'][$Produto], $ValorHD3);
+                $objPHPExcel->getActiveSheet()->setCellValue($NivelSolucao['natureza']['clientes'].$LinhasProdutos['produto'][$Produto], $QuantidadeCliente);
+            }
+        }
+
+        /* Popula Chamados por Solicitantes e Natureza */
+        $LineCountChamados = 0;
+        $Line = 1;
+        foreach ($ListaSolicitantes[$IDCanal] as $IDSolicitante => $InfoSolicitante) {
+            $NomeSolicitante = (isset($VolumetriaSolicitante[$IDCanal][$IDSolicitante]['nome'])?$VolumetriaSolicitante[$IDCanal][$IDSolicitante]['nome']:false);      
+            if($NomeSolicitante) {
+                $LineAtual = ($InitRowSolicitante+$Line);
+                $objPHPExcel->getActiveSheet()->insertNewRowBefore($LineAtual,1);
+
+                foreach($Naturezas as $Natureza) {
+                    $valorNatureza = (isset($VolumetriaSolicitante[$IDCanal][$IDSolicitante][$Natureza]['valor'])?$VolumetriaSolicitante[$IDCanal][$IDSolicitante][$Natureza]['valor']:0);
+                    $objPHPExcel->getActiveSheet()->setCellValue('A'.$LineAtual, utf8_encode($NomeSolicitante));
+                    $objPHPExcel->getActiveSheet()->setCellValue($ColunasVolumetria['aberto']['natureza'][$Natureza].$LineAtual, utf8_encode($valorNatureza));
+                }
+
+                $valorTotalLine = "=SUM(".reset($ColunasVolumetria['aberto']['natureza']).$LineAtual.":".end($ColunasVolumetria['aberto']['natureza']).$LineAtual.")";
+                $objPHPExcel->getActiveSheet()->setCellValue($ColunaSolicitante['total'].$LineAtual, $valorTotalLine);
+
+                $VolumetriaSolicitante[$IDCanal][$IDSolicitante]['linhaTotal'] = $LineAtual;
+
+                $Line++;
+            }
+        }
+
+        //Seta última linha e remove a primeira em branco
+        $LineAtual = (($InitRowSolicitante+$Line)-1);
+        $objPHPExcel->getActiveSheet()->removeRow($InitRowSolicitante,1);
+
+        //Calcula os totais das Naturezas
+        foreach($Naturezas as $Natureza) {
+            $valorTotalLine = "=SUM(".$ColunasVolumetria['aberto']['natureza'][$Natureza].$InitRowSolicitante.":".$ColunasVolumetria['aberto']['natureza'][$Natureza].($LineAtual-1).")";
+            $objPHPExcel->getActiveSheet()->setCellValue($ColunasVolumetria['aberto']['natureza'][$Natureza].$LineAtual, $valorTotalLine);   
+        }
+
+        //Calcula o total do solicitante
+        $valorTotalLine = "=SUM(".$ColunaSolicitante['total'].$InitRowSolicitante.":".$ColunaSolicitante['total'].($LineAtual-1).")";
+        $objPHPExcel->getActiveSheet()->setCellValue($ColunaSolicitante['total'].$LineAtual, $valorTotalLine);   
+
+        //Calcula a porcentagem de cada solcitante
+        foreach ($ListaSolicitantes[$IDCanal] as $IDSolicitante => $InfoSolicitante) {
+            $CelulaTotal = ($VolumetriaSolicitante[$IDCanal][$IDSolicitante]['linhaTotal']-1);      
+            $CalculoPorcentagem = "=".$ColunaSolicitante['total'].$CelulaTotal."/".$ColunaSolicitante['total'].$LineAtual;
+            $objPHPExcel->getActiveSheet()->setCellValue($ColunaSolicitante['porcentagem'].$CelulaTotal, $CalculoPorcentagem);  
+            $objPHPExcel->getActiveSheet()->getStyle($ColunaSolicitante['porcentagem'].$CelulaTotal)->getNumberFormat()->setFormatCode('0%');
+        }
+
+        //Calcula o total de porcentagens
+        $valorTotalLine = "=SUM(".$ColunaSolicitante['porcentagem'].$InitRowSolicitante.":".$ColunaSolicitante['porcentagem'].($LineAtual-1).")";
+        $objPHPExcel->getActiveSheet()->setCellValue($ColunaSolicitante['porcentagem'].$LineAtual, $valorTotalLine);  
+        $objPHPExcel->getActiveSheet()->getStyle($ColunaSolicitante['porcentagem'].$LineAtual)->getNumberFormat()->setFormatCode('0%');
+
+        /* Listagem de Chamados */
+        $InitLineChamados = ($LineAtual+6);
+        $LineChamado = 1;
+        foreach ($ListaSolicitantes[$IDCanal] as $IDSolicitante => $InfoSolicitante) {        
+            foreach($InfoSolicitante as $DadosSolicitante) {
+                $LineAtualChamado = ($InitLineChamados+$LineChamado);
+                $DadosChamado = $DadosSolicitante['DadosChamado'];
+
+                $objPHPExcel->getActiveSheet()->insertNewRowBefore($LineAtualChamado,1);
+                $objPHPExcel->getActiveSheet()->setCellValue($ColunasChamados['solicitante'].$LineAtualChamado,  utf8_encode($DadosSolicitante['NomeSolicitante']));
+                $objPHPExcel->getActiveSheet()->setCellValue($ColunasChamados['cliente'].$LineAtualChamado,  utf8_encode($DadosChamado['NomeCanal']));
+                $objPHPExcel->getActiveSheet()->setCellValue($ColunasChamados['responsavel'].$LineAtualChamado,  utf8_encode($DadosChamado['Responsavel']));
+                $objPHPExcel->getActiveSheet()->setCellValue($ColunasChamados['chamado'].$LineAtualChamado,  utf8_encode($DadosChamado['SolID']));
+                $objPHPExcel->getActiveSheet()->setCellValue($ColunasChamados['produto'].$LineAtualChamado,  utf8_encode($DadosChamado['Produto']));
+                $objPHPExcel->getActiveSheet()->setCellValue($ColunasChamados['natureza'].$LineAtualChamado,  utf8_encode($DadosChamado['Natureza']));
+                $objPHPExcel->getActiveSheet()->setCellValue($ColunasChamados['modulo'].$LineAtualChamado,  utf8_encode($DadosChamado['Modulo']));
+                $objPHPExcel->getActiveSheet()->setCellValue($ColunasChamados['data_abertura'].$LineAtualChamado, $DadosChamado['SolData']->format('d/m/Y H:i'));
+                $objPHPExcel->getActiveSheet()->setCellValue($ColunasChamados['data_fechamento'].$LineAtualChamado, $DadosChamado['SolDataFechamento']->format('d/m/Y H:i'));
+                $objPHPExcel->getActiveSheet()->setCellValue($ColunasChamados['ultimo_tramite'].$LineAtualChamado, $DadosChamado['DataUltimoTramite']->format('d/m/Y H:i'));
+                $objPHPExcel->getActiveSheet()->setCellValue($ColunasChamados['origem'].$LineAtualChamado,  utf8_encode($DadosChamado['SolOrigem']));
+                $objPHPExcel->getActiveSheet()->setCellValue($ColunasChamados['prioridade'].$LineAtualChamado,  utf8_encode($DadosChamado['PrioridadeChamado']));
+                $objPHPExcel->getActiveSheet()->setCellValue($ColunasChamados['status'].$LineAtualChamado,  utf8_encode($DadosChamado['StatusChamado']));
+                $objPHPExcel->getActiveSheet()->setCellValue($ColunasChamados['tarefa'].$LineAtualChamado,  utf8_encode($DadosChamado['Tarefa']));
+                $objPHPExcel->getActiveSheet()->setCellValue($ColunasChamados['horas_tmr'].$LineAtualChamado,  utf8_encode($DadosChamado['HorasTMR']));
+                $objPHPExcel->getActiveSheet()->setCellValue($ColunasChamados['horas_irca'].$LineAtualChamado,  utf8_encode($DadosChamado['HorasIRCA']));
+
+                $LineChamado++;
+            }
+        }
+
+        $objPHPExcel->getActiveSheet()->removeRow($InitLineChamados,1);
+        $objPHPExcel->getActiveSheet()->setTitle(substr($function->Slug($NomeCanal), 0, 31));
+
+        echo 'Finalizando.. '.utf8_encode($NomeCanal)."<br />";
+        /* Inicia o Objeto de criação, ativa apçãoo de Gráficos e salve com o nome informado */
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+        $objWriter->setIncludeCharts(TRUE);
+        $objWriter->save('relatorio-'.$function->Slug(utf8_encode($NomeCanal)).'-'.(time()*rand(99,999)).'.xlsx');
+        $objPHPExcel->disconnectWorksheets();
+        unset($objWriter);
+        echo 'Arquivo Salvo.. '.utf8_encode($NomeCanal)."<hr>";
+    }
+}
+?>

@@ -1,0 +1,56 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Excel (at least in its german version) seems to sort german umlauts in a different manner than PHPs uasort(). This can cause big trouble when using VLOOKUP with $not_exact_match == true.\n\nAFAIKS, a quick bugfix would be to use uasort() in LookupRef.php, line 653 in any case, regardless of the value of $not_exact_match (besides, the following code does not seem to efficient to me; perhaps some binary search could speed up VLOOKUP references quite a lot).\n\nI have a small test file to reproduce the problem, however the upload does not work right now... I'll try again later on.",
+    "LastUpdatedDate": "2013-02-21T19:01:37.99-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2012-10-11T03:29:52.347-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "VLOOKUP fails due to locale issues",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 18772
+  },
+  "FileAttachments": [
+    {
+      "FileId": 6639,
+      "FileName": "test.xlsx",
+      "DownloadUrl": ".\\6639"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "The following script can reproduce the problem in connection with the attached excel file. In Excel B1, B2 and B3 all show \"ST\", but PHPExcel sorts different (\"Stück\" after \"Stunde\") and thus evaluates B2 and B3 to \"HUR\".\r\n\r\n<?php\r\n\r\nrequire_once 'phpexcel/Classes/PHPExcel.php';\r\n\r\n\n$type = PHPExcel_IOFactory::identify('test.xlsx');\n$reader = PHPExcel_IOFactory::createReader($type);\n$handle = $reader->load('test.xlsx');\n$sheet = $handle->getSheet();\r\n\r\n$rowIterator = new PHPExcel_Worksheet_RowIterator($sheet);\r\n\r\nforeach ($rowIterator as $row) {\n        $cellIterator = $row->getCellIterator();\n        foreach ($cellIterator as $cell) {\n                var_dump($cell->getValue());\n                var_dump($cell->getCalculatedValue());\n                echo \"\\n\";\n        }       \n}       \r\n\r\n?>\n",
+      "PostedDate": "2012-10-11T03:47:21.49-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:01:37.99-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

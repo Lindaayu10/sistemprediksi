@@ -1,0 +1,136 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel",
+      "DisplayName": "PHPExcel"
+    },
+    "ClosedComment": "Fixed in SVN",
+    "ClosedDate": "2009-05-05T23:26:28.627-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "In Excel, it is very easy to put a border around some rectangular selection:\n \n1. Select the rectangular cell range, say 'B4:F14'\n2. Launch the \"Format Cells\" dialogue, click the \"Border\" pane\n3. Select the desired \"Border Style\" and \"Border Color\"\n4. Click on \"Outline\", or click successively on buttons \"Top\", \"Bottom\", \"Left\", \"Right\"\n \nScreen shot of \"Border\" pane in the \"Format Cells\" dialog\nhttp://img49.imageshack.us/img49/9049/dialog.png\n \nHere is the result of the operation in MS Office Excel:\nhttp://img49.imageshack.us/img49/8836/20922751.png\n \nIn PHPExcel, I think there is no easy way to do this. One would probably first try this:\n \n$styleArray = array(\n\t'borders' => array(\n\t\t'top' => array(\n\t\t\t'style' => PHPExcel_Style_Border::BORDER_THICK,\n\t\t\t'color' => array(\n\t\t\t\t'argb' => '00FF0000',\n\t\t\t),\n\t\t),\n\t\t'right' => array(\n\t\t\t'style' => PHPExcel_Style_Border::BORDER_THICK,\n\t\t\t'color' => array(\n\t\t\t\t'argb' => '00FF0000',\n\t\t\t),\n\t\t),\n\t\t'bottom' => array(\n\t\t\t'style' => PHPExcel_Style_Border::BORDER_THICK,\n\t\t\t'color' => array(\n\t\t\t\t'argb' => '00FF0000',\n\t\t\t),\n\t\t),\n\t\t'left' => array(\n\t\t\t'style' => PHPExcel_Style_Border::BORDER_THICK,\n\t\t\t'color' => array(\n\t\t\t\t'argb' => '00FF0000',\n\t\t\t),\n\t\t),\n\t)\n);\n$sheet->duplicateStyleArray($styleArray, 'B4:F14');\n \n \nBut this gives you the style applied to each cell and the borders are also applied to the inner cells in the selection. This is probably not so convenient:\nhttp://img49.imageshack.us/img49/290/phpexcel.png\n \nSuggestion:\n \nMake duplicateStyleArray() fully equivalent to the way the \"Border\" pane in the \"Format Cells\" dialog works in MS Office Excel as follows:\n \n1. Introduce a boolean third parameter for duplicateStyleArray(), $advanced = true, let it be the default. When this is set, it works as follows:\n \n'borders' => \n- 'top': is only applied to the top strip in the selection\n- 'right' is only applied to the right strip in the selection\n- 'bottom': is only applied to the bottom strip in the selection\n- 'left': is only applied to the left strip in the selection\n \n2. Introduce new array key 'inside', exactly like in the \"Border\" pane in the \"Format Cells\" dialog in MS Office Excel. This style array key should only applying when $advanced = true mode.\n \n$styleArray = array(\n\t'borders' => array(\n\t\t'inside' => array(\n\t\t\t'style' => PHPExcel_Style_Border::BORDER_THICK,\n\t\t\t'color' => array(\n\t\t\t\t'argb' => '00FF0000',\n\t\t\t),\n\t\t),\n\t)\n);\n \nThis way you will easily be able to get e.g. yellow inner borders in you selection, and some other color for your outer borders.\n \n3. Under the hood, when $advanced = true, duplicateStyleArray() should do the necessary calls to itself, up to 9 calls treating strips top, right, bottom, left, inner cells + each of the four corner cells individually.",
+    "LastUpdatedDate": "2013-05-16T05:42:42.35-07:00",
+    "PlannedForRelease": "PHPExcel 1.7.0 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-04-30T08:37:19.73-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Make easy way to apply a border to a rectangular selection",
+    "Type": {
+      "Name": "Feature",
+      "Id": 1
+    },
+    "VoteCount": 1,
+    "Id": 9899
+  },
+  "FileAttachments": [
+    {
+      "FileId": 3041,
+      "FileName": "write.xlsx",
+      "DownloadUrl": ".\\3041"
+    },
+    {
+      "FileId": 3056,
+      "FileName": "wi-9899.patch",
+      "DownloadUrl": ".\\3056"
+    },
+    {
+      "FileId": 3059,
+      "FileName": "border-styling.zip",
+      "DownloadUrl": ".\\3059"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "Maarten, if you think this is a good idea, I can try to upload a patch for this.\r\n",
+      "PostedDate": "2009-04-30T08:38:51.98-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Erik, that's a great idea! Really, you can commit this in SVN without creating a patch first.\r\n\r\nCan you eventually also update 05featuredemo example to make use of this?",
+      "PostedDate": "2009-04-30T10:09:36.167-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-04-30T12:41:51.573-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Ok, I have committed this this how I think it should work.\r\nFrom weakest to strongest border properties:\r\n\r\n'allborders' is a shortcut property for 'outline' and 'inside' at once\r\n'outline' is a shortcut for setting 'top', 'right', 'bottom', 'left' at once\r\n'inside' is a shortcut for setting 'horizontal' and 'vertical' at once\r\n'horizontal', 'vertical'\r\n'top', 'right', 'bottom', 'left', 'diagonal'\r\n\r\nThe only problem I am facing now is that 'outline', 'vertical', 'horizontal' are not currently being treated as just shortcut properties. They are explicitly written to the file. This is puzzling me?\r\n\r\nI see 'outline', 'vertical', 'horizontal' in the OOXML file format documentation, but I see no effect of these when I open the file in MS Office Excel? Also, I can't get MS Office Excel to write those properties no matter how I apply borders.\r\n\r\nWhat to do? If it really is the case that these properties have no effect, how about just mapping them to shortcut properties as above and let readers/writers ignore them?\r\n\r\n-----\r\nSample code what can now be achieved:\r\n$styleArray = array(\r\n\t'borders' => array(\r\n\t\t'outline' => array(\r\n\t\t\t'style' => PHPExcel_Style_Border::BORDER_THICK,\r\n\t\t\t'color' => array( 'rgb' => 'FF0000' ),\r\n\t\t),\r\n\t\t'inside' => array(\r\n\t\t\t'style' => PHPExcel_Style_Border::BORDER_MEDIUMDASHDOTDOT,\r\n\t\t\t'color' => array( 'rgb' => '00FF00' ),\r\n\t\t),\r\n\t)\r\n);\r\n$sheet->duplicateStyleArray($styleArray, 'B2:F25');\r\n\r\n$styleArray = array(\r\n\t'borders' => array(\r\n\t\t'outline' => array(\r\n\t\t\t'style' => PHPExcel_Style_Border::BORDER_THICK,\r\n\t\t\t'color' => array( 'rgb' => 'FF0000' ),\r\n\t\t),\r\n\t\t'horizontal' => array(\r\n\t\t\t'style' => PHPExcel_Style_Border::BORDER_MEDIUMDASHDOTDOT,\r\n\t\t\t'color' => array( 'rgb' => '000000' ),\r\n\t\t),\r\n\t\t'bottom' => array(\r\n\t\t\t'style' => PHPExcel_Style_Border::BORDER_THICK,\r\n\t\t\t'color' => array( 'rgb' => '00FFFF' ),\r\n\t\t),\r\n\t)\r\n);\r\n$sheet->duplicateStyleArray($styleArray, 'H3:J19');\r\n\r\nScreen shot:\r\nhttp://img258.imageshack.us/img258/7239/write.png\r\n\r\nOk, will update 05featuredemo and write some documentation for this once it is in place.",
+      "PostedDate": "2009-04-30T22:14:33.367-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-04-30T22:14:38.773-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Implementation looks good, Erik. Guess you can close the WI.",
+      "PostedDate": "2009-05-03T23:35:06.35-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Maarten, can you also take a quick glance at this additional patch which also fixes for the getters?\r\n\r\nIs it OK with you to treat getOutline(), getInside(), getVertical(), getHorizontal(), getAllBorders() as pseudo-borders for now, i.e. borders with no real counterpart in the written file, but are just components of the style supervisor?\r\n\r\nThis will enable you to do for example like this to set top, bottom, right, left borders at once.\r\n$objWorksheet->getStyle('B2')\r\n->getBorders()\r\n->getOutline()\r\n->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK)\r\n->setColor( new PHPExcel_Style_Color('FFFF0000') );\r\n\r\nIf you think this is a good idea, I will write a section for the documentation on how to use borders in PHPExcel.",
+      "PostedDate": "2009-05-04T20:04:06.62-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-05-04T20:04:09.09-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Erik, thi is a brilliant approach! Will definately make it easier to style cells using PHPExcel.\r\nHad a quick look at the patch, looks great.",
+      "PostedDate": "2009-05-04T23:39:25.85-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Ok great!... wrote some guidelines about this for the \"PHPExcel Developer Documentation\", attached zip file. There is also an image... Can it fit in somewhere?",
+      "PostedDate": "2009-05-05T17:57:40.807-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-05-05T17:57:42.933-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Will add it in the docs.",
+      "PostedDate": "2009-05-05T23:07:35.087-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-05-05T23:26:03.347-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-05-05T23:26:28.627-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:04:04.653-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:42.35-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

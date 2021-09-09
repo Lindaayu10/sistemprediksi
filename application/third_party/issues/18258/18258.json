@@ -1,0 +1,50 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hi.  I need to parse some excel files that use case sensitive table lookups.  (The vanilla VLOOKUP, LOOKUP, etc. are natively case insensitive.)  In working on this, I quickly discovered that none of these formulas were working, due to the lack of an Excel EXACT function implementation.\n \nMy existing formula in Excel had been:\n=LOOKUP(1,1/EXACT(CONCATENATE($J23,\",\",$U23),Lookup_tables!$P$10:$P$100),Lookup_tables!$S$10:$S$100)\n \nwhere:\n1.  CONCATENATE($J23,\",\",$U23) is my key into the lookup table,\n2.  Lookup_tables!$P$10:$P$100 is the lookup key column, and \n3.  Lookup_tables!$S$10:$S100 is the column I want\n \nThis failed in PHPExcel PHPExcel-1.7.7.zip due to:\n1.  Unimplemented EXACT function, and\n2.  Confusion over evaluating the 1/EXACT thing (which to be honest, I don't understand myself.  Is it actually a transpose, not a 1/x?).\n \nI was able to write a quick and dirty implementation of EXACT (below) that works well enough for my own purposes.  I doubt it meets coding standards, and I have not tested it in other use scenarios.  So if it breaks, you get to keep both pieces.\n \nWith this, I was able to switch to a different flavor of case-sensitive lookup in Excel and have it work in PHPExcel.  My new formula is:\n=INDEX(Lookup_tables!$S$10:$S$100,MATCH(TRUE,INDEX(EXACT(CONCATENATE($J22,\",\",$U22),Lookup_tables!$P$10:$P$100),0),0))\n \nReferences for case-sensitive lookups in Excel:\n \nhttp://blog.contextures.com/archives/2009/10/16/case-sensitive-lookup-in-excel/\n \nhttp://www.globaliconnect.com/excel/index.php?option=com_content&view=article&id=120:case-sensitive-vlookup-in-excel-finding-the-1st-2nd-nth-or-last-occurrence-of-the-lookup-value&catid=77&Itemid=473\n \nMy quick and dirty implementation of EXACT:\n \n\t/**\n\t * EXACT\n\t *\n\t * @param\tmixed\t$a\tScalar or array \"a\" to compare to \"b\"\n\t * @param\tmixed\t$b\tScalar or array \"b\" to compare to \"a\"\n\t * @return\tmixed\n\t */\n\tpublic static function EXACT($a,$b) {\n \n      //      echo \"Hello world from EXACT()!\\n\";\n      //      echo \"a is:\";\n      //      print_r($a);\n      //\n      //      echo \"\\nb is:\";\n      //      print_r($b);\n \n      /* If a and b are both non-arrays, then do a simple comparison and call it good. \n       If a and b are both arrays, then do the same thing.  */\n      /* FIXME:  I think if both are arrays, we need to go through piecewise and compare\n       values element by element, without regard to row and column numbers! */\n      if (  ( (!is_array($a)) && (!is_array($b)) ) ||\n            ( (is_array($a)) && (is_array($b)) )  )\n        return ($a == $b);\n \n      /* Else one is an array and the other not. */\n      else\n        {\n          /* Allocate an array. */\n          $arr = array();\n          $val = 0;\n \n          /* Assign the array and the scalar value. */\n          if (is_array($a))\n            {\n              $arr = $a;\n              $val = $b;\n            }\n          else\n            {\n              $arr = $b;\n              $val = $a;\n            }\n \n          /** Iterate through the array and check for equality between the scalar and each array element. **/\n          /* Iterate over the rows. */\n          foreach ($arr as $row => $elem)\n            {\n              //              echo \"Examining array element: \";\n              //              print_r($arr[$row]);\n \n              /* Iterate over the columns. */\n              foreach ($arr[$row] as $col => $elem)\n                {\n                  //                  echo \"2nd level element is $elem2\\n\";\n \n                  /* Assign this array element to be true or false depending on whether it is an exact match for scalar value. */\n                  $arr[$row][$col] = ($elem == $val);\n                }\n \n            } /* end foreach */\n \n          //          echo \"After running EXACT()!\\n\";\n          //          echo \"arr is:\";\n          //          print_r($arr);\n          \n          /* Return an array of booleans to caller. */\n          return ($arr);\n \n        } /* endelse */\n \n\t}\t//\tfunction EXACT()\n \n \n(Add this code to Calculation/TextData.php.\nAlso edit Calculation.php to read:\n\t\t\t\t'EXACT'\t\t\t\t\t=> array('category'\t\t\t=>\tPHPExcel_Calculation_Function::CATEGORY_TEXT_AND_DATA,\n\t\t\t\t\t\t\t\t\t\t\t\t 'functionCall'\t\t=>\t'PHPExcel_Calculation_TextData::EXACT',\n\t\t\t\t\t\t\t\t\t\t\t\t 'argumentCount'\t=>\t'2'",
+    "LastUpdatedDate": "2013-02-21T19:01:52.917-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2012-06-21T15:28:48.117-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Needed working EXACT function to allow case sensitive lookups in Excel",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 18258
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "I should also have mentioned that I checked out PHPExcel trunk via svn (rev 92046) and found that EXACT was still not implemented.\r\n\r\nI made my quick-and-dirty changes against the PHPExcel-1.7.7.zip release.",
+      "PostedDate": "2012-06-21T15:36:39.25-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:01:52.917-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

@@ -1,0 +1,96 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "Not an issue. PHPExcel works with UTF-8 internally, and uses iconv or mbstring functions for any required conversions and string manipulations. As long as either mbstring or iconv is enabled, themn PHPExcel will work correctly with multinational character set &#40;UTF-8&#41; strings.",
+    "ClosedDate": "2011-01-02T06:18:27.047-08:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Environment: RedHat Linux, OpenOffice 3.1.1\nI try to create simple xls with 1 cell containing 1 word in russian. Script is following:\n \nrequire_once( 'PHPExcel/Classes/PHPExcel.php' );\nrequire_once( 'PHPExcel/Classes/PHPExcel/Cell.php' );\nrequire_once( 'PHPExcel/Classes/PHPExcel/Writer/Excel5.php' );\n$xls = new PHPExcel();\n$sheet = $xls->getSheet(0);\n$sheet->getCell( 'A1' )->setValue( iconv( 'KOI8-R', 'UTF-8', 'Количество' ) );\n$xlsWriter = new PHPExcel_Writer_Excel5($xls);\n$fn = tempnam( '', 'test' );\nif( $fn != false )\n  $xlsWriter->save( $fn );\nelse\n  echo 'tempnam failed';\nheader( 'Content-type: application/vnd.ms-excel' );\nheader( 'Content-Disposition: attachment; filename=test.xls' );\nreadfile( $fn );\nunlink( $fn );\n \nNote 1: I know that PHPExcel does not supply any NLS features and requires to use UTF-8 encoding. So I use iconv() to convert my word into UTF-8.\nNote 2: First word 'PHPExcel' in 'require' directives is symbolic link to subdir containing some version of PHPExcel. That's because I test 3 different versions of PHPExcel to check results of all. To test another version I just change this link, but nothing more.\n \nResults are following:\nPHPExcel version 1.7.0 - OK. I open created file in OpenOffice - and I see my word as expected.\nPHPExcel version 1.7.1 - Near OK. First run of script fails with error message in Apache's error log due to error in file PHPExcel/Classes/PHPExcel/Writer/Excel5.php - call to undefined function. After I have fixed this error - result of second run is OK.\nPHPExcel version 1.7.2 - Bad, I cannot see my word.\n \nPlease, check it. If you want I can send result files of all 3 tests - they are just 6656 bytes each.",
+    "LastUpdatedDate": "2013-05-16T05:42:01.59-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2010-04-20T00:57:10.457-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "[BugReport] Incorrect writing of national language chars in different versions of PHPExcel",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 12802
+  },
+  "FileAttachments": [
+    {
+      "FileId": 4234,
+      "FileName": "test_results.txt",
+      "DownloadUrl": ".\\4234"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "Is your PHP script file saved as a UTF-8 file (without a BOM header), or as KOI8-R?",
+      "PostedDate": "2010-04-20T01:54:16.52-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Script is saved as KOI8-R. But (I think) it is not significant. The same script was used with all 3 versions of PHPExcel - but results are different.",
+      "PostedDate": "2010-04-20T02:22:18.97-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "See attached file for more details. It is short - just 29k bytes of plain text. It contains 5 parts: 1) my script as it written on my disk; 2) The same script in 'base64' encoding; 3) Result file with PHPExcel ver.1.7.0 (in base64); 4) Result file with PHPExcel ver.1.7.1 (in base64); 5) Result file with PHPExcel ver.1.7.2 (in base64); ",
+      "PostedDate": "2010-04-20T02:43:04.807-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-04-20T02:43:05.633-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "On some platforms problems with iconv() function have been reported. Therefore PHPExcel does some tests to see if iconv() fails some tests. Please refer to PHPExcel_Shared_String::getIsIconvEnabled()\r\n\r\nWhen the \"iconv-test\" fails, PHPExcel will use mbstring for manipulating string encoding -- if available. If mbstring is not available there will generally be problems with non-ASCII glyphs in final .xls workbook.\r\n\r\nYour test runs indicate that there are problems with iconv() AND you have no mbstring extension installed.\r\n\r\nSpecifically, this test is failing (I suspect)\r\n\r\niconv_substr('A', 0, 1, 'UTF-8')\r\n\r\nBUG:\r\nhttp://bugs.php.net/bug.php?id=37773\r\n\r\nAlthough your tests with PHPExcel 1.7.0 and 1.7.1 appeared to be working, they will fail when you try to insert single character strings in the cell.\r\n\r\nWhat version of PHP are you using?\r\n\r\nSolution is probably to upgrade PHP or install mbstring extension.",
+      "PostedDate": "2010-04-23T16:49:20.917-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "phpinfo() reports the following: \"PHP Version 5.1.6 ... iconv: iconv support - enabled, iconv implementation - glibc, iconv library version - 2.5 \" . There is no word \"mbstring\" in report, so this extension seems to be not installed.\r\nSo I shall try to upgrade before continuing this discussion.",
+      "PostedDate": "2010-04-25T23:46:08.863-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Thanks for help. Installation of mbstring is a solution. No upgrade of PHP required.",
+      "PostedDate": "2010-04-26T00:08:49.133-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2011-01-02T06:18:27.047-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:03:01.89-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:01.59-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

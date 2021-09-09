@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "532195",
+    "ThreadId": "237406",
+    "Html": "\r\n<p>Hi!<br>\r\n<br>\r\nI have to automatically read Excel files provided by clients who sometimes send corrupted ones. (They can't be read in Excel itself, but it's a mass treatment and I can't try to open all of them to know if they are OK.)<br>\r\nI tried to catch any exception that could have been thrown by the loader with this code :<br>\r\n<br>\r\n</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>$objReader = PHPExcel_IOFactory::createReader(<span style=\"color:#a31515\">'Excel5'</span>);\r\n<span style=\"color:blue\">try</span> {\r\n      $objPHPExcel = $objReader-&gt;load($this-&gt;getFilesPath ().DIRECTORY_SEPARATOR.$pFile);\r\n} <span style=\"color:blue\">catch</span> (Exception $e) {\r\n      <span style=\"color:green\">// throwing an explicit exception that will be caught later</span>\r\n}\r\n</pre>\r\n</div>\r\n<br>\r\n<br>\r\nWith a test file (I took a .doc file, renamed it with .xls extension and suppressed the first lines in a text editor), it does work fine and throws this exception : ''The filename xxx is not recognised as an OLE file&quot;.<br>\r\n<br>\r\nBut with one of the client's corrupted file, this is not working, and I get a &quot;maximum&nbsp; execution time exceeded&quot; (whatever the value of time_limit I put in my PHP code). It seems to cause an infinite loop in the read function of OLERead.php, or something\r\n like that. This is the error I get :<br>\r\n<br>\r\nArray<br>\r\n(<br>\r\n[type] =&gt; 1<br>\r\n[message] =&gt; Maximum execution time of 30 seconds exceeded<br>\r\n[file] =&gt; ...\\PHPExcel-1.7.4\\PHPExcel\\Shared\\OLERead.php<br>\r\n[line] =&gt; 150<br>\r\n)<br>\r\n<br>\r\nAs you can see in the error details, I'm currently using PHPExcel v1.7.4. My PHP version is 5.2.10, and the problem seems to appear in both Windows and Linux environments.<br>\r\n<br>\r\nAny idea of how I could know the file is unreadable before getting the maximum execution time error?<br>\r\n<br>\r\nThank you!\r\n<p></p>\r\n",
+    "PostedDate": "2010-12-07T03:02:56.433-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "532233",
+    "ThreadId": "237406",
+    "Html": "\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<p><strong>LNA wrote:</strong><br>\r\n<br>\r\nAny idea of how I could know the file is unreadable before getting the maximum execution time error?</p>\r\n&nbsp;</blockquote>\r\n<p>We can't trap for every conceivable corruption in a file without slowing performance to the point where PHPExcel is completely unusable; and if you simply load() the file, we don't do any additional checks, assuming that the files is a valid workbook of\r\n the appropriate type, only throwing an exception when there are very obvious problems.</p>\r\n<p>However, we do provide the canRead() method in every Reader, returning a boolean true or false,&nbsp;that will identify some basic file errors.</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><div style=\"color:black; background-color:white\"><pre>$objReader = PHPExcel_IOFactory::createReader(<span style=\"color:#a31515\">'Excel5'</span>);\r\n<span style=\"color:blue\">try</span> {\r\n      <span style=\"color:blue\">if</span> (!$objReader-&gt;canRead()) {\r\n          <span style=\"color:blue\">throw</span> <span style=\"color:blue\">new</span> Exception(<span style=\"color:#a31515\">'File is not a valid Excel5 file'</span>);\r\n      }\r\n      $objPHPExcel = $objReader-&gt;load($this-&gt;getFilesPath ().DIRECTORY_SEPARATOR.$pFile);\r\n} <span style=\"color:blue\">catch</span> (Exception $e) {\r\n      <span style=\"color:green\">// throwing an explicit exception that will be caught later</span>\r\n}\r\n</pre>\r\n</div>\r\n<br></pre>\r\n</div>\r\n<p>While this isn't guaranteed to trap for every eventuality, it may help identify a few corrupted files before you try to load them</p>\r\n",
+    "PostedDate": "2010-12-07T05:05:29.92-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "532273",
+    "ThreadId": "237406",
+    "Html": "\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<strong>MarkBaker wrote:</strong><br>\r\n<br>\r\n<p>However, we do provide the canRead() method in every Reader, returning a boolean true or false,&nbsp;that will identify some basic file errors.</p>\r\n<div style=\"color:black; background-color:white\">[...]</div>\r\n<p>While this isn't guaranteed to trap for every eventuality, it may help identify a few corrupted files before you try to load them</p>\r\n</blockquote>\r\n<p>&nbsp;</p>\r\n<p>In my case, the same problem appear because the canRead() method calls the read() method of OLERead class where the loop problem due to my corrupted file is.</p>\r\n<p>It's the one which begin line 146 of the 1.7.4 OLERead.php file : while ($sbdBlock != -2) { ... }</p>\r\n<p>I saw that, with my corrupted file, the value of $sbdBlock goes to '' (empty string) after 2 times in the loop.</p>\r\n<p>I wondered if this case could be tested by an if condition, assuming that this is always a problem to have $sbdBlock='' when we call $this-&gt;bigBlockChain[$sbdBlock]; with an empty string.</p>\r\n<p>It seems that adding this test in the loop in my local library is solving my problem of time execution exceeded.</p>\r\n<p>What's your opinion about this?</p>\r\n",
+    "PostedDate": "2010-12-07T06:34:07.937-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "532877",
+    "ThreadId": "237406",
+    "Html": "\r\n<p>The difficulty with trapping for this is the cost on performance, especially as this loop test would need replicating at several points in the code to identify other variations in the corruption. In this particular case, it seems simple, but other workbooks\r\n might execute that loop hundreds of times, where the overhead of the &quot;corruption trap&quot; might become more noticeable.</p>\r\n<p>People are constantly criticising PHPExcel&nbsp;for its slow performance:&nbsp;having spent most of the last three months working on speeding up code execution to address that criticism, I'm reluctant to introduce a slowdown testing for something that shouldn't\r\n be there in the first place.</p>\r\n",
+    "PostedDate": "2010-12-08T06:51:02.157-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "532882",
+    "ThreadId": "237406",
+    "Html": "\r\n<p>I understand since I've been through the performances problems too. I'll have to fix that on my side then.</p>\r\n<p>Looking forward to trying the 1.7.5 release!</p>\r\n<p>Thanks again for your reply and your time.</p>\r\n",
+    "PostedDate": "2010-12-08T06:59:33.62-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

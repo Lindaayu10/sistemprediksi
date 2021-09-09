@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "533954",
+    "ThreadId": "237896",
+    "Html": "\r\n<p>got the following code:</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>    set_include_path(get_include_path() . PATH_SEPARATOR . <span style=\"color:#a31515\">'PHPExcel/Classes/'</span>);<br>    <span style=\"color:blue\">require_once</span> <span style=\"color:#a31515\">'PHPExcel/Classes/PHPExcel.php'</span>;<br>    <span style=\"color:blue\">require_once</span> <span style=\"color:#a31515\">'PHPExcel/Classes/PHPExcel/IOFactory.php'</span>;<br>    $cacheMethod = PHPExcel_CachedObjectStorageFactory::cache_to_discISAM;<br>    PHPExcel_Settings::setCacheStorageMethod($cacheMethod);<br>    $objReader = PHPExcel_IOFactory::createReaderForFile($<span style=\"color:blue\">file</span>);<br>    $objReader-&gt;setReadDataOnly(true); // line 639</pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n<p>When I run under localhost it works correctly, however, when I run on my webhost, I get this error:<br>\r\n<span style=\"color:#ff0000\">Fatal error: Call to undefined method PHPExcel_Reader_CSV::setReadDataOnly() in\r\n</span><br>\r\n<span style=\"color:#ff0000\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /home/listinve/public_html/libs/class/Inventory.class.php on line 639</span><br>\r\n<br>\r\nI am using 1.7.4 on BOTH installations.<br>\r\n<br>\r\n$file is &quot;133_inventory DEC-9.xlsx&quot;; the file being parsed is an Excel XLSX file. I do not understand why it would be creating a CSV reader.</p>\r\n<p>file uploaded to this workitem: http://phpexcel.codeplex.com/workitem/14857</p>\r\n<p>Any ideas?</p>\r\n",
+    "PostedDate": "2010-12-10T08:21:31.777-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "534036",
+    "ThreadId": "237896",
+    "Html": "\r\n<p>PHPExcel will create a CSV Reader when using the PHPExcel_IOFactory::createReaderForFile() method if the file cannot be identified as any of the other supported file types. An xlsx file will fail the Excel2007 Reader identification tests for a number of\r\n reasons, defined in the canRead() method for the reader. In the case of an xlsx file that can be read on one server, but not on another, this is most likely because&nbsp;ZipArchive class is not available on the server where it fails.</p>\r\n",
+    "PostedDate": "2010-12-10T10:46:05.74-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "534189",
+    "ThreadId": "237896",
+    "Html": "\r\n<p>I am not sure if ZipArchive is istalled.</p>\r\n<p>I have PHP Version 5.2.12.</p>\r\n<p>But php_info() doesn't show ZipArchive, just Zip and GZip.</p>\r\n<p><a href=\"http://www.listinventory.com/phpinfo.php\">Read PHP Info</a></p>\r\n<p>And it is not installed locally with PHP Version 5.2.11.</p>\r\n",
+    "PostedDate": "2010-12-10T15:21:50.48-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "534195",
+    "ThreadId": "237896",
+    "Html": "\r\n<p>ZipArchive is the class implemented by the zip extension, so it should be there.</p>\r\n<p>Can you try executing the following code:</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>$objReader = <span style=\"color:blue\">new</span> PHPExcel_Reader_Excel2007();\r\n$valid = $objReader-&gt;canRead($<span style=\"color:blue\">file</span>);\r\nvar_dump($valid);\r\n</pre>\r\n</div>\r\n<p>If this returns a boolean false, then look at the code in the canRead() method and put in some echo statements to identify just which test it's failing on.</p>\r\n",
+    "PostedDate": "2010-12-10T15:33:35.863-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "535711",
+    "ThreadId": "237896",
+    "Html": "\r\n<p>That code returns bool(true)</p>\r\n<p>Now, when I run the code above in a separate unit (as shown below), I don't get the error I observed in my original post but I get this error:</p>\r\n<p>&nbsp;</p>\r\n<pre>Fatal error: Call to a member function attach() on a non-object in /home/listinve/public_html/PHPExcel/Classes/PHPExcel/CachedObjectStorage/DiscISAM.php on line 99</pre>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>  $<span style=\"color:blue\">file</span> = <span style=\"color:#a31515\">'file_uploads/133_inventory DEC-9.xlsx'</span>;\r\n  set_include_path(get_include_path() . PATH_SEPARATOR . <span style=\"color:#a31515\">'PHPExcel/Classes/'</span>);\r\n  <span style=\"color:blue\">require_once</span> <span style=\"color:#a31515\">'PHPExcel/Classes/PHPExcel.php'</span>;\r\n  <span style=\"color:blue\">require_once</span> <span style=\"color:#a31515\">'PHPExcel/Classes/PHPExcel/IOFactory.php'</span>;\r\n\r\n  $cacheMethod = PHPExcel_CachedObjectStorageFactory::cache_to_discISAM;\r\n  PHPExcel_Settings::setCacheStorageMethod($cacheMethod);\r\n  $objReader = PHPExcel_IOFactory::createReaderForFile($<span style=\"color:blue\">file</span>);\r\n  $objReader-&gt;setReadDataOnly(true); <span style=\"color:green\"><br></span>\r\n  $objPHPExcel  = $objReader-&gt;load($<span style=\"color:blue\">file</span>);\r\n  $objWorksheet = $objPHPExcel-&gt;getActiveSheet();\r\n  $objPHPExcel-&gt;disconnectWorksheets();\r\n  <span style=\"color:blue\">unset</span>($cacheMethod);\r\n  <span style=\"color:blue\">unset</span>($objReader);\r\n  <span style=\"color:blue\">unset</span>($objPHPExcel);\r\n</pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>What could be causing this now?</p>\r\n",
+    "PostedDate": "2010-12-14T10:53:57.16-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "447011",
+    "ThreadId": "213742",
+    "Html": "<p>Hello,</p>\r\n<p>I'm trying to insert a numeric string (&quot;012&quot;) in a cell using the following code, but the leading zero is removed in the excel file.</p>\r\n<p>The excel cell format is set to &quot;Text&quot;.</p>\r\n<p>How may I avoid this problem?</p>\r\n<p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>$objPHPExcel = PHPExcel_IOFactory::load(<span style=\"color:#a31515\">&quot;models/report1.xls&quot;</span>);\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow(0, $cntrows, <span style=\"color:#a31515\">&quot;012&quot;</span>);\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, <span style=\"color:#a31515\">&quot;Excel5&quot;</span>);\r\n$objWriter-&gt;save(<span style=\"color:#a31515\">&quot;elaborazioni/test.xls&quot;</span>);\r\n</pre>\r\n</div>\r\nThank you</p>",
+    "PostedDate": "2010-05-25T03:42:07.95-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "447016",
+    "ThreadId": "213742",
+    "Html": "<p>The following code has worked:</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>$objPHPExcel = PHPExcel_IOFactory::load(<span style=\"color:#a31515\">&quot;models/report1.xls&quot;</span>);\r\n<span style=\"color:green\">//$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow(0, $cntrows, &quot;012&quot;);</span>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getCellByColumnAndRow(0, $cntrows)-&gt;setValueExplicit(<span style=\"color:#a31515\">'012'</span>, PHPExcel_Cell_DataType::TYPE_STRING);\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, <span style=\"color:#a31515\">&quot;Excel5&quot;</span>);\r\n$objWriter-&gt;save(<span style=\"color:#a31515\">&quot;elaborazioni/test.xls&quot;</span>);\r\n</pre>\r\n</div>\r\n<p>Is there a way to achieve this using setCellValueByColumnAndRow directly?</p>\r\n<p>Thank you</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-05-25T03:53:01.75-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "447461",
+    "ThreadId": "213742",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>softmasters wrote:</strong><br>\r\n<p>Is&nbsp;there a way to achieve this using setCellValueByColumnAndRow directly?</p>\r\n</blockquote>\r\n<p>We deliberately provide the two separate pairs of methods for this purpose.</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(<span style=\"color:#a31515\">'B3'</span>,123);\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow(2,3',123);\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueExplicit(<span style=\"color:#a31515\">'B4'</span>,<span style=\"color:#a31515\">'0123'</span>,PHPExcel_Cell_DataType::TYPE_STRING);\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueExplicitByColumnAndRow(2,3<span style=\"color:#a31515\">','</span>0123',PHPExcel_Cell_DataType::TYPE_STRING);\r\n</pre>\r\n</div>\r\n<p>However, you can also make use of Cell Value Binders. Take a look at the AdvancedValueBinder.php in /Classes/PHPExcel/Cell and the sample code in /Tests/29advancedvaluebinder.php to see how this works</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-05-26T00:45:17.397-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,106 @@
+[
+  {
+    "Id": "496782",
+    "ThreadId": "228090",
+    "Html": "<p>I have a problem...</p>\r\n<p>This is my code,<br>echo PHPExcel_Shared_Date::isDateTime($objWorksheet -&gt;getCellByColumnAndRow(17, 6) ;<br>It returns &nbsp;&quot;1&quot;&nbsp;</p>\r\n<p>But the format cell of (17,6) &nbsp;is a accounting&nbsp;category. This is a numeric value, not date...</p>\r\n<p>Please help and thanks</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-09-21T20:03:51.103-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "496898",
+    "ThreadId": "228090",
+    "Html": "<p>PHPExcel's PHPExcel_Shared_Date::isDateTime() method attempts to identify whether a cell contains a date value or not be testing for by comparing it against the pre-defined date/time format masks, or tries to detect custom date formats by testing for the presence of certain characters within the format mask ('y', 'm', 'd', 'H', 'i', or 's') unless they fall within square brackets, so the d in [red] or the 'y' in [yellow] should not be picked up by the test.</p>\r\n<p>It's possible that the regexp that does this test is returning a false positive: can you let me know the actual format mask that you have for cell (17,6).</p>",
+    "PostedDate": "2010-09-22T01:48:48.303-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "497869",
+    "ThreadId": "228090",
+    "Html": "<p>The value of &nbsp;cell (17,6) is 350<br>Format cell category &nbsp;is &quot;Accounting&quot;, decimal places is &quot;2&quot; and symbol is &quot;HK $&quot;</p>\r\n<p>The display format is HK$ 350.00</p>\r\n<p>Thanks Mark.</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-09-23T19:17:51.083-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "497878",
+    "ThreadId": "228090",
+    "Html": "<p>Mark,</p>\r\n<p>I try it again,<br>if i set&nbsp;symbol is &quot;$ Chinese (Taiwan)&quot;, it will return false<br>if symbol is &nbsp;&quot;HK $&quot;, it will return true</p>\r\n<p>How can i get false if i use&nbsp;symbol is &nbsp;&quot;HK $&quot;?</p>\r\n<p>Thanks!</p>",
+    "PostedDate": "2010-09-23T19:38:55.713-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "498014",
+    "ThreadId": "228090",
+    "Html": "<p>I don't have the option to select either &quot;$ Chinese (Taiwan)&quot; or &quot;HK $&quot; as currency or accounting formats in my versions of Excel; but I created one by hand (using the Custom option) for &quot;HK $&quot;, and&nbsp;PHPExcel correctly reports it as not being a date format.</p>\r\n<p>Can you write a little script to load in your workbook and then execute the following lines (for the cells containing &quot;$ Chinese (Taiwan)&quot;&nbsp;and &quot;HK $&quot;):</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre> $cellID = <span style=\"color:#a31515\">'R6'</span>;  <span style=\"color:green\">// substitute your cell reference here</span>\r\n <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">&quot;&lt;b&gt;$cellID&lt;/b&gt;&lt;br /&gt;&quot;</span>;\r\n <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'Format Mask: '</span>,$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle($cellID)-&gt;getNumberFormat()-&gt;getFormatCode(),<span style=\"color:#a31515\">'&lt;br /&gt;'</span>;\r\n <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'Date/Time? '</span>,((PHPExcel_Shared_Date::isDateTime($objPHPExcel-&gt;getActiveSheet()-&gt;getCell($cellID))) ? <span style=\"color:#a31515\">'Yes'</span> : <span style=\"color:#a31515\">'No'</span>),<span style=\"color:#a31515\">'&lt;br /&gt;'</span>;\r\n</pre>\r\n</div>\r\n<p>The resulting display for &quot;HK $&quot; should look something like:</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre><pre>R6 </pre>\r\n<pre>Format Mask: _-[$$HK]* #,##0.00_ ;_-[$$HK]* \\-#,##0.00\\ ;_-[$$HK]* &quot;-&quot;??_ ;_-@_ </pre>\r\n<pre>Date/Time? No</pre>\r\n</pre>\r\n</div>",
+    "PostedDate": "2010-09-24T04:35:40.497-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "498714",
+    "ThreadId": "228090",
+    "Html": "<p>i try it script:</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>$cellID = $objWorksheet -&gt;getCellByColumnAndRow(17, 6)-&gt;getvalue();\r\n<span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">&quot;&lt;b&gt;$cellID&lt;/b&gt;&lt;br /&gt;&quot;</span>;\r\n<span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'Format Mask: '</span>,$objExecl-&gt;getActiveSheet()-&gt;getStyle($cellID)-&gt;getNumberFormat()-&gt;getFormatCode(),<span style=\"color:#a31515\">'&lt;br /&gt;'</span>;\r\n<span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'Date/Time? '</span>,((PHPExcel_Shared_Date::isDateTime($objExecl-&gt;getActiveSheet()-&gt;getCell($cellID))) ? <span style=\"color:#a31515\">'Yes'</span> : <span style=\"color:#a31515\">'No'</span>),<span style=\"color:#a31515\">'&lt;br /&gt;'</span>;\r\n</pre>\r\n<pre><br></pre>\r\n<pre>it return this:</pre>\r\n<pre><br></pre>\r\n<pre><strong>350</strong><br>Format Mask: General<br>Date/Time? <br><strong>Fatal error</strong>:  Uncaught exception 'Exception' with message 'Invalid cell coordinate.' in &nbsp;</pre>\r\n<pre>C:\\AppServ\\www\\Project\\Classes\\PHPExcel\\Cell.php:490 Stack trace: #0 &nbsp;</pre>\r\n<pre>C:\\AppServ\\www\\Project\\Classes\\PHPExcel\\Worksheet.php(940):  PHPExcel_Cell::coordinateFromString('350') #1 &nbsp;</pre>\r\n<pre>C:\\AppServ\\www\\Project\\BudgetSystem\\Import.php(240):  PHPExcel_Worksheet-&gt;getCell(350) #2 {main} thrown in &nbsp;</pre>\r\n<pre><strong>C:\\AppServ\\www\\Project\\Classes\\PHPExcel\\Cell.php</strong> on line <strong>490</strong><br><br></pre>\r\n</div>",
+    "PostedDate": "2010-09-26T19:54:40.007-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "498716",
+    "ThreadId": "228090",
+    "Html": "<p>If i try this script</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>$cellID = $objWorksheet -&gt;getCellByColumnAndRow(17, 6)-&gt;getvalue();\r\n$cellID2 = $objWorksheet -&gt;getCellByColumnAndRow(17, 6);\r\n<span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">&quot;&lt;b&gt;$cellID&lt;/b&gt;&lt;br /&gt;&quot;</span>;\r\n<span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'Format Mask: '</span>,$objExecl-&gt;getActiveSheet()-&gt;getStyle($cellID)-&gt;getNumberFormat()-&gt;getFormatCode(),<span style=\"color:#a31515\">'&lt;br /&gt;'</span>;\r\n<span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'Date/Time? '</span>,((PHPExcel_Shared_Date::isDateTime($cellID2)) ? <span style=\"color:#a31515\">'Yes'</span> : <span style=\"color:#a31515\">'No'</span>),<span style=\"color:#a31515\">'&lt;br /&gt;'</span>;\r\n</pre>\r\n<pre><br></pre>\r\n<pre>it return</pre>\r\n<pre><br></pre>\r\n<pre><strong>350</strong><br>Format Mask: General<br>Date/Time? Yes<br></pre>\r\n<pre><br></pre>\r\n<pre>Any problem for my cell?</pre>\r\n<pre><br></pre>\r\n<pre>Thanks Mark!</pre>\r\n</div>",
+    "PostedDate": "2010-09-26T19:59:54.267-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "499171",
+    "ThreadId": "228090",
+    "Html": "<p>Use</p>\r\n<p>$cellID = $objWorksheet -&gt;getCellByColumnAndRow(17, 6)-&gt;getCoordinate();</p>\r\n<p>We need the cell address for&nbsp;the call to $objExecl-&gt;getActiveSheet()-&gt;getStyle($cellID)-&gt;getNumberFormat()-&gt;getFormatCode(), not the value of the cell.</p>",
+    "PostedDate": "2010-09-27T14:46:05.823-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "499257",
+    "ThreadId": "228090",
+    "Html": "<p>&nbsp;</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>$cellID = $objWorksheet -&gt;getCellByColumnAndRow(17, 6)-&gt;getCoordinate();\r\n<span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">&quot;&lt;b&gt;$cellID&lt;/b&gt;&lt;br /&gt;&quot;</span>;\r\n<span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'Format Mask: '</span>,$objExecl-&gt;getActiveSheet()-&gt;getStyle($cellID)-&gt;getNumberFormat()-&gt;getFormatCode(),<span style=\"color:#a31515\">'&lt;br /&gt;'</span>;\r\n<span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'Date/Time? '</span>,((PHPExcel_Shared_Date::isDateTime($objExecl-&gt;getActiveSheet()-&gt;getCell($cellID))) ? <span style=\"color:#a31515\">'Yes'</span> : <span style=\"color:#a31515\">'No'</span>);\r\n</pre>\r\n<pre><br></pre>\r\n<pre><strong>O...also return yes...</strong></pre>\r\n<pre><strong>R6</strong><br>Format Mask: _(&quot;HK$&quot;* #,##0.00_);_(&quot;HK$&quot;* \\(#,##0.00\\);_(&quot;HK$&quot;*  &quot;-&quot;??_);_(@_)<br>Date/Time? Yes<br></pre>\r\n</div>",
+    "PostedDate": "2010-09-27T20:05:22.923-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "499665",
+    "ThreadId": "228090",
+    "Html": "<p>The currency information (HK$) isn't in square brackets, so the PHPExcel_Shared_Date::isDateTime() method is detecting the H and assuming Hours, and therefore a date/time. I've modified the code logic to test for an underscore (_) in the first position of the format mask, or a &quot;0 &quot; as the first two characters, and return a false if either of these conditions matches, as these conditions are typically associated with numeric, currency, accounting or fraction masks, but never with dates. This should result in fewer false positives, and resolve your HK$ accounting mask.</p>",
+    "PostedDate": "2010-09-28T15:01:18.64-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "499740",
+    "ThreadId": "228090",
+    "Html": "<p>Mark,&nbsp;</p>\r\n<p>How can i solve this problem?<br>Please help and thanks!</p>\r\n<p>Ray&nbsp;</p>",
+    "PostedDate": "2010-09-28T21:26:48.013-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "499801",
+    "ThreadId": "228090",
+    "Html": "<p>Either download the latest source code from SVN (via the &quot;Source Code&quot; tab on this site)</p>\r\n<p>or</p>\r\n<p>in Classes\\PHPExcel\\Shared\\Date.php, on or about line 259, insert</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>  <span style=\"color:green\">// Typically number, currency or accounting (or occasionally fraction) formats</span>\r\n  <span style=\"color:blue\">if</span> ((substr($pFormatCode,0,1) == <span style=\"color:#a31515\">'_'</span>) || (substr($pFormatCode,0,2) == <span style=\"color:#a31515\">'0 '</span>)) {\r\n     <span style=\"color:blue\">return</span> false;\r\n  }\r\n</pre>\r\n</div>\r\n<p>immediately before</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>  <span style=\"color:green\">// Try checking for any of the date formatting characters that don't appear within square braces</span>\r\n  <span style=\"color:blue\">if</span> (preg_match(<span style=\"color:#a31515\">'/(^|\\])[^\\[]*['</span>.self::$possibleDateFormatCharacters.<span style=\"color:#a31515\">']/i'</span>,$pFormatCode)) {\r\n     <span style=\"color:blue\">return</span> true;\r\n  }\r\n</pre>\r\n</div>",
+    "PostedDate": "2010-09-29T01:06:50.123-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "500423",
+    "ThreadId": "228090",
+    "Html": "<p>Thank you Mark!!!!</p>",
+    "PostedDate": "2010-09-30T02:24:05.753-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

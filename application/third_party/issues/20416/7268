@@ -1,0 +1,140 @@
+<?
+require_once dirname(__FILE__).'/__autoload.php';
+
+$objPHPExcel = new PHPExcel();
+
+$objPHPExcel->setActiveSheetIndex(0);
+$sheet = $objPHPExcel->getActiveSheet();
+
+$start = 'B';
+$rows = 5;
+$cols = 8;
+for ($c = 0; $c <= $cols; $c+=2){
+	for ($row = 1; $row <= $rows; $row++){
+		$column = chr(ord($start) + $c);
+		$val = ord($column) + $row;
+		$sheet->setCellValue("{$column}{$row}", $val);
+	}
+}
+
+$row = $sheet->getHighestRow();
+$row1 = $row+1;
+$row2 = $row+2;
+$row3 = $row+3;
+for ($c = 0; $c <= $cols; $c+=2){
+	$column = chr(ord($start) + $c);
+	$column1 = chr(ord($start) + $c + 1);
+	foreach (array('SUM', 'AVERAGE') as $i => $f){
+		$r = $row1 + $i;
+		if (!$c){
+			$sheet->setCellValue("A{$r}", "$f");
+		}
+		$sheet->setCellValue("{$column}{$r}", "=$f({$column}1:{$column}{$row})");
+		$sheet->setCellValue("{$column1}{$r}", $sheet->getCell("{$column}{$r}")->getCalculatedValue());
+	}
+}
+
+
+$styleArray = array(
+	'borders' => array(
+		'allborders' => array(
+			'style' => PHPExcel_Style_Border::BORDER_THIN,
+		),
+	),
+);
+
+$sheet->getStyle("A1:{$sheet->getHighestColumn()}{$sheet->getHighestRow()}")->applyFromArray($styleArray);
+
+if ($_GET['xls']){
+	header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+	header("Content-Disposition: attachment;filename=\"test.xlsx\"");
+	$objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel);
+	header('Cache-Control: max-age=0');
+	ob_get_clean();
+	$objWriter->save('php://output');
+	die();
+}
+else if ($_GET['csv']){
+	header('Content-Type: text/csv');
+	header("Content-Disposition: attachment;filename=\"test.csv\"");
+	$objWriter = new PHPExcel_Writer_CSV($objPHPExcel);
+	header('Cache-Control: max-age=0');
+	ob_get_clean();
+	$objWriter->save('php://output');
+	die();
+}
+
+$objWriter = new PHPExcel_Writer_HTML($objPHPExcel);
+$objWriter->save('php://output');
+
+/*echo "<pre>\r\n";
+testFormula($sheet,'C5');
+echo "----------\r\n";
+testFormula($sheet,'C6');
+echo "----------\r\n";
+testFormula($sheet,'D6');
+echo "----------\r\n";*/
+
+/**
+ * @param PHPExcel_Worksheet $sheet
+ * @param string $cell
+ */
+function testFormula($sheet,$cell) {
+	$formulaValue = $sheet->getCell($cell)->getValue();
+	$addr = $sheet->getCell($cell)->getCoordinate();
+	echo "Formula Value for ($addr) is" , $formulaValue , PHP_EOL;
+	$expectedValue = $sheet->getCell($cell)->getOldCalculatedValue();
+	echo 'Expected Value is '  , ((!is_null($expectedValue)) ? $expectedValue : 'UNKNOWN') , PHP_EOL;
+
+
+	$calculate = false;
+	try {
+		$tokens = PHPExcel_Calculation::getInstance(
+			$sheet->getParent()
+		)->parseFormula(
+				$formulaValue,
+				$sheet->getCell($cell)
+			);
+		echo 'Parser Stack :-' , PHP_EOL;
+		print_r($tokens);
+		echo PHP_EOL;
+		$calculate = true;
+	} catch (Exception $e) {
+		echo 'PARSER ERROR: ' , $e->getMessage() , PHP_EOL;
+
+		echo 'Parser Stack :-' , PHP_EOL;
+		print_r($tokens);
+		echo PHP_EOL;
+	}
+
+	if ($calculate) {
+		PHPExcel_Calculation::getInstance(
+			$sheet->getParent()
+		)->getDebugLog()
+			->setWriteDebugLog(true);
+		try {
+			$cellValue = $sheet->getCell($cell)->getCalculatedValue();
+			echo 'Calculated Value is ' , $cellValue , PHP_EOL;
+
+			echo 'Evaluation Log:' , PHP_EOL;
+			print_r(
+				PHPExcel_Calculation::getInstance(
+					$sheet->getParent()
+				)->getDebugLog()
+					->getLog()
+			);
+			echo PHP_EOL;
+		} catch (Exception $e) {
+			echo 'CALCULATION ENGINE ERROR: ' , $e->getMessage() , PHP_EOL;
+
+			echo 'Evaluation Log:' , PHP_EOL;
+			print_r(
+				PHPExcel_Calculation::getInstance(
+					$sheet->getParent()
+				)->debugLog
+					->getLog()
+			);
+			echo PHP_EOL;
+		}
+	}
+}

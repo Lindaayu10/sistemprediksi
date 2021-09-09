@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "1362415",
+    "ThreadId": "586002",
+    "Html": "I've created custom value binder, match them, and write using <br />\n<pre><code>$cell-&gt;setValueExplicit($value, PHPExcel_Cell_DataType::TYPE_STRING);\n</code></pre>\n\nBut still recieve notifications in Excel about numbers written as text. I'd apply some custom number format for it (e.g. ###### or something), but values can contain spaces in different places, and the numbers length is not known(its range approximately 8-15)....<br />\n<br />\nWriter: Excel2007<br />\n",
+    "PostedDate": "2015-03-11T02:30:13.49-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1362426",
+    "ThreadId": "586002",
+    "Html": "If you explicitly set a numeric value as a string like that in PHPExcel, then you will get that message..... if you enter a numeric value in MS Excel itself with leading zeroes by typing it as <code>'123</code> (with the leading quote) then you'll get exactly the same message about numbers written as text from MS Excel..... it's what MS Excel does\r<br />\n<br />\nThe better option is to insert the value as a number, and set a number format mask, but without knowing the specifics of what you're trying to do, the type of values you're working with and the type of masking that you need for each, then it's very difficult to advise<br />\n",
+    "PostedDate": "2015-03-11T03:03:58.573-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1362433",
+    "ThreadId": "586002",
+    "Html": "I'm working with values like: <br />\n<pre><code>0406440452\n017649106486\n040 28803190</code></pre>\n\nI can't create mutual format for them...Seems like matching these values by separate regexes and applying specific format is only way to do it. What would you say?<br />\n<br />\nP.S.: placing apostrophe is okay but I didn't figured the way how to do it without showing it in Excel...<br />\n<br />\n<br />\n<strong>UPDATE1</strong><br />\n<br />\nI've implemented possible solution:<br />\n<ol>\n<li>I divided my values on 2 types: only numbers and numbers with spaces. Made appropriate regexes for them.</li>\n<li>\nFor only numbers I do:<br />\n</li>\n</ol>\n<pre><code>                $valueLength = strlen($value);\n\n                $numberFormat = '0';\n\n                for($i = 1; $i &lt;= $valueLength;$i++) {\n                    $numberFormat = $numberFormat . '#';\n                }\n\n                $cell-&gt;getStyle()-&gt;getNumberFormat()-&gt;setFormatCode($numberFormat);\n                $cell-&gt;setValueExplicit($value, PHPExcel_Cell_DataType::TYPE_NUMERIC);\n                $cell-&gt;getStyle()-&gt;getAlignment()-&gt;setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);\n</code></pre>\n\nAs a result I recieve format like 0#########, depending from numbers amount<br />\nFor values with spaces I can make similar logic as in 2(but add space in format).<br />\n<br />\nWhat do you think about all of this, is it good idea at all?<br />\n",
+    "PostedDate": "2015-03-11T03:19:05.13-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "1429275",
+    "ThreadId": "639566",
+    "Html": "Hi there.<br />\nWhen I copied a worksheet to same book, It's has no problem. Though when I copied the worksheet to another book, the copied sheet lost its styles.<br />\nThe code to reproduce the error are below.<br />\n<br />\n$objPHPExcel = new PHPExcel();<br />\n$objPHPExcel-&gt;setActiveSheetIndex(0);<br />\n<br />\n$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('A1:T100')-&gt;applyFromArray(<br />\n<pre><code>array('fill'    =&gt; array(\n            'type'      =&gt; PHPExcel_Style_Fill::FILL_SOLID,\n            'color'     =&gt; array('argb' =&gt; 'FFCCFFCC')\n            ),\n        'borders' =&gt; array(\n            'bottom'    =&gt; array('style' =&gt; PHPExcel_Style_Border::BORDER_THIN),\n            'right'     =&gt; array('style' =&gt; PHPExcel_Style_Border::BORDER_MEDIUM)\n            )\n        )\n    );\n</code></pre>\n\n$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('C5:R95')-&gt;applyFromArray(<br />\n<pre><code>array('fill'    =&gt; array(\n            'type'      =&gt; PHPExcel_Style_Fill::FILL_SOLID,\n            'color'     =&gt; array('argb' =&gt; 'FFFFFF00')\n            ),\n        )\n    );\n</code></pre>\n\n//merge<br />\n$objPHPExcel-&gt;getActiveSheet()-&gt;mergeCells('D6:H17');<br />\n//write some text<br />\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(&quot;D6&quot;, &quot;ABCDE&quot;);<br />\n//Set some styles<br />\n<pre><code>$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('D6:H17')-&gt;applyFromArray(\narray('fill'    =&gt; array(\n            'type'      =&gt; PHPExcel_Style_Fill::FILL_SOLID,\n            'color'     =&gt; array('argb' =&gt; 'FF66FF00')\n            ),\n        'font'    =&gt; array(\n            'bold'      =&gt; true,\n            'size' =&gt; 16,\n            ),\n        'alignment' =&gt; array(\n            'horizontal' =&gt; PHPExcel_Style_Alignment::HORIZONTAL_LEFT,\n            'vertical' =&gt; PHPExcel_Style_Alignment::VERTICAL_TOP,\n            ),\n        'borders' =&gt; array(\n            'top'     =&gt; array('style' =&gt; PHPExcel_Style_Border::BORDER_MEDIUMDASHDOTDOT),\n            'bottom'  =&gt; array('style' =&gt; PHPExcel_Style_Border::BORDER_SLANTDASHDOT)\n            )           \n        )\n    );\n</code></pre>\n\n//Make copy<br />\n$objClone  = clone $objPHPExcel-&gt;getActiveSheet();<br />\n$objClone-&gt;setTitle('Copyed');<br />\n//Paste to same book<br />\n$objPHPExcel-&gt;addSheet($objClone,0);<br />\n<br />\n//Paste to another boook<br />\n$objNewExcel = new PHPExcel;<br />\n$objNewExcel-&gt;addSheet($objClone,0);<br />\n<br />\n// Save both <br />\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');<br />\n$objWriter-&gt;save('correct.xlsx');<br />\n<br />\n$objNewWriter = PHPExcel_IOFactory::createWriter($objNewExcel, 'Excel2007');<br />\n$objNewWriter-&gt;save('incorrect.xlsx');<br />\n<br />\n<br />\nPHPExcel Ver.1.8.0<br />\nPHP Ver.5.3.3<br />\n<br />\n<br />\nAny solution? Thanks!<br />\n",
+    "PostedDate": "2015-06-05T08:05:05.56-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1429279",
+    "ThreadId": "639566",
+    "Html": "Copying a worksheet from one PHPExcel object to another requires a lot more work than simply copying the a worksheet within the same PHPExcel object, precisely because it does need to copy all the styles as well\r<br />\n<br />\nIt works if you use the correct method:<br />\n<pre><code>$objNewExcel-&gt;addExternalSheet($objClone,0)</code></pre>\n\n",
+    "PostedDate": "2015-06-05T08:25:33.997-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1429283",
+    "ThreadId": "639566",
+    "Html": "Thank you for quick reply.\r<br />\nIt worked correctly by using  'addExternalSheet'.\r<br />\n<br />\nBut when I commented out  as\r<br />\n//$objPHPExcel-&gt;addSheet($objClone,0);\r<br />\n<br />\n'Sheet does not exist' exception is occured.\r<br />\n<br />\nI only need to move the sheet. I don't want to copy it to original book really. \r<br />\n<br />\nWhy the exception is occur?<br />\n",
+    "PostedDate": "2015-06-05T09:37:21.953-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

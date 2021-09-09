@@ -1,0 +1,114 @@
+[
+  {
+    "Id": "509803",
+    "ThreadId": "231601",
+    "Html": "<p>is it possible to write to an excel in append mode ?</p>\r\n<p>scenario :</p>\r\n<p>1) create new excel object and insert data</p>\r\n<p>2) write object to an existing excel file by adding a new worksheet</p>\r\n<p>so if file has worksheet : &quot;Sheet 1&quot; , &quot;Sheet 2&quot; , &quot;Sheet 3&quot;</p>\r\n<p>the write will create &quot;Sheet 4&quot; but doesn't delete the previously written sheets</p>\r\n<p>&nbsp;</p>\r\n<p>i need this solution to overcome performance issues , since each sheet contains lot</p>\r\n<p>of data , and loading the whole file only to create new sheet is redundant and will</p>\r\n<p>cause the performance load to increase on each write</p>",
+    "PostedDate": "2010-10-20T01:24:00.88-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "510949",
+    "ThreadId": "231601",
+    "Html": "\r\n<p>I'm not really sure I follow what you're trying to do here. If you want all the worksheets in the existing excel file to be deleted, and just to contain the new sheet you've created, why not simply overwrite the previous Excel file with your new excel object\r\n rather than having the overheads of loading and adding to it?</p>\r\n<p>You can delete existing sheets within a workbook by using the disconnectWorksheets() method of the PHPExcel object (which will delete every worksheet in the object) before adding your new sheet; or use the removeSheetByIndex() method to delete existing worksheets\r\n individually (although this method hasn't been optimised to release the memory used by that worksheet yet).</p>\r\n",
+    "PostedDate": "2010-10-22T01:23:50.987-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "510951",
+    "ThreadId": "231601",
+    "Html": "\r\n<p>Ik think the problem is the following:</p>\r\n<p>- entire data sheet consists of multiple worksheets</p>\r\n<p>- adding all worksheets at once results in performance problems (probably memory)</p>\r\n<p>&nbsp;</p>\r\n<p>proposed solution:</p>\r\n<p>- add one worksheet, than write file, destroy phpexcel object.</p>\r\n<p>- reopen file, add another worksheet, etc....</p>\r\n",
+    "PostedDate": "2010-10-22T01:28:09.463-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "510962",
+    "ThreadId": "231601",
+    "Html": "\r\n<p>I'm still not sure I understand your problem: do you want to keep the existing worksheets and add another, or do you want only the one worksheet in your workbook?</p>\r\n",
+    "PostedDate": "2010-10-22T02:01:57.957-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "510964",
+    "ThreadId": "231601",
+    "Html": "\r\n<p>I think the original poster wants to add worksheets. So he wants to keep existing worksheets. I think it is an attempt to lower the memory footprint of PHPExcel, but I'm not really sure if it would be effective... ;)</p>\r\n",
+    "PostedDate": "2010-10-22T02:05:53.16-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "510965",
+    "ThreadId": "231601",
+    "Html": "\r\n<p>If that is the case borft, then his first option is to try cell caching as described in the manual.</p>\r\n<p>It's also going to be more efficient to load the existing file, and to create and populate a new worksheet directly in that; rather than to build a worksheet in one workbook, then copy/move it to the existing file. It negates the overhead of two PHPExcel\r\n objects being memory resident at the same time.</p>\r\n",
+    "PostedDate": "2010-10-22T02:12:05.997-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "510967",
+    "ThreadId": "231601",
+    "Html": "\r\n<p>Yeah, I guess that sounds logical. If you have a lot of data, I guess you just need to use cell caching, and/or beef up your server hardware ;)</p>\r\n",
+    "PostedDate": "2010-10-22T02:15:24.343-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "510974",
+    "ThreadId": "231601",
+    "Html": "\r\n<p>@borft</p>\r\n<p>Cell caching is the best we can offer to reduce memory usage at the moment. I'm experimenting with restructuring the way the cache is held and (weirdly) a 2D array of rows and columns seems to reduce memory quite significantly compared with the way we hold\r\n a simple 1D array of cellAddress/cellObject pairs at present, but I've yet to translate these initial sandbox observations into practise within PHPExcel itself.</p>\r\n",
+    "PostedDate": "2010-10-22T02:39:30.253-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "510975",
+    "ThreadId": "231601",
+    "Html": "\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<strong>borft wrote:</strong>\r\n<p>proposed solution:</p>\r\n<p>- add one worksheet, than write file, destroy phpexcel object.</p>\r\n<p>- reopen file, add another worksheet, etc....</p>\r\n</blockquote>\r\n<p>this solution doesn't work , since the previous worksheets will get deleted</p>\r\n<p>meaning if file &quot;abcd.xlsx&quot; had &quot;sheet 1&quot; , &quot;sheet 2&quot;</p>\r\n<p>and creating a new workbook with &quot;sheet 3&quot; and writing it to &quot;abcd.xlsx&quot; will results in only &quot;sheet 3&quot; while &quot;sheet 1&quot; and &quot;sheet 2&quot; are lost</p>\r\n<p>my purpose is this :</p>\r\n<p>suppose each sheet had 1000 lines , then on each run i don't want to load and write all sheets since it will</p>\r\n<p>results in loading n*1000 lines and saving them , instead i only want to create a new</p>\r\n<p>sheet with 1000 lines and append it to the existing file making it with (n&#43;1)*1000 lines</p>\r\n<p>it should be clear that much performance is reduced by this procedure</p>\r\n<p>if i want to only append new 1000 lines to excel , why should i load the whole n*1000 lines previously created ?</p>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2010-10-22T02:39:36.62-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "510983",
+    "ThreadId": "231601",
+    "Html": "\r\n<p>Ah I see. In a more generic approach, would it be possible to have a streaming writer? That would solve a lot of memory issues. We currently have a server with 24GB because some of the excel reports have over 500K rows and 50columns, and thus require a lot\r\n of memory when writing to xlsx.</p>\r\n",
+    "PostedDate": "2010-10-22T02:51:01.08-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "510986",
+    "ThreadId": "231601",
+    "Html": "\r\n<p>here is what i am trying to do , but as i said above it doesn't work</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><span style=\"color:blue\">include</span> <span style=\"color:#a31515\">'PHPExcel/PHPExcel.php'</span>;\r\n$objPE=<span style=\"color:blue\">new</span> PHPExcel();\r\n\r\n$objPE-&gt;getActiveSheet()-&gt;setTitle(<span style=\"color:#a31515\">'first'</span>);\r\n$objPE-&gt;getActiveSheet()-&gt;SetCellValue(<span style=\"color:#a31515\">'A1'</span>,<span style=\"color:#a31515\">'first text'</span>);\r\n\r\n$second=$objPE-&gt;createSheet();\r\n$second-&gt;setTitle(<span style=\"color:#a31515\">'second'</span>);\r\n$second-&gt;SetCellValue(<span style=\"color:#a31515\">'A1'</span>,<span style=\"color:#a31515\">'second text'</span>);\r\n\r\n$objW=PHPExcel_IOFactory::createWriter($objPE,<span style=\"color:#a31515\">&quot;Excel2007&quot;</span>);\r\n$objW-&gt;save(<span style=\"color:#a31515\">&quot;abcd.xlsx&quot;</span>);\r\n\r\n$objPE-&gt;disconnectWorksheets();\r\n<span style=\"color:blue\">unset</span>($objPE);\r\n\r\n<span style=\"color:green\">/*new run*/</span>\r\n$objReader = <span style=\"color:blue\">new</span> PHPExcel_Reader_Excel2007();\r\n<span style=\"color:green\">/*don't all sheets , in order to reduce performance*/</span>\r\n$objReader-&gt;setLoadSheetsOnly(<span style=\"color:#a31515\">&quot;first&quot;</span>);\r\n$objPE2=$objReader-&gt;load(<span style=\"color:#a31515\">'abcd.xlsx'</span>);\r\n\r\n$third=$objPE2-&gt;createSheet();\r\n$third-&gt;setTitle(<span style=\"color:#a31515\">'third'</span>);\r\n$third-&gt;SetCellValue(<span style=\"color:#a31515\">'A1'</span>,<span style=\"color:#a31515\">'third text'</span>);\r\n$objW2=PHPExcel_IOFactory::createWriter($objPE2,<span style=\"color:#a31515\">'Excel2007'</span>);\r\n$objW2-&gt;save(<span style=\"color:#a31515\">'abcd.xlsx'</span>);\r\n\r\n$objPE2-&gt;disconnectWorksheets();\r\n<span style=\"color:blue\">unset</span>($objPE2);\r\n\r\n</pre>\r\n</div>\r\n",
+    "PostedDate": "2010-10-22T02:59:14.01-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "510995",
+    "ThreadId": "231601",
+    "Html": "\r\n<p>@yakoub</p>\r\n<p>It isn't practical to simply append a new worksheet to an existing xls/xlsx file without reading that file into PHPExcel in its entirety so that it can be rewritten in its entirety. PHPExcel simply isn't designed that way: and I'm not aware of any Excel\r\n reader/writer that is. The file structure isn't particularly suitable for working that way, although it could be done with the xlsx files. However, that entail a pretty extensive rewrite of the PHPExcel library, make creating a new workbook from scratch extremely\r\n complicated, disabling any functionality for&nbsp;converting workbooks to other formats (e.g. xls to xlsx). Effectively, it would entail completely rewriting PHPExcel as a dedicated xlsx file editor.</p>\r\n<p>&nbsp;</p>\r\n<p>@borft</p>\r\n<p>I've been contemplating reworking some of the writers (Excel2007 in particular, as it's XML-based) as streaming writers, because it would effectively halve the memory requirements for writing and almost certainly make it faster; but it's a major rewrite\r\n of that code that I simply don't have the time for at the moment. I'm hoping that I can target it as a bit of light recreation over the christmas break.</p>\r\n",
+    "PostedDate": "2010-10-22T03:12:16.01-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "510998",
+    "ThreadId": "231601",
+    "Html": "\r\n<p>That would be great. If I could help in some way please let me know, because such a boost would be very beneficial for our application of phpexcel ;)</p>\r\n",
+    "PostedDate": "2010-10-22T03:19:22.13-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "511007",
+    "ThreadId": "231601",
+    "Html": "\r\n<p>thanks for your replies , i hope streaming gets introduced to phpexcel and that it improves performance</p>\r\n<p>i have one last idea i want to try , given tow excel objects and sheets ojb1 {firstsheet} ,obj2 {secondsheet} what is the fastest method</p>\r\n<p>to copy obj2-&gt;firstsheet to obj1-&gt;secondsheet so that obj1 becomes {firstsheet,secondsheet} ?</p>\r\n",
+    "PostedDate": "2010-10-22T03:36:20-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

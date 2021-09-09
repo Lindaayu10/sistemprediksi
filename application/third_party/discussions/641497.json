@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "1434778",
+    "ThreadId": "641497",
+    "Html": "I am using code found on another thread to configure and use the chunk filter to read a large Excel spreadsheet to insert into a MySQL database.  I load the active sheet from the filtered read object into an array as follow to create an insert string for my query.<br />\n<pre><code>$sheetData = $objPHPExcel-&gt;getActiveSheet()-&gt;toArray(null,true,true,true); </code></pre>\n\nI am getting blank rows inserted into my array equal to the number of rows from 0 to my starting row number (modified by my chunk size).<br />\n<br />\nExample:<br />\nReading 20 rows, chunk size of 10, starting on row 6:<br />\nI get 6 blank rows ($startRow) followed by the 10 rows from the chunk.<br />\nThis is followed by 16 blank rows ($startRow + $chunkSize) and then the 10 data rows from the chunk. <br />\n<br />\nIt seems to be buffering the data read with blank rows up to the point where the data begins each time, and for the life of me, I can't figure out why.  It's probably something simple, but I can't see it.<br />\n<br />\nThis is complete code for the read section (with string processing omitted):<br />\n<pre><code>class chunkReadFilter implements PHPExcel_Reader_IReadFilter {\n     private $_startrow = 0;\n     private $_endrow = 0;\n     \n     public function setRows($startRow, $chunkSize){\n          $this-&gt;_startrow = $startRow;\n          $this-&gt;_endrow = $startRow + $chunkSize;\n     }\n     \n     public function readCell($column, $row, $worksheetName = ''){\n          if(($row &gt;= $this-&gt;_startrow &amp;&amp; $row &lt; $this-&gt;_endrow)){\n               return TRUE;\n          }\n          \n          return FALSE;\n     }\n}\n\n$objReader = PHPExcel_IOFactory::createReader($inputFileType);\n$chunkSize = 10;\n$chunkFilter = new chunkReadFilter();\n$objReader-&gt;setReadFilter($chunkFilter);\n\nfor ($startRow = 6; $startRow &lt;= 20; $startRow += $chunkSize){\n     $chunkFilter-&gt;setRows($startRow, $chunkSize);\n     $objPHPExcel = $objReader-&gt;load($inputFileName);\n     \n     $sheetData = $objPHPExcel-&gt;getActiveSheet()-&gt;toArray(null,true,true,true);     \n     \n     foreach ($sheetData as $row=&gt;$values){\n         // Process string creation here\n     }\n     $objPHPExcel-&gt;disconnectWorksheets();\n     unset($objPHPExcel);\n     \n   \n}</code></pre>\n\n",
+    "PostedDate": "2015-07-17T07:32:23.077-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1434780",
+    "ThreadId": "641497",
+    "Html": "Yes, that's right.\r<br />\n<br />\nRow 17 is still row 17 whether you read the whole worksheet or a chunk... chunk reading is about specifying which cells get populated with data, and reading in chunks does exactly that, it doesn't automagically change row numbers so that every new chunk starts from row 1, because that would break many spreadsheets; chunks always retain their correct row number..... it's up to your code to keep track of start row, and process only those rows that actually contain data<br />\n",
+    "PostedDate": "2015-07-17T07:47:14.43-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1434814",
+    "ThreadId": "641497",
+    "Html": "So, since the row number is retained, I should be able to use the start row inside the foreach loop to only read parts of the array starting after the current start row?<br />\n<br />\nExample:  \n<br />\n<pre><code>Use something like if ($row &gt;= $startRow) {  /*do X*/ }</code></pre>\n\nWhat is there to keep my reads from becoming unwieldy?  At some point, I may have thousands of blank rows at the beginning of my array?<br />\n<br />\nI thought the premise of the chunk filter was to instruct the reader to only return the specified number of rows from the sheet it was reading.  If that is the case, where are the empty rows coming from?  <br />\n",
+    "PostedDate": "2015-07-17T10:34:03.563-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

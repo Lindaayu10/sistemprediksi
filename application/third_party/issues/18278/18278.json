@@ -1,0 +1,146 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel_Writer_Excel2007",
+      "DisplayName": "PHPExcel_Writer_Excel2007"
+    },
+    "ClosedComment": "PHPExcel Release 1.7.8",
+    "ClosedDate": "2012-10-12T13:30:54.963-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hi,\nI load an xlsx file with last SVN code (PHPExcel 1.7.7 - 91947).\nI write document loaded into a xlsx output file.\nWhen I'm writting into a cell of output document, background color is black ansdso I don't see what I write. \n \nPHP code:\n \n$objReader = PHPExcel_IOFactory::createReader('Excel2007');\n$objReader->setIncludeCharts(TRUE);\n$objPHPExcel = @$objReader->load('test.xlsx');\n \n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');\n$objWriter->setIncludeCharts(TRUE);\n$objWriter->save('output.xlsx');",
+    "LastUpdatedDate": "2013-05-16T05:41:33.22-07:00",
+    "PlannedForRelease": "PHPExcel 1.7.8 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2012-06-26T06:37:55.78-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Background color cell is always black when editing cell",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 18278
+  },
+  "FileAttachments": [
+    {
+      "FileId": 6486,
+      "FileName": "test.xlsx",
+      "DownloadUrl": ".\\6486"
+    },
+    {
+      "FileId": 6487,
+      "FileName": "output.xlsx",
+      "DownloadUrl": ".\\6487"
+    },
+    {
+      "FileId": 6488,
+      "FileName": "screenshot.jpg",
+      "DownloadUrl": ".\\6488"
+    },
+    {
+      "FileId": 6489,
+      "FileName": "screenshot.jpg",
+      "DownloadUrl": ".\\6489"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "attached file test.xlsx",
+      "PostedDate": "2012-06-26T06:39:51.807-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-06-26T06:40:21.013-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "attached file ouput.xlsx",
+      "PostedDate": "2012-06-26T06:40:22.537-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-06-26T06:40:56.623-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "attached file screenshot.jpg",
+      "PostedDate": "2012-06-26T06:40:58.15-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-06-26T06:43:37.687-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Quick fix is to modify the _writePatternFill() method in PHPExcel/Writer/Excel2007/Style.php and wrap the start and end color elements in an if test against a fillType of 'none':\r\n\r\n\t\t\t// patternFill\r\n\t\t\t$objWriter->startElement('patternFill');\r\n\t\t\t\t$objWriter->writeAttribute('patternType', $pFill->getFillType());\r\n\t\t\t\tif ($pFill->getFillType() !== PHPExcel_Style_Fill::FILL_NONE) {\r\n\t\t\t\t\t// fgColor\r\n\t\t\t\t\t$objWriter->startElement('fgColor');\r\n\t\t\t\t\t$objWriter->writeAttribute('rgb', $pFill->getStartColor()->getARGB());\r\n\t\t\t\t\t$objWriter->endElement();\r\n\r\n\t\t\t\t\t// bgColor\r\n\t\t\t\t\t$objWriter->startElement('bgColor');\r\n\t\t\t\t\t$objWriter->writeAttribute('rgb', $pFill->getEndColor()->getARGB());\r\n\t\t\t\t\t$objWriter->endElement();\r\n\t\t\t\t}\r\n\t\t\t$objWriter->endElement();\r\n\r\nWhat I haven't tested extensively for is any adverse effects when using coloured fill styles; but it seems to work with just a few quick tests",
+      "PostedDate": "2012-06-26T11:20:35.463-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-06-26T13:14:35.387-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-06-26T13:16:16.82-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Quick fix OK.\r\nThank you.\r\n",
+      "PostedDate": "2012-06-27T02:41:02.44-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Hi there, \r\n\r\nDid anyone succeed to get the background color cell in another color than black with Excel 2007? I tried to quick fix proposed in this post but in vain, nothing has changed the problem is still there? Any hint, thanks",
+      "PostedDate": "2012-10-05T09:24:18.78-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "What version of PHPExcel are you using?  This problem has been fixed since the 1.7.7 release... but I don't go back applying the fix to the 1.7.7 download, or previous versions; but the fix is in the develop branch on github awaiting inclusion in the next release.",
+      "PostedDate": "2012-10-07T02:43:49.5-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I'm having the same problem, with 1.7.7.\r\n\r\nThis happens when loading a template file before adding data and saving it with Excel2007 writer.",
+      "PostedDate": "2012-10-10T08:02:46.063-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "@Djules.... please read my previous comment:\r\n\r\nThis problem has been fixed since the 1.7.7 release\r\n\r\nThat's why the issue is flagged as \"FIXED\" in the issue summary, and marked for release in \"PHPExcel 1.7.8 Production\"\r\n\r\nIf I didn't need to spend so much of my time REPEATING things like this, I might have more time to actually do those releases",
+      "PostedDate": "2012-10-11T01:20:34.703-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-10-12T13:30:54.963-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:01:52.743-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:41:33.22-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

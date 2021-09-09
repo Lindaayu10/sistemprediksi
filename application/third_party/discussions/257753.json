@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "613197",
+    "ThreadId": "257753",
+    "Html": "\r\n<p>Hi everyone,</p>\r\n<p>&nbsp;</p>\r\n<p>I am new into PhpExcel, and try to tweak a little bit the code in order to generate an Excel5 file.</p>\r\n<p>I read several threads regarding Cell Caching and memory set in PHP in order to write big files. However, none of those methods</p>\r\n<p>allowed me to save (even generate) a file of about 30,000 rows in 3 sheets. I only have 256Mo of RAM, so cannot excess the 64Mo of allowed</p>\r\n<p>memory for PHP.</p>\r\n<p>&nbsp;</p>\r\n<p>So I try something, and I would like to have, if possible, a little bit of support :</p>\r\n<p>In a PHP file, I set the header in order to save the generate file into a .xls file and permit the user to save it.</p>\r\n<p>I have to extract approximately 30,000 rows from a DB and have to make a treatment and insert each of them in 3 differents sheets with Style (line affectation, in order to optimize a little bit).</p>\r\n<p>So the thing we thought about was to call for each iteration the &quot;save&quot; method of the writer (here : Excel5) in order to get the file in real time and&nbsp; not let the object grow in memory.</p>\r\n<p>We end up with a file, using 42Mo of disk space, but in which we had only one line printed in it : the first row in the first sheet.</p>\r\n<p>&nbsp;</p>\r\n<p>Is this possible to write continuously in the .xls file ? If yes, what would be the good way ? The thing is to make all the possible not to let the phpExcel object grow in the memory.</p>\r\n<p>&nbsp;</p>\r\n<p>Please let me know !</p>\r\n<p>&nbsp;</p>\r\n<p>Thank You in Advance for your help</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2011-05-16T02:44:46.947-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "613206",
+    "ThreadId": "257753",
+    "Html": "<p>Hi,</p>\r\n<p>&nbsp;</p>\r\n<p>I don't think your proposed solution will help in reducing the memory footprint. PHPExcel keeps an internal representation of the entire spreadsheet in memory. Once you call the save() method of a specific writer, the entire structure is copied to the writer object.</p>\r\n<p>&nbsp;</p>\r\n<p>How far do you get? What happens if you up the mem limit to for instance 128MB, and leave out styling... Are you running on a 32 bits or 64 bits platform?</p>",
+    "PostedDate": "2011-05-16T03:03:16.237-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "613209",
+    "ThreadId": "257753",
+    "Html": "<p>Thanks for your answer !</p>\r\n<p>&nbsp;</p>\r\n<p>Well, the file is well created, when opening the file in Excel nothing appears but the first row in the first sheet.</p>\r\n<p>However, opening the file in Notepad++, we can see (hardly but we can see) some datas that have to be inside the excel file in the other sheets...</p>\r\n<p>&nbsp;</p>\r\n<p>I am running on a 32bits platforms under CentOS.</p>\r\n<p>&nbsp;</p>\r\n<p>How would you empty this spreadsheet internal representation in memory ? I thought the cleanup happening at the end of the save method would have helped in some way...</p>",
+    "PostedDate": "2011-05-16T03:09:48.66-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "613213",
+    "ThreadId": "257753",
+    "Html": "<p>I don't think it is possible. :( First you create a representation (this structure is PHPExcel's own structure) of the entire spreadsheet in memory (every cell is represented by multiple php objects). When you call save(), the entire structure is copied, meaning you need atleast twice the memory of the initial object for a save() operation to be possible at all. And then I'm not even taking memory overhead of the actual save() operation itself into consideration.</p>",
+    "PostedDate": "2011-05-16T03:14:10.907-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "613224",
+    "ThreadId": "257753",
+    "Html": "<p>But, before, when we let the save method at the end, we couldn't get the file, the memory was already full and we got the Memory Fail Message.</p>\n<p>Now, we can at least get the file, but without information printed \"inside\" the excel file, but the datas are in the file (a little bit weird I admit...)</p>\n<p>&nbsp;</p>\n<p>Do you happen to know any process to continuously write inside a file in a good way ? I think that would be my last step to succeed ...</p>\n<p>I will then take care of the PHPExcel way to handle the datas...</p>\n<p>&nbsp;</p>\n<p>Thanks again for your help ;)</p>",
+    "PostedDate": "2011-05-16T03:26:04.117-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "625355",
+    "ThreadId": "257753",
+    "Html": "<p>Hello!</p>\r\n<p>I think that somethig is still fishy with the in-memory presentation of the spreadsheet.</p>\r\n<p>I am the project lead of the <a href=\"http://www.limesurvey.org\">LimeSurvey </a>project and in the latest version (1.91) we tried to swap the old (but working) PEAR PHP_Excel_Writer class for phpExcel.</p>\r\n<p>In general it worked fine but it turns out that <strong>phpExcel's memorry footprint is about 110% bigger than it was previously with the PEAR library</strong>, even when using the Cache_to_disk caching methods.</p>\r\n<p>So for example exporting an excel file (no formattings) of ~ 1500 rows and 40 columns <strong>needs a max memory footprint of 20 MB with the old PEAR library and more then 55 MB with phpExcel.</strong></p>\r\n<p>Usually the datasets we are exporting to Excel are bigger. Since most hosting provider won't allow a memory usage of 128 MB (some even less) this is no acceptable and we decided to revert back to the PEAR PHP_Excel_Writer class. (all Exports were Excel5)</p>\r\n<p>Please don't misunderstand me: There are good reasons to change to phpExcel and it is an awesome library - but for bigger datasets this is currently a no-go. I am sure there are ways to optimize this.</p>\r\n<p>If there are changes regarding this we will be happy to test.</p>\r\n<p>-Carsten</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2011-06-09T06:53:46.17-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

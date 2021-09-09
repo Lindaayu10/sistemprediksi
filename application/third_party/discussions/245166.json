@@ -1,0 +1,122 @@
+[
+  {
+    "Id": "562855",
+    "ThreadId": "245166",
+    "Html": "\r\n<p>OK I finally got PHPExcel to do what I want, except now the formatting is weird. &nbsp;Basically there is black backgrounds on all kind of random cells, and some cells are not the width they are set to in the document (they are wrapping)...</p>\r\n<p>&nbsp;</p>\r\n<p>here is the code I used&nbsp; </p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre style=\"color:black\">$excel = PHPExcel_IOFactory::load(<span style=\"color:#a31515\">'../USGipv6/test_results/NPD/NPD-report.xlsx'</span>);\r\n\r\n$writer = PHPExcel_IOFactory::createWriter($excel, <span style=\"color:#a31515\">'HTML'</span>);\r\n$writer-&gt;setUseInlineCSS(true);\r\n$writer-&gt;save(<span style=\"color:#a31515\">'npd.html'</span>);\r\n</pre>\r\n<pre style=\"color:black\"><br></pre>\r\n<pre>another problem is the only way I could figure out to even do this was from the forums,&nbsp;</pre>\r\n<pre>the function -&gt; setUseInlineCSS which made another document work (otherwise there is random cells to infinity in every direction) was not even documented under Documentation-&gt;PHP Developer Documentation or PHP User Documentation</pre>\r\n<pre><br></pre>\r\n<pre>I was also confused because there is a lot of examples referred to PHP User Documentation that don't even exist, and there is random other examples in there....  just a heads up (i am not mad or anything, I understand this is a free service)</pre>\r\n<pre><br></pre>\r\n<pre>ideas to fix my excel?</pre>\r\n</div>\r\n<p></p>\r\n<p></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><br></pre>\r\n</div>\r\n<p></p>\r\n",
+    "PostedDate": "2011-02-08T12:30:19.453-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "562923",
+    "ThreadId": "245166",
+    "Html": "\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<strong>seanx820 wrote:</strong><br>\r\n<p>Basically there is black backgrounds on all kind of random cells.</p>\r\n</blockquote>\r\n<p>This problem should have been resolved by the changes I made to &quot;theme colours&quot; between Christmas and New Year, and those changes are available in the latest daily download from the SVN repository.</p>\r\n<p>&nbsp;</p>\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<strong>seanx820 wrote:</strong><br>\r\n<p>and some cells are not the width they are set to in the document (they are wrapping)...&nbsp;</p>\r\n</blockquote>\r\n<p>See <a href=\"http://phpexcel.codeplex.com/workitem/15222\">Work Item 15222</a> for details.</p>\r\n<p>Autofit is also not a perfect calculation. If you want PHPExcel to perform an automatic width calculation, PHPExcel will\r\n<em><strong>approximate </strong></em>the column with to the width of the widest column value. See section 4.6.28 of the Developer documentation for details.<br>\r\n<br>\r\nNote that, by default, PHPExcel uses a &quot;quick and dirty&quot; approximation to calculate a column width. A more accurate method is available, although there is a significant performance overhead to using this. You can set PHPExcel to use the more accurate method\r\n by using</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>PHPExcel_Shared_Font::setAutoSizeMethod(PHPExcel_Shared_Font::AUTOSIZE_METHOD_EXACT);\r\n</pre>\r\n</div>\r\n<p>before writing your workbook.</p>\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<strong>seanx820 wrote:</strong><br>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>another problem is the only way I could figure out to even do this was from the forums,&nbsp;</pre>\r\n<pre>the function -&gt; setUseInlineCSS which made another document work (otherwise there is random cells to infinity in every direction) was not even documented under Documentation-&gt;PHP Developer Documentation or PHP User Documentation</pre>\r\n<pre><br></pre>\r\n<pre>I was also confused because there is a lot of examples referred to PHP User Documentation that don't even exist, and there is random other examples in there.</pre>\r\n</div>\r\n</blockquote>\r\n<p>We're aware that the documentation isn't as good as it should be. The User Documentation &ndash; Reading Spreadsheet Files.doc was the first document in an attempt to improve this situation, and I'm writing further user documents on other features (Writing,\r\n Accessing Data, Setting Data, Setting Styles, Calculating, Charts, etc) trying to highlight all the options, with working examples. Unfortunately, the release build process missed the examples --&nbsp;hopefully that problem is fixed for the next production\r\n release -- the examples are available in the SVN repository. It's a slow process, and I'll be working on it all over the next few releases. I'm also setting up a documentation site where I'll be making all these documents available to browse online.</p>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2011-02-08T14:04:45.273-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "563394",
+    "ThreadId": "245166",
+    "Html": "\r\n<p>OK for the 2 items I wanted help with</p>\r\n<p>1) Color was incorrect - <span style=\"color:#00ff00\">FIXED</span></p>\r\n<p>2) Cells are wrong Width -&nbsp;<span style=\"color:#ff0000\">NOT FIXED</span></p>\r\n<p>&nbsp;</p>\r\n<p>we have now fixed 1 of them, to fix the color I updated using your source code, which I did by clicking &nbsp;'Source Code', downloading the entire thing then using just the Classes folder from the folder trunk to overwrite my current Classes folder.&nbsp;</p>\r\n<p>One new or newly noticed problem&nbsp;occurred. &nbsp;When using a summation function in excel I get an incorrect answer, it is giving me a divide by 0 error. &nbsp;I fixed this error by stopping the use of a function I was using COUNTIF(C3:C27, &quot;*&quot;) which\r\n basically counted C:3 through C:27 and gave me 25 as the answer, making it so I did not have to manually add the cells together. &nbsp;When I put the 25 in there statically the phpexcel could calculate correctly. &nbsp;I don't know if that function is not\r\n supported,&nbsp;deprecated&nbsp;or what, but it was not a big deal to me.</p>\r\n<p>&nbsp;</p>\r\n<p>What I am doing wrong on the width?</p>\r\n<p>&nbsp;</p>\r\n<p></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>&lt;?php\r\n<span style=\"color:green\">/**\r\n * PHPExcel\r\n *\r\n * Copyright (C) 2006 - 2010 PHPExcel\r\n *\r\n * This library is free software; you can redistribute it and/or\r\n * modify it under the terms of the GNU Lesser General Public\r\n * License as published by the Free Software Foundation; either\r\n * version 2.1 of the License, or (at your option) any later version.\r\n *\r\n * This library is distributed in the hope that it will be useful,\r\n * but WITHOUT ANY WARRANTY; without even the implied warranty of\r\n * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU\r\n * Lesser General Public License for more details.\r\n *\r\n * You should have received a copy of the GNU Lesser General Public\r\n * License along with this library; if not, write to the Free Software\r\n * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA\r\n *\r\n * @category   PHPExcel\r\n * @package    PHPExcel\r\n * @copyright  Copyright (c) 2006 - 2010 PHPExcel (http://www.codeplex.com/PHPExcel)\r\n * @license    http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt\tLGPL\r\n * @version    1.7.5, 2010-12-10\r\n */</span>\r\n\r\n<span style=\"color:green\">/** Error reporting */</span>\r\nerror_reporting(E_ALL);\r\n\r\ndate_default_timezone_set(<span style=\"color:#a31515\">'Europe/London'</span>);\r\n\r\n<span style=\"color:green\">/** PHPExcel_IOFactory */</span>\r\n<span style=\"color:blue\">require_once</span> <span style=\"color:#a31515\">'/Classes/PHPExcel/IOFactory.php'</span>;\r\n\r\n$excel = PHPExcel_IOFactory::load(<span style=\"color:#a31515\">'../USGipv6/test_results/NPD/NPD-report.xlsx'</span>);\r\nPHPExcel_Shared_Font::setAutoSizeMethod(PHPExcel_Shared_Font::AUTOSIZE_METHOD_EXACT);\r\n$writer = PHPExcel_IOFactory::createWriter($excel, <span style=\"color:#a31515\">'HTML'</span>);\r\n\r\n$writer-&gt;setUseInlineCSS(true);\r\n$writer-&gt;save(<span style=\"color:#a31515\">'npd.html'</span>);\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n</pre>\r\n</div>\r\n<p></p>\r\n",
+    "PostedDate": "2011-02-09T09:08:54.43-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "564103",
+    "ThreadId": "245166",
+    "Html": "\r\n<p>bump? &nbsp;what am i doing wrong here? &nbsp;</p>\r\n",
+    "PostedDate": "2011-02-10T10:28:00.81-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "564170",
+    "ThreadId": "245166",
+    "Html": "\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<strong>seanx820 wrote:</strong><br>\r\n<p>bump? &nbsp;what am i doing wrong here? &nbsp;</p>\r\n</blockquote>\r\n<p>Your doing nothing wrong. PHPExcel doesn't work perfectly: even PHPExcel_Shared_Font::AUTOSIZE_METHOD_EXACT is a best estimate, more accurate than the default PHPExcel_Shared_Font::AUTOSIZE_METHOD_APPROX, but still an estimate.</p>\r\n<p>Microsoft have only ever published <a href=\"http://support.microsoft.com/kb/214123\">\r\nthis article </a>describing how column widths are calculated. There is some description of the problems in\r\n<a href=\"http://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=43265\">this thread</a>, and in section 4.6.28 of the developer documentation.</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/workitem/10375\">Work Item 10375</a> covers this issue, and some of the methods that we have tried to employ to come up with an accurate autofit method.</p>\r\n<p>&nbsp;</p>\r\n<p>You can, of course, also look at the source (which can be found in the calculateColumnWidth() method of the PHPExcel_Shared_Font class. The code for AUTOSIZE_METHOD_APPROX is in the&nbsp;getTextWidthPixelsApprox() method, while the code for AUTOSIZE_METHOD_EXACT\r\n is in the getTextWidthPixelsExact() method. Helper methods for converting between Excel units and pixels are the pixelsToCellDimension() and cellDimensionToPixels() methods of the PHPExcel_Shared_Drawing class. Note that AUTOSIZE_METHOD_EXACT requires the\r\n GD library&nbsp;to be enabled: if it is not, then PHPExcel will revert to the getTextWidthPixelsApprox() method.</p>\r\n",
+    "PostedDate": "2011-02-10T12:28:04.667-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "564182",
+    "ThreadId": "245166",
+    "Html": "\r\n<p>is there a way to force &quot;column 2&quot; (the problem&nbsp;column&nbsp;that is to short and wrapping) to a css class rather than doing in-line css? &nbsp;Then I could manually over-ride</p>\r\n<p>with a css class or something... &nbsp;maybe you have an example of something like this? &nbsp;I tired using an example in the help but it just created tons of little tiny boxes (every box had borders even if there was nothing in it)</p>\r\n<p>&nbsp;</p>\r\n<p>-S</p>\r\n",
+    "PostedDate": "2011-02-10T12:46:45.287-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "567294",
+    "ThreadId": "245166",
+    "Html": "<p>bump</p>",
+    "PostedDate": "2011-02-16T10:12:15.213-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "573525",
+    "ThreadId": "245166",
+    "Html": "<p>sorry to basically bump again, is there a way to override a width with css for the entire column? &nbsp;I just want column 2 to be be twice the width...</p>",
+    "PostedDate": "2011-02-28T14:14:38.137-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "573535",
+    "ThreadId": "245166",
+    "Html": "<p>There is no way of overriding this if the built-in method of calculation isn't accurate enough.</p>\r\n<p>Your only alternative would be to set the column width&nbsp;to autofit, force the calculation by hand using a call to PHPExcel_Shared_Font::calculateColumnWidth() then manually adjusting the result, followed by setting the column width to your adjusted size rather than the autofit size.</p>",
+    "PostedDate": "2011-02-28T14:38:28.803-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "574285",
+    "ThreadId": "245166",
+    "Html": "<p>There ist a second bug if you use $objWriter-&gt;setUseInlineCSS(true);</p>\r\n<p>Then $objWriter-&gt;generateSheetData(); don't work without:&nbsp; $objWriter-&gt;generateHTMLHeader(true);</p>\r\n<p>The working code looks like:</p>\r\n<p>$objWriter-&gt;setUseInlineCSS(true);<br />$objWriter-&gt;generateHTMLHeader(true);</p>\r\n<p>$html = $objWriter-&gt;generateSheetData(); # the html-table</p>\r\n<p>&nbsp;</p>\r\n<p>Greetings Frank</p>",
+    "PostedDate": "2011-03-02T02:05:45.53-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "580747",
+    "ThreadId": "245166",
+    "Html": "<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>here is my code now-&gt;</pre>\r\n<pre>---------------</pre>\r\n<pre>error_reporting(E_ALL);\r\ndate_default_timezone_set(<span style=\"color: #a31515;\">'Europe/London'</span>);\r\n\r\n\r\n$objPHPExcel = PHPExcel_IOFactory::load($inputFileName);\r\n\r\n$objWriter = <span style=\"color: blue;\">new</span> PHPExcel_Writer_HTML($objPHPExcel);$objWriter-&gt;save(<span style=\"color: #a31515;\">\"cavanaugh.htm\"</span>);\r\n\r\n\r\n$excel = PHPExcel_IOFactory::load(<span style=\"color: #a31515;\">'../report.xlsx'</span>);PHPExcel_Shared_Font::setAutoSizeMethod(PHPExcel_Shared_Font::AUTOSIZE_METHOD_EXACT);$writer = PHPExcel_IOFactory::createWriter($excel, <span style=\"color: #a31515;\">'HTML'</span>);\r\n\r\n$writer-&gt;setUseInlineCSS(true);<span style=\"color: blue;\">echo</span> $writer-&gt;generateHTMLHeader(true);\r\n$html = $writer-&gt;generateSheetData();<span style=\"color: blue;\">echo</span> $html;</pre>\r\n</div>\r\n</p>\r\n<pre>---------------</pre>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre><br /></pre>\r\n<pre>ok this code is cool because I did not know you could just echo the results and create a webpage like that (i was loading the php page then forwarding to the saved html page.  This will reload every time without the 'double load'.</pre>\r\n<pre>This DOES NOT fixed the width of the 2nd column, it like wraps around.  Here is my example excel file http://www.seancav.com/report.xlsx can you take a look?\r\n\r\n\r\n</pre>\r\n</div>\r\n</p>",
+    "PostedDate": "2011-03-15T07:24:07.33-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "580748",
+    "ThreadId": "245166",
+    "Html": "<p>&nbsp;</p>\n<div style=\"color: black; background-color: white;\">\n<pre>here is my code now-&gt;</pre>\n<pre>---------------</pre>\n</div>\n<div style=\"color: black; background-color: white;\">\n<pre>error_reporting(E_ALL);\ndate_default_timezone_set(<span style=\"color: #a31515;\">'Europe/London'</span>);\n<span style=\"color: blue;\">require_once</span> <span style=\"color: #a31515;\">'/Classes/PHPExcel/IOFactory.php'</span>;\n\n$excel = PHPExcel_IOFactory::load(<span style=\"color: #a31515;\">'../report.xlsx'</span>);\nPHPExcel_Shared_Font::setAutoSizeMethod(PHPExcel_Shared_Font::AUTOSIZE_METHOD_EXACT);\n$writer = PHPExcel_IOFactory::createWriter($excel, <span style=\"color: #a31515;\">'HTML'</span>);\n\n\n$writer-&gt;setUseInlineCSS(true);\n\n<span style=\"color: blue;\">echo</span> $writer-&gt;generateHTMLHeader(true);\n$html = $writer-&gt;generateSheetData();\n\n<span style=\"color: blue;\">echo</span> $html;\n\n</pre>\n</div>\n<p>&nbsp;</p>\n<pre>---------------</pre>\n<p>&nbsp;</p>\n<div style=\"color: black; background-color: white;\">\n<pre><br /></pre>\n<pre>ok this code is cool because I did not know you could just echo the results and create a webpage like that (i was loading the php page then forwarding to the saved html page.  This will reload every time without the 'double load'.</pre>\n<pre>This DOES NOT fixed the width of the 2nd column, it like wraps around.  Here is my example excel file http://www.seancav.com/report.xlsx can you take a look?\n\n\n</pre>\n</div>",
+    "PostedDate": "2011-03-15T07:25:19.553-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "581492",
+    "ThreadId": "245166",
+    "Html": "<p>bump</p>",
+    "PostedDate": "2011-03-16T08:38:49.58-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "581546",
+    "ThreadId": "245166",
+    "Html": "<div class=\"UserName\">@seanx820</div>\r\n<p>Read <a href=\"http://phpexcel.codeplex.com/discussions/249607\">this thread</a></p>\r\n<p>Then fix it yourself !</p>",
+    "PostedDate": "2011-03-16T10:13:03.963-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "585021",
+    "ThreadId": "245166",
+    "Html": "<p>Sean,</p>\r\n<p>Remember, PHPExcel uses TCPDF to do the HTML output and it possibly could be the cause. I abandoned HTML output because of that reason.</p>",
+    "PostedDate": "2011-03-23T06:57:19.82-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

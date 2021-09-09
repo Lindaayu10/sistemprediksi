@@ -1,0 +1,526 @@
+Index: Classes/PHPExcel/Cell/DataType.php
+===================================================================
+--- Classes/PHPExcel/Cell/DataType.php	(revision 1247)
++++ Classes/PHPExcel/Cell/DataType.php	(working copy)
+@@ -44,6 +44,8 @@
+     const TYPE_INLINE		= 'inlineStr';
+ 	const TYPE_ERROR		= 'e';
+ 
++	const TYPE_RICHTEXT		= 110;
++	
+ 	/**
+ 	 * List of error codes
+ 	 *
+Index: Classes/PHPExcel/RichText.php
+===================================================================
+--- Classes/PHPExcel/RichText.php	(revision 1247)
++++ Classes/PHPExcel/RichText.php	(working copy)
+@@ -56,17 +56,38 @@
+     	// Rich-Text string attached to cell?
+     	if (!is_null($pCell)) {
+ 	    	// Add cell text and style
++			if (PHPExcel_Settings::isMemoryOptimizationEnabled() && $pCell->getValue() != "") {
++				//lazy init.
++				$pCell->setDataType(PHPExcel_Cell_DataType::TYPE_RICHTEXT);
++				return;
++			}
++
+ 	    	if ($pCell->getValue() != "") {
+ 	    		$objRun = new PHPExcel_RichText_Run($pCell->getValue());
+ 	    		$objRun->setFont(clone $pCell->getParent()->getStyle($pCell->getCoordinate())->getFont());
+ 	    		$this->addText($objRun);
+ 	    	}
++			
+ 
+ 	    	// Set parent value
+ 	    	$pCell->setValueExplicit($this, PHPExcel_Cell_DataType::TYPE_STRING);
+     	}
+     }
++	
++	/**
++	 * reconstruct Rich txt for cell.
++	 * @param PHPExcel_Cell $pCell
++	 * @return PHPExcel_RichText_Run
++	 */
++	public static function reconstruct( $pCell )
++	{
++		$objRun = new PHPExcel_RichText_Run($pCell->getValue());
++		$objRun->setFont(clone $pCell->getParent()->getStyle($pCell->getCoordinate())->getFont());
++		$this->addText($objRun);
++		return $objRun ;
++	}
+ 
++
+     /**
+      * Add text
+      *
+Index: Classes/PHPExcel/Settings.php
+===================================================================
+--- Classes/PHPExcel/Settings.php	(revision 1247)
++++ Classes/PHPExcel/Settings.php	(working copy)
+@@ -43,6 +43,8 @@
+ 
+ class PHPExcel_Settings
+ {
++	static $_enableMemoryOptimization=false;
++
+ 	public static function getCacheStorageMethod() {
+ 		return PHPExcel_CachedObjectStorageFactory::$_cacheStorageMethod;
+ 	}	//	function getCacheStorageMethod()
+@@ -62,4 +64,23 @@
+ 		return PHPExcel_Calculation::getInstance()->setLocale($locale);
+ 	}	//	function setLocale()
+ 
++	/**
++	 * Enable memory optimization.  Cache will be disabled. But memory usage will be better.
++	 *
++	 * @param bool $sign  true for enabling.
++	 */
++	public static function enableMemoryOptimization($sign = true)
++	{
++		self::$_enableMemoryOptimization = $sign;
++	}
++
++	/**
++	 * Gets memory optimization status,
++	 * 
++	 * @return bool   true if enabled.
++	 */
++	public static function isMemoryOptimizationEnabled()
++	{
++		return self::$_enableMemoryOptimization;
++	}
+ }
+\ No newline at end of file
+Index: Classes/PHPExcel/Worksheet.php
+===================================================================
+--- Classes/PHPExcel/Worksheet.php	(revision 1247)
++++ Classes/PHPExcel/Worksheet.php	(working copy)
+@@ -350,9 +350,16 @@
+ 
+     	// Default column dimension
+     	$this->_defaultColumnDimension = new PHPExcel_Worksheet_ColumnDimension(null);
++
++		if ( PHPExcel_Settings::isMemoryOptimizationEnabled() ) {
++			$this->cells = array();
++			$this->types = array();
++			$this->xfIndex = array();
+ 	}
+ 
++	}
+ 
++
+ 	public function disconnectCells() {
+ 		$this->_cellCollection->unsetWorksheetCells();
+ 		$this->_cellCollection = null;
+@@ -939,7 +946,13 @@
+ 			// Coordinates
+ 			$aCoordinates = PHPExcel_Cell::coordinateFromString($pCoordinate);
+ 
++			if ( PHPExcel_Settings::isMemoryOptimizationEnabled() ) {
++				$cell = PHPExcel_Cell::reconstruct($aCoordinates[0], $aCoordinates[1], $this);
++			}
++			else {
+ 			$cell = $this->_cellCollection->addCacheData($pCoordinate,new PHPExcel_Cell($aCoordinates[0], $aCoordinates[1], null, PHPExcel_Cell_DataType::TYPE_NULL, $this));
++			}
++
+ 			$this->_cellCollectionIsSorted = false;
+ 
+ 			if (PHPExcel_Cell::columnIndexFromString($this->_cachedHighestColumn) < PHPExcel_Cell::columnIndexFromString($aCoordinates[0]))
+@@ -962,7 +975,8 @@
+ 				// set to default index
+ 				$cell->setXfIndex(0);
+ 			}
+-
++			
++//echo "$pCoordinate:  ". memory_get_usage() . "\n";
+ 			return $cell;
+     	}
+     }
+@@ -991,6 +1005,9 @@
+ 
+ 			return $cell;
+ 		}
++		if (PHPExcel_Settings::isMemoryOptimizationEnabled() ) {
++			return PHPExcel_Cell::reconstruct($columnLetter, $pRow, $this);
++		}
+ 
+ 		return $this->_cellCollection->getCacheData($coordinate);
+     }
+@@ -1062,6 +1079,11 @@
+      */
+     public function getRowDimension($pRow = 0)
+     {
++		if (PHPExcel_Settings::isMemoryOptimizationEnabled()) {
++			//save 4M
++			return new PHPExcel_Worksheet_RowDimension($pRow);
++		}
++		
+     	// Found
+     	$found = null;
+ 
+@@ -1083,6 +1105,9 @@
+      */
+     public function getColumnDimension($pColumn = 'A')
+     {
++		if (PHPExcel_Settings::isMemoryOptimizationEnabled()) {
++			return new PHPExcel_Worksheet_ColumnDimension($pColumn);
++		}
+     	// Uppercase coordinate
+     	$pColumn = strtoupper($pColumn);
+ 
+Index: Classes/PHPExcel/Cell.php
+===================================================================
+--- Classes/PHPExcel/Cell.php	(revision 1247)
++++ Classes/PHPExcel/Cell.php	(working copy)
+@@ -104,7 +104,10 @@
+ 	 * @return void
+ 	 **/
+ 	public function notifyCacheController() {
++		
++		if ( !PHPExcel_Settings::isMemoryOptimizationEnabled() ) {
+ 		$this->_parent->getCellCacheController()->updateCacheData($this);
++		}
+ 		return $this;
+ 	}
+ 
+@@ -127,7 +130,7 @@
+ 	 * @param	PHPExcel_Worksheet	$pSheet
+ 	 * @throws	Exception
+ 	 */
+-	public function __construct($pColumn = 'A', $pRow = 1, $pValue = null, $pDataType = null, PHPExcel_Worksheet $pSheet = null)
++	public function __construct($pColumn = 'A', $pRow = 1, $pValue = null, $pDataType = null, PHPExcel_Worksheet $pSheet = null, $isReconstructed=false)
+ 	{
+ 		// Initialise cell coordinate
+ 		$this->_column = strtoupper($pColumn);
+@@ -150,8 +153,57 @@
+ 
+ 		// set default index to cellXf
+ 		$this->_xfIndex = 0;
++
++		if ( !$isReconstructed) {
++			if (PHPExcel_Settings::isMemoryOptimizationEnabled() && $this->_parent != null) {
++				$this->_parent->cells[$this->_row][$this->_column] = $this->_value;
++				if ($this->_dataType !== null) {
++					$this->_parent->types[$this->_row][$this->_column] = $this->_datatype;
+ 	}
++			}
++		}
++	}
++	/**
++	 * Reconstruit cell from metadata. This method mu be used only in memory optimization mode.
++	 * 
++	 * @param string $pColumn
++	 * @param integer $pRow
++	 * @param PHPExcel_Worksheet $pSheet
++	 * @return self
++	 */
++	public static function reconstruct($pColumn, $pRow, PHPExcel_Worksheet $pSheet)
++	{
++		$obj = new self($pColumn, $pRow, null, null, $pSheet, true);
+ 
++
++		if ( isset( $obj->_parent->cells[$obj->_row][$obj->_column])) {
++			$obj->_value = $obj->_parent->cells[$obj->_row][$obj->_column];
++		}
++
++		if ( isset( $obj->_parent->formulaAttributes[$obj->_row][$obj->_column])) {
++			$obj->_formulaAttributes = $obj->_parent->formulaAttributes[$obj->_row][$obj->_column];
++		}
++
++		if ( isset( $obj->_parent->calculatedCells[$obj->_row][$obj->_column])) {
++			$obj->_calculatedValue = $obj->_parent->calculatedCells[$obj->_row][$obj->_column];
++		}
++		
++		if ( isset( $obj->_parent->types[$obj->_row][$obj->_column])) {
++			$obj->_dataType = $obj->_parent->types[$obj->_row][$obj->_column];
++		}
++		else {
++			$obj->_datatype = PHPExcel_Cell_DataType::TYPE_NULL;
++		}
++
++		if ( isset( $obj->_parent->xfIndex[$obj->_row][$obj->_column])) {
++			$obj->_xfIndex = $obj->_parent->xfIndex[$obj->_row][$obj->_column];
++		}
++		else {
++			$obj->_xfIndex = 0;
++		}
++		return $obj;
++	}
++
+ 	/**
+ 	 * Get cell coordinate column
+ 	 *
+@@ -189,6 +241,14 @@
+ 	 */
+ 	public function getValue()
+ 	{
++		if ( PHPExcel_Settings::isMemoryOptimizationEnabled() ) {
++			$value = @$this->_parent->cells[$this->_row][$this->_column];
++			if ( $value !== null && @$this->_parent->types[$this->_row][$this->_column] == PHPExcel_Cell_DataType::TYPE_RICHTEXT) {
++				return PHPExcel_RichText::reconstruct($this);
++			}
++			return $value;
++		}
++
+ 		return $this->_value;
+ 	}
+ 
+@@ -221,6 +281,10 @@
+ 		// set the value according to data type
+ 		switch ($pDataType) {
+ 			case PHPExcel_Cell_DataType::TYPE_STRING:
++				if ( $pValue instanceof PHPExcel_RichText) {
++					//
++				}
++
+ 			case PHPExcel_Cell_DataType::TYPE_NULL:
+ 			case PHPExcel_Cell_DataType::TYPE_INLINE:
+ 				$this->_value = PHPExcel_Cell_DataType::checkString($pValue);
+@@ -242,6 +306,9 @@
+ 				$this->_value = PHPExcel_Cell_DataType::checkErrorCode($pValue);
+ 				break;
+ 
++			case PHPExcel_Cell_DataType::TYPE_RICHTEXT:
++				$this->_value = $pValue;
++				break;
+ 			default:
+ 				throw new Exception('Invalid datatype: ' . $pDataType);
+ 				break;
+@@ -250,6 +317,15 @@
+ 		// set the datatype
+ 		$this->_dataType = $pDataType;
+ 
++		if ( PHPExcel_Settings::isMemoryOptimizationEnabled() ) {
++			if ( $this->_value !== null && $this->_value !== '' ) {
++				$this->_parent->cells[$this->_row][$this->_column] = $this->_value;
++			}
++			if ( $this->_dataType  != PHPExcel_Cell_DataType::TYPE_NULL) { //if not defined then string.
++				$this->_parent->types[$this->_row][$this->_column] = $this->_dataType;
++			}
++		}
++
+ 		return $this->notifyCacheController();
+ 	}
+ 
+@@ -298,7 +374,11 @@
+ 	{
+ 		if (!is_null($pValue)) {
+ 			$this->_calculatedValue = $pValue;
++			
++			if ( PHPExcel_Settings::isMemoryOptimizationEnabled() ) {
++				$this->_parent->calculatedCells[$this->_row][$this->_column] = $pValue;
+ 		}
++		}
+ 
+ 		return $this->notifyCacheController();
+ 	}
+@@ -320,6 +400,10 @@
+ 	 */
+ 	public function getDataType()
+ 	{
++		if ( PHPExcel_Settings::isMemoryOptimizationEnabled() && $this->_dataType == PHPExcel_Cell_DataType::TYPE_RICHTEXT) {
++			return PHPExcel_Cell_DataType::TYPE_STRING;
++		}
++
+ 		return $this->_dataType;
+ 	}
+ 
+@@ -332,6 +416,10 @@
+ 	public function setDataType($pDataType = PHPExcel_Cell_DataType::TYPE_STRING)
+ 	{
+ 		$this->_dataType = $pDataType;
++		
++		if ( PHPExcel_Settings::isMemoryOptimizationEnabled() ) {
++			$this->_parent->types[$this->_row][$this->_column] = $this->_datatype;
++		}
+ 
+ 		return $this->notifyCacheController();
+ 	}
+@@ -485,6 +573,7 @@
+ 			throw new Exception('Cell coordinate can not be zero-length string.');
+ 		} else if (preg_match("/([$]?[A-Z]+)([$]?\d+)/", $pCoordinateString, $matches)) {
+ 			list(, $column, $row) = $matches;
++			$column = ord($column) - ord('A') + 1;
+ 			return array($column, $row);
+ 		} else {
+ 			throw new Exception('Invalid cell coordinate.');
+@@ -814,6 +903,10 @@
+ 	public function setXfIndex($pValue = 0)
+ 	{
+ 		$this->_xfIndex = $pValue;
++		
++		if ( PHPExcel_Settings::isMemoryOptimizationEnabled() && intval($this->_xfIndex) != 0) {
++			$this->_parent->xfIndex[$this->_row][$this->_column] = intval($this->_xfIndex) ;
++		}
+ 
+ 		return $this->notifyCacheController();
+ 	}
+@@ -822,6 +915,10 @@
+ 	public function setFormulaAttributes($pAttributes)
+ 	{
+ 		$this->_formulaAttributes = $pAttributes;
++		
++		if ( PHPExcel_Settings::isMemoryOptimizationEnabled() && $this->_formulaAttributes != null) {
++			$this->_parent->formulaAttributes[$this->_row][$this->_column] = $this->_formulaAttributes;
++		}
+ 		return $this;
+ 	}
+ 
+Index: Classes/PHPExcel/Worksheet/RowDimension.php
+===================================================================
+--- Classes/PHPExcel/Worksheet/RowDimension.php	(revision 1247)
++++ Classes/PHPExcel/Worksheet/RowDimension.php	(working copy)
+@@ -40,7 +40,7 @@
+ 	 *
+ 	 * @var int
+ 	 */
+-	private $_rowIndex;
++	//private $_rowIndex;
+ 	
+ 	/**
+ 	 * Row height (in pt)
+@@ -56,7 +56,7 @@
+ 	 *
+ 	 * @var bool
+ 	 */
+-	private $_visible;
++	//private $_visible;
+ 	
+ 	/**
+ 	 * Outline level
+@@ -70,7 +70,7 @@
+ 	 *
+ 	 * @var bool
+ 	 */
+-	private $_collapsed;
++	//private $_collapsed;
+ 
+ 	/**
+ 	 * Index to cellXf. Null value means row has no explicit cellXf format.
+@@ -87,9 +87,9 @@
+     public function __construct($pIndex = 0)
+     {
+     	// Initialise values
+-    	$this->_rowIndex		= $pIndex;
++    	//$this->_rowIndex		= $pIndex;
+     	$this->_rowHeight		= -1;
+-    	$this->_visible			= true;
++    	//$this->_visible			= true;
+     	$this->_outlineLevel	= 0;
+     	$this->_collapsed		= false;
+ 
+@@ -103,8 +103,13 @@
+      * @return int
+      */
+     public function getRowIndex() {
++		if ( isset( $this->_rowIndex)){
+     	return $this->_rowIndex;
+     }
++		else {
++			return 0;
++		}
++    }
+     
+     /**
+      * Set Row Index
+@@ -143,8 +148,13 @@
+      * @return bool
+      */
+     public function getVisible() {
++		if ( isset( $this->_visible ) ){
+     	return $this->_visible;
+     }
++		else {
++			return true;
++		}
++    }
+     
+     /**
+      * Set Visible
+@@ -153,7 +163,9 @@
+      * @return PHPExcel_Worksheet_RowDimension
+      */
+     public function setVisible($pValue = true) {
++		if ( $pValue != true ){
+     	$this->_visible = $pValue;
++		}
+     	return $this;
+     }
+     
+@@ -163,9 +175,15 @@
+      * @return int
+      */
+     public function getOutlineLevel() {
++		if ( isset( $this->_outlineLevel)) {
+     	return $this->_outlineLevel;
+     }
++		else {
++			return 0;
++		}
+     
++    }
++    
+     /**
+      * Set Outline Level
+      *
+@@ -179,8 +197,9 @@
+     	if ($pValue < 0 || $pValue > 7) {
+     		throw new Exception("Outline level must range between 0 and 7.");
+     	}
+-    	
++    	if ( $pValue != 0){
+     	$this->_outlineLevel = $pValue;
++		}
+     	return $this;
+     }
+     
+@@ -190,8 +209,13 @@
+      * @return bool
+      */
+     public function getCollapsed() {
++		if ( isset( $this->_collapsed)) {
+     	return $this->_collapsed;
+     }
++		else {
++			return false;
++		}
++    }
+     
+     /**
+      * Set Collapsed
+@@ -200,7 +224,9 @@
+      * @return PHPExcel_Worksheet_RowDimension
+      */
+     public function setCollapsed($pValue = true) {
++    	if ( $pValue != false && $pValue != null) {
+     	$this->_collapsed = $pValue;
++		}
+     	return $this;
+     }
+ 
+@@ -211,8 +237,14 @@
+ 	 */
+ 	public function getXfIndex()
+ 	{
++		if ( isset( $this->_xfIndex)) {
+ 		return $this->_xfIndex;
+ 	}
++		else {
++			return 0;
++		}
++		
++	}
+ 
+ 	/**
+ 	 * Set index to cellXf
+@@ -222,7 +254,9 @@
+ 	 */
+ 	public function setXfIndex($pValue = 0)
+ 	{
++		if ( $pValue !== null && $pValue != 0 ) {
+ 		$this->_xfIndex = $pValue;
++		}
+ 		return $this;
+ 	}
+ 

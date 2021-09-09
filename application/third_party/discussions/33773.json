@@ -1,0 +1,98 @@
+[
+  {
+    "Id": "111918",
+    "ThreadId": "33773",
+    "Html": "Hi all,<br>\r\nI have a very strange issue. On my development server (Windows Vista - Apache 2.2.9 - PHP 5.2.6) I get exactly what I expect collecting data from a MYSql database and writing it to an Excel workbook with multiple worksheets using PHPExcel_Writer_Excel5. I have inserted graphs of the data as PHPExcel_Worksheet_Drawings using the jpGraph library. It all works beautifully, my client is very impressed.<br>\r\n<br>\r\nHere's the big <strong>BUT</strong>: When I run the code on the production server (Linux - Apache 2.0 - PHP 5.2.1) the workbook is produced with all the worksheets, the graphs are there with the correct data, the cells are all formated as they should be but there is no data?<br>\r\n<br>\r\nAny ideas on what I have done wrong?<br>\r\n",
+    "PostedDate": "2008-08-18T17:59:10.083-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "112510",
+    "ThreadId": "33773",
+    "Html": "This sounds strange... but I don't know much about how the Excel5 writer is built internally.<br>\r\n<br>\r\nCan you try to check whether you can create a simple <code>xls</code> file, for example by creating a single sheet with only one non-empty cell <code>A1</code>, and see if that works?<br>\r\n",
+    "PostedDate": "2008-08-20T17:32:51.537-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "112792",
+    "ThreadId": "33773",
+    "Html": "I created the following simple test script:<br>\r\n<br>\r\n<blockquote>$workbook = new PHPExcel();<br>\r\n$worksheet = $workbook-&gt;getActiveSheet();<br>\r\n$worksheet-&gt;setTitle('Test');<br>\r\n$worksheet-&gt;getColumnDimension('A')-&gt;setWidth(40);<br>\r\n$worksheet-&gt;getRowDimension(1)-&gt;setRowHeight(30);<br>\r\n$worksheet-&gt;setCellValue('A1','Hello, this is a test cell');<br>\r\n$PHPWriter = new PHPExcel_Writer_Excel5($workbook);<br>\r\n$PHPWriter-&gt;setTempDir('site/administrator/components/com_assess/files/tmp');<br>\r\n$PHPWriter-&gt;save('site/administrator/components/com_assess/files/test.xls');<br>\r\n</blockquote>The result was a workbook with one worksheet whose title is set to 'Test', column A is 40 wide, row 1 is 30 high but there is nothing in A1.<br>\r\n<br>\r\nCould this be something to do with what was done to fix my tempDir() issue <a href=\"http://www.codeplex.com/PHPExcel/Thread/View.aspx?ThreadId=33214\">PHPExcel_Writer_Excel5-&gt;setTempDir() not passed to all classes involved in writing to a file.</a><br>\r\nCheers<br>\r\n",
+    "PostedDate": "2008-08-21T15:20:58.403-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "112858",
+    "ThreadId": "33773",
+    "Html": "That is indeed a possibility. Will check!\r\n",
+    "PostedDate": "2008-08-21T22:39:43.603-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "112859",
+    "ThreadId": "33773",
+    "Html": "Can you test with the latest source?&nbsp;<a href=\"http://www.codeplex.com/PHPExcel/SourceControl/ListDownloadableCommits.aspx\">http://www.codeplex.com/PHPExcel/SourceControl/ListDownloadableCommits.aspx</a>\r\n",
+    "PostedDate": "2008-08-21T22:47:19.243-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "112898",
+    "ThreadId": "33773",
+    "Html": "I downloaded Friday's final source and tested it on the local machine and then on the production server. I am still experience the same results, worksheets formated correctly but no data on the production server with that source.<br>\r\n",
+    "PostedDate": "2008-08-22T02:25:09.71-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "113601",
+    "ThreadId": "33773",
+    "Html": "Good Morning,<br>\r\nAny further ideas? <br>\r\nI have tried yesterday's source (16567) with the same&nbsp; results. I also tried changing the temp directory - no change, not setting the temp directory - got original open_basedir error messages.<br>\r\n<br>\r\n",
+    "PostedDate": "2008-08-25T14:30:53.357-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "113957",
+    "ThreadId": "33773",
+    "Html": "Unless someone has any more ideas and you don't get this fixed, I would be willing to do some tests in a separate directory on the server if ftp access is provided?<br>\r\nI may not be able to fix this, but hopefully I could narrow down the problem. You can send me private message.<br>\r\n",
+    "PostedDate": "2008-08-26T15:27:45.937-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "114016",
+    "ThreadId": "33773",
+    "Html": "koyama: I have sent you a private message with FTP details.<br>\r\n",
+    "PostedDate": "2008-08-26T22:47:11.63-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "114082",
+    "ThreadId": "33773",
+    "Html": "Thanks, I received the FTP details. I did some testing and found the problem.<br>\r\n<br>\r\nSetting <code>error_reporting(E_ALL)</code> reveals the problem when one uses the Excel5 writer:<br>\r\n<br>\r\n<code><strong>Notice</strong>: iconv() [function.iconv]: Wrong charset, conversion from `UTF-8' to `Windows-1252' is not allowed in <strong>/home/lo/log/logss.com.au/public/www/koyama/PHPExcel/Classes/PHPExcel/Writer/Excel5.php</strong> on line <strong>166</strong><br>\r\n<br>\r\n<strong>Notice</strong>: iconv() [function.iconv]: Wrong charset, conversion from `UTF-8' to `UTF-16LE' is not allowed in <strong>/home/lo/log/logss.com.au/public/www/koyama/PHPExcel/Classes/PHPExcel/Writer/Excel5/Worksheet.php</strong> on line <strong>1608</strong><br>\r\n<br>\r\n</code>\r\nPointing to these lines respectively:<br>\r\n<br>\r\n<code>'NumFormat' =&gt; iconv(&quot;UTF-8&quot;, &quot;Windows-1252&quot;, $style-&gt;getNumberFormat()-&gt;getFormatCode()),<br>\r\n<br>\r\n$str = iconv($this-&gt;_input_encoding, 'UTF-16LE', $str);<br>\r\n</code><br>\r\nApparently, the iconv function is broken on your platform. Some (most?) conversions are not working such as converting 'UTF-8' to 'UTF-16LE'. <code>iconv()</code> simply returns <code>bool(false)</code> in those cases. That is why you get blank cells.<br>\r\n<br>\r\nThis seems to be a known issue:<br>\r\n<a href=\"http://bugs.php.net/bug.php?id=44096\">http://bugs.php.net/bug.php?id=44096</a><br>\r\n<br>\r\n<strong>\r\nSolution:</strong><br>\r\nYou may try using <code>mb_convert_encoding()</code> instead of <code>iconv()</code>. I tried on your server and it worked:<br>\r\n<br>\r\n<code>\r\n//'NumFormat' =&gt; iconv(&quot;UTF-8&quot;, &quot;Windows-1252&quot;, $style-&gt;getNumberFormat()-&gt;getFormatCode()),<br>\r\n'NumFormat' =&gt; mb_convert_encoding($style-&gt;getNumberFormat()-&gt;getFormatCode(), &quot;Windows-1252&quot;, &quot;UTF-8&quot;),<br>\r\n<br>\r\n<br>\r\n//$str = iconv($this-&gt;_input_encoding, 'UTF-16LE', $str);<br>\r\n$str = mb_convert_encoding($str, 'UTF-16LE', $this-&gt;_input_encoding);<br>\r\n</code>\r\n<br>\r\nI have no idea if this is this PHP issue is a common problem or not. If someone knows if the PHPExcel source needs to be modified please post. Maarten, any opinion on this?\r\n",
+    "PostedDate": "2008-08-27T04:11:40.88-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "114263",
+    "ThreadId": "33773",
+    "Html": "Koyama: Thank you so much. I really appreciate your help. It works on both platforms. This is a great library!!<br>\r\n",
+    "PostedDate": "2008-08-27T14:24:31.57-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "157304",
+    "ThreadId": "33773",
+    "Html": "Update: In PHPExcel one will no be affected by this as long as one has mbstring extension enabled. Thus, no manual editing of <code>PHPExcel/Writer/Excel5/Worksheet.php</code> is needed. Per work item #9248 mbstring extension is used as the default encoder.<br>\r\n<br>\r\n",
+    "PostedDate": "2009-02-12T23:24:12.473-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

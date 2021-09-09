@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "829601",
+    "ThreadId": "353871",
+    "Html": "<p>I am using phpExcel library for import data from excel(csv) file into mysql data. Every thing is working fine except mysql insert query below is my source code. Please after review my codes let me know where is problem. I have tried with an array but im  fail too. Please review my mysql query and let me know which query will be better in this PhpExcel Library. Thanks in advance.<br /> <br /></p>\n<div style=\"color: black; background-color: white;\">\n<pre>$objPHPExcel = PHPExcel_IOFactory::load(<span style=\"color: #a31515;\">\"myfile.csv\"</span>);\n<span style=\"color: blue;\">foreach</span> ($objPHPExcel-&gt;getWorksheetIterator() <span style=\"color: blue;\">as</span> $worksheet) {\n\n$worksheetTitle     = $worksheet-&gt;getTitle();\n$highestRow         = $worksheet-&gt;getHighestRow();\n$highestColumn      = $worksheet-&gt;getHighestColumn();\n$highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn);\n$nrColumns = ord($highestColumn) - 64;\n\n<span style=\"color: blue;\">for</span> ($row=2; $row&lt;=$highestRow; $row++) {\n$cell = $worksheet-&gt;getCellByColumnAndRow(3, $row)-&gt;getValue();\n\n mysql_query(<span style=\"color: #a31515;\">\"INSERT INTO myTableName (`title`) VALUES ('$cell')\"</span>);   \n\n}\n}\n</pre>\n</div>",
+    "PostedDate": "2012-04-27T21:12:18.87-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "829627",
+    "ThreadId": "353871",
+    "Html": "<ul>\r\n<li>Check whether the $cell value is scalar, or a rich text object. If the latter, you will need to cast to string or use the rifh text object's getPlainText() method</li>\r\n<li>Escape the value of $cell in case it contains quotes (this should always be standard practise when working with databases) or switch to MySQLi or PDO Prepared statements.</li>\r\n<li>Use error handling in your code</li>\r\n</ul>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2012-04-28T03:01:20.747-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "829651",
+    "ThreadId": "353871",
+    "Html": "<p>hi MarkBaker,</p>\r\n<p>thanks for your response. My problem has been resolved for insert data into database. But another problem has been occored. I have an excel file with field 'Description(May be more than 1000 characters in each cell)' including 248 rows right now. When i try to insert it into database table insert then first 92 lines executed into database. Can you assist me regard this matter why phpExcel is limiting this. In near future may be excel rows should be more than 50000. Please tell me how can i handle large files data. Thanks&nbsp;</p>",
+    "PostedDate": "2012-04-28T05:30:29.7-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "829689",
+    "ThreadId": "353871",
+    "Html": "<p>I got it. The description cell contains on html elements i.e{&lt;table&gt;, &lt;p&gt;, &lt;b&gt; font so on....}. Each excel cell is heavy therefore i need proper method which will deal with html. Is there any function or method in phpexcel that will handle this html cell data and take it from excel and insert into database from start to end? If yes please give me at least one example. Thanks&nbsp;</p>",
+    "PostedDate": "2012-04-28T07:45:58.537-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

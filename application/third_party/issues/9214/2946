@@ -1,0 +1,150 @@
+Index: PHPExcel/Calculation/Functions.php
+===================================================================
+--- PHPExcel/Calculation/Functions.php	(revision 897)
++++ PHPExcel/Calculation/Functions.php	(working copy)
+@@ -4749,8 +4749,6 @@
+ 				$dateValue = self::DATEVALUE($dateValue);
+ 				self::setReturnDateType($saveReturnDateType);
+ 			}
+-		} elseif (!is_float($dateValue)) {
+-			$dateValue = PHPExcel_Shared_Date::PHPToExcel($dateValue);
+ 		}
+ 		return $dateValue;
+ 	}
+Index: PHPExcel/Reader/Excel2007.php
+===================================================================
+--- PHPExcel/Reader/Excel2007.php	(revision 897)
++++ PHPExcel/Reader/Excel2007.php	(working copy)
+@@ -625,12 +625,6 @@
+ 									if (isset($styles[intval($c["s"])])) {
+ 										$this->_readStyle($docSheet->getStyle($r), $styles[intval($c["s"])]);
+ 									}
+-
+-									if ($cellDataType != 's' && PHPExcel_Shared_Date::isDateTimeFormat($docSheet->getStyle($r)->getNumberFormat())) {
+-										if (preg_match ("/^([0-9.,-]+)$/", $value)) {
+-											$docSheet->setCellValue($r, (float)$value);
+-										}
+-									}
+ 								}
+ 
+ 								// Set rich text parent
+Index: PHPExcel/Reader/Excel5.php
+===================================================================
+--- PHPExcel/Reader/Excel5.php	(revision 897)
++++ PHPExcel/Reader/Excel5.php	(working copy)
+@@ -2418,10 +2418,6 @@
+ 			// add style information
+ 			if (!$this->_readDataOnly) {
+ 				$this->_phpSheet->getStyle($columnString . ($row + 1))->applyFromArray($this->_xf[$xfindex]);
+-
+-				if (PHPExcel_Shared_Date::isDateTimeFormatCode($this->_xf[$xfindex]['numberformat']['code'])) {
+-					$numValue = (float) $numValue;
+-				}
+ 			}
+ 
+ 			// add cell
+@@ -2546,10 +2542,6 @@
+ 				if (!$this->_readDataOnly) {
+ 					// add style
+ 					$this->_phpSheet->getStyle($columnString . ($row + 1))->applyFromArray($this->_xf[$xfindex]);
+-
+-					if (PHPExcel_Shared_Date::isDateTimeFormatCode($this->_xf[$xfindex]['numberformat']['code'])) {
+-						$numValue = (float) $numValue;
+-					}
+ 				}
+ 
+ 				// add cell value
+@@ -2593,9 +2585,6 @@
+ 			// add cell style
+ 			if (!$this->_readDataOnly) {
+ 				$this->_phpSheet->getStyle($columnString . ($row + 1))->applyFromArray($this->_xf[$xfindex]);
+-				if (PHPExcel_Shared_Date::isDateTimeFormatCode($this->_xf[$xfindex]['numberformat']['code'])) {
+-					$numValue = (float) $numValue;
+-				}
+ 			}
+ 
+ 			// add cell value
+@@ -2676,9 +2665,6 @@
+ 			// add cell style
+ 			if (!$this->_readDataOnly) {
+ 				$this->_phpSheet->getStyle($columnString . ($row + 1))->applyFromArray($this->_xf[$xfindex]);
+-				if (PHPExcel_Shared_Date::isDateTimeFormatCode($this->_xf[$xfindex]['numberformat']['code'])) {
+-					$value = (float) $value;
+-				}
+ 			}
+ 
+ 			// offset: 14: size: 2; option flags, recalculate always, recalculate on open etc.
+Index: PHPExcel/Style/NumberFormat.php
+===================================================================
+--- PHPExcel/Style/NumberFormat.php	(revision 897)
++++ PHPExcel/Style/NumberFormat.php	(working copy)
+@@ -491,9 +491,6 @@
+ 			// user defined flag symbol????
+ 			$format = str_replace(';@', '', $format);
+ 			
+-			if (is_float($value)) {
+-				return date($format, PHPExcel_Shared_Date::ExceltoPHP($value));
+-			}
+ 			return date($format, $value);
+ 			
+ 		} else if (preg_match('/%$/', $format)) { // % number format
+Index: PHPExcel/Writer/Excel2007/Worksheet.php
+===================================================================
+--- PHPExcel/Writer/Excel2007/Worksheet.php	(revision 897)
++++ PHPExcel/Writer/Excel2007/Worksheet.php	(working copy)
+@@ -1032,21 +1032,7 @@
+ 						}
+ 						break;
+ 					case 'n':			// Numeric
+-						if (PHPExcel_Shared_Date::isDateTime($pCell)) {
+-							$dateValue = $pCell->getValue();
+-							if (is_string($dateValue)) {
+-								//	Error string
+-								$objWriter->writeElement('v', $pFlippedStringTable[$dateValue]);
+-							} elseif (!is_float($dateValue)) {
+-								//	PHP serialized date/time or date/time object
+-								$objWriter->writeElement('v', PHPExcel_Shared_Date::PHPToExcel($dateValue));
+-							} else {
+-								//	Excel serialized date/time
+-								$objWriter->writeElement('v', $dateValue);
+-							}
+-						} else {
+-							$objWriter->writeElement('v', $pCell->getValue());
+-						}
++						$objWriter->writeElement('v', $pCell->getValue());
+ 						break;
+ 					case 'b':			// Boolean
+ 						$objWriter->writeElement('v', ($pCell->getValue() ? '1' : '0'));
+Index: PHPExcel/Writer/Excel5/Worksheet.php
+===================================================================
+--- PHPExcel/Writer/Excel5/Worksheet.php	(revision 897)
++++ PHPExcel/Writer/Excel5/Worksheet.php	(working copy)
+@@ -645,27 +645,7 @@
+ 	*/
+ 	private function _write($row, $col, $token, $xfIndex, $numberFormat = null)
+ 	{
+-		if (($numberFormat != 'General') && (PHPExcel_Shared_Date::isDateTimeFormatCode($numberFormat))) {
+-			if (is_string($token)) {
+-				//	Error string
+-				return $this->_writeString($row, $col, $token, $xfIndex);
+-			} elseif (!is_float($token)) {
+-				//	PHP serialized date/time or date/time object
+-				return $this->_writeNumber($row, $col, PHPExcel_Shared_Date::PHPToExcel($token), $xfIndex);
+-			} else {
+-				//	Excel serialized date/time
+-				return $this->_writeNumber($row, $col, $token, $xfIndex);
+-			}
+-		} elseif (preg_match("/^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/", $token)) {
+-			// Match number
+-			return $this->_writeNumber($row, $col, $token, $xfIndex);
+-		} elseif ($token == '') {
+-			// Match blank
+-			return $this->_writeBlank($row, $col, $xfIndex);
+-		} else {
+-			// Default: match string
+-			return $this->_writeString($row, $col, $token, $xfIndex);
+-		}
++		return $this->_writeNumber($row, $col, $token, $xfIndex);
+ 	}
+ 
+ 	/**

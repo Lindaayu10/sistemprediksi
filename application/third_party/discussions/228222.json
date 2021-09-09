@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "497217",
+    "ThreadId": "228222",
+    "Html": "<p>My apologies if this has been covered before. I tried searching but cannot find an exact answer.</p>\r\n<p>I've got a large spreadsheet (32,000 rows * 50 columns, all on 1 worksheet) that are all styled in one way or another (currency, colors, alignment, etc). I've got 1GB allocated for PHP, but PHPExcel keeps running out of memory. I've been reading up about PHPExcel's difficulties w/ memory (1k per cell, etc), and I downloaded the newest PHPExcel (1.7.4) to try out the new Cell Cache stuff.</p>\r\n<p>Unfortunately, I'm either doing it wrong, or the spreadsheet is still too big. I've tried <span style=\"font-size:10pt\" lang=EN-GB>cache_in_memory_serialized, </span><span style=\"font-size:10pt\" lang=EN-GB>cache_in_memory_gzip, </span><span style=\"font-size:10pt\" lang=EN-GB>cache_to_phpTemp, and </span>cache_to_discISAM. Everything hits the memory limit. Here's how I'm using it:</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>$cacheMethod = PHPExcel_CachedObjectStorageFactory::cache_to_discISAM;\r\nPHPExcel_Settings::setCacheStorageMethod($cacheMethod);\r\n\r\n$oPHPExcel = <span style=\"color:blue\">new</span> PHPExcel();<br>...</pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n<p>This is the correct way to use caching, right?</p>\r\n<p>[edit]<br>I've tried using the latest SVN copy of PHPExcel as well (PHPExcel-61245), but it didn't work either. :(<br>[/edit]</p>\r\n<p>The only other thing I can think of to mention is that we're using the Excel5 writer...</p>\r\n<p>Are there any other tricks I may not know of for further optimizing the spreadsheet?</p>\r\n<p>&nbsp;</p>\r\n<p>Finally, I'd like to say a huge thanks for making PHPExcel so amazing. It's been a life saver at work and a huge improvement over the old way we did things. Thanks a million!</p>",
+    "PostedDate": "2010-09-22T14:05:25.237-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "497245",
+    "ThreadId": "228222",
+    "Html": "<p>You are using cell caching the correct way, but 32,000 rows x 50 columns is 1.6 Million cells... without using caching, that would require 1.6GB for the cells x 2 overhead for the writer + 10-25MB code footprint, so about 3.2GB. Using diskISAM, you could expect 535MB for the cells x 2 overhead for the writer + 10-25MB code footprint, so about 1.1GB.... remembering that this is still just a rough estimate... and performance will be slow when working with that many cells</p>\r\n<p>&nbsp;</p>\r\n<p>I'm still looking at ways in which the writer (and reader) overhead can be reduced, and if I can reduce the overall cell memory usage still further (possibly by breaking the OO paradigm), and also at other cell caching locations such as redis (which I've heard described as memcache on steroids) and shmem, but haven't managed to achieve any real success yet. However, since the release of 1.7.4, my main priority has been new functionality (such as the work on charting, and additional readers/writers); so unless I stumble on a new memory saving technique by chance, it's likely to be a while before I can spend some serious time trying to reduce memory overheads still further.</p>",
+    "PostedDate": "2010-09-22T14:53:03.733-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "497592",
+    "ThreadId": "228222",
+    "Html": "<p>Thanks for the quick reply, and thanks a million for your work on this great library.</p>\r\n<p>I didn't know the footprint was so big even when using caching. I wish you the best of luck in trying to find ways to minimize that. That's just crazynuts...</p>\r\n<p>The box only has 2GB RAM on it, and even if I kept the diskISAM caching and bumped the memory limit to 1.5GB I'm sure another user would come along and want a 60,000 row spreadsheet. I guess for now I'll have to go back to generating 2003XML spreadsheets from scratch...</p>\r\n<p>But again, I don't want to sound ungrateful. Thanks for all your hard work to make PHPExcel the best PHP-based library around!</p>",
+    "PostedDate": "2010-09-23T08:03:04.283-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

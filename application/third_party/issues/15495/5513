@@ -1,0 +1,100 @@
+<?php
+/**
+ * TExcel_Worksheet, overrides alot of PHPExcel_Worksheet methods to provide additional, or more logical functionality
+ *
+ *
+ * @package Excel
+ * @author Janpak
+ * @copyright (c) 2009-2010
+ */
+	class TExcel_Worksheet extends PHPExcel_Worksheet{
+		private  $row_iterator = null;			
+		/**
+		 * write, recursively dump an array to an excel sheet
+		 * TODO::Deprecate this i believe a variation of this was already implemented in PHPExcel
+		 *
+		 * @param array
+		 * @param int
+		 * @param int
+		 * @param string
+		 * @return TExcel_Worksheet
+		 */
+		public function write($value,$x =0,$y=0,$key = null){
+			$this->write_helper($value,$x,$y);	
+			return $this;
+
+		}
+		/**
+		 * write_helper, recursive helper for write
+		 *
+		 * @param mixed
+		 * @param int
+		 * @param int
+		 * @param string
+		 */
+		public function write_helper($value,$x,&$y,$key = null){
+			if(is_array($value)){
+				$this->setCellValueByColumnAndRow($x, $y,$key);
+				$y++;$x++;
+				foreach($value as $key => $var){
+					//write key to x,y
+					self::write_helper($var,$x,$y,$key);
+				}
+			}
+			else{
+				//write key:value pair to x,y and x+1,y respectly
+				$this->setCellValueByColumnAndRow($x,$y,$key);
+				$this->setCellValueByColumnAndRow(++$x,$y,$value);
+				$y++;
+			}
+		}
+
+		/**
+		 * Get row iterator
+		 *
+		 * @return PHPExcel_Worksheet_RowIterator
+		 */
+		public function getRowIterator() {
+			return new TExcel_Worksheet_RowIterator($this);
+		}
+
+		/**
+		 * getCell, returns a PHP cell either through a exact cell i.e. getCell('A2') or row and column i.e. getCell(1,2)
+		 *
+		 *
+		 * @param mixed, string(A1) OR int
+		 * @param int, only if using row and column
+		 * @return PHPExcel_Cell
+		 */
+		public function getCell($cell = 'A1'){
+			$cell = func_get_args();
+			if(count($cell) == 2 && is_int($cell[0]) && is_int($cell[1])){
+				return $this->getCellByColumnAndRow($cell[0],$cell[1]);
+
+			}
+			elseif(count($cell) == 1){
+				return parent::getCell($cell[0]);
+
+			}
+		}
+		
+		/**
+		 * getRowIteratorInstance, returns the same instance of TExcel_Worksheet_RowIterator for the sheet
+		 *
+		 * @return TExcel_Worksheet_RowIterator
+		 */
+		public function getRowIteratorInstance(){
+			if($this->row_iterator == null){
+				$this->row_iterator =  new  TExcel_Worksheet_RowIterator($this);
+
+			}
+
+			return $this->row_iterator;
+
+		}
+
+	}
+
+
+
+?>

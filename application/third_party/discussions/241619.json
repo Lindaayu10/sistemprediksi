@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "548676",
+    "ThreadId": "241619",
+    "Html": "\r\n<p>Hello everybody,</p>\r\n<p>i have a textarea. This textare is sendet by a request to my PHPExcel writer. before i create the Excel file i split the textare content via explode.</p>\r\n<p>The array values of the explode, iam using to set the Values in specific cells. My Problem is, the content is including line breaks (\\n) but in my excel the line break are not show he is just</p>\r\n<p>outputing the string like&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; test\\ntest, but he is not interpreting the \\n as a linebreak in excel.</p>\r\n<p>When i writing not dynamically the values into some cells like this,&nbsp;&nbsp;\r\n<span lang=\"EN-GB\" style=\"font-size:10pt\">setCellValueByColumnAndRow</span><span lang=\"EN-GB\" style=\"font-size:10pt\">(1,2,&quot;test\\ntest&quot;) its working.\r\n</span></p>\r\n<p><span lang=\"EN-GB\" style=\"font-size:10pt\">So i dont know what to do further.</span></p>\r\n<p><strong>PS. I have included AdvancedValueBinder which should automaticaly interprete the \\n as linebreak\r\n</strong></p>\r\n<p>require_once &quot;../../plugins/excelreader/Classes/PHPExcel/Cell/AdvancedValueBinder.php&quot;;</p>\r\n<p>PHPExcel_Cell::setValueBinder( new PHPExcel_Cell_AdvancedValueBinder() );</p>\r\n<p>please help</p>\r\n<p>thanks</p>\r\n<p>harrison</p>\r\n",
+    "PostedDate": "2011-01-13T06:14:22.237-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "548950",
+    "ThreadId": "241619",
+    "Html": "\r\n<p>The behaviour that you describe suggest that the string contains the two characters '\\' and 'n' rather than the new line character (&quot;\\n&quot;). It suggests to me that there is some problem perhaps when you are splitting the textarea with explode. How are you\r\n doing this?</p>\r\n",
+    "PostedDate": "2011-01-13T13:30:57.99-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "549005",
+    "ThreadId": "241619",
+    "Html": "\r\n<p>hi Mark,</p>\r\n<p>this is how iam splitting the textarea post.</p>\r\n<p>$replace_br = str_replace('&lt;br&gt;','\\n', $_POST['content_excel']);</p>\r\n<p>$replace_end = str_replace('&amp;nbsp;','', $replace_br);<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>\r\n$req_array_excel = explode('$tr$',$replace_end);</p>\r\n<p>..</p>\r\n<p>as you can see iam exploding the textarea values not just once. Its just a little code snippet</p>\r\n<p>...</p>\r\n<p>list($anz_eintra_prev, $row_prev, $column_prev,<span style=\"color:#ff0000\">$inhalt</span>) = explode('_tr_', $eintraege[$s-1]);&nbsp;&nbsp;</p>\r\n<p>...</p>\r\n<p>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow($previsouscolumn,$row_start_entries,<span style=\"color:#ff0000\">$inhalt</span>);</p>\r\n<p>as you can see iam creating a list and then putting it in setCellValueByColumnAndRow.</p>\r\n<p>butI dont know where the problem should be.</p>\r\n<p>&nbsp;</p>\r\n<p><strong>--&gt; the same problem i had with a normal array. You can see it here</strong></p>\r\n<p>array(3 =&gt;&quot;8:00\\n-\\n9:30&quot;,4=&gt;&quot;9:40\\n-\\n11:15&quot;,5=&gt;&quot;11:30\\n-\\n13:00&quot;,6=&gt;&quot;Mittagspause&quot;,7=&gt;&quot;14:00\\n-\\n15:30&quot;,8=&gt;&quot;15:45\\n-\\n17:15&quot;,9=&gt;&quot;17:30\\n-\\n19:00&quot;);</p>\r\n<p>but i solved the problem by changing normal&nbsp; single ' character by a double &quot; character in the array. But i dont know why the problem is caused by that. Because normal ' character is the same like double &quot; in php.</p>\r\n<p>harrison</p>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2011-01-13T15:10:13.257-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "549009",
+    "ThreadId": "241619",
+    "Html": "\r\n<p>Standard PHP string parsing rules... '\\n' is two characters, &quot;\\n&quot; is a new line. normal ' character is\r\n<strong>NOT </strong>the same&nbsp;as double &quot; in php.</p>\r\n<div style=\"color:black; background-color:white\">and watch out for '&lt;br /&gt;' as well</div>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2011-01-13T15:17:47.25-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "549509",
+    "ThreadId": "241619",
+    "Html": "\r\n<p>thanks now it works, i forgot about single character and double characters :) hehe, but now know what about the single and double one.</p>\r\n<p>Thanks</p>\r\n",
+    "PostedDate": "2011-01-14T10:20:23.23-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

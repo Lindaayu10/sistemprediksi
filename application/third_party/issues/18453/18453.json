@@ -1,0 +1,60 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hi everybody, \nI came here to see if you guys can help me.\nI've discovered PHPExcel cause I'm using an class that uses PHPExcel ( PHPReport can be found: https://github.com/vernes/PHPReport)\nAnd it works perfectly with the exception of PDF. Converts to HTML, excel and excel2003.\nWhen it tries to convert to PDF it fails here:\n \nFile : Writer/PDF.php\n \nline :47\n\t\t$pdfLibraryName = PHPExcel_Settings::getPdfRendererName();\n \n\t\tif (is_null($pdfLibraryName)) {\n\t\t\tthrow new Exception(\"PDF Rendering library has not been defined.\");\n\t\t}",
+    "LastUpdatedDate": "2013-02-21T19:01:46.807-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2012-08-08T09:57:39.587-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "[PHPReport] Can't convert to PDF",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 18453
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "It looks as though PHPReport is using the latest github code.\r\n\r\nThis has removed the included 3rd-party tcPDF library (which didn't produce good output and was seriously bloated) and instead allows you to select whether you wish to use tcPDF, domPDF or mPDF as the PDF rendering library - your choice, but one where you must install the 3rd-party library yourself. Then, before using PHPExcel's PDF writer, you need to tell it which library you are using, and where it can find that library.\r\n\r\ne.g.\r\n//$rendererName = PHPExcel_Settings::PDF_RENDERER_MPDF;\r\n$rendererName = PHPExcel_Settings::PDF_RENDERER_DOMPDF;\r\n//$rendererLibrary = 'tcPDF5.9';\r\n//$rendererLibrary = 'mPDF5.4';\r\n$rendererLibrary = '/path/to/my/libraries/domPDF0.6.0beta3';\r\n\r\nif (!PHPExcel_Settings::setPdfRenderer(\r\n\t\t$rendererName,\r\n\t\t$rendererLibraryPath\r\n\t)) {\r\n\tdie(\r\n\t\t'NOTICE: Please set the $rendererName and $rendererLibraryPath values' .\r\n\t\tEOL .\r\n\t\t'at the top of this script as appropriate for your directory structure'\r\n\t);\r\n}\r\n",
+      "PostedDate": "2012-08-08T14:35:05.887-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Thanks, I'll get into that...\r\nI'll give news.",
+      "PostedDate": "2012-08-09T04:13:53.283-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "It seemed i couldn't make that to work.\r\nI've just downloaded the domPDF at http://code.google.com/p/dompdf/ ( the 0.6.0 beta version ).\r\nThen I've putted it in the same folder as the PHPExcel\r\n\r\nSo I've inserted that code, changed the path to \"../dompdf/dompdf_config.inc.php\" and then i got at the end of the function this data in the variables:\r\n\r\n$pdfLibraryName = PDF_RENDERER_DOMPDF\r\n$pdfLibraryPath = ../dompdf/dompdf_config.inc.php\r\n$rendererName = PHPExcel_Writer_PDF_PDF_RENDERER_DOMPDF\r\n\r\nand then it dies here:\r\n$this->_renderer = new $rendererName($phpExcel);\r\n\r\nAm I doing anything wrong?",
+      "PostedDate": "2012-08-09T04:50:05.96-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:01:46.807-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

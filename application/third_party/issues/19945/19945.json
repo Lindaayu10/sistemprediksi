@@ -1,0 +1,50 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "When I try to use 1.7.9 phar version, I got this warning:\n\n```\ninclude(phar://PHPExcel/PHPExcel.php): failed to open stream: phar error: invalid url or non-existent phar \"phar://PHPExcel/PHPExcel.php\"\n```\n\nphar is also assed into include path\n\n1.7.8 phar version working good.\n\nAny ideas?\n\nRunning: PHP 5.3.17, Windows 7",
+    "LastUpdatedDate": "2013-08-28T01:35:26.36-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2013-07-08T12:22:11.767-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "1.7.9 phar not working",
+    "Type": {
+      "Name": "Unassigned",
+      "Id": 5
+    },
+    "VoteCount": 3,
+    "Id": 19945
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "I'm seeing the same issue on mac and linux with php 5.3 and php 5.4\r\n\r\n```\n<?php \nrequire_once ('./PHPExcel.phar');\nini_set(\"memory_limit\",\"500M\");\ndate_default_timezone_set('GMT');\r\n\r\n$objPHPExcel = PHPExcel_IOFactory::load('test-file.xlsx');\n$sheetData = $objPHPExcel->getActiveSheet()->toArray(null,true,true,true);\n```\nIf I drop in the 1.7.8 phar to the same location, this code works.\nIn looking at the phar, my guess is the custom exception class in the autoloader.\nIts asking for a namespaced class before the autoloader knows how to load that name space.\r\n\r\nIn the 1.7.8 code, it was an \"Exception\". In the 1.7.9 code, its a \"PhpExcel_Exception\" class.",
+      "PostedDate": "2013-08-27T13:02:05.93-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Well, thanks for your comment.\r\n\r\nPrepend this before loading phar. For me, Phar 1.7.9 now works.\r\n\r\nclass PhpExcel_Exception extends Exception {\n}\r\n\r\n",
+      "PostedDate": "2013-08-28T01:35:26.36-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

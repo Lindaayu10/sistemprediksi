@@ -1,0 +1,74 @@
+[
+  {
+    "Id": "437438",
+    "ThreadId": "211116",
+    "Html": "<p><span>Hello!<br></span><span>Now I have another problem.<br></span><span>Heading this way:<br>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>header(<span style=\"color:#a31515\">&quot;Pragma: public&quot;</span>);\r\nheader(<span style=\"color:#a31515\">&quot;Expires: 0&quot;</span>);\r\nheader(<span style=\"color:#a31515\">&quot;Cache-Control: must-revalidate, post-check=0, pre-check=0&quot;</span>);\r\nheader(<span style=\"color:#a31515\">&quot;Content-Type: application/force-download&quot;</span>);\r\nheader(<span style=\"color:#a31515\">&quot;Content-Type: application/octet-stream&quot;</span>);\r\nheader(<span style=\"color:#a31515\">&quot;Content-Type: application/download&quot;</span>);;\r\nheader(<span style=\"color:#a31515\">&quot;Content-Disposition: attachment;filename=Report.xls&quot;</span>);\r\nheader(<span style=\"color:#a31515\">&quot;Content-Transfer-Encoding: binary &quot;</span>);<br>$objPHPExcel = PHPExcel_IOFactory::load($template);<br></pre>\r\n</div>\r\n</span></p>\r\n<p><span>Fill some data with :</span></p>\r\n<p><span>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>$objWorksheet-&gt;getCellByColumnAndRow(9,6+$offset)-&gt;setValue(date(<span style=\"color:#a31515\">'m'</span>));\r\n$objWorksheet-&gt;getCellByColumnAndRow(13,$filaMat+12+$offset)-&gt;setValue($linea_alumnos[<span style=\"color:#a31515\">'Feb'</span>]);\r\n...\r\n...\r\n\r\n</pre>\r\n</div>\r\n<br></span><span>And then Im doing:</span></p>\r\n<p><span>\r\n<pre>$objPHPExcel-&gt;setActiveSheetIndex(0);\r\n\r\n$objWriter = new PHPExcel_Writer_Excel5($objPHPExcel);\r\n$objWriter-&gt;save('php://output');</pre>\r\n<br></span><span>I got the message that the file is corrupted and when I&nbsp;</span><span>open, it is unreadable.<br><br></span><span>But if I delete the headers and in the end do:</span></p>\r\n<p><span>\r\n<pre>$objWriter-&gt;save('test.xls');\r\n</pre>\r\n</span><span>The file is saved properly.<br></span><span>What could be happening?</span></p>\r\n<p><span>Thank you in advance</span></p>",
+    "PostedDate": "2010-04-30T00:14:45.133-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "437866",
+    "ThreadId": "211116",
+    "Html": "<p>It's likely that your script is outputting something to the browser other than the headers and the file output... this is the normal cause of a corrupted file because that output is then embedded in the file.</p>\r\n<p>If you open the downlaoded excel file in a text editor, you might be able to identify any message or even just white space that is being output, although even an echoed space can cause problems. Other characters that may cause issues are BOM markers at the beginning of your script.</p>",
+    "PostedDate": "2010-05-01T08:45:56.503-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "438372",
+    "ThreadId": "211116",
+    "Html": "Thank you for your response, one more question what ar BOM markers ?\r\nThank you in advance.\r\n",
+    "PostedDate": "2010-05-03T07:56:26.04-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "438432",
+    "ThreadId": "211116",
+    "Html": "<p>BOM markers a a series of data bytes at the beginning of a file or script that indicate the script can use UTF-8 characters rather than plain ASCII characters</p>",
+    "PostedDate": "2010-05-03T09:43:24.593-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "438499",
+    "ThreadId": "211116",
+    "Html": "Ok, i have in my data some special characters like &quot;ñ&quot; or &quot;á&quot;. Those characters are a problem for php://output? which BOM markers should I use? Thank you again",
+    "PostedDate": "2010-05-03T12:53:32.427-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "438525",
+    "ThreadId": "211116",
+    "Html": "<p>BOM markers are a problem in PHP scripts (nothing to do with PHPExcel) because they exist before the opening &lt;?php of your script (most editors don't show them, so you probably won't see them). This means they are treated as HTML output, so they are sent to the browser before any headers, echoes or prints in your script. So you never want BOM markers in your PHP scripts</p>\r\n<p>Special characters are not a problem as long as you work with UTF-8. If you're taking input from an HTML form on a page that isn't UTF-8, or from a database where you're using a character set other than UTF-8, then you'll need to convert those strings&nbsp;to UTF-8 (using PHP's iconv()&nbsp;function) before storing the string in a cell.</p>",
+    "PostedDate": "2010-05-03T14:22:47.62-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "445040",
+    "ThreadId": "211116",
+    "Html": "<p>Use&nbsp;utf8_encode()</p>\r\n<p>Example: $objPHPExcel-&gt;getActiveSheet()-&gt;setTitle(<span style=\"color:#ff0000\">utf8_encode(</span>'Relat&oacute;rio'<span style=\"color:#ff0000\">)</span>);</p>\r\n<p>Works for me.</p>",
+    "PostedDate": "2010-05-19T11:10:07.167-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "445447",
+    "ThreadId": "211116",
+    "Html": "\r\nOk, thank you very much<br> <br>\r\n<hr id=stopSpelling>\r\nFrom: [email removed]<br>To: [email removed]<br>Date: Wed, 19 May 2010 11:10:09 -0700<br>Subject: Re: Save or php://output? [PHPExcel:211116]<br><br>\r\n\r\n\r\nFrom: willianrn<br>\r\n<div id=ecxThreadNotificationPostBody>\r\nUse utf8_encode()<br>\r\nExample: $objPHPExcel-&gt;getActiveSheet()-&gt;setTitle(<span style=\"color:#ff0000\">utf8_encode(</span>'Relatório'<span style=\"color:#ff0000\">)</span>);<br>\r\nWorks for me.<br></div>\r\n<div id=ecxThreadNotificationFooter>\r\n <br></div> \t\t \t   \t\t  <br><hr>Tu vida no tiene límites, ahora Hotmail tampoco. 25 GB para organizar y compartir todo.  <a href=\"http://www.descubrewindowslive.com/hotmail/almacenamiento.asp\">Hacé clic aquí</a>",
+    "PostedDate": "2010-05-20T08:24:59.38-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "485809",
+    "ThreadId": "211116",
+    "Html": "<p><span>if true use utf8_encode me solve the problem of &Ntilde; and to, but ..&nbsp;</span><span>In some areas I have to print strings that include special characters such as $, u$s, ', &quot;.and I could not find a way to excel at me go, you know how?</span></p>",
+    "PostedDate": "2010-08-27T12:40:28.113-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

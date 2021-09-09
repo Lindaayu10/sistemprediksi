@@ -1,0 +1,22 @@
+<?php
+
+require_once $GLOBALS['__PATH']->getMsmPath() . 'include/PHPExcel/PHPExcel.php';
+$workbook = new PHPExcel();
+$workbook->removeSheetByIndex(0); // Remove default first page
+
+for ($i = 0; $i < 10; $i++) {
+	$sheet = new PHPExcel_Worksheet($workbook, 'Test ' . $i);
+	$workbook->addSheet($sheet);
+	$sheet->freezePaneByColumnAndRow(2, 2);
+
+	for($col = 0; $col < 10; $col++) {
+		for($row = 1; $row < 11; $row++) {
+			$sheet->setCellValueByColumnAndRow($col, $row, rand());
+		}
+	}
+}
+$workbook->setActiveSheetIndex(1);
+$writer = PHPExcel_IOFactory::createWriter($workbook, 'Excel5');
+$writer->save('demo.xls');
+$writer = PHPExcel_IOFactory::createWriter($workbook, 'Excel2007');
+$writer->save('demo.xlsx');

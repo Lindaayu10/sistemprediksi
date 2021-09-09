@@ -1,0 +1,50 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hi, i want to hide column from AF to the end (can be done by Ctrl+Maj+right to reach column IV). But nothing append on column IV... it's not possible to change the width ou to set visibility...\n\nI use reader 'Excel5' (from load method \".xls\" file) and try a simple :\n$objPHPExcel->getActiveSheet()->getColumnDimension('IV')->setWidth(300);\nor\n$objPHPExcel->getActiveSheet()->getColumnDimension('IV')->setVisible(false);\n\nI think column IV is protected somewhere in the program but why ?\n\nBest Regards\nLaurent",
+    "LastUpdatedDate": "2015-02-08T10:20:31.03-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2015-01-20T15:51:42.787-08:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "[resolved] Column IV (index 255)",
+    "Type": {
+      "Name": "Unassigned",
+      "Id": 5
+    },
+    "VoteCount": 1,
+    "Id": 21672
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "To resolve this issue :\r\n\r\nopen the PHPExcel\\Classes\\PHPExcel\\Writer\\Excel5\\Worksheet.php\ngo to line 303\nchange $maxCol = $this->_lastColumnIndex -1; by $maxCol = $this->_lastColumnIndex;\nsave\r\n\r\nNow the column IV can be hidden...\r\n\r\nPs: if you open an Workbook with all empty column hidden, make this modification :\r\n\r\nopen PHPExcel\\Classes\\PHPExcel\\Reader\\Excel5.php\ngo to line 3476\ncomment :\nif ($lc == 255 || $lc == 256) {\n$this->_phpSheet->getDefaultColumnDimension()->setWidth($width / 256);\nbreak;\n}\nsave\r\n\r\nNow the column 255 will not skip the for loop...\r\n\r\nEnjoy !",
+      "PostedDate": "2015-02-08T10:17:41.503-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2015-02-08T10:20:31.03-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

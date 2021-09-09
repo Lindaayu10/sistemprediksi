@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "985405",
+    "ThreadId": "429280",
+    "Html": "\r\n<p>Hi All!<br>\r\n<br>\r\nI have project based on PHPExcel and I haven't had any problems with it until now...<br>\r\nI need to export my results as .xls and .pdf as well, so I downloaded and copyd all the tcPDF files into this directory: &quot;/var/www/scripts/PHPExcel/Shared/PDF&quot;</p>\r\n<p>My export.php file looks like this:<br>\r\n<br>\r\nThis is the inicialization part of the PDF writer:<br>\r\n</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>$objPHPExcel = <span style=\"color:blue\">new</span> PHPExcel();\r\n\r\n$rendererName = PHPExcel_Settings::PDF_RENDERER_TCPDF;\r\n$rendererLibrary = <span style=\"color:#a31515\">'PDF'</span>;\r\n$rendererLibraryPath = dirname(<span style=\"color:blue\">__FILE__</span>).<span style=\"color:#a31515\">'/scripts/PHPExcel/Shared/'</span>.$rendererLibrary;\r\n<span style=\"color:blue\">if</span> (!PHPExcel_Settings::setPdfRenderer(\r\n\t\t$rendererName,\r\n\t\t$rendererLibraryPath\r\n\t)) {\r\n\t<span style=\"color:blue\">die</span>(\r\n\t\t<span style=\"color:#a31515\">'Please set the $rendererName and $rendererLibraryPath values'</span> .\r\n\t\tPHP_EOL .\r\n\t\t<span style=\"color:#a31515\">' as appropriate for your directory structure'</span>\r\n\t);\r\n}<br>\r\n</pre>\r\n</div>\r\n...<br>\r\n<br>\r\nThis is the export section at the end of the file:<br>\r\n<br>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><span style=\"color:blue\">if</span>($_GET[<span style=\"color:#a31515\">'format'</span>] == <span style=\"color:#a31515\">'xls'</span>){\r\n\r\n\theader(<span style=\"color:#a31515\">'Content-Type: application/vnd.ms-excel'</span>);\r\n\theader(<span style=\"color:#a31515\">'Content-Disposition: attachment;filename=&quot;export.xls&quot;'</span>);\r\n\r\n\t$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, <span style=\"color:#a31515\">'Excel5'</span>);\r\n\t$objWriter-&gt;save(<span style=\"color:#a31515\">'php://output'</span>);\r\n\t<span style=\"color:blue\">exit</span>;\r\n}\r\n\r\n<span style=\"color:blue\">if</span>($_GET[<span style=\"color:#a31515\">'format'</span>] == <span style=\"color:#a31515\">'pdf'</span>){\r\n\r\n\theader(<span style=\"color:#a31515\">'Content-Type: application/pdf'</span>);\r\n\theader(<span style=\"color:#a31515\">'Content-Disposition: attachment;filename=&quot;export.pdf&quot;'</span>);\r\n\t\r\n\t$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, <span style=\"color:#a31515\">'PDF'</span>); \r\n\t$objPHPExcel-&gt;setActiveSheetIndex(0);\r\n\t$objWriter-&gt;writeAllSheets();\r\n\t$objWriter-&gt;save(<span style=\"color:#a31515\">'php://output'</span>);\r\n\t<span style=\"color:blue\">exit</span>;\r\n}\r\n</pre>\r\n</div>\r\n<br>\r\nThe XLS export is working without any problems, but the PDF export result is always only a BLANK PAGE, nothing more. (the pdf file is valid, I can open it, but it only has 1 blank page)<br>\r\n<br>\r\nI can't see any errors in the Apache log, so right now I really don't know what could be the problem...<br>\r\n<br>\r\nCan someone help me out here? <br>\r\n<br>\r\nThanks!\r\n<p></p>\r\n",
+    "PostedDate": "2013-01-11T05:17:39.28-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "985438",
+    "ThreadId": "429280",
+    "Html": "\r\n<p>Changed to mPDF:</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><span style=\"color:green\">//$rendererName = PHPExcel_Settings::PDF_RENDERER_TCPDF;</span>\n$rendererName = PHPExcel_Settings::PDF_RENDERER_MPDF;\n$rendererLibrary = <span style=\"color:#a31515\">'MPDF'</span>;\n$rendererLibraryPath = <span style=\"color:#a31515\">'scripts/PHPExcel/Shared/'</span>.$rendererLibrary;\n</pre>\r\n</div>\r\n<p><br>\r\nbut this time the exported pdf file isn't valid... Acrobat Reader says: &quot;Acrobat Reader could not open 'export.pdf' because it is either not a supported file type or because the file has been damaged&quot;</p>\r\n<p>&nbsp;</p>\r\n<p>The file itself is 225KB. <br>\r\n<br>\r\nI found a PHP Warning in the apache log:<br>\r\n<br>\r\n</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>PHP Warning:  Cannot modify header information - headers already sent by (output started at /<span style=\"color:blue\">var</span>/www/scripts/PHPExcel/Shared/MPDF/mpdf.php:30875) in /<span style=\"color:blue\">var</span>/www/scripts/PHPExcel/Shared/MPDF/mpdf.php on line 1727\n</pre>\r\n</div>\r\n<p></p>\r\n",
+    "PostedDate": "2013-01-11T06:20:32.473-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "986092",
+    "ThreadId": "429280",
+    "Html": "\r\n<p>You'd get that error if mPDF encountered non-utf8 characters in the markup when it's expecting all utf-8; other than that I'm not overly familiar with the inner working of those libraries; but it does suggest that there is some content in the Excel file\r\n that might be non-utf8</p>\r\n",
+    "PostedDate": "2013-01-13T04:06:00.42-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "986094",
+    "ThreadId": "429280",
+    "Html": "\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<strong>MarkBaker wrote:</strong><br>\r\n<p>You'd get that error if mPDF encountered non-utf8 characters in the markup when it's expecting all utf-8; other than that I'm not overly familiar with the inner working of those libraries; but it does suggest that there is some content in the Excel file\r\n that might be non-utf8</p>\r\n</blockquote>\r\n<p>I will check my export's file encoding. The procedure is the following by the way: the export.pdp file opens a xls file (there are 4 different xls input files), calculates each row and fills them in and then exports it as xls or pdf. The xls version works\r\n great, but the pdf return only a blank page. I think I didn't use UTF-8 encoding, because the title of the result xls wasn't correct encoded (I'm unsing hungarian characters)... I really hope this will solve the issue.</p>\r\n",
+    "PostedDate": "2013-01-13T04:16:43.853-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

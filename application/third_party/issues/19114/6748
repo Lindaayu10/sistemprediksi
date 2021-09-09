@@ -1,0 +1,29 @@
+<?	
+
+	$show_filename = "UTF16_test.xls";
+
+	header('Content-Type: application/vnd.ms-excel');
+	header("Content-Disposition: attachment;filename=$show_filename");
+	header('Cache-Control: max-age=0');
+
+	include 'classes/PHPExcel.php';
+
+	$objPHPExcel = new PHPExcel();
+	$objPHPExcel->setActiveSheetIndex(0);
+	$active_sheet = $objPHPExcel->getActiveSheet();
+	
+	// write some data
+	// chinese test character (Unicode U+2070E) from:
+	// http://www.i18nguy.com/unicode/supplementary-test.html
+	$active_sheet->setCellValueByColumnAndRow(0, 1, "abc");
+	$active_sheet->setCellValueByColumnAndRow(1, 1, iconv("UTF-16LE", "UTF-8", "\x41\xD8\x0E\xDF"));
+	$active_sheet->setCellValueByColumnAndRow(2, 1, "def");
+	
+	
+	// Save Excel 5 file
+	$objWriter = new PHPExcel_Writer_Excel5($objPHPExcel);
+	$objWriter->data_array = &$data_array;
+	$objWriter->save('php://output');
+
+?>
+

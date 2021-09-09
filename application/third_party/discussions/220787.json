@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "471157",
+    "ThreadId": "220787",
+    "Html": "$excel-&gt;getActiveSheet()-&gt;getStyleByColumnAndRow($columnIndex, $rowIndex)-&gt;getFill() returns object, not a string.\r\nAny suggestion?\r\n\r\nThanks",
+    "PostedDate": "2010-07-22T11:37:32.727-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "471316",
+    "ThreadId": "220787",
+    "Html": "<p>Hi,</p>\r\n<p>I needed to find a way to do the same thing.&nbsp; I came across a issue here that shows how to output the RGB code:</p>\r\n<p>http://phpexcel.codeplex.com/workitem/7033?ProjectName=phpexcel</p>\r\n<p>Code:</p>\r\n<p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>$reader = <span style=\"color:blue\">new</span> PHPExcel_Reader_Excel2007();\r\n$phpExcel = $reader-&gt;load(<span style=\"color:#a31515\">'bg-test.xlsx'</span>);\r\n<span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'A1: '</span> . $phpExcel-&gt;getActiveSheet()-&gt;getStyle(<span style=\"color:#a31515\">'A1'</span>)-&gt;getFill()-&gt;getStartColor()-&gt;getRGB() . <span style=\"color:#a31515\">'&lt;br&gt;'</span>;\r\n<span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'B1: '</span> . $phpExcel-&gt;getActiveSheet()-&gt;getStyle(<span style=\"color:#a31515\">'B1'</span>)-&gt;getFill()-&gt;getStartColor()-&gt;getRGB() . <span style=\"color:#a31515\">'&lt;br&gt;'</span>;\r\n</pre>\r\n</div>\r\n</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>\r\n</pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-07-22T20:57:06.603-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "471781",
+    "ThreadId": "220787",
+    "Html": "Ah... interesting one.\r\nHowever, even if the cell background is colored green or blue, the returned value is always 000000 (black) or FF000000 if using getARGB()\r\n\r\nPerhaps the developers could explain this anomaly?\r\n\r\nThanks",
+    "PostedDate": "2010-07-23T11:24:06.483-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "472305",
+    "ThreadId": "220787",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>gbudiman wrote:</strong><br>Ah... interesting one. However, even if the cell background is colored green or blue, the returned value is always 000000 (black) or FF000000 if using getARGB() Perhaps the developers could explain this anomaly? Thanks</blockquote>\r\n<p>&nbsp;Not without some testing ourselves. This should return the cell background colours correctly</p>",
+    "PostedDate": "2010-07-25T05:03:13.93-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "472787",
+    "ThreadId": "220787",
+    "Html": "Okay, this is the code that I used to 'read' the background color\r\n\r\n$excelSaveDirectory = {PATH_TO_FILE};\r\n$excel = PHPExcel_IOFactory::load($excelSaveDirectory);\r\n$excel-&gt;setActiveSheetIndex(0);\r\n\r\nfor ($i = 0; $i &lt; 12; $i++) {\r\n\techo $excel-&gt;getActiveSheet()-&gt;getCellByColumnAndRow($i, 2)-&gt;getValue() .' - ';\r\n\techo $excel-&gt;getActiveSheet()-&gt;getStyleByColumnAndRow($i, 2)-&gt;getFill()-&gt;getStartColor()-&gt;getRGB() .' - ';\r\n\techo $excel-&gt;getActiveSheet()-&gt;getStyleByColumnAndRow($i, 2)-&gt;getFill()-&gt;getEndColor()-&gt;getRGB() .' - ';\r\n\techo '<br>';\r\n}\r\n\r\nAnd this is the result\r\n\r\nIRD Serial - FFFFFF - FFFFFF -\r\nEntry Date - FFFFFF - FFFFFF -\r\nHDD Serial - FFFFFF - FFFFFF -\r\nModel Serial - FFFFFF - FFFFFF -\r\nActivities - FFFFFF - FFFFFF -\r\nAttachments - FFFFFF - FFFFFF -\r\nBDF - FFFFFF - FFFFFF -\r\nBDG - 000000 - FFFFFF -\r\nBDH - FFFFFF - FFFFFF -\r\n##ACB - FFFFFF - FFFFFF -\r\n##ACC - 000000 - FFFFFF -\r\nAY - FFFFFF - FFFFFF - \r\n\r\n\r\nFile attached at http://phpexcel.codeplex.com/Project/Download/AttachmentDownload.ashx?ProjectName=PHPExcel&WorkItemId=13790&FileAttachmentId=4680\r\n\r\nP.S. OMG How do I apply formatting and code block and newline and stuff?",
+    "PostedDate": "2010-07-26T12:07:58.783-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "472788",
+    "ThreadId": "220787",
+    "Html": "EDIT: IGNORE THIS POST. The post below is made after another anomaly. Doing the following still produce incorrect background color result.\r\nAdditional details:\r\nThe anomaly above occurs only when I use the 'Fill Color' in the 'Font' ribbon (I'm using Excel 2007).\r\nIf I right click on a cell and manually choose background color under the tab 'Fill', the value returned is correct.\r\n\r\nThanks",
+    "PostedDate": "2010-07-26T12:15:50.78-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

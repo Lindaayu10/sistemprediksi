@@ -1,0 +1,101 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I've found a problem in the excel reader when running worksheet's toArray method for cells which contains formula returning range (e.g. E10:G10) of values. \nEven a fatal error is raised if the cell's format is 'date' (because the PHPExcel_Style_NumberFormat tries to multiply the array with 1 which is not permitted in php operators).\n \nThere are the rules of this situation as far as I've understood:\n \nIn Excel if cell's value is a range of other cells then it's resulting value is:\n a) value of cell in range within the same column if range contains only one row\n b) value of cell in range within the same row if range contains only one column\n c) value of cell in range within the same column AND row (in another sheet of course)\n \nExamples\n a) if C5=A1:F1 then value of C5 is C1 value\n b) if C5=A1:A10 then value of C5 is A5 value\n c) if Sheet2!C5=Sheet1!A1:F10 then value of Sheet2!C5 is Sheet1!C5 value\n \nOther situations lead to #VALUE\n \nI see that there is some array value case in the PHPExcel_Calculation::calculate() method, but I haven't found it useful. My change suggestion is in the attached patch.",
+    "LastUpdatedDate": "2017-11-27T22:26:33.55-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-01-31T08:55:45.813-08:00",
+    "Status": {
+      "Name": "Active",
+      "Id": 2
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Wrong cell result when formula returns array of cells",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 9120
+  },
+  "FileAttachments": [
+    {
+      "FileId": 2697,
+      "FileName": "PHPExcel_array_patch.diff",
+      "DownloadUrl": ".\\2697"
+    },
+    {
+      "FileId": 2706,
+      "FileName": "ArrayReadTest.xls",
+      "DownloadUrl": ".\\2706"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "Mark, can you check this one?",
+      "PostedDate": "2009-02-02T00:56:36.11-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "It's one I've been working one since I added the basic matrix functions such as TRANSPOSE for the last release. There's a flag setting in PHPExcel_Calculation that determines how PHPExcel should return an array: as the first value in the array, or as the full array. Possible flag values are: PHPExcel_Calculation::RETURN_ARRAY_AS_VALUE and PHPExcel_Calculation::RETURN_ARRAY_AS_ARRAY, with methods PHPExcel_Calculation::getArrayReturnType() and PHPExcel_Calculation::setArrayReturnType() for getting and setting the flag value. Default is PHPExcel_Calculation::RETURN_ARRAY_AS_ARRAY.\r\n\r\nThis is still very much Work-in-Progress; and at the moment it only works with the specific Excel functions that actually return an array or matrix. I'll take a look at the more general incidences such as those listed above (which don't actually use an Excel function) this week.",
+      "PostedDate": "2009-02-02T05:01:16.17-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-02-02T05:03:09.437-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Perfect. Thanks Mark!",
+      "PostedDate": "2009-02-02T06:02:13.547-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "One issue I've noticed with the Excel 5 Reader when trying to read a cell containing a cell containg a basic array/matrix fomula of the type {=A1:C3}. The parser correctly identifies it as a formula, calling _readFormula(), calls _getFormulaFromStructure(), which in turn calls _getFormulaFromData() to loop through the tokens using _getNextToken. The last method throws an error on the first token - 'Unrecognised token 01 in formula'. This is caught by _readFormula(), which duly inserts the stored, calculated value in the cell rather than the formula.\r\n\r\n\r\nI've attached a worksheet contaning an example in Cell F7. Can you take a quick look Erik?",
+      "PostedDate": "2009-02-03T10:12:10.623-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-02-03T10:12:11.437-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Correct, Mark! Array formula not supported by Excel5 reader. Last time I looked at this, I think I concluded that PHPExcel did not support array formulas? \r\n\r\nHow do I insert {=A1:C3} in PHPExcel? In MS Office Excel 2007, I would type =A1:C3 and press CTRL+SHIFT+Enter. But in PHPExcel, what do I do?\r\n\r\nIn other words, I can extract the data from your xls workbook, but how do I put it in PHPExcel?",
+      "PostedDate": "2009-02-03T14:52:44.043-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "In fact in this issue I didn't think about array formulas of type {=A1:A3}. I got this issue with Excel5 with formulas like A1:A3 (no curly brackets, no Ctrl+Shift+Enter).",
+      "PostedDate": "2009-02-03T23:49:19.843-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:04:23.393-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2017-11-27T22:26:33.55-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

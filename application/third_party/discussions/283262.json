@@ -1,0 +1,82 @@
+[
+  {
+    "Id": "713414",
+    "ThreadId": "283262",
+    "Html": "\r\n<p>First, I really love PHPExcel.&nbsp; It is a great utility and I'm very pleased with it!&nbsp; I'm using the latest release, 1.7.6.</p>\r\n<p>I am having a bit of a problem reading an Excel file, and specifically with the SUMIF() function, when the arguments are not in the current sheet.</p>\r\n<p>Here is the function from Excel:</p>\r\n<p>=SUMIF('YoY Actual (New)'!$C:$C,'Vol vs. Goal'!$C35,'YoY Actual (New)'!H:H)</p>\r\n<p>'YoY Actual (New)' is another sheet in the spreadsheet.&nbsp; 'Vol vs. Goal' is the current sheet.</p>\r\n<p>What I'm trying to do is get the calculated value, like this:</p>\r\n<p>$d = $sheet-&gt;getCell('D35')-&gt;getCalculatedValue();</p>\r\n<p>I get the following in my PHP log:</p>\r\n<p>[16-Dec-2011 11:24:16] PHP Fatal error:&nbsp; Uncaught exception 'Exception' with message 'Vol vs. Goal!D35 -&gt; Formula Error: Wrong number of arguments for SUMIF() function: 1 given, either 2 or 3 expected' in E:\\PHPBatch\\PHPExcel\\Cell.php:284<br>\r\nStack trace:<br>\r\n#0 E:\\PHPBatch\\LoadSales.php(534): PHPExcel_Cell-&gt;getCalculatedValue()<br>\r\n#1 {main}<br>\r\n&nbsp; thrown in E:\\PHPBatch\\PHPExcel\\Cell.php on line 284</p>\r\n<p>Note that it thinks I only passed one parameter to SUMIF() instead of 2 or 3.&nbsp; Looking at the cell, I do have 3 parameters.</p>\r\n<p>I added a bunch of print statements into Calculation.php to dump into my application log and got this:</p>\r\n<p>2011-12-16 15:58:46&nbsp;&nbsp;&nbsp; Cell value for D35 is a formula: Calculating value.<br>\r\n2011-12-16 15:58:46&nbsp;&nbsp;&nbsp; Testing cache value<br>\r\n2011-12-16 15:58:46&nbsp;&nbsp;&nbsp; Parsing Formula SUMIF('YoY Actual (New)'!$C:$C,'Vol vs. Goal'!$C35,'YoY Actual (New)'!H:H).<br>\r\n2011-12-16 15:58:46&nbsp;&nbsp;&nbsp; Assessing Expression SUMIF('YoY Actual (New)'!$C:$C,'Vol vs. Goal'!$C35,'YoY Actual (New)'!H:H)<br>\r\n2011-12-16 15:58:46&nbsp;&nbsp;&nbsp; Initial character of expression block is S<br>\r\n2011-12-16 15:58:46&nbsp;&nbsp;&nbsp; $isOperandOrFunction is True<br>\r\n2011-12-16 15:58:46&nbsp;&nbsp;&nbsp; Element with value SUMIF( is an Operand, Variable, Constant, String, Number, Cell Reference or Function<br>\r\n2011-12-16 15:58:46&nbsp;&nbsp;&nbsp; Element SUMIF( is a Function<br>\r\n2011-12-16 15:58:46&nbsp;&nbsp;&nbsp; Assessing Expression 'YoY Actual (New)'!$C:$C,'Vol vs. Goal'!$C35,'YoY Actual (New)'!H:H)<br>\r\n2011-12-16 15:58:46&nbsp;&nbsp;&nbsp; Initial character of expression block is '<br>\r\n2011-12-16 15:58:46&nbsp;&nbsp;&nbsp; $isOperandOrFunction is True<br>\r\n2011-12-16 15:58:46&nbsp;&nbsp;&nbsp; Element with value 'YoY Actual (New)'!$C:$C,'Vol vs. Goal'!$C35 is an Operand, Variable, Constant, String, Number, Cell Reference or Function<br>\r\n2011-12-16 15:58:46&nbsp;&nbsp;&nbsp; Element 'YoY Actual (New)'!$C:$C,'Vol vs. Goal'!$C35 is a Cell reference<br>\r\n2011-12-16 15:58:46&nbsp;&nbsp;&nbsp; Assessing Expression ,'YoY Actual (New)'!H:H)<br>\r\n2011-12-16 15:58:46&nbsp;&nbsp;&nbsp; Initial character of expression block is ,<br>\r\n2011-12-16 15:58:46&nbsp;&nbsp;&nbsp; $isOperandOrFunction is True<br>\r\n2011-12-16 15:58:46&nbsp;&nbsp;&nbsp; Element with value , is an Operator.<br>\r\n2011-12-16 15:58:46&nbsp;&nbsp;&nbsp; Assessing Expression 'YoY Actual (New)'!H:H)<br>\r\n2011-12-16 15:58:46&nbsp;&nbsp;&nbsp; Initial character of expression block is '<br>\r\n2011-12-16 15:58:46&nbsp;&nbsp;&nbsp; $isOperandOrFunction is True<br>\r\n2011-12-16 15:58:46&nbsp;&nbsp;&nbsp; Element with value 'YoY Actual (New)'!H is an Operand, Variable, Constant, String, Number, Cell Reference or Function<br>\r\n2011-12-16 15:58:46&nbsp;&nbsp;&nbsp; Element is a Variable, Constant, String, Number, Boolean<br>\r\n2011-12-16 15:58:46&nbsp;&nbsp;&nbsp; Assessing Expression :H)<br>\r\n2011-12-16 15:58:46&nbsp;&nbsp;&nbsp; Initial character of expression block is :<br>\r\n2011-12-16 15:58:46&nbsp;&nbsp;&nbsp; $isOperandOrFunction is False<br>\r\n2011-12-16 15:58:46&nbsp;&nbsp;&nbsp; Element with value : is an Operator.<br>\r\n2011-12-16 15:58:46&nbsp;&nbsp;&nbsp; Assessing Expression H)<br>\r\n2011-12-16 15:58:46&nbsp;&nbsp;&nbsp; Initial character of expression block is H<br>\r\n2011-12-16 15:58:46&nbsp;&nbsp;&nbsp; $isOperandOrFunction is True<br>\r\n2011-12-16 15:58:46&nbsp;&nbsp;&nbsp; Element with value H is an Operand, Variable, Constant, String, Number, Cell Reference or Function<br>\r\n2011-12-16 15:58:46&nbsp;&nbsp;&nbsp; Element is a Variable, Constant, String, Number, Boolean<br>\r\n2011-12-16 15:58:46&nbsp;&nbsp;&nbsp; Assessing Expression )<br>\r\n2011-12-16 15:58:46&nbsp;&nbsp;&nbsp; Initial character of expression block is )<br>\r\n2011-12-16 15:58:46&nbsp;&nbsp;&nbsp; $isOperandOrFunction is False<br>\r\n2011-12-16 15:58:46&nbsp;&nbsp;&nbsp; Element is a closing bracket<br>\r\n2011-12-16 15:58:46&nbsp;&nbsp;&nbsp; Closed Function is SUMIF.<br>\r\n2011-12-16 15:58:46&nbsp;&nbsp;&nbsp; argMatch:<br>\r\narray (<br>\r\n&nbsp; 0 =&gt; '2,3',<br>\r\n&nbsp; 1 =&gt; '2',<br>\r\n&nbsp; 2 =&gt; ',',<br>\r\n&nbsp; 3 =&gt; '3',<br>\r\n)<br>\r\n2011-12-16 15:58:46&nbsp;&nbsp;&nbsp; Calculation Exception: Formula Error: Wrong number of arguments for SUMIF() function: 1 given, either 2 or 3 expected.</p>\r\n<p>Thanks.</p>\r\n",
+    "PostedDate": "2011-12-16T14:12:03.357-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "714858",
+    "ThreadId": "283262",
+    "Html": "<p>This is a critical issue for me, and I'm not able to figure out how to fix the code.&nbsp; Can someone please help?</p>\r\n<p>Thanks.</p>",
+    "PostedDate": "2011-12-20T07:15:46.233-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "723694",
+    "ThreadId": "283262",
+    "Html": "<p>Please, has anyone seen this?&nbsp; Does anyone have a solution?&nbsp; Functions that reference other sheets in the spreadsheet are NOT parsing correctly for me.&nbsp; Am I doing something wrong?</p>\r\n<p>&nbsp;</p>\r\n<p>HELP??</p>",
+    "PostedDate": "2012-01-11T07:43:29.99-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "723695",
+    "ThreadId": "283262",
+    "Html": "<p>If i'm not mistaken, it is not supported</p>",
+    "PostedDate": "2012-01-11T07:49:23.643-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "723755",
+    "ThreadId": "283262",
+    "Html": "<p>Oh darn.&nbsp; I was hoping it was something I was doing wrong.&nbsp; Any chance of a work-around?&nbsp; What are other people doing in this situation?&nbsp; I'm hoping to avoid writing my own code to handle it.</p>",
+    "PostedDate": "2012-01-11T08:54:42.317-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "726269",
+    "ThreadId": "283262",
+    "Html": "<p>So you can't use array formulas (CSE formulas) and you can't reference cells in other sheets with \"=sumif\" or \"=sumifs\" in PHPExcel. &nbsp;How are you supposed to conditionally aggregate information on another sheet? &nbsp;I feel like I'm scrapping the bottom of the  barrel of my Excel tricks just to get a simple report that will sum all the shipped quantities on a given day.</p>\n<p>EDIT:</p>\n<p>As for your specific case, could you try to copy and pastevalue. &nbsp;I'm pretty new to PHPExcel, but that's how I might try to hack something together in VBA.</p>",
+    "PostedDate": "2012-01-17T02:15:59.61-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "726347",
+    "ThreadId": "283262",
+    "Html": "<p>References to other worksheets should work correctly in calculations, and array formulas are partially supported.</p>\n<p>Try setting</p>\n<div style=\"background-color: white; color: black;\">\n<pre>PHPExcel_Calculation::setArrayReturnType(PHPExcel_Calculation::RETURN_ARRAY_AS_ARRAY);\r\n</pre>\n</div>\n<p>before calling getCalculatedValue()</p>\n<p>If it doesn't work, try with the latest SVN code: failing that, then I need to investigate on a case-by-case basis, with specific test data.</p>",
+    "PostedDate": "2012-01-17T05:06:20.29-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "990243",
+    "ThreadId": "283262",
+    "Html": "\r\n<p>I'm running into the same problem. By trying to get the value of a SUMIFS formula I get 0 everytime when I use getCalculatedValue. I've tried it within an active worksheet and read the file again, but always the same problem. Is there any solution?</p>\r\n",
+    "PostedDate": "2013-01-22T03:42:07.103-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "990247",
+    "ThreadId": "283262",
+    "Html": "\r\n<p>As per the documentation:</p>\r\n<pre>SUMIFS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; CATEGORY_MATH_AND_TRIG&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ***&nbsp; Not yet Implemented</pre>\r\n<p>which means that getCalculatedValue() cannot yet calculate the result of SUMIFS() functions in your worksheets</p>\r\n",
+    "PostedDate": "2013-01-22T03:57:17.48-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "990250",
+    "ThreadId": "283262",
+    "Html": "\r\n<p>Are there any alternatives to do this?</p>\r\n",
+    "PostedDate": "2013-01-22T04:10:20.48-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

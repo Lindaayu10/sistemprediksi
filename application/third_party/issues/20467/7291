@@ -1,0 +1,234 @@
+Index: W:/test/httpdocs/Library/PHPExcel/1.7.9/PHPExcel/Style/Fill.php
+===================================================================
+--- W:/test/httpdocs/Library/PHPExcel/1.7.9/PHPExcel/Style/Fill.php	(revision )
++++ W:/test/httpdocs/Library/PHPExcel/1.7.9/PHPExcel/Style/Fill.php	(revision )
+@@ -318,4 +318,29 @@
+ 		);
+ 	}
+ 
++	private static $props = array(
++		'type' => PHPExcel_Style_Fill::FILL_NONE,
++		'rotation' => 0
++	);
++	/**
++	 * @return array
++	 */
++	public function toArray(){
++		$return = array();
++		foreach (self::$props as $key => $defaultValue){
++			$prop = $key == 'type' ? 'getFillType' : 'get'.ucfirst($key);
++			if ((($value = $this->$prop()) !== null) && ($value !== $defaultValue)){
++				$return[$key] = $value;
++			}
++		}
++		if ($return['type']){
++			foreach (array('startColor', 'endColor') as $key){
++				$prop = 'get'.ucfirst($key);
++				if (($value = $this->$prop()->getARGB())/* !== null*/){
++					$return[strtolower($key)]['argb'] = $value;
++				}
++			}
++		}
++		return $return;
++	}
+ }
+Index: W:/test/httpdocs/Library/PHPExcel/1.7.9/PHPExcel/Style/Font.php
+===================================================================
+--- W:/test/httpdocs/Library/PHPExcel/1.7.9/PHPExcel/Style/Font.php	(revision )
++++ W:/test/httpdocs/Library/PHPExcel/1.7.9/PHPExcel/Style/Font.php	(revision )
+@@ -529,4 +529,20 @@
+ 		);
+ 	}
+ 
++	/**
++	 * @return array
++	 */
++	public function toArray(){
++		$return = array();
++		foreach (array('name', 'bold', 'italic', 'superScript', 'subScript', 'underline', 'strike', 'size') as $key){
++			$prop = $key == 'strike' ? 'getStrikethrough' : 'get'.ucfirst($key);
++			if (($value = $this->$prop())/* !== null*/){
++				$return[$key] = $value;
++			}
++		}
++		if (($value = $this->getColor()->getARGB())/* !== null*/){
++			$return['color']['argb'] = $value;
++		}
++		return $return;
++	}
+ }
+Index: W:/test/httpdocs/Library/PHPExcel/1.7.9/PHPExcel/Style/Color.php
+===================================================================
+--- W:/test/httpdocs/Library/PHPExcel/1.7.9/PHPExcel/Style/Color.php	(revision )
++++ W:/test/httpdocs/Library/PHPExcel/1.7.9/PHPExcel/Style/Color.php	(revision )
+@@ -426,4 +426,17 @@
+ 		);
+ 	}
+ 
++	/**
++	 * Implement PHP __clone to create a deep clone, not just a shallow copy.
++	 */
++	public function __clone() {
++		$vars = get_object_vars($this);
++		foreach ($vars as $key => $value) {
++			if ((is_object($value)) && ($key != '_parent')) {
++				$this->$key = clone $value;
++			} else {
++				$this->$key = $value;
++			}
++		}
++	}
+ }
+Index: W:/test/httpdocs/Library/PHPExcel/1.7.9/PHPExcel/Style/Border.php
+===================================================================
+--- W:/test/httpdocs/Library/PHPExcel/1.7.9/PHPExcel/Style/Border.php	(revision )
++++ W:/test/httpdocs/Library/PHPExcel/1.7.9/PHPExcel/Style/Border.php	(revision )
+@@ -291,4 +291,17 @@
+ 		);
+ 	}
+ 
++	/**
++	 * @return array
++	 */
++	function toArray(){
++		$return = array();
++		if ($this->getBorderStyle() && ($this->getBorderStyle() != PHPExcel_Style_Border::BORDER_NONE)){
++			$return['style'] = $this->getBorderStyle();
++			if ($color = $this->getColor()->getARGB()){
++				$return['color']['argb'] = $color;
++			}
++		}
++		return $return;
++	}
+ }
+Index: W:/test/httpdocs/Library/PHPExcel/1.7.9/PHPExcel/Style/Borders.php
+===================================================================
+--- W:/test/httpdocs/Library/PHPExcel/1.7.9/PHPExcel/Style/Borders.php	(revision )
++++ W:/test/httpdocs/Library/PHPExcel/1.7.9/PHPExcel/Style/Borders.php	(revision )
+@@ -421,4 +421,23 @@
+     	);
+     }
+ 
++	/**
++	 * @return array
++	 */
++	public function toArray(){
++		$return = array();
++		foreach (array('left', 'right', 'top', 'bottom', 'diagonal') as $key){
++			$prop = 'get'.ucfirst($key);
++			if (($value = $this->$prop()->toArray())/* !== null*/){
++				$return[$key] = $value;
++			}
++		}
++		foreach (array('diagonalDirection') as $key){
++			$prop = 'get'.ucfirst($key);
++			if (($value = $this->$prop()) && ($value != PHPExcel_Style_Borders::DIAGONAL_NONE)){
++				$return[strtolower($key)] = $value;
++			}
++		}
++		return $return;
++	}
+ }
+Index: W:/test/httpdocs/Library/PHPExcel/1.7.9/PHPExcel/Style/Alignment.php
+===================================================================
+--- W:/test/httpdocs/Library/PHPExcel/1.7.9/PHPExcel/Style/Alignment.php	(revision )
++++ W:/test/httpdocs/Library/PHPExcel/1.7.9/PHPExcel/Style/Alignment.php	(revision )
+@@ -406,4 +406,20 @@
+ 		);
+ 	}
+ 
++	/**
++	 * @return array
++	 */
++	public function toArray(){
++		$return = array();
++		foreach (array('horizontal', 'vertical', 'rotation', 'wrap', 'shrinkToFit', 'indent') as $key){
++			$prop = 
++				$key == 'wrap' ? 'getWrapText' : 
++					($key == 'rotation' ? 'getTextRotation' : 'get'.ucfirst($key))
++			;
++			if (($value = $this->$prop())/* !== null*/){
++				$return[strtolower($key)] = $value;
++			}
++		}
++		return $return;
++	}
+ }
+Index: W:/test/httpdocs/Library/PHPExcel/1.7.9/PHPExcel/Style/NumberFormat.php
+===================================================================
+--- W:/test/httpdocs/Library/PHPExcel/1.7.9/PHPExcel/Style/NumberFormat.php	(revision )
++++ W:/test/httpdocs/Library/PHPExcel/1.7.9/PHPExcel/Style/NumberFormat.php	(revision )
+@@ -705,4 +705,14 @@
+ 		return $value;
+ 	}
+ 
++	/**
++	 * @return array
++	 */
++	public function toArray(){
++		$return = array();
++		if ($code = $this->getFormatCode()){
++			$return['code'] = $code;
++		}
++		return $return;
++	}
+ }
+Index: W:/test/httpdocs/Library/PHPExcel/1.7.9/PHPExcel/Style.php
+===================================================================
+--- W:/test/httpdocs/Library/PHPExcel/1.7.9/PHPExcel/Style.php	(revision )
++++ W:/test/httpdocs/Library/PHPExcel/1.7.9/PHPExcel/Style.php	(revision )
+@@ -470,7 +470,28 @@
+         return $this;
+     }
+ 
+-    /**
++	/**
++	 * @param PHPExcel_Style|array $style
++	 * @throws Exception
++	 */
++	function mergeStyle($style){
++		switch (true) {
++			case $style instanceof PHPExcel_Style:
++				$style = $style->toArray();
++				break;
++			case is_array($style):
++
++				break;
++			default:
++				throw new Exception('Invalid usage');
++				break;
++		}
++		$pRange = $this->getSelectedCells();
++		$cellStyle = $this->_parent->getActiveSheet()->getStyle($pRange);
++		$cellStyle->applyFromArray(array_replace_recursive($cellStyle->toArray(), $style));
++	}
++
++    /**
+      * Get Fill
+      *
+      * @return PHPExcel_Style_Fill
+@@ -610,4 +631,24 @@
+         $this->_index = $pValue;
+     }
+ 
++	private static $propMap = array(
++		'_font' => 'font',
++		'_fill' => 'fill',
++		'_borders' => 'borders',
++		'_alignment' => 'alignment',
++		'_numberFormat' => 'numberformat',
++	);
++
++	/**
++	 * @return array
++	 */
++	public function toArray(){
++		$return = array();
++		foreach (self::$propMap as $prop => $arKey){
++			if ($retVal = $this->{$prop}->toArray()){
++				$return[$arKey] = $retVal;
++			}
++		}
++		return $return;
++	}
+ }

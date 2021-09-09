@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "1232672",
+    "ThreadId": "541835",
+    "Html": "Add info - Using PHPExcel 1.8.0 with PHP 5.3.4 and OS: Win 7<br />\n<br />\nI have the following code<br />\n<pre><code>    $objPHPExcel-&gt;getActiveSheet()-&gt;fromArray($DATAARRAY, NULL, 'A1', true);\n    $HighestCol = $objPHPExcel-&gt;getActiveSheet()-&gt;getHighestDataColumn();\n    $HighestRow = $objPHPExcel-&gt;getActiveSheet()-&gt;getHighestDataRow();\n\n    $objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('A1:'.$HighestCol.'1')-&gt;getAlignment()-&gt;setWrapText(true);\n    \n    foreach($objPHPExcel-&gt;getActiveSheet()-&gt;getRowDimensions() as $rd) {\n        $rd-&gt;setRowHeight(10);\n    }\n\n    $objPHPExcel-&gt;getActiveSheet()-&gt;setAutoFilter(\n            $objPHPExcel-&gt;getActiveSheet()-&gt;calculateWorksheetDimension()\n    );\n\n    PHPExcel_Shared_Font::setAutoSizeMethod(PHPExcel_Shared_Font::AUTOSIZE_METHOD_EXACT);\n    foreach(range('A',$HighestCol) as $columnID) {\n        $objPHPExcel-&gt;getActiveSheet()-&gt;getColumnDimension($columnID)\n        -&gt;setAutoSize(true);\n    }\n    \n    header('Content-Type: application/vnd.ms-excel');\n    header('Content-Disposition: attachment;filename=&quot;myfile.xls&quot;');\n    header('Cache-Control: max-age=0');\n\n    $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');\n    $objWriter-&gt;save('php://output');\n</code></pre>\n\nFrom the above code, my $DATAARRAY contain some that have new line in some of the cell.<br />\n<br />\nWhen open the Excel file, those cell that is suppose to have new line, require me to double click on the cell, in order to reflect the correct height.<br />\n<br />\nMay I know which part of my part I did wrong.<br />\n<br />\nThank you.<br />\n",
+    "PostedDate": "2014-04-09T22:58:29-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1234138",
+    "ThreadId": "541835",
+    "Html": "Hi everyone,<br />\n<br />\nBelow is the solution that I manage to find out. (just in case anyone need it)<br />\n<br />\nJust change the line<br />\n<pre><code>$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('A1:'.$HighestCol.'1')-&gt;getAlignment()-&gt;setWrapText(true);\n</code></pre>\n\nto this<br />\n<pre><code>$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('A1:'.$HighestCol.$HighestRow)-&gt;getAlignment()-&gt;setWrapText(true);\n</code></pre>\n\n",
+    "PostedDate": "2014-04-14T18:28:24.303-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

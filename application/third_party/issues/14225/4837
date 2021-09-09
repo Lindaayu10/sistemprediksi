@@ -1,0 +1,69 @@
+<?php
+error_reporting(E_ALL);
+
+/** PHPExcel_IOFactory */
+require_once '../Classes/PHPExcel/IOFactory.php';
+
+
+
+
+// Create new PHPExcel object
+echo date('H:i:s') . " Create new PHPExcel object\n";
+$objPHPExcel = new PHPExcel();
+
+// Create a first sheet, representing sales data
+echo date('H:i:s') . " Add some data\n";
+$objPHPExcel->setActiveSheetIndex(0);
+
+// Create some data
+for ($r=1; $r<=20; $r++) {
+	for ($c=0; $c<20; $c++) {
+		$coord = PHPExcel_Cell::stringFromColumnIndex($c).$r;
+		$objPHPExcel->getActiveSheet()->setCellValue($coord, $r." x ".($c+1)." = ".$r*($c+1));
+	}
+}
+
+echo 'worksheet dimension '.$objPHPExcel->getActiveSheet()->calculateWorksheetDimension()."\n";
+// Correctly outputs A1:T20
+
+echo 'worksheet highest row '.$objPHPExcel->getActiveSheet()->getHighestRow()."\n";
+// Correctly outputs 20
+
+$objPHPExcel->getActiveSheet()->removeRow(5);
+
+echo 'worksheet dimension '.$objPHPExcel->getActiveSheet()->calculateWorksheetDimension()."\n";
+// Incorrectly still outputs A1:T20 - should be A1:T19, since we just deleted a row
+
+echo 'worksheet highest row '.$objPHPExcel->getActiveSheet()->getHighestRow()."\n";
+// Inorrectly outputs 20 - should be 19, since we just deleted a row
+
+$objPHPExcel->getActiveSheet()->removeRow(1, 10);
+
+echo 'worksheet dimension '.$objPHPExcel->getActiveSheet()->calculateWorksheetDimension()."\n";
+// Incorrectly still outputs A1:T20 - should be A1:T9, since we just deleted another 10 rows
+
+echo 'worksheet highest row '.$objPHPExcel->getActiveSheet()->getHighestRow()."\n";
+// Incorrectly still outputs 20 - should be 9, since we just deleted another 10 rows
+
+
+
+echo date('H:i:s') . " Write to Excel2007 format\n";
+$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+$objWriter->save(str_replace('.php', '.xlsx', __FILE__));
+
+echo date('H:i:s') . " Write to HTML format\n";
+$objPHPExcelWriter = new PHPExcel_Writer_HTML($objPHPExcel);
+echo $objPHPExcelWriter->generateSheetData()."\n";
+// Incorrectly prints empty rows 10-20 (should stop printing after row 9)
+
+
+
+echo date('H:i:s') . " Read from Excel2007 format\n";
+$objPHPExcel = PHPExcel_IOFactory::load(str_replace('.php', '.xlsx', __FILE__));
+
+echo 'worksheet dimension '.$objPHPExcel->getActiveSheet()->calculateWorksheetDimension()."\n";
+// Incorrectly still outputs A1:T20 - should be A1:T9, since we deleted 11 rows before saving
+
+echo 'worksheet highest row '.$objPHPExcel->getActiveSheet()->getHighestRow()."\n";
+// Incorrectly still outputs 20 - should be 9, since we deleted 11 rows before saving
+

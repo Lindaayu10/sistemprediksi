@@ -1,0 +1,70 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": "2013-07-19T12:34:25.053-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "With the latest version (1.7.9), I output an Excel 2007 document with PHPExcel. The document have only one sheet and this sheet have exactly 173876 cells.\n\nI have 1.5 GB allowed to PHP on my server. I use PHPExcel_CachedObjectStorageFactory::cache_to_sqlite as caching method (yes I set this correctly before the instantiation of the PHPExcel object) but the creation of the document always bust this memory limit.\n\nAfter much research, I found the issue.\n\nThe second line below is what causes the issue:\n\n```\n$format = '\"' . $this->_getCurrencySymbol($currencyCode) . '\"#,##0.00_-';\n$worksheet->getStyleByColumnAndRow($columnPos, $rowPos)->getNumberFormat()->setFormatCode($format);\n```\n\nIf I leave as is the script dies with a out of memory fatal error in Style\\Supervisor.php on line 126 (and you can see the PHP process memory usage grow until it reaches the limit). This also take quite some time to crash (nearly 10 minutes).\n\nIf I comment the second line above, everything is written to the file correctly (except that the custom currency format and currency symbol is not set for those cells). The process takes around 5 mins and PHP never takes more that 150 MB (the caching works correctly it seems).\n\nSo it seems that when I use setFormatCode the memory consumption by PHPExcel explodes and even with caching activated.\n\nI need to put these _setFormatCode_ in those columns since a column can have many different currencies in the same column.\n\nIs this a memory leak bug? Normal behavior?\n\nIs there something I can do to fix this?",
+    "LastUpdatedDate": "2013-07-22T08:54:55.923-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2013-07-19T10:30:44.9-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "When I use setFormatCode memory consumption explodes in PHPExcel",
+    "Type": {
+      "Name": "Unassigned",
+      "Id": 5
+    },
+    "VoteCount": 1,
+    "Id": 19987
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "If you set a format for each individual cell, then you are creating a format record for each cell. That will take up a lot of memory if you set styles for a lot of cells.\r\n\r\nIf you set the format for a range of cells,\n```php\n$worksheet->getStyle('B1:C256')\n    ->getNumberFormat()\n    ->setFormatCode($format);\n```\nThen you only create a single format record, and memory doesn't explode.... which is exactly why we recommend setting formats for a range of cells rather than for every individual cell.\n",
+      "PostedDate": "2013-07-19T12:33:32.62-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-07-19T12:34:25.053-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Yeah but what if every line in that column have a different currency displayed?",
+      "PostedDate": "2013-07-19T13:33:12.813-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Then it's a tough break: if every cell has to be a different format, then there's no alternative but to set each cell individually, and this will take up memory. If you're using SQLite caching, you're optimising memory as much as possible for cells; but still storing every individual style that you set in memory. Setting styles in a range where possible will reduce that overhead; but so long as PHP has a memory limitation, there will always be a memory limitation for PHPExcel. Anything that can be done to reduce memory usage in PHPExcel will have an adverse effect on performance. Applying some form of caching for styles as well would add significantly to that overhead, and couldn't easily be implemented because of the object structure of styles, so it couldn't be written without several months of work",
+      "PostedDate": "2013-07-19T15:06:55.047-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Wow, so you are telling me that storing the style of less than 175 k cell taking 2 GB+ of RAM is normal even with caching? In my case it's more than 12 KB per cell.\r\n\r\nWhy the cache system don't work with styles?",
+      "PostedDate": "2013-07-22T05:37:51.003-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "It's because most people have large numbers of cells but very few styles, so caching cells was much more important for a majority of users; especially as those few styles will normally be replicated across ranges of cells, which is where the style supervisor handles things reducing it to a single defined style for a block of cells.\r\n\r\nWhen a cell is cached, it's only a single object, so it can easily be handed in a cachecollection. \nA single style comprises several dozens of different objects depending on the actual style itself - borders, border, colour, font, alignment, numberformat, protection, etc) which can't be held as a simple collection in the same way that cells can. That adds a high degree of complexity to any caching, because it isn't simply a collection of identical objects, but a collection of nested objects several levels deep.\r\n\r\nQuite clearly, if you need 175k different styles (one for each cell), then you're an exception to the majority rule. I can't provide an immediate solution, because any solution will entail several man months of work (plus a lot of testing); I can't even think of a practical method to cache style information that wouldn't adversely affect performance.\r\n\r\nIt's probably also worth noting that Excel95 supports a maximum of 4,000 unique styles, while Excel2010 is limited to 64,000 unique styles",
+      "PostedDate": "2013-07-22T08:54:55.923-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "904151",
+    "ThreadId": "393113",
+    "Html": "\r\n<p>Hello all, Im trying to read the first row of a large&nbsp;excel file (4Mb). The file only have 18 columns and 18119 rows (it can have more rows). This is my code:</p>\r\n<p>&nbsp;</p>\r\n<p></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><span style=\"color:blue\">require_once</span> sfConfig::get(<span style=\"color:#a31515\">'sf_lib_dir'</span>) . <span style=\"color:#a31515\">'/vendor/PHPExcel/PHPExcel/IOFactory.php'</span>;\r\n\r\n$objPHPExcel = PHPExcel_IOFactory::load(sfConfig::get(<span style=\"color:#a31515\">'sf_upload_dir'</span>) . <span style=\"color:#a31515\">'/'</span> . $filename);\r\n$objPHPExcel-&gt;setActiveSheetIndex(0);\r\n$objWorksheet = $objPHPExcel-&gt;getActiveSheet();\r\n\r\n$<span style=\"color:blue\">list</span> = <span style=\"color:blue\">array</span>();\r\n$row = 1;    \r\n$columnsToRead = 18; \r\n\r\n<span style=\"color:blue\">for</span> ($column = 0; $column &lt; $columnsToRead; $column&#43;&#43;) {\r\n  $value = $objWorksheet-&gt;getCellByColumnAndRow($column, $row)-&gt;getValue();\r\n   $<span style=\"color:blue\">list</span>[$column] = $value;\r\n}\r\n ...\r\n</pre>\r\n</div>\r\n<p></p>\r\n<p>&#65279; &nbsp;But it takes a lot of time loading the file. Increasing the memory of php is not an alternative. Is there any efficent way to achive this?. I only want the first row, the rest of the data I dont care because I will store the file and I will process\r\n it with java.&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks in advance.</p>\r\n",
+    "PostedDate": "2012-08-26T06:35:00.533-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "904209",
+    "ThreadId": "393113",
+    "Html": "\r\n<p>I tried with this:</p>\r\n<pre><div style=\"color:black; background-color:white\"><pre><span style=\"color:green\">/** PHPExcel_IOFactory */</span>\n<span style=\"color:blue\">include</span> <span style=\"color:#a31515\">'PHPExcel/IOFactory.php'</span>;\n\n<span style=\"color:blue\">class</span> MyReadFilter <span style=\"color:blue\">implements</span> PHPExcel_Reader_IReadFilter\n{\n\t<span style=\"color:blue\">private</span> $_startRow = 0;\n\n\t<span style=\"color:blue\">private</span> $_endRow = 0;\n\n\t<span style=\"color:blue\">private</span> $_columns = <span style=\"color:blue\">array</span>();\n\n\t<span style=\"color:blue\">public</span> <span style=\"color:blue\">function</span> __construct($startRow, $endRow, $columns) {\n\t\t$this-&gt;_startRow\t= $startRow;\n\t\t$this-&gt;_endRow\t\t= $endRow;\n\t\t$this-&gt;_columns\t\t= $columns;\n\t}\n\n\t<span style=\"color:blue\">public</span> <span style=\"color:blue\">function</span> readCell($column, $row, $worksheetName = <span style=\"color:#a31515\">''</span>) {\n\t\t<span style=\"color:blue\">if</span> ($row &gt;= $this-&gt;_startRow &amp;&amp; $row &lt;= $this-&gt;_endRow) {\n\t\t\t<span style=\"color:blue\">if</span> (in_array($column,$this-&gt;_columns)) {\n\t\t\t\t<span style=\"color:blue\">return</span> true;\n\t\t\t}\n\t\t}\n\t\t<span style=\"color:blue\">return</span> false;\n\t}\n}\n\n$inputFileName = <span style=\"color:#a31515\">'./sampleData/ejemplo.xls'</span>;\n$filterSubset = <span style=\"color:blue\">new</span> MyReadFilter(1,1,range(<span style=\"color:#a31515\">'A'</span>,<span style=\"color:#a31515\">'O'</span>));\n$objReader = PHPExcel_IOFactory::createReaderForFile($inputFileName);\n$objReader-&gt;setReadFilter($filterSubset);\n$objReader-&gt;setReadDataOnly(true);\n$objPHPExcel = $objReader-&gt;load($inputFileName);\n$objWorksheet = $objPHPExcel-&gt;getActiveSheet(0);\n\n$<span style=\"color:blue\">list</span> = <span style=\"color:blue\">array</span>();\n$row = 1;  \n$highestColumn = $objWorksheet-&gt;getHighestColumn(); <span style=\"color:green\">// e.g 'F'</span>\n\n$columnsToRead = PHPExcel_Cell::columnIndexFromString($highestColumn);\n\n<span style=\"color:blue\">for</span> ($column = 0; $column &lt; $columnsToRead; $column&#43;&#43;) {\n     $value = $objWorksheet-&gt;getCellByColumnAndRow($column, $row)-&gt;getValue();\n     $<span style=\"color:blue\">list</span>[$column] = $value;\n     <span style=\"color:blue\">echo</span> $value.<span style=\"color:#a31515\">'&lt;br&gt;'</span>;\n}</pre>\n</div>\n</pre>\r\n<p>But it takes 15seg to read it, thats a lot of time for a web user.&nbsp;Is there another thing that I can use for minimize the time of load?.&nbsp;</p>\r\n<p>Any help will be apreciated.</p>\r\n",
+    "PostedDate": "2012-08-26T11:06:02.97-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "904743",
+    "ThreadId": "393113",
+    "Html": "\r\n<p>I've created a website that attempts to read spreadsheet files using PHPExcel in the most efficient way possible.</p>\r\n<p>It does NOT do anything for writing a spreadsheet file, it's geared for reading and displaying the contents of spreadsheet files.</p>\r\n<p>I use it for testing my code in reading large spreadsheet files.</p>\r\n<p>I can zip it up and you can use it to see if it reads the files faster than your current method.</p>\r\n<p>If it does you can dissect my code an incorporate what you need into your own projects.</p>\r\n<p>If you want the website code, just email me at schir1964@gmail.com and I'll set things up so you can download the code.</p>\r\n<p>- Christopher Mullins</p>\r\n",
+    "PostedDate": "2012-08-27T13:13:10.21-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "904773",
+    "ThreadId": "393113",
+    "Html": "<p>Thank you&nbsp;<span>Christopher, I already sent you the email. ;)</span></p>",
+    "PostedDate": "2012-08-27T14:02:12.66-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "904826",
+    "ThreadId": "393113",
+    "Html": "\r\n<p>I just got to thinking, that a large portion of that 15 second delay might just be the file being uploaded to the website for processing.</p>\r\n<p>If that is the case, only a faster connection across the internet will solve the issue.</p>\r\n<p>Just a thought.</p>\r\n<p>- Christopher Mullins</p>\r\n",
+    "PostedDate": "2012-08-27T16:22:30.173-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

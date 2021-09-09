@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "607693",
+    "ThreadId": "256469",
+    "Html": "\r\n<p>Hi all,</p>\r\n<p>I can't get setActiveSheetIndex funcion to work. I don't know what I am doing wrong.</p>\r\n<p>I have a <a href=\"http://phpexcel.codeplex.com/Project/Download/AttachmentDownload.ashx?ProjectName=phpexcel&WorkItemId=10749&FileAttachmentId=5633\">\r\nExcel2003 document file. </a>As you can see, it has three sheets, and its titles' name are:</p>\r\n<p>&nbsp;</p>\r\n<ol>\r\n<li>Sludge features </li><li>Soil features </li><li>Legends </li></ol>\r\n<p>&nbsp;</p>\r\n<p>I want to change sheet index; and read only the sheet I want to.</p>\r\n<p>The next code; is working well for getting first sheet's name:</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>        $objReader = <span style=\"color:blue\">new</span> PHPExcel_Reader_Excel5();       \r\n       \r\n        <span style=\"color:green\">/** Provem d'obrir el fitxer*/</span>\r\n        $objPHPExcel = $objReader-&gt;load(<span style=\"color:#a31515\">'dadesPrimitives.xls'</span>);\r\n      \r\n        $title =  $objPHPExcel-&gt;getActiveSheet()-&gt;getTitle();\r\n<br><br>I get 'Sludge features' on $title variable.<br><br>I try now to change ActiveSheetIndex and get sheet's name:<br><br><pre>        $objReader = <span style=\"color:blue\">new</span> PHPExcel_Reader_Excel5();       <br>       <br>        <span style=\"color:green\">/** Provem d'obrir el fitxer*/</span><br>        $objPHPExcel = $objReader-&gt;load(<span style=\"color:#a31515\">'dadesPrimitives.xls'</span>);<br>      <br>  <strong>      $objPHPExcel-&gt;setActiveSheetIndex(2);</strong><br><br>        $title =  $objPHPExcel-&gt;getActiveSheet()-&gt;getTitle();<br><br>I get 'Sludge features' on $title variable again :-( . It should be set to 'Legends'.<br><br>Anyone could help me ? <br><br>I am running:<br><br></pre>\r\n</pre>\r\n<ul>\r\n<li>PHP 5.3.4&nbsp; </li><li>Apache 2.2.16 </li><li>PHPExcel 1.7.6 </li><li>Windows XP SP3 </li></ul>\r\n<p><strong><span style=\"color:#0000ff\">Thank you very much !!</span></strong></p>\r\n<pre><pre><br><br><br></pre>\r\n<br></pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2011-05-05T03:32:05.607-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "607744",
+    "ThreadId": "256469",
+    "Html": "<p>If you just need the sheet names, you could just read them to an array with code like this:</p>\n<pre>$sheets = $objReader-&gt;listWorksheetNames($file); </pre>\n<p>setActiveSheetIndex works for me otherwise, so it may be how you get $title that's the issue, but I don't get my titles this way so can't say.</p>",
+    "PostedDate": "2011-05-05T05:48:05.783-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "608727",
+    "ThreadId": "256469",
+    "Html": "<p>I'm not completely clear why you're reading the same file twice here, but I can't replicate your problem.</p>",
+    "PostedDate": "2011-05-06T14:32:32.567-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "610034",
+    "ThreadId": "256469",
+    "Html": "<p>Hi all,</p>\r\n<p>Thank you for your answers, but I'm afraid i've been misunderstood.</p>\r\n<p>&nbsp;</p>\r\n<ul>\r\n<li><strong>MarkBaker, </strong>I am not trying to read same file twice: I just wanted to show two different programming codes; but the last one, is not working for me.</li>\r\n<li><strong>ScottMSanders,</strong> I don't just want the sheet names; i need the information from the cells. But I want to read it from sheet1, or sheet2, etc. If I read the file as shown in PHPExcel main examples, I get the information from sheet1....then after a set of NULLs; i start reading information from sheet2, and so on. I want to read information from sheet2; without having to iterate all the rows from sheet1... is it possible?</li>\r\n</ul>\r\n<p>&nbsp;</p>\r\n<p>Thank you again!</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2011-05-10T01:08:01.673-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "610517",
+    "ThreadId": "256469",
+    "Html": "<p>I'm not able to recreate any problem with the setActiveSheetIndex()</p>\r\n<p>The only thing that I can think of:<br />Are you using the setLoadSheetsOnly() method?</p>",
+    "PostedDate": "2011-05-10T13:23:38.873-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "610777",
+    "ThreadId": "256469",
+    "Html": "<blockquote style=\"border: 0.1em solid #cccccc; font-style: italic; margin: 0.25em 1em 0pt; padding: 0pt 0.25em;\"><strong>MarkBaker wrote:</strong><br />\n<p>I'm not able to recreate any problem with the setActiveSheetIndex()</p>\n<p>The only thing that I can think of:<br /> Are you using the setLoadSheetsOnly() method?</p>\n</blockquote>\n<ul>\n<li>Are you using the same Excel file that I link in my post? </li>\n<li>No, i'm not using setLoadSheetOnly() method. The only code I execute is </li>\n<li>It's quite strange. setActiveSheetIndex seems to work; because if I try <strong> setActiveSheetIndex(3); </strong>it throws an <em>index out of bounds </em>error (my Excel file has only 3 sheets; so that is working OK). </li>\n</ul>\n<p>&nbsp;</p>\n<p>Is there any debug information where I could look at to get more clues about what's going wrong?</p>\n<p>&nbsp;</p>\n<p>By the way, I'm posting all my code where I'm using PHPExcel; so let's see if that cold help. You can assume that Excel file's name exists in $params[0]; and it is loaded properly:</p>\n<p>&nbsp;</p>\n<div style=\"color: black; background-color: white;\">\n<pre>\t<span style=\"color: blue;\">public</span> <span style=\"color: blue;\">function</span> llegirExcel($params)<br />\t{<br />\t\t<span style=\"color: blue;\">require_once</span>(<span style=\"color: #a31515;\">'FirePHPCore/FirePHP.class.php'</span>);<br />\t\t$firephp = FirePHP::getInstance(true);<br />\t\t<br />\t\t<span style=\"color: green;\">/** Error reporting */</span><br />\t\terror_reporting(E_ALL);<br />\t\t<br />\t\tdate_default_timezone_set(<span style=\"color: #a31515;\">'Europe/Madrid'</span>);<br />\t\t<br />\t\t<span style=\"color: green;\">/** PHPExcel_IOFactory */</span><br />\t\t<span style=\"color: blue;\">require_once</span> <span style=\"color: #a31515;\">'Classes/PHPExcel/IOFactory.php'</span>;<br />\t\t<br />\t\t$idProject = putProjecte(<span style=\"color: blue;\">array</span>($params[2],$params[3],$params[1],$params[0]));<br />\t\t<br />\t\t$firephp-&gt;log($idProject,<span style=\"color: #a31515;\">\"id del project\"</span>);<br />\t\t<br />\t\t<span style=\"color: green;\">/** El tipus de fitxer del Excel 2003 es Excel 5*/</span><br />\t\t$objReader = PHPExcel_IOFactory::createReader(<span style=\"color: #a31515;\">'Excel5'</span>);<br />\t\t<br />\t\t<span style=\"color: green;\">/** Provem d'obrir el fitxer*/</span><br />\t\t$objPHPExcel = $objReader-&gt;load($params[0]);<br /><br />                $objPHPExcel-&gt;setActiveSheetIndex(2);<br />\t\t\t\t<br />\t\t<span style=\"color: blue;\">foreach</span> ($objPHPExcel-&gt;getWorksheetIterator() <span style=\"color: blue;\">as</span> $worksheet) {<br />\t\t<br />\t\t    $resultat = <span style=\"color: blue;\">array</span>();<br />\t\t\t<span style=\"color: blue;\">foreach</span> ($worksheet-&gt;getRowIterator() <span style=\"color: blue;\">as</span> $row) {<br />\t\t\t<span style=\"color: green;\">/** echo '    - Row number: ' . $row-&gt;getRowIndex() . \"\\r\\n\"; */</span><br />\t\t\t\t\t\t\t<span style=\"color: green;\">/** Quan hem llegit dos files, sortim*/</span><br />\t\t\t\t<span style=\"color: blue;\">if</span> ($row-&gt;getRowIndex()==2) <span style=\"color: blue;\">break</span>;<br />\t\t\t<br />\t\t\t\t$cellIterator = $row-&gt;getCellIterator();<br />\t\t\t\t$cellIterator-&gt;setIterateOnlyExistingCells(false); <span style=\"color: green;\">// Loop all cells, even if it is not set</span><br />\t\t\t\t$fila_actual = <span style=\"color: blue;\">array</span>();<br />\t\t\t\t<span style=\"color: blue;\">foreach</span> ($cellIterator <span style=\"color: blue;\">as</span> $cell) {<br />\t\t\t\t\t<span style=\"color: blue;\">if</span> (!is_null($cell)) {<br />\t\t\t\t\t<span style=\"color: green;\">/** Per cada cel-la, guardar la informaci� */</span><br />\t\t\t\t\t\tarray_push($fila_actual,$cell-&gt;getCalculatedValue());\t\t\t\t\t<br />\t\t\t\t\t}<br />\t\t\t\t}<br />\t\t\t<span style=\"color: green;\">/** Afegim la fila al resultat final*/</span><br />\t\t\tarray_push($resultat,$fila_actual);<br />\t\t        }<br />                }<br />\t}<br /><br /></pre>\n</div>\n<p>&nbsp;</p>\n<p>&nbsp;</p>\n<p>PD: Hum...I realise I'm using PHPFireBug....could it be a problem?</p>\n<p>Thank you again !!</p>",
+    "PostedDate": "2011-05-11T01:17:08.453-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1192700",
+    "ThreadId": "256469",
+    "Html": "Hi omiras,\r<br />\n<br />\nsetActiveSheetIndex() seems work with me. In my situdation, I create an excel file with 2 sheets, and I wrote data in the first sheet with <br />\n<blockquote>\n$objWorkSheet =  $objPHPExcel-&gt;setActiveSheetIndex(0);<br />\n$objWorkSheet-&gt;setCellValue(&quot;A1&quot;, &quot;Hello&quot;);<br />\n</blockquote>\nAfter that, I started to change to the later sheet and remember you should use the other variable for the second sheet like:<br />\n<blockquote>\n$objWorkSheet_2 = $objPHPExcel-&gt;setActiveSheetIndex(0); <br />\n<strong>$objWorjSheet_2</strong>-&gt;setCellValue(&quot;A1&quot;, &quot;Hello&quot;);<br />\n</blockquote>\nWith 2 different variables you can use those to execute your writing data in PHPExcel<br />\n",
+    "PostedDate": "2014-01-22T20:00:01.027-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

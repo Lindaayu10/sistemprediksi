@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "928433",
+    "ThreadId": "399819",
+    "Html": "\r\n<p>Hey guys,</p>\r\n<p>I hope that you guys can help me with something.</p>\r\n<p>I have a .xlsm file that is around 40MB, i have 4 sheets in it and in the last sheet (DATA) i have 30000 rows.<br>\r\nNow i only want to load the rows with the value R3211 in colom B.</p>\r\n<p>Next i would like to export these rows to the screen (html), but only those rows.</p>\r\n<p>Is this possible?</p>\r\n<p>&nbsp;</p>\r\n<p>I have tried it many times but i just don't get it, i can write a file but for reader this website is not that clear,...</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks!</p>\r\n",
+    "PostedDate": "2012-10-17T15:15:31.193-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "929985",
+    "ThreadId": "399819",
+    "Html": "<p>The main documentation for PHPExcel can be found in the folder called /Documentation and there are also a lot of examples on how to use the library in the /Tests directory, so you aren't limited to this website for reading how to use PHPExcel.</p>\r\n<p>&nbsp;</p>\r\n<p>You can limit the loader to only read the DATA sheet using</p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>$objReader-&gt;setLoadSheetsOnly(<span style=\"color: #a31515;\">'DATA'</span>);\r\n</pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n<p>Then you need to iterate through each row looking at the content of Cell B in that row:</p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>$highestColumn = $objPHPExcel-&gt;getActiveSheet()-&gt;getHighestColumn();\r\n$highestRow = $objPHPExcel-&gt;getActiveSheet()-&gt;getHighestRow();\r\n<span style=\"color: blue;\">for</span> ($row = 1; $row &lt;= $highestRow; ++$row) {\r\n    <span style=\"color: blue;\">if</span> ($objPHPExcel-&gt;getActiveSheet()-&gt;getCell(<span style=\"color: #a31515;\">'B'</span>.$row)-&gt;getValue() == <span style=\"color: #a31515;\">'R3211'</span>) {\r\n        $rowData = $objPHPExcel-&gt;getActiveSheet()-&gt;rangeToArray(<span style=\"color: #a31515;\">'B'</span>.$row.<span style=\"color: #a31515;\">':'</span>.$highestColumn.$row);\r\n        var_dump($rowData);\r\n    }\r\n}\r\n</pre>\r\n</div>\r\n<p>If cell B in that row contains the text you're intereseted in, use the rangeToArray method to extract the whole row, and output it to screen (formatted as you want it)</p>",
+    "PostedDate": "2012-10-21T02:44:06.157-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "930001",
+    "ThreadId": "399819",
+    "Html": "<p>Thanks Mark,</p>\r\n<p>That helped a lot and i am now able to extract the data to the screen.</p>\r\n<p>There is only one problem and that is the size of the file, my script is crashing because it is telling me there is a 'memory leakage'. For this problem i have used the[Chunk] method and the [Data only] method, but this isn't enough. Now i have converted the whole thing to CSV and now it is working fine,..</p>\r\n<p>Problem is that the server can't convert the file from xlsx to csv, i have to do it myself,...</p>\r\n<p>But thanks for everything :)</p>",
+    "PostedDate": "2012-10-21T03:31:34.47-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "930038",
+    "ThreadId": "399819",
+    "Html": "<p>Using cell caching may also help: especially if you have sqlite enabled on your server</p>",
+    "PostedDate": "2012-10-21T08:32:18.043-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

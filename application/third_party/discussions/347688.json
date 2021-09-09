@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "806954",
+    "ThreadId": "347688",
+    "Html": "\r\n<p>Two simple requests I can not seem to make work or find an answer too.&nbsp; Basically, as I audit spreadsheet cells I want to discover all cells that are blank (null or &quot;&quot;), highlight the cell color (red), and insert a note for that cell IFF the cell is\r\n blank or null.&nbsp; THis is the conditional code I wrote</p>\r\n<p>$objConditional5 = new PHPExcel_Style_Conditional();<br>\r\n$objConditional5-&gt;setConditionType(PHPExcel_Style_Conditional::CONDITION_CONTAINSTEXT);<br>\r\n$objConditional5-&gt;setOperatorType(PHPExcel_Style_Conditional::OPERATOR_CONTAINSTEXT);<br>\r\n$objConditional5-&gt;setText('');<br>\r\n$objConditional5-&gt;getStyle()-&gt;getFont()-&gt;getColor()-&gt;setRGB('FF0000');<br>\r\n$objConditional5-&gt;getStyle()-&gt;getFont()-&gt;setBold(true);<br>\r\n$objConditional5-&gt;getStyle()-&gt;getFill()-&gt;setFillType(PHPExcel_Style_Fill::FILL_SOLID)-&gt;getEndColor()-&gt;setRGB('CFCFCF');</p>\r\n<p>and here is how I test for it:</p>\r\n<p>for ($row = 2; $row &lt;= $highestRow; &#43;&#43;$row) {<br>\r\n&nbsp;&nbsp;&nbsp; $getThis = 'AJ'.$row;<br>\r\n&nbsp;&nbsp;&nbsp; $conditionalStyles = $objPHPExcel-&gt;getActiveSheet()-&gt;getStyle($getThis)-&gt;getConditionalStyles();<br>\r\n&nbsp;&nbsp;&nbsp; array_push($conditionalStyles, $objConditional5);<br>\r\n&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;getStyle($getThis)-&gt;setConditionalStyles($conditionalStyles);<br>\r\n&nbsp;&nbsp;&nbsp; /* Pseudo code starts here<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if $objConditional5 resolved to be true<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; set via not logic that the 'AJ'.$row should have the note applied &quot;cannot be blank&quot;;<br>\r\n&nbsp;&nbsp; end of PseudoCode */<br>\r\n}</p>\r\n<p>Help.</p>\r\n<p>My second question is really on figuring out when and which conditionals have proven to be true so I can insert a field note.&nbsp; For example, the above conditional is evaluated to be true (field is blank or null) and I insert a note into cell 'AJ&quot;.$row\r\n that says something like &quot;this field can never be blank&quot;.&nbsp;&nbsp; But I do not see from the example code, and what I have specified above, which conditional has resolved to be true.</p>\r\n<p>Help please.</p>\r\n",
+    "PostedDate": "2012-03-07T09:03:17.833-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "806991",
+    "ThreadId": "347688",
+    "Html": "<p>PHPExcel doesn't actually execute the conditions of conditional styles, it simply creates their definition&nbsp;so that they can be written to the Excel format files that you generate, and MS Excel can then execute them. There is no way of testing the conditions and applying additional logic, otherwise we'd use it in (for example) the HTML Writer.</p>",
+    "PostedDate": "2012-03-07T09:44:34.297-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "807367",
+    "ThreadId": "347688",
+    "Html": "<p>Alas, makes sense.&nbsp; Blehhh.&nbsp; Hmmm.&nbsp; Now what to do...</p>\n<p>Is it possible to add the writing of a cell note to the <strong>conditional </strong>so that if the resultant Excel conditional is true not only is the cell color changed, etc., but a note is inserted?&nbsp; Generally something like this--</p>\n<p>$objConditional6 = new PHPExcel_Style_Conditional();<br /> $objConditional6-&gt;setConditionType(PHPExcel_Style_Conditional::CONDITION_CONTAINSTEXT);<br /> $objConditional6-&gt;setOperatorType(PHPExcel_Style_Conditional::OPERATOR_NOTCONTAINS);<br /> $objConditional6-&gt;setText('');<br /> $objConditional6-&gt;getStyle()-&gt;getFont()-&gt;getColor()-&gt;setRGB('FF0000');<br /> $objConditional6-&gt;getStyle()-&gt;getFont()-&gt;setBold(true);<br /> $objConditional6-&gt;getStyle()-&gt;getFill()-&gt;setFillType(PHPExcel_Style_Fill::FILL_SOLID)-&gt;getEndColor()-&gt;setRGB('F4A460');<br /> // OK,&nbsp; Here we go: write a NOTE..<br /> $objConditional6-&gt;getComment($getThis)-&gt;setAuthor('auditSpreadsheet');<br /> $objConditional6-&gt;$objCommentRichText = $objPHPExcel-&gt;getActiveSheet()-&gt;getComment($getThis)-&gt;getText()-&gt;createTextRun('IN4C Audit:');<br /> <br /> $objConditional6-&gt;$objCommentRichText-&gt;getFont()-&gt;setBold(true);<br /> <br /> $objConditional6-&gt;$objPHPExcel-&gt;getActiveSheet()-&gt;getComment($getThis)-&gt;getText()-&gt;createTextRun(\"\\r\\n\");<br /> <br /> $objConditional6-&gt;$objPHPExcel-&gt;getActiveSheet()-&gt;getComment($getThis)-&gt;getText()-&gt;createTextRun('Username cannot be blank.');</p>\n<p>AND THEN LATER...</p>\n<p>for ($row = 2; $row &lt;= $highestRow; ++$row) {<br /> &nbsp;&nbsp;&nbsp; $getThis = 'AJ'.$row;<br /> &nbsp;&nbsp;&nbsp; $conditionalStyles = $objPHPExcel-&gt;getActiveSheet()-&gt;getStyle($getThis)-&gt;getConditionalStyles();<br /> &nbsp;&nbsp;&nbsp; array_push($conditionalStyles, $objConditional6);<br /> &nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;getStyle($getThis)-&gt;setConditionalStyles($conditionalStyles);</p>\n<p>}</p>\n<p>&nbsp;</p>\n<p>Since PHPEXEL is simply creating a definition, then is this possible?</p>",
+    "PostedDate": "2012-03-08T03:35:14.243-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "149726",
+    "ThreadId": "44930",
+    "Html": "my include path from get_include_path();<br>\r\n.:/usr/share/php:/usr/share/pear:/home/alexanderst/public_html/excel/Classes/PHPExcel/<br>\r\n<br>\r\nFile structure looks like this:<br>\r\nalexanderst@dahost:~/public_html$ ls -la /home/alexanderst/public_html/excel/Classes/<br>\r\ntotal 24<br>\r\ndrwxr-xr-x&nbsp; 3 alexanderst alexanderst 4096 2009-01-21 07:50 .<br>\r\ndrwxr-xr-x&nbsp; 5 alexanderst alexanderst 4096 2009-01-22 14:01 ..<br>\r\ndrwxr-xr-x 10 alexanderst alexanderst 4096 2009-01-21 07:50 PHPExcel<br>\r\n-rw-r--r--&nbsp; 1 alexanderst alexanderst 8846 2009-01-05 20:39 PHPExcel.php<br>\r\n<br>\r\nBut when loading and trying to read a file (PHPExcel_IOFactory::createReader(&quot;Excel2007&quot;);) it doesn't find class. I guess I don't include classes the right way?<br>\r\n<br>\r\n<strong>Fatal error</strong>:  Class 'PHPExcel_IOFactory' not found in <strong>/home/alexanderst/public_html/test.php</strong> on line <strong>12</strong>\r\n",
+    "PostedDate": "2009-01-22T05:50:52.74-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "149733",
+    "ThreadId": "44930",
+    "Html": "Looks like your include path is wrong.<br>\r\n<br>\r\nInstead of this:<br>\r\n<code>\r\n.:/usr/share/php:/usr/share/pear:/home/alexanderst/public_html/excel/Classes/PHPExcel/<br>\r\n</code>\r\n<br>\r\nIt should look like this:<br>\r\n<code>\r\n.:/usr/share/php:/usr/share/pear:/home/alexanderst/public_html/excel/Classes/<br>\r\n</code>\r\n<br>\r\nThen, in your script, do like this:<br>\r\n<br>\r\n<code>\r\n&lt;?php<br>\r\ninclude 'PHPExcel.php';<br>\r\ninclude 'PHPExcel/IOFactory.php';<br>\r\n<br>\r\n$reader = PHPExcel_IOFactory::createReader('Excel5');<br>\r\n$excel = $reader-&gt;load('read.xls');<br>\r\n<br>\r\n$writer = PHPExcel_IOFactory::createWriter($excel, 'Excel5');<br>\r\n$writer-&gt;save('write.xls');<br>\r\n?&gt; <br>\r\n</code>\r\n<br>\r\n<br>\r\n",
+    "PostedDate": "2009-01-22T06:09:40.04-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "149738",
+    "ThreadId": "44930",
+    "Html": "Great thx!<br>\r\n<br>\r\nNot really connected to the subject, but how do I open a network file?<br>\r\n<br>\r\n$objReader = PHPExcel_IOFactory::createReader(&quot;Excel2007&quot;);<br>\r\n$objReader-&gt;setReadDataOnly(true);<br>\r\n$objPHPExcel = $objReader-&gt;load(&quot;//myhost/some_share/afile.xlsx&quot;);<br>\r\n<br>\r\nYes I know, PHP running on my linux host and files on windoze :-o Well, that's why I try to create a .xlsx reader so I don't need Office 2007 :-)<br>\r\n",
+    "PostedDate": "2009-01-22T06:30:10.48-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "149740",
+    "ThreadId": "44930",
+    "Html": "ah, think I get it. Not a part of that domain so I better create a script that copy these files locally and then read them in php.<br>\r\n",
+    "PostedDate": "2009-01-22T06:35:43.363-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

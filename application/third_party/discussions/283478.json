@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "714273",
+    "ThreadId": "283478",
+    "Html": "<p>Hi all,</p>\n<p>i have a strange story for you:</p>\n<p>I'm using Version 1.7.6 since a year now. Just included it into an actual project. No big thing, just creating an xls with about 30 cols and 50 rows.<br /> Did it, tested it, worked like a charm, uploaded it from \"testing\" to \"live\".</p>\n<p>Now, the fun part starts.</p>\n<p>With my test environment (Windows 7, XAMPP) everything runs nice.</p>\n<p>At the live system, the script simply dies silently (even with 'error_reporting(E_ALL);'). No file was written, so i first thought, it's some problem with the access-rights.</p>\n<p>A few (ok, roughly 8 hours) later, i found, that setting cell backcolor is the bad thing. Without backcolor (and it's for about 20 cells only) the script is running and produces a nice and shiny xls.</p>\n<p>Even trying different approaches ( setRGB, setARGB, using palette) won't help.</p>\n<p>So, i'm looking very puzzled at the moment. Having no clue, what's going wrong there. My last code approach was like this:</p>\n<p>&nbsp;</p>\n<div style=\"color: black; background-color: white;\">\n<pre>$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle($ColRow)-&gt;getFill()-&gt;setFillType(PHPExcel_Style_Fill::FILL_SOLID);\n$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle($ColRow)-&gt;getFill()-&gt;getStartColor()-&gt;setRGB($BColor);\n</pre>\n</div>\n<p>&nbsp;</p>\n<p>Where $BColor ist something valid (even tried fixed \"0000FF\" for blue and \"FF0000FF\" for the setARGB approach.</p>\n<p>I just don't get it, why it works perfectly local and crashes (without notice) at the live system.</p>\n<p>Has anyone fighted with this kind of problem before?</p>\n<p>Thanks</p>\n<p>Marc</p>",
+    "PostedDate": "2011-12-19T07:52:51.54-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "714322",
+    "ThreadId": "283478",
+    "Html": "<p>Not sure but try this instead...</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>$format_blue = <span style=\"color: blue;\">array</span>(\r\n\t<span style=\"color: #a31515;\">'fill'</span> =&gt; <span style=\"color: blue;\">array</span>(\r\n\t\t<span style=\"color: #a31515;\">'type'</span> =&gt; PHPExcel_Style_Fill::FILL_SOLID,\r\n\t\t<span style=\"color: #a31515;\">'color'</span> =&gt; <span style=\"color: blue;\">array</span>(<span style=\"color: #a31515;\">'argb'</span> =&gt; <span style=\"color: #a31515;\">'FF0000FF'</span>), <span style=\"color: green;\">//blue</span>\r\n\t),\r\n);\r\n\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle($cell)-&gt;applyFromArray($format_blue);\r\n</pre>\r\n</div>\r\n</p>",
+    "PostedDate": "2011-12-19T09:42:12.367-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "715944",
+    "ThreadId": "283478",
+    "Html": "<p>I think that's a memory_limit and max_execution_time problem in your php.ini. PHPExcel use so much memory</p>\r\n<p>I had the same crashes with all my script PHPExcel. I increased these 2 values and now everything works fine on local server and remote server.</p>\r\n<p>Try to use these functions at the top of your scripts : set_time_limit(xx); ini_set('memory_limit','XXXM');</p>\r\n<p>Or set it in a .htaccess file with : php_value max_execution_time XXX,&nbsp; php_value memory_limit XXXM</p>",
+    "PostedDate": "2011-12-22T01:59:37.293-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

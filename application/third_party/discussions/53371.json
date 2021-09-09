@@ -1,0 +1,98 @@
+[
+  {
+    "Id": "179607",
+    "ThreadId": "53371",
+    "Html": "<div style=\"text-align:left\" dir=ltr id=\"result_box\">I can not use this library. <br>\r\nI followed all the instructions and enabled all extensions of php.ini, but file.xslx is not created.</div>\r\n<br>\r\n<div style=\"text-align:left\" dir=ltr id=\"result_box\">The error that I have is as follows:</div>\r\n<br>\r\n16:33:35 Create new PHPExcel object 16:33:35 Set properties 16:33:35 Add some data 16:33:35 Rename sheet 16:33:35 Write to Excel2007 format 16:33:35 Peak memory usage: 6 MB 16:33:35 Done writing file. <br>\r\n<br>\r\n<div style=\"text-align:left\" dir=ltr id=\"result_box\">\r\n<div style=\"text-align:left\" dir=ltr id=\"result_box\">Have you advice, ideas, even the most elementary?<br>\r\n<br>\r\n<div style=\"text-align:left\" dir=ltr id=\"result_box\">in reality it does not appear an error message! But the file is not created!</div>\r\n</div>\r\n</div>\r\n<br>\r\n<br>\r\n",
+    "PostedDate": "2009-04-15T07:38:13.17-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "179921",
+    "ThreadId": "53371",
+    "Html": "Strange you don't get any error messages? Try to put this at the beginning of the script:<br>\r\n<br>\r\n<code>\r\nini_set('display_errors', '1');<br>\r\n<br>\r\n</code>\r\nIf this is on Linux, did you remember to set write permission on destination folder?<br>\r\n<br>\r\n",
+    "PostedDate": "2009-04-15T20:37:46.273-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "180017",
+    "ThreadId": "53371",
+    "Html": "<div dir=ltr id=\"result_box\">I tried to use the script that you sent me, but I can not display any error in the video.<br>\r\n<br>\r\n<div style=\"text-align:left\" dir=ltr id=\"result_box\">I wanted to tell you that I have the same problem for all &quot;examples&quot; of the library folder &quot;test&quot;.</div>\r\n<br>\r\n<div style=\"text-align:left\" dir=ltr id=\"result_box\">In my server using linux OS CentOS 5.3 and php is upgraded to version 5.2.<br>\r\n<br>\r\n<div style=\"text-align:left\" dir=ltr id=\"result_box\">If you want to send the configuration of my php.ini?</div>\r\n</div>\r\n</div>\r\n",
+    "PostedDate": "2009-04-16T01:54:54.563-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "180031",
+    "ThreadId": "53371",
+    "Html": "<div style=\"text-align:left\" dir=ltr id=\"result_box\">I forgot it .. Yes, I have given all permissions to the folder on the server ..</div>\r\n",
+    "PostedDate": "2009-04-16T02:37:22.977-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "180380",
+    "ThreadId": "53371",
+    "Html": "Can you check if you are able to save a file from script. I know this sounds silly...<br>\r\n<br>\r\n<code>\r\n&lt;?php<br>\r\nfile_put_contents('test.txt', 'hello');<br>\r\n?&gt;<br>\r\n</code>\r\n<br>\r\n",
+    "PostedDate": "2009-04-16T17:30:08.027-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "180507",
+    "ThreadId": "53371",
+    "Html": "<div style=\"text-align:left\" dir=ltr id=\"result_box\">yes, the file is created correctly. <br>\r\nYou consider that I also use other libraries like FPDF and phprtf that work well.<br>\r\n<br>\r\n<div style=\"text-align:left\" dir=ltr id=\"result_box\">What other information can I provide?</div>\r\n<br>\r\nThank a lot for your attention.</div>\r\n",
+    "PostedDate": "2009-04-17T02:14:32.387-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "180740",
+    "ThreadId": "53371",
+    "Html": "Is this happening only when you generate xlsx files or also for xls ? Can you try something like this:<br>\r\n<br>\r\n<code>\r\n&lt;?php<br>\r\nerror_reporting(E_ALL);<br>\r\nset_include_path(get_include_path() . PATH_SEPARATOR . '../Classes/');<br>\r\n<br>\r\ninclude 'PHPExcel.php';<br>\r\ninclude 'PHPExcel/IOFactory.php';<br>\r\n<br>\r\n$objPHPExcel = new PHPExcel();<br>\r\n<br>\r\n$writer = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');<br>\r\n$writer-&gt;save('write.xls');<br>\r\n?&gt;<br>\r\n</code>\r\n<br>\r\n",
+    "PostedDate": "2009-04-17T19:23:24.167-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "181657",
+    "ThreadId": "53371",
+    "Html": "<div style=\"text-align:left\" dir=ltr id=\"result_box\">I made the changes you have reported.<br>\r\n The &quot;file.xls&quot; is now created! <br>\r\nA nice step forward! <br>\r\nThe file is saved on the server ... you can give the user the ability to save the file on computer?<br>\r\n<br>\r\nThanks</div>\r\n",
+    "PostedDate": "2009-04-21T01:33:29.41-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "181719",
+    "ThreadId": "53371",
+    "Html": "Example of a script redirecting an Excel 2007 file to the client's browser:<br>\r\n<code></code>\r\n<p>&lt;?php<br>\r\n/* Here there will be some code where you create $objPHPExcel */<br>\r\n<br>\r\n// redirect output to client browser<br>\r\nheader('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');<br>\r\nheader('Content-Disposition: attachment;filename=&quot;myfile.xlsx&quot;');<br>\r\nheader('Cache-Control: max-age=0');<br>\r\n<br>\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');<br>\r\n$objWriter-&gt;save('php://output'); <br>\r\n?&gt;</p>\r\n<p> </p>\r\n<p>\r\nExample of a script redirecting an Excel5 file to the client's browser:<br>\r\n<code></code></p>\r\n<p>&lt;?php<br>\r\n/* Here there will be some code where you create $objPHPExcel */<br>\r\n<br>\r\n// redirect output to client browser<br>\r\nheader('Content-Type: application/vnd.ms-excel');<br>\r\nheader('Content-Disposition: attachment;filename=&quot;myfile.xls&quot;');<br>\r\nheader('Cache-Control: max-age=0');<br>\r\n<br>\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');<br>\r\n$objWriter-&gt;save('php://output'); <br>\r\n?&gt;</p>\r\n<p> </p>\r\n<p>Caution:<br>\r\n•&nbsp;&nbsp; &nbsp;Make sure not to include any echo statements or output any other contents than the Excel file. There should be no whitespace before the opening &lt;?php tag and at most one line break after the closing ?&gt; tag (which can also be omitted to avoid problems).<br>\r\n•&nbsp;&nbsp; &nbsp;Make sure that your script is saved without a BOM (Byte-order mark). (Because this counts as echoing output)<br>\r\n•&nbsp;&nbsp; &nbsp;Same things apply to all included files<br>\r\n<br>\r\nFailing to follow the above guidelines may result in corrupt Excel files arriving at the client browser, and/or that headers cannot be set by PHP (resulting in warning messages).<br>\r\n<span></span></p>\r\n<br>\r\np.s. don't forget to read manuals before..<br>\r\n",
+    "PostedDate": "2009-04-21T04:41:08.407-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "182803",
+    "ThreadId": "53371",
+    "Html": "<span style=\"font-family:'-webkit-monospace'\">I tried the solution that you have kindly said. <br>The file.xlsx is corrupted. <br>Instead the file.xls is created, but inside there are strange symbols. <br>Place the following code that I tried:</span><br><div><span style=\"font-family:'-webkit-monospace'\"><br></span></div><div><span style=\"font-family:'-webkit-monospace'\"><br></span></div><div><span style=\"font-family:'-webkit-monospace'\"><div>&lt;?php</div><div><br></div><div>/** Error reporting */</div><div>error_reporting(E_ALL);</div><div><br></div><div>/** Include path **/</div><div>set_include_path(get_include_path() . PATH_SEPARATOR . '../Classes/');</div><div><br></div><div>/** PHPExcel */</div><div>include 'PHPExcel.php';</div><div><br></div><div>/** PHPExcel_IOFactory */</div><div>include 'PHPExcel/IOFactory.php';</div><div><br></div><div>// Create new PHPExcel object</div><div>echo date('H:i:s') . &quot; Create new PHPExcel object\\n&quot;;</div><div>$objPHPExcel = new PHPExcel();</div><div><br></div><div>// Set properties</div><div>echo date('H:i:s') . &quot; Set properties\\n&quot;;</div><div>$objPHPExcel-&gt;getProperties()-&gt;setCreator(&quot;Maarten Balliauw&quot;);</div><div>$objPHPExcel-&gt;getProperties()-&gt;setLastModifiedBy(&quot;Maarten Balliauw&quot;);</div><div>$objPHPExcel-&gt;getProperties()-&gt;setTitle(&quot;Office 2007 XLSX Test Document&quot;);</div><div>$objPHPExcel-&gt;getProperties()-&gt;setSubject(&quot;Office 2007 XLSX Test Document&quot;);</div><div>$objPHPExcel-&gt;getProperties()-&gt;setDescription(&quot;Test document for Office 2007 XLSX, generated using PHP classes.&quot;);</div><div>$objPHPExcel-&gt;getProperties()-&gt;setKeywords(&quot;office 2007 openxml php&quot;);</div><div>$objPHPExcel-&gt;getProperties()-&gt;setCategory(&quot;Test result file&quot;);</div><div><br></div><div><br></div><div>// Add some data</div><div>echo date('H:i:s') . &quot; Add some data\\n&quot;;</div><div>$objPHPExcel-&gt;setActiveSheetIndex(0);</div><div>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('A1', 'Hello');</div><div>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('B2', 'world!');</div><div>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('C1', 'Hello');</div><div>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('D2', 'world!');</div><div><br></div><div>// Rename sheet</div><div>echo date('H:i:s') . &quot; Rename sheet\\n&quot;;</div><div>$objPHPExcel-&gt;getActiveSheet()-&gt;setTitle('Simple');</div><div><br></div><div><br></div><div>// Set active sheet index to the first sheet, so Excel opens this as the first sheet</div><div>$objPHPExcel-&gt;setActiveSheetIndex(0);</div><div><br></div><div>/*<span style=\"white-space:pre\">\t\t</span></div><div>// Save Excel 2007 file</div><div>echo date('H:i:s') . &quot; Write to Excel2007 format\\n&quot;;</div><div>$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');</div><div>$objWriter-&gt;save(str_replace('.php', '.xlsx', __FILE__));</div><div>*/</div><div><br></div><div><br></div><div><br></div><div>/*</div><div>// Echo memory peak usage</div><div>echo date('H:i:s') . &quot; Peak memory usage: &quot; . (memory_get_peak_usage(true) / 1024 / 1024) . &quot; MB\\r\\n&quot;;</div><div><br></div><div>// Echo done</div><div>echo date('H:i:s') . &quot; Done writing file.\\r\\n&quot;;</div><div>*/</div><div><br></div><div><br></div><div><br></div><div><br></div><div>/* Here there will be some code where you create $objPHPExcel */</div><div>// redirect output to client browser</div><div>header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');</div><div>header('Content-Disposition: attachment;filename=&quot;myfile.xlsx&quot;');</div><div>header('Cache-Control: max-age=0');</div><div><br></div><div>$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');</div><div>$objWriter-&gt;save('php://output'); </div><div>?&gt;</div></span></div>",
+    "PostedDate": "2009-04-23T07:22:59.327-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "183222",
+    "ThreadId": "53371",
+    "Html": "have you read with a great attention EVERYTHING that I kindly said?<br>\r\n<br>\r\nCaution:<br>\r\n•&nbsp;&nbsp; &nbsp;Make sure <strong>not to include any echo statements or output any other\r\ncontents than the Excel file</strong>. There should be no whitespace before the\r\nopening &lt;?php tag and at most one line break after the closing ?&gt;\r\ntag (which can also be omitted to avoid problems).<br>\r\n<br>\r\nwhat is THIS?<br>\r\n<span style=\"font-family:'-webkit-monospace'\">echo date('H:i:s') . &quot; Create new PHPExcel object\\n&quot;;</span><br>\r\n<span style=\"font-family:'-webkit-monospace'\">echo date('H:i:s') . &quot; Set properties\\n&quot;;</span><br>\r\n<span style=\"font-family:'-webkit-monospace'\">echo date('H:i:s') . &quot; Add some data\\n&quot;;</span><br>\r\n<span style=\"font-family:'-webkit-monospace'\">echo date('H:i:s') . &quot; Rename sheet\\n&quot;;</span><br>\r\n<br>\r\nWhat are you doing ?!?!<br>\r\n",
+    "PostedDate": "2009-04-24T05:58:31.02-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "184871",
+    "ThreadId": "53371",
+    "Html": "<span style=\"font-family:'-webkit-monospace'\">forgive me I not had seen! <br>Now, all is working so good <br><br>Thanks a lot for the help.</span><div><span style=\"font-family:'-webkit-monospace'\"><br></span></div><div><span style=\"font-family:'-webkit-monospace'\">I am very grateful<br></span></div>",
+    "PostedDate": "2009-04-29T01:36:55.233-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "214375",
+    "ThreadId": "63098",
+    "Html": "<p>Hello,</p>\r\n<p>I need to copy a sheet from a Workbook i load before. So i use the function &quot;copy&quot;.</p>\r\n<p>It worked but not really correctly.</p>\r\n<p>1) When i open the file generated, i have an error like my data are probably lost.</p>\r\n<p>2) All image of my workbook&nbsp; are disapeared.</p>\r\n<p>My Code to copy:</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$objPHPExcel-&gt;setActiveSheetIndex($index_obs_suite);<br>$sheet = $objPHPExcel-&gt;getActiveSheet();<br>$copiedSheet = $sheet-&gt;copy();<br>$copiedSheet-&gt;setTitle(<span style=\"color:#A31515\">'OBS Suite Abon '</span>.$nb_obs_suite);<br>$objPHPExcel-&gt;addSheet($copiedSheet);<br><br>Also, i tried with:<br></pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n<pre>$objPHPExcel-&gt;addExternalSheet($copiedSheet);<br><br>But not worked too.<br></pre>\r\n<p>&nbsp;</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>Without copy, my file generate correctly. Any Idea?</pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n<pre><br></pre>",
+    "PostedDate": "2009-07-21T08:31:35.713-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "214623",
+    "ThreadId": "63098",
+    "Html": "<p><em>&gt;&gt; All image of my workbook&nbsp; are disapeared.</em><br> <br> I recall this bug in PHPExcel 1.6.7:<br> <a href=\"../WorkItem/View.aspx?WorkItemId=9937\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=9937</a><br> <br> Can you try with latest source code:<br> <a href=\"../SourceControl/ListDownloadableCommits.aspx\">http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx</a></p>",
+    "PostedDate": "2009-07-21T22:31:23.667-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "214660",
+    "ThreadId": "63098",
+    "Html": "<p>Thanks for your help but, i have the same errors with last version commited and it show me another error:</p>\r\n<p><strong>Notice</strong>:  iconv_substr() [<a href=\"http://localhost/omicron/appli/function.iconv-substr\">function.iconv-substr</a>]: Unknown error (0) in <strong>C:\\wamp\\phenix\\www\\omicron\\appli\\lib\\excel\\Classes\\PHPExcel\\Shared\\String.php</strong> on line <strong>307</strong></p>\r\n<p>Before i update with the last version i had the version&nbsp; 27946.</p>\r\n<p>Thx for your hard work!</p>\r\n<p><strong><br></strong></p>",
+    "PostedDate": "2009-07-22T00:50:55.897-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "214679",
+    "ThreadId": "63098",
+    "Html": "<p>Re,</p>\r\n<p>I found a temporary solution to my probleme.</p>\r\n<p>In Classe\\PHPExcel\\Worksheet.php, we have this code using for copy sheets:</p>\r\n<p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre><span style=\"color:Green\">/**\r\n\t * Copy worksheet (!= clone!)\r\n\t *\r\n\t * @return PHPExcel_Worksheet\r\n\t */</span>\r\n\t<span style=\"color:Blue\">public</span> <span style=\"color:Blue\">function</span> copy() {\r\n\t\t$copied = <span style=\"color:Blue\">clone</span> $<span style=\"color:Blue\">this</span>;\r\n\r\n\t\t<span style=\"color:Blue\">return</span> $copied;\r\n\t}\r\n\r\n\t<span style=\"color:Green\">/**\r\n\t * Implement PHP __clone to create a deep clone, not just a shallow copy.\r\n\t */</span>\r\n\t<span style=\"color:Blue\">public</span> <span style=\"color:Blue\">function</span> __clone() {\r\n\t\t<span style=\"color:Blue\">foreach</span> ($<span style=\"color:Blue\">this</span> <span style=\"color:Blue\">as</span> $key =&gt; $val) {\r\n\t\t\t<span style=\"color:Blue\">if</span> ($key == <span style=\"color:#A31515\">'_parent'</span>) {\r\n\t\t\t\t<span style=\"color:Blue\">continue</span>;\r\n\t\t\t}\r\n\r\n\t\t\t<span style=\"color:Blue\">if</span> (is_object($val) || (is_array($val))) {\r\n\t\t\t\t$<span style=\"color:Blue\">this</span>-&gt;{$key} = unserialize(serialize($val));\r\n\t\t\t}\r\n\t\t}\r\n\t}\r\n</pre>\r\n</div>\r\nThe issue of image come from the function __clone. An image is an object so i just modify like this:</p>\r\n<p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre><span style=\"color:Blue\">if</span> (is_array($val)) {\r\n        $<span style=\"color:Blue\">this</span>-&gt;{$key} = unserialize(serialize($val));\r\n}\r\n\r\n<br>And it worked. So i think we have to make the difference beetween objects images and others in the condition.<br></pre>\r\n</div>\r\n</p>",
+    "PostedDate": "2009-07-22T02:05:52.24-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "215126",
+    "ThreadId": "63098",
+    "Html": "<p>Thank you for your note. The problem I am having right now is that I cannot reproduce the bug. I will try to do some more testing.</p>",
+    "PostedDate": "2009-07-23T00:03:13.977-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

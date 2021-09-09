@@ -1,0 +1,80 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "All",
+      "DisplayName": "All"
+    },
+    "ClosedComment": "Fixed in SVN",
+    "ClosedDate": "2008-07-03T23:31:51.72-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "PHPExcel doesn't differentiate between displayed gridlines and printed gridlines (they are two separate settings in Excel).\nIn order to rectify this, I made the following changes:\nin the worksheet class, add the following declaration:\n \n\t/**\n\t * Print gridlines?\n\t *\n\t * @var boolean\n\t */\n\tprivate $_printGridlines = false;\n \nand the following functions:\n \n \n    /**\n     * Print gridlines?\n     *\n     * @return boolean\n     */\n    public function getPrintGridlines() {\n    \treturn $this->_printGridlines;\n    }\n    \n    /**\n     * Set print gridlines\n     *\n     * @param boolean $pValue\tPrint gridlines (true/false)\n     */\n    public function setPrintGridlines($pValue = false) {\n    \t$this->_printGridlines = $pValue;\n    }\n \n \nin the Excel2007.php reader change:\n\t\t\t\t\t\t\tif (\n\t\t\t\t\t\t\t       ($xmlSheet->printOptions['gridLines'] == 'true' || $xmlSheet->printOptions['gridLines'] == '1') &&\n\t\t\t\t\t\t\t       ($xmlSheet->printOptions['gridLinesSet'] == 'true' && $xmlSheet->printOptions['gridLinesSet'] == '1')\n\t\t\t\t\t\t\t   ) {\n \nto\n\t\t\t\t\t\t\tif (\n\t\t\t\t\t\t\t       ($xmlSheet->printOptions['gridLines'] == 'true' || $xmlSheet->printOptions['gridLines'] == '1')\n\t\t\t\t\t\t\t   ) {\n\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t$docSheet->setPrintGridlines(true);\nin the Writer, in Worksheet.php\n \nchange \n\t\t$objWriter->writeAttribute('gridLines',\t($pSheet->getShowGridlines() ? 'true': 'false'));\nto\n\t\t$objWriter->writeAttribute('gridLines',\t($pSheet->getPrintGridlines()==1 || $pSheet->getPrintGridlines()=='true' ? 'true': 'false'));",
+    "LastUpdatedDate": "2013-05-16T05:43:32.4-07:00",
+    "PlannedForRelease": "PHPExcel 1.6.3 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2008-06-26T19:55:29.09-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Implement 2 options for print/show gridlines",
+    "Type": {
+      "Name": "Feature",
+      "Id": 1
+    },
+    "VoteCount": 1,
+    "Id": 6508
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "whoops, the change in the reader should have read:\r\n\r\nn the Excel2007.php reader change:\r\nif (\r\n($xmlSheet->printOptions['gridLines'] == 'true' || $xmlSheet->printOptions['gridLines'] == '1') &&\r\n($xmlSheet->printOptions['gridLinesSet'] == 'true' && $xmlSheet->printOptions['gridLinesSet'] == '1')\r\n) {\r\n\r\n$docSheet->setShowGridlines(true);\r\n\r\nto\r\n\r\n\r\nif (\r\n($xmlSheet->printOptions['gridLines'] == 'true' || $xmlSheet->printOptions['gridLines'] == '1')\r\n) {\r\n\r\n$docSheet->setPrintGridlines(true);",
+      "PostedDate": "2008-06-26T19:56:55.06-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2008-07-03T23:26:08.783-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2008-07-03T23:31:42.377-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2008-07-03T23:31:51.72-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "hi,\r\ni tried to hide gridline but it doesn't work with this method. I tried to set background white on all my cells but this take more time to generate the file.\r\ni need your help.\r\nthanks",
+      "PostedDate": "2009-02-03T01:30:15.553-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "me again,\r\n\r\ni found out the solution of my problem with this two lines : \r\n\r\n$objPHPExcel->getActiveSheet()->setShowGridlines(false);\r\n$objPHPExcel->getActiveSheet()->setPrintGridlines(false);\r\n\r\nwhere $objPHPExcel = new PHPExcel();",
+      "PostedDate": "2009-02-03T01:48:00.98-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:05:11.297-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:43:32.4-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

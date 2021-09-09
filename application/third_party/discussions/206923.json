@@ -1,0 +1,66 @@
+[
+  {
+    "Id": "422250",
+    "ThreadId": "206923",
+    "Html": "<p>Hello,</p>\r\n<p>First off, I would like to thank to the developers of such wonderful script, PHPExcel. I've been using it for a while for on the fly Excel editing stuff with PHP. Most of time, I create an excel file with MS Excel GUI and then use it as a template for PHPExcel.</p>\r\n<p>Today, I wanted to use a relatively larger XLS file with a file size of approximately 100 KB. I experienced &quot;out-of-memory&quot; errors as the PHP memory limit was 32 MB. I didn't think of updating PHP memory settings since I wouldn't have priveleges to access php.ini on any servers that I have to deal with. Thus, the right decision appeared to be some attempt to resolve the problem in application side. To this end, I first wanted to look at this web site to see whether some workarounds, suggestions and something related can be found. Consequently, I realized that my PHPExcel was somewhat old and a newer version is available (I guess it was 7.2).</p>\r\n<p>After installing the newest version of PHPExcel from this website, the behaviour of the php script that uses PHPExcel has changed. Previously, the same script that was giving &quot;out-of-memory&quot; errors has started to make Apache crash. I've run into Apache logs and got the following message :</p>\r\n<p>\r\n<pre>[notice] Parent: child process exited with status 3221225725 -- Restarting.</pre>\r\n</p>\r\n<p>After some investigations, I've found out that in the meantime PHPExcel creates some TMP files in the temporary folder. I don't know if it fails while creating these files or upon their creation.</p>\r\n<p>All information I have is above. I guess the main problem is that the xls file is a bit larger than PHPExcel want it to be.</p>\r\n<p>How can I overcome it? And what are your opinions ?</p>\r\n<p>Thank you very much for reading so far.</p>\r\n<p>Mustafa</p>",
+    "PostedDate": "2010-03-22T13:28:41.94-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "422251",
+    "ThreadId": "206923",
+    "Html": "<p>Some details of my development environment that I should've given:</p>\r\n<p>- XAMPP 1.6.7 (PHP 5.2.6, Apache 2.2.9)</p>\r\n<p>- Windows 7</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-03-22T13:36:50.803-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "422274",
+    "ThreadId": "206923",
+    "Html": "<p>I'm assuming 64-bit Windows 7.</p>\r\n<p>I've been experiencing problems with Apache on Windows 7 myself. I know that if I stop Apache through the xampp console, it triggers an error; and if a script times out, it also triggers an Apache error, and I get the same</p>\r\n<pre>[notice] Parent: child process exited with status 3221225477 -- Restarting.</pre>\r\n<p>message&nbsp;written to the Apache error log.</p>\r\n<p>I'm investigating, but have noted that the error only occurs on my Windows 7 box. It isn't a problem on Windows XP, Vista or Linux.</p>",
+    "PostedDate": "2010-03-22T14:17:22.323-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "422299",
+    "ThreadId": "206923",
+    "Html": "<p>Yes, I'm using 64-bit Windows 7.</p>\r\n<p>Actually, I'd be happy if the error is only something related to Windows. Because I use windows machine only for development purposes, for production, I always use Linux or derivatives.</p>\r\n<p>I'm planning to test the script with new version of PHPExcel on production server to see the problem exists on this platform too. If it works on Linux, the problem can be ignored -- at least for me.</p>\r\n<p>Nonetheless, I'm looking forward to seeing some suggestions to overcome the issue.</p>\r\n<p>Thanks</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-03-22T15:02:46.873-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "422331",
+    "ThreadId": "206923",
+    "Html": "<p>I'm looking for a 64-bit build of Apache/PHP for Windows 7 to see if the problem still exists then: xampp is 32-bit.</p>\r\n<p>If I can't find one, I may well have to do my own manual build.</p>",
+    "PostedDate": "2010-03-22T17:01:03.16-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "422506",
+    "ThreadId": "206923",
+    "Html": "<p>I've tested the script on a Linux machine.</p>\r\n<p>Unfortunately the script caused a similar effect on a Linux machine too. Apache crashed again and I got a blank page. But at the moment, I couldn't ensure that the exact error message and number are the same with those occured in windows machine.</p>\r\n<p>The script does a simple thing, open a specific excel sheet and writes to the response stream. It doesn't contain any editation nor any such operations.</p>\r\n<p>Here is the excel file that causes the error:</p>\r\n<p>http://bap.ersoftyazilim.com/ui/templates/xls/fis_template.xls</p>\r\n<p>Any help is really appreciated.</p>\r\n<p>Thanks</p>\r\n<p>Mustafa</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-03-23T05:12:39.033-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "423903",
+    "ThreadId": "206923",
+    "Html": "<p>It looks like the problem is the with formulas in cells Q130 and U130. Excel5 writer does not yet support defined names in formulas. It goes into some kind of function nesting infinite loop.</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=7895\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=7895</a></p>\r\n<p>I have written this on my list to see if there is a quick solution.</p>",
+    "PostedDate": "2010-03-25T22:05:56.733-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "423954",
+    "ThreadId": "206923",
+    "Html": "<p>Thank you very much for your interest.</p>\r\n<p>Actually, I've borrowed this XLS file from somewhere else and didn't realize that it contained such a formula. If I had done, I'd remove it since the formula wasn't that necessary.</p>\r\n<p>After removing the &quot;named formula&quot;, it worked smoothly as expected. Thus, I've got that a 100 KB file is not that large for PHPExcel to process -- it handles it in a few seconds, nice work! --</p>\r\n<p>Thank you again for excellent work and cordial efforts to resolve the issue.</p>\r\n<p>Mustafa</p>",
+    "PostedDate": "2010-03-26T00:43:38.083-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

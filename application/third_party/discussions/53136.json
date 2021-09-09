@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "178668",
+    "ThreadId": "53136",
+    "Html": "Hello,<div><br></div><div>I am pretty new at working with PHPExcel but already love it.</div><div>Haven't had any problems with it since the start. till now..</div><div><br></div><div>I'm trying to create a calendar display with phpexcel..</div><div>but for some reason it won't allow me to put a 0 in front of all numbers below 10..</div><div>this because i need to match the time formats with data in my database</div><div><br></div><div>for example:</div><div><br></div><div>a sceduled meeting at 9:45.</div><div>this is written down like 0945 in my database..</div><div>The loop though, gives output like this: 945, this way it doesn't find a match at all..</div><div><br></div><div>it does the same with round hours. like 11:00, it displays it like 110..</div><div><br></div><div>below the loop i am talking about..</div><div><br></div><div><div>for($i='8'; $i&lt;='23'; $i++)</div><div>{</div><div><span style=\"white-space:pre\">\t\t</span>if($i &lt; 10 &amp;&amp; $i &gt; 8)</div><div><span style=\"white-space:pre\">\t\t</span>{</div><div><span style=\"white-space:pre\">\t\t\t</span>$i = &quot;0&quot;.$i;</div><div><span style=\"white-space:pre\">\t\t</span>}</div><div><span style=\"white-space:pre\">\t</span></div><div><span style=\"white-space:pre\">\t</span>for($j='0'; $j&lt;='45'; $j=$j+'15')</div><div><span style=\"white-space:pre\">\t</span>{</div><div><div><span style=\"white-space:pre\">\t\t</span>if($j &lt; 10 )</div><div><span style=\"white-space:pre\">\t\t</span>{</div><div><span style=\"white-space:pre\">\t\t\t</span>$j = &quot;0&quot;.$j;</div><div><span style=\"white-space:pre\">\t\t</span>}</div><div><br></div><div><span style=\"white-space:pre\">\t\t</span>mysql_data_seek($vertrekSql, 0); \t\t</div><div><span style=\"white-space:pre\">\t\t</span>while($r = mysql_fetch_array($vertrekSql)) </div><div><span style=\"white-space:pre\">\t\t</span>{</div><div><span style=\"white-space:pre\">\t\t\t</span># Vertrek</div><div><span style=\"white-space:pre\">\t\t\t</span>if($r['tijd'] == $i.$j) // (matching time  with database data)</div><div><span style=\"white-space:pre\">\t\t\t</span>{</div><div><span style=\"white-space:pre\">\t\t\t\t</span>//adding it to the sheet<br></div><div> <span style=\"white-space:pre\">\t\t\t</span>}</div></div><div><span style=\"white-space:pre\">\t\t</span>$i.$j // should display like 0945 but displays like 945  || should display like 1000 but displays like 100<br></div><div><span style=\"white-space:pre\">\t\t</span>}<br></div><div><span style=\"white-space:pre\">\t</span>}<br></div><div>}</div><div><br></div><div>Thanks in advance for all the replies.</div><div><br></div><div>Martijn</div></div>",
+    "PostedDate": "2009-04-13T14:32:23.813-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "178700",
+    "ThreadId": "53136",
+    "Html": "For now, do like in this example:<br>\r\n<br>\r\n<code>\r\n$time = '0945';<br>\r\n$hh = substr($time, 0, 2);<br>\r\n$mm = substr($time, 2, 2);<br>\r\n$days = $hh / 24 + $mm / 1440;<br>\r\n<br>\r\n$objWorksheet-&gt;getCell('A1')-&gt;setValueExplicit($days, PHPExcel_Cell_DataType::TYPE_NUMERIC);<br>\r\n$objWorksheet-&gt;getStyle('A1')-&gt;getNumberFormat()-&gt;setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_DATE_TIME3);<br>\r\n</code>\r\n<br>\r\nI will ask maartenba if we can have a simple way of doing this using AdvancedValueBinder.<br>\r\n<br>\r\n<strong>Edit:</strong><br>\r\nFeature request posted:<br>\r\n<a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=9747\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=9747</a><br>\r\n<br>\r\n",
+    "PostedDate": "2009-04-13T15:56:52.217-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "179024",
+    "ThreadId": "53136",
+    "Html": "so..<div><br></div><div>$i.$j is the same as $time?</div><div>or</div><div>$r['tijd'] is the same $time</div><div><br></div><div>(tijd is the dutch word for time)</div>",
+    "PostedDate": "2009-04-14T07:15:42.45-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "179376",
+    "ThreadId": "53136",
+    "Html": "I was under the impression you needed to write an Excel file using PHPExcel, but I may have misunderstood. Can you explain whether you are reading or writing an Excel file?<br>\r\n<br>\r\nIn the loop, I don't see any statements related to PHPExcel?<br>\r\n<br>\r\n",
+    "PostedDate": "2009-04-14T22:39:10.557-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "180595",
+    "ThreadId": "53136",
+    "Html": "Hello,<div>Sorry I'll try to be a bit more clear about the case.</div><div><br></div><div>to answer your question. i want to create an excel file with phpexcel :)</div><div><br></div><div>I'm making a for loop with hours and quarters. the hours start in this case at 8 and end at 23.</div><div>The quarters in my loop are starting with 00 and end with 45.</div><div>the quarters loop is placed incide the hours loop. this way i can make a match with data in the database. So that if there is a appointment at $i.$j (for example 1315) it will return it.</div><div>the part below </div><div>&quot;</div><div><div><span style=\"white-space:pre\">\t\t</span>if($i &lt; 10 &amp;&amp; $i &gt; 8)</div><div><span style=\"white-space:pre\">\t\t</span>{</div><div><span style=\"white-space:pre\">\t\t\t</span>$i = &quot;0&quot;.$i;</div><div><span style=\"white-space:pre\">\t\t</span>}</div><div>&quot; </div><div>should place a 0 in front of the hours that don't contain 2 characters. (8 and 9 o'clock.)</div><div>but, in this case... it doesn't do it. (i beleive it has to do with the phpexcel class since i am using this on several other places where it does work)</div></div><div><br></div><div>so. $i stand for hours and $j stands for quarters.</div><div><br></div><div>hopefully you do understand the question and problem :)</div><div><br></div><div>$rij = &quot;7&quot;;</div><div><div>for($i='8'; $i&lt;='23'; $i++)</div><div>{</div><div><span style=\"white-space:pre\">\t\t</span>if($i &lt; 10 &amp;&amp; $i &gt; 8)</div><div><span style=\"white-space:pre\">\t\t</span>{</div><div><span style=\"white-space:pre\">\t\t\t</span>$i = &quot;0&quot;.$i;</div><div><span style=\"white-space:pre\">\t\t</span>}</div><div><span style=\"white-space:pre\">\t</span></div><div><span style=\"white-space:pre\">\t</span>for($j='0'; $j&lt;='45'; $j=$j+'15')</div><div><span style=\"white-space:pre\">\t</span>{</div><div><span style=\"white-space:pre\">\t\t</span>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('A'.$rij, $i.$j); // add the time to the excel sheet. should display something like 0945 or 1000. current situation is 945 and 100.</div><div><span style=\"white-space:pre\">\t\t</span></div><div><span style=\"white-space:pre\">\t\t</span>mysql_data_seek($vertrekSql, 0);</div><div><span style=\"white-space:pre\">\t\t</span>while($r = mysql_fetch_array($vertrekSql))</div><div><span style=\"white-space:pre\">\t\t</span>{<span style=\"white-space:pre\">\t</span></div><div><span style=\"white-space:pre\">\t\t\t</span># Vertrek<span style=\"white-space:pre\">\t</span></div><div><span style=\"white-space:pre\">\t\t\t</span>if($r['tijd'] == $i.$j)</div><div><span style=\"white-space:pre\">\t\t\t</span>{<span style=\"white-space:pre\">\t\t\t\t</span></div><div><span style=\"white-space:pre\">\t\t\t\t</span>$naam = ($r['aanhef'].($r['tussenvoegsel'] ? &quot; &quot;.$r['tussenvoegsel'].&quot;&quot; : '').&quot; &quot;.$r['achternaam']); // stands for eg. &quot;mr. van helsing&quot; ;) </div><div><span style=\"white-space:pre\">\t\t\t\t</span>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('C'.$rij, $naam); // stands for the name eg. &quot;max&quot;</div><div><span style=\"white-space:pre\">\t\t\t\t</span>$rij++;</div><div><span style=\"white-space:pre\">\t\t\t</span>}<span style=\"white-space:pre\">\t</span></div><div><span style=\"white-space:pre\">\t\t</span>}</div><div><span style=\"white-space:pre\">\t\t</span>$rij++;</div><div><br></div><div><span style=\"white-space:pre\">\t</span>}</div><div><span style=\"white-space:pre\">\t</span></div><div>}</div></div>",
+    "PostedDate": "2009-04-17T07:15:55.053-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "180739",
+    "ThreadId": "53136",
+    "Html": "I show you two ways. The first method is more correct than the second because times are inserted as numeric values while the second method just uses plain text. Notice the difference by looking at the formular bar in the screen shots.<br>\r\n<br>\r\n1. Time inserted the Excel way (&quot;Correct&quot; method)<br>\r\n<br>\r\n<code>\r\n$rij = 1;<br>\r\nfor ($i = 8; $i &lt;= 23; $i++) {<br>\r\n&nbsp;&nbsp; &nbsp;for($j = 0; $j &lt;= 45; $j += 15) {<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('A' . $rij, $i / 24 + $j / 1440);<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('A' . $rij)-&gt;getNumberFormat()-&gt;setFormatCode('hhmm');<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$rij++;<br>\r\n&nbsp;&nbsp; &nbsp;}<br>\r\n}<br>\r\n</code>\r\n<br>\r\n<br>\r\n2. Time inserted as text<br>\r\n<br>\r\n<code>\r\n$rij = 1;<br>\r\nfor ($i = 8; $i &lt;= 23; $i++) {<br>\r\n&nbsp;&nbsp; &nbsp;for($j = 0; $j &lt;= 45; $j += 15) {<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueExplicit(<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;'A' . $rij,<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;sprintf('%02s', $i) . sprintf('%02s', $j),<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;PHPExcel_Cell_DataType::TYPE_STRING<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;);<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$rij++;<br>\r\n&nbsp;&nbsp; &nbsp;}<br>\r\n}<br>\r\n</code>\r\n<br>\r\n<a href=\"http://img116.imageshack.us/img116/8243/test1x.png\"><img alt=\"\" style=\"border-style:solid;border-width:0px\" src=\"http://img116.imageshack.us/img116/8243/test1x.th.png\"></a>\r\n<a href=\"http://img116.imageshack.us/img116/2969/test2.png\"><img alt=\"\" style=\"border-style:solid;border-width:0px\" src=\"http://img116.imageshack.us/img116/2969/test2.th.png\"></a>\r\n<br>\r\n",
+    "PostedDate": "2009-04-17T19:14:19.54-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "181430",
+    "ThreadId": "53136",
+    "Html": "thank you, that did the trick, for so far :)<div>please leave this thread open for more questions..</div>",
+    "PostedDate": "2009-04-20T11:17:34.35-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

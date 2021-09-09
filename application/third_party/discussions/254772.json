@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "600813",
+    "ThreadId": "254772",
+    "Html": "<p>Hi,</p>\n<p>I hope somebody can help me out here. I want to read an excel 2003 file with serial number in it. Whatever i try these numbers are read in the format 9.35035001415E+14 instead of 935035001414631. Here is my code:</p>\n<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $objReader = PHPExcel_IOFactory::createReaderForFile($file);<br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $objPHPExcel = $objReader-&gt;load($file);<br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $objWorksheet = $objPHPExcel-&gt;getActiveSheet();<br /> <br /> &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $highestRow = $objWorksheet-&gt;getHighestRow(); <br /> &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $highestColumn = $objWorksheet-&gt;getHighestColumn();<br /> <br /> &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn);<br /> &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $range=\"A1:D$highestRow\";<br /> &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $objWorksheet-&gt;getStyle($range)-&gt;getNumberFormat()-&gt;setFormatCode(\"0000\");<br /> <br /> &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; for ($row = 1; $row &lt;= $highestRow; ++$row) {<br /> &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; for ($col = 0; $col &lt;= $highestColumnIndex; ++$col) {<br /> &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; echo $objWorksheet-&gt;getCellByColumnAndRow($col, $row)-&gt;getValue();<br /> &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; }<br /> &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }</p>\n<p><br /> When I show the format code it seems to be set correct to '0000'.</p>\n<p>Whatever approach I use (advancedvalue binder, or setdatareadonly,...) the numbers are shown as 9.35035001415E+14. Please help...</p>\n<p>Thanks</p>\n<p>Mic</p>",
+    "PostedDate": "2011-04-20T23:53:51.41-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "601119",
+    "ThreadId": "254772",
+    "Html": "<p>Try setting the format code to just '0'.</p>",
+    "PostedDate": "2011-04-21T10:31:52.117-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "601240",
+    "ThreadId": "254772",
+    "Html": "<p>Scott,</p>\n<p>thanks for your comment. The thing is: Setting the format code does not seem to have any effect. As I wrote before: When I read it back it is shown as set before but there is no effect on the cells/contents. Am i missing something here?</p>\n<p>Cheers</p>\n<p>Mic</p>",
+    "PostedDate": "2011-04-21T13:16:25.693-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "601271",
+    "ThreadId": "254772",
+    "Html": "<p>The numbers are read correctly, probably&nbsp;as a floating point value (because they exceed the max for a 32-bit integer); and it all comes down to how you're displaying them. Using echo, will simply display that floating point number as PHP will always display a floating point number: if it exceeds a certain size (based on the value of the php.ini precision setting) it will display it in scientific format. You can use standard PHP functions like sprintf() or number_format() to force PHP to convert the value to a formatted string for display, or you can do this within PHPExcel using the cell's getFormattedValue() method rather than getValue() to return the value as a formatted string, as per the number format mask. Note that accuracy may be lost purely because this is a floating point number.</p>",
+    "PostedDate": "2011-04-21T14:11:56-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "601278",
+    "ThreadId": "254772",
+    "Html": "<p>Mark,</p>\r\n<p>thank you so much. That did the trick! After hours spending with this problem I finally have it done.</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks again</p>\r\n<p>Mic</p>",
+    "PostedDate": "2011-04-21T14:24:44.51-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "665393",
+    "ThreadId": "254772",
+    "Html": "<p>Hi,</p>\r\n<p>I have the same problem with number format, if I use&nbsp;<strong> </strong>getFormattedValue() method rather than getValue()<strong>&nbsp; ,</strong> i get this error:</p>\r\n<p>&nbsp;</p>\r\n<p><strong>Fatal error</strong>:  Call to a member function getParent() on a non-object in <strong>/...../Classes/PHPExcel/Cell.php</strong> on line <strong>205</strong></p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p><strong>thanks for help<br /></strong></p>",
+    "PostedDate": "2011-08-30T10:02:39.907-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

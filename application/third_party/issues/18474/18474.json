@@ -1,0 +1,45 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hello,\n \nThis is an improvement that I propose, on the function called \"calculateColumnWidths\", \ncontained in the file \"PHPExcel / WorkSheet.php\".\n \nThe basic treatment don't make merged cells.\nThis is the code to make it. It augemente size, if necessary.\n \n\tpublic function calculateColumnWidths($calculateMergeCells = false)\n\t{\n\t\t// initialize $autoSizes array\n\t\t$autoSizes = array();\n\t\tforeach ($this->getColumnDimensions() as $colDimension) {\n\t\t\tif ($colDimension->getAutoSize()) {\n\t\t\t\t$autoSizes[$colDimension->getColumnIndex()] = -1;\n\t\t\t}\n\t\t}\n \n\t\t// There is only something to do if there are some auto-size columns\n\t\tif (!empty($autoSizes)) {\n \n\t\t\t// build list of cells references that participate in a merge\n\t\t\t$isMergeCell = array();\n\t\t\t$MergeAllCells = $this->getMergeCells() ;\n\t\t\tforeach ($MergeAllCells as $cells) {\n\t\t\t\t$cellMerged = PHPExcel_Cell::extractAllCellReferencesInRange($cells) ;\n\t\t\t\tforeach ($cellMerged as $cellReference) {\n\t\t\t\t\t$isMergeCell[$cellReference] = true;\n\t\t\t\t}\n\t\t\t}\n \n\t\t\t// loop through all cells in the worksheet\n\t\t\tforeach ($this->getCellCollection(false) as $cellID) {\n\t\t\t\t$cell = $this->getCell($cellID);\n\t\t\t\tif (isset($autoSizes[$cell->getColumn()])) {\n\t\t\t\t\t// Determine width if cell does not participate in a merge\n\t\t\t\t\tif (!isset($isMergeCell[$cell->getCoordinate()])) {\n\t\t\t\t\t\t// Calculated value\n\t\t\t\t\t\t$cellValue = $cell->getCalculatedValue();\n \n\t\t\t\t\t\t// To formatted string\n\t\t\t\t\t\t$cellValue = PHPExcel_Style_NumberFormat::toFormattedString($cellValue, $this->getParent()->getCellXfByIndex($cell->getXfIndex())->getNumberFormat()->getFormatCode());\n \n\t\t\t\t\t\tif ($cellValue == \"\") continue ;\n\t\t\t\t\t\t$autoSizes[$cell->getColumn()] = max(\n\t\t\t\t\t\t\t(float)$autoSizes[$cell->getColumn()],\n\t\t\t\t\t\t\t(float)PHPExcel_Shared_Font::calculateColumnWidth(\n\t\t\t\t\t\t\t\t$this->getParent()->getCellXfByIndex($cell->getXfIndex())->getFont(),\n\t\t\t\t\t\t\t\t$cellValue,\n\t\t\t\t\t\t\t\t$this->getParent()->getCellXfByIndex($cell->getXfIndex())->getAlignment()->getTextRotation(),\n\t\t\t\t\t\t\t\t$this->getDefaultStyle()->getFont()\n\t\t\t\t\t\t\t)\n\t\t\t\t\t\t);\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n \n\t\t\t# Begin Adding Bloc\n\t\t\t// For All MergeCell\n\t\t\tforeach ($MergeAllCells as $cells) {\n\t\t\t\t$cellMerged = PHPExcel_Cell::extractAllCellReferencesInRange($cells) ;\n\t\t\t\t$maxWidthCellMerge = 0 ;\n\t\t\t\t$listColumnMerged = array() ;\n \n\t\t\t\t// Sum of column width\n\t\t\t\tforeach ($cellMerged as $cellReference) {\n\t\t\t\t\t$columnRef = $this->getCell ($cellReference)->getColumn() ;\n\t\t\t\t\t// If this column isn't find\n\t\t\t\t\tif ($listColumnMerged[$columnRef] === null)\n\t\t\t\t\t\t$maxWidthCellMerge += $autoSizes[$columnRef] ;\n\t\t\t\t\t$listColumnMerged[$columnRef] = $columnRef ;\n\t\t\t\t}\n \n\t\t\t\t$cell = $this->getCell($cellMerged[0]) ;\n\t\t\t\t// Calculated value\n\t\t\t\t$cellValue = $cell->getCalculatedValue();\n \n\t\t\t\t// To formatted string\n\t\t\t\t$cellValue = PHPExcel_Style_NumberFormat::toFormattedString($cellValue, $this->getParent()->getCellXfByIndex($cell->getXfIndex())->getNumberFormat()->getFormatCode());\n \n\t\t\t\t// Calcul of the merged cell text size\n\t\t\t\t$maxWidthCalculate = (float)PHPExcel_Shared_Font::calculateColumnWidth (\n\t\t\t\t\t$this->getParent()->getCellXfByIndex($cell->getXfIndex())->getFont(),\n\t\t\t\t\t$cellValue,\n\t\t\t\t\t$this->getParent()->getCellXfByIndex($cell->getXfIndex())->getAlignment()->getTextRotation(),\n\t\t\t\t\t$this->getDefaultStyle()->getFont()\n\t\t\t\t) ;\n \n\t\t\t\tif ($maxWidthCalculate > $maxWidthCellMerge) {\n\t\t\t\t\t// Change width. Not large enough to contain the text\n\t\t\t\t\t$diff = ceil (($maxWidthCalculate - $maxWidthCellMerge) / sizeof ($listColumnMerged)) ;\n \n\t\t\t\t\t// The difference is added to each cell\n\t\t\t\t\tforeach ($listColumnMerged as $columnRef) {\n\t\t\t\t\t\t$autoSizes[$columnRef] += $diff ;\n\t\t\t\t\t}\n\t\t\t\t} else {\n\t\t\t\t\t// No change width\n\t\t\t\t}\n\t\t\t}\n\t\t\t# End Adding Bloc\n\t\t\t\n \n\t\t\t// adjust column widths\n\t\t\tforeach ($autoSizes as $columnIndex => $width) {\n\t\t\t\tif ($width == -1) $width = $this->getDefaultColumnDimension()->getWidth();\n\t\t\t\t$this->getColumnDimension($columnIndex)->setWidth($width);\n\t\t\t}\n\t\t}\n \n\t\treturn $this;\n\t}",
+    "LastUpdatedDate": "2013-02-21T19:01:46.247-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2012-08-16T05:20:16.87-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Autosize in Cell Merge",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 2,
+    "Id": 18474
+  },
+  "FileAttachments": [
+    {
+      "FileId": 6555,
+      "FileName": "Worksheet.rar",
+      "DownloadUrl": ".\\6555"
+    }
+  ],
+  "Comments": []
+}

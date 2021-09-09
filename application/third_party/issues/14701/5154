@@ -1,0 +1,289 @@
+Index: Excel5.php
+===================================================================
+--- Excel5.php	(revision 1230)
++++ Excel5.php	(working copy)
+@@ -164,6 +164,9 @@
+ 	const XLS_Type_XFEXT				= 0x087d;
+ 	const XLS_Type_UNKNOWN				= 0xffff;
+ 
++	private $_enableMemoryOptimization = false;
++
++
+ 	/**
+ 	 * Read data only?
+ 	 *
+@@ -377,6 +380,26 @@
+ 	private $_sharedFormulaParts;
+ 
+ 	/**
++	 * Gets memory optimization feature.
++	 * @return bool  true if enabled.
++	 */
++	public function getMemoryOptimization(){
++		return $this->_enableMemoryOptimization;
++	}
++
++	/**
++	 *Enable memory optimization. In this calse Reader will not create Cell objects.
++	 * and will be write cells array as ( row =>  ( col => data ) );
++	 * @param bool $enableOptimization
++	 */
++	public function enableMemoryOptimization($enableOptimization=true){
++		$this->_enableMemoryOptimization = $enableOptimization;
++		if ( $enableOptimization ) {
++			$this->setReadDataOnly(true);
++		}
++	}
++
++	/**
+ 	 * Read data only?
+ 	 *
+ 	 * @return boolean
+@@ -2867,14 +2890,7 @@
+ 			$rknum = $this->_GetInt4d($recordData, 6);
+ 			$numValue = $this->_GetIEEE754($rknum);
+ 
+-			$cell = $this->_phpSheet->getCell($columnString . ($row + 1));
+-			if (!$this->_readDataOnly) {
+-				// add style information
+-				$cell->setXfIndex($this->_mapCellXfIndex[$xfIndex]);
+-			}
+-
+-			// add cell
+-			$cell->setValueExplicit($numValue, PHPExcel_Cell_DataType::TYPE_NUMERIC);
++			$this->_setCellExplicitValue( $row, $columnString, $numValue, PHPExcel_Cell_DataType::TYPE_NUMERIC, $xfIndex );
+ 		}
+ 	}
+ 
+@@ -2941,17 +2957,11 @@
+ 						}
+ 					}
+ 				}
+-				$cell = $this->_phpSheet->getCell($columnString . ($row + 1));
+-				$cell->setValueExplicit($richText, PHPExcel_Cell_DataType::TYPE_STRING);
++
++				$this->_setCellExplicitValue($row, $columnString, $richText, PHPExcel_Cell_DataType::TYPE_STRING, $xfIndex );
+ 			} else {
+-				$cell = $this->_phpSheet->getCell($columnString . ($row + 1));
+-				$cell->setValueExplicit($this->_sst[$index]['value'], PHPExcel_Cell_DataType::TYPE_STRING);
++				$this->_setCellExplicitValue($row, $columnString, $this->_sst[$index]['value'], PHPExcel_Cell_DataType::TYPE_STRING, $xfIndex);
+ 			}
+-
+-			if (!$this->_readDataOnly) {
+-				// add style information
+-				$cell->setXfIndex($this->_mapCellXfIndex[$xfIndex]);
+-			}
+ 		}
+ 	}
+ 
+@@ -2995,14 +3005,8 @@
+ 
+ 				// offset: var; size: 4; RK value
+ 				$numValue = $this->_GetIEEE754($this->_GetInt4d($recordData, $offset + 2));
+-				$cell = $this->_phpSheet->getCell($columnString . ($row + 1));
+-				if (!$this->_readDataOnly) {
+-					// add style
+-					$cell->setXfIndex($this->_mapCellXfIndex[$xfIndex]);
+-				}
+ 
+-				// add cell value
+-				$cell->setValueExplicit($numValue, PHPExcel_Cell_DataType::TYPE_NUMERIC);
++				$this->_setCellExplicitValue($row, $columnString, $numValue, PHPExcel_Cell_DataType::TYPE_NUMERIC, $xfIndex);
+ 			}
+ 
+ 			$offset += 6;
+@@ -3039,14 +3043,7 @@
+ 
+ 			$numValue = $this->_extractNumber(substr($recordData, 6, 8));
+ 
+-			$cell = $this->_phpSheet->getCell($columnString . ($row + 1));
+-			if (!$this->_readDataOnly) {
+-				// add cell style
+-				$cell->setXfIndex($this->_mapCellXfIndex[$xfIndex]);
+-			}
+-
+-			// add cell value
+-			$cell->setValueExplicit($numValue, PHPExcel_Cell_DataType::TYPE_NUMERIC);
++			$this->_setCellExplicitValue($row, $columnString, $numValue, PHPExcel_Cell_DataType::TYPE_NUMERIC, $xfIndex);
+ 		}
+ 	}
+ 
+@@ -3160,12 +3157,6 @@
+ 
+ 			}
+ 
+-			$cell = $this->_phpSheet->getCell($columnString . ($row + 1));
+-			if (!$this->_readDataOnly) {
+-				// add cell style
+-				$cell->setXfIndex($this->_mapCellXfIndex[$xfIndex]);
+-			}
+-
+ 			// store the formula
+ 			if (!$isPartOfSharedFormula) {
+ 				// not part of shared formula
+@@ -3175,21 +3166,23 @@
+ 						throw new Exception('Not BIFF8. Can only read BIFF8 formulas');
+ 					}
+ 					$formula = $this->_getFormulaFromStructure($formulaStructure); // get formula in human language
+-					$cell->setValueExplicit('=' . $formula, PHPExcel_Cell_DataType::TYPE_FORMULA);
++					$value = '=' . $formula;
++					$this->_setCellExplicitValue($row, $columnString, $value, PHPExcel_Cell_DataType::TYPE_FORMULA, $xfIndex);
+ 
+ 				} catch (Exception $e) {
+-					$cell->setValueExplicit($value, $dataType);
++					$this->_setCellExplicitValue($row, $columnString, $value, $dataType, $xfIndex);
+ 				}
+ 			} else {
+ 				if ($this->_version == self::XLS_BIFF8) {
+ 					// do nothing at this point, formula id added later in the code
+ 				} else {
+-					$cell->setValueExplicit($value, $dataType);
++					$this->_setCellExplicitValue($row, $columnString, $value, $dataType, $xfIndex);
+ 				}
+ 			}
+ 
+ 			// store the cached calculated value
+-			$cell->setCalculatedValue($value);
++			$this->_setCellCalculatedValue($row, $columnString, $value, $xfIndex);
++
+ 		}
+ 	}
+ 
+@@ -3283,27 +3276,21 @@
+ 			// offset: 7; size: 1; 0=boolean; 1=error
+ 			$isError = ord($recordData{7});
+ 
+-			$cell = $this->_phpSheet->getCell($columnString . ($row + 1));
+ 			switch ($isError) {
+ 				case 0: // boolean
+ 					$value = (bool) $boolErr;
+ 
+ 					// add cell value
+-					$cell->setValueExplicit($value, PHPExcel_Cell_DataType::TYPE_BOOL);
++					$this->_setCellExplicitValue( $row, $collumnString, $value, PHPExcel_Cell_DataType::TYPE_BOOL, $xfIndex );
+ 					break;
+ 
+ 				case 1: // error type
+ 					$value = $this->_mapErrorCode($boolErr);
+ 
+ 					// add cell value
+-					$cell->setValueExplicit($value, PHPExcel_Cell_DataType::TYPE_ERROR);
++					$this->_setCellExplicitValue( $row, $collumnString, $value, PHPExcel_Cell_DataType::TYPE_ERROR, $xfIndex );
+ 					break;
+ 			}
+-
+-			if (!$this->_readDataOnly) {
+-				// add cell style
+-				$cell->setXfIndex($this->_mapCellXfIndex[$xfIndex]);
+-			}
+ 		}
+ 	}
+ 
+@@ -3338,7 +3325,8 @@
+ 				// Read cell?
+ 				if ( !is_null($this->getReadFilter()) && $this->getReadFilter()->readCell($columnString, $row + 1, $this->_phpSheet->getTitle()) ) {
+ 					$xfIndex = $this->_GetInt2d($recordData, 4 + 2 * $i);
+-					$this->_phpSheet->getCell($columnString . ($row + 1))->setXfIndex($this->_mapCellXfIndex[$xfIndex]);
++
++					$this->_setCellXfIndex($row, $columnString, $xfIndex);
+ 				}
+ 			}
+ 		}
+@@ -3385,13 +3373,7 @@
+ 				$string = $this->_readByteStringLong(substr($recordData, 6));
+ 				$value = $string['value'];
+ 			}
+-			$cell = $this->_phpSheet->getCell($columnString . ($row + 1));
+-			$cell->setValueExplicit($value, PHPExcel_Cell_DataType::TYPE_STRING);
+-
+-			if (!$this->_readDataOnly) {
+-				// add cell style
+-				$cell->setXfIndex($this->_mapCellXfIndex[$xfIndex]);
+-			}
++			$this->_setCellExplicitValue($row, $columnString, $value, PHPExcel_Cell_DataType::TYPE_STRING, $xfIndex);
+ 		}
+ 	}
+ 
+@@ -3419,9 +3401,7 @@
+ 			$xfIndex = $this->_GetInt2d($recordData, 4);
+ 
+ 			// add style information
+-			if (!$this->_readDataOnly) {
+-				$this->_phpSheet->getCell($columnString . ($row + 1))->setXfIndex($this->_mapCellXfIndex[$xfIndex]);
+-			}
++			$this->_setCellXfIndex( $row, $columnString, $xfIndex );
+ 		}
+ 
+ 	}
+@@ -3794,10 +3774,12 @@
+ 				$url .= $text;
+ 			}
+ 
++			if (!$this->_enableMemoryOptimization) {
+ 			// apply the hyperlink to all the relevant cells
+ 			foreach (PHPExcel_Cell::extractAllCellReferencesInRange($cellRange) as $coordinate) {
+ 				$this->_phpSheet->getCell($coordinate)->getHyperLink()->setUrl($url);
+ 			}
++			}
+ 		}
+ 	}
+ 
+@@ -3953,6 +3935,7 @@
+ 			$stRange = $this->_phpSheet->shrinkRangeToFit($cellRange);
+ 			$stRange = PHPExcel_Cell::extractAllCellReferencesInRange($stRange);
+ 			foreach ($stRange as $coordinate) {
++				if  ( !$this->_enableMemoryOptimization ) {
+ 				$objValidation = $this->_phpSheet->getCell($coordinate)->getDataValidation();
+ 				$objValidation->setType($type);
+ 				$objValidation->setErrorStyle($errorStyle);
+@@ -3967,6 +3950,7 @@
+ 				$objValidation->setPrompt($prompt);
+ 				$objValidation->setFormula1($formula1);
+ 				$objValidation->setFormula2($formula2);
++				}
+ 			}
+ 		}
+ 
+@@ -6181,4 +6165,42 @@
+ 		}
+ 	}
+ 
++
++	private function _setCellExplicitValue($row, $columnString, $value, $type, $xfIndex=null)
++	{
++		if ($this->_enableMemoryOptimization) {
++			$this->_phpSheet->cells[$row + 1][$columnString] = $value;
++			if (!$this->_readDataOnly && $xfIndex != null) {
++				$this->_phpSheet->xf[$row + 1][$columnString] = $xfIndex;
++			}
++		}
++		else {
++			$cell = $this->_phpSheet->getCell($columnString . ($row + 1));
++			$cell->setValueExplicit($value, $type);
++
++			if (!$this->_readDataOnly && $xfIndex != null) {
++				// add style information
++				$cell->setXfIndex($this->_mapCellXfIndex[$xfIndex]);
++			}
++		}
++	}
++	private function _setCellXfIndex( $row, $columnString, $xfIndex )
++	{
++		if ($this->_enableMemoryOptimization) {
++			if (!$this->_readDataOnly && $xfIndex != null) {
++				$this->_phpSheet->xf[$row + 1][$columnString] = $xfIndex;
++			}
++		}
++		else {
++			if (!$this->_readDataOnly) {
++				$cell = $this->_phpSheet->getCell($columnString . ($row + 1));
++				// add style information
++				$cell->setXfIndex($this->_mapCellXfIndex[$xfIndex]);
++			}
++		}
++	}
++	private function _setCellCalculatedValue($row, $columnString, $value, $xfIndex)
++	{
++		$this->_setCellExplicitValue( $row, $columnStrinumnString, $value, null, $xfIndex );
++	}
+ }

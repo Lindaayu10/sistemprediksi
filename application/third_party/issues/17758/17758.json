@@ -1,0 +1,55 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hello,\n \nI am using a 5.88 MB file. I could not attach the same due to the limit of 4MB here. I tried to read this file and put the contents in an array but got an error of memory limit. I searched everywhere and tried every tweak with this. But still could not read this. Can someone help me?\n \nMy code is as follows:\n[code]\n<?php    \nrequire_once 'PHPExcel/PHPExcel/IOFactory.php';\nset_time_limit(0); \n$filename=\"upload/temp_vendor_data.xlsx\";\n//move_uploaded_file($_FILES[\"file\"][\"tmp_name\"],$filename); \n//chmod ($filename, 0600);\n \n$inputFileType = 'Excel2007';  \n$inputFileName = $filename; \n$sheetname = 'Sheet1';  \n \nclass chunkReadFilter implements PHPExcel_Reader_IReadFilter { \n    private $_startRow = 0; \n    private $_endRow = 0; \n  \n    public function setRows($startRow, $chunkSize) {  \n        $this->_startRow    = $startRow;  \n        $this->_endRow      = $startRow + $chunkSize; \n    }  \n \n    public function readCell($column, $row, $worksheetName = '') { \n        if ($row >= $this->_startRow && $row < $this->_endRow) { \n\t\t\tif (in_array($column,range('A','Y'))) { \n           \t\treturn true; \n\t\t   }\n        } \n        return false; \n    }  \n} \n \n \n$objReader = PHPExcel_IOFactory::createReader($inputFileType); \n$objReader->setLoadSheetsOnly($sheetname);\n$objReader->setReadDataOnly(true);\n$chunkSize = 100;  \n$chunkFilter = new chunkReadFilter();    \n$objReader->setReadFilter($chunkFilter);  \n$list=array();\n \nfor ($startRow = 1; $startRow <= 65536; $startRow += $chunkSize) {   \n    $chunkFilter->setRows($startRow,$chunkSize);  \n    $objPHPExcel = $objReader->load($inputFileName);  \n    //    Do some processing here  \n\t$objWorksheet = $objPHPExcel->setActiveSheetIndex(0);\n\t$endRow=$startRow + $chunkSize;\n  \t$list[]= $objWorksheet->rangeToArray('A'.$startRow.':'.'Y'.$endRow,null, true, true, true); \n\t//////////////////////////////////////////////\n    //$objPHPExcel->disconnectWorksheets();  \n    //unset($objPHPExcel);  \n}\n \nprint_r($list);\n?>\n[/code]",
+    "LastUpdatedDate": "2013-02-21T19:01:59.267-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2012-04-04T04:20:42.313-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Could Not Read .xlsx File (Memory Limit Error)",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 17758
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "i think u should increase the memory limit in php.ini file.",
+      "PostedDate": "2012-05-11T05:06:00.66-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "You might be reading the worksheets in chunks, but you're building an enormous array in $list[] which will be growing and growing... all you're doing by reading in chunks is shifting the memory burden from PHPExcel to your $list array. Process the data as you read it, don't just move it to somewhere else in PHP's limited memory allowance",
+      "PostedDate": "2012-05-13T10:19:51.873-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:01:59.267-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "169800",
+    "ThreadId": "50630",
+    "Html": "Hello,<div><br></div><div>I'm reading an Excel 2007 file, modify some values and then save it to a new file.</div><div><br></div><div>I have a column full of dates in the dd/mm/yyyy format (17/03/2009) and write in the next column dates in the same format.</div><div><br></div><div>Once I'm done, I open my previously saved file with Excel 2007.</div><div>My problem is that all the dates are now in the mm-dd-yyyy (03-17-2009) format. Even the ones I didn't write.</div><div><br></div><div>How do I keep the original format of the dates (dd/mm/yyyy) ?</div>",
+    "PostedDate": "2009-03-19T03:55:01.953-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "169892",
+    "ThreadId": "50630",
+    "Html": "The problem is most likely that you are using one of Excel's built-in locale dependent date number formats. These are the default choice by MS Office Excel whenever you type a date in a cell.<br>\r\n<br>\r\nCheck whether your cells are formatted using a built-in locale dependent date number format like this:<br>\r\n<ol>\r\n    <li>Open your original file in MS Office Excel.</li>\r\n    <li>Click on the relevant cell holding your date.</li>\r\n    <li>Open the number format dialog pane in the style dialog by clicking on the arrow shortcut in the number format section</li>\r\n    <li>You should now see high-lighted the current date number format for the cell.</li>\r\n    <li>Look whether the date number format has an asterisk indicating locale dependent format.</li>\r\n</ol>\r\n<br>\r\nSample screen shot of step 5.<br>\r\n<a title=\"Linkification: http://img172.imageshack.us/img172/680/asteriskdatenumberforma.png\" href=\"http://img172.imageshack.us/img172/680/asteriskdatenumberforma.png\">http://img172.imageshack.us/img172/680/asteriskdatenumberforma.png</a><br>\r\n<br>\r\nWhen you use one of the locale dependent date number formats the date will be formatted according to the preferences set in the operating system (regional settings). Your Excel file will not look the same on different platforms!<br>\r\n<br>\r\nSometimes this is wanted behavior for your Excel workbook, sometimes not. In your case, it sounds like &quot;not&quot;, and you should instead select one of the date number formats without an asterisk, or type a user-defined format.<br>\r\n<br>\r\nPHPExcel does not have real support for built-in locale dependent date number formats. When you read an Excel file containing such formats, it converts the date to a &quot;hard&quot; generic date number format. This explains the behavior where date formats are converted.<br>\r\n<br>\r\nIn short, your solution for now is to use a &quot;hard-coded&quot; date number format (one without an asterisk), or type your own as a user-defined one.<br>\r\n<br>\r\n",
+    "PostedDate": "2009-03-19T09:35:22.083-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "170128",
+    "ThreadId": "50630",
+    "Html": "<div style=\"padding-top:3px;padding-right:3px;padding-bottom:3px;padding-left:3px;background-image:none;margin-top:0px;margin-right:0px;margin-bottom:0px;margin-left:0px;word-wrap:break-word;text-align:left\">Thank you for your extended answer, I am in fact using a specific format (French locale dd/mm/yyyy) with an asterisk in front of it.<div><br></div><div>But as far as I understand I should keep the cell's format of the file (date locale). Because I open the Excel file on a system with a french locale, then modify on my web server, download it open it back on my local system (It seems to me that PHPExcel is changing the cell's format)</div><div>What happens instead is that the cell's format switches from the dd/mm/yyyy to mm-dd-yyyy. (see screenshots below).</div><div><br></div><div><span><a href=\"http://img8.imageshack.us/img8/6369/formatfrench.jpg\">Original format</a><a href=\"http://img22.imageshack.us/img22/4548/formatamerican.jpg\"></a></span></div><div><span><a href=\"http://img22.imageshack.us/img22/4548/formatamerican.jpg\">After saving</a></span></div><div><br></div><div>I'm able to manually force the date format for each cell, it's ok but not perfect because I loose the year on 4 positions and have to do the work on each columns :</div><div><br></div><div><span style=\"white-space:pre\">\t</span>$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('M'.$i)-&gt;getNumberFormat()-&gt;setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_DATE_DDMMYYYY);<br></div><div><br></div><div>Why do I lose the format ?</div><div>Could I set the cell's format to a simple string (not a date format) in worst case ?</div></div>",
+    "PostedDate": "2009-03-20T02:01:46.913-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "170336",
+    "ThreadId": "50630",
+    "Html": "Here are some experiments / tests:<br>\r\n<br>\r\n1. First I try to read and write an xlsx file where date is formatted using built-in locale dependent date number format.<br>\r\n<br>\r\nBefore:<br>\r\n<a href=\"http://img23.imageshack.us/img23/5824/1read.png\">http://img23.imageshack.us/img23/5824/1read.png</a><br>\r\nAfter:<br>\r\n<a href=\"http://img23.imageshack.us/img23/7183/1write.png\">http://img23.imageshack.us/img23/7183/1write.png</a><br>\r\n<br>\r\nLike you noted, date format is being converted.<br>\r\n'20/03/2009' changes to '03-20-2009'<br>\r\n<br>\r\n2. Let's try to correct this on fly by applying a custom number format:<br>\r\n<br>\r\n<code>$objPHPExcel-&gt;getActiveSheet-&gt;getStyle('A1')-&gt;getNumberFormat()-&gt;setFormatCode('dd/mm/yyyy');</code><br>\r\n<br>\r\nAfter:<br>\r\n<a href=\"http://img16.imageshack.us/img16/3927/2write.png\">http://img16.imageshack.us/img16/3927/2write.png</a><br>\r\n<br>\r\nNow the date appears as '20-03-2009'. Apparently, slashes cannot be trusted to render as slashes. Not sure why.<br>\r\nAlso, strangely, when I open the style dialog, it does not open up as a user-defined number format even if it is.<br>\r\n<br>\r\n3. Let's make the number format more explicit:<br>\r\n<br>\r\n<code>$objPHPExcel-&gt;getActiveSheet-&gt;getStyle('A1')-&gt;getNumberFormat()-&gt;setFormatCode('dd\\\\/mm\\\\/yyyy');</code><br>\r\n<br>\r\nAfter:<br>\r\n<a href=\"http://img10.imageshack.us/img10/8797/3write.png\">http://img10.imageshack.us/img10/8797/3write.png</a><br>\r\n<br>\r\nNow the date appears as '20/03/2009' which is what we want. Escaping the slashes tells Excel that the slashes are literal.<br>\r\n<br>\r\n4. Finally, let's go back and modifiy the date number format of the original xlsx file to a user-defined one.<br>\r\n<br>\r\nBefore:<br>\r\n<a href=\"http://img14.imageshack.us/img14/3953/4read.png\">http://img14.imageshack.us/img14/3953/4read.png</a><br>\r\nAfter:<br>\r\n<a href=\"http://img23.imageshack.us/img23/5129/4write.png\">http://img23.imageshack.us/img23/5129/4write.png</a><br>\r\n<br>\r\nThe &quot;before&quot; screen shot shows how we type a custom date number format. Since this is in a Danish version of Excel, we type &quot;dd/mm/åååå&quot; (without the quotation marks). Excel understands that the slashes are literal. <br>\r\n<br>\r\nRead/write works ok. No modification needed.<br>\r\n<br>\r\nConclusion:<br>\r\n<br>\r\nThere is still work to be done in these classes documenting and investigating how (date) number formats work. Dates and number formats are confusing in Excel and it is hard to find detailed information about the subject.<br>\r\n<br>\r\nIn your case, example 3 and 4 may what is needed to solve the problems.<br>\r\n",
+    "PostedDate": "2009-03-21T05:47:39.297-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "170793",
+    "ThreadId": "50630",
+    "Html": "Ok thanks a lot,<div>I didn't know you could define a date format different from the class' contants.</div><div>I'm using the solution to force the date format of each cells to 'dd\\\\/mm\\\\/yyyy'.</div>",
+    "PostedDate": "2009-03-23T04:04:10.197-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

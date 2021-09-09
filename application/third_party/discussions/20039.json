@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "66455",
+    "ThreadId": "20039",
+    "Html": "\r\nHello,<br /><br /><br />I use some dates in my worksheet.<br />no problem for Excel, fields are recognized, I use for example :<br /><br />\t$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('C3','03/01/2008 14:30');<br />\t$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('C3')-&gt;getNumberFormat()-&gt;setFormatCode(PHPExcel<i>Style</i>NumberFormat::FORMAT<i>DATE</i>DATETIME);<br /><br />I can after that make my calculation, differences between dates, ..., it works<br /><br /><br />except with OpenOffice, the field isn't recognized as a date, and an apostrophe is put aat the beginning of the field :<br /><br />'03/01/2008 14:30<br /><br />this apostrophe keep OpenOffice to interpret it. If I delete manually this apostrophe in OpenOffice, it works...<br /><br /><br />I think the date is correctly formated, I read in NumberFormat.php <br /><br />\tconst FORMAT<i>DATE</i>DATETIME\t\t\t\t= 'd/m/y H:i';<br /><br />and i use the code <br /><br />\tSELECT DATE_FORMAT(dat,'%d/%m/%Y %H:%i') AS dat <br /><br />in my MySQL request<br /><br /><br />Have you got an idea what I can do ?<br /><br />Thank you<br />",
+    "PostedDate": "2008-01-06T23:47:01.243-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "66460",
+    "ThreadId": "20039",
+    "Html": "\r\nCan you send me the XLSX file? (maarten AT php excel DOT net)<br />",
+    "PostedDate": "2008-01-07T00:08:48.927-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "122336",
+    "ThreadId": "20039",
+    "Html": "We are having the same issue. (Using Excel 5). Do you require the XLS file?<br>\r\n<br>\r\nRelated question: how can we define custom date formats? E.g., is it possible to do:<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle($cellIndex)-&gt;getNumberFormat()-&gt;setFormatCode('NN D MMM YYYY');\r\n",
+    "PostedDate": "2008-10-02T03:26:25.84-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "122340",
+    "ThreadId": "20039",
+    "Html": "This is not the correct way to put a date in a cell:<br>\r\n<br>\r\n<code>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('C3', '03/01/2008 14:30');</code><br>\r\n<br>\r\nDo like this:<br>\r\n<br>\r\n<code>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('C3', gmmktime(14, 30, 0, 3, 1, 2008));</code><br>\r\n<br>\r\nThe difference is that in the first case the value gets stored like a string while in the second case the value gets stored as a number which is the correct way of entering dates. Excel, by default, stores dates as numbers counting days since 1900. You can always check that your value is stored correctly as a number by checking the formula <code>=TYPE(C3)</code> which should give you 1 for numbers. Also, in MS Office Excel, you may try to change the number format in the generated spreadsheet to 'General'. This will reveal the real number stored for the date.<br>\r\n<br>\r\nUnder the hood, <code>gmmktime(14, 30, 0, 3, 1, 2008)</code> gives you Unix time (seconds elapsed since 1970) and a conversion from Unix time to 1900-based Excel date takes place internally in PHPExcel whenever you at the same specify a date-like number format.<br>\r\n<br>\r\nYou can apply custom number format like this:<br>\r\n<br>\r\n<code>$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('C3')-&gt;getNumberFormat()-&gt;setFormatCode('yyyy mmm dd');</code><br>\r\n<br>\r\nNote that you always need to write format code like in the English version of Excel. Here is a reference for format codes.<br>\r\n<a href=\"http://www.ozgrid.com/Excel/CustomFormats.htm\">http://www.ozgrid.com/Excel/CustomFormats.htm</a><br>\r\n<br>\r\nImportant: Please use latest source of PHPExcel because some bugs involving dates were discovered and fixed after the release of PHPExcel 1.6.3. Download here:<br>\r\n<a href=\"http://www.codeplex.com/PHPExcel/SourceControl/ListDownloadableCommits.aspx\">http://www.codeplex.com/PHPExcel/SourceControl/ListDownloadableCommits.aspx</a><br>\r\n<br>\r\nAfter reading your post, I notice some small problems with the predefined format code constants in the <code>PHPExcel_Style_NumberFormat</code> class, so in the meantime use your own custom number format codes. Will follow up on this later.<br>\r\n<br>\r\nEDIT:<br>\r\n<a href=\"http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=7726\">http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=7726</a><br>\r\n",
+    "PostedDate": "2008-10-02T04:16:28.84-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "122343",
+    "ThreadId": "20039",
+    "Html": "<p>Thanks koyama; your instructions are clear and we will be able to set the dates like you suggest.</p>\r\n<p>A question though: shouldn't there be a PHPExcel_Cell_DataType::TYPE_DATE type available, so dates can simply be set like this?</p>\r\n<code>$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('C3')-&gt;getNumberFormat()-&gt;setFormatCode('NN D MMM YYYY');<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getCell('C3')-&gt;setValueExplicit('2008-03-01 14:30:00', PHPExcel_Cell_DataType::TYPE_DATE ); <br>\r\n</code><br>\r\nIt would make things quite a lot simpler than having to use the unix timestamp.\r\n",
+    "PostedDate": "2008-10-02T04:41:08.957-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "122353",
+    "ThreadId": "20039",
+    "Html": "I follow what you are saying, but there may be workarounds. For example, if you retrieve dates from MySQL and need to insert in spreadsheet using PHPExcel, then Unix time may not be the suitable format.<br>\r\n<br>\r\nYou can however use the PHP function <code>strtotime()</code>:<br>\r\n<br>\r\n<code>$cell-&gt;setValue(strtotime('2008-03-01 14:30:00 GMT'));</code><br>\r\n<br>\r\nNote, it is important to append <code>'GMT'</code>, otherwise <code>strtotime()</code> will return Unix time based on your local timezone settings.\r\n",
+    "PostedDate": "2008-10-02T05:31:23.163-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "122602",
+    "ThreadId": "20039",
+    "Html": "The Excel writers do try to show a modicum of cleverness when the formatting of the cell is defined as a date/time format. The actual value stored by the call to $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue() can be an integer (in which case it assumes that it is a PHP date/time value, and converts it to an Excel date/timestamp value for writing), a float (in which case it assumes that it is an Excel date/time value already and writes it &quot;as is&quot;), or even a PHP date object. <br>\r\n<br>\r\nAt the moment, string values are always written &quot;as is&quot;, on the premise that the cell probably contains a formula that returns a date/time value rather than that they actually contain a string depiction of a date/time. <br>\r\n<br>\r\n<br>\r\nFor string values, it would be possible to do an additional&nbsp;substring test to see if the first character of a string cell value was an &quot;=&quot; sign (indicating a formula, which should be written &quot;as is&quot;), or not. In this latter case the code could assume that it was a string depiction of a date/time and attempt to convert it to an Excel date/time value. In the event of a successful conversion, write as an Excel date; otherwise (if conversion fails) assume that it is a genuine string value to be written &quot;as is&quot;.<br>\r\n<br>\r\n<br>\r\nNote that these additional tests and conversions would slightly slow down the writer process.<br>\r\nNote also that date/time calculation functions <strong><em>will </em></strong>try to work with a string value depicting a date/time.<br>\r\n<br>\r\n<br>\r\nIf you want the writer code logic changed to work this way, then raise this as a Work Item, and I'll look at doing it.<br>\r\n</span>\r\n",
+    "PostedDate": "2008-10-03T01:31:38.507-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

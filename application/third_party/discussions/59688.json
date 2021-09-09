@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "202107",
+    "ThreadId": "59688",
+    "Html": "<p>Hi,</p>\r\n<p>As part of my business requirement, I need to retrieve rows from my database backend, write it into the excel file, make the rows non-editable, output it to the browser and let users add new data in the excel, below the existing rows (they cannot edit existing ones, they need to add data below the existing rows).</p>\r\n<p>What is the best way to go about this? I've tried the following:</p>\r\n<p>1. Create an excel5 from scratch, add the rows, unprotect 2500 rows below the data that I've retrieved from the DB.</p>\r\n<p>This works on the latest version of phpexcel (v1.6.6 ran out of memory), but it takes 15-20 seconds to do this.</p>\r\n<p>2. Create a template file and unprotect 2500 rows, read the file with phpexcel, add the rows from the DB, protect the rows retrieved from the DB.</p>\r\n<p>Again, unfortunately, since the 2500 rows have style data set (protection is part of the format of a cell), it takes close to the same amount of time to open the file.</p>\r\n<p>3. Create a template file with a macro built-in to add the 2500 rows on click of a button, read the file with phpexcel, add the rows from the DB, protect these rows, output to browser.</p>\r\n<p>This works really fast, the problem is that the macro is not present in the resultant output file - it seems to have been missed. I tried saving as an xlsm with the excel5 writer, it gave me a corrupt file.</p>\r\n<p>20 seconds seems to be the trade-off I have to make - any suggestions to alternative methods I can use would be great!</p>",
+    "PostedDate": "2009-06-16T09:56:40.05-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "202219",
+    "ThreadId": "59688",
+    "Html": "<p>Under the hood, methods 1) and 2) are actually quite similar. Building the PHPExcel object from template may only be slightly slower than building it manually using methods from the PHPExcel classes.<br><br>The great advantage using a template Excel file instead of building the PHPExcel object manually is that there is much less work to do for the coder.<br><br>The disadvantage using a template Excel file is that some features may still not be supported by the readers.<br><br>Previously, I would have said that one should only use a template when one wants to create very small Excel files, but with the latest improvements in PHPExcel, starting with the PHPExcel 1.7.0, I think we can now start to recommend the template method.<br><br>As for method 3), macros are unfortunately not supported by PHPExcel.<br><br>There is probably nothing you can do right now to speed up your script. We will try to optimize PHPExcel further. I think PHPExcel will be even faster in the future.</p>",
+    "PostedDate": "2009-06-16T14:40:40.66-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "202265",
+    "ThreadId": "59688",
+    "Html": "<p>Can you run some tests with the next source code release and see if there is improvement compared to the 20 seconds ?</p>\r\n<p>I tried to do some speed improvements so there is a chance that it may run a bit faster (20 ~ 30%).</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-06-16T17:53:13.147-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "202286",
+    "ThreadId": "59688",
+    "Html": "<p>Hi Koyama - thanks for replying.</p>\r\n<p>I'm running this on 27946 that was checked out this monday, so no luck :(</p>\r\n<p>I'm now using the template method - my understanding from your reply is that this is the optimal way to go - especially since there are optimizations in the pipeline. I don't need to run the macro from phpexcel, I just want it to remain as such in the template - is that possible somehow?</p>",
+    "PostedDate": "2009-06-16T20:22:14.9-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "202428",
+    "ThreadId": "59688",
+    "Html": "<p><em>&gt;&gt; I'm running this on 27946 that was checked out this monday, so no luck :(<br> <br> </em>I actually meant change set 27960.<br> <br> <em>&gt;&gt; I'm now using the template method - my understanding from your reply is that<br> &gt;&gt; this is the optimal way to go - especially since there are optimizations in the pipeline.</em><br> <br> Yes, that is my opinion today although with latest change set 27960, creating from scratch using PHP-code may be a bit faster than using a template (~20 %). But that is only because a couple of tweaks that can improve the speed of Excel5 reader by some ~20% need to be carried over; when that is done the methods will be similar in speed again.<br> &nbsp;<br> <em>&gt;&gt; I don't need to run the macro from phpexcel, I just want it to remain as such in the<br> &gt;&gt; template - is that possible somehow?</em><br> <br> This is unfortunately not possible. As far as I know, macros are completely undocumented in Excel. I cannot rule out that one could somehow inject pre-made macro sheets in the Excel, but we have not tested this.</p>",
+    "PostedDate": "2009-06-17T04:37:31.5-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "202560",
+    "ThreadId": "59688",
+    "Html": "<p><em><em> </em>I actually meant change set 27960.</em></p>\r\n<p>Downloading it now - will test it and report back :)</p>\r\n<p><em>I cannot rule out that one could somehow inject pre-made macro sheets in the Excel, but we have not tested this.</em></p>\r\n<p>Actually, this is what I'm trying to do - I've saved the macro as part of the template, but when the reader opens the file, it loses the macro and hence it doesn't carry over to the final output.</p>\r\n<p>Thanks again for all the effort put into this library!</p>",
+    "PostedDate": "2009-06-17T10:02:48.373-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "203612",
+    "ThreadId": "59688",
+    "Html": "<p>v27960 works really well - just what I was looking for, the time taken came down to just 7 seconds!</p>\r\n<p>Great job guys - thanks again.</p>",
+    "PostedDate": "2009-06-20T00:08:10.67-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

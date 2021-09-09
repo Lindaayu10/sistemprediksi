@@ -1,0 +1,50 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "This affects PHPExcel 1.7.8.\n\nI have this code, I upload a file composed by an email address (column A) and a name (column B).\nI don't know if the user will upload an excel or an openoffice file.\nUploading an excel (xls or xlsx) works well, but when uploading an ods file, the email _value field is empty (openoffice automatically creates a mailto: link)\n\n$data = PHPExcel_IOFactory::load($file['tmp_name']);\n$objWorksheet = $data->getActiveSheet();\nforeach ($objWorksheet->getRowIterator() as $row) {\n  $cellIterator = $row->getCellIterator();\n  $cellIterator->setIterateOnlyExistingCells(true);\n  $email = $nome_cliente = \"\";\n  foreach ($cellIterator as $cell) {\n    if($cell->getColumn() == \"A\")\n      $email = trim($cell->getValue());\n    else if($cell->getColumn() == \"B\")\n      $nome_cliente = trim($cell->getValue());\n    else\n      continue;\n  }\n}",
+    "LastUpdatedDate": "2014-01-27T09:59:38.88-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2012-11-21T01:28:26.92-08:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "E-mail address not read from ods file",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 2,
+    "Id": 18957
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "I can confirm this is the case. If you remove the hyperlink in LibreOffice/OpenOffice before saving, phpexcel is able to access the data (because of course it's just text, then).",
+      "PostedDate": "2013-04-17T07:29:43.967-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I fixed this with a dirty hack.\r\n\r\nin the following file:\r\n\r\nClasses\\PHPExcel\\Reader\\OOCalc.php\r\n\r\nfind the following lines:\r\n\r\n//\t\t\t\t\t\t\t\techo 'Office Attributes: ';\n//\t\t\t\t\t\t\t\tprint_r($cellDataOfficeAttributes);\n//\t\t\t\t\t\t\t\techo '<br />Table Attributes: ';\n//\t\t\t\t\t\t\t\tprint_r($cellDataTableAttributes);\n//\t\t\t\t\t\t\t\techo '<br />Cell Data Text';\n//\t\t\t\t\t\t\t\tprint_r($cellDataText);\n//\t\t\t\t\t\t\t\techo '<br />';\r\n\r\n(starts line 487 in 1.7.9)\r\n\r\nAdd the following directly below:\r\n\r\n\t\t\tif (isset($cellDataText->p) && isset($cellDataText->p->a)){\n\t\t\t\t$cellDataText->p=$cellDataText->p->a;\n\t\t\t}\r\n\r\nThis has the effect of stripping away the link and leaving the text of the email address\r\n\r\nHope that helps\r\n\r\nBest,\nAlex\r\n\r\n",
+      "PostedDate": "2014-01-27T09:59:38.88-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+[
+  {
+    "Id": "1042813",
+    "ThreadId": "443469",
+    "Html": "I have an app that reads info from a db and delivers it to the user as either a xls or a pdf file. When xls is chosen, it returns several thousand rows, whereas the pdf choice delivers an empty document.\r<br />\n<br />\nThis is how I define my workbook and writers:<br />\n<pre><code>    if ($_REQUEST['format'] == 'xls')\n    {\n        $workbookwriter = PHPExcel_IOFactory::createWriter($workbook, &quot;Excel2007&quot;);\n        // sending HTTP headers\n        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');\n        header('Content-Disposition: attachment;filename=&quot;buchungsliste.xlsx&quot;');\n        header('Cache-Control: max-age=0');\n    } else {\n        $rendererName = PHPExcel_Settings::PDF_RENDERER_TCPDF;\n        $rendererLibraryPath = KFB_PATH.'/global/tcpdf/';\n        if (!PHPExcel_Settings::setPdfRenderer($rendererName, $rendererLibraryPath)) \n        {\n            die(&quot;Please set the $rendererName and $rendererLibraryPath values&quot; .\n                PHP_EOL . ' as appropriate for your directory structure');\n        }\n        $workbookwriter = new PHPExcel_Writer_PDF($workbook);\n        // sending HTTP headers\n        header('Content-Type: application/pdf');\n        header('Content-Disposition: attachment;filename=&quot;buchungsliste.pdf&quot;');\n        header('Cache-Control: max-age=0');\n    }\n</code></pre>\n\nAt write time, I do this:<br />\n<pre><code>    if ($_REQUEST['format'] == 'xls')\n    {\n        $workbookwriter-&gt;save('php://output');\n    } else {\n        $workbookwriter-&gt;writeAllSheets();\n        $workbookwriter-&gt;save('php://output');\n    }\n</code></pre>\n\nWhat am I doing wrong?\r<br />\n<br />\nAny help is highly appreciated.<br />\n",
+    "PostedDate": "2013-05-13T06:46:39.427-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

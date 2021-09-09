@@ -1,0 +1,90 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "Fixed in SVN",
+    "ClosedDate": "2010-10-12T11:53:54.55-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I am trying to use a template sheet that I load for multiple sheets in a resulting workbook.\n \n    // The template excel file, with the template in it's only sheet\n \n    $objTemplate = PHPExcel_IOFactory::load($template);    $templateSheet = $objTemplate->setActiveSheetIndex(0);          // the result workbook    $objPHPExcel = new PHPExcel();        // foreach project copy the template sheet and then fill in the details    foreach ($projects as $aproject)    {      $cloneSheet = $templateSheet->copy();            $cloneSheet->SetTitle($aProject['Project']['Project']['name']);      $newSheet = $objPHPExcel->addExternalSheet($cloneSheet);      // fill in the data for the $newSheet here, etc...    }\n \n \n \nThis results in a cache error after the copy where the DiscISAM cache is referencing a zero file descriptor ala\n \n \n \nstoring -- Resource id #1488  (<-- some debugging I added)\nstoring -- 0\nWarning (2): fseek(): supplied argument is not a valid stream resource [APP\\vendors\\PHPExcel\\CachedObjectStorage\\DiscISAM.php, line46]\nCode\nfseek - [internal], line ??\nPHPExcel_CachedObjectStorage_DiscISAM::_storeData() - APP\\vendors\\PHPExcel\\CachedObjectStorage\\DiscISAM.php, line 46\nPHPExcel_CachedObjectStorage_DiscISAM::getCacheData() - APP\\vendors\\PHPExcel\\CachedObjectStorage\\DiscISAM.php, line 87\nPHPExcel_Worksheet::getCell() - APP\\vendors\\PHPExcel\\Worksheet.php, line 910\nPHPExcel::addExternalSheet() - APP\\vendors\\PHPExcel.php, line 437\nExcelExporter::exportProject() - APP\\vendors\\excel_exporter.php, line 326\nProjectsController::project_report() - APP\\controllers\\projects_controller.php, line 758\nObject::dispatchMethod() - CORE\\cake\\libs\\object.php, line 118\nDispatcher::_invoke() - CORE\\cake\\dispatcher.php, line 227\nDispatcher::dispatch() - CORE\\cake\\dispatcher.php, line 194\n[main] - APP\\webroot\\index.php, line 88\n \nWarning (2): ftell(): supplied argument is not a valid stream resource [APP\\vendors\\PHPExcel\\CachedObjectStorage\\DiscISAM.php, line47]\nCode\nftell - [internal], line ??\nPHPExcel_CachedObjectStorage_DiscISAM::_storeData() - APP\\vendors\\PHPExcel\\CachedObjectStorage\\DiscISAM.php, line 47\nPHPExcel_CachedObjectStorage_DiscISAM::getCacheData() - APP\\vendors\\PHPExcel\\CachedObjectStorage\\DiscISAM.php, line 87\nPHPExcel_Worksheet::getCell() - APP\\vendors\\PHPExcel\\Worksheet.php, line 910\nPHPExcel::addExternalSheet() - APP\\vendors\\PHPExcel.php, line 437\nExcelExporter::exportProject() - APP\\vendors\\excel_exporter.php, line 326\nProjectsController::project_report() - APP\\controllers\\projects_controller.php, line 758\nObject::dispatchMethod() - CORE\\cake\\libs\\object.php, line 118\nDispatcher::_invoke() - CORE\\cake\\dispatcher.php, line 227\nDispatcher::dispatch() - CORE\\cake\\dispatcher.php, line 194\n[main] - APP\\webroot\\index.php, line 88\n \nWarning (2): fwrite(): supplied argument is not a valid stream resource [APP\\vendors\\PHPExcel\\CachedObjectStorage\\DiscISAM.php, line48]Any ideas? suggestions? is there a better way to do this? I am fairly sure the problem has to do with something in the copy or clone that I am trying to do.ThanksKen",
+    "LastUpdatedDate": "2013-05-16T05:41:54.183-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Medium",
+      "Severity": 100,
+      "Id": 2
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2010-08-14T04:20:45.363-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "using cache with copy or clone bug?",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 14011
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "Fixed $worksheet->copy() or clone $worksheet when using cache_in_memory, cache_in_memory_gzip, cache_in_memory_serialized, cache_to_discISAM and cache_to_phpTemp;\r\nStill need to resolve when using cache_to_apc, cache_to_memcache and cache_to_wincache.",
+      "PostedDate": "2010-08-14T04:45:16.657-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Fixed $worksheet->copy() or clone $worksheet when using cache_to_apc, cache_to_memcache and cache_to_wincache.\r\nCurrently untested for cache_to_memcache and cache_to_wincache. ",
+      "PostedDate": "2010-08-15T08:52:23.95-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-08-20T05:19:49.51-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-08-30T04:46:19.707-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "\r\n\r\n\n\n** Closed by maartenba 30/08/2010 4:46",
+      "PostedDate": "2010-08-30T04:46:23.233-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-08-30T04:46:23.813-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "See fix for Work Item - 14146, Worksheet clone broken for CachedObjectStorage_Memory",
+      "PostedDate": "2010-09-03T03:29:30.563-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-10-12T11:53:54.55-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:02:48.67-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:41:54.183-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

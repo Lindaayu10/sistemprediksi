@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "1075025",
+    "ThreadId": "451939",
+    "Html": "Hi<br />\n<br />\nI am having a problem with the getCalculatedValue() returning the wrong result when using the ROUND function. Please see below for the code being run:<br />\n<pre><code>// Create new PHPExcel object\n$objPHPExcel = new PHPExcel();\n\n// Add some data\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('A1', '=ROUND(96.239,2)');\necho $objPHPExcel-&gt;getActiveSheet()-&gt;getCell('A1')-&gt;getCalculatedValue();\n</code></pre>\n\nOn my test Windows server I am getting 96.24 as expected. However, on my live Linux server I am getting a quite unexpected: 96.23999999999999<br />\n<br />\nLive Linux server:<br />\nPHP 5.3.27<br />\nPHPExcel v1.7.9<br />\n<br />\nTest offline XAMPP server running on Windows 7 Professional<br />\nPHP 5.4.4<br />\nPHPExcel v1.7.9<br />\n<br />\nAny thoughts on this would be much appreciated.<br />\n<br />\nMany thanks<br />\n<br />\nTim<br />\n",
+    "PostedDate": "2013-07-31T02:28:37.913-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1075111",
+    "ThreadId": "451939",
+    "Html": "All I can suggest is that you apply a formatting mask to the cell: this looks to be a case of floating point accuracy when trying to represent decimal numbers in binary<br />\n",
+    "PostedDate": "2013-07-31T06:39:44.027-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1075126",
+    "ThreadId": "451939",
+    "Html": "Hi Mark<br />\n<br />\nThank you for your response. I have tried adding:<br />\n<pre><code>$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('A1')-&gt;getNumberFormat()-&gt;setFormatCode(&quot;#,##0.00&quot;);</code></pre>\n\n<pre><code>$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('A1')-&gt;getNumberFormat()-&gt;setFormatCode(&quot;0.00&quot;);</code></pre>\n\nbefore and after setting the cell value, but with no success I'm afraid. I also tried using apostrophes rather than quotation marks around the format code. I am not sure if this is the correct approach for setting the mask as suggested or if you would suggest something else?<br />\n<br />\nI tried a few other tests to try to identify where the cause lies and got an interesting result. If I run an echo ROUND(96.239,2); on a blank php page the rounding works fine. However, once I include the phpexcel files, initialise a new instance and run the same pure PHP ROUND function it will make the same floating point error. So something during the initialising of a new phpexcel instance is causing the PHP ROUND function to behave differently... I'm not sure if this gives anyone any ideas?<br />\n<br />\n<br />\n<strong>Rounding error occurs:</strong><br />\n<pre><code>require_once('phpexcel/Classes/PHPExcel.php');\n// Create new PHPExcel object\n$objPHPExcel = new PHPExcel();\n\necho &quot;&lt;br /&gt;&quot;.ROUND(96.239,2);</code></pre>\n\n<strong>No Rounding error:</strong><br />\n<pre><code>require_once('phpexcel/Classes/PHPExcel.php');\n\necho &quot;&lt;br /&gt;&quot;.ROUND(96.239,2);\n\n// Create new PHPExcel object\n$objPHPExcel = new PHPExcel();\n</code></pre>\n\nTim<br />\n",
+    "PostedDate": "2013-07-31T07:38:51.19-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1075160",
+    "ThreadId": "451939",
+    "Html": "You'll need to use getFormattedValue() rather than getCalculatedValue() if you're using a format mask; and this will return a PHP string: it's the equivalent of number_format() in PHP.<br />\n<br />\nNote that PHPExcel emulates the functionality of Excel's ROUND() function, which isn't the same as PHP's round() function.<br />\n<br />\nPHPExcel's calculation engine sets the precision to 14dp, and it may be this difference that is causing an issue. However, adjusting that value may lead to reduced accuracy elsewhere with other functions<br />\n<br />\nHowever, this looks like a standard computer <a href=\"http://en.wikipedia.org/wiki/Floating_point#Accuracy_problems\" rel=\"nofollow\">floating point precision</a> issue: and (as such) is way outside the scope of PHPExcel to fix; but feel free to take a look at the ROUND() function and see if you have any bright ideas.<br />\n",
+    "PostedDate": "2013-07-31T08:54:15.077-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1075217",
+    "ThreadId": "451939",
+    "Html": "Thanks Mark. With your change I have been able to override the formatting of the round result. Unfortunately, I am not able to apply that solution to my site at the moment as I do not wish to force any specific formatting on the user. I will have to look to expand my code to allow the user to apply number formatting to individual cells...\r<br />\n<br />\nBack to the ROUND issue itself, I was not able to find PHPExcel's ROUND function. In the Calculation.php file the ROUND function call appears to be:<br />\n<pre><code>'functionCall'      =&gt;  'round',</code></pre>\n\nrather than what I would have expected:<br />\n<pre><code>'functionCall'      =&gt;  'PHPExcel_Calculation_MathTrig::ROUND',</code></pre>\n\nPerhaps someone can give me a better idea on where to find the PHPExcel ROUND function. For now I have added a new function in Calculation &gt; MathTrig.php which makes use of BC math (and registered a function Call for this in Calculation.php).<br />\n<pre><code>function BCROUND($number, $scale=0) {\n                $fix = &quot;5&quot;;\n                for ($i=0;$i&lt;$scale;$i++) $fix=&quot;0$fix&quot;;\n                $number = bcadd($number, &quot;0.$fix&quot;, $scale+1);\n                return    bcdiv($number, &quot;1.0&quot;,    $scale);\n}</code></pre>\n\nThis gets around the problem, but is not ideal as any other use of ROUND elsewhere in my application will default to the broken version and not my new function. I have reported this to my server host to see if this can be fixed via apache.\r<br />\n<br />\nAs a final point, I would note that PHPExcel alters the functioning of the native ROUND PHP function. If PHPExcel is not initialised the rounding issue does not exist. So if anyone knows how PHPExcel changes the functioning of native functions that could be really helpful.\r<br />\n<br />\nMany thanks once again Mark.\r<br />\n<br />\nTim<br />\n",
+    "PostedDate": "2013-07-31T11:02:23.623-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

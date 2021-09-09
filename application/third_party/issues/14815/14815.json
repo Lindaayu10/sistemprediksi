@@ -1,0 +1,86 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I have a database table filled in with people's names and faces -- in jpeg format. Ideally, I would want to export it into a nicely formatted excel spreadsheet: rows high enough to show the picture entirely, columns wide enough to display their content, no matter if image or text.\n \nThe main issue I have found: if I call\n$objPHPExcel->getActiveSheet()->getColumnDimension($column)->setAutoSize(true)\non my pictures column, then I get all pictures distorted into a ribbon (17 pixels high, hundreds of pixels wide). If I omit this call, Excel tells me I have pictures at 75%height and 100% width. I can't for the life of me understand why, nor do I find an API for explicitly setting those percentage values.\n \nI can, if it helps you, provide both my code and sample output (I would just remove the names for privacy's sake).\n \nWhile I am at it: the pictures unfortunately do not have the same pixel width and height, so I get some huge pictures and some tiny ones. I tried caling setWidthAndHeight(90, 80); on my PHPExcel_Worksheet_Drawing object. I still get differences, some images are 25% wider than others.",
+    "LastUpdatedDate": "2013-02-21T19:02:40.55-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2010-12-03T00:23:40.743-08:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Images in exported Excel files - wrong proportions",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 14815
+  },
+  "FileAttachments": [
+    {
+      "FileId": 5682,
+      "FileName": "spdemo.php",
+      "DownloadUrl": ".\\5682"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "A few questions that may assist in answering, as I have had some problems with image sizes in the past (I don't recall my issues being related to AutoSize(true) though, but rather related to the font name): \r\n- Which version of PHPExcel are you using?\r\n- Which output format are you using (Excel5, etc.)?\r\n- What font are you using in the sheet?\r\n\r\nUsing a non-default font can cause images to be stretched in Excel5 - maybe try using Calibri font with size 10 or 11, if you have a different font.",
+      "PostedDate": "2010-12-20T09:27:31.173-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I have a similar issue. The images I place in excel never coem out to the correct dimensions, weather I explicitly set them or not.",
+      "PostedDate": "2011-02-14T09:10:36.083-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I'm using the default font (not setting the font) but I do set the size in various places, and in come cases as large as 20pt for heading. Setting it lower seems to have the same issue. I am using excel 5 output.",
+      "PostedDate": "2011-02-14T11:20:56.92-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I come back on this issue.\r\n\r\nHi misterakko, could you send us some PHP files or a zip archive to test this issue ? ",
+      "PostedDate": "2011-05-25T05:01:15.543-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I will try to come up with a sample, but it won't be easy to make it into a self-contained zipped archive because my code is fetching data from a database. It'll take a few days but I'll do it and post it here.\r\n\r\nWhile I am at it: I'm using the latest PHPExcel, the problem appears no matter what output format I choose (XLS or XLSX) and I am not explicitly setting any font.",
+      "PostedDate": "2011-05-25T05:51:58.073-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2011-05-25T22:07:58.99-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Here I am with the code. Let me amend what I wrote yesterday, first. Of course, when I filed the bug I was using PHPExcel 1.7.5 (last December, v1.7.6 wasn't available yet). I have since upgraded to the latest version.\r\nIn preparing this test case I have realized that one of the issues (the \"ribbon-like\" streching of the pictures) has disappeared in v1.7.6, or at the very least I'm unable to reproduce it. But one other issue has appeared with PDF, as you'll see.\r\nI have tried to clean up my code and come up with an easy test case. You can play with my code on one of my servers at https://www.accomazzi.net/spd/sarat/spdemo.php\r\nPlease try this: (1) export to PDF but leave all other options as they are by default. You'll see a very good result with pictures, just what I need.Still..  In v1.7.5 the outside borders of the box are white as they should be. In v1.7.6 they are black\r\n(2) Now switch to the Excel 5.0 file format. Images appear horizontally stretched, at least on my copies of Excel 2004 and Apple Numbers. Also, they do not fit in the rightmost column like they should. (Same behavious in v.1.7.5 and 1.7.6)\r\n(3) Now switch to the Excel 2007+ (xlsx) file format and you'll get a corrupted fle (My Excel 2004 refuses to open it while Numbers tells me that something went wrong and hides the pictures).\r\nYou can play with other parameters using the form interface to my test case.\r\n\r\nWhen you look at my source, notice that all of the action takes place inside the QueryAndExport function. It's still fetching from the database, but you'll see that you can look at my source JPEGs and even download them with a browser if you want to.",
+      "PostedDate": "2011-05-25T22:08:04.563-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:02:40.55-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

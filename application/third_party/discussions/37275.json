@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "123695",
+    "ThreadId": "37275",
+    "Html": "<p>Hello,</p>\r\n<p>I created an Excel file with 2 sheets the first with calculations the second recovering the results of the first. </p>\r\n<p>It is ok, but I encounter a problem:</p>\r\n<br>\r\n1st named sheet “Calcul”:<br>\r\n<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('C11', '=IF(C10&lt;&gt;0;C9/C10;&quot;&quot;)' );<br>\r\nOr<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(‘C1’,’=IF(A1&lt;A2;&quot;&lt;&quot;;IF(A1&gt;A2;&quot;&gt;&quot;;&quot;&quot;)');<br>\r\n<br>\r\nWith excel5       : ok<br>\r\nWith excel2007: 0 (alphabetical)<br>\r\n<br>\r\n2nd sheet:<br>\r\n<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(‘B2’, '=Calcul!C11’);<br>\r\n<br>\r\nWith excel5       : #N/A <br>\r\nWith excel2007: ok <br>\r\n<br>\r\nCan anyone help me with this issue?<br>\r\n<br>\r\nThanks,<br>\r\n<br>\r\n<br>\r\n",
+    "PostedDate": "2008-10-08T01:34:29.24-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "123805",
+    "ThreadId": "37275",
+    "Html": "1.<br>\r\nAs for the problem with Excel2007, in your formula the arguments always need to be separated by <code>','</code> (comma) and not <code>';'</code> semicolon. Like in English version of Excel:<br>\r\n<br>\r\n<code>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('C11', '=IF(C10&lt;&gt;0,C9/C10,&quot;&quot;)' );</code><br>\r\n<br>\r\nRelated post:<br>\r\n<a href=\"http://www.codeplex.com/PHPExcel/Thread/View.aspx?ThreadId=32906\">\r\nhttp://www.codeplex.com/PHPExcel/Thread/View.aspx?ThreadId=32906</a><br>\r\n<br>\r\n2.<br>\r\nPHPExcel_Writer_Excel5 does not seem to support external sheet references in formulas. Problem must be that the PEAR Spreadsheet_Excel_Writer (which PHPExcel_Writer_Excel5 is based on) does not support external sheet references when creating BIFF8 (Excel 97 - Excel 2003) files, but only when creating BIFF5 files (Excel 5.0 - Excel 95).<br>\r\n<br>\r\nBecause external references were working with PHPExcel_Writer_Excel5 using PHPExcel 1.5.0, but stopped working in PHPExcel 1.5.5 when Excel type creation was swithced from BIFF5 to BIFF8. I am not sure what the problem is. Must investigate and return to this issue later unless someone else knows what the problem is?<br>\r\n<br>\r\nRelated posts:<br>\r\n<a href=\"http://www.codeplex.com/PHPExcel/Thread/View.aspx?ThreadId=16136\">http://www.codeplex.com/PHPExcel/Thread/View.aspx?ThreadId=16136</a><br>\r\n<a href=\"http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=3893\">http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=3893</a><br>\r\n<br>\r\n",
+    "PostedDate": "2008-10-08T09:54:09.503-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

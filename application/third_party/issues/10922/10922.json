@@ -1,0 +1,70 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel_Writer_Excel2007",
+      "DisplayName": "PHPExcel_Writer_Excel2007"
+    },
+    "ClosedComment": "",
+    "ClosedDate": "2009-12-01T06:50:37.91-08:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "The bug was identified in this thread:\nhttp://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=74015\n \nHere is a simple test case:\n \nTest:\n----\n$excel = new PHPExcel();\n$worksheet = $excel->getActiveSheet();\n \n$worksheet->getCell('A1')->setValue('hello');\n$worksheet->getCell('A2')->setValue('hello');\n \n$writer = PHPExcel_IOFactory::createWriter($excel, 'Excel2007');\n$writer->save('write1.xlsx');\n \n$worksheet->getStyle('A1')->getFont()->setSize(50);\n \n$writer = PHPExcel_IOFactory::createWriter($excel, 'Excel2007');\n$writer->save('write2.xlsx');\n \nExpected result:\n----\nText in cell A1 has font size 50\n \nActual result:\n----\nText in cell A1 has font size 11 (the normal size)\n \nEnvironment:\n----\nPHPExcel 1.7.1\n \n \nNote: It was working correctly in 1.6.6, bug introduced in 1.6.7",
+    "LastUpdatedDate": "2013-05-16T05:42:17.11-07:00",
+    "PlannedForRelease": "PHPExcel 1.7.2 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-11-11T00:49:06.95-08:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Changes in workbook not picked up between two saves with PHPExcel_Writer_Excel2007",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 10922
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "The problem has to do with hash indexes which were introduced in PHPExcel 1.6.7 to speed up the writers. That was a good solution at the time when we didn't have automatic style sharing.\r\n\r\nSince PHPExcel 1.7.0 the writers no longer use the hash index, but we are still setting the hash index when the hash tables are built. Between two saves the workbook may have changed but the hash indexes are not reset which gives rise to the bug.\r\n\r\nHow about if we drop the concept of hash indexes? I will double check the classes to see if this is possible.\r\n",
+      "PostedDate": "2009-11-11T01:01:15.5-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-11-11T01:03:41.233-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Fixing this in SVN by removing PHPExcel_IComparable::getHashIndex(), PHPExcel_IComparable::setHashIndex().\r\n",
+      "PostedDate": "2009-11-11T18:34:46.103-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-12-01T06:50:37.91-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:03:28.013-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:17.11-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "915375",
+    "ThreadId": "396311",
+    "Html": "\r\n<p>Hey guys,</p>\r\n<p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;I have been working on some code that that allows me to read a spreadsheet and insert the values into a remote database out on Hostgator. When I run my current script I get the following error message&nbsp;</p>\r\n<p><strong>Fatal error</strong><span>: Allowed memory size of 67108864 bytes exhausted (tried to allocate 91 bytes) in&nbsp;</span><strong>/home/xoxo/public_html/xoxo/source/vendors/PHPExcel/Classes/PHPExcel/Worksheet.php</strong><span>&nbsp;on line&nbsp;</span><strong>1121</strong></p>\r\n<p>Now when I go to <strong>worksheet.php I see the following statement&nbsp;</strong></p>\r\n<p><strong>&nbsp;</strong></p>\r\n<p><strong>&nbsp;</strong></p>\r\n<p><strong>&nbsp;</strong></p>\r\n<p><strong></p>\r\n<pre>$cell = $this-&gt;_cellCollection-&gt;addCacheData($pCoordinate,new PHPExcel_Cell($aCoordinates[0], $aCoordinates[1], null, PHPExcel_Cell_DataType::TYPE_NULL, $this));</pre>\r\n</strong>Also I have looked at the config files...the php.ini files and I can't find where I need to go to change the max memory size. Do you think I need to contact hostgator and talk to them about this issue? Any input would be greatly appreciated! Thanks!\r\n<p></p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>With that said here is my script</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<pre>public function processSpreadsheet() {\n$saveTimeZone = date_default_timezone_get();\ndate_default_timezone_set('UTC'); // Php's date function uses this value!\n\nrequire_once '/home/xoxox/public_html/xoxoxo/source/vendors/PHPExcel/Classes/PHPExcel/IOFactory.php';\n$objPHPExcel = PHPExcel_IOFactory::load(&quot;spreadsheet.xls&quot;);\nforeach ($objPHPExcel-&gt;getWorksheetIterator() as $worksheet) {\n    $worksheetTitle     = $worksheet-&gt;getTitle();\n    $highestRow         = $worksheet-&gt;getHighestRow(); // e.g. 10\n    $highestColumn      = $worksheet-&gt;getHighestColumn(); // e.g 'F'\n    $highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn);\n    $nrColumns = ord($highestColumn) - 64;\n    echo &quot;\nThe Worksheet &quot;.$worksheetTitle.&quot; has &quot;;\n    echo $nrColumns . ' columns (A-' . $highestColumn . ') ';\n    echo ' and ' . $highestRow . ' rows.';\n    echo '\nData: ';\n    for ($row = 1; $row &lt;= $highestRow; &#43;&#43; $row) {\n\n        $rw1 = $worksheet-&gt;getCellByColumnAndRow(1,$row)-&gt;getValue();\n                    $rw2 = $worksheet-&gt;getCellByColumnAndRow(2,$row)-&gt;getValue();\n                    $rw3 = $worksheet-&gt;getCellByColumnAndRow(3,$row)-&gt;getValue();\n                    $rw4 = $worksheet-&gt;getCellByColumnAndRow(4,$row)-&gt;getValue();\n                    $rw5 = $worksheet-&gt;getCellByColumnAndRow(5,$row)-&gt;getValue();\n                    $rw6 = $worksheet-&gt;getCellByColumnAndRow(6,$row)-&gt;getValue();\n                    $rw7 = $worksheet-&gt;getCellByColumnAndRow(7,$row)-&gt;getValue();\n                    $rw8 = $worksheet-&gt;getCellByColumnAndRow(8,$row)-&gt;getValue();\n                    $rw9 = $worksheet-&gt;getCellByColumnAndRow(9,$row)-&gt;getValue();\n                    $rw10 = $worksheet-&gt;getCellByColumnAndRow(10,$row)-&gt;getValue();\n                    $rw11 = $worksheet-&gt;getCellByColumnAndRow(11,$row)-&gt;getValue();\n\n        $slic = mysql_connect(&quot;xoxoxoxo&quot;, &quot;xoxoxoxo&quot;, &quot;xoxoxo&quot;);\n                      if(!$slic) {\n                    die('Could not connect' . mysql_error());;\n\n                        }\n        mysql_select_db(&quot;xoxoxo&quot;, $slic); \n        $dbc = &quot;INSERT INTO  Coverages( Name, Comments, Premium, Effective_Date, Expiration_Date, Broker_First_Name , Broker_Middle_Initial, Broker_Last_Name, Broker_Suffix, Broker_License_Number,  DateCreated)\n                VALUES ('$rw1','$rw10','$rw2','$rw3', '$rw4', '$rw5','$rw6', '$rw7', '$rw8', '$rw9', '$rw11')&quot;;\n\n            for ($col = 0; $col &lt; $highestColumnIndex; &#43;&#43; $col) {\n            $cell = $worksheet-&gt;getCellByColumnAndRow($col, $row);\n            $val = $cell-&gt;getFormattedValue();\n            $dataType = PHPExcel_Cell_DataType::dataTypeForValue($val);\n            echo '';\n        }\n         $conn = mysql_query($dbc, $conn); {\n            if (!msql_query($dbc, $conn)) {\n                die ('Error: ' . mysql_error());\n                echo &quot;recorded added&quot;;\n            }\n         }\n\n\n    }\n    \n}\n\ndate_default_timezone_set($saveTimeZone);\n}</pre>\r\n",
+    "PostedDate": "2012-09-20T13:48:23.927-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "915383",
+    "ThreadId": "396311",
+    "Html": "<p>if you can access the php.ini file, you have to increase the memory limit config.</p>",
+    "PostedDate": "2012-09-20T14:10:20.663-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "915401",
+    "ThreadId": "396311",
+    "Html": "<p>Look at using cell caching to reduce memory usage</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2012-09-20T14:40:23.75-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "916861",
+    "ThreadId": "396311",
+    "Html": "<p>I looked into cell caching and tried a couple of methods and I didn't have any luck. I tried the cache in memory method, the cache in memory serialized, and cache in memory gzip. &nbsp;Also I read <a href=\"http://phpexcel.codeplex.com/discussions/242712?ProjectName=phpexcel\">this</a>&nbsp;post. One thing I have not tried to do is read my spreadsheet in chunks. The reason I haven't tried is because my spreadsheet only contains one record. With that said, I am still getting the memory error message. Any thoughts?</p>",
+    "PostedDate": "2012-09-24T13:24:17.797-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "916892",
+    "ThreadId": "396311",
+    "Html": "<p>What do you mean by \"one record\"? Workbooks contain spreadsheets; spreadsheet's contain cells, organised into rows and columns</p>",
+    "PostedDate": "2012-09-24T14:52:38.483-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "916904",
+    "ThreadId": "396311",
+    "Html": "\r\n<p>Excuse me. I have a workbook with data in the first row of all of my spreadsheets. I have a workbook containing 5 spreadsheets. With that said, I have added a php.ini file to my project. I changed the memory limit in the file now Im not getting a memory\r\n error anymore.</p>\r\n",
+    "PostedDate": "2012-09-24T15:27:47.56-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

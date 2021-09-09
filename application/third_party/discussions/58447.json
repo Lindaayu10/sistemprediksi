@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "197737",
+    "ThreadId": "58447",
+    "Html": "<p>Hi all,<br><br>I have the following problem, as some of you might also have. When creating an Excel file I sometimes get Fatal error: Allowed memory size of XXX bytes exhausted, this is a know problem. How can I show a nice error instead of a fatal error? Or just show nothing is good too.<br><br>A try-catch won't work because this only catches exceptions and not errors. And set_error_handler('MyErrorHandler') won't work either because, the following error types cannot be handled with a user defined function: E_ERROR, E_PARSE, E_CORE_ERROR, E_CORE_WARNING, E_COMPILE_ERROR, E_COMPILE_WARNING, and most of E_STRICT raised in the file where set_error_handler() is called. And a fatal error is a E_ERROR. See http://php.net/set_error_handler<br><br>Are there any other ideas on how to deal with the fatal error?<br><br>Thanks in advance</p>",
+    "PostedDate": "2009-06-04T06:31:28.517-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "198515",
+    "ThreadId": "58447",
+    "Html": "<p>I tried this method from a reader comment in the PHP manual:<br> <a href=\"http://php.net/set_error_handler#35622\">http://php.net/set_error_handler#35622</a><br> <br>At first it looked promising, but I couldn't make it work.</p>\r\n<p>It could catch some fatal errors such as when you're using undefined functions:<br> <strong>Fatal error</strong>:  Call to undefined function...<br> <br> but not this kind of fatal errors:<br> <strong>Fatal error</strong>:  Allowed memory size of 1048576 bytes exhausted...<br> <br>For the last case the script would just terminate immediately.<br> <br> Your question is still open.</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-06-06T04:07:17.993-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "198950",
+    "ThreadId": "58447",
+    "Html": "<p>I found the answer http://takanotsume.wordpress.com/2008/07/08/php-catch-a-fatal-error/</p>\r\n<p>error_reporting(false);<br>register_shutdown_function(array($this,'catchFatalError'));<br>global $_fatal_error;<br>$_fatal_error = true;<br>ob_start();<br><br>$objPHPExcel-&gt;getActiveSheet()-&gt;getProtection()-&gt;setSheet(true);<br>$objPHPExcel-&gt;setActiveSheetIndex(0);<br>$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');<br>$filename = $title.'.xlsx';<br>header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');<br>header('Content-Disposition: attachment;filename=&quot;'.$filename.'&quot;');<br>header('Cache-Control: max-age=0');<br>$objWriter-&gt;save('php://output');<br><br>ob_end_flush();<br>$_fatal_error = false;<br>exit;</p>\r\n<p>function catchFatalError() <br>{<br>&nbsp;&nbsp;&nbsp; global $_fatal_error;<br>&nbsp;&nbsp;&nbsp; if ($_fatal_error) <br>&nbsp;&nbsp;&nbsp; {<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; echo &quot;FATAL ERROR CATCHED&quot;;<br>&nbsp;&nbsp;&nbsp; }<br>}</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-06-08T03:17:28.537-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

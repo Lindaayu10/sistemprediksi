@@ -1,0 +1,91 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I'm running 5.3.3, and 1.7.2b, it seems that zip archive is failing in the IOWriter, anyone ran across this?",
+    "LastUpdatedDate": "2017-11-27T22:26:35.727-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2010-08-03T06:13:07.223-07:00",
+    "Status": {
+      "Name": "Active",
+      "Id": 2
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Broke in 5.3.3?",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 13879
+  },
+  "FileAttachments": [
+    {
+      "FileId": 4709,
+      "FileName": "phpexcel_shared_drawing.patch",
+      "DownloadUrl": ".\\4709"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "I've traced this down, there seems to be something wrong with setAutoSize in ColumnDimension object.\r\n   static::$sheet->getColumnDimension($excel_cell->getColumn())->setAutoSize(true);\r\n\r\nThat line causes the save in IOWriter to nuke, not sure why yet.\r\n\r\n\r\n",
+      "PostedDate": "2010-08-03T09:01:50.12-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-08-03T14:13:46.157-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Fixed the issue patch is attached, PHP 5.3.3 does not allow you to do math with array values you must assign array values first then do math on those array values, this affects the auto column scaling in PHPExcel_Shared_Drawing:\r\n\r\n//ex: assume SOME_CLASS::$some_static_array_var['foo']['bar'] = 5\r\n$result = SOME_CLASS::$some_static_array_var['foo']['bar'] * 12 //throws error in PHP5.3.3\r\n//solution\r\n$foobar = SOME_CLASS::$some_static_array_var['foo']['bar'];\r\n$result = $foobar * 12;\r\n",
+      "PostedDate": "2010-08-03T14:13:47.337-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Will need to set up a 5.3.3 box to test, and identify any other potential errors that this may cause.\r\nThanks for highlighting this isssue.",
+      "PostedDate": "2010-08-04T15:57:52.273-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I have just run across a similar issue on PHP 5.2.13 with PHPExcel v1.6.7.  Calling setAutoSize on the ColumnDimension object on any spreadsheet of a non-trivial number of columns causes a segmentation fault 90% of the time, yet somehow 10% of the attempts squeeze through.  Commenting out my call to setAutoSize means that 100% of the time my script succeeds.  I cannot provide sample data as my sample data is subject to HIPPA constraints, but I wanted to corroborate problems with setAutoSize on ColumnDimension objects, not limited to PHP 5.3.3.\r\n\r\nCheers,\r\n\r\nBrandon",
+      "PostedDate": "2010-08-30T15:17:35.243-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I have just run across a similar issue on PHP 5.2.13 with PHPExcel v1.6.7.  Calling setAutoSize on the ColumnDimension object on any spreadsheet of a non-trivial number of columns causes a segmentation fault 90% of the time, yet somehow 10% of the attempts squeeze through.  Commenting out my call to setAutoSize means that 100% of the time my script succeeds.  I cannot provide sample data as my sample data is subject to HIPPA constraints, but I wanted to corroborate problems with setAutoSize on ColumnDimension objects, not limited to PHP 5.3.3.\r\n\r\nCheers,\r\n\r\nBrandon",
+      "PostedDate": "2010-08-30T15:17:47.183-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Brandon, That is strange. We were running 5.2.6 and 5.3.2 and everything was kosher. Did you try applying the patch i posted?\r\n\r\nsetAutoSize itself isn't really the problem, as what it triggers when the excel sheet is being written. Basically what PHPExcel does is calculate the text size through some defined constants and char count.\r\n\r\nDo you get an actual exception thrown, or just a blank seg fault? If it is a seg fault I would check your memory usage, you could be hovering around your memory limits, sometimes causing the script to succeed sometimes not. I've found PHP not to be determinate in terms of memory usage so it wouldn't surprise me if for the same script and dataset it sometimes had different memory usage.",
+      "PostedDate": "2010-09-01T13:14:48.23-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:02:49.047-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2017-11-27T22:26:35.727-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

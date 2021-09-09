@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "258227",
+    "ThreadId": "75456",
+    "Html": "<p>Hi,</p>\r\n<p>I've started using your library today and I'm really impressed with the features available. There's 1 thing though that's limiting it's use for me and that's the problems with the amount of memory it needs when creating larger files. I'm trying to export 70k records with 500MB available as the memory_limit and I'm still getting a fatal error.</p>\r\n<p>I've looked over this forum and it seems the library is really designed for smaller xlsx files - which is fine. So given that, I'm trying to export my data in smaller chunks, say 10k records at a time. The problem is that the memory allocated via php is not being freed up after each file write.</p>\r\n<p>The basics of the code are as follows:</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$lStart = 0;\r\n$lInc = 10000;\r\n$lFinish = 70000;\r\n\r\n<span style=\"color:Blue\">for</span>($i = 0; $i&lt;$lFinish; $i=$i+$lInc)\r\n{\r\n\r\n $objPHPExcel = <span style=\"color:Blue\">new</span> PHPExcel();\r\n\r\n $rowTracker = 1;\r\n $sQL = mysql_query(<span style=\"color:#A31515\">&quot;SELECT * FROM table LIMIT &quot;</span>.$lStart.<span style=\"color:#A31515\">&quot;, &quot;</span>.($lStart+$lInc));\r\n <span style=\"color:Blue\">while</span> ($row = mysql_fetch_assoc($sQL))\r\n {\r\n  $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(<span style=\"color:#A31515\">'A'</span> . $rowTracker, $row[...]);\r\n  ...\r\n  $rowTracker++;\r\n }\r\n\r\n $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, <span style=\"color:#A31515\">'Excel2007'</span>);\r\n $objWriter-&gt;save(<span style=\"color:#A31515\">&quot;filename-&quot;</span>.$lStart.<span style=\"color:#A31515\">&quot;.xlsx&quot;</span>);\r\n\r\n}\r\n</pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n<p>How can I clean up the memory used after each loop so the script doesn't fail? I've tried unset($objPHPExcel) &amp; $objPHPExcel-&gt;distroy() without any luck.</p>\r\n<p>Thanks in advance,<br>Adam.</p>",
+    "PostedDate": "2009-11-18T03:35:28.623-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "258250",
+    "ThreadId": "75456",
+    "Html": "<p>Try clearing down each instance of the $objWriter using unset($objWriter) after each call to $objWriter-&gt;save() as each call to PHPExcel_IOFactory::createWriter() creates a new instance of the writer</p>",
+    "PostedDate": "2009-11-18T04:51:41.303-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "258253",
+    "ThreadId": "75456",
+    "Html": "<p>Hi Mark,</p>\r\n<p>Thanks for the reply.</p>\r\n<p>I've tried that and it seems to have no impact. For testing purposes I'm looping 700 records in sets of 100 and logging the memory usage. These are the results both after and before the amendment:</p>\r\n<p>AFTER EACH ROW 13.75<br>AFTER EACH ROW 16<br>AFTER EACH ROW 17<br>AFTER EACH ROW 18<br>AFTER EACH ROW 19.25<br>AFTER EACH ROW 20.25<br>AFTER EACH ROW 21.25<br>12:56:57 Peak memory usage: 21.5 MB</p>\r\n<p>For info, this is the amended code section:</p>\r\n<p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre><span style=\"color:Blue\">echo</span> <span style=\"color:#A31515\">&quot;AFTER EACH ROW &quot;</span>.(memory_get_usage(true) / 1024 / 1024).<span style=\"color:#A31515\">&quot;&lt;br&gt;&quot;</span>;\r\n<br>$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, <span style=\"color:#A31515\">'Excel2007'</span>);\r\n$objWriter-&gt;save(<span style=\"color:#A31515\">&quot;filename-&quot;</span>.$lStart.<span style=\"color:#A31515\">&quot;.xlsx&quot;</span>);\r\n<span style=\"color:Blue\">unset</span>($objWriter);\r\n</pre>\r\n</div>\r\n</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-11-18T05:01:40.223-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "258257",
+    "ThreadId": "75456",
+    "Html": "<p>I've managed to trim it down by clearing all the object properties via a destruct method:</p>\r\n<p>PHPExcel.php:</p>\r\n<p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>\t<span style=\"color:Blue\">public</span> <span style=\"color:Blue\">function</span> Destruct()\r\n\t{\r\n\t\t<span style=\"color:Blue\">foreach</span>($this-&gt;_workSheetCollection <span style=\"color:Blue\">as</span> $value)\r\n\t\t{\r\n\t\t\t$value-&gt;Destruct();\r\n\t\t}\r\n\t}\r\n<br></pre>\r\n</div>\r\nWorksheet.php:</p>\r\n<p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>\t<span style=\"color:Blue\">public</span> <span style=\"color:Blue\">function</span> Destruct()\r\n\t{\r\n\t\t<span style=\"color:Blue\">foreach</span>($this <span style=\"color:Blue\">as</span> $key=&gt;$value)\r\n\t\t{\r\n\t\t\t$this-&gt;$key = null;\r\n\t\t}\r\n\t}\r\n</pre>\r\n</div>\r\n</p>\r\n<p>Then call this after the $objWriter-&gt;save(); in the base code:</p>\r\n<p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$objPHPExcel-&gt;Destruct();\r\n</pre>\r\n</div>\r\n</p>\r\n<p>It may not be the ideal solution however it does seem to use <span style=\"text-decoration:underline\">a lot</span> less memory:</p>\r\n<p>AFTER EACH ROW 13.75<br>AFTER EACH ROW 15.25<br>AFTER EACH ROW 15.25<br>AFTER EACH ROW 15.5<br>AFTER EACH ROW 15.5<br>AFTER EACH ROW 15.75<br>AFTER EACH ROW 15.75<br>13:18:47 Peak memory usage: 16 MB</p>\r\n<p>Now to try it on a larger scale... :)</p>",
+    "PostedDate": "2009-11-18T05:23:50.437-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "258260",
+    "ThreadId": "75456",
+    "Html": "<p>Results for 3 loops of 30,000 rows:</p>\r\n<p>AFTER EACH ROW 301<br>AFTER EACH ROW 317.75<br>AFTER EACH ROW 319.5<br>13:28:33 Peak memory usage: 359.25 MB</p>\r\n<p>Although it still uses a lot of memory for each run, it's clearing up a lot better for the previous objects.</p>",
+    "PostedDate": "2009-11-18T05:31:26.753-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "258518",
+    "ThreadId": "75456",
+    "Html": "<p>This is unfortunately a known issue since long ago, but it is not forgotten. The problem is with recursive references between the workbook-worksheet, and worksheet-cell.</p>\r\n<p>In the near future I'm planning to do some testing to see how a cell supervisor can be incorporated in PHPExcel. For a start, that alone will probably cut down memory usage to approximately one half, and as a side effect, the worksheet-cell recursive references would be eliminated. This should be a first step for eliminating the memory leaks you are experiencing.</p>",
+    "PostedDate": "2009-11-18T20:13:19.857-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

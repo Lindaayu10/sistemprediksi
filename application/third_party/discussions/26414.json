@@ -1,0 +1,138 @@
+[
+  {
+    "Id": "88352",
+    "ThreadId": "26414",
+    "Html": "\r\nThis code does not set the print area. (version 1.6.0)<br /><br />  // Set page orientation, size, Print Area and Fit To Pages<br />  $objPageSetup = new PHPExcel<i>Worksheet</i>PageSetup();<br />  $objPageSetup-&gt;setPaperSize(PHPExcel<i>Worksheet</i>PageSetup::PAPERSIZE_LETTER);<br />  $objPageSetup-&gt;setOrientation(PHPExcel<i>Worksheet</i>PageSetup::ORIENTATION_PORTRAIT);<br />  $objPageSetup-&gt;setPrintAreaByColumnAndRow(1, 1, 5, $row);<br />  // $objPageSetup-&gt;setPrintArea(\"A1:E\".$row);<br />  $objPageSetup-&gt;setFitToWidth(1);<br />  $objPHPExcel-&gt;getActiveSheet()-&gt;setPageSetup($objPageSetup);<br /><br />Used both setPrintArea and setPrintAreaByColumnAndRow with same results.<br /><br />What am I doing wrong?<br />",
+    "PostedDate": "2008-04-22T14:30:05.057-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "89297",
+    "ThreadId": "26414",
+    "Html": "\r\nWhen I drop this in 01helloworld.php sample and change $row with \"5\", it works perfectly? (first column falls off)<br />",
+    "PostedDate": "2008-04-27T23:49:50.2-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "89431",
+    "ThreadId": "26414",
+    "Html": "<div class=\"quote\" style=\"border: dotted .1em #aaa; border-left: none; border-right: none; font-style: italic; margin: 1em 0em 2.5em 3em;padding: .2em;\"><br />maartenba wrote:<br />When I drop this in 01helloworld.php sample and change $row with \"5\", it works perfectly? (first column falls off)<br /><br /></div><br />Well, it doesn't work in my program for some reason. It is not setting the print area at all. It does set the FitToWidth,<br />however.<br />",
+    "PostedDate": "2008-04-28T11:53:28.827-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "89529",
+    "ThreadId": "26414",
+    "Html": "\r\nAre you sure $row is defined?<br />",
+    "PostedDate": "2008-04-29T00:19:11.09-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "89605",
+    "ThreadId": "26414",
+    "Html": "<div class=\"quote\" style=\"border: dotted .1em #aaa; border-left: none; border-right: none; font-style: italic; margin: 1em 0em 2.5em 3em;padding: .2em;\"><br />maartenba wrote:<br />Are you sure $row is defined?<br /><br /></div>of course, it defined before a while loop and incremented in the loop.<br />added this and it showed the correct value:<br />$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(\"A\".$row + 1, $row);<br />",
+    "PostedDate": "2008-04-29T06:28:12.567-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "89642",
+    "ThreadId": "26414",
+    "Html": "\r\nJust to make sure... You are using Excel2007 writer? Excel5 does not support this feature.<br /><br />Here's my working example:<br /><pre style=\"background-color:#ECECEC; border:dashed .1em #3E62A6; font-family:Consolas, Courier New, Courier, Monospace; font-size:1em; margin-top:0; padding:.5em; height:auto; overflow:auto; overflow-x:auto; overflow-y:auto;\">\r\n&lt;?php\r\n/**\r\n * PHPExcel\r\n *\r\n * Copyright (C) 2006 - 2008 PHPExcel\r\n *\r\n * This library is free software; you can redistribute it and/or\r\n * modify it under the terms of the GNU Lesser General Public\r\n * License as published by the Free Software Foundation; either\r\n * version 2.1 of the License, or (at your option) any later version.\r\n * \r\n * This library is distributed in the hope that it will be useful,\r\n * but WITHOUT ANY WARRANTY; without even the implied warranty of\r\n * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU\r\n * Lesser General Public License for more details.\r\n * \r\n * You should have received a copy of the GNU Lesser General Public\r\n * License along with this library; if not, write to the Free Software\r\n * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA\r\n *\r\n * @category   PHPExcel\r\n * @package    PHPExcel\r\n * @copyright  Copyright (c) 2006 - 2008 PHPExcel (http://www.codeplex.com/PHPExcel)\r\n * @license    http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt\tLGPL\r\n * @version    ##VERSION##, ##DATE##\r\n */\r\n \r\n/** Error reporting */\r\nerror_reporting(E_ALL);\r\n \r\n/** Include path **/\r\nset_include_path(get_include_path() . PATH_SEPARATOR . '../Classes/');\r\n \r\n/** PHPExcel */\r\ninclude 'PHPExcel.php';\r\n \r\n/** PHPExcel_Writer_Excel2007 */\r\ninclude 'PHPExcel/Writer/Excel2007.php';\r\n \r\n// Create new PHPExcel object\r\necho date('H:i:s') . \" Create new PHPExcel object\\n\";\r\n$objPHPExcel = new PHPExcel();\r\n \r\n// Add some data\r\necho date('H:i:s') . \" Add some data\\n\";\r\n$objPHPExcel-&gt;setActiveSheetIndex(0);\r\nfor ($i = 0; $i &lt; 10; $i++) {\r\n  for ($j = 1; $j &lt; 10; $j++) {\r\n    $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow($i, $j, 'Cell ' . $i . '-' . $j);\r\n  }\r\n}\r\n \r\n// Set page orientation, size, Print Area and Fit To Pages\r\n$objPageSetup = new PHPExcel_Worksheet_PageSetup();\r\n$objPageSetup-&gt;setPaperSize(PHPExcel_Worksheet_PageSetup::PAPERSIZE_LETTER);\r\n$objPageSetup-&gt;setOrientation(PHPExcel_Worksheet_PageSetup::ORIENTATION_PORTRAIT);\r\n$objPageSetup-&gt;setPrintArea(\"E5:H7\");\r\n$objPageSetup-&gt;setFitToWidth(1);\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setPageSetup($objPageSetup);\r\n \r\n// Rename sheet\r\necho date('H:i:s') . \" Rename sheet\\n\";\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setTitle('Simple');\r\n \r\n \r\n// Set active sheet index to the first sheet, so Excel opens this as the first sheet\r\n$objPHPExcel-&gt;setActiveSheetIndex(0);\r\n \r\n\t\t\r\n// Save Excel 2007 file\r\necho date('H:i:s') . \" Write to Excel2007 format\\n\";\r\n$objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel);\r\n$objWriter-&gt;save(str_replace('.php', '.xlsx', __FILE__));\r\n \r\n// Echo memory peak usage\r\necho date('H:i:s') . \" Peak memory usage: \" . (memory_get_peak_usage(true) / 1024 / 1024) . \" MB\\r\\n\";\r\n \r\n// Echo done\r\necho date('H:i:s') . \" Done writing file.\\r\\n\";\r\n</pre>",
+    "PostedDate": "2008-04-29T08:48:34.313-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "89761",
+    "ThreadId": "26414",
+    "Html": "<div class=\"quote\" style=\"border: dotted .1em #aaa; border-left: none; border-right: none; font-style: italic; margin: 1em 0em 2.5em 3em;padding: .2em;\"><br />maartenba wrote:<br />Just to make sure... You are using Excel2007 writer? Excel5 does not support this feature.<br /><br /></div>Yes, I am using Excel5 because of the stupid Zip file problem and the fact that not many people have Excel2007 and a<br />file saved as Excel5  is forwardly compatible.<br /><br />You know, I think you guys should mark features as not avail for certain versions. I don't see it marked in the docs anywhere.<br />You're telling me that Setting the PrintArea ISN'T SUPPORTED Excel5?<br />",
+    "PostedDate": "2008-04-29T19:26:25.66-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "89839",
+    "ThreadId": "26414",
+    "Html": "\r\nYou can check available features in the Excel5 version on PEAR SpreadSheet Excel (http://pear.php.net/package/Spreadsheet<i>Excel</i>Writer/redirected) as it is used under the covers for PHPExcel_WriterExcel5<br />",
+    "PostedDate": "2008-04-30T06:06:09.733-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "89852",
+    "ThreadId": "26414",
+    "Html": "\r\nI could find no mention of features at that URL or the package's pages. In fact, it even HAS a printArea function where you can set the printArea by row/column.<br /><br /><div class=\"quote\" style=\"border: dotted .1em #aaa; border-left: none; border-right: none; font-style: italic; margin: 1em 0em 2.5em 3em;padding: .2em;\"><br />maartenba wrote:<br />You can check available features in the Excel5 version on PEAR SpreadSheet Excel (http://pear.php.net/package/Spreadsheet<i>Excel</i>Writer/redirected) as it is used under the covers for PHPExcel_WriterExcel5<br /><br /></div>",
+    "PostedDate": "2008-04-30T07:01:47.8-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "90181",
+    "ThreadId": "26414",
+    "Html": "\r\nWill have to map that. A work item is on its way!<br />",
+    "PostedDate": "2008-05-02T02:02:23.75-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "90182",
+    "ThreadId": "26414",
+    "Html": "\r\nThis discussion has been copied to a work item. Click here to <a href=\"http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=6101\">go to the work item and continue the discussion</a>.<br />",
+    "PostedDate": "2008-05-02T02:03:12.543-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "90490",
+    "ThreadId": "26414",
+    "Html": "\r\nWill NOT be implemented due to bug: http://pear.php.net/bugs/bug.php?id=2146<br />",
+    "PostedDate": "2008-05-04T23:40:23.963-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "90537",
+    "ThreadId": "26414",
+    "Html": "<div class=\"quote\" style=\"border: dotted .1em #aaa; border-left: none; border-right: none; font-style: italic; margin: 1em 0em 2.5em 3em;padding: .2em;\"><br />maartenba wrote:<br />Will NOT be implemented due to bug: http://pear.php.net/bugs/bug.php?id=2146<br /><br /></div><br />So, it DOES work in Excel2007 but won't be implemented in Excel5? Shame, shame.<br />Is there a way to input a macro into a spreadsheet so I can dynamically write the code to<br />set the printarea in an onload macro?<br />",
+    "PostedDate": "2008-05-05T07:22:25.06-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "90555",
+    "ThreadId": "26414",
+    "Html": "\r\nIf you have a look at the PHPExcel<i>Writer</i>Excel5 sources, you'll find a commented pice of code (search for \"print area\"). If you uncomment that, print area works (anther change will be needed regarding setVersion(8)).<br />",
+    "PostedDate": "2008-05-05T08:26:06.337-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "90581",
+    "ThreadId": "26414",
+    "Html": "<div class=\"quote\" style=\"border: dotted .1em #aaa; border-left: none; border-right: none; font-style: italic; margin: 1em 0em 2.5em 3em;padding: .2em;\"><br />maartenba wrote:<br />If you have a look at the PHPExcel<i>Writer</i>Excel5 sources, you'll find a commented pice of code (search for \"print area\"). If you uncomment that, print area works (anther change will be needed regarding setVersion(8)).<br /><br /></div><br />Since we will never be using UTF-8, I don't think it'll matter for my uses.<br />",
+    "PostedDate": "2008-05-05T10:01:07.86-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "126701",
+    "ThreadId": "26414",
+    "Html": "Update: Fixed per work item 7834<br>\r\n<a href=\"http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=7834\">http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=7834</a><br>\r\n<br>\r\n",
+    "PostedDate": "2008-10-21T16:19:23.71-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "743346",
+    "ThreadId": "26414",
+    "Html": "<p>Hello guys,</p>\r\n<p><span class=\"hps\">my</span><span>&nbsp;</span><span class=\"hps\">file being</span><span>&nbsp;</span><span class=\"hps\">generated has</span><span>&nbsp;</span><span class=\"hps\">an extra column</span><span>&nbsp;</span><span class=\"hps\">which falls outside</span><span>&nbsp;</span><span class=\"hps\">the printable area of</span><span>&nbsp;</span><span class=\"hps\">​​default.</span><span>&nbsp;</span><span class=\"hps\">However</span><span>&nbsp;</span><span class=\"hps\">if I set</span><span>&nbsp;</span><span class=\"hps\">the print area,</span><span>&nbsp;</span><span class=\"hps\">the number</span><span>&nbsp;</span><span class=\"hps\">of rows</span><span>&nbsp;</span><span class=\"hps\">is exceeding</span><span>&nbsp;</span><span class=\"hps\">my spreadsheet</span><span class=\"hps\">has</span><span>&nbsp;</span><span class=\"hps\">a</span><span>&nbsp;</span><span class=\"hps\">print area</span><span>, even</span><span>&nbsp;</span><span class=\"hps\">if I set</span><span>&nbsp;</span><span class=\"hps\">the print area</span><span>&nbsp;</span><span class=\"hps\">smaller,</span><span>&nbsp;</span><span class=\"hps\">some lines</span><span>&nbsp;</span><span class=\"hps\">do not appear</span><span>&nbsp;</span><span class=\"hps\">to be printed</span><span>.</span><span>&nbsp;</span><span class=\"hps\">My</span><span>&nbsp;</span><span class=\"hps\">spreadsheet has</span><span>&nbsp;</span><span class=\"hps\">seven</span><span>&nbsp;</span><span class=\"hps\">columns</span><span>&nbsp;</span><span class=\"hps\">A through</span><span>&nbsp;</span><span class=\"hps\">H</span><span>&nbsp;</span><span class=\"hps\">and 356</span><span>&nbsp;</span><span class=\"hps\">lines</span><span>.</span><span>&nbsp;</span><span class=\"hps\">I wish it were</span><span class=\"hps\">possible to print</span><span>&nbsp;</span><span class=\"hps\">all the columns</span><span>&nbsp;</span><span class=\"hps\">and then</span><span>&nbsp;</span><span class=\"hps\">the other lines</span><span>&nbsp;</span><span class=\"hps\">that do not</span><span>&nbsp;</span><span class=\"hps\">fit on one sheet</span><span>,</span><span>&nbsp;</span><span class=\"hps\">other</span><span class=\"hps\">sheets</span><span>&nbsp;</span><span class=\"hps\">were printed</span><span>.</span><span>&nbsp;</span><span class=\"hps\">I can do this</span><span>&nbsp;</span><span class=\"hps\">by</span><span>&nbsp;</span><span class=\"hps\">setting</span><span>&nbsp;</span><span class=\"hps\">printing</span><span>&nbsp;</span><span class=\"hps\">excel</span><span>,</span><span>&nbsp;</span><span class=\"hps\">but</span><span>&nbsp;</span><span class=\"hps\">when my</span><span>&nbsp;</span><span class=\"hps\">client is</span><span>&nbsp;</span><span class=\"hps\">to export the report</span><span>&nbsp;</span><span class=\"hps\">to excel</span><span>, I would</span><span>&nbsp;</span><span class=\"hps\">leave</span><span>&nbsp;</span><span class=\"hps\">the impression</span><span>&nbsp;</span><span class=\"hps\">that</span><span>&nbsp;</span><span class=\"hps\">the right way.</span><br /><span class=\"hps\">This is the report</span><span>&nbsp;</span><span class=\"hps\">without defining</span><span>&nbsp;</span><span class=\"hps\">the print area</span><span>, leaving</span><span>&nbsp;</span><span class=\"hps\">the other lines</span><span>&nbsp;</span><span class=\"hps\">that do not fit</span><span>&nbsp;</span><span class=\"hps\">on one sheet</span><span>&nbsp;</span><span class=\"hps\">to another</span><span>, as</span><span>&nbsp;</span><span class=\"hps\">in standard mode</span><span>&nbsp;</span><span class=\"hps\">printing:</span></p>\r\n<p>https://lh4.googleusercontent.com/-gt7YRz8BFpI/TzAEugZFmNI/AAAAAAAAAO4/ElxaKSrW5aE/s512/normal.png</p>\r\n<p><br /><span class=\"hps\">This one</span><span>,</span><span>&nbsp;</span><span class=\"hps\">I defined</span><span>&nbsp;</span><span class=\"hps\">print area</span><span>, however</span><span>&nbsp;</span><span class=\"hps\">the other lines</span><span>&nbsp;</span><span class=\"hps\">that exceed</span><span>&nbsp;</span><span class=\"hps\">the sheet does not</span><span class=\"hps\">appear</span><span>&nbsp;</span><span class=\"hps\">to be printed:</span></p>\r\n<p>https://lh6.googleusercontent.com/-_kAQ9CiQmDc/TzAEu0SGjEI/AAAAAAAAAO8/Fmgr_o8m098/s512/normal2.jpg</p>\r\n<p><br /><span class=\"hps\">I tried using</span><span>&nbsp;</span><span class=\"hps\">header and footer</span><span>&nbsp;</span><span class=\"hps\">as well and</span><span>&nbsp;</span><span class=\"hps\">could not.</span></p>\r\n<p><br /><span class=\"hps\">How can I solve</span><span>&nbsp;</span><span class=\"hps\">the issue of</span><span>&nbsp;</span><span class=\"hps\">printing and</span><span>&nbsp;</span><span class=\"hps\">the</span><span>&nbsp;</span><span class=\"hps\">use of the header</span><span>&nbsp;</span><span class=\"hps\">and footer</span><span>?</span></p>",
+    "PostedDate": "2012-02-06T08:57:12.377-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

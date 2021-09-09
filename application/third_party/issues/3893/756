@@ -1,0 +1,300 @@
+<?php ob_start();ini_set('display_errors',true);?>
+<?php
+	include_once 'lib/DataObject.php';
+	include_once 'lang/formLang.php';
+	include_once 'lang/MessageLang.php';
+	include_once 'Project.php';
+	include_once 'RectangularTank.php';
+	include_once 'ChannelTank.php';
+	include_once 'CircularChannelTank.php';
+	include_once 'CircularTank.php';
+	include_once 'RectangularEstimate.php';
+	include_once 'CircularTankEstimate.php';
+	include_once 'CircularChannelTankEstimate.php';
+	include 'PHPExcel.php';
+	include 'PHPExcel/Writer/Excel5.php';
+	
+	$lang= substr($_SERVER['HTTP_ACCEPT_LANGUAGE'],0,2);
+	$myLang=new MessageLang(firstToUpper($lang),'site');
+	$errorLang=new MessageLang(firstToUpper($lang),'error');
+	
+	$list=array();
+	
+	$projectSer='';
+	if (isset($_COOKIE['tankNum']))
+		$numTank=$_COOKIE['tankNum'];
+	
+	if (file_exists('./tempBin/project'.$_COOKIE['projectId'].'.bin')) {
+		$projectBin=fopen('./tempBin/project'.$_COOKIE['projectId'].'.bin','r');
+		//$projectBin=fopen('./tempBin/project'.$_COOKIE['projectId'].'.bin','r');
+	
+		while(!feof($projectBin))
+			$projectSer.=fread($projectBin,8192);
+		fclose($projectBin);
+		$project=unserialize($projectSer);
+	} else {
+		echo 'ko';
+		return;
+	}
+	
+	$excelRow=1;
+	$sheetNum=1;
+	$listIndex=0;
+	//creazione oggetto esportatore Excel
+	$objPHPExcel = new PHPExcel();
+	$objPHPExcel->getProperties()->setCreator($_COOKIE['ragioneSociale']);
+	$objPHPExcel->getProperties()->setLastModifiedBy($_COOKIE['ragioneSociale']);
+	$objPHPExcel->getProperties()->setTitle("Lista Pezzi");
+	$objPHPExcel->getProperties()->setSubject($project->getValue('idPreventivo'));
+	$objPHPExcel->getProperties()->setDescription("cliente: ".$project->getValue('nomeCliente')." - nome progetto: ".$project->getValue('nomePreventivo'));
+	//creazione foglio
+	$objPHPExcel->setActiveSheetIndex(0);
+	$objPHPExcel->getActiveSheet()->setTitle('listaPezzi');
+	
+	for ($i=0;$i<$project->getApplicationNum();$i++) {
+		for($j=0;$j<$project->getApplication($i+1)->tanksNum();$j++){
+			$objPHPExcel->createSheet();
+			$objPHPExcel->setActiveSheetIndex($j+1);
+			$mySheetName=strtolower($project->getApplication($i+1)->getValue('applicazione'))."vasca".($j+1);	
+			$objPHPExcel->getActiveSheet()->setTitle($mySheetName);
+		}
+		for($j=0;$j<$project->getApplication($i+1)->tanksNum();$j++){
+			$sheetExcelRow=2;
+			$sheetExcelColumn='A';
+			$objPHPExcel->setActiveSheetIndex($j+1);
+			$mySheetName=strtolower($project->getApplication($i+1)->getValue('applicazione'))."vasca".($j+1);
+			$objPHPExcel->getActiveSheet()->getColumnDimension('A')->setWidth(10);
+			$objPHPExcel->getActiveSheet()->getColumnDimension('B')->setWidth(30);
+			$objPHPExcel->getActiveSheet()->getColumnDimension('C')->setWidth(10);
+			$objPHPExcel->getActiveSheet()->getColumnDimension('D')->setWidth(10);
+			$objPHPExcel->getActiveSheet()->getColumnDimension('E')->setWidth(10);
+			$objPHPExcel->getActiveSheet()->setCellValue('A1', 'Articolo');
+			$objPHPExcel->getActiveSheet()->setCellValue('B1', 'Descrizione');
+			$objPHPExcel->getActiveSheet()->setCellValue('C1', 'PrezzoUni');
+			$objPHPExcel->getActiveSheet()->setCellValue('D1', 'Quantita');
+			$objPHPExcel->getActiveSheet()->setCellValue('E1', 'PrezzoTotale');
+			
+			switch($tankAspect=$project->getApplication($i+1)->getTank($j+1)->getValue('formaVasca')) {
+				case 'rectangular':
+					$tankEstimate=new RectangularTankEstimate($project->getApplication($i+1)->getTank($j+1),$project->getApplication($i+1)->getTank($j+1)->getValue('fileDiff'));
+					break;
+				case 'circular':
+					$tankEstimate=new CircularTankEstimate($project->getApplication($i+1)->getTank($j+1),$project->getApplication($i+1)->getTank($j+1)->getValue('fileDiff')/2);
+					break;
+				case 'circularChannelTank':
+					$tankEstimate=new CircularChannelTankEstimate($project->getApplication($i+1)->getTank($j+1),$project->getApplication($i+1)->getTank($j+1)->getValue('fileDiff'));
+					break;
+			}
+			$tankEstimate->setMainComponents();
+			//DIFFUSORI
+			$diffusers=$tankEstimate->getDiffusers();
+			if (array_key_exists($diffusers[0], $list)) {
+				$list[$diffusers[0]].="+".$mySheetName."!D".$sheetExcelRow;
+			}
+			else {
+				$list[$diffusers[0]]="=".$mySheetName."!D".$sheetExcelRow;
+			}
+			
+			for($z=0;$z<count($diffusers);$z++) {
+				$objPHPExcel->getActiveSheet()->setCellValue($sheetExcelColumn.$sheetExcelRow, $diffusers[$z]);
+				$sheetExcelColumn++;
+			}
+			$objPHPExcel->getActiveSheet()->setCellValue('E'.$sheetExcelRow, '=C'.$sheetExcelRow.'*D'.$sheetExcelRow);
+			$sheetExcelRow++;
+			
+			//FLANGE
+			$sheetExcelColumn='A';
+			$flanges=$tankEstimate->flangeD110();
+			for($z=0;$z<count($flanges);$z++) {
+				$objPHPExcel->getActiveSheet()->setCellValue($sheetExcelColumn.$sheetExcelRow, $flanges[$z]);
+				$sheetExcelColumn++;
+			}
+			$objPHPExcel->getActiveSheet()->setCellValue('E'.$sheetExcelRow, '=C'.$sheetExcelRow.'*D'.$sheetExcelRow);
+			$sheetExcelRow++;
+			
+			//SUPPORTI
+			$sheetExcelColumn='A';
+			$supports=$tankEstimate->supportsD110();
+			for($z=0;$z<count($supports);$z++) {
+				$objPHPExcel->getActiveSheet()->setCellValue($sheetExcelColumn.$sheetExcelRow, $supports[$z]);
+				$sheetExcelColumn++;
+			}
+			$objPHPExcel->getActiveSheet()->setCellValue('E'.$sheetExcelRow, '=C'.$sheetExcelRow.'*D'.$sheetExcelRow);
+			$sheetExcelRow++;
+			//VERGHE
+			$sheetExcelColumn='A';
+			$bars=$tankEstimate->barsD110();
+			for($z=0;$z<count($bars);$z++) {
+				$objPHPExcel->getActiveSheet()->setCellValue($sheetExcelColumn.$sheetExcelRow, $bars[$z]);
+				$sheetExcelColumn++;
+			}
+			$objPHPExcel->getActiveSheet()->setCellValue('E'.$sheetExcelRow, '=C'.$sheetExcelRow.'*D'.$sheetExcelRow);
+			$sheetExcelRow++;
+			//ALTRE VERGHE
+			$sheetExcelColumn='A';
+			$bars=$tankEstimate->othersBars();
+			for($z=0;$z<count($bars);$z++) {
+				$objPHPExcel->getActiveSheet()->setCellValue($sheetExcelColumn.$sheetExcelRow, $bars[$z]);
+				$sheetExcelColumn++;
+			}
+			$objPHPExcel->getActiveSheet()->setCellValue('E'.$sheetExcelRow, '=C'.$sheetExcelRow.'*D'.$sheetExcelRow);
+			$sheetExcelRow++;
+			//MANICOTTI
+			$sheetExcelColumn='A';
+			$doubleSockets=$tankEstimate->doubleSocket();
+			for($z=0;$z<count($doubleSockets);$z++) {
+				$objPHPExcel->getActiveSheet()->setCellValue($sheetExcelColumn.$sheetExcelRow, $doubleSockets[$z]);
+				$sheetExcelColumn++;
+			}
+			$objPHPExcel->getActiveSheet()->setCellValue('E'.$sheetExcelRow, '=C'.$sheetExcelRow.'*D'.$sheetExcelRow);
+			$sheetExcelRow++;
+			//SUPPORTI
+			$sheetExcelColumn='A';
+			$supports=$tankEstimate->manifoldSupports();
+			for($z=0;$z<count($supports);$z++) {
+				$objPHPExcel->getActiveSheet()->setCellValue($sheetExcelColumn.$sheetExcelRow, $supports[$z]);
+				$sheetExcelColumn++;
+			}
+			$objPHPExcel->getActiveSheet()->setCellValue('E'.$sheetExcelRow, '=C'.$sheetExcelRow.'*D'.$sheetExcelRow);
+			$sheetExcelRow++;
+			//ALTRE FLANGE
+			$sheetExcelColumn='A';
+			$flanges=$tankEstimate->othersFlanges();
+			for($z=0;$z<count($flanges);$z++) {
+				$objPHPExcel->getActiveSheet()->setCellValue($sheetExcelColumn.$sheetExcelRow, $flanges[$z]);
+				$sheetExcelColumn++;
+			}
+			$objPHPExcel->getActiveSheet()->setCellValue('E'.$sheetExcelRow, '=C'.$sheetExcelRow.'*D'.$sheetExcelRow);
+			$sheetExcelRow++;
+			//GOMITI
+			$sheetExcelColumn='A';
+			$elbows=$tankEstimate->elbows();
+			for($z=0;$z<count($elbows);$z++) {
+				$objPHPExcel->getActiveSheet()->setCellValue($sheetExcelColumn.$sheetExcelRow, $elbows[$z]);
+				$sheetExcelColumn++;
+			}
+			$objPHPExcel->getActiveSheet()->setCellValue('E'.$sheetExcelRow, '=C'.$sheetExcelRow.'*D'.$sheetExcelRow);
+			$sheetExcelRow++;
+			//TAPPI CHIUSURA 110
+			$sheetExcelColumn='A';
+			$closingCapsD110 =$tankEstimate->closingCapsD110();
+			for($z=0;$z<count($closingCapsD110);$z++) {
+				$objPHPExcel->getActiveSheet()->setCellValue($sheetExcelColumn.$sheetExcelRow, $closingCapsD110[$z]);
+				$sheetExcelColumn++;
+			}
+			$objPHPExcel->getActiveSheet()->setCellValue('E'.$sheetExcelRow, '=C'.$sheetExcelRow.'*D'.$sheetExcelRow);
+			$sheetExcelRow++;
+			//ALTRI TAPPI CHIUSURA
+			$sheetExcelColumn='A';
+			$closingCapsD110 =$tankEstimate->othersClosingCaps();
+			for($z=0;$z<count($closingCapsD110);$z++) {
+				$objPHPExcel->getActiveSheet()->setCellValue($sheetExcelColumn.$sheetExcelRow, $closingCapsD110[$z]);
+				$sheetExcelColumn++;
+			}
+			$objPHPExcel->getActiveSheet()->setCellValue('E'.$sheetExcelRow, '=C'.$sheetExcelRow.'*D'.$sheetExcelRow);
+			$sheetExcelRow++;
+			//DERIVAZIONI
+			$sheetExcelColumn='A';
+			$derivations =$tankEstimate->derivations();
+			if ($derivations!=-1) {
+				for($z=0;$z<count($derivations);$z++) {
+					$objPHPExcel->getActiveSheet()->setCellValue($sheetExcelColumn.$sheetExcelRow, $derivations[$z]);
+					$sheetExcelColumn++;
+				}
+				$objPHPExcel->getActiveSheet()->setCellValue('E'.$sheetExcelRow, '=C'.$sheetExcelRow.'*D'.$sheetExcelRow);
+				$sheetExcelRow++;
+			}
+			//POZZETTI
+			$sheetExcelColumn='A';
+			$samps =$tankEstimate->samps();
+			for($z=0;$z<count($samps);$z++) {
+				$objPHPExcel->getActiveSheet()->setCellValue($sheetExcelColumn.$sheetExcelRow, $samps[$z]);
+				$sheetExcelColumn++;
+			}
+			$objPHPExcel->getActiveSheet()->setCellValue('E'.$sheetExcelRow, '=C'.$sheetExcelRow.'*D'.$sheetExcelRow);
+			$sheetExcelRow++;
+			//PATCH
+			$sheetExcelColumn='A';
+			$patches =$tankEstimate->patches();
+			for($z=0;$z<count($patches);$z++) {
+				$objPHPExcel->getActiveSheet()->setCellValue($sheetExcelColumn.$sheetExcelRow, $patches[$z]);
+				$sheetExcelColumn++;
+			}
+			$objPHPExcel->getActiveSheet()->setCellValue('E'.$sheetExcelRow, '=C'.$sheetExcelRow.'*D'.$sheetExcelRow);
+			$sheetExcelRow++;
+			//INCOLLA PATCH
+			$sheetExcelColumn='A';
+			$unionPatches =$tankEstimate->unionPatches();
+			for($z=0;$z<count($unionPatches);$z++) {
+				$objPHPExcel->getActiveSheet()->setCellValue($sheetExcelColumn.$sheetExcelRow, $unionPatches[$z]);
+				$sheetExcelColumn++;
+			}
+			$objPHPExcel->getActiveSheet()->setCellValue('E'.$sheetExcelRow, '=C'.$sheetExcelRow.'*D'.$sheetExcelRow);
+			$sheetExcelRow++;
+			//KIT DRENAGGIO
+			$sheetExcelColumn='A';
+			$drainKits =$tankEstimate->drainKits();
+			for($z=0;$z<count($drainKits);$z++) {
+				$objPHPExcel->getActiveSheet()->setCellValue($sheetExcelColumn.$sheetExcelRow, $drainKits[$z]);
+				$sheetExcelColumn++;
+			}
+			$objPHPExcel->getActiveSheet()->setCellValue('E'.$sheetExcelRow, '=C'.$sheetExcelRow.'*D'.$sheetExcelRow);
+			$sheetExcelRow++;
+			//GIORNI PROGETTAZIONE
+			$sheetExcelColumn='A';
+			$projectDays =$tankEstimate->projectDays();
+			for($z=0;$z<count($projectDays);$z++) {
+				$objPHPExcel->getActiveSheet()->setCellValue($sheetExcelColumn.$sheetExcelRow, $projectDays[$z]);
+				$sheetExcelColumn++;
+			}
+			$objPHPExcel->getActiveSheet()->setCellValue('E'.$sheetExcelRow, '=C'.$sheetExcelRow.'*D'.$sheetExcelRow);
+			$sheetExcelRow++;
+			//SOLVENTE
+			$sheetExcelColumn='A';
+			$solvent =$tankEstimate->solvent();
+			for($z=0;$z<count($solvent);$z++) {
+				$objPHPExcel->getActiveSheet()->setCellValue($sheetExcelColumn.$sheetExcelRow, $solvent[$z]);
+				$sheetExcelColumn++;
+			}
+			$objPHPExcel->getActiveSheet()->setCellValue('E'.$sheetExcelRow, '=C'.$sheetExcelRow.'*D'.$sheetExcelRow);
+			$sheetExcelRow++;
+			//COLLANTE
+			$sheetExcelColumn='A';
+			$glue =$tankEstimate->glue();
+			for($z=0;$z<count($glue);$z++) {
+				$objPHPExcel->getActiveSheet()->setCellValue($sheetExcelColumn.$sheetExcelRow, $glue[$z]);
+				$sheetExcelColumn++;
+			}
+			$objPHPExcel->getActiveSheet()->setCellValue('E'.$sheetExcelRow, '=C'.$sheetExcelRow.'*D'.$sheetExcelRow);
+			$sheetExcelRow++;
+			//IMBALLO
+			$sheetExcelColumn='A';
+			$package =$tankEstimate->package();
+			for($z=0;$z<count($package);$z++) {
+				$objPHPExcel->getActiveSheet()->setCellValue($sheetExcelColumn.$sheetExcelRow, $package[$z]);
+				$sheetExcelColumn++;
+			}
+			$objPHPExcel->getActiveSheet()->setCellValue('E'.$sheetExcelRow, '=C'.$sheetExcelRow.'*D'.$sheetExcelRow);
+			$sheetExcelRow++;
+			$objPHPExcel->getActiveSheet()->setCellValue('A'.$sheetExcelRow,'TOTALE');
+			$objPHPExcel->getActiveSheet()->setCellValue('E'.$sheetExcelRow,'=SUM(E2:E'.($sheetExcelRow-1).')');
+			$objPHPExcel->getActiveSheet()->getStyle('C2')->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_CURRENCY_EUR_SIMPLE);
+			$objPHPExcel->getActiveSheet()->duplicateStyle( $objPHPExcel->getActiveSheet()->getStyle('C2'), 'C3:C'.$sheetExcelRow);
+			$objPHPExcel->getActiveSheet()->getStyle('E2')->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_CURRENCY_EUR_SIMPLE);
+			$objPHPExcel->getActiveSheet()->duplicateStyle( $objPHPExcel->getActiveSheet()->getStyle('E2'), 'E3:E'.$sheetExcelRow);
+		}
+	}
+	$arrakeys=array_keys($list);
+	//print_r($list);
+	$objPHPExcel->setActiveSheetIndex(0);
+	for ($i=0;$i<count($list);$i++) {
+		$objPHPExcel->getActiveSheet()->setCellValue('A1','prova');
+		$objPHPExcel->getActiveSheet()->setCellValue('B1', '=applicationvasca1!A2+applicationvasca2!A2');
+		//$objPHPExcel->getActiveSheet()->setCellValue('A'.($i+1),$arrakeys[$i]);
+		//$objPHPExcel->getActiveSheet()->setCellValue('B'.($i+1), $list[$arrakeys[$i]]);
+	}
+	//return;
+	$objWriter = new PHPExcel_Writer_Excel5($objPHPExcel);
+	$objWriter->save("temp/tempLP.xls");
+	echo 'ok';
+?>

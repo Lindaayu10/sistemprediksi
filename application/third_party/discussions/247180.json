@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "570681",
+    "ThreadId": "247180",
+    "Html": "\r\n<p>Hi all,</p>\r\n<p>I need to &quot;store&quot; a PHPExcel() object ready to use for write (eg: PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5'); ) in a PHP variable (maybe a $_SESSION() variable) to recall later in another script.<br>\r\n<br>\r\nI'm a newbie on PHPExcel so I had'nt&nbsp; a clear vision of the objects: I try to set $_SESSION('my_memo')=$objPHPExcel and then use PHPExcel_IOFactory::createWriter($_SESSION('my_memo'), 'Excel5') but it fails.<br>\r\n<br>\r\nThanks in advance</p>\r\n<p>&nbsp;</p>\r\n<p>Stefano</p>\r\n",
+    "PostedDate": "2011-02-23T02:32:46.763-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "571503",
+    "ThreadId": "247180",
+    "Html": "<p>Not sure it works but unless there is a function within PHPExcel to serialize an object I think you could do something like</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre><span style=\"color: green;\">// To store you object</span>\r\n$myPhpExcelObj = PHPExcel_IOFactory::createWriter($objPHPExcel, <span style=\"color: #a31515;\">'Excel5'</span>);\r\n\r\n$_SESSION[<span style=\"color: #a31515;\">'myPhpExcelObj'</span>] = serialize($myPhpExcelObj);\r\n\r\n<span style=\"color: green;\">//and then to retrive the object you do</span>\r\n$myPhpExcelObj = unserialize($_SESSION[<span style=\"color: #a31515;\">'myPhpExcelObj'</span>]);\r\n</pre>\r\n</div>\r\n</p>\r\n<p>You could/should probably look into the caching mechanics of PHPExcel first to see how you can use that in conjunction and prehaps save to a file when you serialize instead of the Session.</p>",
+    "PostedDate": "2011-02-24T06:27:39.83-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "571787",
+    "ThreadId": "247180",
+    "Html": "<p>There&nbsp;is PHPExcel_Reader_Serialized and PHPExcel_Writer_Serialized, but these have been broken for some time. These basically used serialize() and unserialize() on the PHPExcel object; but as the relationships between the different components of the PHPExcel object have grown more complex, and with the addition of cell caching, saved objects can't be restored.</p>\r\n<p>I'm dropping them from the next release until such time as I can rewrite them.</p>\r\n<p>The only working alternative at the moment is to actually write to a temporary file using the Excel5 or Excel2007 Writer, then subsequently reread it again.</p>",
+    "PostedDate": "2011-02-24T13:56:25.313-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

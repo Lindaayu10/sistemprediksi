@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "643162",
+    "ThreadId": "265369",
+    "Html": "<p>Hello everybody,</p>\n<p>I'm having a problem with PHPExcel, which is in general a great piece of software. Consider the following example:</p>\n<p>$objPHPExcel2-&gt;getActiveSheet()-&gt;setCellValue(\"A2\", \"3\");<br /> $objPHPExcel2-&gt;getActiveSheet()-&gt;setCellValue(\"B2\", \"456\");<br /> $objPHPExcel2-&gt;getActiveSheet()-&gt;setCellValue(\"A3\", \"34\");<br /> $objPHPExcel2-&gt;getActiveSheet()-&gt;setCellValue(\"B3\", \"56\");<br /> $objPHPExcel2-&gt;getActiveSheet()-&gt;getColumnDimension(\"A\")-&gt;setAutoSize(true);<br /> $objPHPExcel2-&gt;getActiveSheet()-&gt;getColumnDimension(\"B\")-&gt;setAutoSize(true);<br /> $objPHPExcel2-&gt;getActiveSheet()-&gt;setCellValue(\"A1\", \"A quite long string\");<br /> $objPHPExcel2-&gt;getActiveSheet()-&gt;setCellValue(\"B1\", $objPHPExcel2-&gt;getActiveSheet()-&gt;getColumnDimension(\"A\")-&gt;getWidth());<br /> $objWriter2 = PHPExcel_IOFactory::createWriter($objPHPExcel2, \"Excel2007\");<br /> $objWriter2-&gt;save($tempFileName);</p>\n<p>There are two things that don't work as I expect them to work, perhaps I'm doing something wrong.</p>\n<ol>\n<li>In the resulting file column A should have a width corresponding to string \"34\", because that was the widest string in this column at time when setAutoSize was executed. Instead the column is as wide as a string \"A quite long string\". </li>\n<li>When I try to \"getWidth\" of column A, the result I get is -1, while I'd expect a value that is an effect of autosizing. </li>\n</ol>\n<p>Is there a way to workaround these unexpected results? I'm using PHPExcel 1.7.6.</p>",
+    "PostedDate": "2011-07-15T15:45:26.367-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "645494",
+    "ThreadId": "265369",
+    "Html": "<p>OK,</p>\r\n<p>I made some further tests, and I've found a workaround (although I still consider the behaviour described above a BUG).</p>\r\n<p>Before inserting a \"very long string\", save the file and reload it. This will cause the \"setAutoSize\" to <em>come into effect</em> (i.e. column widths are computed and saved). After opening the file, the&nbsp;getWidth() method starts to work (returns a real value, not -1).</p>\r\n<p>One additional bug I've found. My code does:</p>\r\n<p>$objPHPExcel-&gt;getActiveSheet()-&gt;setTitle('A fancy sheet title');</p>\r\n<p>and a file with such a title is successfully written, but not read:</p>\r\n<p>Uncaught exception 'Exception' with message 'Invalid cell coordinate 'A FANCY SHEET TITLE'!A2'</p>\r\n<p>&nbsp;</p>\r\n<p>Another bug: when setting&nbsp;setAutoSize(true); PHPExcel doesn't take into account an autofilter and its buttons that also take some width, thus making cells with autofilter too narrow. This can be easily worked-around once the above workaround is in place.</p>\r\n<p>Any chance to have the three above bugs fixed?</p>",
+    "PostedDate": "2011-07-21T05:21:13.39-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "891441",
+    "ThreadId": "265369",
+    "Html": "<p>i have the same problem about setAutoSize()</p>\r\n<p>&nbsp;</p>\r\n<p>if &nbsp;<span>getColumnDimension(\"A\")-&gt;setAutoSize(true);</span></p>\r\n<p>the cell\"A1\" didn't AutoSize</p>",
+    "PostedDate": "2012-07-25T20:29:42.5-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "891485",
+    "ThreadId": "265369",
+    "Html": "<p>Autosize is a very costly operation, especially if you've set exact mode, so it is only performed when absolutely necessary (ie when you actually save the file): setting setAutoSize(true) is merely telling PHPExcel that it should perform this calculation when the the file is saved. If you really want, you can force PHPExcel to calculate at any time after setting the setAutoSize(true) flags using the worksheet objects calculateColumnWidths() method.</p>\r\n<p>You're right that autofilter is not taken into account.</p>\r\n<p>&nbsp;</p>\r\n<p>How fancy is your worksheet title? It works with a heck of a lot, and 'A fancy sheet title' should not cause any problems. Please provide a working example&nbsp; of a sheet title that causes thsi problem</p>",
+    "PostedDate": "2012-07-25T23:50:10.503-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

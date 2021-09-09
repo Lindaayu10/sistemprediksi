@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "900197",
+    "ThreadId": "391947",
+    "Html": "\r\n<p>The auto-detecting is working <strong>great</strong> when it can read the file extension, but how can I get it to play nice when the file has a\r\n<em>*.</em><span style=\"text-decoration:underline\"><em>tmp</em></span> extension ?</p>\r\n<p>Here's the whole picture.&nbsp;</p>\r\n<p>We don't need to store our spreadsheets&nbsp;long term&nbsp;and the file&nbsp;will be uploaded via a form, so the temp location suites me just fine ... but when&nbsp;stored in the temp dir, the file has a &quot;<em>.tmp</em>&quot; extension.</p>\r\n<p>We can easily get the original extension of the file via&nbsp;<code>pathinfo()</code>.</p>\r\n<p>What is the most&nbsp;maintainable&nbsp;(ie: easiest :) way to select the appropriate Reader with only the file extension?</p>\r\n<p>Also, I'm totally open to other ideas and suggestions.</p>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2012-08-16T16:32:44.94-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "900215",
+    "ThreadId": "391947",
+    "Html": "<p>Using autodetection identify() method in the IOFactory, should work regardless. It only uses the file extension for its initial guess as to the most appropriate reader to use. If that fails, then it will still try all the other readers until it finds one that seems to work... the main failing is that the CSV reader will act as a fallback because almost any file can be read as a csv (I'm looking at ways in which csv can be properly detected so that it can drop through to throw an exception).</p>\r\n<p>Basing any logic purely on the file extension isn't a good option (at least not from the perspective of the library) because so many people use an .xls extension for all manner of file types that aren't actually BIFF files. If you're working in a closed environment where you can guarantee that .xls really means a BIFF format Excel file rather than html markup, then you probably want to \"steal\" the basic \"initial guess\" logic from the IOFactory, and use that in your own code.</p>",
+    "PostedDate": "2012-08-16T17:00:58.373-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "900604",
+    "ThreadId": "391947",
+    "Html": "<p>Sweet!</p>\r\n<p>Thanks.</p>",
+    "PostedDate": "2012-08-17T05:50:12.833-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

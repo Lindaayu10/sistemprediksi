@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "103806",
+    "ThreadId": "31240",
+    "Html": "Hello,<br>\r\n<br>\r\ni have a String with leading Zeros eg '0043123213423'<br>\r\nI format the cell with<br>\r\n$this-&gt;worksheet-&gt;setCellValueExplicitByColumnAndRow($this-&gt;spalte,$this-&gt;zeile,$cell_content,PHPExcel_Cell_DataType::TYPE_STRING);<br>\r\nbut in Excel the String shows up without leading Zeros.<br>\r\nThere are no other Operations on this Cell, except for Styles (borders,colors,etc).<br>\r\n<br>\r\nUsing<br>\r\n$this-&gt;nformat-&gt;setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_GENERAL);<br>\r\nor $this-&gt;nformat-&gt;setFormatCode(&quot;General&quot;);<br>\r\ndont work too.<br>\r\n<br>\r\n$this-&gt;nformat-&gt;setFormatCode(&quot;Standard&quot;);<br>\r\nworks but gives me a Error when opening the Excel.<br>\r\n<br>\r\nAny Ideas ?<br>\r\nregards,<br>\r\ngw<br>\r\n<br>\r\nPs: i'm using PHPExcel/Writer/Excel5.php because i'm not allows to produce Excel 2007 Files....<br>\r\n",
+    "PostedDate": "2008-07-10T02:01:35.14-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "116289",
+    "ThreadId": "31240",
+    "Html": "Hello,<br>\r\n<br>\r\nI have exactly the same problem, i would like to put a string like '0001' in a cell, but the leading zeros are lost.<br>\r\n<br>\r\nIs there a way to do this ?!?! <br>\r\n<br>\r\nThank you.<br>\r\n<br>\r\nps: I'm also using Excel5.php<br>\r\n",
+    "PostedDate": "2008-09-05T03:23:19.847-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "116311",
+    "ThreadId": "31240",
+    "Html": "To get leading zeros you proceed the same way as you do in MS Office Excel. <br>\r\n<ol>\r\n    <li>Type the value in the cell, e.g 53</li>\r\n    <li>Apply custom number format 0000 (example: <a href=\"http://img237.imageshack.us/img237/988/formatkk5.png\">http://img237.imageshack.us/img237/988/formatkk5.png</a>)</li>\r\n</ol>\r\nNote that in MS Office Excel it does not help to type e.g. 0053. As soon as you press enter, the leading zeros are cut off.<br>\r\n<br>\r\nIn PHPExcel, the above corresponds to this:<br>\r\n<br>\r\n$cell = $ws-&gt;getCell('A1');<br>\r\n$cell-&gt;setValue('53');<br>\r\n//$cell-&gt;setValue(53); // this would work too<br>\r\n$ws-&gt;getStyle('A1')-&gt;getNumberFormat()-&gt;setFormatCode('0000');<br>\r\n// displayed in cell as: 0053<br>\r\n<br>\r\nI think one should not try to change data type to string if the values are numbers from a semantic viewpoint.<br>\r\n<br>\r\nAs a side remark, number formatting is really confusing in MS Office Excel because here one has labeled one number format &quot;Text&quot;. But it does not change data type. Internally, data type stays as a number. It just shifts the number to the left.<br>\r\n",
+    "PostedDate": "2008-09-05T05:18:03.76-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "116321",
+    "ThreadId": "31240",
+    "Html": "Thanks koyama, it works.<br>\r\n",
+    "PostedDate": "2008-09-05T06:00:09.68-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "117370",
+    "ThreadId": "31240",
+    "Html": "Thanks for your reply koyama.&nbsp;&nbsp; However, what if the data value is meant to be stored as a string value so to begin with it's something like &quot;001234&quot; and it needs to be displayed that way in excel.&nbsp; I usually do this by formatting the column first as number-&gt;Text then it works correctly from there on.&nbsp; After that, when a value is entered into the cell, a green triangle appears in the upper-left hand corner of the cell.&nbsp; How can i achieve that rather than the method you suggested above because I won't know what the length of the data is to begin with as well as the format (i.e. 00000 or 0000-000)?&nbsp; Any help would be appreciated.&nbsp; Thank you.<br>\r\n",
+    "PostedDate": "2008-09-09T15:01:19.087-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "117395",
+    "ThreadId": "31240",
+    "Html": "@mouaxiong: In your case string data type may be what you need. Discussion can continue here for your specific case<br>\r\n<a href=\"http://www.codeplex.com/PHPExcel/Thread/View.aspx?ThreadId=35306\">http://www.codeplex.com/PHPExcel/Thread/View.aspx?ThreadId=35306</a><br>\r\n<br>\r\n",
+    "PostedDate": "2008-09-09T16:29:05.547-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

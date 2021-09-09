@@ -1,0 +1,161 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "All",
+      "DisplayName": "All"
+    },
+    "ClosedComment": "Fixed in SVN",
+    "ClosedDate": "2009-04-21T05:59:24.443-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "In PHPExcel we can insert dates in (at least) two ways:\n \n1. Using PHP-time. Example inserting 2008-12-24\n \n// 1230076800 = gmmktime(0,0,0,12,24,2008)\n$sheet->getCell('A1')->setValue(1230076800);\n$sheet->getStyle('A1')->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_DATE_DATETIME)\n \n \n2. Using Excel time (counting number of days since 1900)\n \n// 39806 = number of days elapsed since 1900\n$sheet->getCell('A1')->setValue((float)39806);\n$sheet->getStyle('A1')->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_DATE_DATETIME)\n \nNotice the explicit (float) conversion which makes this work. Otherwise PHPExcel would think we were inserting an (integer) PHP-time value.\n \nExcel stores dates internally in the workbook using numbers, so method 2) is required to work in any implementation.\n \nMethod 1) is not required to work, but was originally added for convenience so that one easily can add dates from PHP without being exposed to Excel's way of handling dates.\n \nBut the convenience comes at some cost:\n \na) There is need for unintuitive way of flagging numbers using a type flag: float/int\nb) Implementation of any writer PHPExcel_Writer_X will have to deal with several date formats which increases the risk for introducing errors in the code\nc) Several checks and conversions are needed internally within PHPExcel increasing the amount of code. (Performance is also reduced, but this is negliable in the current state)\nd) Development of PHPExcel is slowed down because we are often fighting with these difficulties\n \nI think this feature is one of those features which may have been good to have in a simple library, but as the PHPExcel classes are becoming increasingly sophisticated, it's becoming a problem.\n \nFinally, note that removing the PHP-time feature will only make it slightly more difficult to insert date values using PHP-time as PHPExcel is bundled with a conversion function:\n \n$sheet->getCell('A1')->setValue(PHPExcel_Shared_Date::PHPtoExcel(1230076800));\n$sheet->getStyle('A1')->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_DATE_DATETIME);",
+    "LastUpdatedDate": "2013-05-16T05:42:55.203-07:00",
+    "PlannedForRelease": "PHPExcel 1.6.7 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Medium",
+      "Severity": 100,
+      "Id": 2
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-02-10T00:08:39.643-08:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Deprecate insertion of dates using PHP-time (Unix time) [request for removal of feature]",
+    "Type": {
+      "Name": "Feature",
+      "Id": 1
+    },
+    "VoteCount": 1,
+    "Id": 9214
+  },
+  "FileAttachments": [
+    {
+      "FileId": 2946,
+      "FileName": "wi-9214.patch",
+      "DownloadUrl": ".\\2946"
+    },
+    {
+      "FileId": 2947,
+      "FileName": "wi-9214-05featuredemo.patch",
+      "DownloadUrl": ".\\2947"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "I guess we would first have to inventorise all places where php-to-excel date conversions occur so we can strip it out in the most clean manner.\r\nDiscussion is also related to http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=9215.\r\n\r\nThis should also be documented in a good manner so new PHPExcel developers know how to work with dates.",
+      "PostedDate": "2009-02-16T04:15:15.98-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "setValue() remains the lazy coder's option. I've done some work in the PHPExcel_Cell_AdvancedValueBinder, automatically converting string dates to Excel date.\r\nhttp://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=9214\r\n\r\nAny suggestions on this deprecation process?",
+      "PostedDate": "2009-02-18T00:55:27.02-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "> Any suggestions on this deprecation process?\r\nI agree that the documentation must be expanded to show the preferred ways of writing a date in a cell. There we should also explain what is deprecated and that it is not guaranteed to work in future versions.\r\n\r\nIt is not clear how many are setting dates using PHP-time. Judging from scripts being posted in the discussions, it is not that many, strangely. Maybe this has to do with PEAR::Spreadsheet_Excel_Writer not supporting this and that many are used to that package.\r\n\r\nThe number of releases of PHPExcel where PHP-time still needs to be supported would depend on how many are using that feature. If it is true that not many are using it, then we could remove that feature quite early, perhaps.",
+      "PostedDate": "2009-02-18T17:29:08.643-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Perhaps a good one for 1.6.7? We'll announce this as a \"breaking change\" in the release notes then.",
+      "PostedDate": "2009-02-18T22:40:10.51-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Suggestion for replacement text in documentation section \"Write a date into a cell\". I'm planning to go through the classes and find the places that would need to be modified. What do you think?\r\n\r\n----------\r\nIn Excel dates are stored as numeric values counting the number of days elapsed since 1900-01-01. For example, the date '2008-12-31' is represented as 39813. You can verify this in MS Office Excel by entering that date in a cell and afterwards changing the number format to 'General' so the true numeric value is revealed.\r\n\r\nWriting a date value in a cell consists of 2 lines of code. Select the method that suits you the best.\r\n\r\n// MySQL-like timestamp '2008-12-31'\r\nPHPExcel_Cell::setValueBinder( new PHPExcel_Cell_AdvancedValueBinder() );\r\n$objPHPExcel->getActiveSheet()->setCellValue('D1', '2008-12-31')\r\n$objPHPExcel->getActiveSheet()->getStyle('D1')->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_DATE_YYYYMMDDSLASH)\r\n\r\n// PHP-time (Unix time)\r\n$time = gmmktime(0,0,0,12,31,2008); // int(1230681600)\r\n$objPHPExcel->getActiveSheet()->setCellValue('D1', PHPExcel_Shared_Date::PHPToExcel($time))\r\n$objPHPExcel->getActiveSheet()->getStyle('D1')->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_DATE_YYYYMMDDSLASH)\r\n\r\n// Excel-time\r\n$objPHPExcel->getActiveSheet()->setCellValue('D1', 39813)\r\n$objPHPExcel->getActiveSheet()->getStyle('D1')->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_DATE_YYYYMMDDSLASH)\r\n\r\nThe above methods for entering a date all yield the same result. PHPExcel_Style_NumberFormat provides a lot of pre-defined date formats.\r\n\r\nNotes:\r\n\r\n1. See section \"Using value binders to facilitate data entry\" to learn more about the AdvancedValueBinder used in the first example.\r\n\r\n2. In previous versions of PHPExcel up to and including 1.6.6, when a cell had a date-like number format code, it was possible to enter a date directly using an integer PHP-time without converting to Excel date format. Starting with PHPExcel 1.6.7 this is no longer supported.\r\n\r\n3. Excel can also operate in a 1904-based calendar (default for workbooks saved on Mac). Normally, you do not have to worry about this when using PHPExcel.\r\n----------\r\nend of suggestion",
+      "PostedDate": "2009-04-08T21:20:45.06-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Suggested text looks good, will add that to the documentation.",
+      "PostedDate": "2009-04-09T11:03:00.92-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Added to documentation + added note in changelog:\r\n--------------------------------------------------------------------------------\r\nBREAKING CHANGE! In previous versions of PHPExcel up to and including 1.6.6,\r\nwhen a cell had a date-like number format code, it was possible to enter a date\r\ndirectly using an integer PHP-time without converting to Excel date format.\r\n\r\nStarting with PHPExcel 1.6.7 this is no longer supported. Refer to the developer\r\ndocumentation for more information on entering dates into a cell.\r\n--------------------------------------------------------------------------------",
+      "PostedDate": "2009-04-09T11:08:38.593-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Uploading patch for review.\r\n\r\nIn addition to this, perhaps a good idea to set default returnDataType to RETURNDATE_EXCEL instead of RETURNDATE_PHP_NUMERIC to eliminate all confusion what kind of values should be supplied to PHPExcel when working with dates. Mark, you also mentioned this?",
+      "PostedDate": "2009-04-10T15:52:20.447-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-04-10T15:52:21.773-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-04-10T21:36:56.71-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-04-10T21:36:59.197-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Patches look good! I'm applying them now.\r\n\r\nCan you check 20readexcel5.php? Something wrong with image there.",
+      "PostedDate": "2009-04-11T02:17:35.23-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-04-11T02:18:17.603-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Applied patches in SVN.",
+      "PostedDate": "2009-04-11T02:21:14.543-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-04-11T02:21:15.573-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Great! There was a minor defect with strings in Excel5 writer. Fixed that now.\r\n\r\n> Can you check 20readexcel5.php? Something wrong with image there.\r\nYup. I am creating a separate work item for that now.",
+      "PostedDate": "2009-04-11T06:30:47.713-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-04-14T00:02:12.557-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Fixed in SVN\r\n\r\n** Closed by maartenba 4/14/2009 12:02 AM",
+      "PostedDate": "2009-04-21T05:53:44.38-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Error discovered in Tests/16csv.php. Date incorrectly appears as 1-Jan-1970.",
+      "PostedDate": "2009-04-21T05:53:44.833-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-04-21T05:59:24.443-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:04:22.29-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:55.203-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+[
+  {
+    "Id": "533917",
+    "ThreadId": "237881",
+    "Html": "\r\n<p>Hi, </p>\r\n<p>&nbsp;I've just downloaded V1.7.5 today, and love the completeness of this library. Being able to access cell protection and the like is just fantastic.</p>\r\n<p>Unfortunately I've just struck a huge problem. I'm generating a spreadsheet with about 2000 rows, and trying to insert a SUMIF() function on each row to gather data. At first it just crashed out after about 20 seconds. I did a search and discovered the set_time_limit\r\n trick, but even pushing this out to 200 doesn't fix the problem - it just sits there longer before failing.</p>\r\n<p>So now I'm between a rock and a hard place. After going to all the effort to convert from a simpler Excel library, I may need to convert back to that library to get it to work, which is a pity because I'll be leaving a lot of nice functionality behind.</p>\r\n<p>Before I do, I'd like to know whether this is related to the fact that PHPExcel maintains an in-memory model of the spreadsheet. If it is, and the &quot;pre-calculation&quot; of cells is causing the problem, is there any way to turn this capability off?</p>\r\n<p>Thanks in advance!</p>\r\n<p>Andrew</p>\r\n<p>&nbsp;</p>\r\n<p></p>\r\n",
+    "PostedDate": "2010-12-10T07:24:12.093-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "534044",
+    "ThreadId": "237881",
+    "Html": "\r\n<div style=\"color:black; background-color:white\">\r\n<pre>$outputFileType = <span style=\"color:#a31515\">'Excel5'</span>;\r\n$outputFileName = <span style=\"color:#a31515\">'test.xls'</span>;\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, $outputFileType);\r\n$objWriter-&gt;setPreCalculateFormulas(false);\r\n$objWriter-&gt;save($outputFileName);\r\n</pre>\r\n</div>\r\n",
+    "PostedDate": "2010-12-10T10:57:06.167-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "534130",
+    "ThreadId": "237881",
+    "Html": "\r\n<p>Thanks Mark,</p>\r\n<p>&nbsp;</p>\r\n<p>I had spotted this and set it on an Excel2007 writer, but no effect. I thought that the problem may have been occuring earlier in the code, but I took the writer code out altogether and it's now responding.</p>\r\n<p>Even a cut and paste of your code into mine resulted in the same delay and ultimate failure.</p>\r\n<p>Any other thoughts?</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks for your time!</p>\r\n<p>&nbsp;</p>\r\n<p>Andrew</p>\r\n",
+    "PostedDate": "2010-12-10T13:18:15.103-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "534161",
+    "ThreadId": "237881",
+    "Html": "\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<strong>adavison17 wrote:</strong><br>\r\n<p>Any other thoughts?</p>\r\n</blockquote>\r\n<p>SUMIF() is a more complex formula, and won't work with Excel5, because it isn't a core function in that version of Excel; but it shouldn't cause any problems with Excel2007.</p>\r\n<p>Other than PHP limits on time and memory: no ideas! Version 1.7.5 is faster and uses less memory than previous versions of PHPExcel, but it is still limited, and still not as fast as the older PHP Excel writers (such as the PEAR writer); however, 2000 rows\r\n (you don't say how many columns) isn't particularly large. My core performance tests are based on reading a 2048x9 worksheet (1 formula column), to which I add 3 additional formula columns (and a sum line) before writing. The timing and memory results on my\r\n little netbook, running Apache/mod_php:</p>\r\n<pre>Load Tests from Excel5 file\r\nCall time to create Reader was 0.1702 seconds\r\nCurrent memory usage: 2.5 MB\r\nCall time to read Workbook was 8.0049 seconds\r\nCurrent memory usage: 25.75 MB\r\nAdd new columns to PHPExcel Object\r\nCall time to add new formulae was 2.2114 seconds\r\nCurrent memory usage: 31.5 MB\r\nWrite Tests to Excel5 file\r\nCall time to instantiate Excel5 writer was 0.0981 seconds\r\nCurrent memory usage: 32.25 MB\r\nCall time to save Workbook to file was 24.8102 seconds\r\nCurrent memory usage: 37.5 MB\r\nPeak memory usage: 40.25 MB</pre>\r\n<p>PHPExcel's &quot;in-memory&quot; model doesn't include calculation unless this is explicitly requested, either when using the getCalculatedValue() method to get the cell value, or when writing to file.</p>\r\n<p>When writing to xls or xlsx, PHPExcel will execute formulae by default so that it can write both the formulae and the result to the file, and that can slow down the process quite considerably (dependent on the complexities of the formula) but setPreCalculateFormulas(false)\r\n disables this calculation, so it only writes the formulae. This can reduce memory usage to just an additional 2-3 MB for the writer itself (no need to include the calculation engine) and double the speed&nbsp;of writing (dependent on the number of formulae\r\n in the worksheet). The cost is forcing MS Excel to do the recalculation (not always done automatically) when the resultant file is opened in MS Excel.</p>\r\n",
+    "PostedDate": "2010-12-10T14:22:04.05-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "534182",
+    "ThreadId": "237881",
+    "Html": "\r\n<p>Thanks for writing back so quickly!</p>\r\n<p>I''' try to extract the offending code and post it...</p>\r\n<p>&nbsp;</p>\r\n<p>Andrew</p>\r\n",
+    "PostedDate": "2010-12-10T15:09:05.69-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "534795",
+    "ThreadId": "237881",
+    "Html": "\r\n<p>Ok. Further investigation has highlighted the problem. It turns out that the issue appears to be that I've &quot;autosized&quot; the column that the SUMIF function appears in. Process of elimination whilst isolating the code led to the discovery.</p>\r\n<p>&nbsp;</p>\r\n<p></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><span style=\"color:blue\">function</span> test_excel_sumif($form)\r\n{\r\n    <span style=\"color:blue\">include</span> <span style=\"color:#a31515\">'PHPExcel.php'</span>;\r\n    <span style=\"color:blue\">include</span> <span style=\"color:#a31515\">'PHPExcel/Writer/Excel2007.php'</span>;\r\n\r\n    $objPHPExcel = <span style=\"color:blue\">new</span> PHPExcel();\r\n    $sheet =&amp; $objPHPExcel-&gt;getActiveSheet();\r\n\r\n    <span style=\"color:green\">// The SUMIF function will appear in colum J. This next line is the one that causes the failure.</span>\r\n<span style=\"color:green\">//    $sheet-&gt;getColumnDimension('J')-&gt;setAutoSize(true);</span>\r\n\r\n    <span style=\"color:blue\">for</span>($row=1;$row&lt;=2000;$row&#43;&#43;)\r\n    {\r\n        $sheet-&gt;setCellValueByColumnAndRow(9,$row,<span style=\"color:#a31515\">'=SUMIF(C1:C2000,C1,I1:I2000)'</span>);\r\n    }   \r\n    $outputFileType = <span style=\"color:#a31515\">'Excel2007'</span>;\r\n    $outputFileName = <span style=\"color:#a31515\">'d:\\\\test.xls'</span>;\r\n    $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, $outputFileType);\r\n    $objWriter-&gt;setPreCalculateFormulas(false);\r\n    $objWriter-&gt;save($outputFileName);\r\n    \r\n    <span style=\"color:blue\">return</span> $form;\r\n    \r\n}\r\n</pre>\r\n</div>\r\n<p></p>\r\n<p>When I uncomment the Autosize instruction, the writer seems to go into an infinite loop of some description. I haven't looked into the module sourcecode to identify the source problem nor a fix, as time is limitted, but hopefully this code segment will help\r\n make that process quick for someone more familiar with the core code.</p>\r\n<p>For now the key learning is: Don't autosize a column in which you use the SUMIF (and I therefore presume COUNTIF) function.</p>\r\n<p>Cheers!</p>\r\n<p>Andrew</p>\r\n",
+    "PostedDate": "2010-12-12T20:13:40.68-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "534848",
+    "ThreadId": "237881",
+    "Html": "\r\n<p>This isn't specific to SUMIF or to COUNTIF, but to all formulae.</p>\r\n<p>If you're using autosize, then PHPExcel needs to calculate the formula result in order to determine how many characters should be displayed in the cell. It does this for every cell in the column, and uses the largest display width as the autofit size for\r\n the column width.... so it isn't a good idea to autosize any column containing formulae. The Writer shouldn't be in an infinite loop, but (depending on the complexity of the formula) it could take a long time to process.</p>\r\n",
+    "PostedDate": "2010-12-13T00:57:38.97-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "534950",
+    "ThreadId": "237881",
+    "Html": "\r\n<p>Thanks Mark,</p>\r\n<p>Maybe one to add as a warning in the documentation on page 27 :)</p>\r\n<p>Can I ask a sidebar Q? Is there a way to set a range on a sheet as being selected?</p>\r\n<p>&nbsp;</p>\r\n<p>Cheers!</p>\r\n<p>Andrew</p>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2010-12-13T04:47:49.893-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

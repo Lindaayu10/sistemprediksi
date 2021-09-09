@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "1056651",
+    "ThreadId": "447031",
+    "Html": "I have a spreadsheet that is very basic and only contains a single formula.\r<br />\n<br />\nWhen viewing the spreadsheet in &quot;protected view&quot; this calculation comes back with 46.8:<br />\n<pre><code>            $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('B1', 'Range #1')\n                                          -&gt;setCellValue('B2', (double)$rows[0]['data'][2]['data'])\n                                          -&gt;setCellValue('B3', 0.7)\n                                          -&gt;setCellValue('B4', 13.1)\n                                          -&gt;setCellValue('B5', '=SUM(B2:B4)');</code></pre>\n\nThe $row array reference = 16.\r<br />\n<br />\nAs soon as I click &quot;Enable Editing&quot; in Excel, the values are correctly calculated and the total shows 29.8 as it should. \r<br />\n<br />\nWhy is the &quot;Protected View&quot; showing a different calculation based on the same values?\r<br />\n<br />\nScreenshot of protected view: <a href=\"http://cl.ly/Pdf0\" rel=\"nofollow\">http://cl.ly/Pdf0</a>\r<br />\nScreenshot after clicking &quot;Enable Editing&quot;: <a href=\"http://cl.ly/PcKx\" rel=\"nofollow\">http://cl.ly/PcKx</a>\r<br />\n<br />\nThanks.<br />\n",
+    "PostedDate": "2013-06-13T21:47:36.387-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1056812",
+    "ThreadId": "447031",
+    "Html": "Are you setting <code>PreCalculateFormulas</code> to FALSE when you save the file?<br />\n",
+    "PostedDate": "2013-06-14T04:37:50.803-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1056815",
+    "ThreadId": "447031",
+    "Html": "No, I am not setting PreCalculatedFormulas at all. So my understanding is that it should be TRUE by default?<br />\n",
+    "PostedDate": "2013-06-14T04:45:02.277-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1056835",
+    "ThreadId": "447031",
+    "Html": "It should be true by default... I'm trying to recreate it at the moment, without success so far.\r<br />\n<br />\nCouple of additional questions:<br />\n<ul>\n<li>Have you loaded a template workbook, or are you creating a new workbook?</li>\n<li>\nHave you executed any data changes to values in these cell ranges prior to the write? \n<ul>\n<li>Or done any calls to getCalculatedValue() for any of those cells? </li>\n<li>ie... could the result of a previous cell value be in the calculation cache?</li>\n</ul>\n</li>\n</ul>\n",
+    "PostedDate": "2013-06-14T05:11:42.44-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1056846",
+    "ThreadId": "447031",
+    "Html": "When I try to recreate the problem without using variable data form the database, I cannot recreate the problem. For example, this code below has the same exact dataset that I am using in the array, but the data is hard-coded instead of pulled from the database.  It works fine, when hard-coded.\r<br />\n<br />\nrequire_once './PHPExcel.php';\r<br />\n$objPHPExcel = new PHPExcel();\r<br />\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('A5', 'Sum:');\r<br />\n$row = array\r<br />\n(<br />\n<pre><code>'data' =&gt; array\n    (\n        0 =&gt; Array\n            (\n                'data' =&gt; &quot;Senior 2 Int'l Rush&quot;,\n                'colspan' =&gt; 2,\n                'style' =&gt; &quot;background-color:#2880d7;color:white;font-weight:bold;&quot;\n            ),\n        1 =&gt; Array\n            (\n                'data' =&gt; 0.6,\n                'style' =&gt; &quot;background-color:#2880d7;color:white;font-weight:bold;text-align:right;&quot;\n            ),\n        2 =&gt; Array\n            (\n                'data' =&gt; 33,\n                'style' =&gt; &quot;background-color:#2880d7;color:white;font-weight:bold;text-align:right;&quot;\n            ),\n        3 =&gt; Array\n            (\n                'data' =&gt; 19.8,\n                'style' =&gt; &quot;background-color:#2880d7;color:white;font-weight:bold;text-align:right;&quot;\n            ),\n        4 =&gt; Array\n            (\n                'data' =&gt; 16.1,\n                'style' =&gt; &quot;background-color:#2880d7;color:white;font-weight:bold;text-align:right;&quot;\n            )\n    ),\n'class' =&gt; 'myearningslevel',\n'level' =&gt; &quot;Senior 2 Int'l Rush&quot;</code></pre>\n\n);\r<br />\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('B1', 'Range #1')<br />\n<pre><code>                          -&gt;setCellValue('B2', 3)\n                          -&gt;setCellValue('B3', $row['data'][2]['data'])\n                          -&gt;setCellValue('B4', 13)\n                          -&gt;setCellValue('B5', '=SUM(B2:B4)');\n</code></pre>\n\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');\r<br />\n$objWriter-&gt;save(str_replace('.php', '.xlsx', <strong>FILE</strong>));\r<br />\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');\r<br />\n$objWriter-&gt;save(str_replace('.php', '.xls', <strong>FILE</strong>));\r<br />\nprint '&lt;a href=&quot;formulas.xls&quot;&gt;formulas.xls&lt;/a&gt;&lt;br /&gt;';\r<br />\nprint '&lt;a href=&quot;formulas.xlsx&quot;&gt;formulas.xlsx&lt;/a&gt;&lt;br /&gt;';\r<br />\n<br />\nI am creating the workbooking using PHPExcel.\r<br />\n<br />\nIs there a way to force recalculation before saving or somehow to clear the calculation cache?<br />\n",
+    "PostedDate": "2013-06-14T05:32:49.487-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1056858",
+    "ThreadId": "447031",
+    "Html": "Recalculation before saving is automatic, unless explicitly suppressed using setPreCalculatedFormulas(FALSE).\r<br />\n<br />\nYou can flush any calculation cache before saving by calling:<br />\n<div style=\"color:Black;background-color:White;\"><pre>\r\nPHPExcel_Calculation::getInstance($objPHPExcel)-&gt;clearCalculationCache();\r\n</pre></div>in version 1.7.9\r<br />\n<br />\nor<br />\n<div style=\"color:Black;background-color:White;\"><pre>\r\nPHPExcel_Calculation::getInstance()-&gt;clearCalculationCache();\r\n</pre></div>in versions prior to 1.7.9<br />\n",
+    "PostedDate": "2013-06-14T05:50:57.51-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1056862",
+    "ThreadId": "447031",
+    "Html": "PHPExcel_Calculation::getInstance($objPHPExcel)-&gt;clearCalculationCache() did the trick.\r<br />\n<br />\nThanks!<br />\n",
+    "PostedDate": "2013-06-14T05:55:03.833-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

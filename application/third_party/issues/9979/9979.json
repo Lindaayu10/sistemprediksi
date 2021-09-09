@@ -1,0 +1,39 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "All",
+      "DisplayName": "All"
+    },
+    "ClosedComment": "Not an issue: fixed in latest source release",
+    "ClosedDate": "2009-05-18T03:48:39.66-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Comma in sheet name make problems, when sheet contains autofilters. \n \nActually, following error occurs:\nPHP Fatal error:  Uncaught exception 'Exception' with message 'Cell coordinate can not be zero-length string.' in /home/najevtino/ddcom/admin/PHPExcel/Cell.php:439\n \nFix ( or workaround ) I found is\n \nin Cell.php line 487: \n \n    public static function splitRange($pRange = 'A1:A1')\n    {\n    \t//tinodj fix starts\n    \tif (strpos($pRange,\"!\")!==false){\n    \t $tmp = explode('!', $pRange);\n    \t $pRange=$tmp[1];\n    \t}\n    \t//tinodj fix ends\n    \t \n    \t$exploded = explode(',', $pRange);\n    \tfor ($i = 0; $i < count($exploded); $i++) {\n    \t\t$exploded[$i] = explode(':', $exploded[$i]);\n    \t}\n    \treturn $exploded;\n    }\n \n \nNote: Autofilters don't work, anyway. When document opened, you get something like:\nRepaired Part: /xl/worksheets/sheet1.xml part with XML error.  Load error. Line 221, column 39.\nRemoved Feature: AutoFilter from /xl/worksheets/sheet1.xml part\n \nBut, without fix mentioned above, you can't even create the file. After this fix, you can create the file, but without autofilters.",
+    "LastUpdatedDate": "2013-05-16T05:42:40.07-07:00",
+    "PlannedForRelease": "PHPExcel 1.7.0 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-05-14T16:37:48.073-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Bug and bugfix: Comma in sheet name make problems, when sheet contains autofilters",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 9979
+  },
+  "FileAttachments": [],
+  "Comments": []
+}

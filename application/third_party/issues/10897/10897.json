@@ -1,0 +1,146 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel_Reader_CSV",
+      "DisplayName": "PHPExcel_Reader_CSV"
+    },
+    "ClosedComment": "",
+    "ClosedDate": "2009-12-01T06:50:42.457-08:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Problems with PHPExcel_Reader_CSV::canRead() were noted by cus in patch 4361\n \nHere is a simple test showing one such problem where read.csv contains more thousands separators than field delimiters.\n \nTest:\n----\n$excel = PHPExcel_IOFactory::load('read.csv');\n \nExpected result:\n----\nCSV file is loaded successfully\n \nActual result:\n----\nException: Could not automatically determine PHPExcel_Reader_IReader for file\nin C:\\xampp\\htdocs\\_phpexcel\\PHPExcel171\\Classes\\PHPExcel\\IOFactory.php on line 210\n \nEnvironment:\n----\nPHPExcel 1.7.1",
+    "LastUpdatedDate": "2013-05-16T05:42:18.063-07:00",
+    "PlannedForRelease": "PHPExcel 1.7.2 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-11-07T22:31:36.967-08:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "PHPExcel_Reader_CSV::canRead() sometimes says false when it shouldn't",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 10897
+  },
+  "FileAttachments": [
+    {
+      "FileId": 3501,
+      "FileName": "read.csv",
+      "DownloadUrl": ".\\3501"
+    },
+    {
+      "FileId": 3503,
+      "FileName": "phpexcel-csv-canread-detectdelimiter.patch",
+      "DownloadUrl": ".\\3503"
+    },
+    {
+      "FileId": 3504,
+      "FileName": "phpexcel-csv-canread-detectdelimiter-fixed.patch",
+      "DownloadUrl": ".\\3504"
+    },
+    {
+      "FileId": 3507,
+      "FileName": "image.csv",
+      "DownloadUrl": ".\\3507"
+    },
+    {
+      "FileId": 3531,
+      "FileName": "wi-10897.patch",
+      "DownloadUrl": ".\\3531"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "Hmm.. strange that patch got deleted on patch upload page. Sorry about that.\r\n\r\nAttaching original patch 4361 by cus + description\r\n\r\n-----\r\nDescription of phpexcel-csv-canread-detectdelimiter.patch\r\n\r\nThe current CSV canRead function has several problems:\r\n- It does not check wheter or not file open was successful\r\n- It considers quoted or escaped separator characters as normal separators\r\n- It forces a limit on the row length, 2048 bytes is not enough for 5 rows with\r\nbig tables\r\n- It tries to detect the delimeter but never gives a chance to the user to\r\nactually get what the detected delimiter was\r\n\r\nIn my interpretation canRead should not detect the delimeter but use the\r\nobject properties to check wheter or not the CSV file can be read with the\r\ncurrent PHPExcelReaderIReader (exactly as the function header comment\r\ndescribes...)\r\n\r\nSo I think we should move the autodetection code to a new method, this\r\nnew method will do the detection and also sets the most probable delimeter as\r\nobject delimeter if the detection succeeds.\r\n\r\nMy patch does this, and also factorizes out the file opening and BOM detecting\r\ncode to avoid code duplication. canRead now uses the regular fgetcsv method\r\nto detect errors because unlike the old canRead with str_count, fgetcsv\r\nhandles enclosure and escape characters properly.\r\n",
+      "PostedDate": "2009-11-07T23:52:51.117-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-11-07T23:52:52.82-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Okay, the problem with my patch is that IOFactory actually depens on canRead being able to determine the correct delimeter, so my \"interpretation\" was not correct.",
+      "PostedDate": "2009-11-08T06:06:17.743-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Okay I updated my patch, so canRead now detects the delimeter, and also sets the object's this->_delimiter to it. This is needed so IOFactory can load the file using the detected delimiter.",
+      "PostedDate": "2009-11-08T07:34:33.167-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-11-08T07:34:36.657-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I would like to discuss a slightly different approach to solve some of these problems. I think the delimiter auto-detection problem can come afterwards, or it can be separated into another issue.\r\n\r\nFirst note that MS Office Excel 2007 is able to open any .csv file no matter how \"broken\" it is. For example, here is a JPEG file image.jpeg which I have renamed image.csv. MS Office Excel 2007 opens it with no problems as you can see (although it is just garble):\r\n\r\nimage.csv (\"fake\" csv-file how it looks in MS Office Excel 2007)\r\nhttp://img682.imageshack.us/img682/7488/ss20091109061323.png\r\n\r\nimage.csv (\"fake\" csv-file how it looks in text editor)\r\nhttp://img682.imageshack.us/img682/2148/ss20091109061437.png\r\n\r\nIt just moves to next cell when it sees a field delimiter (semicolon or comma depending on your settings in Excel for decimal separator, I think), and moves to next row when it sees a newline.\r\n\r\nIn my opinion PHPExcel_Reader_CSV should show similar behavior. Consequently, I think PHPExcel_Reader_CSV::canRead() should *always* return true contrary to what it does now.\r\n\r\nHistorically, the canRead() methods in PHPExcel were introduced to facilitate the auto-loading mechanism in PHPExcel_IOFactory::load().\r\nhttp://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=9701\r\n\r\nIf we let PHPExcel_Reader_CSV::canRead() return true for any file as I suggest then we have a situation where more than one reader can-read a file and there may be more than one candidate reader for a given file.\r\n\r\nWe could let it work as follows: Introduce preferred readers for a set of file extensions\r\n\r\n'xlsx' => 'PHPExcel_Reader_Excel2007'\r\n'xls' => 'PHPExcel_Reader_Excel5'\r\n'csv' => 'PHPExcel_Reader_CSV'\r\n...\r\n\r\n(Currently file extensions are completely ignored in PHPExcel_IOFactory::load() )\r\n\r\nIf file extension is recognized, the preferred reader is checked with the canRead() method. If the preferred reader unexpectedly cannot read the file (such as if an xlsx file was manually renamed xls) then we try all readers in some fixed sequence: Excel2007, Excel5,...\r\n\r\nIf file extension is not recognized, then we also try all readers in the fixed sequence.\r\n\r\nThis approach would also have the added benefit that the PHPExcel_IOFactory::load() method would find the right reader faster since, after all, most files have their normal file extensions.\r\n\r\nAll this is not that hard to implement. Leaving this open for comments.",
+      "PostedDate": "2009-11-08T21:32:51.557-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-11-08T21:32:55.14-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "With this approach, if you have a misnamed excel (xls or xlsx) file with wrong .csv extension, then if the CSV reader loads every (even binary) file, then the loaded data will be garbage. Isn't that a problem? What does MS excel do with a renamed .xls to .csv? For file formats other than CSV it's good to try the first reader based on the file extension, but for CSV, I think it would do more harm than good.\r\n\r\nOtherwise I'm fine with canRead always returning true, if the CSV reader is the last reader, then this should not cause any problems (well, only if the other readers can really detect their file types, but currently they can, and a lot more easyly than we tried to detect CSV file type).",
+      "PostedDate": "2009-11-09T13:42:09.81-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Agree 100% with your latest comment. I had not thought about the case where an Excel file was renamed to .csv. Indeed, I tested that MS Office Excel 2007 still loads the file correctly as an Excel file, and PHPExcel should too.\r\n\r\nI will try to come up with a patch later today that satisfies our requirements so far.",
+      "PostedDate": "2009-11-09T22:49:00.013-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "cus, can you check if you agree so far with wi-10897.patch ?",
+      "PostedDate": "2009-11-10T21:14:07.817-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-11-10T21:14:10.133-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "The patch seems fine to me, I have two comments:\r\n- I think the file extension should be converted to lowercase\r\n- In $_autoResolveClasses the CSV class should be the last one, otherwise the CSV reader will read the serialized data.",
+      "PostedDate": "2009-11-11T06:49:12.607-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Fixing this in SVN using patch modified according to your latest comments. Will set this to fixed.\r\n\r\nNot sure where that leaves us with the delimiter auto-detection, but now we can treat that as a feature request instead of a bug report. We can open a new work item for that? Perhaps there are some more powerful existing solutions out there? If the goal is to be able to correctly load arbitrary csv files using PHPExcel_IOFactory::load() then maybe we should at the same think of auto-detection of character encoding. I don't know what is possible.\r\n",
+      "PostedDate": "2009-11-11T17:34:12.697-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-12-01T06:50:42.457-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:03:29.23-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:18.063-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

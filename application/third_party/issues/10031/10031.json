@@ -1,0 +1,66 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel",
+      "DisplayName": "PHPExcel"
+    },
+    "ClosedComment": "Fixed in SVN",
+    "ClosedDate": "2009-05-23T19:27:15.197-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "In Excel you can achieve a newline in a cell using ALT+Enter. One may check that a newline contributes with 1 when one evaluates a string using the LEN function, e.g. =LEN(A1).\n \nIn PHPExcel, at first try, one may think that \"\\n\", \"\\r\", \"\\r\\n\" are equally good as new line characters. (Note, one must at the same time set text to wrap to see the effect in MS Office Excel).\n \nWhile this may seem to work without problems one discovers problems when evaluating the calculated value of LEN function when supplied strings contain \"\\r\\n\". PHPExcel's calculation engine thinks that this sequence should contribute with 2 when it should really contribute with only 1.\n \nTest:\n----\n$excel = new PHPExcel();\n$sheet = $excel->getActiveSheet();\n \n$sheet->getCell('A1')->setValue(\"Hello\\nWorld\");\n$sheet->getCell('A2')->setValue(\"Hello\\r\\nWorld\");\n$sheet->getCell('A3')->setValue(\"Hello\\rWorld\");\n$sheet->getCell('B1')->setValue('=LEN(A1)');\n$sheet->getCell('B2')->setValue('=LEN(A2)');\n$sheet->getCell('B3')->setValue('=LEN(A3)');\n$sheet->getCell('C1')->setValue( $sheet->getCell('B1')->getCalculatedValue() );\n$sheet->getCell('C2')->setValue( $sheet->getCell('B2')->getCalculatedValue() );\n$sheet->getCell('C3')->setValue( $sheet->getCell('B3')->getCalculatedValue() );\n \n$sheet->getStyle('A1:A3')->getAlignment()->setWrapText(true);\n \n$writer = PHPExcel_IOFactory::createWriter($excel, 'Excel2007');\n$writer->save('write.xlsx');\n \nExpected result:\n----\nColumns B and C are identical:\n11  11\n11  11\n11  11\n \nActual result:\n----\nColumns B and C are different (mismatch between PHPExcel's and Excel's calculation engine):\n11  11\n11  12\n11  11\n \nScreen shot:\n----\nhttp://img38.imageshack.us/img38/4440/newlineproblem.png\n \nEnvironment:\n----\nPHPExcel 1.6.7 (and latest source code)",
+    "LastUpdatedDate": "2013-05-16T05:42:38.817-07:00",
+    "PlannedForRelease": "PHPExcel 1.7.0 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-05-23T19:16:42.213-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Non-unique newline representation causes problems with LEN formula",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 10031
+  },
+  "FileAttachments": [
+    {
+      "FileId": 3091,
+      "FileName": "write.xlsx",
+      "DownloadUrl": ".\\3091"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "Fixing this by converting possible \"\\r\\n\" and \"\\r\" to \"\\n\" before strings enter the core.",
+      "PostedDate": "2009-05-23T19:26:38.727-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-05-23T19:27:15.197-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:03:59.593-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:38.817-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

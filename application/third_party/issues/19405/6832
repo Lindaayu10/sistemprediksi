@@ -1,0 +1,151 @@
+#!/usr/bin/php -q
+<?php
+//----------------------------------------------------------------------
+
+// error reporting
+error_reporting(E_ALL);
+ini_set('display_errors', TRUE);
+ini_set('display_startup_errors', TRUE);
+
+// setting correct time zone
+date_default_timezone_set('Europe/Warsaw');
+
+// include PHPExcel
+require_once 'PHPExcel/Classes/PHPExcel.php';
+
+//----------------------------------------------------------------------
+// class responsible for reading excel file
+
+class excel_reader
+{
+  public function __construct($file_path)
+  {
+    if(file_exists($file_path))
+    {
+      try
+      {
+	//	$this->excel_object = PHPExcel_IOFactory::load($file_path);
+	$objReader = PHPExcel_IOFactory::createReader('Excel2007');
+	$objReader->setReadDataOnly(true);
+	$this->excel_object = $objReader->load($file_path);;
+      }
+
+      catch(Exception $exception)
+      {
+	exit('error loading file: '.$exception->getMessage()."\n");
+      }
+
+      $this->excel_sheet_active = 0;
+      $this->excel_object->getSheet($this->excel_sheet_active); 
+      $this->excel_object->setActiveSheetIndex($this->excel_sheet_active);
+      $this->excel_sheet_count = $this->excel_object->getSheetCount();
+      $this->excel_sheet_names = $this->excel_object->getSheetNames();
+    }
+    else
+    {
+      exit('file '.$file_path.' does not exist!'."\n");
+    }
+  }
+
+  public function __destruct()
+  {
+    $this->excel_object->disconnectWorksheets();
+    unset($this->excel_object);
+  }
+
+  public function next_sheet()
+  {
+    $next_sheet = $this->excel_sheet_active + 1;
+
+    if($next_sheet < $this->excel_sheet_count)
+    {
+      $this->excel_sheet_active = $next_sheet;
+      $this->excel_object->getSheet($this->excel_sheet_active);
+    }
+    else
+    {
+      $this->excel_sheet_active = 0;
+      $this->excel_object->getSheet(0);    
+    }
+
+    $this->excel_object->setActiveSheetIndex($this->excel_sheet_active);
+  }
+
+  public function get_sheet_count()
+  {
+    return $this->excel_sheet_count;
+  }
+
+  public function get_active_sheet_name()
+  {
+    return $this->excel_sheet_names[$this->excel_sheet_active];
+  }
+
+  public function get_sheet_by_name($sheet_name)
+  {
+    return $this->excel_object->getSheetByName($sheet_name);;
+  }
+
+  public function debug()
+  {
+    $sheet_names = $this->excel_object->getSheetNames();
+    print_r($sheet_names);
+  }
+
+  protected $excel_object;
+  protected $excel_sheet_count;
+  protected $excel_sheet_active;
+  protected $excel_sheet_names;
+}
+
+//----------------------------------------------------------------------
+// class responsible for creating and writing excel file
+
+class excel_writer
+{
+  public function __construct()
+  {
+    $this->excel_object = new PHPExcel();
+  }
+
+  public function __destruct()
+  {
+    $this->excel_object->disconnectWorksheets();
+    unset($this->excel_object);
+  }
+
+  public function clone_sheet($cloned_sheet, $new_sheet_name)
+  {
+    $cloned_sheet->setTitle($new_sheet_name);
+    $this->excel_object->addExternalSheet($cloned_sheet);
+    //    $this->excel_object->addSheet($cloned_sheet);
+  }
+
+  public function save($file_name)
+  {
+    $excel_object_writer = PHPExcel_IOFactory::createWriter($this->excel_object, 'Excel2007');
+    $excel_object_writer->save($file_name.'xlsx');
+  }
+
+  protected $excel_object;
+}
+
+//----------------------------------------------------------------------
+
+$obj1 = new excel_reader("a.xlsx");
+$obj2 = new excel_writer();
+
+for($sheet = 1; $sheet <= $obj1->get_sheet_count(); $sheet++)
+{
+  $obj1->debug();
+
+
+  $sheet_to_clone = clone $obj1->get_sheet_by_name("OnOff");
+  //  $obj2->clone_sheet($sheet_to_clone, 'siallal'.$sheet);
+
+
+  $obj1->debug();
+}
+
+$obj2->save('b.');
+?>

@@ -1,0 +1,114 @@
+[
+  {
+    "Id": "481939",
+    "ThreadId": "223983",
+    "Html": "<p>Hi.</p>\r\n<p>I am currently trying to read in a .xls file, change a few values, then output the file as another .xls.</p>\r\n<p>The spreadsheet has 2 worksheets of concern:</p>\r\n<ol>\r\n<li>datasheet - contains around 12,000 rows of data generated from a mySQL database</li>\r\n<li>Type Size Summ - contains tables that analyse the data in the first worksheet</li>\r\n</ol>\r\n<p>The process is carried out in three stages:</p>\r\n<ol>\r\n<li>Read in the file (Tables1&amp;2(2009format).xls)</li>\r\n<li>Edit the data in the first worksheet</li>\r\n<li>Output the file to the computer</li>\r\n</ol>\r\n<p>Steps 1 and 2 work perfectly but the formulas contained in the second worksheet are removed from the cells and their last calculated value is stored in the cells instead.</p>\r\n<p>Here is the code I am using:</p>\r\n<p>---</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre><span style=\"color:green\">/** Error reporting */</span>\r\nerror_reporting(E_ALL);\r\n\r\n<span style=\"color:green\">/** PHPExcel_IOFactory */</span>\r\n<span style=\"color:blue\">require_once</span> <span style=\"color:#a31515\">'../Classes/PHPExcel/IOFactory.php';</span>\r\n\r\n$objPHPExcel = PHPExcel_IOFactory::load(<span style=\"color:#a31515\">&quot;Tables1&amp;2(2009format).xls&quot;</span>);\r\n$objPHPExcel-&gt;setActiveSheetIndex(0);\r\n$objWorksheet = $objPHPExcel-&gt;getActiveSheet();\r\n\r\n<span style=\"color:green\">// Database stuff</span>\r\n\r\n$result = mysql_query(<span style=\"color:#a31515\">&quot;SELECT colIncome,colType,jobLvl,FTESalary,region FROM college,employee WHERE college.colCode=employee.colCode&quot;</span>);\r\n$numRows = mysql_num_rows($result);\r\n$lastRow = $numRows + 1;\r\n$i=2;\r\n<span style=\"color:blue\">while</span>($row = mysql_fetch_assoc($result)) {\r\n<span style=\"white-space:pre\">\t</span>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(<span style=\"color:#a31515\">'A'</span>.$i, $row[<span style=\"color:#a31515\">'colIncome'</span>]);\r\n<span style=\"white-space:pre\">\t</span>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(<span style=\"color:#a31515\">'B'</span>.$i, $row[<span style=\"color:#a31515\">'colType'</span>]);\r\n<span style=\"white-space:pre\">\t</span>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(<span style=\"color:#a31515\">'C'</span>.$i, $row[<span style=\"color:#a31515\">'jobLvl'</span>]);\r\n<span style=\"white-space:pre\">\t</span>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(<span style=\"color:#a31515\">'D'</span>.$i, $row[<span style=\"color:#a31515\">'FTESalary'</span>]);\r\n<span style=\"white-space:pre\">\t</span>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(<span style=\"color:#a31515\">'E'</span>.$i, $row[<span style=\"color:#a31515\">'region'</span>]);\r\n<span style=\"white-space:pre\">\t</span>$i++;\r\n}\r\n\r\n<span style=\"color:green\">// Redirect output to a client&sbquo;&Atilde;&bdquo;&Atilde;&acute;s web browser (Excel5)</span>\r\nheader(<span style=\"color:#a31515\">'Content-Type: application/vnd.ms-excel'</span>);\r\nheader(<span style=\"color:#a31515\">'Content-Disposition: attachment;filename=&quot;table1and2 - '</span>.$date.<span style=\"color:#a31515\">'.xls&quot;'</span>);\r\nheader(<span style=\"color:#a31515\">'Cache-Control: max-age=0'</span>);\r\n\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, <span style=\"color:#a31515\">'Excel5'</span>);\r\n$objWriter-&gt;save(<span style=\"color:#a31515\">'php://output'</span>);\r\n<span style=\"color:blue\">exit</span>;\r\n</pre>\r\n</div>\r\n<p><span></span></p>\r\n<p><span>---</span></p>\r\n<p>The original excel file still has the formulas intact when I download it from the server without processing it using phpExcel.</p>\r\n<p>&nbsp;</p>\r\n<p>Any help would be greatly appreciated.</p>\r\n<p>&nbsp;</p>\r\n<p>Cheers.</p>\r\n<p>Dan.</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-08-18T09:36:02.44-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "482241",
+    "ThreadId": "223983",
+    "Html": "<p>Hi, I am in a very similar situation, in fact i was to post the problem in this forum.</p>\r\n<p>I have my template like you, make some changes in some values, and a worksheet that shoud not be modified by PHPexcel loses formulas.</p>\r\n<p>In my case, all the formulas in that worksheet are not lost, it seems that only formulas with values that are changed in others worksheets disappears. It is not relacionated with excel formats (happens reading and writting with excel5 and excel2007).</p>\r\n<p>&nbsp;</p>\r\n<p>EDIT: it happens with the last version of&nbsp; in windows with php 5.2.6 and linux with php 5.2.11. It seems to be a problem with de loader. The code</p>\r\n<p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>$objPHPExcel = PHPExcel_IOFactory::load($tempExcel);\r\n$objPHPExcel-&gt;setActiveSheetIndex(1);   \t\t\r\n$aux = $objPHPExcel-&gt;getActiveSheet()-&gt;getCell(<span style=\"color:#a31515\">'B5'</span>)-&gt;getValue();\r\n<span style=\"color:blue\">echo</span> $aux;\r\n   \t   \t\t\r\n</pre>\r\n</div>\r\nshows a number, and with this particular excel file should be a formula.</p>\r\n<p>&nbsp;</p>\r\n<p>Cheers.</p>\r\n<p>Crist&oacute;bal.</p>",
+    "PostedDate": "2010-08-19T03:58:11.493-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "482712",
+    "ThreadId": "223983",
+    "Html": "<p>Can you perhaps upload a sample file that is losing formulas when read into PHPExcel, to give me some idea of the formulas that are cuasing problems? This is not normal behaviour, so I really need a specific test that replicates the error to help identify its cause.</p>\r\n<p>&nbsp;</p>\r\n<p>Alternatively, could you try replicating the problem using the latest SVN code, because there have been a number of fixes implemented there related to formulae that reference cells on other worksheets.</p>",
+    "PostedDate": "2010-08-20T04:59:46.76-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "482735",
+    "ThreadId": "223983",
+    "Html": "<p>Hi Mark,</p>\r\n<p>Thanks for your reply.</p>\r\n<p>Please find attached a copy of the file before and after it is read.</p>\r\n<p>Do not be alarmed by the lack of data in the datasheet in the second file, these values are drawn from a database and will be more complete at a later stage.</p>\r\n<p>I am using phpExcel version 1.7.3c and php version 5.2.4-2ubuntu5.10.</p>\r\n<p>In the mean time please would you be more specific as to how I may go about getting hold of and installing the latest SVN code.</p>\r\n<p><a href=\"https://files.me.com/danieljameswood/r946u4\">danieljameswood_before.xls</a></p>\r\n<p><a href=\"https://files.me.com/danieljameswood/5l6yio\">danieljameswood_after.xls</a></p>\r\n<p>Thanks again.</p>\r\n<p>Dan.</p>",
+    "PostedDate": "2010-08-20T05:35:16.047-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "482752",
+    "ThreadId": "223983",
+    "Html": "<p>@daniel</p>\r\n<p>Looking at your samples, the formulas in your workbook are Excel Array formulas, e.g.</p>\r\n<pre>{=COUNT(IF(datasheet!$B$2:$B$11188&gt;0,IF(datasheet!$C$2:$C$11188=1,IF(datasheet!$A$2:$A$11188&gt;0, IF(datasheet!$A$2:$A$11188&lt;5,datasheet!$D$2:$D$11188)))))}</pre>\r\n<p>with the leading/trailing wavy brackets</p>\r\n<p>&nbsp;</p>\r\n<p>Unfortunately, this is a feature of Excel that we have only just started to implement for Excel2007, and is not yet available in the calculation engine, or in Excel5.</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-08-20T06:02:33.573-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "482754",
+    "ThreadId": "223983",
+    "Html": "<p>Hi Mark,</p>\r\n<p>Thanks for your reply.</p>\r\n<p>Any idea when this feature will become available for Excel2007?</p>\r\n<p>Cheers.</p>\r\n<p>Dan.</p>",
+    "PostedDate": "2010-08-20T06:05:03.403-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "482851",
+    "ThreadId": "223983",
+    "Html": "<p>Hi Mark,</p>\r\n<p>Just one follow up question.</p>\r\n<p>One possible way around this problem would be to only edit the sheet with the data in and leave the sheet with the formulas in untouched. Is it possible to tell phpExcel to 'skip-over' one sheet as it were or is the whole workbook processed together?</p>\r\n<p>Cheers.</p>\r\n<p>Dan.</p>",
+    "PostedDate": "2010-08-20T09:20:44.707-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "482957",
+    "ThreadId": "223983",
+    "Html": "<p>PHPExcel doesn't edit workbook files: it (optionally) maps data from various formats into a PHPExcel object, allows retrieval/manipulation of that object, and provides writers that map the structure of that PHPExcel object into different file formats.</p>\r\n<p>The PHPExcel object neither knows nor cares how it was created and populated, whether by loading from file via a Reader object, or via instantiating a new PHPExcel() and manually setting the cell values. When reading from file, the reader is simply instantiating a PHPExcel object, and calling exactly the same methods to populate that data as you would if you were creating from new. Any information read from a file that can be mapped&nbsp;to the attributes of the PHPExcel object is stored, and then the file is forgotten.</p>\r\n<p>Likewise, the Writer object is unaware whether the PHPExcel object that it is asked to write has been read from a file, or created by hand. It isn't a case of editing, simply of creating an object (perhaps by reading or instantiation in user code) and then saving that object as a file formatted according to a particular standard. Only attributes stored in the PHPExcel object can be written, because that is the only data accessible to the writer.</p>\r\n<p>To restructure the code in such a way that a file could be edited &quot;in situ&quot; would be a significant undertaking, and that's the only way that I can envisage maintaining everything from the structure of a loaded file (other than gradually adding support for those features against the PHPExcel object); especially awkward as we'd have to provide layers allowing all the different supported file formats to be edited &quot;in situ&quot;, while keeping it transparent to you as a developer so that the appropriate methods such as setFormat() mapped onto whichever. It would also reduce the flexibility of PHPExcel to read data from files of one format, and write to another, without significant changes.</p>\r\n<p>&nbsp;</p>\r\n<p>As light entertainment, I'm currently re-reading the published specifications for xls and xlsx, particularly with regard to charting and pivot tables; but I'm also paying particular attention to functions from the Analysis Toolkit in xls files, and Array formulae. The next release (1.7.4 - primarily bugfixes) is due sometime next week (delayed from the beginning of the month while I sorted out problems with cloning worksheets while using cell cacheing, and some issues with column and row ranges in formulae). Once that's available, my main focus will be adding the charting (and possibly pivot table) features for 1.7.5 (initial target date will be the end of October); and then (hopefully) Analysis Toolkit functions in xls (if I can fathom how they're stored), Array Formulae, and some additional statistical and financial functions in the calculation engine will be targetted for the 1.7.6 release (initial target date will be December).</p>",
+    "PostedDate": "2010-08-20T15:17:10.403-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "484018",
+    "ThreadId": "223983",
+    "Html": "<p>Hi again,</p>\r\n<p>I could not fix my problem using the lastests svn codes. This is the file, it is quite simple, perhaps it is my mistake.</p>\r\n<p><a href=\"http://www.megaupload.com/?d=JV1BRVVG\">http://www.megaupload.com/?d=JV1BRVVG</a></p>\r\n<p>This file is made by hand, my code should change some cells in every execution. For test, this is the code i'm running:</p>\r\n<p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>$objPHPExcel = PHPExcel_IOFactory::load($tempExcel);\r\n   \t\t     \t\t\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, <span style=\"color:#a31515\">'Excel5'</span>);\r\n$objWriter-&gt;save(<span style=\"color:#a31515\">&quot;aux.xls&quot;</span>);\t\t\r\n</pre>\r\n</div>\r\n</p>\r\n<p>$tempExcel is that file. The first time i run that, the formulas does not go, despite of the colours of the tabs are missing, so something is changed.</p>\r\n<p>If you run again that code, and the input file is that &quot;aux.xls&quot;, the formulas in the first worksheet are gone (formulas from B to M and 8 to 38). Don't look a lot in the formulas, all are basically the same formula referencing different cells.</p>\r\n<p>Thank you for your attention.</p>\r\n<p>&nbsp;</p>\r\n<p>Crist&oacute;bal</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-08-24T03:06:56.413-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "484321",
+    "ThreadId": "223983",
+    "Html": "<p>@<a id=\"ctl00_ctl00_MasterContent_Content_PostRepeater_ctl16_UserNameLink\" href=\"http://www.codeplex.com/site/users/view/CygnusSaint\">CygnusSaint</a></p>\r\n<p>I've replicated your problem with trying to read into PHPExcel a workbook that was previously written by PHPExcel. The problem arises with the tRef3d references (references to cells in a different sheet). The Excel5 Writer is writing these with a&nbsp;token of 0x7A; but the Excel5 Reader only registers tokens 0x3A and 0x5A for tRef3d. 0x3A, 0x5A and 0x7A are synonymous, they all work the same way, which is why the written file would open correctly in Excel; but the PHPExcel Excel5 reader wasn't recognising 0x7A and falling back to its default behaviour of setting the cell to the previously calculated value rather than the formula that it couldn't correctly parse. I've modified the reader, and double checked all the other tokens that have such synonyms (adding &nbsp;a number of other synonyms for 0x20 (tNum), 0x63 (tName), 0x66 (tMemArea), 0x27 and 0x67 (tMemErr), 0x69 (tMemFunc) and 0x7B (tArea3d). This fix has been checked into SVN, and will be included as a part of (Thursday's) 1.7.4 release.</p>\r\n<p>I'm still investigating the issues with colour.</p>",
+    "PostedDate": "2010-08-24T13:16:24.617-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "484557",
+    "ThreadId": "223983",
+    "Html": "<p>Hello Mark,</p>\r\n<p>Thank you so much for your attention. My headaches are gone :)</p>",
+    "PostedDate": "2010-08-25T02:02:21.033-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "485527",
+    "ThreadId": "223983",
+    "Html": "<p>Hi Mark,</p>\r\n<p>I have tries this issue with PHPExcel-1.7.4 but I could not read cell of another sheet. It is still giving following fatal error. <br><br><strong>Fatal error</strong>:  Call to a member function cellExists() on a  non-object in <strong>D:\\web\\phpexcel-1.7.4\\Classes\\PHPExcel\\Calculation.php</strong> on line <strong>3137</strong></p>\r\n<p>Here is sample file.</p>\r\n<p>http://hotfile.com/dl/64996053/8992a5d/sample_file.xlsx.html</p>\r\n<p>Please see D2 &amp; D3 cells, these are using reference of 2nd  sheet's cell.</p>\r\n<p>Awaiting you response.</p>\r\n<p>Thanks,</p>\r\n<p>Muhammad Sohail</p>",
+    "PostedDate": "2010-08-26T23:25:15.433-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "485560",
+    "ThreadId": "223983",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>sohailisonline wrote:</strong><br>\r\n<p>I have tries this issue with PHPExcel-1.7.4 but I could not read cell of another sheet. It is still giving following fatal error. <br><br><strong>Fatal error</strong>: Call to a member function cellExists() on a non-object in <strong>D:\\web\\phpexcel-1.7.4\\Classes\\PHPExcel\\Calculation.php</strong> on line <strong>3137</strong></p>\r\n<p>Here is sample file.</p>\r\n<p>http://hotfile.com/dl/64996053/8992a5d/sample_file.xlsx.html</p>\r\n<p>Please see D2 &amp; D3 cells, these are using reference of 2nd sheet's cell.</p>\r\n</blockquote>\r\n<p>&nbsp;I hate to say this Muhammad, but the sample file works perfectly for me.</p>\r\n<p>Using the following code:&nbsp;</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>error_reporting(E_ALL);\r\nset_time_limit(0);\r\ndate_default_timezone_set(<span style=\"color:#a31515\">'Europe/London'</span>);\r\n$inputFileName = <span style=\"color:#a31515\">'sample_file.xlsx'</span>;\r\n$objPHPExcel = PHPExcel_IOFactory::load($inputFileName);\r\n\r\n$objPHPExcel-&gt;setActiveSheetIndex(0);\r\n$sheet = $objPHPExcel-&gt;getActiveSheet();\r\nPHPExcel_Calculation::getInstance()-&gt;writeDebugLog = true;\r\n\r\n<span style=\"color:blue\">function</span> testFormula($sheet,$cell) {\r\n    $formulaValue = $sheet-&gt;getCell($cell)-&gt;getValue();\r\n    <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;b&gt;'</span>.$cell.<span style=\"color:#a31515\">' Value is &lt;/b&gt;'</span>.$formulaValue.<span style=\"color:#a31515\">&quot;&lt;br /&gt;\\n&quot;</span>;\r\n    $expectedValue = $sheet-&gt;getCell($cell)-&gt;getOldCalculatedValue();\r\n    <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;b&gt;'</span>.$cell.<span style=\"color:#a31515\">' Expected Value is &lt;/b&gt;'</span>.$expectedValue.<span style=\"color:#a31515\">&quot;&lt;br /&gt;\\n&quot;</span>;\r\n    <span style=\"color:blue\">try</span> {\r\n       $cellValue = $sheet-&gt;getCell($cell)-&gt;getCalculatedValue();\r\n       <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;b&gt;'</span>.$cell.<span style=\"color:#a31515\">' Calculated Value is &lt;/b&gt;'</span>.$cellValue.<span style=\"color:#a31515\">&quot;&lt;br /&gt;\\n&quot;</span>;\r\n       <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;h3&gt;Evaluation Log:&lt;/h3&gt;&lt;pre&gt;'</span>;\r\n       print_r(PHPExcel_Calculation::getInstance()-&gt;debugLog);\r\n       <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;/pre&gt;'</span>;\r\n    } <span style=\"color:blue\">catch</span> (Exception $e) {\r\n       <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">&quot;CALCULATION ENGINE ERROR: &quot;</span>.$e-&gt;getMessage().<span style=\"color:#a31515\">&quot;&lt;br /&gt;\\n&quot;</span>;\r\n    }\r\n}\r\ntestFormula($sheet,<span style=\"color:#a31515\">'D2'</span>);\r\ntestFormula($sheet,<span style=\"color:#a31515\">'D3'</span>);\r\n</pre>\r\n</div>\r\n<p>gives me a result of:</p>\r\n<p><strong>D2 Value is </strong>=C2*(1+'FSC table'!A2)<br><strong>D2 Expected Value is </strong>3998.4000000000005<br><strong>D2 Calculated Value is </strong>3998.400000000001</p>\r\n<h3>Evaluation Log:</h3>\r\n<pre>Array\r\n(\r\n    [0] =&gt; Result table!D2 -&gt; Evaluating Cell C2 in current worksheet\r\n    [1] =&gt; Result table!D2 -&gt; Evaluation Result for cell Result table!C2 is a floating point number with a value of 3570\r\n    [2] =&gt; Result table!D2 -&gt; Evaluating Cell A2 in worksheet FSC table\r\n    [3] =&gt; Result table!D2 -&gt; Evaluation Result for cell FSC table!A2 in worksheet FSC table is a floating point number with a value of 0.12\r\n    [4] =&gt; Result table!D2 -&gt; Evaluating 1 + 0.12\r\n    [5] =&gt; Result table!D2 -&gt; Evaluation Result is a floating point number with a value of 1.12\r\n    [6] =&gt; Result table!D2 -&gt; Evaluating 3570 * 1.12\r\n    [7] =&gt; Result table!D2 -&gt; Evaluation Result is a floating point number with a value of 3998.400000000001\r\n)\r\n</pre>\r\n<p><strong>D3 Value is </strong>=C3*(1+'FSC table'!A2)<br><strong>D3 Expected Value is </strong>2349.7600000000002<br><strong>D3 Calculated Value is </strong>2349.76</p>\r\n<h3>Evaluation Log:</h3>\r\n<pre>Array\r\n(\r\n    [0] =&gt; Result table!D3 -&gt; Evaluating Cell C3 in current worksheet\r\n    [1] =&gt; Result table!D3 -&gt; Evaluation Result for cell Result table!C3 is a floating point number with a value of 2098\r\n    [2] =&gt; Result table!D3 -&gt; Evaluating Cell A2 in worksheet FSC table\r\n    [3] =&gt; Result table!D3 -&gt; Evaluation Result for cell FSC table!A2 in worksheet FSC table is a floating point number with a value of 0.12\r\n    [4] =&gt; Result table!D3 -&gt; Evaluating 1 + 0.12\r\n    [5] =&gt; Result table!D3 -&gt; Evaluation Result is a floating point number with a value of 1.12\r\n    [6] =&gt; Result table!D3 -&gt; Evaluating 2098 * 1.12\r\n    [7] =&gt; Result table!D3 -&gt; Evaluation Result is a floating point number with a value of 2349.76\r\n)\r\n</pre>\r\n<pre>Which is exactly what I'd expect.</pre>",
+    "PostedDate": "2010-08-27T00:48:42.16-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1236110",
+    "ThreadId": "223983",
+    "Html": "Hi Mark,\r<br />\nI have also the similar problem.\r<br />\nwhen I edit the previously existed excel2007 sheet, the validations are vanished. so help me in accessing the excel sheet in such a manner that when I edit it only the value of cell is update, not the validations are vanished. <br />\n",
+    "PostedDate": "2014-04-21T04:40:55.447-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

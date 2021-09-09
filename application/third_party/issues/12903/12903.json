@@ -1,0 +1,106 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel_Reader_Excel5",
+      "DisplayName": "PHPExcel_Reader_Excel5"
+    },
+    "ClosedComment": "Fixed in SVN",
+    "ClosedDate": "2010-05-31T00:26:29.173-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "PHPExcel_IOFactory::load get stuck in an infinite loop when opening the attached excel-file. The Excel-file can be read in Openoffice without problem.\n \nSource-code:\n \ninclude 'out/PHPExcel.php';\ninclude 'out/PHPExcel/IOFactory.php';\n \nerror_reporting(E_ALL);\n$PHPExcel = PHPExcel_IOFactory::load('8d469422f696573c772e438562f74c17.xls');\n \n \n \nResults in:\n \n \nNotice: Undefined property: PHPExcel_Shared_OLERead::$wrkbook in G:\\scan\\out\\PHPExcel\\Shared\\OLERead.php on line 175\n \nNotice: Undefined index:   in G:\\scan\\out\\PHPExcel\\Shared\\OLERead.php on line 175\n \nNotice: Undefined property: PHPExcel_Shared_OLERead::$wrkbook in G:\\scan\\out\\PHPExcel\\Shared\\OLERead.php on line 179\n \nNotice: Undefined index:   in G:\\scan\\out\\PHPExcel\\Shared\\OLERead.php on line 179\n \nNotice: Undefined index:   in G:\\scan\\out\\PHPExcel\\Shared\\OLERead.php on line 186\n \nNotice: Undefined index:   in G:\\scan\\out\\PHPExcel\\Shared\\OLERead.php on line 186\n \nNotice: Undefined index:   in G:\\scan\\out\\PHPExcel\\Shared\\OLERead.php on line 186\n \nNotice: Undefined index:   in G:\\scan\\out\\PHPExcel\\Shared\\OLERead.php on line 186\n \nNotice: Undefined index:   in G:\\scan\\out\\PHPExcel\\Shared\\OLERead.php on line 186\n \nNotice: Undefined index:   in G:\\scan\\out\\PHPExcel\\Shared\\OLERead.php on line 186\n \nNotice: Undefined index:   in G:\\scan\\out\\PHPExcel\\Shared\\OLERead.php on line 186\n \nNotice: Undefined index:   in G:\\scan\\out\\PHPExcel\\Shared\\OLERead.php on line 186\n \nNotice: Undefined index:   in G:\\scan\\out\\PHPExcel\\Shared\\OLERead.php on line 186\n \nNotice: Undefined index:   in G:\\scan\\out\\PHPExcel\\Shared\\OLERead.php on line 186\n \nNotice: Undefined index:   in G:\\scan\\out\\PHPExcel\\Shared\\OLERead.php on line 186\n \ncontinued indefinitly...",
+    "LastUpdatedDate": "2013-05-16T05:42:01.13-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2010-04-29T02:11:18.15-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Infinite loop when reading",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 12903
+  },
+  "FileAttachments": [
+    {
+      "FileId": 4291,
+      "FileName": "8d469422f696573c772e438562f74c17.xls",
+      "DownloadUrl": ".\\4291"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "Suspect the problem is non-ASCII characters in the worksheet name Ärendelista. IF I change this to Arendelista (using Excel) then try to load, it loads correctly.\r\nThere's a few places I know where the ASCII character set is still required: for example, cell references in formulae that reference cells on other worksheets. This looks to be an example in the OLE Reader.",
+      "PostedDate": "2010-04-29T03:14:09.507-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Hi Mark and thank you for your response!\r\n\r\nHowever, saving the file in Excel (without doing any changes) will result in PHPExcel reading the file correctly. So it might not be the non-ascii characters causing this after all. Sadly, I cannot save all faulty excel files manually since this is supposed to be part of an automatic process, which handles lots of different files from various incoming sources.",
+      "PostedDate": "2010-04-29T08:01:47.547-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I'll run your workbook through in debug over the weekend and try to identify what might be causing the problem",
+      "PostedDate": "2010-04-30T14:06:15.167-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Hi Mark, I haven't heard from you. Did you come any closer to a solution? Perhaps you could point me in a direction to look at the script myself.",
+      "PostedDate": "2010-05-07T12:57:23.527-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I suggest this item is upgraded to Status: Open",
+      "PostedDate": "2010-05-22T11:06:57.76-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Hello again. Sorry to be nagging about this, but this is of some importance for me.\r\n\r\nI tried the workbook in a commercial software and it worked fine, so now I'm thinking about buying a license for $59. But I would much rather use your classes, and will donate this sum to the project if the problem is solved :)",
+      "PostedDate": "2010-05-25T06:11:48.423-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Currently under investigation",
+      "PostedDate": "2010-05-27T15:24:37.69-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Good news.\r\n\r\nIn /Classes/PHPExcel/Shared/OLERead.php line 325 currently reads:\r\nif (($name == 'Workbook') || ($name == 'Book') || ($name == 'WORKBOOK')) {\r\nchange to\r\nif (($name == 'Workbook') || ($name == 'Book') || ($name == 'WORKBOOK') || ($name == 'BOOK')) {\r\n\r\nI'll modify the SVN code, and it should be available in the daily downloads in a couple of days.\r\n",
+      "PostedDate": "2010-05-28T15:12:47.12-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-05-28T15:23:52.12-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-05-31T00:26:29.173-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:03:01.37-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:01.13-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+[
+  {
+    "Id": "108279",
+    "ThreadId": "32659",
+    "Html": "I've searched the web, browsed the discussions and issue tracker but couldn't find any solution to my problem, so here it is:<br>\r\n<br>\r\nI'm trying to replace egroupware's standard CSV-export with a XLS-export. egroupware handles clicks on the export icon so that it reloads the file and sends the CSV as an attachement. I've replaced the CSV-generation with my PHPExcel code to generate my own spreadsheet. Since the document would either end up as part of the HTML document returned or the XLS(X) would contain the HTML output I now &quot;solved&quot; the problem so that I simply &quot;exit&quot; the php interpretation after I've created the XLSX document:<br>\r\n<blockquote><em>header(&quot;Content-type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet&quot;);</em><br>\r\n<em>header(&quot;Content-disposition: attachment; filename=listview-&quot; . date(&quot;Y-m-d&quot;).&quot;.xlsx&quot;);</em><br>\r\n<em>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </em><br>\r\n<em>include 'PHPExcel/IOFactory.php';</em><br>\r\n<em>$writer = PHPExcel_IOFactory::createWriter($excel, 'Excel2007'); </em><br>\r\n<em>$writer-&gt;save(&quot;php://output&quot;);</em><br>\r\n<em>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; </em><br>\r\n<em>[..]<br>\r\n<br>\r\nexit;<br>\r\n</em></blockquote>This works all fine for Excel2007. I can both save the document on the harddisk (without specifying the headers then) or the php output, and it works all fine, Excel 2007 doesn't complain.<br>\r\n<br>\r\nNow I tried to do the same for Excel5/97-2003 and changed the code to the following:<br>\r\n<blockquote><em>header(&quot;Pragma: public&quot;);<br>\r\nheader(&quot;Expires: 0&quot;);<br>\r\nheader(&quot;Cache-Control: must-revalidate, post-check=0, pre-check=0&quot;);<br>\r\nheader(&quot;Content-Type: application/force-download&quot;);<br>\r\nheader(&quot;Content-Type: application/octet-stream&quot;);<br>\r\nheader(&quot;Content-Type: application/download&quot;);;<br>\r\nheader(&quot;Content-disposition: attachment; filename=listview-&quot; . date(&quot;Y-m-d&quot;).&quot;.xls&quot;);<br>\r\nheader(&quot;Content-Transfer-Encoding: binary &quot;);<br>\r\n<br>\r\ninclude 'PHPExcel/Writer/Excel5.php';<br>\r\n$writer = new PHPExcel_Writer_Excel5($excel); <br>\r\n$writer-&gt;save(&quot;php://output&quot;);<br>\r\n<br>\r\n[..]<br>\r\n<br>\r\nexit;<br>\r\n</em></blockquote>I used some code from this forum for the headers, but using different headers doesn't change it: Writing the document with Excel5 always causes errors, Excel2007 complains that the document can't be read and it might either be either on a server which doesn't react anymore or write-protected. Now I thought this had to do with wrong headers etc. and so removed them to simply write the document on the harddisk:<br>\r\n<blockquote><em>include 'PHPExcel/Writer/Excel5.php';</em><br>\r\n<em>$writer = new PHPExcel_Writer_Excel5($excel); </em><br>\r\n<em>$writer-&gt;save(&quot;test.xls&quot;);</em><br>\r\n</blockquote>Still the same error! I compared the document's content with one that I had previously written and saved from Excel2007 as a 97-2003 document and noticed that my document is missing 1-2KB of (meta?) information at the end of the document and has many differences to the &quot;correct&quot; document.<br>\r\n<br>\r\nI'm using a German MS Office 2007 to read/write documents on a German WinXP Pro SP2. Server-software is XAMPP 1.6.7 (Apache 2.2.9, PHP 5.2.6), running egroupware 1.6.pre1 using PHPExcel 1.6.2.<br>\r\n<br>\r\nDoes anyone have an idea what the problem could be? Or are there any discussions on that which I have missed?<br>\r\n<br>\r\nThanks for your time &amp; help,<br>\r\n<br>\r\nRobert<br>\r\n",
+    "PostedDate": "2008-07-31T09:23:19.75-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "108371",
+    "ThreadId": "32659",
+    "Html": "I had a closer look at the documentation of PHPExcel, chapter 6.4 says that the Excel5 converter is based on PEAR Spreadsheet_Excel_Writer - which explains why I get the same errors for 97-2003 documents with both libraries. Anyways, checked the PEAR Spreadsheet_Excel_Writer bug reports out and found http://pear.php.net/bugs/bug.php?id=6584. The following helped me (quoted from linked site):<br>\r\n<blockquote><em>\r\n[..] I investigated this because I had the same problem. The bug correction is the following: add one line in Workbook.php, after line 499 (in _storeWorkbook): if(count($this-&gt;_worksheets)==0)$this-&gt;addworksheet(); [..]<br>\r\n</em></blockquote>Now Excel2007 reports that the document is damaged but can be repaired. After clicking yes you get one more error message but then can read the correct document in as an XLS in Excel2007. Works, but is more of a hack than a proper solution. So still trying to figure out more. If I'll solve it I'll let you know.<br>\r\n<br>\r\n",
+    "PostedDate": "2008-07-31T16:38:12.963-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "109843",
+    "ThreadId": "32659",
+    "Html": "<p>hey rob,<br>\r\nThis is wat&nbsp;I'm &nbsp;doing. Im using version 1.6.1&nbsp;:</p>\r\n<p>&nbsp;</p>\r\n<p><strong>step 1:</strong> I include the necessary&nbsp;files at the top of the page&nbsp;like this:<br>\r\n<br>\r\n<strong>include 'PHPExcel/Writer/Excel2007.php';<br>\r\ninclude 'PHPExcel/Writer/Excel5.php';<br>\r\n<br>\r\nstep 2: </strong>Create the object and&nbsp; the headers:<br>\r\n<br>\r\n<em>$objPHPExcel = new PHPExcel();<br>\r\nheader(&quot;Pragma: public&quot;);<br>\r\nheader(&quot;Expires: 0&quot;);<br>\r\nheader(&quot;Cache-Control: must-revalidate, post-check=0, pre-check=0&quot;); <br>\r\nheader(&quot;Content-Type: application/force-download&quot;);<br>\r\nheader(&quot;Content-Type: application/octet-stream&quot;);<br>\r\nheader(&quot;Content-Type: application/download&quot;);;<br>\r\nheader(&quot;Content-Disposition: attachment;filename=Report.xls&quot;); <br>\r\nheader(&quot;Content-Transfer-Encoding: binary &quot;);</em></p>\r\n<p><strong>Step 3:</strong></p>\r\n<p>I fetch data through SQL<br>\r\n<br>\r\n<strong>Step 4:</strong> Now I create an Excel5 object like this&nbsp;and send the output to browser<br>\r\nThis is the last thing I do:<br>\r\nI set the active sheet index&nbsp; (&nbsp; <em>$objPHPExcel-&gt;setActiveSheetIndex(0)&nbsp; )<br>\r\n</em>and this is the code snippet that follows.<br>\r\n<em>$objWriter = new PHPExcel_Writer_Excel5($objPHPExcel);<br>\r\n$objWriter-&gt;save('php://output');<br>\r\n</em><br>\r\n<br>\r\nI hope this helps.<em> Cheers</em></p>\r\n",
+    "PostedDate": "2008-08-07T16:20:59.02-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "111611",
+    "ThreadId": "32659",
+    "Html": "Thanks for the hint. But tried exactly that and it doesn't work. Really wondering what I'm doing wrong ..<br>\r\n",
+    "PostedDate": "2008-08-17T07:25:14.497-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "111654",
+    "ThreadId": "32659",
+    "Html": "<blockquote><em>\r\nStill the same error! I compared the document's content with one that I\r\nhad previously written and saved from Excel2007 as a 97-2003 document\r\nand noticed that my document is missing 1-2KB of (meta?) information at\r\nthe end of the document and has many differences to the &quot;correct&quot;\r\ndocument.\r\n</em></blockquote>Ok, this shows that the problem does not have to do with sending the output directly to the client browser.<br>\r\n<br>\r\nSince I haven't been able to re-create your error, can you please try to run a small sample script where you simply just create and save an xls file and see if the problem persists?<br>\r\n<br>\r\n<code>\r\n$PHPExcel = new PHPExcel();<br>\r\n$ws = $PHPExcel-&gt;getActiveSheet();<br>\r\n$ws-&gt;getCell('A1')-&gt;setValue('hello');<br>\r\n$writer = new PHPExcel_Writer_Excel5($PHPExcel);<br>\r\n$writer-&gt;save('test.xls');<br>\r\n</code>\r\n<br>\r\nDoes MS Office report the created test.xls as broken when you try to open it?<br>\r\n",
+    "PostedDate": "2008-08-17T13:14:29.143-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "244224",
+    "ThreadId": "32659",
+    "Html": "<p>In 1.7.0 version I have the some problem.</p>\r\n<p>My Office 2007 throw error in all XLS files, even in this from Tests folder in Stable 1.7.0 package.</p>\r\n<p>All this files must be recovered before can be read.</p>\r\n<p>On php 5.2.8 this code above generate the error too.</p>\r\n<p>On Excel2007 all is OK.</p>\r\n<p>&nbsp;</p>\r\n<p>The error message (in Polish)</p>\r\n<p>http://dl.getdropbox.com/u/2388751/Excel/Error1.jpg</p>\r\n<p>Broken File:</p>\r\n<p>http://dl.getdropbox.com/u/2388751/Excel/Error1.xls</p>",
+    "PostedDate": "2009-10-10T11:30:43.68-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "244231",
+    "ThreadId": "32659",
+    "Html": "<p>@DeyV: I think you are perhaps opening the file on Windows 7. When I open the file in Excel 2007 on Windows XP, it is not corrupt.</p>\r\n<p>Check this bug:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10059\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10059</a></p>\r\n<p>Can you try with latest source code instead of PHPExcel 1.7.0:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx\">http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx</a></p>",
+    "PostedDate": "2009-10-10T12:00:38.38-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "244234",
+    "ThreadId": "32659",
+    "Html": "<p>Yes, Its true. It's Windows7</p>\r\n<p>Th'x ! And in phpExcel on trunk version all its OK!!!</p>",
+    "PostedDate": "2009-10-10T12:13:00.817-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

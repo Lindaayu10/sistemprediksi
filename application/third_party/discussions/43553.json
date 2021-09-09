@@ -1,0 +1,74 @@
+[
+  {
+    "Id": "144762",
+    "ThreadId": "43553",
+    "Html": "hi<br>\r\ni've openoffice3, and installed phpexcel 1.6.4 and now 1.6.5<br>\r\n<br>\r\nif i use excel5 i can't view images, and if i use excel2007 i can't open file !!<br>\r\n<br>\r\ni tried 14excel5.php and 05featuredemo.php, i tried my own test, i\r\nchecked for extensions (zip, xml, gd2), i tried easyphp2b2 and\r\nwampserver2, and tried on 2 pc<br>\r\nALL with the SAME problems!!!!<br>\r\n<br>\r\nwhat i need to see images in my xls or open xlsx???<br>\r\n<br>\r\nthank you very much\r\n",
+    "PostedDate": "2009-01-06T09:58:11.327-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "144804",
+    "ThreadId": "43553",
+    "Html": "As for the images that cannot be seen in OpenOffice.org 3.0.0, this is a known issue, I am trying to get that solved.<br>\r\n<a href=\"http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=7994\">http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=7994</a><br>\r\n<br>\r\nAs for the Excel 2007 test files that cannot be opened in OpenOffice.org 3.0.0, I don't know what the problem is. When I run the 05featuredemo.php and open 05featuredemo.xlsx in OpenOffice.org 3.0.0, I have no problems. Can you send me your result for that test (05featuredemo.xlsx) and I will try to see what the problem is (erik at phpexcel dot net)<br>\r\n<br>\r\n<br>\r\n<br>\r\n",
+    "PostedDate": "2009-01-06T11:31:16.893-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "145180",
+    "ThreadId": "43553",
+    "Html": "Thanks for sending me the files, the xlsx files are indeed corrupt. Looks like yet another case of bad zip extension.<br>\r\n<a href=\"http://www.codeplex.com/PHPExcel/Thread/View.aspx?ThreadId=42854\">http://www.codeplex.com/PHPExcel/Thread/View.aspx?ThreadId=42854</a><br>\r\n<br>\r\n",
+    "PostedDate": "2009-01-07T12:03:08.093-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "149233",
+    "ThreadId": "43553",
+    "Html": "1) solved xlsx using linux! <br>\r\n<br>\r\n2) but with xls i've problem. i see this: http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=7994 but using SVN i've an error: <br>\r\n<br>\r\n15:11:01 Create new PHPExcel object\r\n15:11:01 Load Excel2007 template file\r\n<br>\r\n<strong>Fatal error</strong>:  Class 'PHPExcel_Shared_Excel5' not found in <strong>/var/www/test/PHPExcel-24480/Classes/PHPExcel/Reader/Excel5.php</strong> on line <strong>694</strong>\r\n",
+    "PostedDate": "2009-01-21T06:17:02.047-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "149241",
+    "ThreadId": "43553",
+    "Html": "Yeah, there was unfortunately missing class reference in <code>PHPExcel_Reader_Excel5</code> in the recent sources, and you would get that error when reading <code>xls</code> files with images! (PHPExcel 1.6.5 not affected). This has just been fixed now. Thanks!<br>\r\n<br>\r\nAs for work item #7994, this was also fixed today and it will appear in the next automatic daily &quot;Source Code&quot; check-in. Please try it out then!<br>\r\n<br>\r\n<br>\r\n",
+    "PostedDate": "2009-01-21T06:34:35.573-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "149603",
+    "ThreadId": "43553",
+    "Html": "using souce code 24512<br>\r\n<br>\r\n09:50:15 Create new PHPExcel object\r\n09:50:15 Load Excel2007 template file\r\n09:50:15 Write to Excel5 format\r\n09:50:15 Write to Excel5 format\r\n<br>\r\n<strong>Fatal error</strong>:  Nesting level too deep - recursive dependency? in <strong>/var/www/test/PHPExcel-24512/Classes/PHPExcel/Writer/Excel5/Worksheet.php</strong> on line <strong>2923</strong><br>\r\n",
+    "PostedDate": "2009-01-22T00:55:35.763-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "149605",
+    "ThreadId": "43553",
+    "Html": "Hmm... will examine this!<br>\r\n",
+    "PostedDate": "2009-01-22T00:58:18.913-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "149608",
+    "ThreadId": "43553",
+    "Html": "Ouch! Coding error. This had escaped me. Maybe something to do with php version? Can you please replace line 2923 in <code>PHPExcel/Writer/Excel5/Worksheet.php</code><br>\r\n<br>\r\nPlease change this<br>\r\n<code>if ($sheet == $this-&gt;_phpSheet) {<br>\r\n<br>\r\nto this:<br>\r\nif ($sheet === $this-&gt;_phpSheet) {<br>\r\n</code>\r\n<br>\r\nWill fix this in the source too. Thank you!<br>\r\n<br>\r\n",
+    "PostedDate": "2009-01-22T01:07:16.31-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "149644",
+    "ThreadId": "43553",
+    "Html": "OK! now ALL works PERFECTLY!! THANKS very much<br>\r\n",
+    "PostedDate": "2009-01-22T02:22:34.587-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

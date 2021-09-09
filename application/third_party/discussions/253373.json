@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "595171",
+    "ThreadId": "253373",
+    "Html": "\r\n<p>Hi. I am creating a report in PHPExcel and want to attach photographs. Some photos are Landscape and some are Portrait. I want to rotate the Landscape Photographs 90 degrees so that I can get 4 photos to a page. I had hoped the following code would do the\r\n job. I scale the photo to the required size and if its Landscape, rotate it, simples!</p>\r\n<p>What actually happens is that the photo 'frame' stays as Landscape but the image inside is rotated and distorts</p>\r\n<p></p>\r\n<pre>PHP      = 5.2.10\r\nPHPExcel = 1.7.5\r\n\r\n\r\n// Photo Section //\r\nif ($photocount &gt; 0) {\r\n\r\n\t$counter = 0;\r\n\t$rowchar = 65; //'A'\r\n\twhile ($pearl = mysql_fetch_assoc($photos)) {\r\n\t\r\n\t\t$photoid   = $pearl[&quot;id&quot;];\r\n\t\t$photoname = &quot;lrg_&quot;.$pearl[&quot;photo_name&quot;];\r\n\t\t$caption   = $pearl[&quot;caption&quot;];\r\n\t\t$orientate = $pearl[&quot;orientation&quot;];\r\n\t\t\r\n\t\t$objPhoto = new PHPExcel_Worksheet_Drawing();\r\n\t\t$objPhoto-&gt;setName($photoid);\r\n\t\t$objPhoto-&gt;setDescription($caption);\r\n\t\t$objPhoto-&gt;setPath($ipath.&quot;\\\\&quot;.$photoname);\r\n\t\t$objPhoto-&gt;setWidthAndHeight(640,480);\r\n\t\tif ($orientate == 1) {\r\n\t\t\t$objPhoto-&gt;setRotation(90);\r\n\t\t} \r\n\t\t$objPhoto-&gt;setCoordinates(chr($rowchar).$xlrow);\r\n\t\t$objPhoto-&gt;setWorksheet($objPHPExcel-&gt;getActiveSheet());\r\n\t\t\r\n\t\t$counter&#43;&#43;;\r\n\t\tif ($counter % 2 == 0) {\r\n\t\t\t$xlrow &#43;= 25;\r\n\t\t\t$rowchar = 65; //'A'\r\n\t\t} else {\r\n\t\t\t$rowchar = 67; //'C'\r\n\t\t}\r\n\t\t\r\n\t\tif ($counter % 4 == 0) { \r\n\t\t\t$objPHPExcel-&gt;getActiveSheet()-&gt;setBreak('A'.$xlrow, PHPExcel_Worksheet::BREAK_ROW);\r\n\t\t\t$xlrow&#43;&#43;;\r\n\t\t}  \r\n\t}\r\n}\r\n</pre>\r\n<p></p>\r\n<p>I have tried the scaling inside the if statement..</p>\r\n<p></p>\r\n<pre>if ($orientate == 1) {\r\n\t$objPhoto-&gt;setWidthAndHeight(640,480);\r\n\t$objPhoto-&gt;setRotation(90);\r\n} else {\r\n\t$objPhoto-&gt;setWidthAndHeight(480,640);\r\n}</pre>\r\n<p></p>\r\n<p>&nbsp;</p>\r\n<p>..but get the same result. Any ideas?</p>\r\n",
+    "PostedDate": "2011-04-11T01:52:31.14-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "617336",
+    "ThreadId": "253373",
+    "Html": "<p>I have just upgraded to PHPExcel 1.7.6 and this still happens.</p>\n<p>I have been experimenting with setRotation(x) and have the following results</p>\n<p>x = 0 to 44 degrees: Works as expected</p>\n<p>x= 135-degrees onwards: Works as expected</p>\n<p>But between 45 and 134 degrees the function is broken. The canvas rotates 90 degrees less than requested. The photo image does rotate to the correct angle but is placed in the incorrectly aligned canvas and is stretched to fit. This makes a highly  distorted photograph.</p>\n<p>I can provide examples if required to effect a fix</p>\n<p>Cheers</p>\n<p>&nbsp;</p>\n<p>Ken</p>",
+    "PostedDate": "2011-05-24T06:13:42.14-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "620672",
+    "ThreadId": "253373",
+    "Html": "<p>Which writer do you use ? Excel2007 ? An another ?</p>",
+    "PostedDate": "2011-05-31T03:10:22.463-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "620685",
+    "ThreadId": "253373",
+    "Html": "<p>Yes, forgot to mention, Excel2007. Sorry</p>\r\n<p>// Save Excel file</p>\r\n<p>$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');&nbsp;</p>\r\n<p>$objWriter-&gt;save($fpath.$fname);</p>",
+    "PostedDate": "2011-05-31T03:28:20.617-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "620715",
+    "ThreadId": "253373",
+    "Html": "Yes, Excel2007<br>\r\n<br>\r\n-- <br>\r\nKen Clark<br>\r\nBJA Information Systems<br>\r\n01484 680069<br>\r\n<br>\r\n<br>\r\nbja Refrigeration Consulting Engineers Ltd. are a company registered in England. No: 5196725<br>\r\n<br>\r\nCONFIDENTIALITY NOTICE: The preceding information may be confidential or privileged. It only should be used or disseminated for the purpose of conducting business with bja Refrigeration Consulting Engineers Ltd. If you are not an intended recipient please notify\r\n the sender by return email and then delete the information from your system. Thank you for your co-operation.",
+    "PostedDate": "2011-05-31T04:35:59.947-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1326714",
+    "ThreadId": "253373",
+    "Html": "Hello,\r<br />\n<br />\nI have the same problem as coolken. Is there a workaround to avoid the problem rotating images?\r<br />\n<br />\nThanks<br />\n",
+    "PostedDate": "2014-11-27T00:14:31.82-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

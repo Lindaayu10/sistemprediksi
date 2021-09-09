@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "502173",
+    "ThreadId": "229581",
+    "Html": "<div style=\"color:black;background-color:white\">\r\n<pre>I open up Book1.xls in Excel and see that cell A1's value is 9/30/2010.&nbsp; I try to load that cell with PHPExcel and get 40451 as its value.&nbsp; Why?<br><br>Here's the script I'm using:<br><br><br>&lt;?php\r\n<span style=\"color:blue\">include</span>(<span style=\"color:#a31515\">'PHPExcel.php'</span>);\r\n\r\n$excel = PHPExcel_IOFactory::load(<span style=\"color:#a31515\">'Book1.xls'</span>);\r\n\r\n<span style=\"color:blue\">echo</span> $excel-&gt;getActiveSheet()-&gt;getCell(<span style=\"color:#a31515\">'A1'</span>)-&gt;getValue();\r\n\r\n?&gt;\r\n</pre>\r\n</div>",
+    "PostedDate": "2010-10-04T12:29:39.34-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "502205",
+    "ThreadId": "229581",
+    "Html": "<p>Excel stores dates/times as the number of days since 1st January 1900 (or 1st January 1904 if your workbook uses the Mac 1904 calendar). This is why the cell value is 40451... that's it's value in Excel, and in PHPExcel. The only thing that differentiates this from any other number is the formatting mask applied to the cell.</p>\r\n<p>You can identify if a cell contains a date using:</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>PHPExcel_Shared_Date::isDateTime($objPHPExcel-&gt;getActiveSheet()-&gt;getCell(<span style=\"color:#a31515\">'A1'</span>));\r\n</pre>\r\n</div>\r\n<p>which will return a boolean true if cell A1 contains a value that is formatted as a date.</p>\r\n<p>&nbsp;</p>\r\n<p>To read the cell value as a PHP date, you can use the date conversion functions:</p>\r\n<p><code><span>\r\n<pre style=\"color:black;background-color:white\"><pre>$phpDate = PHPExcel_Shared_Date::ExcelToPHP($objPHPExcel-&gt;getActiveSheet()-&gt;getCell(<span style=\"color:#a31515\">'A1'</span>));</pre>\r\n</pre>\r\n</span></code></p>\r\n<pre>to convert an Excel/PHPExcel date to a PHP date/timestamp, and then use standard PHP date() function for formatting</pre>\r\n<p>&nbsp;</p>\r\n<p>Alternatively, to read the cell value as a formatted string,</p>\r\n<p>\r\n<p><code><span>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>$dateString = PHPExcel_Style_NumberFormat::toFormattedString($objPHPExcel-&gt;getActiveSheet()-&gt;getCell(<span style=\"color:#a31515\">'A1'</span>), <span style=\"color:#a31515\">'MM-DD-YYYY'</span>);\r\n</pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n</span></code><span>&nbsp;</span></p>\r\n</p>",
+    "PostedDate": "2010-10-04T14:08:02.557-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "502758",
+    "ThreadId": "229581",
+    "Html": "<p>Nice, thanks Mark! &nbsp;I'm new to PHPExcel and was having the same problem. &nbsp;</p>\r\n<p>In addition to the date problem I am also getting a time such as &quot;11:30 AM&quot; in the excel file read in using getValue() as&nbsp;0.4791666666666667. &nbsp;I'm guessing I can probably find a similar solution by digging around in the API, but I'm also curious if there is a simple way to read in the value of every cell as plain text instead of having to test if something is a date, time or other numeric field?</p>\r\n<p>Thanks,</p>\r\n<p>John</p>",
+    "PostedDate": "2010-10-05T16:56:08.323-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "503123",
+    "ThreadId": "229581",
+    "Html": "<p>Have a look at the toArray() method of the worksheet object. This has been modified in the latest SVN code to add a lot of additional options.</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre><span style=\"color:green\">/**\r\n * Create array from worksheet\r\n *\r\n * @param mixed $nullValue            Value returned in the array entry if a cell doesn't exist\r\n * @param boolean $calculateFormulas  Should formulas be calculated?\r\n * @param boolean $formatData         Should formatting be applied to cell values?\r\n * @param boolean $returnCellRef      False - Return a simple array of rows and columns indexed by number counting from zero\r\n *                                    True - Return rows and columns indexed by their actual row and column IDs\r\n * @return array\r\n */</span>\r\n</pre>\r\n</div>\r\n<p>The argument that is probably of particular interest to you is the $formatData option.</p>",
+    "PostedDate": "2010-10-06T11:21:44.58-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "503187",
+    "ThreadId": "229581",
+    "Html": "<p>Great tip. &nbsp;I see the current version 1.7.4 doesn't have all of those parameters in the toArray() method yet:&nbsp;</p>\r\n<p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre><span style=\"color:green\">    /**\r\n     * Create array from worksheet\r\n     *\r\n     * @param mixed $nullValue Value treated as &quot;null&quot;\r\n     * @param boolean $calculateFormulas Should formulas be calculated?\r\n     * @return array\r\n     */<br><div style=\"color:black;background-color:white\"><pre><span style=\"color:blue\">   public</span> <span style=\"color:blue\">function</span> toArray($nullValue = null, $calculateFormulas = true) {\r\n</pre>\r\n</div>\r\n</span></pre>\r\n</div>\r\n</p>\r\n<p>I will definitely keep an eye out for updates ;)</p>\r\n<p>In the meantime I'm just converting dates and times back to the formats I need them in, working great. &nbsp;Thanks again!</p>",
+    "PostedDate": "2010-10-06T13:03:30.877-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "503211",
+    "ThreadId": "229581",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>missingdigit wrote:</strong><br>\r\n<p>Great tip. &nbsp;I see the current version 1.7.4 doesn't have all of those parameters in the toArray() method yet:&nbsp;</p>\r\n<p>\r\n<div style=\"color:black;background-color:white\">I will definitely keep an eye out for updates ;)</div>\r\n</p>\r\n</blockquote>\r\n<p>&nbsp;The new parameters will be in the 1.7.5 release, or are available from the daily downloads under the &quot;source code&quot; tab here on phpexcel.codeplex.com (absolutely latest revision, because I made some other changes to the toArray() method today).</p>",
+    "PostedDate": "2010-10-06T13:52:45.843-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

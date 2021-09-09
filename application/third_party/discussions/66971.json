@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "227703",
+    "ThreadId": "66971",
+    "Html": "<p>I've looked around and can't find anyone else having this problem so I'm hoping it's something simple that I'm doing wrong. &nbsp;Here is my code to load a basic spreadsheet, check a calculated value, modify a field referenced in the calculation and then check the field again. &nbsp;The result is no change. &nbsp;Here is my code:</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>        $objPHPExcel = PHPExcel_IOFactory::load(APPLICATION_PATH . <span style=\"color:#A31515\">'/../data/pricesheets/test.xlsx'</span>);\r\n        $objPHPExcel-&gt;setActiveSheetIndex(0);\r\n\r\n        $this-&gt;view-&gt;infoMessage .= <span style=\"color:#A31515\">'C2 (expecting 15):'</span>.$objPHPExcel-&gt;getSheetByName(<span style=\"color:#A31515\">'Test'</span>)-&gt;getCell(<span style=\"color:#A31515\">'C2'</span>)-&gt;getCalculatedValue().<span style=\"color:#A31515\">'&lt;br /&gt;'</span>;\r\n        $objPHPExcel-&gt;getSheetByName(<span style=\"color:#A31515\">'Test'</span>)-&gt;setCellValue(<span style=\"color:#A31515\">'D2'</span>,3);\r\n        $this-&gt;view-&gt;infoMessage .= <span style=\"color:#A31515\">'C2 (expecting 13):'</span>.$objPHPExcel-&gt;getSheetByName(<span style=\"color:#A31515\">'Test'</span>)-&gt;getCell(<span style=\"color:#A31515\">'C2'</span>)-&gt;getCalculatedValue().<span style=\"color:#A31515\">'&lt;br /&gt;'</span>;\r\n</pre>\r\n</div>\r\n<p>$this-&gt;view-&gt;infoMessage is my output stream. &nbsp;</p>\r\n<p>And here is the contents of the spreadsheet. &nbsp;Very basic with a formula that adds 3 other cells together. &nbsp;The calculated column contains a formula adding/multiplying the 3 following cells.</p>\r\n<p>&nbsp;</p>\r\n<tr height=20>\r\n<td width=130 height=20>&nbsp;</td>\r\n<td width=64>Expected</td>\r\n<td width=72>Calculated</td>\r\n<td width=64>&nbsp;</td>\r\n<td width=64>&nbsp;</td>\r\n<td width=64>&nbsp;</td>\r\n</tr>\r\n<tr height=20>\r\n<td height=20>Basic Addition</td>\r\n<td align=right>15</td>\r\n<td align=right>15</td>\r\n<td align=right>5</td>\r\n<td align=right>5</td>\r\n<td align=right>5</td>\r\n</tr>\r\n<tr height=20>\r\n<td height=20>Basic Multiplication</td>\r\n<td align=right>125</td>\r\n<td align=right>125</td>\r\n<td align=right>5</td>\r\n<td align=right>5</td>\r\n<td align=right>5</td>\r\n</tr>\r\n<td width=64><br></td>\r\n<td width=72><br></td>\r\n<td width=64><br></td>\r\n<td width=64><br></td>\r\n<td width=64><br></td>\r\n<td width=64><br></td>\r\n<td width=72><br></td>\r\n<td width=64><br></td>\r\n<td width=64><br></td>\r\n<td width=64><br></td>",
+    "PostedDate": "2009-08-25T16:58:17.5-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "227709",
+    "ThreadId": "66971",
+    "Html": "<p>This is probably a caching problem within the calculation engine. Can you try to add this somewhere at the beginning of your script?</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre><span style=\"color:Blue\">require_once</span> <span style=\"color:#A31515\">'PHPExcel/Calculation.php'</span>;\r\nPHPExcel_Calculation::getInstance()-&gt;setCalculationCacheEnabled(false);\r\n<br></pre>\r\n</div>\r\n<p>I'm not into the details of the calculation engine. Let's wait and see if MarkBaker comes across this post and explains further.</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-08-25T17:24:47.253-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "227715",
+    "ThreadId": "66971",
+    "Html": "<p>It worked. &nbsp; THANK YOU!</p>",
+    "PostedDate": "2009-08-25T17:44:33.28-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "227805",
+    "ThreadId": "66971",
+    "Html": "<p>OK, the next step is to evaluate formulas that include references to cells in other worksheets, but the result always seems to be empty/blank. &nbsp;Is this not possible, or do I need to take an additional step? &nbsp;</p>\r\n<p>I've confirmed that referenced cell calculates properly within the context of it's own sheet.&nbsp;</p>",
+    "PostedDate": "2009-08-26T00:51:08.767-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "227825",
+    "ThreadId": "66971",
+    "Html": "<p>PHPExcel's calculation engine shouldn't have any problems using cell references in a different sheet. A formula such as ='Sheet 1'!C1*5 is perfectly valid. However, there was a <a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10453\">bug reported</a> in the regular expression used to extract the cell references from a formula that could misread the reference if there were several sheet references in the formula (e.g. =MAX('Sheet 1'!C1,'Sheet 2'!C1)). That has been fixed in the latest SVN code</p>\r\n<p>For diagnostic purposes, it might be useful to do something like:</p>\r\n<pre>PHPExcel_Calculation::getInstance()-&gt;writeDebugLog = true;\r\n$cell = 'A1';\r\n$cellValue = $sheet-&gt;getCell($cell)-&gt;getValue();\r\necho '&lt;b&gt;'.$cell.' Value is &lt;/b&gt;'.$cellValue.&quot;&lt;br /&gt;\\n&quot;;\r\n\r\necho '&lt;b&gt;Parser Stack :-&lt;/b&gt;&lt;pre&gt;';\r\n$tokens = PHPExcel_Calculation::getInstance()-&gt;parseFormula($cellValue);\r\nprint_r($tokens);\r\necho '&lt;/pre&gt;';\r\n$cellValue = $sheet-&gt;getCell($cell)-&gt;getCalculatedValue();\r\necho '&lt;b&gt;'.$cell.' Calculated Value is &lt;/b&gt;'.$cellValue.&quot;&lt;br /&gt;\\n&quot;;\r\n<pre>echo '&lt;h3&gt;Evaluation Log:&lt;/h3&gt;&lt;pre&gt;';\r\nprint_r(PHPExcel_Calculation::getInstance()-&gt;debugLog);\r\necho '&lt;/pre&gt;';&nbsp;</pre>\r\n</pre>\r\n<p>This will display the parser stack in addition to a log of every step when evaluating the formula</p>\r\n<p>The result should look something like:</p>\r\n<p><strong>A1 Value is </strong>=MAX('Sheet 1'!C1,'Sheet 2'!C1)<br><strong>Parser Stack :-</strong></p>\r\n<pre>Array\r\n(\r\n    [0] =&gt; Array\r\n        (\r\n            [type] =&gt; Cell Reference\r\n            [value] =&gt; 'Sheet 1'!C1\r\n        )\r\n\r\n    [1] =&gt; Array\r\n        (\r\n            [type] =&gt; Cell Reference\r\n            [value] =&gt; 'Sheet 2'!C1\r\n        )\r\n\r\n    [2] =&gt; Array\r\n        (\r\n            [type] =&gt; Operand Count for Function MAX()\r\n            [value] =&gt; 2\r\n        )\r\n\r\n    [3] =&gt; Array\r\n        (\r\n            [type] =&gt; Function\r\n            [value] =&gt; MAX(\r\n        )\r\n\r\n)\r\n</pre>\r\n<p><strong>A1 Calculated Value is </strong>10</p>\r\n<h3>Evaluation Log:</h3>\r\n<pre>Array\r\n(\r\n    [0] =&gt; A1 -&gt; Evaluating Cell C1 in worksheet Sheet 1\r\n    [1] =&gt; A1 -&gt; Evaluation Result for cell C1 in worksheet Sheet 1 is an integer number with a value of 5\r\n    [2] =&gt; A1 -&gt; Evaluating Cell C1 in worksheet Sheet 2\r\n    [3] =&gt; A1 -&gt; Evaluation Result for cell C1 in worksheet Sheet 2 is an integer number with a value of 10\r\n    [4] =&gt; A1 -&gt; Evaluating Function MAX() with 2 arguments\r\n    [5] =&gt; A1 -&gt; Evaluating MAX( 5, 10 )\r\n    [6] =&gt; A1 -&gt; Evaluation Result is an integer number with a value of 10\r\n)\r\n</pre>\r\n<p>The 1.7.0 release code (without the bugfix for issue 10453) would instead look something like:</p>\r\n<p><strong>A1 Value is </strong>=MAX('Sheet 1'!C1,'Sheet 2'!C1)<br><strong>Parser Stack :-</strong></p>\r\n<pre>Array\r\n(\r\n    [0] =&gt; 'Sheet 1'!C1,'Sheet 2'!C1\r\n    [1] =&gt; 1\r\n    [2] =&gt; MAX(\r\n)\r\n</pre>\r\n<p><strong>A1 Calculated Value is </strong>0</p>\r\n<h3>Evaluation Log:</h3>\r\n<pre>Array\r\n(\r\n    [0] =&gt; A1 -&gt; Evaluating Cell C1 in worksheet 'Sheet 1'!C1,'Sheet 2'\r\n    [1] =&gt; A1 -&gt; Evaluation Result for cell C1 in worksheet 'Sheet 1'!C1,'Sheet 2' is a matrix with a value of {  }\r\n    [2] =&gt; A1 -&gt; Evaluating Function MAX() with 1 argument\r\n    [3] =&gt; A1 -&gt; Evaluating MAX( {  } )\r\n    [4] =&gt; A1 -&gt; Evaluation Result is an integer number with a value of 0\r\n)\r\n</pre>",
+    "PostedDate": "2009-08-26T01:42:24.63-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "228526",
+    "ThreadId": "66971",
+    "Html": "<p>THANKS. &nbsp;That helped a lot. &nbsp;</p>\r\n<p>The dump was miles long, probably because I have input/output sheet and then a separate sheet for the calcs that all reference back and forth for the calculations.</p>\r\n<p>I've gone back and put everything on a single worksheet and everything works fine....and the dump is manageable. &nbsp;I'll probably stick with that if I can.</p>",
+    "PostedDate": "2009-08-27T13:44:49.373-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

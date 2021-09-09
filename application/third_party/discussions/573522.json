@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "1327321",
+    "ThreadId": "573522",
+    "Html": "Hi, all :)\r<br />\n<br />\nHow can i do it when create XLS file with PHPExcel?\r<br />\n<br />\nin php i can do that:<br />\n<pre><code>&lt;div&gt; \n  &lt;span style='color:#eeeeee'&gt;text&lt;/span&gt;\n  &lt;span style='color:#ff0000'&gt;text&lt;/span&gt;\n  &lt;span style='color:#0000ff'&gt;text&lt;/span&gt;\n&lt;/div&gt;</code></pre>\n\nbut PHPExcel can do that only one color in one cell   :(<br />\n<pre><code>$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('$cellcoordinate')-&gt;getFont()-&gt;getColor()-&gt;setARGB(PHPExcel_Style_Color::COLOR_RED);</code></pre>\n\nI need different colors in cell :(<br />\n",
+    "PostedDate": "2014-11-30T03:26:52.133-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1327323",
+    "ThreadId": "573522",
+    "Html": "Take a look at Rich Text Runs, there's a good example in <code>05featuredemo.inc.php</code> where cell A18 is mixed black (default colour) and green text, and Rich Text is described in section 4.6.38 (<code>Add rich text to a cell</code>) of the developer documentation<br />\n",
+    "PostedDate": "2014-11-30T03:44:50.033-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1327329",
+    "ThreadId": "573522",
+    "Html": "I tried these code:<br />\n<pre><code>$objRichText = new PHPExcel_RichText();\n$objRed = $objRichText-&gt;createTextRun('red');\n$objRed-&gt;getFont()-&gt;setColor(new PHPExcel_Style_Color( PHPExcel_Style_Color::COLOR_RED ) );\n\n$objGreen = $objRichText-&gt;createTextRun('green');\n$objGreen-&gt;getFont()-&gt;setColor(new PHPExcel_Style_Color( PHPExcel_Style_Color::COLOR_GREEN ) );\n\n$aSheet-&gt;setCellValue(&quot;A1&quot;, &quot;$objRichText&quot;);</code></pre>\n\nAnd i see in cell &quot;A1&quot; two words &quot;red&quot; and &quot;green&quot; of black color :(<br />\n",
+    "PostedDate": "2014-11-30T03:55:31.86-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1327332",
+    "ThreadId": "573522",
+    "Html": "Solved. Thanks.<br />\n<br />\nAnother example:<br />\n<pre><code>$objRichText = new PHPExcel_RichText();\n$objRichText-&gt;createText('Text');\n\n$objPayable = $objRichText-&gt;createTextRun('Text');\n$objPayable-&gt;getFont()-&gt;setBold(true);\n$objPayable-&gt;getFont()-&gt;setItalic(true);\n$objPayable-&gt;getFont()-&gt;setColor( new PHPExcel_Style_Color( PHPExcel_Style_Color::COLOR_DARKGREEN ) );\n\n$objRichText-&gt;createText('Text');\n\n$aSheet-&gt;getCell(&quot;A1&quot;)-&gt;setValue($objRichText);</code></pre>\n\n",
+    "PostedDate": "2014-11-30T04:05:30.667-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1327333",
+    "ThreadId": "573522",
+    "Html": "This works perfectly well, as long as you don't do silly things like quoting the rich text object when you write it to the cell<br />\n<div style=\"color:Black;background-color:White;\"><pre>\r\n$aSheet-&gt;setCellValue(<span style=\"color:#A31515;\">&quot;A1&quot;</span>, <span style=\"color:#A31515;\">&quot;$objRichText&quot;</span>);\r\n</pre></div>should be<br />\n<div style=\"color:Black;background-color:White;\"><pre>\r\n$aSheet-&gt;setCellValue(<span style=\"color:#A31515;\">&quot;A1&quot;</span>, $objRichText);\r\n</pre></div>Quoting the object in the way you did means that PHP will treat it as a string, so it will execute the __toString() magic method of the Rich Text object and simply store that returned string in the cell.... you need to store the actual Rich Text object, not simply the string that it contains.<br />\n<div style=\"color:Black;background-color:White;\"><pre>\r\n$objRichText = <span style=\"color:Blue;\">new</span> PHPExcel_RichText();\n\n$objRed = $objRichText-&gt;createTextRun(<span style=\"color:#A31515;\">&#39;RED&#39;</span>);\n$objRed-&gt;getFont()-&gt;setColor( <span style=\"color:Blue;\">new</span> PHPExcel_Style_Color( PHPExcel_Style_Color::COLOR_DARKRED ) );\n\n$objRichText-&gt;createText(<span style=\"color:#A31515;\">&#39; and &#39;</span>);\n\n$objGreen = $objRichText-&gt;createTextRun(<span style=\"color:#A31515;\">&#39;GREEN&#39;</span>);\n$objGreen-&gt;getFont()-&gt;setColor( <span style=\"color:Blue;\">new</span> PHPExcel_Style_Color( PHPExcel_Style_Color::COLOR_DARKGREEN ) );\n\n$objPHPExcel-&gt;getActiveSheet()-&gt;getCell(<span style=\"color:#A31515;\">&#39;A1&#39;</span>)-&gt;setValue($objRichText);\r\n</pre></div>",
+    "PostedDate": "2014-11-30T04:08:50.86-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1327336",
+    "ThreadId": "573522",
+    "Html": "<strong>MarkBaker</strong> , thank you!\r<br />\n<br />\nI usually write all text in quotes (habit when write code in PHP) and did not pay attention to quotes. :(<br />\n",
+    "PostedDate": "2014-11-30T04:39:12.32-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

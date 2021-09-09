@@ -1,0 +1,60 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "Calculation_Engine",
+      "DisplayName": "Calculation_Engine"
+    },
+    "ClosedComment": "Fixed in SVN",
+    "ClosedDate": "2010-10-12T11:54:13.307-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Processing this through the Evaluator tool in Excel, the 0 value is the correct return for Excel when a cell is blank, but the referenced worksheet still exists: if the referenced worksheet doesn't exist, then Excel will return a #REF! error. By default, this will be displayed as a 0. So the result for a formula of =IV65535 will display as 0 in Excel if IV65535 isn't populated. Likewise, if sheet2 exists, then the formula =Sheet2!IV65535 will return a 0; but =Sheet999!IV65535 will return a #REF! error (assuming Sheet999 does not exist)\n \nThe behaviour of PHPExcel isn't strictly correct here. If the referenced cell is in the current worksheet, then PHPExcel correctly returns a NULL; but it always returns a #REF! error if the cell reference is in another worksheet, but doesn't exist, even if the referenced worksheet itself is valid. This behaviour needs modifying to return a NULL if the worksheet exists, and only to return a #REF! error if the referenced worksheet doesn't exist",
+    "LastUpdatedDate": "2013-05-16T05:41:51.847-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2010-09-14T06:46:59.45-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "problem with getting cell values from another worksheet...",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 14236
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "Hi MarkBaker,\r\n\r\nThanks for the reply! I understand what you have explained to the problem i have posted. But the question is:\r\nlet us say the $worksheetname=\"worksheet1\" and there are two worksheets in a Workbook. so the second worksheet (worksheet2) have some reference cell from \"worksheet1\". \r\n\r\nSo on the worksheet2,\r\n\r\nthis code: $objPHPExcel->getActiveSheet()->setCellValue('D'.$cns, \"='$worksheetname'!I\".$cns); works perfectly. thought it returns 0 when the referenced cell is NULL.\r\n\r\nThe problem here is \r\nwhen i try to add a IF statement to the formula to validate the cell, IF the reference cell is NULL, THEN return Empty.\r\nThen the code become:\r\n\r\n$objPHPExcel->getActiveSheet()->setCellValue('C'.$cns, \"=IF('$worksheetname'!D\".$cns.\")=\"\",\"\", '$worksheetname'!D\".$cns);\r\n\r\nsince the excel file need to be saved, so on the end of the php file, the following statement has been used:\r\n $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');\r\n$objWriter->save('php://output'); \r\n\r\nwhat the output from the web browser shows that the webpage is not found. It simple does not create the excel file at all.\r\n\r\nIs it because of the double quote(\"\") or single quote('') in the formula that gives the problem?\r\n\r\nFor your reference, PHPExcel version : 1.7.2\r\nApache server 2.2\r\nPHP 5.2.11\r\n\r\nthank you once again for the time you have spent for this issue.",
+      "PostedDate": "2010-09-14T18:28:56.36-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-10-12T11:54:13.307-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:02:44.96-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:41:51.847-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

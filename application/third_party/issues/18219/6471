@@ -1,0 +1,187 @@
+Index: PHPExcel/Calculation.php
+===================================================================
+--- PHPExcel/Calculation.php	(revision 1)
++++ PHPExcel/Calculation.php	(revision 2)
+@@ -77,6 +77,8 @@
+ 	const CALCULATION_REGEXP_NAMEDRANGE	= CALCULATION_REGEXP_NAMEDRANGE;
+ 	//	Error
+ 	const CALCULATION_REGEXP_ERROR		= '\#[A-Z][A-Z0_\/]*[!\?]?';
++	// ID for no worksheet available (thus disabling caching)
++	const NO_WS_ID						= 'standalone';
+ 
+ 
+ 	/**	constants */
+@@ -2265,71 +2267,75 @@
+ 		$formula = ltrim(substr($formula,1));
+ 		if (!isset($formula{0})) return self::_wrapResult($formula);
+ 
+-		$wsTitle = "\x00Wrk";
++		$wsID = self::NO_WS_ID;
+ 		if (!is_null($pCell)) {
+ 			$pCellParent = $pCell->getParent();
+ 			if (!is_null($pCellParent)) {
+-				$wsTitle = $pCellParent->getTitle();
++				$wsID = $pCellParent->getUUID();
+ 			}
+ 		}
+-		// Is calculation cacheing enabled?
+-		if (!is_null($cellID)) {
+-			if (self::$_calculationCacheEnabled) {
+-				// Is the value present in calculation cache?
+-//				echo 'Testing cache value<br />';
+-				if (isset(self::$_calculationCache[$wsTitle][$cellID])) {
+-//					echo 'Value is in cache<br />';
+-					$this->_writeDebug('Testing cache value for cell '.$cellID);
+-					//	Is cache still valid?
+-					if ((microtime(true) - self::$_calculationCache[$wsTitle][$cellID]['time']) < self::$_calculationCacheExpirationTime) {
+-//						echo 'Cache time is still valid<br />';
+-						$this->_writeDebug('Retrieving value for '.$cellID.' from cache');
+-						// Return the cached result
+-						$returnValue = self::$_calculationCache[$wsTitle][$cellID]['data'];
+-//						echo 'Retrieving data value of '.$returnValue.' for '.$cellID.' from cache<br />';
+-						if (is_array($returnValue)) {
+-							$returnValue = PHPExcel_Calculation_Functions::flattenArray($returnValue);
+-							return array_shift($returnValue);
++		
++		if ($wsID != self::NO_WS_ID) 
++		{
++			// Is calculation cacheing enabled?
++			if (!is_null($cellID)) {
++				if (self::$_calculationCacheEnabled) {
++					// Is the value present in calculation cache?
++					//echo 'Testing cache value<br />';
++					if (isset(self::$_calculationCache[$wsID][$cellID])) {
++						//echo "Value is in $wsID cache<br />";
++						$this->_writeDebug('Testing cache value for cell '.$cellID);
++						//	Is cache still valid?
++						if ((microtime(true) - self::$_calculationCache[$wsID][$cellID]['time']) < self::$_calculationCacheExpirationTime) {
++							//echo 'Cache time is still valid<br />';
++							$this->_writeDebug('Retrieving value for '.$cellID.' from cache');
++							// Return the cached result
++							$returnValue = self::$_calculationCache[$wsID][$cellID]['data'];
++							//echo 'Retrieving data value of '.$returnValue.' for '.$cellID.' from cache<br />';
++							if (is_array($returnValue)) {
++								$returnValue = PHPExcel_Calculation_Functions::flattenArray($returnValue);
++								return array_shift($returnValue);
++							}
++							return $returnValue;
++						} else {
++							//echo 'Cache has expired<br />';
++							$this->_writeDebug('Cache value for '.$cellID.' has expired');
++							//	Clear the cache if it's no longer valid
++							unset(self::$_calculationCache[$wsID][$cellID]);
+ 						}
+-						return $returnValue;
+-					} else {
+-//						echo 'Cache has expired<br />';
+-						$this->_writeDebug('Cache value for '.$cellID.' has expired');
+-						//	Clear the cache if it's no longer valid
+-						unset(self::$_calculationCache[$wsTitle][$cellID]);
+ 					}
+ 				}
+ 			}
+-		}
+-
+-		if ((in_array($wsTitle.'!'.$cellID,$this->debugLogStack)) && ($wsTitle != "\x00Wrk")) {
+-			if ($this->cyclicFormulaCount <= 0) {
+-				return $this->_raiseFormulaError('Cyclic Reference in Formula');
+-			} elseif (($this->_cyclicFormulaCount >= $this->cyclicFormulaCount) &&
+-					  ($this->_cyclicFormulaCell == $wsTitle.'!'.$cellID)) {
+-				return $cellValue;
+-			} elseif ($this->_cyclicFormulaCell == $wsTitle.'!'.$cellID) {
+-				++$this->_cyclicFormulaCount;
+-				if ($this->_cyclicFormulaCount >= $this->cyclicFormulaCount) {
++	
++			if ((in_array($wsID.'!'.$cellID,$this->debugLogStack))) {
++				if ($this->cyclicFormulaCount <= 0) {
++					return $this->_raiseFormulaError('Cyclic Reference in Formula');
++				} elseif (($this->_cyclicFormulaCount >= $this->cyclicFormulaCount) &&
++						  ($this->_cyclicFormulaCell == $wsID.'!'.$cellID)) {
+ 					return $cellValue;
++				} elseif ($this->_cyclicFormulaCell == $wsID.'!'.$cellID) {
++					++$this->_cyclicFormulaCount;
++					if ($this->_cyclicFormulaCount >= $this->cyclicFormulaCount) {
++						return $cellValue;
++					}
++				} elseif ($this->_cyclicFormulaCell == '') {
++					$this->_cyclicFormulaCell = $wsID.'!'.$cellID;
++					if ($this->_cyclicFormulaCount >= $this->cyclicFormulaCount) {
++						return $cellValue;
++					}
+ 				}
+-			} elseif ($this->_cyclicFormulaCell == '') {
+-				$this->_cyclicFormulaCell = $wsTitle.'!'.$cellID;
+-				if ($this->_cyclicFormulaCount >= $this->cyclicFormulaCount) {
+-					return $cellValue;
+-				}
+ 			}
+ 		}
+-		$this->debugLogStack[] = $wsTitle.'!'.$cellID;
++		$this->debugLogStack[] = $wsID.'!'.$cellID;
+ 		//	Parse the formula onto the token stack and calculate the value
+ 		$cellValue = $this->_processTokenStack($this->_parseFormula($formula, $pCell), $cellID, $pCell);
+ 		array_pop($this->debugLogStack);
+ 
+ 		// Save to calculation cache
+-		if (!is_null($cellID)) {
++		if (!is_null($cellID) && $wsID != self::NO_WS_ID) {
+ 			if (self::$_calculationCacheEnabled) {
+-				self::$_calculationCache[$wsTitle][$cellID]['time'] = microtime(true);
+-				self::$_calculationCache[$wsTitle][$cellID]['data'] = $cellValue;
++				self::$_calculationCache[$wsID][$cellID]['time'] = microtime(true);
++				self::$_calculationCache[$wsID][$cellID]['data'] = $cellValue;
+ 			}
+ 		}
+ 
+Index: PHPExcel/Worksheet.php
+===================================================================
+--- PHPExcel/Worksheet.php	(revision 1)
++++ PHPExcel/Worksheet.php	(revision 2)
+@@ -317,6 +317,13 @@
+ 	 * @var string
+ 	 */
+ 	private $_hash	= null;
++	
++	/**
++	 * UUID
++	 *
++	 * @var string
++	 */
++	private $_uuid	= null;
+ 
+ 	/**
+ 	 * Create a new worksheet
+@@ -326,6 +333,9 @@
+ 	 */
+ 	public function __construct(PHPExcel $pParent = null, $pTitle = 'Worksheet')
+ 	{
++		// Create a unique id for this worksheet
++		$this->_uuid = uniqid("", true);
++				
+ 		// Set parent and title
+ 		$this->_parent = $pParent;
+ 		$this->setTitle($pTitle);
+@@ -1005,7 +1015,6 @@
+ 				$this->_cachedHighestColumn = $columnLetter;
+ 
+ 			$this->_cachedHighestRow = max($this->_cachedHighestRow,$pRow);
+-
+ 			return $cell;
+ 		}
+ 
+@@ -2346,6 +2355,15 @@
+ 		}
+ 		return $this->_hash;
+ 	}
++	
++	/**
++	 * Get the unique ID of the worksheet
++	 * 
++	 * @return string UniqueId
++	 */
++	public function getUUID() {
++		return $this->_uuid;
++	}
+ 
+ 	/**
+ 	 * Extract worksheet title from range.

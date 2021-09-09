@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "622779",
+    "ThreadId": "260158",
+    "Html": "\r\n<p>Hi,</p>\r\n<p>The loading of rap.xlsx is not working :</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><span style=\"color:blue\">require_once</span> <span style=\"color:#a31515\">'/var/www/htdocs/rapport/Classes/PHPExcel/IOFactory.php'</span>;\r\n\r\n$objet1 = <span style=\"color:blue\">new</span> PHPExcel_Reader_Excel5();\r\n$excel1 = $objet1-&gt;load(<span style=\"color:#a31515\">'rap.xlsx'</span>);\r\n \r\n$objet2 = <span style=\"color:blue\">new</span> PHPExcel_Reader_Excel5();\r\n$excel2 = $objet2-&gt;load(<span style=\"color:#a31515\">'rap2.xlsx'</span>);\r\n\r\n$writer = <span style=\"color:blue\">new</span> PHPExcel();\r\n\r\n<span style=\"color:blue\">for</span> ($i=0;$i&lt;$excel1-&gt;getSheetCount();$i&#43;&#43;){\r\n    $writer-&gt;addSheet($excel1-&gt;getSheet($i));\r\n}\r\n\r\n<span style=\"color:blue\">for</span> ($i=0;$i&lt;$excel2-&gt;getSheetCount();$i&#43;&#43;){\r\n    $writer-&gt;addSheet($excel2-&gt;getSheet($i));\r\n}\r\n\r\n$save = <span style=\"color:blue\">new</span> PHPExcel_Writer_Excel5($writer);\r\n$save-&gt;save(<span style=\"color:#a31515\">'master.xlsx'</span>);<br><br></pre>\r\n</div>\r\n<p>Can anyone help me?</p>\r\n<p>Thanks!</p>\r\n",
+    "PostedDate": "2011-06-03T13:53:10.953-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "622781",
+    "ThreadId": "260158",
+    "Html": "<p>Try using the correct reader... the Excel5 reader is for Excel BIFF files, those files (typically) created using MS Excel 2003 or earlier, with an extension of .xls. To load Office Open XML files created with Excel 2007 or later, with an extension of .xlsx, you need to use the Excel2007 Reader.</p>\r\n<p>Likewise, when writing, use the correct writer: Excel2007 for .xlsx files, Excel5 for .xls files.</p>",
+    "PostedDate": "2011-06-03T13:58:51.32-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "623557",
+    "ThreadId": "260158",
+    "Html": "<p>Thanks MarkBaker !</p>\r\n<p>I have a new error :&nbsp;Fatal error: Class 'ZipArchive' not found in /var/www/htdocs/rapport/Classes/PHPExcel/Reader/Excel2007.php on line 368</p>\r\n<p>I'm looking at this huge file trying to find a clue...</p>",
+    "PostedDate": "2011-06-06T08:45:35.933-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "623746",
+    "ThreadId": "260158",
+    "Html": "<p>From the Requirements for PHPExcel:</p>\r\n<li>PHP extension php_zip enabled</li>",
+    "PostedDate": "2011-06-06T14:09:06.967-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "625538",
+    "ThreadId": "260158",
+    "Html": "<p>Finally i used this :</p>\r\n<div>\r\n<pre><div style=\"color: black; background-color: white;\"><pre><span style=\"color: green;\">// Creation d'un lecteur</span>\r\n$objReader = PHPExcel_IOFactory::createReader($inputFileType);\r\n<span style=\"color: green;\">// Lecture du fichier excel (le nouveau rapport)</span>\r\n$objPHPExcel = $objReader-&gt;load($nouveauRapport);\r\n</pre>\r\n</div>\r\n</pre>\r\n</div>\r\n<p>It's working perfectly.</p>\r\n<p>Thanks for the fast reply tho!</p>",
+    "PostedDate": "2011-06-09T11:02:26.317-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "466815",
+    "ThreadId": "219301",
+    "Html": "Hello,\r\n\r\nI have looked for this on the internet for the whole day, but I just can't find anything useful. I am trying to parse an Excel 2003 file, and I am having problems to retrieve cells with &quot;Date&quot; format. Instead of returning a date like &quot;26/04/2006&quot;, it is returning &quot;38833&quot;.\r\n\r\nHow can I do to make PHPExcel return me the date in a correct way ?\r\n\r\nThanks !",
+    "PostedDate": "2010-07-13T06:59:59.023-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "466823",
+    "ThreadId": "219301",
+    "Html": "<p>Excel holds dates as a positive floating point numeric value, the number of days since 1st January 1900, with the fractional part representing the time. PHP holds dates as a signed&nbsp;integer value, the number of seconds since/before January 1 1970 00:00:00 GMT, or as a SateTime object. When storing a value to be used as a date using PHPExcel, you need to store the numeric value that Excel will recognise: when reading a date from Excel, you need to convert it to a PHP date/timestamp or DateTime object. Functions to perform these conversions are built into the PHPExcel_Shared_Date class.</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>$PHPDate = PHPExcel_Shared_Date::ExcelToPHP($excelDate);\r\n\r\n$PHPDateObject = PHPExcel_Shared_Date::ExcelToPHPObject($excelDate);\r\n\r\n$excelDate = PHPExcel_Shared_Date::PHPToExcel($PHPDate);\r\n\r\n$excelDate = PHPExcel_Shared_Date::FormattedPHPToExcel($year, $month, $day, $hours=0, $minutes=0, $seconds=0);\r\n</pre>\r\n</div>\r\n<p>Once you've got your $PHPDate, you can format it using the standard date() function</p>\r\n<p>&nbsp;</p>\r\n<p>Alternatively, you can use</p>\r\n<p><code><span>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>$displayDate = PHPExcel_Style_NumberFormat::toFormattedString($excelDate, <span style=\"color:#a31515\">'YYYY-MM-DD'</span>);\r\n</pre>\r\n</div>\r\n</span></code></p>\r\n<p><code><span>&nbsp;</span></code></p>\r\n<p><code><span>using Excel format masks&nbsp;</span></code></p>",
+    "PostedDate": "2010-07-13T07:13:52.167-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "466830",
+    "ThreadId": "219301",
+    "Html": "Thank you very much Mark !!\r\n\r\nIt worked like a charm with the examples you provided !\r\n\r\nThank you for this extremely quick answer, you saved my day :D",
+    "PostedDate": "2010-07-13T07:21:49.647-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,39 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel_Writer_Excel2007",
+      "DisplayName": "PHPExcel_Writer_Excel2007"
+    },
+    "ClosedComment": "Fixed in SVN",
+    "ClosedDate": "2008-06-15T23:12:13.72-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I have an application that reads in a template spreadsheet that contains images, but I found that images were missing when the writer wrote the spreadsheet back out.\nThe problem is that when the Writer writes the spreadsheet, and it tries to link in the images, the images are within the zip file (the original template), and the call to file_get_contents doesn't work.  I made the following change to the Excel2007.php writer to remedy this situation:\n \n\t\t\t// Add media\n\t\t\tfor ($i = 0; $i < $this->getDrawingHashTable()->count(); $i++) {\n\t\t\t\tif ($this->getDrawingHashTable()->getByIndex($i) instanceof PHPExcel_Worksheet_Drawing) {\n \n               $image_file_path = $this->getDrawingHashTable()->getByIndex($i)->getPath();\n               \n               if (substr($image_file_path,0,6) == 'zip://') { \n                  \n                  $image_file_path = substr($image_file_path,6);\n                  $image_file_path_array = explode('#',$image_file_path);\n                  \n\t\t            $image_zip = new ZipArchive;\n            \t\t$image_zip->open($image_file_path_array[0]);\n            \t\t$file_contents = $image_zip->getFromName($image_file_path_array[1]);\n\t\t\t\t\t   \n               }\n               else {\n\t\t\t\t\t   $file_contents = file_get_contents($image_file_path);\n               }\n \n               $objZip->addFromString('xl/media/' . $this->getDrawingHashTable()->getByIndex($i)->getFilename(), $file_contents);\n\t\t\t\t\t   \n\t\t\t\t}\n\t\t\t\t//The line underneath does not support adding a file from a ZIP archive, the line above does!\n\t\t\t\t//$objZip->addFile($this->getDrawingHashTable()->getByIndex($i)->getPath(), 'xl/media/' . $this->getDrawingHashTable()->getByIndex($i)->getFilename());",
+    "LastUpdatedDate": "2013-05-16T05:43:33.873-07:00",
+    "PlannedForRelease": "PHPExcel 1.6.2 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2008-06-13T16:04:28.543-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Problem Using Excel2007 Reader for Spreadsheets containing images",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 6357
+  },
+  "FileAttachments": [],
+  "Comments": []
+}

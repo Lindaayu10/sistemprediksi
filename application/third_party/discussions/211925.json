@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "440357",
+    "ThreadId": "211925",
+    "Html": "<p>While this is not specifically a PHPExcel issue I thought it might be useful for Joomla developers using the PHPExcel library to be aware of it. Depending on your version of Joomla (mine is currently 1.5.6) an autoloader incompatibilty exists between Joomla and PHPExcel.</p>\r\n<p><strong><span style=\"text-decoration:underline\">Problem:</span></strong></p>\r\n<p><strong></strong>Basically, Joomla's <strong>&lt;root&gt;\\libraries\\loader.php</strong> file defines a function called&nbsp;<strong>__autoload</strong>&nbsp;which then PHP calls whenever it needs to load a class definition that is not currently in memory. Joomla's __autoload function when called searches&nbsp;through all the JLoader registered classes and loads the requested class from the defined file (if it can find it).</p>\r\n<p>Anyway the issue is that the newer version of PHPExcel (&gt; 1.7.2 more or less) uses a function called&nbsp;<strong>spl_autoload_register</strong>&nbsp;in the <strong>Classes\\PHPExcel\\Autoloader.php</strong>&nbsp;file that interferes/wipes out PHP's ability to use the Joomla defined&nbsp;<strong>__autoload </strong>function. So as soon as you attempt to load and use the PHPExcel class in Joomla PHP &quot;forgets&quot; how to load needed Joomla classes and a meltdown occurs. You'll get PHP errors that this or that Joomla class could not be found/loaded.</p>\r\n<p><strong><span style=\"text-decoration:underline\">Fix:</span></strong>&nbsp;</p>\r\n<p>The easiest fix I found if to modify the Joomla&nbsp;<strong>&lt;root&gt;\\libraries\\loader.php</strong> file to replace the&nbsp;<strong>__autoload</strong>&nbsp;function with the following:</p>\r\n<p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre><span style=\"color:blue\">function</span> Joomla_Autoload($<span style=\"color:blue\">class</span>)\r\n{ <span style=\"color:blue\">if</span>(JLoader::load($<span style=\"color:blue\">class</span>))\r\n  { <span style=\"color:blue\">return</span> true;\r\n  }\r\n  <span style=\"color:blue\">return</span> false;\r\n}\r\n<span style=\"color:green\">/*** specify extensions that may be loaded ***/</span>\r\nspl_autoload_extensions(<span style=\"color:#a31515\">'.php, .class.php, .lib.php'</span>);\r\n<span style=\"color:green\">/*** register the loader functions ***/</span>\r\nspl_autoload_register(<span style=\"color:#a31515\">'Joomla_Autoload'</span>);\r\n</pre>\r\n</div>\r\n</p>\r\n<p>I commented out the&nbsp;<strong>__autoload</strong>&nbsp;function just in case I needed it back for any reason.</p>\r\n<p><strong><span style=\"text-decoration:underline\">Notes:</span></strong></p>\r\n<p>The <a href=\"http://www.php.net/manual/en/ref.spl.php\">spl_ functions</a> represent a better way to deal with autoloading classes (let's PHP handle multiple autoload functions) so I understand PHPExcel switching to it.&nbsp;Obviously&nbsp;they have no control (or notion perhaps) as to how Joomla deals with autoloading and that this would&nbsp;interfere&nbsp;in any way. It's really Joomla's issue for assuming their autoloader would be the only one in use. Regardless there is talk of this being changed in subsequent versions of Joomla so by time you read this it may be changed. Just look in the&nbsp;<strong>&lt;root&gt;\\libraries\\loader.php </strong>to see how autoloading is being dealt with and respond accordingly.</p>\r\n<p>Hope this helps someone. Good luck!</p>",
+    "PostedDate": "2010-05-07T07:41:26.777-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "443213",
+    "ThreadId": "211925",
+    "Html": "<p>Thanks for posting this advice.</p>",
+    "PostedDate": "2010-05-15T04:11:25.337-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "490547",
+    "ThreadId": "211925",
+    "Html": "<p>Thanks so much! I very happy with this guide.I not good English. So I can say that I can import/export excel file by PHPExcel in Joomla and by <span id=\"result_box\"><span style=\"background-color:#e6ecf9;color:#000000\">manipulation with database.<br></span></span></p>",
+    "PostedDate": "2010-09-08T01:53:19.827-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "533888",
+    "ThreadId": "211925",
+    "Html": "\r\n<p>Thank you, was very helpful.</p>\r\n",
+    "PostedDate": "2010-12-10T06:41:53.19-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "906109",
+    "ThreadId": "211925",
+    "Html": "<p>where should I put these lines -</p>\r\n<p><span>/*** specify extensions that may be loaded ***/</span><br /><span>spl_autoload_extensions('.php, .class.php, .lib.php');</span><br /><span>/*** register the loader functions ***/</span><br /><span>spl_autoload_register('Joomla_Autoload');</span><br /><span>??</span><br /><br /><span>i'm using Joomla! version, 2.5.6 and PHPExcel-1.7.7</span><br /><span>any respond would be greatly appreciated..</span><br /><span>=)&nbsp;</span></p>",
+    "PostedDate": "2012-08-29T22:05:57.957-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1274184",
+    "ThreadId": "211925",
+    "Html": "How to know that PHPExcel autoload confict with joomla or any other application? I run the PHPExcel library and testing it under root directory of magento.<br />\n",
+    "PostedDate": "2014-07-19T00:10:55.987-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

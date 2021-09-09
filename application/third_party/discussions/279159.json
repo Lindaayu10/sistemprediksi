@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "697145",
+    "ThreadId": "279159",
+    "Html": "\r\n<p>I have been able to generate the .xlsx file and download it with no problem using Firefox, but when I try to download the file using IE8 I get the following error:</p>\r\n<p>&quot;Internet Explorer cannot download [file name] from [server]</p>\r\n<p>Internet Explorer was not able to open this Internet site. The requested site is either unavailable or cannot be found. PLease try again later.&quot;</p>\r\n<p>The file name given has a .xl extension, yet when I download the file in Firefox it has the proper .xlsx extension.</p>\r\n<p>Any ideas on what's causing this?</p>\r\n<p>Thanks</p>\r\n",
+    "PostedDate": "2011-11-11T11:40:33.813-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "719940",
+    "ThreadId": "279159",
+    "Html": "<p><span class=\"pBody postableBody\">I solved the problem! I gradually  removed pieces of the code to see if I could isolate what was causing  the problem. After getting down to almost nothing I tried removing the <br /><br />@session_start();<br /><br />line at the top of the page and that solved it. On other apps I had not used this and so the <span class=\"searchTerm\">PHPExcel</span> worked without a glitch, but on this one I had to access some $_SESSION  variables in the class. With a little research, I discovered that this  is a general problem with IE in accepting a <span class=\"searchTerm\">download</span> from PHP. The solution explanation can be found at:</span></p>\r\n<p><span class=\"pBody postableBody\"><a href=\"http://joseph.randomnetworks.com/2004/10/01/making-ie-accept-file-downloads/\" target=\"_blank\">http://joseph.randomnetworks.com/2004/10/01/making-ie-accept-file-<span class=\"searchTerm\">downloads</span>/</a></span></p>\r\n<p><span class=\"pBody postableBody\">The actual solution is to place this piece of code before calling the start of session:</span></p>\r\n<p><span class=\"pBody postableBody\">\r\n<div style=\"color: black; background-color: white;\">\r\n<pre><span style=\"color: blue;\">if</span>(strpos($_SERVER[<span style=\"color: #a31515;\">'HTTP_USER_AGENT'</span>], <span style=\"color: #a31515;\">'MSIE'</span>)) {\r\n    session_cache_limiter(<span style=\"color: #a31515;\">\"public\"</span>);\r\n}\r\nsession_start();\r\n</pre>\r\n</div>\r\n</span><span class=\"pBody postableBody\">The <span class=\"searchTerm\">download</span> works like a charm in IE now.</span></p>\r\n<p><span class=\"pBody postableBody\"><br /></span></p>",
+    "PostedDate": "2012-01-03T10:21:38.867-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

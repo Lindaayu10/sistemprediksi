@@ -1,0 +1,100 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel_Reader_Excel2007",
+      "DisplayName": "PHPExcel_Reader_Excel2007"
+    },
+    "ClosedComment": "No further reports of problems since fix was implemented",
+    "ClosedDate": "2011-01-02T06:47:50.74-08:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "From thread (by joelrsimpson):\nhttp://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=80146\n \nI hesitate to post as I'm assuming it has to be something I've done since no one else has reported this, so I'm hoping at least someone will have seen this behavior and can correct me.\n \nI'm getting \"Warning: Invalid argument supplied for foreach() in /home/developer/www/dev/library/PHPExcel/PHPExcel/Reader/Excel2007.php on line 353\" when loading xlsx files.  These files loaded just fine before I updated from the repository.\n \nThe important lines of code there are:\n \n352: $rels = simplexml_load_string($this->_getFromZipArchive($zip, \"_rels/.rels\")); //~ http://schemas.openxmlformats.org/package/2006/relationships\");\n353:        foreach ($rels->Relationship as $rel) {\n \nWhich seems to indicate a problem in _getFromZipArchive which when I debug\n \n305: if (strpos($fileName, '//') !== false)\n \nshows that $Filename starts out as \"_rels/.rels\"\n \nand then on line:\n \n309: $fileName = PHPExcel_Shared_File::realpath($fileName);\n \nsuddenly changes to include a system file path: \"/home/developer/www/dev/public/_rels/.rels\"\n \nIs this a setting problem...or possibly a bug?\n \nAny ideas?\n \n----------\nCommenting out the call to realpath on line 78 in PHPExcel/Shared/File.php fixed the problem.\n \n78:   //$returnValue = realpath($pFilename);",
+    "LastUpdatedDate": "2013-05-16T05:42:12.53-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2010-01-13T21:49:09.437-08:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Recent builds causing problems loading xlsx files? (ZipArchive issue?)",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 3,
+    "Id": 11488
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "Maarten, any idea what the problem is?",
+      "PostedDate": "2010-01-13T21:50:52.107-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-01-17T18:32:35.387-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "This is still a problem for my environments, PHP Version 5.2.4-2ubuntu5.10, I'm going to have to resort to downloading the files and maintaining a separate branch (rather than my convenient svn extern) if we can't find a solution.  If this is working for everyone else, it must have something to do with my environment, but I'm using a fresh ubuntu installation so I can't imagine what that might be.  Any help would be greatly appreciated.",
+      "PostedDate": "2010-04-05T15:22:57.447-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Hi all!\r\nit's problem in realpath(), see\r\nhttp://www.php.net/manual/en/function.realpath.php#82770",
+      "PostedDate": "2010-06-03T01:13:12.263-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Any suggested fixes?",
+      "PostedDate": "2010-06-03T04:30:37.337-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "This fix worked - commenting out line 78 in /Shared/File.php. Is there any reason we couldn't get this change made in the source?",
+      "PostedDate": "2010-07-21T23:03:43.253-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-07-21T23:03:50.417-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I'll take a look at this and see if it introduces any adverse effects: if not, I'll modify the code to introduce a file_exists() check before doing any realpath() calls.",
+      "PostedDate": "2010-07-25T06:13:14.13-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-07-25T06:14:10.393-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2011-01-02T06:47:50.74-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:03:21.127-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:12.53-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

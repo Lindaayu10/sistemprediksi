@@ -1,0 +1,74 @@
+[
+  {
+    "Id": "684870",
+    "ThreadId": "276067",
+    "Html": "\r\n<p>How can i perform search and replace action?</p>\r\n<p>I need to fill in xls file from template. Template can be modified completely, so cols and rows numbers are changeable.</p>\r\n<p>So i have cells filled with tags. For example &nbsp;&nbsp;#1# or #2# or #10# etc. So that tags must be replaced with info.</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks in advance</p>\r\n",
+    "PostedDate": "2011-10-16T09:52:33.803-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "684871",
+    "ThreadId": "276067",
+    "Html": "<p>So i need some search function to find cell number with specified text or substring.</p>",
+    "PostedDate": "2011-10-16T09:55:55.193-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "685076",
+    "ThreadId": "276067",
+    "Html": "<p>Well, you can make it yourself, perhaps this little snippet can help you. It basically builds a list of cell values on the first sheet, and provides a search function that returns the coordinates of a cell matching a search query. Don't know is this is the best way, but it suits my needs ;)</p>\r\n<p>&nbsp;</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>\t<span style=\"color: green;\">/**\r\n\t * build nice list of cell values, to be able to map headers to them\r\n\t*/</span>\r\n\t<span style=\"color: blue;\">public</span> <span style=\"color: blue;\">function</span> getCellValues($force = false){\r\n\t\t<span style=\"color: blue;\">if</span> ( !is_null($this-&gt;cellValues) &amp;&amp; $force === false ){\r\n\t\t\t<span style=\"color: blue;\">return</span> $this-&gt;cellValues;\r\n\t\t}\r\n\t\t$currentIndex = $this-&gt;objPHPExcel-&gt;getActiveSheetIndex();\r\n\t\t$this-&gt;objPHPExcel-&gt;setActiveSheetIndex(0);\r\n\r\n\r\n\t\t$sheet = $this-&gt;objPHPExcel-&gt;getActiveSheet();\r\n\t\t$highestColumn = $sheet-&gt;getHighestColumn(); <span style=\"color: green;\">//e.g., 'G'</span>\r\n\t\t$highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn); <span style=\"color: green;\">//e.g., 6</span>\r\n\t\t$highestRow= $sheet-&gt;getHighestRow();\r\n\r\n\t\t$this-&gt;cellValues = <span style=\"color: blue;\">array</span>();\r\n\t\t<span style=\"color: blue;\">for</span> ( $i =0 ; $i &lt; $highestColumnIndex; $i++ ){\r\n\t\t\t$column = PHPExcel_Cell::stringFromColumnIndex($i);\r\n\t\t\t<span style=\"color: blue;\">for</span> ( $j = 1; $j &lt;= $highestRow; $j++ ){\r\n\t\t\t\t$this-&gt;cellValues[$column . $j] = $sheet-&gt;getCellByColumnAndRow($i, $j)-&gt;getValue();\r\n\t\t\t}\r\n\t\t}\r\n\t\t$this-&gt;objPHPExcel-&gt;setActiveSheetIndex($currentIndex);\r\n\t\t<span style=\"color: blue;\">return</span> $this-&gt;cellValues;\r\n\t}\r\n\r\n\t<span style=\"color: green;\">/**\r\n\t * returns cell by value. Be carefull, could be ambigous, only use\r\n\t * if you really know what you are doing\r\n\t */</span>\r\n\t<span style=\"color: blue;\">public</span> <span style=\"color: blue;\">function</span> getCellByValue($search) {\r\n\t\t$nonPrintableChars = <span style=\"color: blue;\">array</span>(<span style=\"color: #a31515;\">\"\\n\"</span>, <span style=\"color: #a31515;\">\"\\r\"</span>, <span style=\"color: #a31515;\">\"\\t\"</span>, <span style=\"color: #a31515;\">\"\\s\"</span>);\r\n\t\t$search = str_replace($nonPrintableChars, <span style=\"color: #a31515;\">''</span>, $search);\r\n\t\t<span style=\"color: blue;\">foreach</span> ( $this-&gt;getCellValues() <span style=\"color: blue;\">as</span> $cell =&gt; $value ){\r\n\t\t\t<span style=\"color: blue;\">if</span> ( strcasecmp(str_replace($nonPrintableChars, <span style=\"color: #a31515;\">''</span>, $value), $search) == 0  ){\r\n\t\t\t\t<span style=\"color: blue;\">return</span> $cell;\r\n\t\t\t}\r\n\t\t}\r\n\t\t<span style=\"color: blue;\">return</span> false;\r\n\t}\r\n</pre>\r\n</div>\r\n</p>",
+    "PostedDate": "2011-10-17T01:45:43.167-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "685639",
+    "ThreadId": "276067",
+    "Html": "<p>Could you post some FAQ where to add this code and how to use it? :-)</p>",
+    "PostedDate": "2011-10-18T02:46:49.143-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "685646",
+    "ThreadId": "276067",
+    "Html": "<p>I have a big class that generates my excel sheets. But basically you need a class that instatiates a PHPExcel object, and stores it in $this-&gt;objPHPExcel</p>\n<p>forinstance:</p>\n<p>&nbsp;</p>\n<div style=\"color: black; background-color: white;\">\n<pre>/* load excel library */<br />require('PHPExcel.php');<br />require('PHPExcel/IOFactory.php');<br /><br /><span style=\"color: blue;\">class</span> bla {\n\t<span style=\"color: blue;\">protected</span> $objPHPExcel;<br />\t<span style=\"color: blue;\">protected</span> $cellValues;<br /></pre>\n</div>\n<p>&nbsp;</p>\n<p>&nbsp;</p>\n<div style=\"color: black; background-color: white;\">\n<pre>\t<span style=\"color: blue;\">function</span> __construct($filename){\n\t\t$this-&gt;objPHPExcel = PHPExcel_IOFactory::load($filename);\n\t}\n}\n</pre>\n</div>\n<p>&nbsp;</p>\n<p>you could add these functions to the class.&nbsp; Then you might do the following:</p>\n<p>&nbsp;</p>\n<div style=\"color: black; background-color: white;\">\n<pre>$bla = <span style=\"color: blue;\">new</span> bla(<span style=\"color: #a31515;\">'somefile.xlsx'</span>);\n$cell = $bla-&gt;getCellByValue(<span style=\"color: #a31515;\">'some search term'</span>);\n\nvar_dump($cell);\n</pre>\n</div>\n<p>hope this help. Please note, my example function only searches the worksheet at index 0. That was enough for my application. But you could always modify the function to iterate through the worksheets, and include the worksheet id in the array key for $this-&gt;cellValues.</p>",
+    "PostedDate": "2011-10-18T02:57:15.127-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "685778",
+    "ThreadId": "276067",
+    "Html": "<p>Search works, but i can't open exported file, excel says that file corrupted.</p>\r\n<p>Used code:</p>\r\n<p>Changed&nbsp;</p>\r\n<pre><span>protected</span> $objPHPExcel; to public.</pre>\r\n<p>&nbsp;</p>\r\n<p><span> </span>$template = $dir.'gen/xls/'.$type.'.xlsx';<br />$bla = new bla($template);<br />$objWorksheet = $bla-&gt;objPHPExcel-&gt;getActiveSheet();<br /><span> </span>foreach($r as $k =&gt; $v) {<span> <br /></span><span style=\"white-space: pre;\"> </span>$cell = $bla-&gt;getCellByValue('#'.$k.'#');<br /><span>&nbsp;</span><span style=\"white-space: pre;\"> </span>if($cel!='') $objWorksheet-&gt;setCellValue($cell, $v);<span> <br /></span>}<br /><br /><span> </span>header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');<span> <br /></span>header('Content-Disposition: attachment;filename=\"export.xlsx\"');<span> <br /></span>header('Cache-Control: max-age=0');</p>\r\n<p><span> </span>$objWriter = PHPExcel_IOFactory::createWriter($bla-&gt;objPHPExcel, 'Excel2007');<span> <br /></span>$objWriter-&gt;save('php://output');</p>",
+    "PostedDate": "2011-10-18T07:25:04.393-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "685788",
+    "ThreadId": "276067",
+    "Html": "<p>hmm interesting. Can you try saving the output file and opening it in a text editor? perhaps php is throwing in some free warnings or notices. ;)</p>",
+    "PostedDate": "2011-10-18T07:37:31.67-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1134169",
+    "ThreadId": "276067",
+    "Html": "i am unable to use this function  searches for the worksheet other than index 0.for all sheets\r<br />\npls hlp<br />\n",
+    "PostedDate": "2013-12-10T23:43:12.373-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1251053",
+    "ThreadId": "276067",
+    "Html": "thanks all you genius.\r<br />\ni make some changes to return multi searched cells and to trace all my worksheets.\r<br />\nhere is my whole example:<br />\n<pre><code>    require_once dirname ( __FILE__ ) . &quot;/customclasses/PHPExcel.php&quot;;\n\n// https://phpexcel.codeplex.com/discussions/276067\nclass myExcelClass {\n    public $objPHPExcel;\n    public $cellValues;\n    function __construct($filename) {\n        $this-&gt;objPHPExcel = PHPExcel_IOFactory::load ( $filename );\n    }\n    \n    public function getCellValues($currSheet) {\n        $sheet = $currSheet;\n        \n        // echo &quot;current sheet:&quot;.$sheet-&gt;getTitle().&quot;&lt;br /&gt;&quot;;\n        \n        $highestColumn = $sheet-&gt;getHighestColumn (); // e.g., 'G'\n        $highestColumnIndex = PHPExcel_Cell::columnIndexFromString ( $highestColumn ); // e.g., 6\n        $highestRow = $sheet-&gt;getHighestRow ();\n        \n        $this-&gt;cellValues = array ();\n        for($i = 0; $i &lt; $highestColumnIndex; $i ++) {\n            $column = PHPExcel_Cell::stringFromColumnIndex ( $i );\n            for($j = 1; $j &lt;= $highestRow; $j ++) {\n                $this-&gt;cellValues [$column . $j] = $sheet-&gt;getCellByColumnAndRow ( $i, $j )-&gt;getValue ();\n            }\n        }\n        return $this-&gt;cellValues;\n    }\n    \n\n    public function getCellByValue($sheet, $search) {\n        $nonPrintableChars = array (\n                &quot;\\n&quot;,\n                &quot;\\r&quot;,\n                &quot;\\t&quot;,\n                &quot;\\s&quot; \n        );\n        \n        // return multi cells\n        $retCells = array ();\n        \n        $search = str_replace ( $nonPrintableChars, '', $search );\n        foreach ( $this-&gt;getCellValues ( $sheet ) as $cell =&gt; $value ) {\n            if (strcasecmp ( str_replace ( $nonPrintableChars, '', $value ), $search ) == 0) {  \n                array_push ( $retCells, $cell );\n            }\n        }\n        return $retCells;\n    }\n}\n\n$tempfile = &quot;tmp/tempReport.xls&quot;;\n$outputfile = &quot;tmp/outputReport&quot; . uniqid () . &quot;.xls&quot;;\n\n$myexcel = new myExcelClass ( $tempfile );\n\n// replace cwinl, badguy with  888, 999\n$r = array (\n        &quot;cwinl&quot; =&gt; &quot;888&quot;,\n        &quot;badguy&quot; =&gt; &quot;999&quot; \n);\n\n\nforeach ( $myexcel-&gt;objPHPExcel-&gt;getWorksheetIterator () as $sheet ) {\n    /*\n     * $tmp = $myexcel-&gt;getCellValues($sheet); \n     * var_dump($tmp);\n     */\n    \n    foreach ( $r as $k =&gt; $v ) {\n        $cells = $myexcel-&gt;getCellByValue ( $sheet, '#' . $k . '#' );\n        \n        foreach($cells as $cell) {\n            $sheet-&gt;setCellValue ( $cell, $v );\n        }\n    }\n}\n\n\n\n// save\n$objWriter = PHPExcel_IOFactory::createWriter ( $myexcel-&gt;objPHPExcel, 'Excel5' );\n$objWriter-&gt;save ( $outputfile );\n\nif (file_exists ( $outputfile )) {\n    header ( 'Pragma: public' );\n    header ( 'Expires: 0' );\n    header ( 'Content-Encoding: none' );\n    header ( 'Cache-Control: must-revalidate, post-check=0, pre-check=0' );\n    header ( 'Cache-Control: public' );\n    header ( 'Content-Type: application/vnd.ms-excel; charset=utf-8' );\n    header ( 'Content-Disposition: attachment; filename=' . pathinfo ( $outputfile, PATHINFO_BASENAME ) );\n    header ( 'Content-Transfer-Encoding: binary' );\n    header ( 'Content-Length: ' . filesize ( $outputfile ) );\n    readfile ( $outputfile );\n    \n    unlink ( $outputfile );\n} else {\n    echo '&lt;script&gt;alert(\\'export error, file not exists！\\')&lt;/script&gt;';\n}\n</code></pre>\n\n",
+    "PostedDate": "2014-05-29T17:02:58.397-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

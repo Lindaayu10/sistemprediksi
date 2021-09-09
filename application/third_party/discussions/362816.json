@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "860353",
+    "ThreadId": "362816",
+    "Html": "\r\n<p>PHP vers: 5.3.5,&nbsp;PHPExcel vers: 1.7.7</p>\r\n<p>I'd like to extend the CSV class to include an auto-detector for the delimiter.</p>\r\n<p>Is there an element in the object that holds the <span style=\"color:#808080\">(CSV)</span> file in an array\r\n<span style=\"color:#808080\">(or even an element just with the file itself)</span> ??</p>\r\n<p>I'm becoming stronger in OOP, but still get a bit lost with the more advanced (to me) stuff ... so I can use a hand plugging my function into the class.</p>\r\n<p>It's a pretty simple little thing.</p>\r\n<p></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><span style=\"color:blue\">function</span> detectDelimiter( $<span style=\"color:blue\">file</span>, $sample = 5 ){  \n    $delimsRegex = <span style=\"color:#a31515\">&quot;,^.;:\\t&quot;</span>; <span style=\"color:green\">// whichever is first in the list will be the default</span>\n    $delims = str_split($delimsRegex);\n    $delimCount = $delimiters = <span style=\"color:blue\">array</span>();\n    <span style=\"color:blue\">foreach</span>($delims <span style=\"color:blue\">as</span> $delim){\n        $delimCount[$delim]=0 ;\n        $delimiters[]=$delim ; \n    }\n    \n    $sample = ( count($<span style=\"color:blue\">file</span>) &lt; $sample)? count($<span style=\"color:blue\">file</span>): $sample;  <span style=\"color:green\">// set sample-size to the lesser value    </span>\n    array_splice($<span style=\"color:blue\">file</span>, $sample);  <span style=\"color:green\">// drop any unwanted rows from end of the array</span>\n    \n    <span style=\"color:blue\">foreach</span> ($<span style=\"color:blue\">file</span> <span style=\"color:blue\">as</span> $row) {\n        $row=preg_replace( <span style=\"color:#a31515\">'/\\r\\n/'</span>, <span style=\"color:#a31515\">''</span>, trim($row) );  <span style=\"color:green\">// clean up .. strip new line and line return chars</span>\n        $row=preg_replace( <span style=\"color:#a31515\">&quot;/[^$delimsRegex]/&quot;</span>, <span style=\"color:#a31515\">''</span>, $row);  <span style=\"color:green\">// clean up .. strip evthg which is not a dilim'r</span>\n        $rowChars = str_split($row);  <span style=\"color:green\">// break it apart char by char</span>\n        <span style=\"color:blue\">foreach</span> ($rowChars <span style=\"color:blue\">as</span> $char) {\n            <span style=\"color:blue\">foreach</span> ($delimiters <span style=\"color:blue\">as</span> $delim) { \n                <span style=\"color:blue\">if</span>( strpos($char, $delim) !== false) {  <span style=\"color:green\">// if the char is the delim ...</span>\n                    $delimCount[$delim]&#43;&#43;;  <span style=\"color:green\">// ... increment</span>\n                }\n            }\n        }\n    }\n    $detected = array_keys($delimCount, max($delimCount));\n    <span style=\"color:green\">// naturally, we will be calling &quot;setDelimiter($detected[0])&quot; here ..</span>\n    <span style=\"color:green\">// .. and returning &quot;$this&quot; instead of the delim'r itself</span>\n    <span style=\"color:blue\">return</span> $detected[0]; \n}\n</pre>\r\n</div>\r\n<p></p>\r\n<p><span style=\"background-color:white\">Right now, I'm passing in an array like this</span></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>$csv = <span style=\"color:blue\">file</span>($tabDelimitedFile);\ndetectDelimiter($csv);</pre>\r\n</div>\r\n<p>Is there an element in the object that holds an array of the file like that? ... or any other suggestions??</p>\r\n<p>I'm kinda in a bind rt now until I get this going, so any and all feedback will be\r\n<em><strong>greatly</strong></em> appreciated :)</p>\r\n<p>Thanks-a-bunch</p>\r\n",
+    "PostedDate": "2012-07-11T08:20:21.627-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "861623",
+    "ThreadId": "362816",
+    "Html": "<p>You'd need to put the call to this&nbsp;autodetector in the loadIntoExisting method of the PHPExcel/Reader/CSV.php file; but the script reads the CSV a line at a time rather than loading every line into memory (we have enough memory issues without deliberately trying to create them). Logically, you'd probably want to load up just a few lines immediately after the check&nbsp;for the&nbsp;BOM, set the $this-&gt;_delimiter value, and then remember to rewind the file afterwards.</p>",
+    "PostedDate": "2012-07-12T09:52:00.1-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "862033",
+    "ThreadId": "362816",
+    "Html": "<p>Thank you, thank you!</p>\r\n<p>That is exactly what I needed.</p>",
+    "PostedDate": "2012-07-12T12:39:56.967-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

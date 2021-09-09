@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "620214",
+    "ThreadId": "259505",
+    "Html": "<p>I have an advanced excel file working with two worksheets having lots of formulas and references. I have tested the latest phpExcel and it handles the file very nice. However I have the following question someone might help me with. Can I do the following.</p>\n<p>1. I want to open the file with phpExcel, and edit values in spreadsheet.index(0).</p>\n<p>2. I want to calculate all the fields so that everything is updated.</p>\n<p>3. I want to export the first spreadsheet.index(0), and delete spreadsheet.index(1) - without formulas.</p>\n<p>The user should get an excel file with plain values, same formatting without any formulas! The user should also NOT have spreadsheet.index(1) as this index contains business logic NOT for the user.</p>\n<p>Is this even possible with phpExcel?</p>\n<p>Regards,<br /> Kim Steinhaug (<a href=\"mailto:kim@steinhaug.com\">kim@steinhaug.com</a>, <a href=\"http://www.steinhaug.com/\">www.steinhaug.com</a>)&nbsp;</p>",
+    "PostedDate": "2011-05-30T02:50:36.907-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "622808",
+    "ThreadId": "259505",
+    "Html": "<p>The methods exist, but you'd have to do a lot of the work within your own code.</p>\r\n<ol>\r\n<li>Open the file and edit your values in worksheet</li>\r\n<li>Export the worksheet to an array using the toArray() method with the $calculateFormulas&nbsp;argument set to&nbsp;true to force calculation</li>\r\n<li>Create a new worksheet for the calculated values</li>\r\n<li>Write the data to a new worksheet using the fromArray() method</li>\r\n<li>Delete the worksheets you don't want</li>\r\n<li>Save it</li>\r\n</ol>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2011-06-03T15:09:02.227-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "623466",
+    "ThreadId": "259505",
+    "Html": "<p>Thanks for this, I still have a little problem getting my head around this amazing library however I got it to work at the moment. Example.</p>\r\n<p>\r\n<hr />\r\n</p>\r\n<p>$objReader = PHPExcel_IOFactory::createReader('Excel2007');<br />$objPHPExcel = $objReader-&gt;load('test.xlsx');</p>\r\n<p>// Do my alterations here</p>\r\n<p>$array = $objPHPExcel-&gt;setActiveSheetIndex(0)-&gt;toArray();<br />$excel = new PHPExcel();<br />$excel-&gt;getActiveSheet()-&gt;fromArray($array,NULL,'A1',true);<br />$objWriter = PHPExcel_IOFactory::createWriter($excel, 'Excel2007');<br />$objWriter-&gt;save('test_calculated.xlsx');</p>\r\n<p>\r\n<hr />\r\n<br />Surely I will need to do some testing with the fromArray() function as I remember there being some issues with empty cells and NULL values as mentioned in this&nbsp;<a href=\"http://phpexcel.codeplex.com/discussions/240688\">http://phpexcel.codeplex.com/discussions/240688</a>&nbsp;thread - but at the moment it seems to work as expected. I will also need now to pull the styles and apply them so that the files look the same.<br /><br /></p>",
+    "PostedDate": "2011-06-06T06:13:09.583-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "623468",
+    "ThreadId": "259505",
+    "Html": "<p>Seems I got a nice idea here to do this, using a temp sheet. This code seems to work as intended. However there seems to be a problem, percentage fields are NOT copied with the toArray() function. The below code therefor almost works... All percentage fields  are replaced with %f value. Seems there are info regarding this here:&nbsp;<a href=\"http://phpexcel.codeplex.com/discussions/234560\">http://phpexcel.codeplex.com/discussions/234560</a></p>\n<hr />\n<p>$objReader = PHPExcel_IOFactory::createReader('Excel2007');<br /> $objPHPExcel = $objReader-&gt;load('2007.xlsx');<br /> $objPHPExcel-&gt;setActiveSheetIndex(0);<br /> $array = $objPHPExcel-&gt;setActiveSheetIndex(0)-&gt;toArray();<br /> $excel = new PHPExcel();<br /> $excel-&gt;getActiveSheet()-&gt;fromArray($array,NULL,'A1',true);<br /> $array = $excel-&gt;setActiveSheetIndex(0)-&gt;toArray();<br /> $objPHPExcel-&gt;getActiveSheet(0)-&gt;fromArray($array,NULL,'A1',true);<br /> $objPHPExcel-&gt;removeSheetByIndex(1);<br /> $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');<br /> $objWriter-&gt;save('test_new.xlsx');</p>\n<hr />\n<p>&nbsp;</p>\n<p>1. Open the excel file with 2 worksheets and do the alterations<br /> 2. Copy sheet(1) with fromArray which takes the calculated values<br /> 3. Write the data to a new worksheet, without formulas<br /> 4. Read back the values from the temp sheet and overwrite the old sheet<br /> 5. Delete sheet(2) and save.</p>\n<p>Thanks for your help Mark!&nbsp;</p>",
+    "PostedDate": "2011-06-06T06:18:27.177-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,39 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hello Folks\n \nI'm using this very good component for transform XML documents into Excel files\n \nThe XML documents has nodes containing CDATA HTML formatted values.\n \nI have an issue trying to insert multiple rich texts in a cell.\n \nThe reason of why I doing it, is because I'm formatting the HTML superscript values, but just the superscript, the rest of the text is maintained as regular text:\n \nThis is the piece of code that I'm using for format and set the cell value:\n \n<?php\n//the string value to be formated and inserted into excel cell\n$objectValue = \"MTX na&#239;ve<sup>a</sup>, MTX experienced<sup>b</sup>, Emery et al, Tanaka et al\";\n \n//removing break lines\n$nodeValue = implode(\" \", explode(PHP_EOL, trim(strval($objectValue))));\n \n//phpecel rich text oject\n$nodeValueRichText = null;\n \n//if the string contains <sup> tags, go for it\nif(substr_count($nodeValue, \"<sup>\") > 0)\n{\n\t$string = '';\n\t\n        //splitting the string to format the respective superscript values, the rest of the string should looks like regular text\n        $nodeValueArray = explode(\"<sup>\", $nodeValue);\n\t$nodeValueRichText = new PHPExcel_RichText();\n\t\n\tforeach($nodeValueArray as $node)\n\t{\n\t\tif(strpos($node, '</sup>') === false)\n\t\t{\n\t\t\t$string .= strip_tags($node) . ' ' ;\n\t\t\t\n                        //a rich text object is appended into $nodeValueRichText\n\t\t\t$nodeValueRichText->addText($nodeValueRichText->createTextRun(strip_tags($node)));\n\t\t}\n\t\t\n\t\tif(strpos($node, '</sup>') !== false)\n\t\t{\n\t\t\t$nodeArray = explode(\"</sup>\", $node);\n\t\t\t\n\t\t\tfor($i=0; $i < count($nodeArray); $i++)\n\t\t\t{\n\t\t\t\tif($i == 0)\n\t\t\t\t{\n                                        //each superscript text is obtained, we proceed to format it\n\t\t\t\t\t$superScript = substr(strip_tags($nodeArray[$i]), 0, 1);\n\t\t\t\t\t\n\t\t\t\t\t$objSuperScript = new PHPExcel_RichText();\n\t\t\t\t\t$objSuperScript = $objSuperScript->createTextRun($superScript);\n\t\t\t\t\t$objSuperScript->getFont()->setSuperScript(true);\n\t\t\t\t\t\n                                        //a rich text object is appended into $nodeValueRichText formatted as superscript\n\t\t\t\t\t$nodeValueRichText->addText($nodeValueRichText->createTextRun($objSuperScript));\n\t\t\t\t\t\n\t\t\t\t} else {\n                                        //a rich text object is appended into $nodeValueRichText\n\t\t\t\t\t$nodeValueRichText->addText($nodeValueRichText->createTextRun(strip_tags($nodeArray[$i])));\n\t\t\t\t}\n\t\t\t\t\n\t\t\t\t$string .=  strip_tags($nodeArray[$i]) . ' ' ;\n\t\t\t}\n\t\t}\n\t}\n}\n \n//we proceed to insert the $nodeValueRichText into as a cell value\n$objPHPExcel->getActiveSheet()->setCellValue(\"A1\", $nodeValueRichText);\n?>\n \nThe script doesn't trigger exceptions or error messages, simply the cell created has empty value.\n \nAny help will be very appretiated",
+    "LastUpdatedDate": "2013-02-21T19:02:02.213-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2012-02-24T08:38:58.86-08:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "multiple rich text in cell, formatting <sup>value</sup>",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 17474
+  },
+  "FileAttachments": [],
+  "Comments": []
+}

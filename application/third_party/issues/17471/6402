@@ -1,0 +1,60 @@
+Index: OOCalc.php
+===================================================================
+--- OOCalc.php	(revision 285)
++++ OOCalc.php	(revision 286)
+@@ -522,19 +522,26 @@
+ //										echo 'Adjusted Formula: '.$cellDataFormula.'<br />';
+ 									}
+ 
++									$repeats = (isset($cellDataTableAttributes['number-columns-repeated'])) ? $repeats = $cellDataTableAttributes['number-columns-repeated'] : 1;
+ 									if (!is_null($type)) {
+-										$objPHPExcel->getActiveSheet()->getCell($columnID.$rowID)->setValueExplicit((($hasCalculatedValue) ? $cellDataFormula : $dataValue),$type);
+-										if ($hasCalculatedValue) {
+-//											echo 'Forumla result is '.$dataValue.'<br />';
+-											$objPHPExcel->getActiveSheet()->getCell($columnID.$rowID)->setCalculatedValue($dataValue);
++										for ($i = 0; $i < $repeats; ++$i)
++										{
++											if ($i > 0) {
++												++$columnID;
++											}
++											$objPHPExcel->getActiveSheet()->getCell($columnID.$rowID)->setValueExplicit((($hasCalculatedValue) ? $cellDataFormula : $dataValue),$type);
++											if ($hasCalculatedValue) {
++	//											echo 'Forumla result is '.$dataValue.'<br />';
++												$objPHPExcel->getActiveSheet()->getCell($columnID.$rowID)->setCalculatedValue($dataValue);
++											}
++											if (($cellDataOfficeAttributes['value-type'] == 'date') ||
++												($cellDataOfficeAttributes['value-type'] == 'time')) {
++												$objPHPExcel->getActiveSheet()->getStyle($columnID.$rowID)->getNumberFormat()->setFormatCode($formatting);
++											}
++											if (!is_null($hyperlink)) {
++												$objPHPExcel->getActiveSheet()->getCell($columnID.$rowID)->getHyperlink()->setUrl($hyperlink);
++											}
+ 										}
+-										if (($cellDataOfficeAttributes['value-type'] == 'date') ||
+-											($cellDataOfficeAttributes['value-type'] == 'time')) {
+-											$objPHPExcel->getActiveSheet()->getStyle($columnID.$rowID)->getNumberFormat()->setFormatCode($formatting);
+-										}
+-										if (!is_null($hyperlink)) {
+-											$objPHPExcel->getActiveSheet()->getCell($columnID.$rowID)->getHyperlink()->setUrl($hyperlink);
+-										}
+ 									}
+ 
+ 									//	Merged cells
+@@ -550,11 +557,13 @@
+ 										$cellRange = $columnID.$rowID.':'.$columnTo.$rowTo;
+ 										$objPHPExcel->getActiveSheet()->mergeCells($cellRange);
+ 									}
++									
++									// This is typically found in the last column of the spreadsheet
++									if (is_null($type) && ($repeats > 1)) {
++	//									echo 'Repeated '.$cellDataTableAttributes['number-columns-repeated'].' times<br />';
++										$columnID = PHPExcel_Cell::stringFromColumnIndex(PHPExcel_Cell::columnIndexFromString($columnID) + $repeats - 2);
++									}
+ 
+-									if (isset($cellDataTableAttributes['number-columns-repeated'])) {
+-//										echo 'Repeated '.$cellDataTableAttributes['number-columns-repeated'].' times<br />';
+-										$columnID = PHPExcel_Cell::stringFromColumnIndex(PHPExcel_Cell::columnIndexFromString($columnID) + $cellDataTableAttributes['number-columns-repeated'] - 2);
+-									}
+ 									++$columnID;
+ 								}
+ 								++$rowID;

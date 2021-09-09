@@ -1,0 +1,74 @@
+[
+  {
+    "Id": "72225",
+    "ThreadId": "21676",
+    "Html": "\r\nUsing release 1.5.5, I cannot rotate text.<br /><br />example:<br />$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('B7')-&gt;getAlignment()-&gt;setTextRotation(90);<br /><br />Does not produce rotated text.  I didn'd find this as a known issue. Any insight?<br /><br />",
+    "PostedDate": "2008-02-06T16:16:03.897-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "72315",
+    "ThreadId": "21676",
+    "Html": "<br /><div class=\"quote\" style=\"border: dotted .1em #aaa; border-left: none; border-right: none; font-style: italic; margin: 1em 0em 2.5em 3em;padding: .2em;\"><br />rtide wrote:<br />Using release 1.5.5, I cannot rotate text.<br /><br />example:<br />$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('B7')-&gt;getAlignment()-&gt;setTextRotation(90);<br /><br />Does not produce rotated text.  I didn'd find this as a known issue. Any insight?<br /><br /><br /><br /></div><br /><br />I have found a code solution to my problem. I'm using the Excel Writer 5 for this project.  I traced the output to \\PHPExcel\\Writer\\Excel5\\Format.php.  The rotation angle was not being set in the getXF() method.<br /><br />In the IF statement that detects what the BIFF version is, the last case where BIFF version==0x0600 is where the rotation variable was hardcoded to 0x00.<br /><br />I added this segment of code around line 430 in that file and removed the $rotation=0x00; line.  I'm not saying this is perfect nor 100% accurate, but it now rotates my text as I need it to.<br /><br />switch($this-&gt;_rotation){<br />                case 3:<br />                    $rotation=0xFFFFFFFFFFFFFFA6;<br />                    break;   <br /><br />                case 2:<br />                    $rotation=0x5A;<br />                    break;<br /><br />                case 0:<br />                    $rotation=0x00;<br />                    break;<br /><br />                default:<br />                    $rotation=0x00;<br />                    break;<br />            }<br /><br /><br /><br />",
+    "PostedDate": "2008-02-07T02:01:08.12-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "72320",
+    "ThreadId": "21676",
+    "Html": "\r\nThis should be working, are you using Excel2007 writer or Excel5 writer?<br />Excel5 writer may not support this.<br />",
+    "PostedDate": "2008-02-07T02:08:49.44-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "72351",
+    "ThreadId": "21676",
+    "Html": "<br /><div class=\"quote\" style=\"border: dotted .1em #aaa; border-left: none; border-right: none; font-style: italic; margin: 1em 0em 2.5em 3em;padding: .2em;\"><br />maartenba wrote:<br />This should be working, are you using Excel2007 writer or Excel5 writer?<br />Excel5 writer may not support this.<br /><br /></div><br /><br />I'm using the Excel5 writer.  Each BIFF format seems to support the text rotation within the IF statement I noted in my posting above.  However BIFF version 0x0600 had the rotation hardcoded.<br /><br />What I posted above resolved my issues.<br />",
+    "PostedDate": "2008-02-07T04:59:38.103-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "115896",
+    "ThreadId": "21676",
+    "Html": "I needed a varriation on the above solution to make mine work for all cases, 90, -90, and -1 (stacked):<br>\r\n<br>\r\n<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; switch($this-&gt;_rotation){<br>\r\n&nbsp;&nbsp;&nbsp;case 3:<br>\r\n&nbsp;&nbsp;&nbsp;$rotation=0x5A;<br>\r\n&nbsp;&nbsp;&nbsp;break;</p>\r\n<p>&nbsp;&nbsp;&nbsp;case 2:<br>\r\n&nbsp;&nbsp;&nbsp;$rotation=0xB4;<br>\r\n&nbsp;&nbsp;&nbsp;break;</p>\r\n<p>&nbsp;&nbsp;&nbsp;case 1:<br>\r\n&nbsp;&nbsp;&nbsp;$rotation=0xFF;<br>\r\n&nbsp;&nbsp;&nbsp;break;</p>\r\n<p>&nbsp;&nbsp;&nbsp;case 0:<br>\r\n&nbsp;&nbsp;&nbsp;$rotation=0x00;<br>\r\n&nbsp;&nbsp;&nbsp;break;</p>\r\n<p>&nbsp;&nbsp;&nbsp;default:<br>\r\n&nbsp;&nbsp;&nbsp;$rotation=0x00;<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;break;<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;}</p>\r\n",
+    "PostedDate": "2008-09-03T21:35:41.677-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "116476",
+    "ThreadId": "21676",
+    "Html": "This has been copied to a work item:<br>\r\n<a href=\"http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=7531\">http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=7531</a><br>\r\n",
+    "PostedDate": "2008-09-05T22:29:03.72-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "116477",
+    "ThreadId": "21676",
+    "Html": "Issue is now fixed. Arbitrary integer rotation angles −90, ... +90 are allowed plus the value −165 for stacked text. From now on please always use the special rotation angle −165 to indicate stacked text.<br>\r\n<br>\r\nExamples of what you can do (Works together with both Excel5 writer and Excel2007 writer):<br>\r\n<br>\r\n<code>\r\n// text rotated 90 degrees clock-wise<br>\r\n$getStyle('A1')-&gt;getAlignment()-&gt;setTextRotation(-90);<br>\r\n<br>\r\n// text rotated 51 degrees counter-clockwise<br>\r\n$getStyle('A1')-&gt;getAlignment()-&gt;setTextRotation(51);<br>\r\n<br>\r\n// to get stacked text (always use -165)<br>\r\n$getStyle('A1')-&gt;getAlignment()-&gt;setTextRotation(-165);<br>\r\n<br>\r\n</code>\r\n",
+    "PostedDate": "2008-09-05T22:57:00.51-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "156659",
+    "ThreadId": "21676",
+    "Html": "Make sure you are NOT using <br>\r\n<br>\r\nsetVersion <br>\r\n<br>\r\nI took the following line out of my code and  setTextRotation worked immediately.<br>\r\n<br>\r\n$workbook-&gt;setVersion(8); \r\n",
+    "PostedDate": "2009-02-11T07:02:05.737-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "156663",
+    "ThreadId": "21676",
+    "Html": "Uhh.. That is not so good. That line is supposed to stay there. BIFF5 format only supports rotations in steps of 90 degrees. There must be some other reason why it is was not working. Do you have some sample code showing what is not working?<br>\r\n<br>\r\n",
+    "PostedDate": "2009-02-11T07:07:09.507-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

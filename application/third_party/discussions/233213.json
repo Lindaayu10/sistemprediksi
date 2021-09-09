@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "516083",
+    "ThreadId": "233213",
+    "Html": "\r\n<p>What do the file permissions need to be on an uploaded file in order for Excel2007Reader to load() it?</p>\r\n<p>$objReader = PHPExcel_IOFactory::createReader('Excel2007');</p>\r\n<p>$objReader-&gt;setReadDataOnly(true);<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $firephp-&gt;info(&quot;Ready to load file&quot;,$_SERVER['DOCUMENT_ROOT']. &quot;/call_records/&quot;.$fileName);<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $objPHPExcel = $objReader-&gt;load($_SERVER['DOCUMENT_ROOT']. &quot;/call_records/&quot;.$fileName);<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $firephp-&gt;info(&quot;Ready to get worksheet&quot;);</p>\r\n<p>&quot;Ready to load file&quot; is reported ... but not &quot;Ready to get worksheet&quot;.</p>\r\n<p>Some testing led to the idea that permission 000 would word whereas others up to and including 777 would not!&nbsp; That seemed backwards ... what permissions *do* I need?</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks!</p>\r\n<p>Daniel</p>\r\n",
+    "PostedDate": "2010-11-02T12:09:05.7-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "516165",
+    "ThreadId": "233213",
+    "Html": "\r\n<p>PHPExcel needs read permission on the file, for the appropriate user or group (whatever user/group your webserver is running as). PHPExcel is no different to any other PHP script in this regard. Wrap your load() call in a try/catch block to trap any error.</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><span style=\"color:blue\">try</span> {\r\n    $objReader = PHPExcel_IOFactory::createReader(<span style=\"color:#a31515\">'Excel2007'</span>);\r\n    $objReader-&gt;setReadDataOnly(true);\r\n    $objPHPExcel = $objReader-&gt;load($_SERVER[<span style=\"color:#a31515\">'DOCUMENT_ROOT'</span>]. <span style=\"color:#a31515\">&quot;/call_records/&quot;</span>.$fileName);\r\n} <span style=\"color:blue\">catch</span>(Exception $e) {\r\n   <span style=\"color:blue\">die</span>(<span style=\"color:#a31515\">'Error loading file: '</span>.$e-&gt;getMessage());\r\n}\r\n</pre>\r\n</div>\r\n",
+    "PostedDate": "2010-11-02T15:19:09.423-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "516172",
+    "ThreadId": "233213",
+    "Html": "\r\n<p>Thanks ...</p>\r\n<p>With that try...catch, the die statement is not occurring.&nbsp; So I don't think an exception is being thrown.&nbsp; But $objReader-&gt;load is not returning ...</p>\r\n<p>Anything else to check?</p>\r\n",
+    "PostedDate": "2010-11-02T15:29:00.46-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "517406",
+    "ThreadId": "233213",
+    "Html": "\r\n<p>Aside from the obvious... ensure that you're logging/displaying any errors, check for out of memory or timeouts, I can't think of anything.</p>\r\n",
+    "PostedDate": "2010-11-04T16:50:39.53-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "122396",
+    "ThreadId": "36895",
+    "Html": "<p>Hello, I have a script whose job is to read excel file, insert some data and write the resulting excel file using PHPExcel. </p>\r\n<p>I did some profiling using XDebug and find out that for my worksheet(32 columns, 288 rows) there are ~ 400 000 calls of various getHashCode() methods, a lot of them are from PHPExcel_Worksheet-&gt;garbageCollect(). Just inserting &quot;return&quot; in the first line of PHPExcel_Worksheet-&gt;garbageCollect() let the script run 2-3 times faster, without any visible impact on result. </p>\r\n<p>What is this method for, is it important? </p>\r\n",
+    "PostedDate": "2008-10-02T08:07:37.687-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "122555",
+    "ThreadId": "36895",
+    "Html": "What does your profiling say about memory usage? I think memory might get exhausted if you eliminate those statements. But I'm not sure. I'm not really into that part of the code.<br>\r\n",
+    "PostedDate": "2008-10-02T19:04:38.15-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "122582",
+    "ThreadId": "36895",
+    "Html": "The garbage collect method is not that important, but removing it might indeed lead to higher memory usage and eventually Excel documents with too much data like unused style information and such.\r\n",
+    "PostedDate": "2008-10-02T23:22:45.933-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "122588",
+    "ThreadId": "36895",
+    "Html": "<p>Te code is</p>\r\n<p>echo date('H:i:s').&quot;&lt;br&gt;&quot;;</p>\r\n<p>$objReader = PHPExcel_IOFactory::createReader('Excel2007');<br>\r\n$objPHPExcel = $objReader-&gt;load(&quot;holton-anketa2.xlsx&quot;);<br>\r\n<br>\r\n$objPHPExcel-&gt;setActiveSheetIndex(0);<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('F11', '123');<br>\r\n<br>\r\necho date('H:i:s') . &quot; Write to Excel2007 format\\n&quot;;<br>\r\n<br>\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');<br>\r\n$objWriter-&gt;save('ha.xlsx');</p>\r\n<p>echo date('H:i:s') . &quot; Peak memory usage: &quot; . (memory_get_peak_usage(true) / 1024 / 1024) . &quot; MB\\r\\n&quot;;</p>\r\n<p>Results:</p>\r\n<hr>\r\nStylesheet 1 (32x288, xlsx-&gt;xlsx, 1 image, some border styling)\r\n<p>Garbage collector disabled: read - 6s, write -15s, memory - 53.25 MB</p>\r\n<p>Garbage collector enabled: read - 13s, write - 49s, memory -53.25 MB</p>\r\n<hr>\r\nStylesheet 2 (52x55, xls-&gt;xlsx, 1 image, some border and bg color styling)\r\n<p>Garbage collector disabled: read - 2s, write -6s, memory - 35 MB</p>\r\n<p>Garbage collector enabled: read - 2s, write - 18s, memory -35 MB</p>\r\n<hr>\r\nStylesheet 2 (52x55, xls-&gt;xls, 1 image, some border and bg color styling)\r\n<p>Garbage collector disabled: read - 2s, write - 4s, memory - 35.75 MB</p>\r\n<p>Garbage collector enabled: read - 2s, write - 8s, memory -35.75 MB</p>\r\n<hr>\r\n<p>\r\nIf other profiling results are similar, I think it will be good to make garbageCollect() optional, and maybe in default &quot;disabled&quot; state. </p>\r\n<p></p>\r\n",
+    "PostedDate": "2008-10-03T00:04:47.057-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

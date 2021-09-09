@@ -1,0 +1,224 @@
+<?php
+
+//
+// Alternative 2:
+//
+// Similar to Alternative 1. The properties of PHPExcel_Style are implemented with a collection of other classes, generally
+// dubbed PHPExcel_Style_SubStyle. Alternative 2 is to create those property objects on the fly. This would save memory
+// for as far as the default style does not have any properties set. Because if those properties would be set, the clone
+// instruction in PHPExcel_Worksheet::getStyle() would copy those properties too, thereby eliminating the effort here. Given
+// that the default style is empty this appears to be a viable option.
+//
+// Result: Reduction in memory consumption
+//
+// Consequences:
+//
+//   1. All places where PHPExcel_Style::$_font, $_numberformat, $_fill or any of the other properties are accessed code
+//      must be aware that not all styles may have an entry
+//      in $_styles.
+//
+//		PHPExcel_Style::__construct
+//		--> Assignement only.
+//
+//		*	1. Delete the lines $this->_fill = new PHPExcel_Style_SubStyle(); It creates a default that may also be
+//			   created on the fly later.
+//
+//		PHPExcel_Worksheet::getXXX() (XXX being Font, NumberFormat, etc.)
+//		--> Public function.
+//
+//		*	1. Return the stored object or return the default object.
+//
+//			2. Implement code to make sure a change in any of the properties of the returned PHPExcel_Style_SubStyle object results
+//			   in actually assigning the result to the property in the PHPExcel_Style object. This includes code that ensures
+//				integrity if the caller calls getXXX() twice.
+//
+// Code below displays the impact of items marked * only for memory consumption demonstration purposes.
+//
+
+class PHPExcel_Style_SubStyle {							// This is a generalization for PHPExcel_Style_Fill, NumberFormat, etc.
+    public static $cntObjects = 0;						// This for tracking purposes
+
+    private $_property;									// This could be any of the properties of these classes.
+
+	function __construct() {
+		PHPExcel_Style_SubStyle::$cntObjects++;
+		$this->_property = 0;
+	}
+
+    public function getProperty() {
+    	return $this->_property;
+    }
+    
+    public function setProperty($value) {
+    	$this->_property = $value;
+    }
+
+	public function __clone() {
+		self::$cntObjects++;
+
+		$vars = get_object_vars($this);
+		foreach ($vars as $key => $value) {
+			if (is_object($value)) {
+				$this->$key = clone $value;
+			} else {
+				$this->$key = $value;
+			}
+		}
+	}
+}
+
+class PHPExcel_Style {
+    public static $cntObjects = 0;						// This for tracking purposes
+
+	private $_font;
+	private $_fill;
+	private $_borders;
+	private $_alignment;
+	private $_numberFormat;
+	private $_protection;
+
+	public function __construct() {
+		PHPExcel_Style::$cntObjects++;
+	}
+
+	public function getFont() {
+		// If assigned return the object. Similar to current PHPExcel implementation.
+		if(isset($this->_font))
+			return $this->_font;
+		
+		// Alternatively create a PHPExcel_Style_SubStyle to return so as to comply with the API. However, do not store it.
+		//
+		// If the caller destroys it's own reference to this new object then this new object will be deleted from memory
+		// (GC friendly).
+		//
+		// If the caller does nothing with the returned object then subsequent calls to this method yield the same result.
+		// Thus writer classes and other pieces of code are ok with this solution.
+		//
+		// If the caller DOES do something with the returned object, then we need to figure out a way to hook up the result
+		// to this PHPExcel_Style object. This file does not demonstrate this yet so as to demonstrate the impact on memory
+		// of this solution.
+		//
+
+		$newSubStyle = new PHPExcel_Style_SubStyle();
+		return $newSubStyle;
+	}
+
+	public function getFill() {
+		if(isset($this->_fill))
+			return $this->_fill;
+		// Same deal
+		
+		$newFill = new PHPExcel_Style_SubStyle();
+		return $newFill;
+	}
+
+	public function getBorders() {
+		// Same deal
+		if(isset($this->_borders))
+			return $this->_borders;
+		
+		$newSubStyle = new PHPExcel_Style_SubStyle();
+		return $newSubStyle;
+	}
+	
+	public function getAlignment() {
+		// Same deal
+		if(isset($this->_alignment))
+			return $this->_alignment;
+		
+		$newSubStyle = new PHPExcel_Style_SubStyle();
+		return $newSubStyle;
+	}
+
+	public function getNumberFormat() {
+		// Same deal
+		if(isset($this->_numberFormat))
+			return $this->_numberFormat;
+		
+		$newSubStyle = new PHPExcel_Style_SubStyle();
+		return $newSubStyle;
+	}
+
+	public function getProtection() {
+		// Same deal
+		if(isset($this->_protection))
+			return $this->_protection;
+		
+		$newSubStyle = new PHPExcel_Style_SubStyle();
+		return $newSubStyle;
+	}
+
+	public function __clone() {
+		self::$cntObjects++;
+
+		$vars = get_object_vars($this);
+		foreach ($vars as $key => $value) {
+			if (is_object($value)) {
+				$this->$key = clone $value;
+			} else {
+				$this->$key = $value;
+			}
+		}
+	}
+}
+
+class PHPExcel_Worksheet {
+
+	private $_styles = array();
+
+	public function __construct() {
+   		$this->_styles['default'] 	= new PHPExcel_Style();
+	}
+	
+    public function getDefaultStyle() {
+    	return $this->_styles['default'];
+    }
+    
+    public function getStyle($pCellCoordinate = 'A1')
+    {
+		// Check if we already have style information for this cell.
+		// If not, create a new style.
+		if (isset($this->_styles[$pCellCoordinate])) {
+			return $this->_styles[$pCellCoordinate];
+		} else {
+			$newStyle = clone $this->getDefaultStyle();
+			$this->_styles[$pCellCoordinate] = $newStyle;
+			return $newStyle;
+		}    
+    }
+
+	public function __clone() {
+		$vars = get_object_vars($this);
+		foreach ($vars as $key => $value) {
+			if (is_object($value)) {
+				$this->$key = clone $value;
+			} else {
+				$this->$key = $value;
+			}
+		}
+	}
+}
+
+echo "Memory usage: ".memory_get_usage()."\n";
+
+$activeWorksheet = new PHPExcel_Worksheet();
+
+for($column = 'A'; $column <= 'K'; $column++) {
+	for($row = 1; $row <= 500; $row++) {
+		$style = $activeWorksheet->getStyle("$column$row");
+		
+		// Get all of the property objects to see memory impact.
+		$font			= $style->getFont();
+
+		
+	}
+}
+
+echo "Memory usage: ".memory_get_usage()."\n";
+
+echo "To the caller it appeared we just created (but we actually didn't):\n";
+echo "PHPExcel_Style objects: ".PHPExcel_Style::$cntObjects."\n";
+echo "PHPExcel_Style_SubStyle objects: ".PHPExcel_Style_SubStyle::$cntObjects."\n";
+
+
+?>

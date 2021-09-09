@@ -1,0 +1,82 @@
+[
+  {
+    "Id": "849445",
+    "ThreadId": "359731",
+    "Html": "\r\n<p>Hello,</p>\r\n<p>&nbsp;</p>\r\n<p>I try to convert xlsx file into csv using PHPExcel_IOFactory::createReader et PHPExcel_IOFactory::createWriter.</p>\r\n<p>I have a lot of cells which contains calculated value to ohther cells in other sheet. So some of cell contains a formula with an other cell, and this other cell contains a formula with an other cell.</p>\r\n<p>When I try to convert this file I have this error : PHP Fatal error:&nbsp; Call to a member function cellExists() on a non-object in phpexcel/PHPExcel/Calculation.php on line 3209</p>\r\n<p>Can PHPExcel to this work ? Thanks</p>\r\n",
+    "PostedDate": "2012-06-15T02:56:44.547-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "849454",
+    "ThreadId": "359731",
+    "Html": "<p>It can, but somewhere in your formulas there's a reference to an invalid cell... without knowing the details of your workbook, I can only second guess. Do any of the formulae reference cells in a worksheet that doesn't exist, isn't being loaded, or is in an external workbook?</p>\r\n<p>And please try using the latest 1.7.7 version of PHPExcel, it has a number of bugfixes in the calculation engine.</p>",
+    "PostedDate": "2012-06-15T03:34:49.603-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "849518",
+    "ThreadId": "359731",
+    "Html": "<p>Thank you for your reply, it's as you said, My cell reference an external book ! So this problem is resolved.</p>\r\n<p>But I have an other problem. I have a cell \"B2\" which has a formula like this \"=1-(B3/B1)\" and when I get him with $cell-&gt;getCalculatedValue() I have \"#VALUE!\".</p>\r\n<p>I don't know why I don't have the good value.</p>\r\n<p>Thank you for your help</p>",
+    "PostedDate": "2012-06-15T06:24:34.133-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "849526",
+    "ThreadId": "359731",
+    "Html": "<p>What's in cells B3 and B1? particularly B1 if it could lead to a divide by zero?</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2012-06-15T06:33:05.27-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "849527",
+    "ThreadId": "359731",
+    "Html": "<p>Some cell has value in Excel but no value whe, I retrieve them with getCalculatedValue()</p>",
+    "PostedDate": "2012-06-15T06:33:34.543-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "849529",
+    "ThreadId": "359731",
+    "Html": "<p>it's very complex because of :</p>\r\n<p>B3 : refer to Sheet1!D1 and Sheet1!D1 refer to Sheet2!A1</p>\r\n<p>B1 : same thing</p>",
+    "PostedDate": "2012-06-15T06:37:41.183-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "849811",
+    "ThreadId": "359731",
+    "Html": "<p>When trying to debug the calculation engine, I use the following:</p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre><span style=\"color: blue;\">function</span> testFormula($sheet,$cell) {\r\n    $formulaValue = $sheet-&gt;getCell($cell)-&gt;getValue();\r\n    <span style=\"color: blue;\">echo</span> <span style=\"color: #a31515;\">'&lt;b&gt;'</span>.$cell.<span style=\"color: #a31515;\">' Value is &lt;/b&gt;'</span>.$formulaValue.<span style=\"color: #a31515;\">\"&lt;br /&gt;\\n\"</span>;\r\n    $expectedValue = $sheet-&gt;getCell($cell)-&gt;getOldCalculatedValue();\r\n    <span style=\"color: blue;\">echo</span> <span style=\"color: #a31515;\">'&lt;b&gt;'</span>.$cell.<span style=\"color: #a31515;\">' Expected Value is &lt;/b&gt;'</span>.((!is_null($expectedValue)) ? $expectedValue : <span style=\"color: #a31515;\">'UNKNOWN'</span>).<span style=\"color: #a31515;\">\"&lt;br /&gt;\\n\"</span>;\r\n\r\n    $calculate = false;\r\n    <span style=\"color: blue;\">try</span> {\r\n        $tokens = PHPExcel_Calculation::getInstance()-&gt;parseFormula($formulaValue,$sheet-&gt;getCell($cell));\r\n        <span style=\"color: blue;\">echo</span> <span style=\"color: #a31515;\">'&lt;b&gt;Parser Stack :-&lt;/b&gt;&lt;pre&gt;'</span>;\r\n        print_r($tokens);\r\n        <span style=\"color: blue;\">echo</span> <span style=\"color: #a31515;\">'&lt;/pre&gt;'</span>;\r\n        $calculate = true;\r\n    } <span style=\"color: blue;\">catch</span> (Exception $e) {\r\n        <span style=\"color: blue;\">echo</span> <span style=\"color: #a31515;\">\"PARSER ERROR: \"</span>.$e-&gt;getMessage().<span style=\"color: #a31515;\">\"&lt;br /&gt;\\n\"</span>;\r\n        <span style=\"color: blue;\">echo</span> <span style=\"color: #a31515;\">'&lt;b&gt;Parser Stack :-&lt;/b&gt;&lt;pre&gt;'</span>;\r\n        print_r($tokens);\r\n        <span style=\"color: blue;\">echo</span> <span style=\"color: #a31515;\">'&lt;/pre&gt;'</span>;\r\n    }\r\n    <span style=\"color: blue;\">if</span> ($calculate) {\r\n        <span style=\"color: blue;\">try</span> {\r\n            $cellValue = $sheet-&gt;getCell($cell)-&gt;getCalculatedValue();\r\n            <span style=\"color: blue;\">echo</span> <span style=\"color: #a31515;\">'&lt;b&gt;'</span>.$cell.<span style=\"color: #a31515;\">' Calculated Value is &lt;/b&gt;'</span>.$cellValue.<span style=\"color: #a31515;\">\"&lt;br /&gt;\\n\"</span>;\r\n            <span style=\"color: blue;\">echo</span> <span style=\"color: #a31515;\">'&lt;h3&gt;Evaluation Log:&lt;/h3&gt;&lt;pre&gt;'</span>;\r\n            print_r(PHPExcel_Calculation::getInstance()-&gt;debugLog);\r\n            <span style=\"color: blue;\">echo</span> <span style=\"color: #a31515;\">'&lt;/pre&gt;'</span>;\r\n        } <span style=\"color: blue;\">catch</span> (Exception $e) {\r\n            <span style=\"color: blue;\">echo</span> <span style=\"color: #a31515;\">\"CALCULATION ENGINE ERROR: \"</span>.$e-&gt;getMessage().<span style=\"color: #a31515;\">\"&lt;br /&gt;\\n\"</span>;\r\n            <span style=\"color: blue;\">echo</span> <span style=\"color: #a31515;\">'&lt;h3&gt;Evaluation Log:&lt;/h3&gt;&lt;pre&gt;'</span>;\r\n            print_r(PHPExcel_Calculation::getInstance()-&gt;debugLog);\r\n            <span style=\"color: blue;\">echo</span> <span style=\"color: #a31515;\">'&lt;/pre&gt;'</span>;\r\n        }\r\n    }\r\n}\r\n\r\n$sheet = $objPHPExcel-&gt;getActiveSheet();\r\nPHPExcel_Calculation::getInstance()-&gt;writeDebugLog = true;\r\n\r\ntestFormula($sheet,<span style=\"color: #a31515;\">'A4'</span>);\r\n</pre>\r\n</div>\r\n<p>This displays&nbsp;a full parser log showing every step of the evaluation</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2012-06-16T05:17:08.48-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "850104",
+    "ThreadId": "359731",
+    "Html": "<p>Thank I will check !</p>\r\n<p>For exemple if C2 = B2 + D2 with B2 = 2 and D2 = '', is this work ? because I have cell woth '' value with are used for calculation formula in other cells.</p>\r\n<p>Thank you</p>",
+    "PostedDate": "2012-06-17T14:11:50.723-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "850111",
+    "ThreadId": "359731",
+    "Html": "\r\n<p>2 &#43; &quot;&quot; will give a #VALUE! error, just as it will in MS Excel, because an empty string is not a valid numeric value; likewise 2 &#43; NULL will also&nbsp;give a #VALUE! error.</p>\r\n<p>However, 2 &#43; an empty cell will give a result of 2, as it will in MS Excel</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2012-06-17T14:48:38.213-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "850209",
+    "ThreadId": "359731",
+    "Html": "<p>Ok, it's why I get #VALUE! error ! But I don't understand why MS Excel shows the good result and doesn't show #VALUE! error ? So it's can be an evolved for PHPExcel ?</p>",
+    "PostedDate": "2012-06-18T01:01:13.14-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,55 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "In cache process for SQLite or SQLite3, there are somes queries which looks \"dangerous\" with not escaped parameters.\n\nEx: \nFile PHPExcel/CachedObjectStorage/SQLite3.php\n\nFunction: \"isDataSet\"\n```\n  \"public function isDataSet($pCoord) {\n```\n\nCode : \n```\n  $query = \"SELECT id FROM kvp_\".$this->_TableName.\" WHERE id='\".$pCoord.\"'\";\n```\nThe use of $pCoord seems dangerous in such SQL query.\n\nThis function is called from \"Worksheet.php\" by function \"getCell(...)\" or by function \"getCellByColumnAndRow(...)\"\n\nSo if someone can pass special parameter to getCellByColumnAndRow(...) with SQL inside, he could inject/execute SQL commands.\n\nIn fact, it seems not to dangerous because it's SQLite engine and in \"memory\" database, but it could be great if queries doesn't look dangerous.\n\n$pCoord is a column letter and a number, so it could be treated with \"sqlite_escape_string(...)\".",
+    "LastUpdatedDate": "2013-04-23T02:59:15.203-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2013-04-11T09:37:39.84-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "escape parameters in SQLite/SQLite3 cache queries",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 19590
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "Well SQLite3 should already be using prepared statements for all queries now, though SQLite hasn't been updated",
+      "PostedDate": "2013-04-12T04:55:43.64-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Thanks for your reply.\r\n\r\nIn trunk ([http://phpexcel.codeplex.com/SourceControl/changeset/view/94877#2048290](http://phpexcel.codeplex.com/SourceControl/changeset/view/94877#2048290) )  I still see SQLite3 queries without prepared statements. Am I looking in the wrong place?\n",
+      "PostedDate": "2013-04-23T02:19:08.617-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "You are looking in the wrong place - we migrated the code repository to github nearly a year ago. https://github.com/PHPOffice/PHPExcel - see the news item on http://phpexcel.codeplex.net for details, and the http://www.phpexcel.net URL should redirect there\r\n\r\nUnfortunately, we can't disable access to CodePlex's Source Code tab :(",
+      "PostedDate": "2013-04-23T02:59:15.203-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

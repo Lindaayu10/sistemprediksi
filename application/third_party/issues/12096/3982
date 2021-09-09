@@ -1,0 +1,54 @@
+Index: Classes/PHPExcel/Style/NumberFormat.php
+===================================================================
+--- Classes/PHPExcel/Style/NumberFormat.php	(revision 1376)
++++ Classes/PHPExcel/Style/NumberFormat.php	(working copy)
+@@ -602,15 +602,31 @@
+ 					// Some non-number strings are quoted, so we'll get rid of the quotes
+ 					$format = preg_replace('/"/', '', $format);
+ 
+-					// TEMPORARY - Convert # to 0
+-					$format = preg_replace('/\\#/', '0', $format);
+-
+ 					// Find out if we need thousands separator
+-					$useThousands = preg_match('/,/', $format);
++					// This is indicated by a comma enclosed by a digit placeholder:
++					//		#,#   or   0,0
++					$useThousands = preg_match('/(#,#|0,0)/', $format);
+ 					if ($useThousands) {
+-						$format = preg_replace('/,/', '', $format);
++						$format = preg_replace('/0,0/', '00', $format);
++						$format = preg_replace('/#,#/', '##', $format);
+ 					}
+ 
++					// Scale thousands, millions,...
++					// This is indicated by a number of commas after a digit placeholder:
++					//		#,   or    0.0,,
++					$scale = 1; // same as no scale
++					$matches = array();
++					if (preg_match('/(#|0)(,+)/', $format, $matches)) {
++						$scale = pow(1000, strlen($matches[2]));
++
++						// strip the commas
++						$format = preg_replace('/0,+/', '0', $format);
++						$format = preg_replace('/#,+/', '#', $format);
++					}
++
++					// TEMPORARY - Convert # to 0
++					$format = preg_replace('/\\#/', '0', $format);
++
+ 					if (preg_match('/0?.*\?\/\?/', $format, $m)) {
+ 						//echo 'Format mask is fractional '.$format.' <br />';
+ 						$sign = ($value < 0) ? '-' : '';
+@@ -635,7 +651,12 @@
+ 
+ 					} else {
+ 						// Handle the number itself
++
++						// scale number
++						$value = $value / $scale;
++
+ 						$number_regex = "/(\d+)(\.?)(\d*)/";
++						$matches = array();
+ 						if (preg_match($number_regex, $format, $matches)) {
+ 							$left = $matches[1];
+ 							$dec = $matches[2];

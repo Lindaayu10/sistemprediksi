@@ -1,0 +1,98 @@
+Index: SYLK.php
+===================================================================
+--- SYLK.php	(revision 1280)
++++ SYLK.php	(working copy)
+@@ -249,7 +249,7 @@
+ 		$rowData = array();
+ 		$column = $row = '';
+ 		while (($rowData = fgets($fileHandle)) !== FALSE) {
+-			$rowData = explode("\t",str_replace('�',';',str_replace(';',"\t",str_replace(';;','�',rtrim($rowData)))));
++			$rowData = explode("\t",str_replace('¤',';',str_replace(';',"\t",str_replace(';;','¤',rtrim($rowData)))));
+ 			$dataType = array_shift($rowData);
+ 			//	Read shared styles
+ 			if ($dataType == 'P') {
+@@ -337,6 +337,8 @@
+ 				}
+ 				$columnLetter = PHPExcel_Cell::stringFromColumnIndex($column-1);
+ 				$cellData = PHPExcel_Calculation::_unwrapResult($cellData);
++				$cellData = $this->_decodeSylkString($cellData);
++
+ 				// Set cell value
+ 				$objPHPExcel->getActiveSheet()->setCellValue($columnLetter.$row, (($hasCalculatedValue) ? $cellDataFormula : $cellData));
+ 				if ($hasCalculatedValue) {
+@@ -503,4 +505,75 @@
+ 		$this->_sheetIndex = $pValue;
+ 		return $this;
+ 	}
++
++	/**
++	 * Map some accented characters
++	 *
++	 * @var array
++	 */
++	private static $_accents = array(
++		'a' => array('', 'à', 'á', '', '', '', '', '', 'ä', '', '', '', '', '', '', ''),
++		'e' => array('', 'è', 'é', '', '', '', '', '', 'Ë', '', '', '', '', '', '', ''),
++		'o' => array('', 'ò', 'ó', '', '', '', '', '', 'ö', '', '', '', '', '', '', ''),
++		'u' => array('', 'ù', 'ú', '', '', '', '', '', 'ü', '', '', '', '', '', '', ''),
++		'A' => array('', 'À', 'Á', '', '', '', '', '', 'Ä', '', '', '', '', '', '', ''),
++		'E' => array('', 'È', 'É', '', '', '', '', '', 'Ä', '', '', '', '', '', '', ''),
++		'O' => array('', 'Ò', 'Ó', '', '', '', '', '', 'Ö', '', '', '', '', '', '', ''),
++		'U' => array('', 'Ù', 'Ú', '', '', '', '', '', 'Ü', '', '', '', '', '', '', ''),
++		' ' => array('', '`', '´', '', '', '', '', '',  '', '', '', '', '', '', '', ''),
++	);
++
++	/**
++	 * Map some special characters
++	 *
++	 * @var array
++	 */
++	private static $_specialChars = array(
++		0x7B => 'ß'
++	);
++
++	/**
++	 * Convert SYLK encoded string to UTF-8
++	 *
++	 * @param string $sylkString
++	 * @return string UTF-8 encoded string
++	 */
++	private function _decodeSylkString($sylkString) {
++		$decString = '';
++		$startPos = 0;
++
++		while (($pos = strpos($sylkString, chr(27) . 'N', $startPos)) !== FALSE) {
++			$decString .= substr($sylkString, $startPos, $pos - $startPos);
++			$mod = ord($sylkString{$pos + 2});
++
++			if ($mod >= 0x40 && $mod <= 0x4F) {
++				$idx = $mod - 0x40;
++				$baseChar = $sylkString{$pos + 3}; // e.g. 'a' when we have 'à', 'á' etc.
++				$char = $baseChar;
++				if (isset(self::$_accents[$baseChar]) && !empty(self::$_accents[$baseChar][$idx])) {
++					$char = self::$_accents[$baseChar][$idx];
++				} else {
++					//echo "<missing Accent: ".dechex($mod).", $baseChar, $pos>$sylkString\n";
++				}
++				$decString .= $char;
++				$startPos = $pos + 4;
++
++			} else if (($mod >= 0x21 && $mod <= 0x3F) || ($mod >= 0x50 && $mod <= 0x7E)) { 
++				$char = '';
++				if (isset(self::$_specialChars[$mod])) {
++					$char = self::$_specialChars[$mod];
++				} else {
++					//echo "<missing special character: ".dechex($mod).", $pos>$sylkString\n";
++				}
++				$decString .= $char;
++				$startPos = $pos + 3; 
++			}
++		}
++		if ($decString == '') {
++			return $sylkString;
++		} else {
++			return $decString . substr($sylkString, $startPos);
++		}
++	}
++
+ }

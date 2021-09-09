@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "1033843",
+    "ThreadId": "441123",
+    "Html": "Hello,\r<br />\n<br />\nI'm using PHPExel to read an xlsx excel file. In this file there is already simple filters. I want to know how i can do to apply the rule that i have programmed. \r<br />\n<br />\nhere an extract of my program<br />\n<pre><code>$objReader = new PHPExcel_Reader_Excel2007();\n            $objReader-&gt;setLoadSheetsOnly( array(&quot;stock&quot;) );\n            $objPHPExcel = $objReader-&gt;load(&quot;../Excel/blabla.xlsx&quot;);\n            $objPHPExcel = $objPHPExcel-&gt;getActiveSheet();\n            $filtre = $objPHPExcel -&gt; getAutoFilter();\n            $filtreCol = $filtre -&gt; getColumn('B');\n            $filtreCol -&gt; setFilterType(PHPExcel_Worksheet_AutoFilter_Column::AUTOFILTER_FILTERTYPE_FILTER);\n            $filtreCol -&gt; createRule() -&gt; setRule(PHPExcel_Worksheet_Autofilter_Column_Rule::AUTOFILTER_COLUMN_RULE_EQUAL,$numSerie);\n            echo'&lt;/br&gt;&lt;/br&gt;';\n            echo '&lt;table&gt;' . &quot;\\n&quot;;\n                        // view the result with the filter applied\n            foreach ($objPHPExcel-&gt;getRowIterator() as $row) \n            {\n                                 .................................</code></pre>\n\nIt display the excel file entirely and i want it to display the lines which match with my filter\r<br />\n<br />\n<br />\nPS : sorry for my bad english.<br />\n",
+    "PostedDate": "2013-04-22T02:30:59.89-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1034002",
+    "ThreadId": "441123",
+    "Html": "PHPExcel only applies autofilter expressions on save, and this sets the relevant rows to hidden/visible to match the filter expression. You'll need to do the equivalent call from within your code, calling the AutoFilters showHideRows() method, then testing row visibility when you loop through each row using the iterator<br />\n",
+    "PostedDate": "2013-04-22T08:12:57.117-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1034060",
+    "ThreadId": "441123",
+    "Html": "Thank you for your quick answer.  I don't really understand what showHideRows() do to the line . I just call this method like this : $objPHPExcel -&gt; showHieRows()  at every iteration and then I test the visibility ? What is the method to test the row visibility? \r<br />\n<br />\nReally thank you for your help<br />\n",
+    "PostedDate": "2013-04-22T10:15:01.097-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1034360",
+    "ThreadId": "441123",
+    "Html": "Interesting.\r<br />\nClem91: You call only once the showHideRows method before the loop ($filtre-&gt;showHideRows()).\r<br />\nThis &quot;visually&quot; applies the filter to the data.\r<br />\nIn the loop, you test the visibility by $objPHPExcel-&gt;getRowDimension ($row-&gt;getRowIndex())-&gt;getVisible()\r<br />\nThis return a boolean.\r<br />\n<br />\nMark: Maybe could you add a few lines on this topic in the documentation of the AutoFilter or following point 4.6.25 in the developer documentation ?<br />\n",
+    "PostedDate": "2013-04-23T00:47:05.337-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1034375",
+    "ThreadId": "441123",
+    "Html": "It Worked !! Thank you very much. I think add few lines in the documentation, like LWol said, could be useful for others persons in my case I searched during hours for this in the doumentation and I have found nothing.\r<br />\n<br />\nThank you both ! <br />\n",
+    "PostedDate": "2013-04-23T01:35:48.03-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1037215",
+    "ThreadId": "441123",
+    "Html": "Added an example to the /Examples fo;der, and updated the Autofilter documentation with:\r<br />\n<br />\n<strong>5.\tExecuting an AutoFilter</strong>\r<br />\n<br />\nWhen an autofilter is applied in MS Excel, it sets the row hidden/visible flags for each row of the autofilter area based on the selected criteria, so that only those rows that match the filter criteria are displayed. \r<br />\nPHPExcel will not execute the equivalent function automatically when you set or change a filter expression, but only when the file is saved.\r<br />\n<br />\n<strong><em>5.1.\tApplying the Filter</em></strong>\r<br />\n<br />\nIf you wish to execute your filter from within a script, you need to do this manually. You can do this using the autofilters showHideRows() method.<br />\n<div style=\"color:Black;background-color:White;\"><pre>\r\n$autoFilter = $objPHPExcel-&gt;getActiveSheet()-&gt;getAutoFilter();\n$autoFilter-&gt;showHideRows();\r\n</pre></div>This will set all rows that match the filter criteria to visible, while hiding all other rows within the autofilter area.\r<br />\n<br />\n<strong><em>5.2.\tDisplaying Filtered Rows</em></strong>\r<br />\n<br />\nSimply looping through the rows in an autofilter area will still access ever row, whether it matches the filter criteria or not. To selectively access only the filtered rows, you need to test each row’s visibility settings.<br />\n<div style=\"color:Black;background-color:White;\"><pre>\r\n<span style=\"color:Blue;\">foreach</span> ($objPHPExcel-&gt;getActiveSheet()-&gt;getRowIterator() <span style=\"color:Blue;\">as</span> $row) {\n    <span style=\"color:Blue;\">if</span> ($objPHPExcel-&gt;getActiveSheet()-&gt;getRowDimension($row-&gt;getRowIndex())-&gt;getVisible()) {\n        <span style=\"color:Blue;\">echo</span> <span style=\"color:#A31515;\">&#39;    Row number - &#39;</span> , $row-&gt;getRowIndex() , <span style=\"color:#A31515;\">&#39; &#39;</span>;\n        <span style=\"color:Blue;\">echo</span> $objPHPExcel-&gt;getActiveSheet()-&gt;getCell(\n            <span style=\"color:#A31515;\">&#39;C&#39;</span>.$row-&gt;getRowIndex()\n        )-&gt;getValue(), <span style=\"color:#A31515;\">&#39; &#39;</span>;\n        <span style=\"color:Blue;\">echo</span> $objPHPExcel-&gt;getActiveSheet()-&gt;getCell(\n            <span style=\"color:#A31515;\">&#39;D&#39;</span>.$row-&gt;getRowIndex()\n        )-&gt;getFormattedValue(), <span style=\"color:#A31515;\">&#39; &#39;</span>;\n        <span style=\"color:Blue;\">echo</span> EOL;\n    }\n}\r\n</pre></div><strong>6.\tAutoFilter Sorting</strong>\r<br />\n<br />\nIn MS Excel, Autofiltering also allows the rows to be sorted. This feature is not supported by PHPExcel.<br />\n",
+    "PostedDate": "2013-04-29T09:25:08.52-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1037604",
+    "ThreadId": "441123",
+    "Html": "Clear and precise.\r<br />\nThank you, Mark<br />\n",
+    "PostedDate": "2013-04-30T05:37:38.837-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

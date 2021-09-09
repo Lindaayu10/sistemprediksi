@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "938236",
+    "ThreadId": "402332",
+    "Html": "\r\n<p>I would like to include the mySQL field names as line 1 in the generated xlsx. I have tried some things but have not had any luck. If anyone is willing to offer some advise on the subject I would be very appreciative. Here is my code:</p>\r\n<p>&nbsp;</p>\r\n<p>$query = &quot;SELECT * FROM evolve2012 WHERE cast(Date as DATE) BETWEEN DATE_SUB(CURDATE(), INTERVAL 7 DAY) AND CURDATE() AND Blah Blah Blah&quot;;</p>\r\n<p>if ($result = mysql_query($query) or die(mysql_error())) {<br>\r\n$objPHPExcel = new PHPExcel();<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setTitle('Data'); &nbsp;&nbsp;<br>\r\n}<br>\r\n$rowNumber = 1;<br>\r\nwhile ($row = mysql_fetch_assoc($result)) {&nbsp; &nbsp; &nbsp; &nbsp;<br>\r\n<span style=\"white-space:pre\"></span>$col = 'A'; // start at column A&nbsp; &nbsp; &nbsp; &nbsp;<br>\r\n<span style=\"white-space:pre\"></span>foreach($row as $cell) {&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;\r\n<br>\r\n<span style=\"white-space:pre\"></span>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue($col.$rowNumber,$cell);&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;\r\n<br>\r\n<span style=\"white-space:pre\"></span>$col&#43;&#43;; &nbsp; &nbsp; &nbsp;&nbsp;<br>\r\n<span style=\"white-space:pre\"></span>}&nbsp; &nbsp; &nbsp; &nbsp;<br>\r\n<span style=\"white-space:pre\"></span>$rowNumber&#43;&#43;;<br>\r\n}&nbsp;</p>\r\n<p>header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');<br>\r\nheader('Content-Disposition: attachment;filename=&quot;evolve2012-last7days.xlsx&quot;');<br>\r\nheader('Cache-Control: max-age=0');<br>\r\n<br>\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');<br>\r\n$objWriter-&gt;save('php://output');<br>\r\nexit;</p>\r\n",
+    "PostedDate": "2012-11-07T16:01:44.683-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "938415",
+    "ThreadId": "402332",
+    "Html": "\r\n<p>how about the following:</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><div style=\"color:black; background-color:white\"><pre>$query = <span style=\"color:#a31515\">&quot;SELECT * FROM evolve2012 WHERE cast(Date as DATE) BETWEEN DATE_SUB(CURDATE(), INTERVAL 7 DAY) AND CURDATE() AND Blah Blah Blah&quot;</span>;\n\n<span style=\"color:blue\">if</span> ($result = mysql_query($query) <span style=\"color:blue\">or</span> <span style=\"color:blue\">die</span>(mysql_error())) {\n  $objPHPExcel = <span style=\"color:blue\">new</span> PHPExcel();\n  $objPHPExcel-&gt;getActiveSheet()-&gt;setTitle(<span style=\"color:#a31515\">'Data'</span>);   \n}\n$rowNumber = 1;\n<span style=\"color:blue\">while</span> ($row = mysql_fetch_assoc($result)) {       \n  $col = <span style=\"color:#a31515\">'A'</span>; <span style=\"color:green\">// start at column A       </span>\n\n  <span style=\"color:blue\">if</span> ( $rowNumber == 1 ){\n    $headers = array_keys($row);\n    <span style=\"color:blue\">foreach</span> ( $headers <span style=\"color:blue\">as</span> $header ({\n      $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue($col.$rowNumber, $header);\n      $rowNumber&#43;&#43;;\n      $col&#43;&#43;;\n    }\n    $col = <span style=\"color:#a31515\">'A'</span>;\n  }\n\n  <span style=\"color:blue\">foreach</span>($row <span style=\"color:blue\">as</span> $cell) {          \n    $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue($col.$rowNumber,$cell);          \n    $col&#43;&#43;;       \n  }       \n  $rowNumber&#43;&#43;;\n} \n\nheader(<span style=\"color:#a31515\">'Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'</span>);\nheader(<span style=\"color:#a31515\">'Content-Disposition: attachment;filename=&quot;evolve2012-last7days.xlsx&quot;'</span>);\nheader(<span style=\"color:#a31515\">'Cache-Control: max-age=0'</span>);\n\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, <span style=\"color:#a31515\">'Excel2007'</span>);\n$objWriter-&gt;save(<span style=\"color:#a31515\">'php://output'</span>);\n<span style=\"color:blue\">exit</span>;\n</pre>\n</div>\n<br></pre>\r\n</div>\r\n",
+    "PostedDate": "2012-11-08T02:22:00.7-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "939354",
+    "ThreadId": "402332",
+    "Html": "\r\n<p>Thanks Borft,</p>\r\n<p>I modified your code a little and got it to work. The way you had it setup returns the title row as it should but it also moves down a row so the spreadsheet had the header row in a slant like so.</p>\r\n<p>1<br>\r\n<span style=\"white-space:pre\"><span style=\"white-space:pre\">...... </span></span>2<br>\r\n<span style=\"white-space:pre\">............ </span>3<br>\r\n...................4 &nbsp;etc.</p>\r\n<p>&nbsp;</p>\r\n<p>Also it wasn't returning any other data along with the title row. But I figured it out, thanks again for the help. This is what worked:</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre style=\"color:black\"><span style=\"color:blue\">if</span> ($result = mysql_query($query) <span style=\"color:blue\">or</span> <span style=\"color:blue\">die</span>(mysql_error())) {\n<span style=\"color:green\">/** Create a new PHPExcel object 1.0 */</span>\n   $objPHPExcel = <span style=\"color:blue\">new</span> PHPExcel();\n   $objPHPExcel-&gt;getActiveSheet()-&gt;setTitle(<span style=\"color:#a31515\">'Data'</span>);\n   }  \n\n}\n$rowNumber = 1; <span style=\"color:green\">//start in cell 1</span>\t\n<span style=\"color:blue\">while</span> ($row = mysql_fetch_assoc($result)) {\n\t$col = <span style=\"color:#a31515\">'A'</span>; <span style=\"color:green\">// start at column A</span></pre>\r\n<pre><span style=\"white-space:pre\">\t</span>// returns title row\n\t   <span style=\"color:blue\">if</span> ( $rowNumber == 1 ){\n       \t$headers = array_keys($row);\n       \t\t<span style=\"color:blue\">foreach</span>($headers <span style=\"color:blue\">as</span> $header) {\n          \t$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue($col.$rowNumber,$header);\n          \t$col&#43;&#43;;\n       \t\t}\n\t   \t$rowNumber&#43;&#43;;\n\t  }<span style=\"color:blue\">else</span>{ //returns content rows\n\t   $col = <span style=\"color:#a31515\">'A'</span>;\n\t \t<span style=\"color:blue\">foreach</span>($row <span style=\"color:blue\">as</span> $cell) {          \n\t\t$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue($col.$rowNumber,$cell);          \n\t\t$col&#43;&#43;;       \n\t\t} \n\t  $rowNumber&#43;&#43;;       \n\t  }\n      \n}\n</pre>\r\n</div>\r\n",
+    "PostedDate": "2012-11-09T12:58:50.95-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "940014",
+    "ThreadId": "402332",
+    "Html": "<p>glad it helped! :) I must admit I hadn't tested the code I posted in any way :D</p>",
+    "PostedDate": "2012-11-11T14:31:18.84-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,38 @@
+Index: Classes/PHPExcel/Cell/DefaultValueBinder.php
+===================================================================
+--- Classes/PHPExcel/Cell/DefaultValueBinder.php	(revision 928)
++++ Classes/PHPExcel/Cell/DefaultValueBinder.php	(working copy)
+@@ -68,6 +68,9 @@
+ 	 * @return 	int
+ 	 */
+ 	public static function dataTypeForValue($pValue = null) {
++		$localeconv = localeconv();
++		$decimal_point = $localeconv['decimal_point'];
++		
+ 		// Match the value against a few data types
+ 		if (is_null($pValue)) {
+ 			return PHPExcel_Cell_DataType::TYPE_NULL;
+@@ -79,7 +82,7 @@
+ 			return PHPExcel_Cell_DataType::TYPE_FORMULA;
+ 		} elseif (is_bool($pValue)) {
+ 			return PHPExcel_Cell_DataType::TYPE_BOOL;
+-		} elseif (preg_match('/^\-?[0-9]*\.?[0-9]*$/', $pValue)) {
++		} elseif (preg_match('/^\-?[0-9]*\\' . $decimal_point . '?[0-9]*$/', $pValue)) {
+ 			return PHPExcel_Cell_DataType::TYPE_NUMERIC;
+ 		} elseif (is_string($pValue) && array_key_exists($pValue, PHPExcel_Cell_DataType::getErrorCodes())) {
+ 			return PHPExcel_Cell_DataType::TYPE_ERROR;
+Index: Classes/PHPExcel/Writer/Excel2007/Worksheet.php
+===================================================================
+--- Classes/PHPExcel/Writer/Excel2007/Worksheet.php	(revision 928)
++++ Classes/PHPExcel/Writer/Excel2007/Worksheet.php	(working copy)
+@@ -1032,7 +1032,9 @@
+ 						}
+ 						break;
+ 					case 'n':			// Numeric
+-						$objWriter->writeElement('v', $pCell->getValue());
++						// force point as decimal separator in case current locale uses comma
++						$v = str_replace(',', '.', $pCell->getValue());
++						$objWriter->writeElement('v', $v);
+ 						break;
+ 					case 'b':			// Boolean
+ 						$objWriter->writeElement('v', ($pCell->getValue() ? '1' : '0'));

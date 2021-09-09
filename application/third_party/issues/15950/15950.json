@@ -1,0 +1,61 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "cell B2 (see attached file) contains value 00:00 and column B is in time format\n \nPHPExcel_Shared_Date::ExcelToPHP() returns -2208988800, which is invalid",
+    "LastUpdatedDate": "2013-02-21T19:02:21.653-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2011-06-01T04:28:27.347-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "wrong conversion 0:00 with ExcelToPHP",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 15950
+  },
+  "FileAttachments": [
+    {
+      "FileId": 5688,
+      "FileName": "time.xlsx",
+      "DownloadUrl": ".\\5688"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "Have you a code for testing, plz ?",
+      "PostedDate": "2011-06-01T05:01:25.087-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Sure,\r\n\r\nI'm running this in phpunit:\r\n\r\n    public function testTimeConversionExcel2007()\r\n    {\r\n        date_default_timezone_set('Europe/Amsterdam');\r\n        \r\n        $inputFileName = 'testdata/time.xlsx';\r\n        $objPHPExcel = PHPExcel_IOFactory::load($inputFileName);\r\n        $objPHPExcel->setActiveSheetIndex(0);\r\n        $worksheet = $objPHPExcel->getActiveSheet();\r\n        $this->assertTrue(PHPExcel_Calculation_Functions::setReturnDateType(PHPExcel_Calculation_Functions::RETURNDATE_EXCEL));\r\n\r\n        $value = $worksheet->getCell('A2')->getCalculatedValue();\r\n        $this->assertEquals(PHPExcel_Shared_Date::ExcelToPHP($value), 1306969200);\r\n        $value = $worksheet->getCell('B2')->getCalculatedValue();\r\n        $this->assertEquals(PHPExcel_Shared_Date::ExcelToPHP($value), 1306886400);\r\n    }  ",
+      "PostedDate": "2011-06-01T10:32:31.523-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:02:21.653-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

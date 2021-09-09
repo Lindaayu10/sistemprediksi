@@ -1,0 +1,86 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "When you export a PDF in version  1.7.6 it automatically renders thick borders. This is because the html renderer renders BORDER_NONE in such a way that TCPDF can't process it properly. Basically, it is setting a border to 0px in css and that doesn't work for TCPDF. However, setting it to \"1px hidden\" does work flawlessly.\n \nI have attached a diff patch for your convenience.",
+    "LastUpdatedDate": "2015-06-25T23:19:57.113-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2011-03-28T03:41:04.07-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Bug in rendering borders PDF writer",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 4,
+    "Id": 15600
+  },
+  "FileAttachments": [
+    {
+      "FileId": 5552,
+      "FileName": "borderbug.diff",
+      "DownloadUrl": ".\\5552"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "In file PHPExcel/Classes/PHPExcel/Writer/HTML.php  \r\nLine: 883 \r\n\r\nif ($this->_isPdf && $pSheet->getShowGridLines()) {\r\n\t\t\t\t$html .= '\t<table border=\"1\" cellpadding=\"1\" id=\"sheet' . $sheetIndex . '\" cellspacing=\"4\" style=\"' . $style . '\">' . PHP_EOL;\r\n\t\t\t} else {\r\n\t\t\t\t$html .= '\t<table border=\"0\" cellpadding=\"1\" id=\"sheet' . $sheetIndex . '\" cellspacing=\"4\" style=\"' . $style . '\">' . PHP_EOL;\r\n\t\t\t}\r\n     \r\n  I Edit code  \r\n\r\n\tif ($this->_isPdf && $pSheet->getShowGridLines()) {\r\n\t\t\t\t$html .= '\t<table border=\"1\" cellpadding=\"1\" id=\"sheet' . $sheetIndex . '\" cellspacing=\"0\" style=\"' . $style . '\">' . PHP_EOL;\r\n\t\t\t} else {\r\n\t\t\t\t$html .= '\t<table border=\"0\" cellpadding=\"1\" id=\"sheet' . $sheetIndex . '\" cellspacing=\"4\" style=\"' . $style . '\">' . PHP_EOL;\r\n\t\t\t}",
+      "PostedDate": "2011-06-20T22:36:38.013-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I was having the same issue and this fixed one of the problems for me, however I am still seeing other issues with the borders when exporting to PDF or HTML on cells that no content or borders were placed in.",
+      "PostedDate": "2011-06-27T09:31:37.68-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2011-08-10T04:36:47.893-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "That fix worked for me also.",
+      "PostedDate": "2011-08-10T11:49:32.123-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2011-09-20T07:48:40.22-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "The fix you wrote here is not always working. I discovered that the PHPExcel_Writer_HTML class was generating a border with 0px width that was creating this issue. \r\n\r\nSo in order to fix it open PHPExcel/Classes/PHPExcel/Writer/HTML.php\r\n\r\nGo to line 805 and replace\r\n\r\n\t\t$css['border-bottom']\t= $this->_createCSSStyleBorder($pStyle->getBottom());\r\n\t\t$css['border-top']\t\t= $this->_createCSSStyleBorder($pStyle->getTop());\r\n\t\t$css['border-left']\t\t= $this->_createCSSStyleBorder($pStyle->getLeft());\r\n\t\t$css['border-right']\t= $this->_createCSSStyleBorder($pStyle->getRight());\r\n\r\nwith\r\n\r\n\t\tif(false !== ($tCss = $this->_createCSSStyleBorder($pStyle->getBottom()))) $css['border-bottom']\t= $tCss;\r\n\t\tif(false !== ($tCss = $this->_createCSSStyleBorder($pStyle->getTop()))) $css['border-top']\t= $tCss;\r\n\t\tif(false !== ($tCss = $this->_createCSSStyleBorder($pStyle->getLeft()))) $css['border-left']\t= $tCss;\r\n\t\tif(false !== ($tCss = $this->_createCSSStyleBorder($pStyle->getRight()))) $css['border-right']\t= $tCss;\r\n\r\nand on line 820, add at the begining of method _createCSSStyleBorder() the following:\r\n\r\n\t\t//if no border, return false\r\n\t\tif($pStyle->getBorderStyle() == PHPExcel_Style_Border::BORDER_NONE) return false;\r\n\t\t\r\nI hope this help you guys, I had the same issue and did not find any answers on the internet too!",
+      "PostedDate": "2012-01-24T00:50:23.373-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:02:27.71-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2015-06-25T23:19:57.113-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

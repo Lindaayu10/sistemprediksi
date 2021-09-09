@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "934842",
+    "ThreadId": "401447",
+    "Html": "\r\n<p>Hello,</p>\r\n<p>Somehow i need to open the excell file and doubleclick a formatted cell before the formatting becomes active, also i can &quot;edit&quot; the field and press enter to activate the formatting.&nbsp;ofc this is not what i want! I allready tried to format after adding\r\n the time to the cell but same result... Any idea's to fix this issue ? worked for weeks on this script but can't use it till this is fixed.</p>\r\n<p>This is what my code for the formatting and adding the data to the cell looks like :</p>\r\n<p>&nbsp;$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(&quot;A&quot; . $counter)-&gt;getNumberFormat()-&gt;setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_DATE_DATETIME)<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;$objPHPExcel-&gt;setActiveSheetIndex($page)&nbsp;<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-&gt;setCellValue(&quot;A&quot; . $counter, $mytime)</p>\r\n<p>&nbsp;</p>\r\n<p>Best regards,</p>\r\n<p>Neutje</p>\r\n",
+    "PostedDate": "2012-10-31T09:05:39.503-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "934874",
+    "ThreadId": "401447",
+    "Html": "\r\n<p>So what's the value of $mytime? Is it a valid Excel date/timestamp value?</p>\r\n",
+    "PostedDate": "2012-10-31T10:19:14.893-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "935606",
+    "ThreadId": "401447",
+    "Html": "<p>The value is</p>\r\n<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\" width=\"400\">\r\n<colgroup span=\"1\"><col span=\"1\" width=\"400\"></col></colgroup>\r\n<tbody>\r\n<tr height=\"20\">\r\n<td class=\"xl63\" width=\"400\" height=\"20\">\"28/10/2012&nbsp; 22:20\"</td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n<p>Format is&nbsp; \"dd/mm/yyyy hh:mm\"</p>\r\n<p>I guess its a valid date/timestamp since it works after \"activating\" the field, how can i make sure it is ?</p>",
+    "PostedDate": "2012-11-02T02:08:15.743-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "935665",
+    "ThreadId": "401447",
+    "Html": "<p>\"28/10/2012 22:20\" looks like a string value to me: Excel (like PHP itself) uses a serailised datetimestamp value for dates (though based on number of days since 1st January 1900 (PHP uses number of seconds since&nbsp;1st January 1970.</p>\r\n<p>So you need to convert your date/time strings to Excel timestamps:</p>\r\n<p>Use the standard PHP date functions to convert your string to a PHP timetsamp value via the <span class=\"refname\">strtotime() function or DateTime::createFromFormat() to create a PHP DateTime object.</span></p>\r\n<p><span class=\"refname\">These can then be passed to PHPExcel's PHPExcel_Shared_Date::PHPToExcel() method to return an Excel timestamp that you can then store in that cell</span></p>",
+    "PostedDate": "2012-11-02T05:34:45.83-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "936618",
+    "ThreadId": "401447",
+    "Html": "<p>Thanks MarkBaker !</p>\r\n<p>That was the issue indeed, once i converted the date/time to a PHP Timestamp and then used the PHPExcel_Shared_Date::PHPtoExcel() method to store the datetime in the cell it worked as intended. Never noticed that excel uses a serialised datetimestamp</p>",
+    "PostedDate": "2012-11-05T02:31:41.323-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

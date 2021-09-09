@@ -1,0 +1,99 @@
+<?php
+
+include "PHPExcel/Classes/PHPExcel.php";
+set_time_limit(0);
+ini_set('memory_limit','2500M');
+
+$style_header = array(
+    'fill' => array(
+        'type' => PHPExcel_Style_Fill::FILL_SOLID,	    
+        'color' => array('rgb'=>'1F497D')
+    ),
+    'font' => array(
+        'bold' => true,
+        'color' => array('rgb'=>'FFFFFF')
+    )
+);
+
+$objPHPExcel = new PHPExcel();
+$objPHPExcel->getProperties()->setCreator("xyz")
+            ->setLastModifiedBy("xyz")
+            ->setTitle("Office 2007 XLSX xyz Document")
+            ->setSubject("Office 2007 XLSX xyz Document")
+            ->setDescription("xyz document for Office 2007 XLSX.")
+            ->setKeywords("office 2007 xyz excel")
+            ->setCategory("xyz file");            
+            
+        
+        $sheetcounter = 0;            
+        $objPHPExcel->setActiveSheetIndex($sheetcounter);
+        $sheet = $objPHPExcel->getActiveSheet();
+        $sheet->setCellValue('A1', "Brand Name");
+        $sheet->setCellValue('B1', "Product Name");
+        $sheet->setCellValue('C1', "Name");
+        $sheet->setCellValue('D1', "Mobile");
+        $sheet->setCellValue('E1', "Email");
+        $sheet->setCellValue('F1', "Country");
+        $sheet->setCellValue('G1', "City");
+        $sheet->setCellValue('H1', "DOB");
+        $sheet->setCellValue('I1', "Age");
+        $sheet->setCellValue('J1', "Comment");
+        $sheet->setCellValue('K1', "Outlet Code");
+        $sheet->setCellValue('L1', "Username");
+        $sheet->setCellValue('M1', "Datetime");
+        $sheet->setCellValue('N1', "Duration");
+        $sheet->getColumnDimensionByColumn(0, 0)->setWidth(20);
+        $sheet->getColumnDimensionByColumn(1, 0)->setWidth(20);
+        $sheet->getColumnDimensionByColumn(2, 0)->setWidth(20);
+        $sheet->getColumnDimensionByColumn(3, 0)->setWidth(20);
+        $sheet->getColumnDimensionByColumn(4, 0)->setWidth(20);
+        $sheet->getColumnDimensionByColumn(5, 0)->setWidth(20);
+        $sheet->getColumnDimensionByColumn(6, 0)->setWidth(20);
+        $sheet->getColumnDimensionByColumn(7, 0)->setWidth(20);
+        $sheet->getColumnDimensionByColumn(8, 0)->setWidth(20);
+        $sheet->getColumnDimensionByColumn(9, 0)->setWidth(20);
+        $sheet->getColumnDimensionByColumn(10, 0)->setWidth(20);
+        $sheet->getColumnDimensionByColumn(11, 0)->setWidth(20);
+        $sheet->getColumnDimensionByColumn(12, 0)->setWidth(20);
+        $sheet->getColumnDimensionByColumn(13, 0)->setWidth(20);    
+        $sheet->getStyle('A1:N1')->applyFromArray( $style_header );
+
+
+
+$surveys2 = array();
+$i	= 0;
+$rowscounter = 1;
+mysql_query("SET SQL_BIG_SELECTS=1");
+$sql2 = "SELECT * FROM Surveys";
+$result2 = mysql_query($sql2);
+
+while($row2 	= mysql_fetch_assoc($result2))
+{   
+    $j=$rowscounter+2;
+    $sheet->setCellValue("A$j",$row2['brandname']);
+    $sheet->setCellValue("B$j",$row2['productname']);
+    $sheet->setCellValue("C$j",$row2['sname']);
+    $sheet->setCellValue("D$j",$row2['smobile']);
+    $sheet->setCellValue("E$j",$row2['semail']);
+    $sheet->setCellValue("F$j",$row2['country']);
+    $sheet->setCellValue("G$j",$row2['city']);
+    $sheet->setCellValue("H$j",$row2['sdob']);
+    $sheet->setCellValue("I$j",$row2['age']);
+    $sheet->setCellValue("J$j",$row2['comment']);
+    $sheet->setCellValue("K$j",$row2['outletcode']);
+    $sheet->setCellValue("L$j",$row2['username']);
+    $sheet->setCellValue("M$j",$row2['datetime']);
+    $sheet->setCellValue("N$j",$row2['duration']);	
+    $rowscounter++;
+}
+
+// Rename worksheet
+$sheet->setTitle('Survey-Report');    
+$objPHPExcel->setActiveSheetIndex(0);
+$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+$objWriter->setPreCalculateFormulas(false);
+unlink("Survey-Report.xlsx");
+$objWriter->save('Survey-Report.xlsx');
+echo "ok";
+    
+?>

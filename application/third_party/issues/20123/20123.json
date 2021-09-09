@@ -1,0 +1,65 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I've set a max memory limit of 256M for the script running from command line on a dedicated server with 24GB RAM and 4 Xeon cores\n\nThe following takes 300 seconds (5 minutes)\n```\n$objReader = PHPExcel_IOFactory::createReader('Excel5');\n$objReader->setReadDataOnly(true);\n```\n\nThe following takes 1802 seconds (30 minutes)\n```\n$objPHPExcel = $objReader->load($path_to_excel);\n```\n\nThe following takes 50 seconds\n```\n$worksheetTitle     = $worksheet->getTitle();\n$highestRow         = $worksheet->getHighestRow(); // e.g. 10\n$highestColumn      = $worksheet->getHighestColumn(); // e.g 'F'\n$highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn);\n$nrColumns = ord($highestColumn) - 64;\t\t//BUG: assumes single column names like 'A'..'Z' not 'AC'\n```\nPeak memory usage: 37.25 MB\n\nThe .xls spreadsheet contains sensitive data so I won't attach here, but will email it to Mark.\n\nWith a minimum 35 minute wait before I can start to loop through the data it's going to be impossible for me to develop a solution using PHPExcel.\n\nOut of desperation, I got Excel to save the spreadsheet as an html page.  This is in no way ideal as it means as it means we cannot fully automate the process we're working on.  Using _simple_html_dom_ v1.5.0 it will open the html file, parse it and let me iterate the first few rows in just 12 seconds.  Peak memory usage: 431.75 MB\n\nIs there a way to force PHPExcel to use more memory than it is, and if so will it make the dramatic reduction on execution time that we need?\n\nRegards\n\nJohn",
+    "LastUpdatedDate": "2013-08-24T16:08:26.03-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2013-08-22T02:50:47.247-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "What can be done to speed PHPExcel up?",
+    "Type": {
+      "Name": "Unassigned",
+      "Id": 5
+    },
+    "VoteCount": 1,
+    "Id": 20123
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "PHPExcel 1.7.9 and PHP 5.4.16 \r\n\r\nIn further testing of the instantiation of a reader object with\r\n\r\n```php\n$objReader = PHPExcel_IOFactory::createReader('Excel5');\n```\r\n\r\nalmost all of the time appears to be consumed when executing\r\n\r\n```php\nPHPExcel_Shared_String::buildCharacterSets();\n```\r\n\r\nwithin the Autoload.php script.  This statement has been consistently taking 50 seconds to execute for me all afternoon today.",
+      "PostedDate": "2013-08-22T09:40:02.103-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "If anybody can explain why this should take so long to run: the code is there for anyone to see and assess for themselves, and there's nothing in PHPExcel_Shared_String::buildCharacterSets() that shouldn't run in a fraction of a second. Those timings are all ridiculously excessive, and I've no explanation as to why. Just ensue that you have xdebug disabled, that's the only thing I can think of that can add a significant overhead and can slow things to a crawl",
+      "PostedDate": "2013-08-22T14:00:04.33-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Hi Mark\r\n\r\nYes, I was completely stumped by the amount of time taken just to require PHPExcel/Shared/String.php as I was outputting a timestamp within that file preceding the class definition.  I then disabled your autoloader and began creating a list of requires for all the classes required to define an empty Excel5 reader.  This then ran through in almost no time at all.  I noticed that each time a class definition could not be found (because of no autoloader) there was a delay before the error message was output.  \r\n\r\nFurther investigation found a ```sleep(10);``` within an existing already registered autoloader whenever a class definition could not be found - this is within a loop (1-5 iterations) that will try again to load a class if not found (typically as it's being FTP'd and 'in use' at the time).  Disabling this sleep statement now enables PHPExcel to define a reader and load the spreadsheet I want to work with, in under 3 seconds.\n5x10 = the 50 seconds I was getting consistently yesterday.\r\n\r\nHopefully the above might help others.\r\n\r\nI'm now looking forward to seeing what can be achieved with PHPExcel now that I can run it within a very reasonable amount of time.\r\n\r\n",
+      "PostedDate": "2013-08-23T06:46:31.727-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "One further note. We had PHPExcel-1.7.9/Classes within our include path, so ```require 'PHPExcel.php';``` was automatically picked up by our autoloader. All other PHPExcel classes would also be picked up by our autoloader if PHPExcel used namespaces rather than using it's own autoloader to handle the conversion of PHPExcel_dir_file class names to PHPExcel/dir/file.php.\r\n\r\nIt was pleasing to see that our production use of PHPExcel this morning took just 35 seconds elapsed to split a spreadsheet where previously it'd been taking well over 30 minutes due to the clash with our own autoloader (described in previous post).  Our autoloader now has to ignore classes beginning with 'PHPExcel', which is workable but not ideal.",
+      "PostedDate": "2013-08-24T01:52:57.707-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Retaining support for PHP 5.2.x has held us back for a long while, and with over 50% of ISPs still only using 5.2 we couldn't move on; but until we can enforce a minimum PHP 5.3.0, using namespacing has not been an option. The latest figures I've seen show that PHP 5.2 has now dropped below that 50% usage mark, and is likely to continue to fall, which is why we're moving forward now and why PHPExcel 2 will force a minimum version of PHP 5.3",
+      "PostedDate": "2013-08-24T16:08:26.03-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "All",
+      "DisplayName": "All"
+    },
+    "ClosedComment": "Fixed with http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=6857",
+    "ClosedDate": "2009-04-27T23:45:58.277-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hello,\n \nfirst, thanks for this awesome piece of software. However, I'm experiencing several out-of-memory issues when trying to parse an .XLSX file that has approx. 14000 rows in total, each row has 7 columns.\nWorking for an addon to our application, which has perfect support for Excel5 BIFF files (parsing the same data (14000 x 7 matrix) without any troubles).\n \nMy approach is following:\n \n...\n \n$XLSX_Reader = new PHPExcel_Reader_Excel2007();\n$XLSX = $XLSX_Reader->load($file);\n \n$XLSX->setActiveSheetIndex(0);\n$XLSX_Worksheet = $XLSX->getActiveSheet();\nunset($XLSX);\n \n$rows = $XLSX_Worksheet->getHighestRow();\n$cols = 7;\n$data = array();\n \nfor ($row = 1; $row <= $rows; ++$row) {\n    for ($col = 0; $col <= $cols; ++$col) {\n          $numFmt = $XLSX_Worksheet->getStyleByColumnAndRow($col, $row)->getNumberFormat();\n          $value = $XLSX_Worksheet->getCellByColumnAndRow($col, $row)->getValue();\n          $dataType = $XLSX_Worksheet->getCellByColumnAndRow($col, $row)->getDataType();\n \n          /* only non-empty cells are processed */\n          if ($value != \"\") {\n              /* string cells conversion from UTF-8 to CP1250 */\n              if ($dataType == PHPExcel_Cell_DataType::TYPE_STRING) {\n                  $value = iconv(\"UTF-8\", \"CP1250\", $value);\n              }\n \n              /* date conversion if necessary */\n              if (isDateFmt($numFmt)) {\n                  $data[$row][$col + 1] = $numFmt->toFormattedString($value, \"d.m.YYYY\"); \n              } else {\n                  $data[$row][$col + 1] = $value;\n              }\n          }\n     }\n}\n \n...\n \nIt hangs with \"PHP Fatal error:  Allowed memory size of ... exhausted (tried to allocate 40 bytes) in ... PHPExcel\\Style\\Font.php on line 498.\"\n \nDeeper looking at the Font.php on line 498, I can see, that there's some object cloning stuff. I am not sure, whether this is as efficient as it should be. Commenting out the __clone() method introduces another OOM errors within the PHPExcel code, mostly in __clone() methods of another objects.\n \nOk, we could say, that this is some sort of \"extreme cases\", but as I've mentioned, we don't have any troubles parsing such big Excel5 files.\n \nOr is there something wrong about my approach? Or I am missing something? Or the current PHPExcel code needs to be tuned for less memory consumption?\n \nThanks for your answers.\n \nCheers,\nMiroslav",
+    "LastUpdatedDate": "2013-05-16T05:42:46.843-07:00",
+    "PlannedForRelease": "PHPExcel 1.7.0 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-04-09T09:26:01.613-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "PHPExcel out-of-memory issues",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 2,
+    "Id": 9718
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "PHPExcel code is currently being tuned. Can you attach an example XLSX file to this issue so we can test if this will be better in the future?",
+      "PostedDate": "2009-04-09T11:01:44.343-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-04-09T11:01:57.907-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Hi, thanks for your fast reply. I will prepare such kind of document and attach it here soon.",
+      "PostedDate": "2009-04-10T05:02:12.09-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-04-24T08:44:10.417-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-04-27T23:45:04.65-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-04-27T23:45:58.277-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:04:11.013-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:46.843-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "487750",
+    "ThreadId": "225673",
+    "Html": "<p>I am trying to output an Excel worksheet where some of the cells have double quotes.&nbsp; On one web server, the worksheet is created fine without any problems.&nbsp; However, on my production server, any text with double quotes gets truncated at the double quote.</p>\r\n<p>I have a feeling that it is related to ensuring the output is UTF-8, and have tried using the iconv functions, but the documentation is not very detailed about how this should be done.&nbsp; Can someone provide more detail, or perhaps this is related to a different issue.</p>\r\n<p>As further detail, when I use the function SetCellValueExplicit() to set the cell value and explicitly format it as text, nothing is placed in the cell if the text has double quotes.&nbsp; The truncation occurs when I set the cell value using just SetCellValue()</p>\r\n<p>I am using phpExcel 1.7.4</p>\r\n<p>The web server that works is running Apache on Windows XP.&nbsp; The web server that does not work is running IIS.&nbsp; The issue happens with both double-quotes and dashes that have a space preceding them.&nbsp; (And perhaps other yet-undiscovered characters).&nbsp;</p>\r\n<p>I have tried utf8-encode().&nbsp; This causes the text to no longer get truncated, but the offending character (double-quote, etc) is displayed as some unknown character.</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-09-01T11:04:49.297-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "490360",
+    "ThreadId": "225673",
+    "Html": "<p>Just thought that I would post that I solved the issue (with one minor unanswered question).&nbsp; It <em>was </em>a character encoding issue.&nbsp; I used the iconv() function as suggested in the documentation.&nbsp;</p>\r\n<p>The database data being used to populate the spreadsheet had a 'latin_swedish_ci' collation, which corresponds to a 'cp1252' encoding.</p>\r\n<p>The weird thing was that on my local server it did not have an issue, even though the local server database uses the same encodings.&nbsp; I am not sure if Apache is doing something behind the scenes, because when I changed the code to use iconv(), it still works on both servers.&nbsp; I would be interested in anybody's thoughts as to why this could be.</p>\r\n<p>Anyhow, one other thing to point out that might be helpful to users is that most of the forum posts here and elsewhere regarding using iconv() or utf8-encode() seem to suggest that most data from Windows would be in a <span>'ISO-8859-1' encoding.&nbsp; It should be noted that for data pulled from MySQL, you are more likely to have 'cp1252'.&nbsp; Since these two encodings are very close, using utf8-encode() eliminated the truncation problem, but not the character conversion problem.</span></p>",
+    "PostedDate": "2010-09-07T13:33:58.14-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

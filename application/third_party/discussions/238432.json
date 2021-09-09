@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "535993",
+    "ThreadId": "238432",
+    "Html": "\r\n<p>Hi,</p>\r\n<p>I have the Problem that if I process more then one excel file in one process to html then the styles will be wrong.</p>\r\n<p>I do like this:</p>\r\n<p>class grid_xml2xls extends PHPExcel<br>\r\n{<br>\r\n&nbsp;... read xml and write into phpexcel<br>\r\n}</p>\r\n<p>&nbsp;</p>\r\n<p>class report()<br>\r\n{<br>\r\n&nbsp;public function html() # html writer<br>\r\n&nbsp;{<br>\r\n&nbsp; $xls = &amp; new grid_xml2xls($this-&gt;xml_grid(true));<br>\r\n&nbsp; ...<br>\r\n&nbsp;}<br>\r\n<br>\r\n$r1 = new report('x');<br>\r\n...</p>\r\n<p>$r2 = new report('y');<br>\r\n...</p>\r\n<p>Inside grid_xml2xls:</p>\r\n<p>I'm parsing a xml file an I store style definitions in an array. (a file can have 27.000 rows and 40 cols and many styles)</p>\r\n<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self::$used_styles[$used_styles_idX] = $this-&gt;sheet-&gt;getCell($current_col_cel)-&gt;getXfIndex(); // returns integer e.g. 5<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $this-&gt;sheet-&gt;getCell($current_col_cel)-&gt;setXfIndex(self::$used_styles[$used_styles_idX]);</p>\r\n<p>the first html and style will be correct, but the second style will be wrong. There are elements from the first run (report) inside.</p>\r\n<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; self::$used_styles[$used_styles_idX] = $current_col_cel; # remember the first cell with this style<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $this-&gt;sheet-&gt;duplicateStyle($this-&gt;sheet-&gt;getStyle(self::$used_styles[$used_styles_idX]), $current_col_cel);</p>\r\n<p>this will be slower, but the styles are more correct, but not fine. Some styles will be wrong, too</p>\r\n<p>Is there any caching/store/static array where phpexcel store the style information over the lifetime of an object?</p>\r\n<p>I'm using 1.7.4 and now 1.7.5 with the same behavior.</p>\r\n<p>I hope anywhere can help me, to solve this problem?</p>\r\n<p>Greetings</p>\r\n<p><br>\r\nFrank</p>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2010-12-15T01:13:21.893-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "536469",
+    "ThreadId": "238432",
+    "Html": "\r\n<p>All workbook styling should be maintained within the individual PHPExcel object, so there can be an XFIndex with a value of&nbsp;5 in each PHPExcel object, and these can refer to different styles. Because each PHPExcel object is an autonomous object, this\r\n doesn't matter. However, you're using a static array (self::$used_styles) to maintain the styles, so the XFIndex of 5 read from one PHPExcel object can overwrite the XFIndex of 5 read from another within that array.</p>\r\n",
+    "PostedDate": "2010-12-15T15:53:08.913-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "536600",
+    "ThreadId": "238432",
+    "Html": "\r\n<p>Hello Mark,</p>\r\n<p>thanks for your fast response, yes thats true. I found the bug in my skript, there was a status flag in a function that was static.</p>\r\n<p>Geetings</p>\r\n<p>Frank</p>\r\n",
+    "PostedDate": "2010-12-16T00:24:43.5-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

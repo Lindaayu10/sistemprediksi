@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "250214",
+    "ThreadId": "73235",
+    "Html": "<p>I have several manual-done XLS files. I want to use them as a templates of worksheets to join them together and create one XLS file with my data.</p>\r\n<p>I try the following code:\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>  $xls = <span style=\"color:Blue\">new</span> PHPExcel();\r\n  $xlsReader= <span style=\"color:Blue\">new</span> PHPExcel_Reader_Excel5();\r\n  $xlsTemplate = $xlsReader-&gt;load( <span style=\"color:#A31515\">&quot;template.xls&quot;</span> );\r\n  $sheet1 = $xlsTemplate-&gt;getSheet(0);\r\n  $xls-&gt;addSheet( $sheet1, 0 );\r\n  $xlsWriter = <span style=\"color:Blue\">new</span> PHPExcel_Writer_Excel5($xls);\r\n  $xlsWriter-&gt;save( <span style=\"color:#A31515\">&quot;myfile.xls&quot;</span> );\r\n</pre>\r\n</div>\r\n</p>\r\n<p>After this code finishes result is not good. File &quot;myfile.xls&quot; contains all the numbers, texts and formulas of &quot;template.xls&quot;, but does NOT contain cell style information. Font, font size, cell background - all of this is default, not as in &quot;template.xls&quot;.</p>\r\n<p>What can I do to copy worksheet with style information?</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-10-27T08:36:15.273-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "250993",
+    "ThreadId": "73235",
+    "Html": "<blockquote style=\"border:0.1em solid #cccccc;margin:0.25em 1em 0pt;padding:0pt 0.25em;font-style:italic\"><strong>GRIG wrote:</strong><br>\r\n<p>After this code finishes result is not good. File &quot;myfile.xls&quot; contains all the numbers, texts and formulas of &quot;template.xls&quot;, but does NOT contain cell style information. Font, font size, cell background - all of this is default, not as in &quot;template.xls&quot;.</p>\r\n<p>What can I do to copy worksheet with style information?</p>\r\n</blockquote>\r\n<p>Yes, you need to use <span style=\"font-family:Courier New\">addExternalSheet()</span> instead of <span style=\"font-family:Courier New\">addSheet()</span> when you need to move a sheet from one workbook to another.</p>\r\n<p>Related thread:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=36984\">http://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=36984</a></p>",
+    "PostedDate": "2009-10-28T19:44:45.813-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "251088",
+    "ThreadId": "73235",
+    "Html": "<p>Thanks. That is really solution. But its implementation contain BUG:</p>\r\n<p>File PHPExcel.php @version&nbsp;&nbsp;&nbsp; 1.7.0, 2009-08-10, line 389-418:</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre><div style=\"color:Black;background-color:White\"><pre><span style=\"color:Green\">/**\r\n     * Add external sheet\r\n......\r\n     * @return PHPExcel_Worksheet\r\n     */</span>\r\n<span style=\"color:Blue\">public</span> <span style=\"color:Blue\">function</span> addExternalSheet(PHPExcel_Worksheet $pSheet) {\r\n.....\r\n\t\t<span style=\"color:Blue\">return</span> $this-&gt;addSheet($pSheet);\r\n\t}\r\n</pre>\r\n</div>\r\n</pre>\r\n</div>\r\n<p>File PHPExcel.php @version&nbsp;&nbsp;&nbsp; 1.7.0, 2009-08-10, line 211-233:</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre><span style=\"color:Green\">/**\r\n     * Add sheet\r\n.....\r\n     */</span>\r\n    <span style=\"color:Blue\">public</span> <span style=\"color:Blue\">function</span> addSheet(PHPExcel_Worksheet $pSheet = null, $iSheetIndex = null)\r\n    {\r\n.....\r\n<span style=\"color:Green\">// no return any value. function documented as 'void'</span>\r\n    }\r\n</pre>\r\n</div>\r\n<p>BTW, why addExternalSheet() has only 1 parameter, while its implementation calls to addSheet() which allows 2 parameters?</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-10-29T02:21:08.897-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "251763",
+    "ThreadId": "73235",
+    "Html": "<p>Agree with your comments.</p>\r\n<p>&gt;&gt; But its implementation contain BUG:<br><a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10859\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10859</a><br><br>&gt;&gt; BTW, why addExternalSheet() has only 1 parameter, while its implementation calls to addSheet() which allows 2 parameters?<br><a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10860\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10860</a></p>\r\n<p>Download latest source code tomorrow:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx\">http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx</a></p>",
+    "PostedDate": "2009-10-30T13:24:49.63-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "820371",
+    "ThreadId": "73235",
+    "Html": "<p>&nbsp;</p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre><span style=\"color: green;\">/* Load template sheet to be copied */</span>\r\n$template_sheet = $Libro-&gt;getSheetByName($Planta);\r\n<span style=\"color: green;\">/* Create a copy into a new sheet object */</span>\r\n$sheet = $template_sheet-&gt;copy();\r\n<span style=\"color: green;\">/* Change name to new (cloned) worksheet */</span>\r\n$sheet-&gt;setTitle(<span style=\"color: #a31515;\">\"copied\"</span>);\r\n<span style=\"color: green;\">/* Add the sheet to workbook */</span>\r\n$Libro-&gt;addSheet($sheet, 1);\r\n<span style=\"color: green;\">/* Then apply a formula to new worksheet */</span>\r\n$Libro-&gt;getSheetByName(<span style=\"color: #a31515;\">'copied'</span>)-&gt;setCellValueExplicit(<span style=\"color: #a31515;\">'H10'</span>,<span style=\"color: #a31515;\">'=Detalle!H'</span> . $row);\r\n</pre>\r\n</div>\r\n<p>The code above doesn't work for me, the value (formula) applied change for both sheets, template sheet and copied sheet. How can I fix this issue? please help! ;)</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2012-04-05T06:36:06.113-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "820527",
+    "ThreadId": "73235",
+    "Html": "<p>The copy() method creates a \"shallow\" clone. You need to create a \"deep\" clone.</p>\r\n<p>Instead of</p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>$sheet = $template_sheet-&gt;copy();\r\n</pre>\r\n</div>\r\n<p>use</p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>$sheet = <span style=\"color: blue;\">clone</span> $template_sheet;\r\n</pre>\r\n</div>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2012-04-05T12:27:43.847-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "821498",
+    "ThreadId": "73235",
+    "Html": "<p>Thanks for you reply Mark. I tried the code you've posted above, and It doesn't work, I still get the same issue, the value/formula apply for two sheets (template sheet and copied one). Please help!</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre><span style=\"color: green;\">/* Load template sheet to be copied */</span>\r\n$template_sheet = $Libro-&gt;getSheetByName($Planta);\r\n<span style=\"color: green;\">/* Create a copy into a new sheet object */</span>\r\n$sheet = <span style=\"color: blue;\">clone</span> $template_sheet;\r\n<span style=\"color: green;\">/* Change name to new (cloned) worksheet */</span>\r\n$sheet-&gt;setTitle(<span style=\"color: #a31515;\">\"copied\"</span>);\r\n<span style=\"color: green;\">/* Add the sheet to workbook */</span>\r\n$Libro-&gt;addSheet($sheet, 1);\r\n<span style=\"color: green;\">/* Then apply a formula to new worksheet */</span>\r\n$Libro-&gt;getSheetByName(<span style=\"color: #a31515;\">'copied'</span>)-&gt;setCellValueExplicit(<span style=\"color: #a31515;\">'H10'</span>,<span style=\"color: #a31515;\">'=Detalle!H'</span> . $row);\r\n</pre>\r\n</div>\r\n</p>",
+    "PostedDate": "2012-04-09T04:42:34.267-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

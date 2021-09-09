@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "500988",
+    "ThreadId": "229289",
+    "Html": "<p>Hi ,</p>\r\n<p>I try to create multi sheet document, so I use sheet N2 as template, copy it several times and then put data to new pages, but new data appears on template sheet too, also data on new pages is messed. Looks like copy function doesn't do clone , but copy linked page, so if I change one page I change all copied pages. Bellow you can see an example of my test program.</p>\r\n<p>Could you help me with this problem?</p>\r\n<p>phpExcel version: 1.7.4</p>\r\n<p>&lt;?php<br><br>error_reporting(E_ALL);<br><br>date_default_timezone_set('Europe/London');<br><br>/** PHPExcel */<br>require_once '../Classes/PHPExcel.php';<br><br><br>// Create new PHPExcel object<br>echo date('H:i:s') . &quot; Create new PHPExcel object\\n&quot;;<br>$objPHPExcel = PHPExcel_IOFactory::load(&quot;05featuredemo.xlsx&quot;);<br><br>$sheet1 = $objPHPExcel-&gt;getSheet(1)-&gt;copy();<br><br>//here template is copied<br>for ($i=1;$i&lt;8;$i++){<br> $sheet2 = clone $sheet1;<br>//notice that here sheet is cloned<br>//it work and solved prolblem with memory leaks<br><br> $sheet2title = sheetSetTitles($sheet2,$i);<br> $objPHPExcel-&gt;addSheet($sheet2);<br><br><br> echo date('H:i:s') . &quot; Peak memory usage: &quot; . (memory_get_peak_usage(true) / 1024 / 1024) . &quot; MB\\r\\n&quot;;<br> unset($sheet2);<br>}<br>$objPHPExcel-&gt;setActiveSheetIndex(1);<br>// Save Excel 2007 file<br>echo date('H:i:s') . &quot; Write to Excel2007 format\\n&quot;;<br>$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');<br>$objWriter-&gt;save('resultbug.xlsx');<br><br>// Echo memory peak usage<br>echo date('H:i:s') . &quot; Peak memory usage: &quot; . (memory_get_peak_usage(true) / 1024 ) . &quot; KB\\r\\n&quot;;<br><br>// Echo done<br>echo date('H:i:s') . &quot; Done writing file.\\r\\n&quot;;<br>function sheetSetTitles($sheet,$number){<br> $sheettitle = 'Cloned'.$number;<br> if ($number == 2 ){$sheettitle = 'OOOPS where link in List';}<br><br> <br> $sheet-&gt;setTitle($sheettitle);<br> $sheet-&gt;setCellValue('A1',$number.'New value at cloned');<br> $sheet-&gt;getCell('A1')<br> -&gt;getHyperlink()<br> -&gt;setUrl(&quot;sheet://'List'!A&quot;.$number);<br> $sheet-&gt;insertNewRowBefore(2, $number);<br><br> $sheet-&gt;setCellValue('C1',(1/$number));<br> $sheet-&gt;setCellValue('A2',(1/$number));<br> $sheet-&gt;setCellValue('C'.$number,(1/$number));<br> return $sheettitle;<br> <br>}<br><br>?&gt;</p>",
+    "PostedDate": "2010-10-01T05:25:24.36-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "501001",
+    "ThreadId": "229289",
+    "Html": "<p>This problem is <a href=\"http://phpexcel.codeplex.com/workitem/14146\">Work Item 14146</a>, fixed in the latest SVN code</p>",
+    "PostedDate": "2010-10-01T05:38:25.063-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "501056",
+    "ThreadId": "229289",
+    "Html": "<p>Thank you , you saved my brain and my mood for holidays .</p>",
+    "PostedDate": "2010-10-01T06:41:36.64-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

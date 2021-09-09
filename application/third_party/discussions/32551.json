@@ -1,0 +1,66 @@
+[
+  {
+    "Id": "107936",
+    "ThreadId": "32551",
+    "Html": "Hi everyone! :-)<br>\r\n<br>\r\nI need to load a Excel 2007 file, change it a bit, put some data in it and finally convert it to an Excel xls file.<br>\r\n<br>\r\nI am currently trying to change this Excel 2007 file and especially remove some rows. I tried the 05featuredemo.php example it works fine. But when I am trying to do it in my file, it doesn't work at all and show this error -&gt;<br>\r\n<br>\r\n<strong>Fatal error</strong>: Uncaught exception 'Exception' with message 'Column string\r\nindex can not be empty.' in\r\nC:\\xampp\\htdocs\\LMS1\\strategic_database\\Classes\\PHPExcel\\Cell.php:491 Stack\r\ntrace: #0\r\nC:\\xampp\\htdocs\\LMS1\\strategic_database\\Classes\\PHPExcel\\ReferenceHelper.php(451):\r\nPHPExcel_Cell::columnIndexFromString('') #1\r\nC:\\xampp\\htdocs\\LMS1\\strategic_database\\Classes\\PHPExcel\\ReferenceHelper.php(422):\r\nPHPExcel_ReferenceHelper-&gt;_updateSingleCellReference('A', 'A28', 0, -4) #2\r\nC:\\xampp\\htdocs\\LMS1\\strategic_database\\Classes\\PHPExcel\\ReferenceHelper.php(401):\r\nPHPExcel_ReferenceHelper-&gt;_updateCellRange('A:Q', 'A28', 0, -4) #3\r\nC:\\xampp\\htdocs\\LMS1\\strategic_database\\Classes\\PHPExcel\\ReferenceHelper.php(259):\r\nPHPExcel_ReferenceHelper-&gt;updateCellReference('A:Q', 'A28', 0, -4) #4\r\nC:\\xampp\\htdocs\\LMS1\\strategic_database\\Classes\\PHPExcel\\Worksheet.php(1417):\r\nPHPExcel_ReferenceHelper-&gt;insertNewBefore('A28', 0, -4,\r\nObject(PHPExcel_Worksheet)) #5\r\nC:\\xampp\\htdocs\\LMS1\\strategic_database\\pages\\newexport2.php(118):\r\nPHPExcel_Worksheet-&gt;removeRow(2 in\r\n<strong>C:\\xampp\\htdocs\\LMS1\\strategic_database\\Classes\\PHPExcel\\Cell.php</strong> on line\r\n<strong>491<br>\r\n</strong><br>\r\nI spend the all morning looking where is the error and I think I found where:<br>\r\n<br>\r\nWhen I am using this command -&gt; $objPHPExcel = new PHPExcel(); instead of loading the file like that -&gt; $objReader = PHPExcel_IOFactory::createReader(&quot;Excel2007&quot;);<br>\r\n$objPHPExcel = $objReader-&gt;load(&quot;../files/testtemplate4.xlsx&quot;); There is no error but of course my file is not loaded.<br>\r\n<br>\r\nCan you give me a hand on this?<br>\r\nThanks a lot!<br>\r\nLudo<strong><br>\r\n</strong>\r\n",
+    "PostedDate": "2008-07-30T04:51:41.86-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "108170",
+    "ThreadId": "32551",
+    "Html": "I tried to hide the rows, it is working. But I would like to delete them.<br>\r\nCan someone give me a hand to delete these rows without any problems... Can it be a bug of the PHPExcel classes?<br>\r\nThanks a lot!<br>\r\nLudo<br>\r\n",
+    "PostedDate": "2008-07-31T01:18:54.62-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "108824",
+    "ThreadId": "32551",
+    "Html": "Does someone has any ideas about my problem?<br>\r\nThank you very much!<br>\r\nLudo<br>\r\n",
+    "PostedDate": "2008-08-04T00:53:39.297-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "108858",
+    "ThreadId": "32551",
+    "Html": "I think you may get better response if you provide the whole script together with the Excel 2007 file you are reading. It may not be easy to tell what the problem is with only the error message. Unfortunately it is not possible to attach files to discussion posts, but please try to find some other upload location you can point to.<br>\r\n",
+    "PostedDate": "2008-08-04T04:56:05.65-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "108942",
+    "ThreadId": "32551",
+    "Html": "Thanks a lot for your answer, koyama! :)<br>\r\nI will copy my code tomorrow when I got in the office. Personally, I do\r\nnot think providing the Excel file will bring much but I will try to\r\nupload it somewhere tomorrow.<br>\r\nHave a good day!<br>\r\nLudo\r\n",
+    "PostedDate": "2008-08-04T12:20:59.26-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "109042",
+    "ThreadId": "32551",
+    "Html": "Hi everyone,<br>\r\n<br>\r\nHere is a part of my code:<br>\r\n&nbsp;(I wrote [...] when I think you do not need this part to understand where is the error, there is also a lot less code to read for you! :)<br>\r\n<br>\r\n&lt;?<br>\r\ninclude('mysql_connection.php');<br>\r\n<br>\r\n/** Error reporting */<br>\r\nerror_reporting(E_ALL);<br>\r\n<br>\r\n/** Include path **/<br>\r\nset_include_path(get_include_path() . PATH_SEPARATOR . '../Classes/');<br>\r\n<br>\r\n<br>\r\n/** Include different files from the library to read and write **/<br>\r\ninclude 'PHPExcel/IOFactory.php';<br>\r\n//include 'PHPExcel.php';<br>\r\ninclude 'PHPExcel/Reader/Excel2007.php';<br>\r\n//include 'PHPExcel/Writer/Excel2007.php';<br>\r\ninclude 'PHPExcel/Writer/Excel5.php';<br>\r\n<br>\r\nif (!file_exists(&quot;../files/template.xlsx&quot;)) {<br>\r\n&nbsp;&nbsp;&nbsp; exit(&quot;Can not find the template file!&quot;);<br>\r\n}<br>\r\n/*load a excel2003 file works fine but do not load the formatting so we are not using this solution<br>\r\n//$objReader = PHPExcel_IOFactory::createReader('Excel5');<br>\r\n//$objPHPExcel = $objReader-&gt;load(&quot;../files/testtemplate3.xls&quot;);*/<br>\r\n<br>\r\n/////////////////////////////////////////////////////////////////////////////Read and load the template file////////////////////<br>\r\n//load a Excel2007 template<br>\r\n//$objReader = PHPExcel_IOFactory::createReader('Excel2007');<br>\r\n<br>\r\n/*<br>\r\n$objReader = new PHPExcel_Reader_Excel2007();<br>\r\n$objPHPExcel = $objReader-&gt;load(&quot;../files/testtemplate4.xlsx&quot;);<br>\r\n*/<br>\r\n$objReader = PHPExcel_IOFactory::createReader(&quot;Excel2007&quot;);<br>\r\n$objPHPExcel = $objReader-&gt;load(&quot;../files/template.xlsx&quot;);<br>\r\n<br>\r\n<br>\r\n<br>\r\n// Create a first sheet, representing sales data<br>\r\n$objPHPExcel-&gt;setActiveSheetIndex(0);<br>\r\n<br>\r\n<br>\r\n// Set properties<br>\r\n$objPHPExcel-&gt;getProperties()-&gt;setCreator(&quot;Strategic Database&quot;);<br>\r\n$objPHPExcel-&gt;getProperties()-&gt;setLastModifiedBy(&quot;Strategic Database&quot;);<br>\r\n$objPHPExcel-&gt;getProperties()-&gt;setTitle(&quot;Strategic Database&quot;);<br>\r\n$objPHPExcel-&gt;getProperties()-&gt;setSubject(&quot;Strategic Database&quot;);<br>\r\n$objPHPExcel-&gt;getProperties()-&gt;setDescription(&quot;Strategic Database&quot;);<br>\r\n$objPHPExcel-&gt;getProperties()-&gt;setKeywords(&quot;Strategic Database&quot;);<br>\r\n$objPHPExcel-&gt;getProperties()-&gt;setCategory(&quot;Strategic Database&quot;);<br>\r\n<br>\r\n<br>\r\n<br>\r\n// Play around with inserting and removing rows and columns&nbsp;&nbsp;&nbsp; &lt;---TEST: THIS IS NOT WORKING <br>\r\n/*$objPHPExcel-&gt;getActiveSheet()-&gt;insertNewRowBefore(6, 10);<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;removeRow(24, 4);<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;insertNewColumnBefore('E', 5);<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;removeColumn('E', 9);<br>\r\n*/<br>\r\n<br>\r\n//hide a row &lt;--that works<br>\r\n//$objPHPExcel-&gt;getActiveSheet()-&gt;getRowDimension('72')-&gt;setVisible(false);<br>\r\n<br>\r\n////////////////////////////////////////////Write something into the template file//////////////////////////////////////<br>\r\n<br>\r\n[...]<br>\r\n<br>\r\n//Display the unit name and code<br>\r\n$rq_structure=&quot;SELECT * FROM structure WHERE structure_id='$structure_id' ORDER BY structure_id LIMIT 1&quot;; <br>\r\n$res_structure=mysql_query($rq_structure) or die(mysql_error());&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>\r\n$data_structure=mysql_fetch_array($res_structure);<br>\r\n$country_code_db=$data_structure['country_code'];<br>\r\n$structure_name_db=$data_structure['structure_name'];<br>\r\n$structure_code_db=$data_structure['structure_code'];<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('H2', $structure_name_db.' ('.$country_code_db.')');<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('M2', $structure_code_db);<br>\r\n<br>\r\n<br>\r\n[...]<br>\r\n<br>\r\n<br>\r\n//write some data from the database &lt;--not working<br>\r\n//$objPHPExcel-&gt;getActiveSheet()-&gt;removeRow(72,1);<br>\r\n//$objPHPExcel-&gt;getActiveSheet()-&gt;insertNewRowBefore(1, 10);<br>\r\n//$objPHPExcel-&gt;getActiveSheet()-&gt;removeRow(6, 10);<br>\r\n<br>\r\n[...]<br>\r\n<br>\r\n<br>\r\n//Display the comment<br>\r\n$rq_comment=&quot;SELECT comment_content FROM comment WHERE comment_structure_id='$structure_id' ORDER BY comment_id LIMIT 1&quot;; <br>\r\n$res_comment=mysql_query($rq_comment) or die(mysql_error());&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>\r\n$data_comment=mysql_fetch_array($res_comment);<br>\r\n$comment_db=$data_comment['comment_content'];<br>\r\n$replacement_list=array('&amp;nbsp;','&lt;/p&gt;','&lt;br /&gt;','&lt;br/&gt;','&lt;br&gt;','&lt;p&gt;');<br>\r\n$comment_db=str_replace($replacement_list,'',$comment_db);<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('C224', $comment_db);<br>\r\n<br>\r\n////////////////////////////////////////////////////////////////////////////////////////Save the file////////////////////////////<br>\r\n<br>\r\n/*Save the template file as Excel 2003 and not 2007&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &lt;--THIS IS NOT WORKING NEITHER, I HAVE NOT IDEA WHY....<br>\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');<br>\r\n//$objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel);<br>\r\n$objWriter-&gt;setOffice2003Compatibility(true);<br>\r\n$objWriter-&gt;save(&quot;../files/success2007.xlsx&quot;);*/<br>\r\n<br>\r\n/*write a Excel2003 file*/&nbsp; &lt;-- THIS WORK PERFECTLY, EXCEPT THAT THE COLORS ARE DIFFERENT THAN THE ORIGINAL FILE.<br>\r\n//$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');<br>\r\n$objWriter = new PHPExcel_Writer_Excel5($objPHPExcel);<br>\r\n$objWriter-&gt;save(&quot;../files/success2003.xls&quot;);<br>\r\n?&gt;<br>\r\n<br>\r\nAnd the file-&gt;&nbsp;&nbsp; http://www.sendspace.com/file/2jd4b8<br>\r\n<br>\r\n<br>\r\nI hope this will help! :-) Thanks a lot!<br>\r\nHave a good day!<br>\r\n",
+    "PostedDate": "2008-08-05T01:08:56.51-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "109145",
+    "ThreadId": "32551",
+    "Html": "Thanks for providing more details. I now see what you mean although I couldn't reproduce your error message. When I tried to do what you are doing the resulting output was messed up.<br>\r\n<br>\r\nI think that there are perhaps 2-3 bugs associated with this problem. I just filed one of them here:<br>\r\n<a href=\"http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=7218\">http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=7218</a><br>\r\n<br>\r\nA second bug may be one involving removeColumn() in conjuction with merged cells, but I'm not sure. I say let's have a look at it again when the issue above is resolved.<br>\r\n<br>\r\nIn the mean time, I recommend that you avoid using <a href=\"http://blogs.msdn.com/excel/archive/2006/03/23/559600.aspx\">&quot;Theme colors&quot;</a> for backgrounds, text, etc. Instead pick colors from the &quot;Standard colors&quot; or &quot;More colors...&quot; (located at the bottom of the color picker) when you create your template in Microsoft Office Excel. Why? Because only those are currently supported by Excel2007 reader. If you use &quot;Theme colors&quot; they will be lost when you read the template.<br>\r\n<a href=\"http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=7033\">http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=7033</a>\r\n",
+    "PostedDate": "2008-08-05T09:35:10.407-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "109623",
+    "ThreadId": "32551",
+    "Html": "Thanks Koyama for your answer and your efficiency!<br>\r\nI will have a look regularly to this issue... <br>\r\nI will also try to find a solution tomorrow or next week about the colors. Thanks for your advice. I will read more about it.<br>\r\nHave a good day!<br>\r\nLudo<br>\r\n",
+    "PostedDate": "2008-08-07T04:40:44.65-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

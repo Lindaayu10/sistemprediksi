@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "1052608",
+    "ThreadId": "445946",
+    "Html": "Hello,<br />\n<br />\nI'm using PHPExcel to calculate data for a client. The excel file is using the HLOOKUP many times to get the right data. It is used like: <br />\n<br />\n=HLOOKUP(INPUT!B6;E231:J233;3;0). <br />\n<br />\nWhere INPUT!B6 refers to an sheet where the value is populated from a webform. This field is set like:<br />\n<br />\n<br />\n$value = dynamic data from webform filled in by users <br />\n$objWorksheetInput-&gt;setCellValueByColumnAndRow(1, $row, $value );<br />\n<br />\nBut HLOOKUP is not working in PHPEXCEL if the reference data is populated with setCellValue. <br />\n<br />\nEXAMPLE<br />\n<br />\nThe excel sheet INPUT B6 has the default value of 1.<br />\nIf the user fill in via the webform number 2 the HLOOKUP will calculate with the value of 1 in het HLOOKUP function.<br />\n<br />\nI hope anyone has a solution!<br />\n<br />\n<em>I know there is a VLOOKUP functions. Is it hard to edit (transform) this function to a HLOOKUP function?</em> <br />\n<br />\nGreetings Chris<br />\n",
+    "PostedDate": "2013-06-04T06:00:20.393-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1052823",
+    "ThreadId": "445946",
+    "Html": "Probably isn't too hard, but it isn't my highest priority... but feel free to have a go a writing it yourself and perhaps submitting as a Pull Request to the github repository<br />\n",
+    "PostedDate": "2013-06-04T14:36:37.69-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1055830",
+    "ThreadId": "445946",
+    "Html": "Check below, for anyone is looking for the HLOOKUP function here it is. It's the VLOOKUP function with some tweaks...<br />\n<pre><code> /**\n    * HLOOKUP\n    * The HLOOKUP function searches for value in the top-most row of lookup_array and returns the value in the same column based on the index_number.\n    * @param    lookup_value    The value that you want to match in lookup_array\n    * @param    lookup_array    The range of cells being searched\n    * @param    index_number    The row number in table_array from which the matching value must be returned. The first row is 1.\n    * @param    not_exact_match Determines if you are looking for an exact match based on lookup_value.\n    * @return   mixed           The value of the found cell\n    */\n    public static function HLOOKUP($lookup_value, $lookup_array, $index_number, $not_exact_match=true) {\n        $lookup_value   = PHPExcel_Calculation_Functions::flattenSingleValue($lookup_value);\n        $index_number   = PHPExcel_Calculation_Functions::flattenSingleValue($index_number);\n        $not_exact_match    = PHPExcel_Calculation_Functions::flattenSingleValue($not_exact_match);\n\n        // index_number must be greater than or equal to 1\n        if ($index_number &lt; 1) {\n            return PHPExcel_Calculation_Functions::VALUE();\n        }\n\n        // index_number must be less than or equal to the number of columns in lookup_array\n        if ((!is_array($lookup_array)) || (empty($lookup_array))) {\n            return PHPExcel_Calculation_Functions::REF();\n        } else {\n            $f = array_keys($lookup_array);\n            $firstRow = array_pop($f);\n            if ((!is_array($lookup_array[$firstRow])) || ($index_number &gt; count($lookup_array[$firstRow]))) {\n                return PHPExcel_Calculation_Functions::REF();\n            } else {\n                $columnKeys = array_keys($lookup_array[$firstRow]);\n                                $firstkey = $f[0] - 1;\n                $returnColumn = $firstkey + $index_number;\n                $firstColumn = array_shift($f);\n            }\n        }\n\n        if (!$not_exact_match) {\n            $firstRowH = asort($lookup_array[$firstColumn]);\n        }\n\n        $rowNumber = $rowValue = False;\n        foreach($lookup_array[$firstColumn] as $rowKey =&gt; $rowData) {\n            if (strtolower($rowData) &gt; strtolower($lookup_value)) {\n                break;\n            }\n            $rowNumber = $rowKey;\n            $rowValue = $rowData;\n        }\n\n        if ($rowNumber !== false) {\n            if ((!$not_exact_match) &amp;&amp; ($rowValue != $lookup_value)) {\n                //  if an exact match is required, we have what we need to return an appropriate response\n                return PHPExcel_Calculation_Functions::NA();\n            } else {\n                //  otherwise return the appropriate value\n                return $lookup_array[$returnColumn][$rowNumber];\n            }\n        }\n\n        return PHPExcel_Calculation_Functions::NA();\n    }   //  function HLOOKUP()</code></pre>\n\n",
+    "PostedDate": "2013-06-12T06:38:26.883-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1056814",
+    "ThreadId": "445946",
+    "Html": "Thanks for this contribution, I'll take a look<br />\n",
+    "PostedDate": "2013-06-14T04:44:23.253-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1057281",
+    "ThreadId": "445946",
+    "Html": "I had to make a couple of minor tweaks, but HLOOKUP is now in the github repo... also highlighted an issue with VLOOKUP, and I've fixed both. Neither is perfect, but they're accurate in most cases... I'll take a closer look over the next few days to see if I can tidy up the edge cases (such as strings matching against numeric zero).<br />\n",
+    "PostedDate": "2013-06-15T12:37:10.04-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1058549",
+    "ThreadId": "445946",
+    "Html": "Cool! Thanx for the update!!!<br />\n",
+    "PostedDate": "2013-06-19T01:48:49.913-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

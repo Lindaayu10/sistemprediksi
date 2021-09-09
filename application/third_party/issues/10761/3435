@@ -1,0 +1,19 @@
+--- C:/DOCUME~1/Erik/LOCALS~1/Temp/String.ph-rev1189.svn001.tmp.php	on okt 14 14:48:30 2009
++++ C:/xampp/htdocs/_phpexcel/PHPExcel/Classes/PHPExcel/Shared/String.php	on okt 14 14:28:08 2009
+@@ -103,8 +103,14 @@
+ 			return self::$_isIconvEnabled;
+ 		}
+ 
+-		self::$_isIconvEnabled = function_exists('iconv') ?
+-			true : false;
++		// Check that iconv exists
++		// Sometimes iconv is not working, and e.g. iconv('UTF-8', 'UTF-16LE', 'x') just returns false,
++		// we cannot use iconv when that happens
++		if (function_exists('iconv') && @iconv('UTF-8', 'UTF-16LE', 'x')) {
++			self::$_isIconvEnabled = true;
++		} else {
++			self::$_isIconvEnabled = false;
++		}
+ 
+ 		return self::$_isIconvEnabled;
+ 	}

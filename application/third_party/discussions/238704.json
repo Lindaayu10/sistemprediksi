@@ -1,0 +1,90 @@
+[
+  {
+    "Id": "537108",
+    "ThreadId": "238704",
+    "Html": "\r\n<p>I posted this to the issue tracker (http://phpexcel.codeplex.com/workitem/14901) but maybe I should've tried here first:</p>\r\n<p>-------------------------</p>\r\n<p>Either my execution is wrong or VLOOKUP is choking on the parameters I'm sending it.<br>\r\nThe following code reproduces the problem:<br>\r\n<br>\r\n$objPHPExcel = new PHPExcel();<br>\r\n$objPHPExcel-&gt;setActiveSheetIndex(0);</p>\r\n<div id=\"x_DescriptionPanel\">$objSheet = $objPHPExcel-&gt;getActiveSheet();<br>\r\n$objSheet-&gt;setTitle('Worksheet1');<br>\r\n<br>\r\n$objSheet-&gt;setCellValue('A1', '10');<br>\r\n$objSheet-&gt;setCellValue('B1', 'foo');<br>\r\n$objSheet-&gt;setCellValue('A2', '20');<br>\r\n$objSheet-&gt;setCellValue('B2', 'bar');<br>\r\n<br>\r\n$objPHPExcel-&gt;createSheet();<br>\r\n$objPHPExcel-&gt;setActiveSheetIndex(1);<br>\r\n$objSheet = $objPHPExcel-&gt;getActiveSheet();<br>\r\n$objSheet-&gt;setTitle('Worksheet2');<br>\r\n<br>\r\n$objSheet-&gt;setCellValue('A1', '10');<br>\r\n$objSheet-&gt;setCellValue('A2', '=VLOOKUP(A1,Worksheet1!$A$1:$A$2,2)');<br>\r\n<br>\r\n$objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel);<br>\r\n$objWriter-&gt;save('test.xlsx');<br>\r\n<br>\r\nResulting error:<br>\r\n<br>\r\nFatal error: Uncaught exception 'Exception' with message 'Worksheet2!A2 -&gt; Formula Error: Wrong number of arguments for VLOOKUP() function: 2 given, either 3 or 4 expected' in C:\\all\\dev\\daily\\PHPExcel.1.7.5\\Classes\\PHPExcel\\Cell.php:284<br>\r\nStack trace:<br>\r\n#0 C:\\all\\dev\\daily\\PHPExcel.1.7.5\\Classes\\PHPExcel\\Writer\\Excel2007\\Worksheet.php(965): PHPExcel_Cell-&gt;getCalculatedValue()<br>\r\n#1 C:\\all\\dev\\daily\\PHPExcel.1.7.5\\Classes\\PHPExcel\\Writer\\Excel2007\\Worksheet.php(911): PHPExcel_Writer_Excel2007_Worksheet-&gt;_writeCell(Object(PHPExcel_Shared_XMLWriter), Object(PHPExcel_Worksheet), 'A2', Array, Array)<br>\r\n#2 C:\\all\\dev\\daily\\PHPExcel.1.7.5\\Classes\\PHPExcel\\Writer\\Excel2007\\Worksheet.php(82): PHPExcel_Writer_Excel2007_Worksheet-&gt;_writeSheetData(Object(PHPExcel_Shared_XMLWriter), Object(PHPExcel_Worksheet), Array)<br>\r\n#3 C:\\all\\dev\\daily\\PHPExcel.1.7.5\\Classes\\PHPExcel\\Writer\\Excel2007.php(264): PHPExcel_Writer_Excel2007_Worksheet-&gt;writeWorksheet(Object(PHPExcel_Worksheet), Array)<br>\r\n#4 C:\\all\\dev\\daily\\test.php(23): PHPExcel_Writer_Excel2007-&gt;sav in C:\\all\\dev\\daily\\PHPExcel.1.7.5\\Classes\\PHPExcel\\Cell.php on line 284</div>\r\n<div>\r\n<p>-------------------------</p>\r\n<p>I could be mistaken but it almost seems as if the : in the second parameter is causing the problems.&nbsp; I'm trying to dig through Classes/PHPExcel/Calculation.php to pinpoint the issue but no luck yet.&nbsp; Anyone else experience an issue like this?</p>\r\n<p>Thanks!</p>\r\n</div>\r\n",
+    "PostedDate": "2010-12-16T20:30:16.303-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "539013",
+    "ThreadId": "238704",
+    "Html": "\r\n<p>The : (range) operator should not cause any problems, and should (if it was causing an error) give 4 parameters rather than 2 (that the error suggests). I'll try taking a look at it in debug mode this week.</p>\r\n<p>If you want to try debugging yourself, I use the following to dump the parser stack and calc engine execution details.</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>PHPExcel_Calculation::getInstance()-&gt;writeDebugLog = true;\r\n\r\n$formulaValue = $sheet-&gt;getCell($cell)-&gt;getValue();\r\n<span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;b&gt;'</span>.$cell.<span style=\"color:#a31515\">' Value is &lt;/b&gt;'</span>.$formulaValue.<span style=\"color:#a31515\">&quot;&lt;br /&gt;\\n&quot;</span>;\r\n$expectedValue = $sheet-&gt;getCell($cell)-&gt;getOldCalculatedValue();\r\n<span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;b&gt;'</span>.$cell.<span style=\"color:#a31515\">' Expected Value is &lt;/b&gt;'</span>.$expectedValue.<span style=\"color:#a31515\">&quot;&lt;br /&gt;\\n&quot;</span>;\r\n\r\n<span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;b&gt;Parser Stack :-&lt;/b&gt;&lt;pre&gt;'</span>;\r\n$tokens = PHPExcel_Calculation::getInstance()-&gt;parseFormula($formulaValue,$sheet-&gt;getCell($cell));\r\nprint_r($tokens);\r\n<span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;/pre&gt;'</span>;\r\n\r\n<span style=\"color:blue\">try</span> {\r\n   $cellValue = $sheet-&gt;getCell($cell)-&gt;getCalculatedValue();\r\n   <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;b&gt;'</span>.$cell.<span style=\"color:#a31515\">' Calculated Value is &lt;/b&gt;'</span>.$cellValue.<span style=\"color:#a31515\">&quot;&lt;br /&gt;\\n&quot;</span>;\r\n   <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;h3&gt;Evaluation Log:&lt;/h3&gt;&lt;pre&gt;'</span>;\r\n   print_r(PHPExcel_Calculation::getInstance()-&gt;debugLog);\r\n   <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;/pre&gt;'</span>;\r\n} <span style=\"color:blue\">catch</span> (Exception $e) {\r\n   <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">&quot;CALCULATION ENGINE ERROR: &quot;</span>.$e-&gt;getMessage().<span style=\"color:#a31515\">&quot;&lt;br /&gt;\\n&quot;</span>;\r\n   <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;h3&gt;Evaluation Log:&lt;/h3&gt;&lt;pre&gt;'</span>;\r\n   print_r(PHPExcel_Calculation::getInstance()-&gt;debugLog);\r\n   <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;/pre&gt;'</span>;\r\n}\r\n</pre>\r\n</div>\r\n",
+    "PostedDate": "2010-12-21T14:43:45.54-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "539108",
+    "ThreadId": "238704",
+    "Html": "\r\n<p>Thanks, I'll see what I can do.&nbsp; By the way, there isn't any method that'll dump the arguments for a function call, is there?&nbsp; I'm wondering what exactly phpexcel thinks I've passed into VLOOKUP.</p>\r\n",
+    "PostedDate": "2010-12-21T19:21:14.767-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "539116",
+    "ThreadId": "238704",
+    "Html": "\r\n<p>Interesting... it seems that in Calculation.php</p>\r\n<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $stack-&gt;push($d['type'],&#43;&#43;$d['value'],$d['reference']);&nbsp; // increment the argument count</p>\r\n<p>is only getting called once.</p>\r\n",
+    "PostedDate": "2010-12-21T19:54:41.707-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "539121",
+    "ThreadId": "238704",
+    "Html": "\r\n<p>Further, if I don't include references to any other sheets in my VLOOKUP call then it works as expected.</p>\r\n",
+    "PostedDate": "2010-12-21T20:06:04.353-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "539127",
+    "ThreadId": "238704",
+    "Html": "\r\n<p>Restoring the comments in Calculation.php I see this:</p>\r\n<p style=\"padding-left:30px\">Assessing Expression &lt;b&gt;A1,'Worksheet1'!$A$1:$A$2,2)&lt;/b&gt;<br>\r\nInitial character of expression block is A<br>\r\n$isOperandOrFunction is True<br>\r\nElement with value A1,'Worksheet1'!$A$1 is an Operand, Variable, Constant, Strin<br>\r\ng, Number, Cell Reference or Function<br>\r\nElement A1,'Worksheet1'!$A$1 is a Cell reference</p>\r\n<p>So instead of just grabbing the A1, it's grabbing all the way up to the colon.&nbsp; Maybe a regexp issue?</p>\r\n",
+    "PostedDate": "2010-12-21T20:16:32.613-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "539148",
+    "ThreadId": "238704",
+    "Html": "\r\n<p>Regexp is not my forte, but I believe that in</p>\r\n<p style=\"padding-left:30px\">&nbsp; //&nbsp; Cell reference (cell or range of cells, with or without a sheet reference)<br>\r\n&nbsp; const CALCULATION_REGEXP_CELLREF&nbsp; = '((((?:\\P{M}\\p{M}*)&#43;?)|(\\'[^\\']*\\')|(\\&quot;[^\\&quot;]*\\&quot;))!)?\\$?([a-z]{1,3})\\$?(\\d&#43;)';<br>\r\n&nbsp; //&nbsp; Named Range of cells<br>\r\n&nbsp; const CALCULATION_REGEXP_NAMEDRANGE&nbsp; = '((((?:\\P{M}\\p{M}*)&#43;?)|(\\'[^\\']*\\')|(\\&quot;[^\\&quot;]*\\&quot;))!)?([_A-Z][_A-Z0-9]*)'</p>\r\n<p>the &quot;A1,&quot; is being gobbled up by the (?:\\P{M}\\p{M}*).&nbsp; If I change the regexp to the following (which is sufficient for my test but clearly not correct) my code works.</p>\r\n<p style=\"padding-left:30px\">&nbsp; //&nbsp; Cell reference (cell or range of cells, with or without a sheet reference)<br>\r\n&nbsp; const CALCULATION_REGEXP_CELLREF&nbsp; = '((((?:[a-zA-Z0-9]*)&#43;?)|(\\'[^\\']*\\')|(\\&quot;[^\\&quot;]*\\&quot;))!)?\\$?([a-z]{1,3})\\$?(\\d&#43;)';<br>\r\n&nbsp; //&nbsp; Named Range of cells<br>\r\n&nbsp; const CALCULATION_REGEXP_NAMEDRANGE&nbsp; = '((((?:[a-zA-Z0-9]*)&#43;?)|(\\'[^\\']*\\')|(\\&quot;[^\\&quot;]*\\&quot;))!)?([_A-Z][_A-Z0-9]*)';</p>\r\n",
+    "PostedDate": "2010-12-21T22:01:17.607-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "539543",
+    "ThreadId": "238704",
+    "Html": "\r\n<p>I'm not sure if I am missing something, but isn't the problem in the VLOOKUP itself?</p>\r\n<p>The VLOOKUP is looking up a value in column 1 of Worksheet1, and you want to return the value in column 2, but the VLOOKUP area only has 1 column.<br>\r\nTry '=VLOOKUP(A1,Worksheet1!$A$1:$<strong>B</strong>$2,2)' and see if the error disappears?</p>\r\n",
+    "PostedDate": "2010-12-22T12:52:55.78-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "539558",
+    "ThreadId": "238704",
+    "Html": "\r\n<p>@gridder</p>\r\n<p>The formula and data it's working on will indeed return an error for the reasons you state, but it should return a &quot;valid&quot; Excel #REF! error rather than throwing an exception.</p>\r\n<p>@blurmy23</p>\r\n<p>A quick fix is to modify line 2602 of Calculation.php, which currently reads</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><span style=\"color:#a31515\">')/si'</span>;\r\n</pre>\r\n</div>\r\n<p>to make the regexp check ungreedy with the /U switch, so the line should&nbsp;read</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><span style=\"color:#a31515\">')/siU'</span>;\r\n</pre>\r\n</div>\r\n<p>I've tested this with your VLOOKUP formula, and it reads the arguments correctly; but haven't yet done any extensive testing to see if it has any adverse effects for the other regular expressions handled by $regexpMatchString.</p>\r\n",
+    "PostedDate": "2010-12-22T13:20:26.82-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "540234",
+    "ThreadId": "238704",
+    "Html": "\r\n<p>Hopefully, this issue is resolved with the latest changes to Calculation.php. The code can be found in the\r\n<a href=\"http://phpexcel.codeplex.com/SourceControl/changeset/view/65727#1602991\">\r\nSVN Repository</a></p>\r\n",
+    "PostedDate": "2010-12-24T03:46:57.253-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "540554",
+    "ThreadId": "238704",
+    "Html": "\r\n<p>@gridder - heh ... uh ... yeah, there's that too.<br>\r\n<br>\r\n@MarkBaker - thanks!&nbsp; working perfectly now.</p>\r\n",
+    "PostedDate": "2010-12-26T07:58:31.007-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

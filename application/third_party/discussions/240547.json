@@ -1,0 +1,114 @@
+[
+  {
+    "Id": "544213",
+    "ThreadId": "240547",
+    "Html": "\r\n<p>Hi all,</p>\r\n<p>It's OK to export a few data.</p>\r\n<p>When I try to export a lot of data( maybe 2000 rows or so, with columns A-P), a 0 byte Excel sheet is generated. And when open the excel sheet, it prompts the following error message:</p>\r\n<p>&quot;The file you are trying to open, 'test.xls', is in a different format than specified by the file extension. Verify that the file is not corrupted and is from a trusted source before opening the file.&quot;</p>\r\n<p>If I click &quot;ok&quot;, an empty excel sheet is displayed.</p>\r\n<p>But when I tried to split the data into smaller pieces, all of them could be exported as independent Excel sheets. So, it seem that it's not the problem of the data. I tried both writer &quot;Excel5&quot; and &quot;Excel2007&quot;, the same thing happened.</p>\r\n<p>I wonder if there a maximum rows limit of the PHPExcel writers?</p>\r\n<p>Thanks,</p>\r\n<p>Chad.</p>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2011-01-05T02:49:05.717-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "544215",
+    "ThreadId": "240547",
+    "Html": "\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<strong>chad wrote:</strong><br>\r\n<p>I wonder if there a maximum rows limit of the PHPExcel writers?</p>\r\n</blockquote>\r\n<p>Yes, there is. The Excel5 Writer limits you to 256 columns and 65,536 rows in a worksheet. Excel2007 should limit you to 1,048,576 rows and 16,384 columns, but this isn't actively enforced.</p>\r\n<p>However, the problem is much more likely to be PHP limits, either to script execution time, or memory. Check your error log to see if you're getting any errors there.</p>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2011-01-05T02:58:33.167-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "544223",
+    "ThreadId": "240547",
+    "Html": "\r\n<p>Thanks MarkBaker.</p>\r\n<p>I checked the error log, but didn't see anything related to this Excel generation.</p>\r\n<p>Is it possible that the error is catched inside the PHPExcel writer and then returns nothing when I call &quot;$objWriter-&gt;save('php://output');&quot;?</p>\r\n<p>Here are ome additional information, I tested on two servers:<br>\r\n*****************************<br>\r\nServer 1<br>\r\nOS: CentOS release 4.6<br>\r\nPHP: PHP 5.2.10<br>\r\nMemTotal:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1023812 kB<br>\r\nMemFree:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 99784 kB<br>\r\n*****************************<br>\r\nServer 2<br>\r\nOS: CentOS release 5.5<br>\r\nPHP: PHP 5.2.10<br>\r\nMemTotal:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1843376 kB<br>\r\nMemFree:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 135028 kB</p>\r\n",
+    "PostedDate": "2011-01-05T03:30:32.457-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "544244",
+    "ThreadId": "240547",
+    "Html": "\r\n<p>MarBarker, you are right, it's the problem of low memory.</p>\r\n<p>I tried to allocate more memory before exporting the excel sheet:</p>\r\n<p>// allocate more memory for PHP<br>\r\nini_set('memory_limit','300M');<br>\r\n// do the export ...</p>\r\n<p>It's OK now. Thanks!</p>\r\n",
+    "PostedDate": "2011-01-05T04:12:59.303-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "544245",
+    "ThreadId": "240547",
+    "Html": "\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<strong>chad wrote:</strong><br>\r\n<p>I checked the error log, but didn't see anything related to this Excel generation.</p>\r\n<p>Is it possible that the error is catched inside the PHPExcel writer and then returns nothing when I call &quot;$objWriter-&gt;save('php://output');&quot;?</p>\r\n</blockquote>\r\n<p>&nbsp;It's certainly possible, but I can't think of many cases where the Writers don't throw an exception that can be trapped within your own code. A formula that can't be handled by the Excel5 Writer, for example, will typically throw an exception. The\r\n only&nbsp;exceptions that I'm aware of are the time and memory limits, which (as with all PHP scripts that hit these limits) simply terminate the script, unless you have a dedicated shutdown function registered.</p>\r\n",
+    "PostedDate": "2011-01-05T04:13:42.19-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "545492",
+    "ThreadId": "240547",
+    "Html": "\r\n<p>I did some quick benchmarking myself on 5 different production servers and came up with a little fuzzy formula, this should ofcource be recalculated for each server. I am chaining 29 cells when setting the cell values,</p>\r\n<p>$objPHPExcel-&gt;getActiveSheet() &nbsp; &nbsp; &nbsp;<br>\r\n-&gt;setCellValue(chain1) &nbsp; &nbsp; &nbsp;<br>\r\n-&gt;setCellValue(chain2)<br>\r\n... to 29&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>From what learned as a rule of thumb I get ~100 rows pr sec available, and ~35 rows pr mb allowed memory. This way I pretty much can tell the user based on looking at php.ini if the export will work. A basic setup of 30 sec execution gives 3000 rows, or\r\n 35*128 available memory ~ 4000. So basically 3000 is within reach, above will pretty much fail.</p>\r\n<p>I noticed that you need to dump around 1000 rows to get an accurate benchmark, one could easily make a little &quot;benchmarker&quot; in your system that will calculate the pr/sec and pr/mb averages.</p>\r\n<p>regards,</p>\r\n<p>Kim Steinhaug, <a href=\"mailto:kim@steinhaug.com\">kim@steinhaug.com</a>, <a href=\"http://www.steinhaug.com/\">\r\nwww.steinhaug.com</a></p>\r\n",
+    "PostedDate": "2011-01-07T09:09:51.567-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "545668",
+    "ThreadId": "240547",
+    "Html": "\r\n<p>Chaining method calls can certainly help boost the &quot;build time&quot; for a worksheet.</p>\r\n<p>If you already have your data in a PHP&nbsp;array, then the worksheet's fromArray() method may also prove faster than setting cell values individually. This is particularly useful when transferring data from a database, a whole row at a time or even (as\r\n in this case) several rows at a time.</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre style=\"color:black; background-color:white\"><pre>$dataArray = <span style=\"color:blue\">array</span>( <span style=\"color:blue\">array</span>(<span style=\"color:#a31515\">'Number Heading'</span>,<span style=\"color:#a31515\">'String Heading'</span>,<span style=\"color:#a31515\">'Boolean'</span>,<span style=\"color:#a31515\">'Date'</span>), </pre>\r\n<pre>                    <span style=\"color:blue\">array</span>(1,<span style=\"color:#a31515\">'Words'</span>,TRUE,<span style=\"color:#a31515\">'06-Jan-2011'</span>), </pre>\r\n<pre>                    <span style=\"color:blue\">array</span>(2,<span style=\"color:#a31515\">'More Words'</span>,FALSE,<span style=\"color:#a31515\">'07-Jan-2011'</span>)</pre>\r\n<pre>                  );</pre>\r\n<pre>$objPHPExcel-&gt;getActiveSheet()-fromArray($dataArray,NULL,<span style=\"color:#a31515\">'A1'</span>);</pre>\r\n</pre>\r\n<pre>Note that the above data array will handle the dates correctly (converting the strings to Excel dates) if the worksheet has been set to use the Advanced Value Binder.</pre>\r\n</div>\r\n",
+    "PostedDate": "2011-01-07T13:53:52.99-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "546219",
+    "ThreadId": "240547",
+    "Html": "\r\n<p>Thanks for this Mark, I was searching the documentation however didn't find to much info. However I did a quick benchmark and your fromArray() example does indeed save memory, speed and code lines in the script!</p>\r\n<p>It does seem that you are forgetting a vital piece of info in you example above, as the dataarray has the first line as defining datatypes. Not sure where I find theese properties, searched the *.doc files in documentation folder without luck. I just pulled\r\n the data this way:</p>\r\n<p>$items = mysql_fetch_array($res,MYSQL_NUM);<br>\r\n$dataArray = array($items);<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;fromArray($dataArray,NULL,'A1');</p>\r\n<p>The result worked, and hopefully it is correct. The above code is also so much shorter that the chained version which needs 29 chains for my export.</p>\r\n<p>The benchmark I did however gave me this result:</p>\r\n<p><img src=\"http://img707.imageshack.us/img707/9004/0901r.png\" border=\"0\" alt=\"\"></p>\r\n",
+    "PostedDate": "2011-01-09T06:54:56.407-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "546361",
+    "ThreadId": "240547",
+    "Html": "\r\n<p>In&nbsp;my example above,&nbsp;the first line of $dataArray doesn't actually define datatypes, it is simple a set of strings to be stored as cell values in cells A1 to D1, in much the same way&nbsp;that &quot;Words&quot; and &quot;More Words&quot; are simply strings to be stored\r\n in cells B2 and B3. There's nothing special about the values in the array, other than as an example of passing a set of values to the fromArray() function to be stored as cell values. The parameters for the method are detailed in the API docs.</p>\r\n",
+    "PostedDate": "2011-01-09T14:39:14.31-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "546364",
+    "ThreadId": "240547",
+    "Html": "\r\n<p>In that case your example did not work, atleast not the way I expected it to work.</p>\r\n<p>Since your array contained an array of 3 arrays, starting from A1 I expected the next array to be inserted from A2. Howerer it didnt,\r\n<br>\r\nI only got one line from it. Maby I should retry the above example if it was supposed to work the way I though it should work.</p>\r\n",
+    "PostedDate": "2011-01-09T14:48:33.99-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "546365",
+    "ThreadId": "240547",
+    "Html": "\r\n<p>It should have populated cells A1 to D3, though I normall only use fromArray() to populate a single row at a time (e.g. from a database row)... and I've been at a convention all weekend, so didn't really have time to test it</p>\r\n",
+    "PostedDate": "2011-01-09T14:53:22.2-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "546380",
+    "ThreadId": "240547",
+    "Html": "\r\n<p>The following code:</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><div style=\"color:black; background-color:white\"><pre>error_reporting(E_ALL);\r\nset_time_limit(0);\r\ndate_default_timezone_set(<span style=\"color:#a31515\">'Europe/London'</span>);\r\nset_include_path(get_include_path() . PATH_SEPARATOR . <span style=\"color:#a31515\">'./Classes/'</span>);\r\n<span style=\"color:blue\">include</span> <span style=\"color:#a31515\">'PHPExcel.php'</span>;\r\n$outputFileType = <span style=\"color:#a31515\">'HTML'</span>; \r\n$outputFileName = <span style=\"color:#a31515\">'php://output'</span>; \r\n$objPHPExcel = <span style=\"color:blue\">new</span> PHPExcel(); \r\n$dataArray = <span style=\"color:blue\">array</span>( <span style=\"color:blue\">array</span>(<span style=\"color:#a31515\">'Number Heading'</span>,<span style=\"color:#a31515\">'String Heading'</span>,<span style=\"color:#a31515\">'Boolean'</span>,<span style=\"color:#a31515\">'Date'</span>),\r\n                     <span style=\"color:blue\">array</span>(1,<span style=\"color:#a31515\">'Words'</span>,TRUE,<span style=\"color:#a31515\">'06-Jan-2011'</span>),\r\n                     <span style=\"color:blue\">array</span>(2,<span style=\"color:#a31515\">'More Words'</span>,FALSE,<span style=\"color:#a31515\">'07-Jan-2011'</span>)\r\n                  );\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;fromArray($dataArray,NULL,<span style=\"color:#a31515\">'A1'</span>);\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, $outputFileType);\r\n$objWriter-&gt;save($outputFileName);\r\n\r\ngenerates a worksheet looking something like:</pre>\r\n</div>\r\n</pre>\r\n</div>\r\n<table id=\"x_sheet0\" border=\"0\" cellspacing=\"0\" cellpadding=\"0\">\r\n<tbody>\r\n<tr>\r\n<td>Number Heading</td>\r\n<td>String Heading</td>\r\n<td>Boolean</td>\r\n<td>Date</td>\r\n</tr>\r\n<tr>\r\n<td>1</td>\r\n<td>Words</td>\r\n<td>1</td>\r\n<td>06-Jan-2011</td>\r\n</tr>\r\n<tr>\r\n<td>2</td>\r\n<td>More Words</td>\r\n<td>&nbsp;</td>\r\n<td>07-Jan-2011</td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2011-01-09T15:23:46.323-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "681514",
+    "ThreadId": "240547",
+    "Html": "<p>i read that fromArray() is faster than iterating over each cell individually so i converted a few scripts over to use fromArray. now, i cannot set the data types on these cells. i have tried everything including a custom value binder to no avail. This wouldn't  be a problem if PHPExcel didn't take the PHP string \"02021602201\" that I am passing within an array to fromArray and cut the leading zero off. It does this even if I set the number format type to TEXT. This string appears in a column with mixed alphanumeric  data as well so treating all values in the column as numbers is not an option. The only way I have found so far to get the leading 0 to show up is to use setCellValueExplicit and this obviously doesn't work with fromArray.<strong><br /> </strong></p>",
+    "PostedDate": "2011-10-07T15:48:58.467-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "909308",
+    "ThreadId": "240547",
+    "Html": "<p>Hi!<br /><br />First, congratulations for great code for PHP!!<br /><br />I downloaded the source code of PHPExcel, but am having trouble exporting files .... <br /><br />I did the installation, and when I export a sample file (MySQL SELECT from table) works if mysql table have any less than 10,000 rows of data... When you have more than 10,000 rows of data, generates the error:<br /><strong><em>\"Fatal error: Allowed memory size of 536870912 bytes exhausted (tried to allocate 24 bytes) in / var / www / xls / Classes / PHPExcel / Cell.php on line 506\"</em></strong><br /><br />In my PHP file for generation, i'm setting:<br /><strong><em>ini_set (\"memory_limit\", \"512M\");</em></strong><br /><strong><em>ini_set (\"max_execution_time\", \"300\");</em></strong><br /><br />But if i increasing the memory_limit of PHP, the server will drop....</p>\r\n<p>What should I do?<br /><br />Please I need urgent help!!</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks Diego !!</p>",
+    "PostedDate": "2012-09-06T11:36:33.977-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "549363",
+    "ThreadId": "241802",
+    "Html": "\r\n<p><br>\r\necho date('H:i:s') . &quot; Create new PHPExcel object\\n&quot;;<br>\r\n$objPHPExcel = new PHPExcel();<br>\r\n$objPHPExcel-&gt;getSheet(0)-&gt;setTitle('Revenue');<br>\r\n$objPHPExcel-&gt;createSheet(1);<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setTitle('Registrations');<br>\r\n$objPHPExcel-&gt;createSheet(2);<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setTitle('Spoon');</p>\r\n<p>and at the end i have an excel file with 3 worksheets - first one called spoon, then worksheet, worksheet 1</p>\r\n<p>PHPExcel is always overwriting the first sheet</p>\r\n<p>Tried this - which i found elsewhere here</p>\r\n<p>$objPHPExcel = new PHPExcel();<br>\r\n$objPHPExcel-&gt;getSheet(0)-&gt;setTitle('Revenue');</p>\r\n<p>$newSheet = new PHPExcel_Worksheet();<br>\r\n$newSheet-&gt;setTitle('Samplel2');<br>\r\n$objPHPExcel-&gt;addSheet($newSheet,1);</p>\r\n<p>that just dies with a fatal error</p>\r\n<p>PHP Fatal error:&nbsp; Call to a member function getSheetByName() on a non-object in /var/www/html/dailyreport/classes/PHPExcel/Worksheet.php on line 657</p>\r\n<p>&nbsp;</p>\r\n<p>So how do i create and use a new worksheet, without overwriting the old one ??</p>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2011-01-14T07:03:08.247-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "549370",
+    "ThreadId": "241802",
+    "Html": "\r\n<p>The createSheet() method doesn't change the active sheet, you need to do that manually.</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><span style=\"color:blue\">echo</span> date(<span style=\"color:#a31515\">'H:i:s'</span>) . <span style=\"color:#a31515\">&quot; Create new PHPExcel object\\n&quot;</span>;\r\n$objPHPExcel = <span style=\"color:blue\">new</span> PHPExcel();\r\n$objPHPExcel-&gt;getSheet(0)-&gt;setTitle(<span style=\"color:#a31515\">'Revenue'</span>);\r\n$objPHPExcel-&gt;createSheet(1);\r\n$objPHPExcel-&gt;setActiveSheetIndex(1)\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setTitle(<span style=\"color:#a31515\">'Registrations'</span>);\r\n$objPHPExcel-&gt;createSheet(2);\r\n$objPHPExcel-&gt;setActiveSheetIndex(2)\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setTitle(<span style=\"color:#a31515\">'Spoon'</span>);\r\n</pre>\r\n</div>\r\n<p>or use the getSheet() method to reference a specified worksheet (the index of the sheet you've just added) rather than getActiveSheet() when setting the title</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><span style=\"color:blue\">echo</span> date(<span style=\"color:#a31515\">'H:i:s'</span>) . <span style=\"color:#a31515\">&quot; Create new PHPExcel object\\n&quot;</span>;\r\n$objPHPExcel = <span style=\"color:blue\">new</span> PHPExcel();\r\n$objPHPExcel-&gt;getSheet(0)-&gt;setTitle(<span style=\"color:#a31515\">'Revenue'</span>);\r\n$objPHPExcel-&gt;createSheet(1);\r\n$objPHPExcel-&gt;getSheet(1)-&gt;setTitle(<span style=\"color:#a31515\">'Registrations'</span>);\r\n$objPHPExcel-&gt;createSheet(2);\r\n$objPHPExcel-&gt;getSheet(2)-&gt;setTitle(<span style=\"color:#a31515\">'Spoon'</span>);\r\n</pre>\r\n</div>\r\n",
+    "PostedDate": "2011-01-14T07:13:25.653-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "549378",
+    "ThreadId": "241802",
+    "Html": "\r\n<p>ahhhhhhh thanks a lot</p>\r\n",
+    "PostedDate": "2011-01-14T07:20:39.43-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

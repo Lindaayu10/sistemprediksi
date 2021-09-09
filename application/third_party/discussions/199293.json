@@ -1,0 +1,74 @@
+[
+  {
+    "Id": "407963",
+    "ThreadId": "199293",
+    "Html": "<p>I just downloaded the latest version of phpexcel(1.7.2). I have Php version 5.2.8, Office 2007, Windows Xp SP3. I tried running the 01sample.php file from the Tests folder, without modifying anything, got no error, the 01sample.xlsx file was generated, 7kb, so some content was written, but when I try to open, i get a corrupt file message: &quot;Excel found unreadable content..you want to save contents of workbook? Yes/No and clicking on Yes only throws a message that file is corrupt&quot;. I uploaded the 01sample.xlsx file if anyone thinks it might help. I also asked a different&nbsp;colleague&nbsp;that has office2007 to open same file and got the same error so I'm guessing it's not my office installation.</p>\r\n<p>Excel file generated: http://rapidshare.com/files/356069367/01simple.xlsx</p>\r\n<p>Anyone knows what might cause this?</p>\r\n<p>Thanks in advance.</p>",
+    "PostedDate": "2010-02-26T01:31:01.977-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "410330",
+    "ThreadId": "199293",
+    "Html": "<p>Can you try opening the file in a text or hex editor, and let us know what the first few characters of the file contain? Or upload trhe generated file to the relevant upload item in the issue tracker? Thanks.</p>",
+    "PostedDate": "2010-02-26T13:10:22.847-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "412617",
+    "ThreadId": "199293",
+    "Html": "<p>After opening the excel file with notepad++ i can see first chars are:</p>\r\n<p>PK&#3;&#4;&#20;</p>\r\n<p>also with basic notepad, first characters are PK and then some squares that probably represents symbols that notepad can't read.</p>\r\n<p>Does that help?</p>",
+    "PostedDate": "2010-03-01T02:11:19.087-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "418600",
+    "ThreadId": "199293",
+    "Html": "<p>PHP 5.2.8 for Windows contains a defect php_zip.dll module responsible for creating corrupt zip files (xlsx files are zip files).</p>\r\n<p>If you don't want to upgrade the whole PHP installation you can just grab php_zip.dll from PHP 5.2.6, PHP 5.2.9 or later and replace it with the one you have.</p>\r\n<p><a href=\"http://snaps.php.net/win32/php5.2-win32-latest.zip\">http://snaps.php.net/win32/php5.2-win32-latest.zip</a></p>",
+    "PostedDate": "2010-03-16T02:25:27.057-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "420255",
+    "ThreadId": "199293",
+    "Html": "<p>Hi koyama,</p>\r\n<p>This sounds a lot like my issue (http://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=205047), although I'm on a different version of Windows.&nbsp; Those are the same characters that my corrupted files start with (see my uploaded file in the list at http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10749)</p>\r\n<p>I had read this post while researching my own issue, and I've upgraded to php 5.3.2 - is there a way to confirm the version of php_zip.dll that is being used is the updated one?&nbsp; phpinfo says the following:</p>\r\n<h2><a name=\"module_zip\">zip</a></h2>\r\n<table border=0 cellpadding=3 width=600>\r\n<p>\r\n<tbody>\r\n<tr>\r\n<td>Zip</td>\r\n<td>enabled</td>\r\n</tr>\r\n<tr>\r\n<td>Extension Version</td>\r\n<td>$Id: php_zip.c  294817 2010-02-09 17:51:39Z pajoye $</td>\r\n</tr>\r\n<tr>\r\n<td>Zip version</td>\r\n<td>1.9.1</td>\r\n</tr>\r\n<tr>\r\n<td>Libzip version</td>\r\n<td>0.9.0</td>\r\n</tr>\r\n</tbody>\r\n</p>\r\n<p>&nbsp;</p>\r\n</table>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-03-19T07:31:39.643-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "420266",
+    "ThreadId": "199293",
+    "Html": "<p>I've noticed that other people seem to have a version of zip of 2.0.0 - maybe the windows PHP installer is not installing the newer version of zip or something?&nbsp; I will try manually installing the highest version of php_zip.dll I can find...</p>",
+    "PostedDate": "2010-03-19T07:46:51.81-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "420387",
+    "ThreadId": "199293",
+    "Html": "<p>Thinking about this further, my issue does not sound the same as this - .xslx files saved to the hard disk are openable with no issues, which would indicate that my php_zip.dll is probably not the issue.&nbsp; Sorry...</p>",
+    "PostedDate": "2010-03-19T13:17:25.733-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "445563",
+    "ThreadId": "199293",
+    "Html": "<p>Hi Rick Pelletier, did you find what your issue was ? I have the same problem you do: the .XLS document written to disk are perfectly readable but the one sent over to the browser has those PK&#3;&#4;&#20; characters.</p>\r\n<p>Many thanks,</p>",
+    "PostedDate": "2010-05-20T13:52:13.93-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "465533",
+    "ThreadId": "199293",
+    "Html": "I'm having the same issue. <br>\r\nI have read that zip functionality is compiled into the application and the ini switch just enables zip output.<br>\r\n<br>\r\nMaybe php_zip.dll is no longer provided?<br>\r\n<br>\r\nI have 5.3.1, distributed with WAMP Server and there is no php_zip.dll located anywhere on my machine.<br>\r\n<br>\r\nSeems it is only happening when you DOWNLOAD the file and not when you SAVE the file, too.<br>\r\nCould the problem possibly be in the writer's save functionality?\r\n",
+    "PostedDate": "2010-07-09T10:41:33.097-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

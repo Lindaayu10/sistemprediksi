@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "260753",
+    "ThreadId": "76269",
+    "Html": "<p>I have some troubles with setting automatic height to the row where is a long text. I am of course using text wrapping</p>\r\n<p>If i dont specify row height, only one row is shown, but if specify fixed row height then not all the text in the cell is shown in case of the text is longer then row height</p>\r\n<p>My point is to display all text inside the cell even if the text has i.e. 20 lines. The problem is that I dont know how many lines of text will be displayed...</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<div id=\"_mcePaste\" style=\"left:-10000px;top:0px;width:1px;height:1px;overflow-x:hidden;overflow-y:hidden\">$style = $sheet-&gt;getStyleByColumnAndRow($pColumn, $pRow);</div>\r\n<div id=\"_mcePaste\" style=\"left:-10000px;top:0px;width:1px;height:1px;overflow-x:hidden;overflow-y:hidden\">&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;$style-&gt;getAlignment()-&gt;setWrapText(true);</div>\r\n<div id=\"_mcePaste\" style=\"left:-10000px;top:0px;width:1px;height:1px;overflow-x:hidden;overflow-y:hidden\">&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;$sheet-&gt;mergeCells(&quot;B$pRow:&quot;.chr(64 + $table_width).&quot;$pRow&quot;);</div>\r\n<div id=\"_mcePaste\" style=\"left:-10000px;top:0px;width:1px;height:1px;overflow-x:hidden;overflow-y:hidden\">&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;$objRichText = new PHPExcel_RichText( $sheet-&gt;getCellByColumnAndRow($pColumn, $pRow));</div>\r\n<p>&nbsp;</p>\r\n<p>$sheet-&gt;getColumnDimension(chr(65 + $pColumn))-&gt;setWidth(100); // fixed width<br>$style = $sheet-&gt;getStyleByColumnAndRow($pColumn, $pRow);<br>$style-&gt;getAlignment()-&gt;setWrapText(true); // text wrapping enabled<br>$sheet-&gt;mergeCells(&quot;A$pRow:&quot;.chr(64 + $table_width).&quot;$pRow&quot;);<br>$objRichText = new PHPExcel_RichText( $sheet-&gt;getCellByColumnAndRow($pColumn, $pRow));<br>$objRichText-&gt;createText(&quot;really long text ....&quot;.$text);&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>// $sheet-&gt;getRowDimension($pRow)-&gt;setRowHeight(100); // I dont know the height! I want display all the content&nbsp;</p>\r\n<p>The default height is -1 and writer of course ignores this value and only one row of text is shown, I wanna see the text wrapped</p>\r\n<p>I tried 1.7.1, nightbuild, Excel5 and Excel2007 with the same result (In HTML it looks as I expect)</p>",
+    "PostedDate": "2009-11-25T16:08:13.627-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "260968",
+    "ThreadId": "76269",
+    "Html": "<p>Well I have discovered, that this is a bug in Excel. If you have richtext in merged cells, text wrapping does not work. Solution: you can not merge columns :(</p>",
+    "PostedDate": "2009-11-26T10:12:17.04-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "261023",
+    "ThreadId": "76269",
+    "Html": "<p>Yes, unfortunately this is a problem with Excel itself.</p>\r\n<p>Merged cells + wrap text + autofit row height = not working</p>",
+    "PostedDate": "2009-11-26T18:50:42.75-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "271225",
+    "ThreadId": "76269",
+    "Html": "<p>I have experienced this too.&nbsp; I had a couple of ideas for work-arounds, but not sure if they are possible.</p>\r\n<p>1)&nbsp; Is there a way to get the resulted height from an auto-wrap?&nbsp; The idea would be to set height to -1, see what the resultant height and then explicitely set this before wrapping the text.</p>\r\n<p>2)&nbsp; It seems that in word if you do auto-height THEN do merge it works fine (but doesn't work in reverse order), so I don't know if the PHP excel writer can perform the same basic actions.</p>\r\n<p>&nbsp;Again, not sure if either of these would work, but wanted to put my 2 cents in.</p>\r\n<p>&nbsp;Also, here is a quick and dirty snippet I wrote to auto-size a row height (for merged rows).&nbsp; It probably doesn't work for every situation, but it works for mine :)</p>\r\n<p>//These 2 variables will depend on text size, font family, etc<br>$row_chars = 68; //Rough idea of how many characters it takes to wrap to a new line in the merged cell<br>$one_row = 13;&nbsp; //Row height of one line of text</p>\r\n<p>$cv_ar = explode(&quot;\\n&quot;, $cell_value);<br>$cv_rows = 0;<br>if(count($cv_ar) &gt; 1){<br>&nbsp;foreach($cv_ar AS $cv_row){<br>&nbsp;&nbsp;&nbsp;$cv_rows += ceil((st($cv_row)/$row_chars));<br>&nbsp;}<br>}<br>elseif(st($cell_value) &gt; $row_chars){<br>&nbsp;$cv_rows += ceil((st($cv_row)/$row_chars));<br>}<br>if($cv_rows &gt; 0){<br>&nbsp;$use_height = $cv_text_rows * $one_row;<br>&nbsp;$active_sheet-&gt;getRowDimension($ROW_NUMBER)-&gt;setRowHeight($use_height); <br>&nbsp;$active_sheet-&gt;getStyle($COL_LETTER.$ROW_NUMBER)-&gt;getAlignment()-&gt;setWrapText(true);<br>}</p>\r\n<p>Thanks,</p>\r\n<p>BooeyOH</p>",
+    "PostedDate": "2009-12-28T11:43:36.83-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "278119",
+    "ThreadId": "76269",
+    "Html": "<p>@bagintz:</p>\r\n<p>I follow what you are saying. It will be difficult to get the &quot;resulted height from an auto-wrap&quot;. It depends on fonts, font sizes etc. which is what complicates matters.</p>\r\n<p>We already have some experimental code to determine exact auto-size column width based on font, font size etc. So &quot;resulted height from an auto-wrap&quot; may come one day, but requires some work.</p>",
+    "PostedDate": "2010-01-17T02:41:26.937-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "719149",
+    "ThreadId": "76269",
+    "Html": "<p>My 2 cents: as wrapping seems not to be working with RichText what I did was to add text as: chr(13).chr(10)</p>\r\n<p>Regards</p>",
+    "PostedDate": "2012-01-01T05:29:01.107-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

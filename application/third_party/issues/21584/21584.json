@@ -1,0 +1,45 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I'm looping through a set of data and highlighting certain cells to show a person is responsible for that piece of data.\n\nThis is where I am formatting the cell:\n\n\t\t\t\t\tif (empty($row[$myfield])) {\n\t\t\t\t\t\t$objPHPExcel->setActiveSheetIndex(0)\n\t\t\t\t\t\t\t->setCellValue($sRange, \"0\");\n\t\t\t\t\t} else {\n\t\t\t\t\t\tif ($resp!=\"Y\") {\n\t\t\t\t\t\t\t$objPHPExcel->setActiveSheetIndex(0)\n\t\t\t\t\t\t\t\t->setCellValue($sRange, \"NORSP:\".$row[$myfield]);\n\t\t\t\t\t\t}\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t\tif ($resp==\"Y\") {\n\t\t\t\t\t\t\t$objPHPExcel->setActiveSheetIndex(0)\n\t\t\t\t\t\t\t\t->setCellValue($sRange, \"TRSP:\".$row[$myfield]);\n\t\t\t\t\t\t\t$styleArray = array(\n\t\t\t\t\t\t\t    'font'  => array(\n\t\t\t\t\t\t\t        'bold'  => true,\n\t\t\t\t\t\t\t    ),\n\t\t\t\t\t\t\t\t'fill' => array(\n\t\t\t\t\t\t\t\t        'type' => PHPExcel_Style_Fill::FILL_SOLID,\n\t\t\t\t\t\t\t\t        'startcolor' => array(\n\t\t\t\t\t\t\t\t          'rgb' => 'D8D8D8',\n\t\t\t\t\t\t\t        )));\n\n\t\t\t\t\t\t\t$objPHPExcel->setActiveSheetIndex(0)\n\t\t\t\t\t\t\t\t->getStyle($sRange)->applyFromArray($styleArray);\t\t\t\t\t\t\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\nThis appeared to be working fine but now people are using it they noticed that the cell shading/bold stops after a certain while.  I've tested it on several users and after 48 iterations of the style being applied it just stops.  So for one sheet it stopped on line 16 and the next workbook it stopped on line 26 as the responsibility was spread out a little more.  But when I counted the cells shaded they both added up to 48.\n\nI even delayed the formatting by adding a count and only styled when it reached a certain point.  I noticed then that the styling would start on line 10 and then finish on line 26 again after exactly 48 iterations.\n\nI have no idea why it stops formatting the cells.  I added \"TRSP\" and \"NORSP\" to the cells to show it was getting into that section of the logic and that shows up in every cell but for some reason the styling only works on the first 48 attempts.\n\nAny thoughts?",
+    "LastUpdatedDate": "2014-11-25T11:17:14.003-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2014-11-25T09:30:28.257-08:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "ApplyStyle stops working",
+    "Type": {
+      "Name": "Unassigned",
+      "Id": 5
+    },
+    "VoteCount": 1,
+    "Id": 21584
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "OK this was solved by changing this line:\r\n\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');\r\n\r\nto this\r\n\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');\r\n\r\n",
+      "PostedDate": "2014-11-25T11:17:14.003-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

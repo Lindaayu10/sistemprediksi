@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "1049913",
+    "ThreadId": "445274",
+    "Html": "Hi. I’m using PHPExcel 1.7.8, and trying to get export of my spreadsheets to PDF to work.\r<br />\n<br />\nThe problem with the spreadsheets I generate is that they are too wide to fit onto a page, even if it’s in landscape mode. I was hoping to resolve this by trying to use setFitPage(true) or setScale(), but somehow those two methods <strong>never</strong> have any effect on the PDF I export. Scale never changes and the content never gets adjusted to the width of the page. Other page setup methods, like setOrientation() and setPaperSize() work, but only with domPDF or tcPDF rendering engines. With mPDF, the content is always fit to width, even without the setFitPage(true) (which is also weird), but the main problem is that with this engine, the page orientation is ignored (it’s always portrait).\r<br />\n<br />\nSo it’s extremely frustrating on the overall, and I was hoping to get some help with getting it to work here.\r<br />\n<br />\nHere is what I use to export the PDF.<br />\n<pre><code>    private function outputPDF() {\n        \n        $this-&gt;PHPExcel-&gt;getActiveSheet()-&gt;setShowGridLines(false);\n        $this-&gt;PHPExcel-&gt;getActiveSheet()-&gt;getPageSetup()-&gt;setOrientation(\\PHPExcel_Worksheet_PageSetup::ORIENTATION_LANDSCAPE);\n        $this-&gt;PHPExcel-&gt;getActiveSheet()-&gt;getPageSetup()-&gt;setPaperSize(\\PHPExcel_Worksheet_PageSetup::PAPERSIZE_A4);\n        $this-&gt;PHPExcel-&gt;getActiveSheet()-&gt;getPageSetup()-&gt;setFitToPage(true);\n        \n        \\PHPExcel_Settings::setPdfRenderer(\\PHPExcel_Settings::PDF_RENDERER_MPDF, LITHIUM_LIBRARY_PATH . '/mpdf');\n        // \\PHPExcel_Settings::setPdfRenderer(\\PHPExcel_Settings::PDF_RENDERER_DOMPDF, LITHIUM_LIBRARY_PATH . '/dompdf');\n        // \\PHPExcel_Settings::setPdfRenderer(\\PHPExcel_Settings::PDF_RENDERER_TCPDF, LITHIUM_LIBRARY_PATH . '/tcpdf');\n                \n        header('Content-Type: application/pdf');\n        header('Content-Disposition: attachment;filename=&quot;' . $this-&gt;learner['fullName'] . ' Report.pdf&quot;');\n        header('Cache-Control: max-age=0');\n\n        $objWriter = \\PHPExcel_IOFactory::createWriter($this-&gt;PHPExcel, 'PDF');\n        $objWriter-&gt;setOrientation(\\PHPExcel_Worksheet_PageSetup::ORIENTATION_LANDSCAPE); // even setting this doesn’t affect the way mPDF orients the page\n        $objWriter-&gt;save('php://output');\n        die;\n        \n    }</code></pre>\n\n",
+    "PostedDate": "2013-05-28T23:01:14.573-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1049921",
+    "ThreadId": "445274",
+    "Html": "The only page setup attributes that currently work with PDF are paper size and orientation, because these are the only attributes fed to the PDF rendering engine.... all other page attributes are Excel2007 and Excel5 only.<br />\n<br />\nNote that <strong>all</strong> renderers <strong>should</strong> work with both paper size <strong>and</strong> page orientation with the latest github develop branch code.<br />\n",
+    "PostedDate": "2013-05-28T23:31:15.727-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

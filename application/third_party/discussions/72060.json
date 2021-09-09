@@ -1,0 +1,114 @@
+[
+  {
+    "Id": "245921",
+    "ThreadId": "72060",
+    "Html": "<p>Hi,</p>\r\n<p>iam using excel 2007 to write new excel</p>\r\n<p>For The Formula it give error:</p>\r\n<p><strong>Fatal error</strong>: Uncaught exception 'Exception' with message 'Internal error  - Operand value missing from stack' in  /home/cms/excel/PHPExcel/Calculation.php:2860 Stack trace:  #0 /home/cms/excel/PHPExcel/Calculation.php(2482):  PHPExcel_Calculation-&gt;_raiseFormulaError('Internal error ...') #1  /home/cms/excel/PHPExcel/Calculation.php(1883):  PHPExcel_Calculation-&gt;_processTokenStack(Array, 'I10', Object(PHPExcel_Cell))  #2 /home/cms/excel/PHPExcel/Calculation.php(1780):  PHPExcel_Calculation-&gt;_calculateFormulaValue('=IF(CArray&gt;0.01...', 'I10',  Object(PHPExcel_Cell)) #3  /home/cms/excel/PHPExcel/Cell.php(281):  PHPExcel_Calculation-&gt;calculateCellValue(Object(PHPExcel_Cell), true) #4  /home/cms/excel/PHPExcel/Writer/Excel2007/Worksheet.php(999):  PHPExcel_Cell-&gt;getCalculatedValue() #5  /home/cms/excel/PHPExcel/Writer/Excel2007/Worksheet.php(943):  PHPExcel_Writer_Excel2007_Worksheet-&gt;_writ in  <strong>/home/cms/excel/PHPExcel/Calculation.php</strong> on line  <strong>2860</strong></p>\r\n<p><strong><br></strong></p>\r\n<p>$php_excel-&gt;setActiveSheetIndex(0);<br>$sheet = $php_excel-&gt;getActiveSheet();</p>\r\n<p>$sheet-&gt;getCellByColumnAndRow($col,$cell_row)-&gt;setValue('');<br>$sheet-&gt;setCellValue('I'.$cell_row, '=IF(H'.$cell_row.'=&quot;C&quot;,E'.$cell_row.'+F'.$cell_row.'/24+G'.$cell_row.'/24*60,0)');<br>$sheet-&gt;getStyleByColumnAndRow($col,$cell_row)-&gt;applyFromArray($main_style);</p>\r\n<p>$writer =PHPExcel_IOFactory::createWriter($php_excel,'Excel2007');<br>$writer-&gt;save('myExcel.xlsx');</p>\r\n<p>&nbsp;</p>\r\n<p>How Can i Solve This issue.</p>\r\n<p>Thx.</p>",
+    "PostedDate": "2009-10-15T00:57:40.94-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "245965",
+    "ThreadId": "72060",
+    "Html": "<p>Hmm... I cannot reproduce the error.</p>\r\n<p>I tried to run this, but no with error message:</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$php_excel = <span style=\"color:Blue\">new</span> PHPExcel();\r\n$sheet = $php_excel-&gt;getActiveSheet();\r\n\r\n$col = <span style=\"color:#A31515\">'A'</span>; $cell_row = 1;\r\n$main_style = <span style=\"color:Blue\">array</span>(<span style=\"color:#A31515\">'font'</span>=&gt;<span style=\"color:Blue\">array</span>(<span style=\"color:#A31515\">'size'</span>=&gt;20));\r\n\r\n$sheet-&gt;getCellByColumnAndRow($col,$cell_row)-&gt;setValue(<span style=\"color:#A31515\">''</span>);\r\n$sheet-&gt;setCellValue(<span style=\"color:#A31515\">'I'</span>.$cell_row, <span style=\"color:#A31515\">'=IF(H'</span>.$cell_row.<span style=\"color:#A31515\">'=&quot;C&quot;,E'</span>.$cell_row.<span style=\"color:#A31515\">'+F'</span>.$cell_row.<span style=\"color:#A31515\">'/24+G'</span>.$cell_row.<span style=\"color:#A31515\">'/24*60,0)'</span>);\r\n$sheet-&gt;getStyleByColumnAndRow($col,$cell_row)-&gt;applyFromArray($main_style);\r\n\r\n$writer =PHPExcel_IOFactory::createWriter($php_excel,<span style=\"color:#A31515\">'Excel2007'</span>);\r\n$writer-&gt;save(<span style=\"color:#A31515\">'myExcel.xlsx'</span>);</pre>\r\n</div>\r\n<p>Can you post a script we can run to reproduce the error?</p>",
+    "PostedDate": "2009-10-15T04:13:20.653-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "246065",
+    "ThreadId": "72060",
+    "Html": "<p>i try the same code u put it &amp; gave same error:</p>\r\n<p>File (export_excel.php):</p>\r\n<p>-------------------------</p>\r\n<p>include_once (&quot;../excel/PHPExcel.php&quot;);<br>include_once (&quot;../excel/PHPExcel/IOFactory.php&quot;);<br><br>$php_excel = new PHPExcel();<br>$sheet = $php_excel-&gt;getActiveSheet();<br><br>$col = 'A'; $cell_row = 1;<br>$main_style = array('font'=&gt;array('size'=&gt;20));<br><br>$sheet-&gt;getCellByColumnAndRow($col,$cell_row)-&gt;setValue('');<br>$sheet-&gt;setCellValue('I'.$cell_row, '=IF(H'.$cell_row.'=&quot;C&quot;,E'.$cell_row.'+F'.$cell_row.'/24+G'.$cell_row.'/24*60,0)');<br>$sheet-&gt;getStyleByColumnAndRow($col,$cell_row)-&gt;applyFromArray($main_style);<br><br>$writer =PHPExcel_IOFactory::createWriter($php_excel,'Excel2007');<br>$writer-&gt;save('myExcel.xlsx');</p>\r\n<p>&nbsp;</p>\r\n<p>so give me this error:</p>\r\n<p>------------------------</p>\r\n<p><strong>Fatal error</strong>: Uncaught exception 'Exception' with message 'Could not close  zip file myExcel.xlsx.' in  /home/ap/excel/PHPExcel/Writer/Excel2007.php:400 Stack  trace: #0 /home/ap/report/export_excel.php(16):  PHPExcel_Writer_Excel2007-&gt;save('myExcel.xlsx') #1 {main} thrown in  <strong>/home/ap/excel/PHPExcel/Writer/Excel2007.php</strong> on  line <strong>400</strong></p>",
+    "PostedDate": "2009-10-15T07:42:17.627-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "246069",
+    "ThreadId": "72060",
+    "Html": "<p>That is another error, try to delete the file 'myExcel.xlsx' and run the script again.</p>",
+    "PostedDate": "2009-10-15T07:48:02.56-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "246183",
+    "ThreadId": "72060",
+    "Html": "<p>ok</p>\r\n<p>That's right the script work with no error alone but when i put it in the full file i have it not work it will give the first error except if i change to excel5:</p>\r\n<p>i upload the full file you can download from here</p>\r\n<p>http://www.4shared.com/file/141137096/c8293ead/my_excel.html</p>\r\n<p>Thanks Again for your replay.</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-10-15T12:26:11.25-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "246292",
+    "ThreadId": "72060",
+    "Html": "<p>Perhaps a missing parenthesis?</p>\r\n<p>Can you try to change from this:</p>\r\n<p><span style=\"font-family:Courier New\">$sheet-&gt;setCellValueByColumnAndRow($col,$cell_row,'=IF(I'.($cell_row-1).'=&quot;LAYTIME CONSUMED&quot;,&quot;LAYTIME CONSUMED&quot;,IF((I'.$port_rmain_laytime_cell_no[count($port_rmain_laytime_cell_no)-1].'-I'.($cell_row-1).')&lt;0,&quot;LAYTIME CONSUMED&quot;,I'.($cell_row-1).'-I'.($cell_row-1).')');</span></p>\r\n<p>to this:</p>\r\n<p><span style=\"font-family:Courier New\">$sheet-&gt;setCellValueByColumnAndRow($col,$cell_row,'=IF(I'.($cell_row-1).'=&quot;LAYTIME CONSUMED&quot;,&quot;LAYTIME CONSUMED&quot;,IF((I'.$port_rmain_laytime_cell_no[count($port_rmain_laytime_cell_no)-1].'-I'.($cell_row-1).')&lt;0,&quot;LAYTIME CONSUMED&quot;,I'.($cell_row-1).'-I'.($cell_row-1).')</span><span style=\"background-color:#ffff00;font-family:Courier New\">)</span><span style=\"font-family:Courier New\">');</span></p>",
+    "PostedDate": "2009-10-15T16:13:16.683-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "246375",
+    "ThreadId": "72060",
+    "Html": "<p>yes that's true parenthesis is missing but no problem it works in Excel5 even if i add or remove this parenthesis but in Excel2007 i try to more than adding parenthesis, i try to stop the line all &amp; same error. i want to use Excel2007 since iam using Data Validation that not work on Excel5.</p>\r\n<p>you can try it using the file i uploaded to u later, thanks.</p>",
+    "PostedDate": "2009-10-15T22:38:32.88-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "246410",
+    "ThreadId": "72060",
+    "Html": "<p>The original error is definitely a calculation engine error, but I haven't been able to replicate it so far. It may be that one of the cells referenced in the formula contains something that's triggering the failure, because there's nothing wrong with the formula itself.</p>\r\n<p>Is it possible to identify exactly what the data values are for the cells referenced in the formula (ie the values in columns C, E, F, G and H) for the cell that triggers the error</p>",
+    "PostedDate": "2009-10-16T00:54:11.047-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "246472",
+    "ThreadId": "72060",
+    "Html": "<div style=\"color:Black;background-color:White\">\r\n<pre>&lt;?php<br><span style=\"color:Blue\">include_once</span> (<span style=\"color:#A31515\">&quot;../../framework/controls/excel/PHPExcel.php&quot;</span>);<br><span style=\"color:Blue\">include_once</span> (<span style=\"color:#A31515\">&quot;../../framework/controls/excel/PHPExcel/IOFactory.php&quot;</span>);<br><br><br><br>        $file_name = <span style=\"color:#A31515\">&quot;myExcel&quot;</span>;<br>        $merge_version = <span style=\"color:#A31515\">'Excel2007'</span>;   <span style=\"color:Green\">//or Excel5</span>\r\n        $extension=<span style=\"color:#A31515\">'.xlsx'</span>;          <span style=\"color:Green\">// or .xls</span>\r\n\r\n        <span style=\"color:Green\">//Not if u remove the comment 2 lines below &amp; make it Excel5 will work</span>\r\n        <span style=\"color:Green\">//$merge_version = 'Excel5';   //or Excel5</span>\r\n        <span style=\"color:Green\">//$extension='.xls';          // or .xls</span>\r\n\r\n        $file_name=$file_name.$extension;\r\n        $file_save=$file_name;\r\n        $php_excel = <span style=\"color:Blue\">new</span> PHPExcel();<br><br>        $main_style = <span style=\"color:Blue\">array</span>(<span style=\"color:#A31515\">'font'</span>=&gt;<span style=\"color:Blue\">array</span>(<span style=\"color:#A31515\">'size'</span>=&gt;20));<br>        <span style=\"color:Green\">//Excel Page Setup</span>\r\n        $php_excel-&gt;setActiveSheetIndex(0);\r\n        $sheet = $php_excel-&gt;getActiveSheet();\r\n\r\n        <span style=\"color:Green\">//Begin Set Data</span>\r\n\r\n        $cell_row=1;\r\n        $is_first = true;\r\n        $port_rmain_laytime_cell_no = <span style=\"color:Blue\">array</span>();<br>        $row = <span style=\"color:Blue\">array</span>(<span style=\"color:#A31515\">&quot;Alex&quot;</span>,<span style=\"color:#A31515\">&quot;Mdc&quot;</span>,<span style=\"color:#A31515\">&quot;Libc&quot;</span>);<br>        <span style=\"color:Blue\">foreach</span>($row <span style=\"color:Blue\">as</span> $port_name)<br>        {<br><br>            $col=0;<br>            $cell_row++;<br><br>            $sheet-&gt;getCellByColumnAndRow($col,$cell_row)-&gt;setValue(<span style=\"color:#A31515\">''</span>);<br><span style=\"color:#ff00ff\">            <span style=\"padding:0pt;background-color:yellow;display:inline;font-size:inherit\">$sheet-&gt;setCellValueByColumnAndRow($col, $cell_row, '=IF(H'.$cell_row.'=&quot;C&quot;,E'.$cell_row.'+F'.$cell_row.'/24+G'.$cell_row.'/24*60,0)');</span></span>\r\n            $sheet-&gt;getStyleByColumnAndRow($col,$cell_row)-&gt;applyFromArray($main_style);\r\n            $sheet-&gt;getStyle(<span style=\"color:#A31515\">'I'</span>.$cell_row.<span style=\"color:#A31515\">':I'</span>.$cell_row)-&gt;getNumberFormat()-&gt;setFormatCode(<span style=\"color:#A31515\">'dd&quot; day(s) &quot;hh&quot; hrs &quot;mm&quot; min&quot;'</span>);<br>            $col++;<br><br><br>            $col=0;<br>            $cell_row++;<br>            $sheet-&gt;mergeCellsByColumnAndRow($col,$cell_row,$col+3,$cell_row);<br>            $sheet-&gt;getCellByColumnAndRow($col,$cell_row)-&gt;setValue(<span style=\"color:#A31515\">&quot;Remaining Laytime&quot;</span>);<br>            $sheet-&gt;getStyle(<span style=\"color:#A31515\">'A'</span>.$cell_row.<span style=\"color:#A31515\">':D'</span>.$cell_row)-&gt;applyFromArray($main_style);<br>            $col++;<br>            <span style=\"color:Blue\">if</span>($is_first)<br>                $sheet-&gt;setCellValueByColumnAndRow($col,$cell_row,<span style=\"color:#A31515\">'=IF(I'</span>.($cell_row-1).<span style=\"color:#A31515\">'=&quot;LAYTIME CONSUMED&quot;,&quot;LAYTIME CONSUMED&quot;,I'</span>.($cell_row-1).<span style=\"color:#A31515\">'-I'</span>.($cell_row-1).<span style=\"color:#A31515\">')'</span>);<br>            <span style=\"color:Blue\">else</span>\r\n                $sheet-&gt;setCellValueByColumnAndRow($col,$cell_row,<span style=\"color:#A31515\">'=IF(I'</span>.($cell_row-1).<span style=\"color:#A31515\">'=&quot;LAYTIME CONSUMED&quot;,&quot;LAYTIME CONSUMED&quot;,IF((I'</span>.$port_rmain_laytime_cell_no[count($port_rmain_laytime_cell_no)-1].<span style=\"color:#A31515\">'-I'</span>.($cell_row-1).<span style=\"color:#A31515\">')&lt;0,&quot;LAYTIME CONSUMED&quot;,I'</span>.($cell_row-1).<span style=\"color:#A31515\">'-I'</span>.($cell_row-1).<span style=\"color:#A31515\">'))'</span>);<br>            $port_rmain_laytime_cell_no[] = <span style=\"color:#A31515\">&quot;$cell_row&quot;</span>;<br>            $sheet-&gt;getStyle(<span style=\"color:#A31515\">'I'</span>.$cell_row.<span style=\"color:#A31515\">':I'</span>.$cell_row)-&gt;getNumberFormat()-&gt;setFormatCode(<span style=\"color:#A31515\">'dd&quot; day(s) &quot;hh&quot; hrs &quot;mm&quot; min&quot;'</span>);<br>            $sheet-&gt;getStyleByColumnAndRow($col,$cell_row)-&gt;applyFromArray($main_style);<br><br>            $cell_row+=2;<br>            $is_first = false;<br>        }<br><br>        <span style=\"color:Green\">//if There is Merge It will not give good result</span>\r\n        <span style=\"color:Green\">/*for($i=0;$i&lt;=10;$i++)<br>            $sheet-&gt;getColumnDimensionByColumn($i)-&gt;setAutoSize(true);*/</span>\r\n\r\n        <span style=\"color:Green\">//excel write</span>\r\n        $writer =PHPExcel_IOFactory::createWriter($php_excel,$merge_version);\r\n        $writer-&gt;save($file_save);\r\n\r\n        header(<span style=\"color:#A31515\">'Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'</span>);<br>        header(<span style=\"color:#A31515\">'Content-Disposition: attachment;filename=&quot;'</span>.$file_name.<span style=\"color:#A31515\">'&quot;'</span>);  <span style=\"color:Green\">//if we replace &quot;attachment&quot; by &quot;inline&quot; it will open inside the iframe</span>\r\n        header(<span style=\"color:#A31515\">'Cache-Control: max-age=0'</span>);<br><br>        $fh=fopen($file_save, <span style=\"color:#A31515\">&quot;rb&quot;</span>);<br>        fpassthru($fh);<br>        unlink($file_save);<br><br>?&gt;<br></pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>This is the Full Short Script if i delete this line it will work:</p>\r\n<p><span style=\"color:#ff00ff\"><span style=\"padding:0pt;background-color:yellow;color:black;display:inline;font-size:inherit\">$sheet-&gt;setCellValueByColumnAndRow($col, $cell_row, '=IF(H'.$cell_row.'=&quot;C&quot;,E'.$cell_row.'+F'.$cell_row.'/24+G'.$cell_row.'/24*60,0)');</span></span></p>\r\n<p>What is the error of the above line?</p>\r\n<p>Note: why work correctly in Excel5 can you justify to me plz?</p>\r\n<p>Thank All...</p>",
+    "PostedDate": "2009-10-16T04:25:13.677-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "246533",
+    "ThreadId": "72060",
+    "Html": "<p>With your last script where the missing parenthesis has been inserted I don't get any errors. What error are you getting this time?</p>",
+    "PostedDate": "2009-10-16T07:01:26.88-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "246552",
+    "ThreadId": "72060",
+    "Html": "<p>it give the same initial error:</p>\r\n<p><br> <strong>Fatal error</strong>: Uncaught exception 'Exception' with message 'Internal error - Operand value missing from stack' in D:\\wamp\\www\\ems\\ap\\framework\\controls\\excel\\PHPExcel\\Calculation.php:2860 Stack trace: #0 D:\\wamp\\www\\ems\\ap\\framework\\controls\\excel\\PHPExcel\\Calculation.php(2482): PHPExcel_Calculation-&gt;_raiseFormulaError('Internal error ...') #1 D:\\wamp\\www\\ems\\ap\\framework\\controls\\excel\\PHPExcel\\Calculation.php(1883): PHPExcel_Calculation-&gt;_processTokenStack(Array, 'B3', Object(PHPExcel_Cell)) #2 D:\\wamp\\www\\ems\\ap\\framework\\controls\\excel\\PHPExcel\\Calculation.php(1780): PHPExcel_Calculation-&gt;_calculateFormulaValue('=IF(I2=&quot;LAYTIME...', 'B3', Object(PHPExcel_Cell)) #3 D:\\wamp\\www\\ems\\ap\\framework\\controls\\excel\\PHPExcel\\Cell.php(281): PHPExcel_Calculation-&gt;calculateCellValue(Object(PHPExcel_Cell), true) #4 D:\\wamp\\www\\ems\\ap\\framework\\controls\\excel\\PHPExcel\\Writer\\Excel2007\\Worksheet.php(985): PHPExcel_Cell-&gt;getCalculatedValue() #5 D:\\wamp\\www\\ems\\ap\\framework\\controls\\excel\\PHPExcel\\Writer\\Excel2007\\Worksheet.php(929): PH in <strong>D:\\wamp\\www\\ems\\ap\\framework\\controls\\excel\\PHPExcel\\Calculation.php</strong> on line <strong>2860</strong></p>\r\n<p><strong>you can try my last script i write it &amp; see the error...<br></strong></p>",
+    "PostedDate": "2009-10-16T07:37:38.303-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "246569",
+    "ThreadId": "72060",
+    "Html": "<p>I am now able to reconstruct the error. I will try to reduce the script and post it in a suitable form in the issue tracker.</p>\r\n<p><em>&gt;&gt; Note: why work correctly in Excel5 can you justify to me plz?</em></p>\r\n<p>The reason is that Excel5 writer does not store the calculated values in the generated Excel file.</p>\r\n<p>You can disable pre-calculation of formulas in Excel2007 writer like this.</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>$writer =PHPExcel_IOFactory::createWriter($php_excel,$merge_version);<br><span style=\"background-color:#ffff00\">$writer-&gt;setPrecalculateFormulas(false);</span><br>$writer-&gt;save($file_save);<br></pre>\r\n</div>\r\n<p>Normally, this should be ok, and the error message should disappear. You can use that as a workaround.</p>",
+    "PostedDate": "2009-10-16T08:02:33.313-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "246599",
+    "ThreadId": "72060",
+    "Html": "<p>No need to post anything in issue tracker. Looks like this is fixed in latest source code.<br><a href=\"http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx\">http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx</a><br><br>Reduced test script:<br><br>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>&lt;?php\r\n$version = <span style=\"color:#A31515\">'170'</span>;\r\n<span style=\"color:Blue\">require_once</span> <span style=\"color:#A31515\">'PHPExcel'</span> . $version . <span style=\"color:#A31515\">'/Classes/PHPExcel.php'</span>;\r\n<span style=\"color:Blue\">require_once</span> <span style=\"color:#A31515\">'PHPExcel'</span> . $version . <span style=\"color:#A31515\">'/Classes/PHPExcel/IOFactory.php'</span>;\r\n\r\n$excel = <span style=\"color:Blue\">new</span> PHPExcel();\r\n$sheet = $excel-&gt;getActiveSheet();\r\n\r\n$sheet-&gt;getCell(<span style=\"color:#A31515\">'I2'</span>);\r\n$sheet-&gt;getCell(<span style=\"color:#A31515\">'B3'</span>)-&gt;setValue(<span style=\"color:#A31515\">'=IF(I2=&quot;x&quot;,0,1)'</span>);\r\n\r\nvar_dump($sheet-&gt;getCell(<span style=\"color:#A31515\">'B3'</span>)-&gt;getCalculatedValue());\r\n?&gt;\r\n</pre>\r\n</div>\r\n<br><br>With PHPExcel 1.7.0:<br><br>\r\n<pre>Fatal error: Uncaught exception 'Exception' with message 'Internal error - Operand value missing from stack' in C:\\xampp\\htdocs\\_phpexcel\\PHPExcel170\\Classes\\PHPExcel\\Calculation.php:2860 Stack trace:\r\n#0 C:\\xampp\\htdocs\\_phpexcel\\PHPExcel170\\Classes\\PHPExcel\\Calculation.php(2482): PHPExcel_Calculation-&gt;_raiseFormulaError('Internal error ...')\r\n#1 C:\\xampp\\htdocs\\_phpexcel\\PHPExcel170\\Classes\\PHPExcel\\Calculation.php(1883): PHPExcel_Calculation-&gt;_processTokenStack(Array, 'B3', Object(PHPExcel_Cell))\r\n#2 C:\\xampp\\htdocs\\_phpexcel\\PHPExcel170\\Classes\\PHPExcel\\Calculation.php(1780): PHPExcel_Calculation-&gt;_calculateFormulaValue('=IF(I2=&quot;x&quot;,0,1)', 'B3', Object(PHPExcel_Cell))\r\n#3 C:\\xampp\\htdocs\\_phpexcel\\PHPExcel170\\Classes\\PHPExcel\\Cell.php(281): PHPExcel_Calculation-&gt;calculateCellValue(Object(PHPExcel_Cell), true)\r\n#4 C:\\xampp\\htdocs\\_phpexcel\\my_excel.php(12): PHPExcel_Cell-&gt;getCalculatedValue()\r\n#5 {main} thrown in C:\\xampp\\htdocs\\_phpexcel\\PHPExcel170\\Classes\\PHPExcel\\Calculation.php on line 2860</pre>\r\n<br><br>With latest source code:<br><br>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>int(1)\r\n</pre>\r\n</div>\r\n</p>",
+    "PostedDate": "2009-10-16T08:47:01.617-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "246802",
+    "ThreadId": "72060",
+    "Html": "<p>OK,</p>\r\n<p>it's work</p>\r\n<p>Thanks Koyama, MarkBaker Thanks All.</p>",
+    "PostedDate": "2009-10-16T22:40:08.163-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

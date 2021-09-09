@@ -1,0 +1,45 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "It is useful sometimes when writing CSV files to be able to avoid the \"\" enclosure if the cell is empty or if the cell content doesn't actually contain the delimiter character.\n \nAt present\nPHPExcel/PHPExcel/Writer/CSV.php\nhttp://phpexcel.codeplex.com/SourceControl/changeset/view/87695#1602255\n \nIf there is (say) an empty cell, some text containing a comma, some text without a comma, and another empty cell, you get:\n \n\"\",\"Hello, John\",\"This is Mark\",\"\"\n \nWith a simple change this could be made optional, i.e.\n,\"Hello, John\",This is Mark,\n \nwhich I believe is valid CSV and would be closer to what alot of other CSV writing programs output.\n \nA patch would simply be along these lines:\n \n# Add:\nprivate $enclosureIsOptional = false;\npublic function enclosureIsOptional () {$this->enclosureIsOptional = true;}\n\t\t\t\n# In _writeLine, change:\n$line .= $this->_enclosure . $element . $this->_enclosure;\n# to:\n$enclosure = (($this->enclosureIsOptional && !substr_count ($element, $this->_delimiter)) ? '' : $this->_enclosure);\n$line .= $enclosure . $element . $enclosure;",
+    "LastUpdatedDate": "2015-04-28T01:49:14.653-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2012-03-13T09:36:33.44-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Enable enclosure to be optional in CSV writing",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 2,
+    "Id": 17597
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "This hasn't gone anywhere, upvote.",
+      "PostedDate": "2015-04-28T01:49:14.653-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

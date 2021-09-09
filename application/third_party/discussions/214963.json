@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "451645",
+    "ThreadId": "214963",
+    "Html": "<p>Hi,</p>\r\n\r\n<p>Im using PHPExel as an in memory spreadsheet but cant seem to get it to update itself and would be grateful for any help or advice. </p>\r\n\r\n<p>When I create the sheet I populate it with some data, then receive more data and modify the sheet.  The thing is that the calculations in the sheet dont seem to be updating, however when i output the sheet to an xls file they work fine.  I was wondering if there was a method that I havent found to force the spreadsheet to update?  Ive tried turning the calculation caching off but it doesnt seem to help.  </p>\r\n\r\n<p>Im using PHPExcel 1.7.3c, PHP 5.3.2-1ubuntu4.2 and ubuntu 10.04</p>\r\n\r\n<p>Thanks :)</p>\r\n\r\nA pared down version of my code looks like this, its actually quite a bit longer but these are (I hope) the pertinent bits:\r\n<pre>\r\n//call function in my code to go and create basic phpexcel spreadsheet\r\nfunction make_spreadsheet(){\r\n$excel = new PHPExcel();\r\n\r\n//add some vales and formulae\r\n$excel-&gt;getActiveSheet()-&gt;setCellValue('B1', $cell-&gt;value);\r\n...\r\n\r\nPHPExcel_Calculation::getInstance()-&gt;clearCalculationCache();\r\nreturn($excel);\r\n}\r\n\r\n//function where I add more to the sheet\r\n\r\nfunction use_spreadsheet(){\r\n//get basic spreadhseet\r\n$excel = make_spreadsheet();\r\n\r\n//add more numbers to spreadsheet\r\n$excel-&gt;getActiveSheet()-&gt;setCellValue('B2', $cell-&gt;value);\r\n...\r\n\r\nPHPExcel_Calculation::getInstance()-&gt;clearCalculationCache();\r\n\r\n//get a calculated answer\r\n$calcAnswer = $excel-&gt;getActiveSheet()-&gt;getCellByColumnAndRow($c, $r)-&gt;getCalculatedValue();\r\n\r\n// $calcAnswer is incorrect - not been updated\r\n\r\n//using the following the spreadsheet outputs correctly\r\n$objWriter = new PHPExcel_Writer_EXCEL5($excel);\r\n$objWriter-&gt;save(str_replace('.php', 'grading.xls', __FILE__));\r\n\r\n}\r\n</pre>",
+    "PostedDate": "2010-06-04T03:14:55.72-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "451685",
+    "ThreadId": "214963",
+    "Html": "<p>We really need more details of the data values, and the formulae that you're using to make any judgement on this.</p>",
+    "PostedDate": "2010-06-04T05:46:07.69-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "451719",
+    "ThreadId": "214963",
+    "Html": "<p>Hi Mark,</p>\r\n<p>Thanks for replying :) Sorry, i didnt mean to be cryptic! I figured there might be something obvious that i was missing.&nbsp; After someone else came and had a play with what I was working on the STDEV function seems to be giving me the problem.&nbsp; I had been testing by calculating the standard deviation of 3 numbers that were the same, the number 3, in Excel this gives 0, in PHPExcel i get a #!DIV/0 error.&nbsp; Seems to be from line 1888 in function STDEV in Functions.php, which is an if block:</p>\r\n<p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>\t<span style=\"color:green\">// Return</span>\r\n\t\t\t<span style=\"color:blue\">if</span> (($aCount &gt; 0) &amp;&amp; ($returnValue &gt; 0)) {\r\n\t\t\t\t<span style=\"color:blue\">return</span> sqrt($returnValue / $aCount);\r\n\t\t\t}\r\n</pre>\r\n</div>\r\n</p>\r\n<p>I was wondering about changing it to be:</p>\r\n<p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>\t<span style=\"color:green\">// Return</span>\r\n\t\t\t<span style=\"color:blue\">if</span> (($aCount &gt; 0) &amp;&amp; ($returnValue &gt;= 0)) {\r\n\t\t\t\t<span style=\"color:blue\">return</span> sqrt($returnValue / $aCount);\r\n\t\t\t}\r\n</pre>\r\n</div>\r\n</p>\r\n<p>Im not sure if thats bad form in maths but its consistent with excel and open office?</p>\r\n<p>&nbsp;</p>\r\n<p>Steve</p>",
+    "PostedDate": "2010-06-04T06:56:56.393-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "451848",
+    "ThreadId": "214963",
+    "Html": "This discussion has been copied to a work item. Click <a href=\"http://phpexcel.codeplex.com/workitem/13450\">here</a> to go to the work item and continue the discussion.",
+    "PostedDate": "2010-06-04T12:41:47.55-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "451850",
+    "ThreadId": "214963",
+    "Html": "<p>Quite correct.</p>\r\n<p>The test against $returnValue should be &gt;= rather than just &gt; and this should apply to STDEVA, STDEVP and STDEVPA as well</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-06-04T12:45:42.07-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

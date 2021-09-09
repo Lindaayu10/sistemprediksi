@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "530122",
+    "ThreadId": "236879",
+    "Html": "\r\n<p>I was getting a PHP fatal error (on line 357) when calling PHPExcel_Worksheet-&gt;disconnectCells().&nbsp; Well, actually I was indirectly calling that method by calling PHPExcel-&gt;disconnectWorksheets().</p>\r\n<p>So, I went to the line mentioned and modified the code as follows:</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><div style=\"color:black; background-color:white\"><pre><span style=\"color:green\">// OLD CODE</span>\r\n<span style=\"color:blue\">public</span> <span style=\"color:blue\">function</span> disconnectWorksheets() {\r\n\t<span style=\"color:blue\">foreach</span>($this-&gt;_workSheetCollection <span style=\"color:blue\">as</span> $k =&gt; &amp;$worksheet) {\r\n\t\t$worksheet-&gt;disconnectCells();\r\n\t\t$this-&gt;_workSheetCollection[$k] = null;\r\n\t}\r\n\t<span style=\"color:blue\">unset</span>($worksheet);\r\n\t$this-&gt;_workSheetCollection = <span style=\"color:blue\">array</span>();\r\n}\r\n</pre>\r\n</div>\r\n</pre>\r\n</div>\r\n<p></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><span style=\"color:green\">// NEW CODE</span>\r\n<span style=\"color:blue\">public</span> <span style=\"color:blue\">function</span> disconnectWorksheets() {\r\n\t<span style=\"color:blue\">foreach</span>($this-&gt;_workSheetCollection <span style=\"color:blue\">as</span> $k =&gt; &amp;$worksheet) {\r\n\t\t<span style=\"color:blue\">if</span> ($worksheet <span style=\"color:blue\">instanceof</span> PHPExcel_Worksheet) {\r\n\t\t\t$worksheet-&gt;disconnectCells();\r\n\t\t}\r\n\t\t$this-&gt;_workSheetCollection[$k] = null;\r\n\t}\r\n\t<span style=\"color:blue\">unset</span>($worksheet);\r\n\t$this-&gt;_workSheetCollection = <span style=\"color:blue\">array</span>();\r\n}\r\n</pre>\r\n</div>\r\n<p></p>\r\n<p>This should not break anything.</p>\r\n<p>&nbsp;</p>\r\n<p>Oh, and BTW:</p>\r\n<ul>\r\n<li>Windows 7 (32-bit) </li><li>Uniform Server 5.6.15 (<a href=\"http://www.uniformserver.com/\">http://www.uniformserver.com/</a>)\r\n</li><li>Apache/2.2.17 (Win32) </li><li>PHP/5.3.3 (Win32) </li></ul>\r\n",
+    "PostedDate": "2010-12-02T08:19:00.617-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "530137",
+    "ThreadId": "236879",
+    "Html": "\r\n<p>OOPS!!!</p>\r\n<p>OK, the code change above was made to the <strong>PHPExcel</strong> class, not the class indicated above.&nbsp; Also, I\r\n<strong>DID</strong> make a change to <strong>PHPExcel_Worksheet</strong> as indicated below:</p>\r\n<p></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><span style=\"color:green\">// OLD CODE</span>\r\n<span style=\"color:blue\">public</span> <span style=\"color:blue\">function</span> disconnectCells() {\r\n\t$this-&gt;_cellCollection-&gt;unsetWorksheetCells();\r\n        $this-&gt;_cellCollection = null;\r\n\r\n\t<span style=\"color:green\">//\tdetach ourself from the workbook, so that it can then delete this worksheet successfully</span>\r\n\t$this-&gt;_parent = null;\r\n}\r\n</pre>\r\n</div>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><span style=\"color:green\">// NEW CODE</span>\r\n<span style=\"color:blue\">public</span> <span style=\"color:blue\">function</span> disconnectCells() {\r\n\t<span style=\"color:blue\">if</span> (<span style=\"color:blue\">isset</span>($this-&gt;_cellCollection)) {\r\n\t\t<span style=\"color:blue\">if</span> ($this-&gt;_cellCollection <span style=\"color:blue\">instanceof</span> PHPExcel_CachedObjectStorageFactory) {\r\n\t\t\t$this-&gt;_cellCollection-&gt;unsetWorksheetCells();\r\n\t\t}\r\n\t\t$this-&gt;_cellCollection = null;\r\n\t}\r\n\r\n\t<span style=\"color:green\">//\tdetach ourself from the workbook, so that it can then delete this worksheet successfully</span>\r\n\t$this-&gt;_parent = null;\r\n}\r\n</pre>\r\n</div>\r\n<p></p>\r\n<p>Again, this should work without breaking anything.</p>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2010-12-02T08:38:59.24-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "530328",
+    "ThreadId": "236879",
+    "Html": "\r\n<p>I'll have a look at doing this, but I'm more concerned with why there might be entries in the Workbook's _workSheetCollection array that aren't instances of PHPExcel_Worksheet</p>\r\n",
+    "PostedDate": "2010-12-02T13:47:32.067-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "530387",
+    "ThreadId": "236879",
+    "Html": "\r\n<p>I agree.&nbsp; I will check it on my end too.</p>\r\n",
+    "PostedDate": "2010-12-02T15:53:49.757-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

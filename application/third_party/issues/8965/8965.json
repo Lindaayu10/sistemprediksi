@@ -1,0 +1,121 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "Fixed",
+    "ClosedDate": "2009-01-25T22:52:34.49-08:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "When using the following setup:\n \nwebserver with Lighttpd 1.4.13\nPHP 5.2.1\nWith XML, ZIP enabled and a default config.\n \nWhen using PHPEXCEL with the following setup:\nPath to website : /data/www/test/dev/\nfolders and files in this path:\n file PHPExcel.php\n folder PHPExcel (exact copy of archive folder)\n file test.php (content is exact copy of example01 from tests folder)\n \nWhen executing test.php the page stays blank, no errors, no log entries (in Lighttpd) or any other indication of an issue..\n \nBut also: no test.xlsx file\n \nThis looks like a bug to me, wouldn't you agree?\n \nPlease let me know if you need additional files, dumps, ....",
+    "LastUpdatedDate": "2013-05-16T05:42:57.267-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-01-19T12:46:59.39-08:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "No output (file save of browser stream) when using Lighttpd",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 8965
+  },
+  "FileAttachments": [
+    {
+      "FileId": 2663,
+      "FileName": "PHPE.zip",
+      "DownloadUrl": ".\\2663"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "Are all references in test.php OK? (include path and that sort of things)",
+      "PostedDate": "2009-01-20T00:39:08.303-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Page will always stay blank as it is a command line script (01helloworld.php)",
+      "PostedDate": "2009-01-20T00:39:39.523-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Is there anything in the Lighttpd logs?",
+      "PostedDate": "2009-01-20T02:08:50.923-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Can you also set error_reporting(E_ALL); after including PHPExcel? (so the line after require 'PHPExcel.php'; and so on)",
+      "PostedDate": "2009-01-20T03:57:51.657-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "for you answer:\r\nThe error_reporting(E_ALL) is already in the code => no errors displayed.\r\nNothing in the logs of lighttpd \r\nran it in CLI (php test.php) => no output, no error, no file\r\nre-ckecked all references => no change\r\n\r\nthis is more than a bizarre issue...\r\n",
+      "PostedDate": "2009-01-20T17:02:39.547-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "In the included file, the code is something like:\r\n\r\nerror_reporting(E_ALL);\r\nrequire 'PHPExcel.php';\r\n...\r\n\r\nCan you replace this with something like:\r\nrequire 'PHPExcel.php';\r\nerror_reporting(E_ALL);\r\n...\r\n\r\nThis will display error messages for sure.",
+      "PostedDate": "2009-01-20T22:48:28.043-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Just tried it: no change.\r\nI've even set the error_log in php.ini to On and directed error_log to the syslog -> no errors whtsoever and no output.\r\n\r\nI have no clue what is going wrong here.",
+      "PostedDate": "2009-01-21T17:36:40.613-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Can you try to do manual debugging? Start putting in this at the top:\r\necho 'REACHED HERE';exit;\r\nThen move that line downwards in your script (possibly also via included files) to find out exactly where execution stops.\r\nAlso can you check your memory_limit, maybe memory is exhausted, and script just stops?",
+      "PostedDate": "2009-01-21T19:21:36.71-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I've tried your suggestion. As you know my \"test.php\" file is a exact copy of the \"01simple.php\" from the tests folder. \r\n\r\nThe manual debugging stopped responding in test.php after the \r\n   include 'PHPExcel.php';\r\n\r\nso I continued the debugging in the  PHPExcel.php file. When putting the \"debugcode\" as first line after the \r\n    public function __construct() {\r\n\r\nIt already stops echo-ing. \r\nI've checked the Memory setting: it's set to 1232M \r\n\r\nI've zipped the complete directory and attached it so you can take a look if I perhaps by mistake done someting wrong\r\n\r\n",
+      "PostedDate": "2009-01-22T13:01:47.083-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-01-22T13:01:48.193-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I see what you mean. It looks like this line is the problem:\r\n\r\nclass PHPExcel extends Object\r\n\r\nCan you please try with latest source:\r\nhttp://www.codeplex.com/PHPExcel/SourceControl/ListDownloadableCommits.aspx\r\n\r\nYou should have better luck detecting errors.",
+      "PostedDate": "2009-01-22T14:35:34.527-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Hi guys, \r\n\r\nGreat news: it works! With the latest source it worked right away. the script created the correctly the xlsx file.\r\n\r\nthanks a lot for all your help! You have saved me a bunch of work doing it manually! Great work guys",
+      "PostedDate": "2009-01-23T15:53:36.287-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-01-25T22:52:34.49-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:04:25.473-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:57.267-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

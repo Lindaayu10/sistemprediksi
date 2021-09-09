@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "168434",
+    "ThreadId": "50297",
+    "Html": "Hello,<br>\r\n&nbsp;I have a problem (and probably I'm not the first one with such problem. couldn't find post that <br>\r\nspecifically tied up to my problem) - need to read excel 2003 file with <br>\r\nsize around 800-850kb - your library runs out of memory. After reading some of the related posts here and trying to<br>\r\n&nbsp;increase memory usage in php.ini to memory_limit = 128M (that didn't help) , I realize that its probably won't be solved <br>\r\nuntil library code is fixed , but still .. can I do anything to fix it? known workarounds perhaps? Am I right to guess that kind<br>\r\nof file size limit exist that this library can read from? <br>\r\n",
+    "PostedDate": "2009-03-16T00:06:10.827-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "168522",
+    "ThreadId": "50297",
+    "Html": "You are correct that this library uses vast amounts of memory. This is a high-priority issue we're trying to get solved at this moment.<br>\r\n<br>\r\nSome tips for now:<br>\r\n<br>\r\n1. When reading the Excel file, one is often only interested in the cell data and not the styles. Do like this to reduce memory consumption:<br>\r\n<br>\r\n<code>\r\n$objReader = PHPExcel_IOFactory::createReader('Excel5');<br>\r\n$objReader-&gt;setReadDataOnly(true);<br>\r\n</code>\r\n<br>\r\n2. Check how much memory you are using. Put this at the end of your script:<br>\r\n<br>\r\n<code>\r\necho date('H:i:s') . &quot; Peak memory usage: &quot; . (memory_get_peak_usage(true) / 1024 / 1024) . &quot; MB\\r\\n&quot;;<br>\r\n<br>\r\n</code>\r\nTry to split your Excel file until it starts loading successfully within the memory_limit. This will give you some idea what size file you can read on your system.<br>\r\n<br>\r\n",
+    "PostedDate": "2009-03-16T06:46:59.133-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "168675",
+    "ThreadId": "50297",
+    "Html": "Many many thanks , Koyama. Your advice to add <code>&quot;$objReader-&gt;setReadDataOnly(true);&quot;</code> did the trick :<br>\r\n&nbsp; from exceeding memory limits (limit was 128mb) memory usage went down to ~37mb and the library worked as it should have.<br>\r\nSince I needed to read excel file data to import its contents to MySQL database , that was exactly what I needed.<br>\r\n<br>\r\nThank you for your awesome work!<br>\r\nMichael<br>\r\n",
+    "PostedDate": "2009-03-16T12:05:51.757-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

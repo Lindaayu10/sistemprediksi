@@ -1,0 +1,746 @@
+
+
+		private function createExcelResult($_strMode, &$_arrArtists, $_arrMetaData) {
+
+			global $_AFN_Platform;
+
+			AFN_Core::logMessage("ProductManager", "Creating excel result (" . $_strMode . ") with " . count($_arrArtists) . " results ...", AFN_CONFIG_LOG_LEVEL_NOTICE, AFN_PARTS_OPAY_LOGFILE, AFN_PARTS_OPAY_LOGLEVEL, false);
+			AFN_Core::logMessage("ProductManager", "Peak memory usage (process start): " . (memory_get_peak_usage(true) / 1024 / 1024) . " MB", AFN_CONFIG_LOG_LEVEL_NOTICE, AFN_PARTS_OPAY_LOGFILE, AFN_PARTS_OPAY_LOGLEVEL, false);
+
+			# width and height sections
+			$_arrExcelRowHeights = array(
+				"logo" => 48,
+				"title" => 22,
+				"info_area" => 16,
+				"info_divider" => 4,
+				"head_parent" => 26,
+				"head_sub" => 20,
+				"head_divider" => 16,
+				"row_base" => 16,
+			);
+
+			# width and height sections
+			$_arrExcelColWidths= array(
+				"start" => 2,
+				"separator" => 2,
+			);
+
+			# stlye section
+			$_arrExcelStyles = array(
+				"font_title" => array(
+					'font' => array(
+						'size' => 14,
+						'color' => array(
+							'rgb' => '000000',
+						),
+					),
+					'alignment' => array(
+						'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_LEFT,
+						'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER,
+						'wrap' => true,
+					),
+				),
+				"font_info_label" => array(
+					'font' => array(
+						'size' => 10,
+						'color' => array(
+							'rgb' => '333333',
+						),
+					),
+					'alignment' => array(
+						'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_LEFT,
+						'vertical' => PHPExcel_Style_Alignment::VERTICAL_TOP,
+						'wrap' => true,
+					),
+				),
+				"font_info_value" => array(
+					'font' => array(
+						'size' => 11,
+						'color' => array(
+							'rgb' => '000000',
+						),
+					),
+					'alignment' => array(
+						'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_LEFT,
+						'vertical' => PHPExcel_Style_Alignment::VERTICAL_TOP,
+						'wrap' => true,
+					),
+				),
+				"font_head_parent" => array(
+					'font' => array(
+						'bold' => true,
+						'size' => 12,
+						'color' => array(
+							'rgb' => 'ffffff',
+						),
+					),
+					'alignment' => array(
+						'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_LEFT,
+						'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER,
+						'wrap' => true,
+					),
+				),
+				"font_head_sub_idle" => array(
+					'font' => array(
+						'bold' => false,
+						'size' => 11,
+						'color' => array(
+							'rgb' => 'ffffff',
+						),
+					),
+					'alignment' => array(
+						'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_LEFT,
+						'vertical' => PHPExcel_Style_Alignment::VERTICAL_TOP,
+						'wrap' => true,
+					),
+				),
+				"font_head_sub_bold" => array(
+					'font' => array(
+						'bold' => true,
+						'size' => 11,
+						'color' => array(
+							'rgb' => 'ffffff',
+						),
+					),
+					'alignment' => array(
+						'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_LEFT,
+						'vertical' => PHPExcel_Style_Alignment::VERTICAL_TOP,
+						'wrap' => true,
+					),
+				),
+				"fill_background" => array(
+					'fill' => array(
+						'type' => PHPExcel_Style_Fill::FILL_SOLID,
+						'color' => array(
+							'rgb' => 'a0a0a0',
+						),
+					),
+				),
+				"fill_head" => array(
+					'fill' => array(
+						'type' => PHPExcel_Style_Fill::FILL_SOLID,
+						'color' => array(
+							'rgb' => '1c1c1c',
+						),
+					),
+				),
+				"fill_rows" => array(
+					'fill' => array(
+						'type' => PHPExcel_Style_Fill::FILL_SOLID,
+						'color' => array(
+							'rgb' => 'ffffff',
+						),
+					),
+				),
+				"align_global" => array(
+					'alignment' => array(
+						'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_LEFT,
+						'vertical' => PHPExcel_Style_Alignment::VERTICAL_TOP,
+						'wrap' => true,
+					),
+				),
+				"align_centered" => array(
+					'alignment' => array(
+						'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+					),
+				),
+				"format_center_grey" => array(
+					'alignment' => array(
+						'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+						'vertical' => PHPExcel_Style_Alignment::VERTICAL_TOP,
+						'wrap' => true,
+					),
+					'font' => array(
+						'size' => 11,
+						'color' => array(
+							'rgb' => '666666',
+						),
+					),
+				),
+				"format_link_bold" => array(
+					'alignment' => array(
+						'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_LEFT,
+						'vertical' => PHPExcel_Style_Alignment::VERTICAL_TOP,
+						'wrap' => true,
+					),
+					'font' => array(
+						'size' => 11,
+						'bold' => true,
+						'underline' => PHPExcel_Style_Font::UNDERLINE_SINGLE,
+						'color' => array(
+							'rgb' => '1c1c1c',
+						),
+					),
+				),
+				"format_link" => array(
+					'alignment' => array(
+						'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_LEFT,
+						'vertical' => PHPExcel_Style_Alignment::VERTICAL_TOP,
+						'wrap' => true,
+					),
+					'font' => array(
+						'size' => 11,
+						'underline' => PHPExcel_Style_Font::UNDERLINE_SINGLE,
+						'color' => array(
+							'rgb' => '1c1c1c',
+						),
+					),
+				),
+				"format_left_standard" => array(
+					'alignment' => array(
+						'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_LEFT,
+						'vertical' => PHPExcel_Style_Alignment::VERTICAL_TOP,
+						'wrap' => true,
+					),
+					'font' => array(
+						'size' => 11,
+						'color' => array(
+							'rgb' => '1c1c1c',
+						),
+					),
+				),
+				"format_right_standard" => array(
+					'alignment' => array(
+						'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_RIGHT,
+						'vertical' => PHPExcel_Style_Alignment::VERTICAL_TOP,
+						'wrap' => true,
+					),
+					'font' => array(
+						'size' => 11,
+						'color' => array(
+							'rgb' => '1c1c1c',
+						),
+					),
+				),
+				"format_center_standard" => array(
+					'alignment' => array(
+						'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+						'vertical' => PHPExcel_Style_Alignment::VERTICAL_TOP,
+						'wrap' => true,
+					),
+					'font' => array(
+						'size' => 11,
+						'color' => array(
+							'rgb' => '1c1c1c',
+						),
+					),
+				),
+				"format_center_colored" => array(
+					'alignment' => array(
+						'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+						'vertical' => PHPExcel_Style_Alignment::VERTICAL_TOP,
+						'wrap' => true,
+					),
+					'font' => array(
+						'size' => 11,
+					),
+				),
+				"format_right_number" => array(
+					'alignment' => array(
+						'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_RIGHT,
+						'vertical' => PHPExcel_Style_Alignment::VERTICAL_TOP,
+						'wrap' => true,
+					),
+					'font' => array(
+						'size' => 11,
+						'color' => array(
+							'rgb' => '1c1c1c',
+						),
+					),
+					'numberformat' => array(
+						'code' => '#' . $_AFN_Platform->getTranslation("sys.format.number.thousand", $_AFN_Platform->getLanguageID(), "raw") . '##0',
+					),
+				),
+				"format_right_number_bold" => array(
+					'alignment' => array(
+						'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_RIGHT,
+						'vertical' => PHPExcel_Style_Alignment::VERTICAL_TOP,
+						'wrap' => true,
+					),
+					'font' => array(
+						'bold' => true,
+						'size' => 11,
+						'color' => array(
+							'rgb' => '1c1c1c',
+						),
+					),
+					'numberformat' => array(
+						'code' => '#' . $_AFN_Platform->getTranslation("sys.format.number.thousand", $_AFN_Platform->getLanguageID(), "raw") . '##0',
+					),
+				),
+				"format_right_number_decimal" => array(
+					'alignment' => array(
+						'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_RIGHT,
+						'vertical' => PHPExcel_Style_Alignment::VERTICAL_TOP,
+						'wrap' => true,
+					),
+					'font' => array(
+						'size' => 11,
+						'color' => array(
+							'rgb' => '1c1c1c',
+						),
+					),
+					'numberformat' => array(
+						'code' => '#' . $_AFN_Platform->getTranslation("sys.format.number.thousand", $_AFN_Platform->getLanguageID(), "raw") . '##0' . $_AFN_Platform->getTranslation("sys.format.number.decimal", $this->_intLangID, "raw") . '00',
+					),
+				),
+				"format_right_currency" => array(
+					'alignment' => array(
+						'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_RIGHT,
+						'vertical' => PHPExcel_Style_Alignment::VERTICAL_TOP,
+						'wrap' => true,
+					),
+					'font' => array(
+						'size' => 11,
+						'color' => array(
+							'rgb' => '1c1c1c',
+						),
+					),
+					'numberformat' => array(
+						'code' => '$ #' . $_AFN_Platform->getTranslation("sys.format.number.thousand", $_AFN_Platform->getLanguageID(), "raw") . '##0' . $_AFN_Platform->getTranslation("sys.format.number.decimal", $this->_intLangID, "raw") . '00',
+					),
+				),
+				"border_left_separator" => array(
+					"borders" => array(
+						'left' => array(
+							'style' => PHPExcel_Style_Border::BORDER_THIN,
+							'color' => array(
+								'rgb' => '999999',
+							)
+						)
+					),
+				),
+			);
+
+			# init basic column titles and settings
+			$_arrColumns = array(
+				"name" => array(
+					"pos" 			=> array(12, "format_center_grey"),
+					"profile" 		=> array(22, "format_link_bold"),
+					"name" 			=> array(16, "format_left_standard"),
+					"surname" 		=> array(16, "format_left_standard"),
+					"type" 			=> array(10, "format_left_standard"),
+				),
+				"bio" => array(
+					"status" 		=> array(12, "format_left_standard"),
+					"age" 			=> array(9, "format_right_standard"),
+					"birthyear" 	=> array(12, "format_center_standard"),
+					"birthloc" 		=> array(20, "format_left_standard"),
+					"deathyear" 	=> array(12, "format_center_standard"),
+					"deathloc" 		=> array(20, "format_left_standard"),
+					"gender" 		=> array(8, "format_left_standard"),
+					"nationality" 	=> array(10, "format_left_standard"),
+					"livesin" 		=> array(18, "format_left_standard"),
+					"media" 		=> array(30, "format_left_standard"),
+					"movements" 	=> array(30, "format_left_standard"),
+				),
+				"analytics_basic" => array(
+					"rank_current"	=> array(12, "format_right_number"),
+					"trend_current"	=> array(15, "format_center_colored"),
+					"turnover_avg"	=> array(18, "format_right_currency"),
+					"soldlots_avg"	=> array(12, "format_right_standard"),
+				),
+			);
+
+			# init premium column titles
+			if ($_strMode == "premium") {
+				$_arrColumns["represent"] = array(
+					"museumcnt"		=> array(10, "format_right_number"),
+					"museumlink"	=> array(40, "format_link"),
+					"dealercnt"		=> array(10, "format_right_number"),
+					"dealerlink"	=> array(40, "format_link"),
+				);
+				if (intval($_arrMetaData["rankedyears"]) > 0) {
+					# e.g. from 2009 - 2006
+					for ($_intYear = AFN_PARTS_RANKING_CURRENT_YEAR; $_intYear >= AFN_PARTS_RANKING_CURRENT_YEAR - intval($_arrMetaData["rankedyears"]); $_intYear--) {
+
+						$_arrColumns[$_intYear] = array(
+							"rankpos"			=> array(10, "format_right_number"),
+							"rankpoints"		=> array(14, "format_right_number_decimal"),
+							"rankslope"			=> array(10, "format_right_number"),
+							"ranktrend"			=> array(15, "format_center_colored"),
+							"showtotal"			=> array(10, "format_right_number"),
+							"showsolo"			=> array(10, "format_right_number_bold"),
+							"showgroup"			=> array(10, "format_right_number"),
+							"showgallery"		=> array(10, "format_right_number"),
+							"showmuseum"		=> array(10, "format_right_number"),
+							"showbiennial"		=> array(10, "format_right_number"),
+							"auctlotstotal"		=> array(10, "format_right_number_bold"),
+							"auctsoldlots"		=> array(10, "format_right_number"),
+							"auctunsoldlots"	=> array(10, "format_right_number"),
+							"auctturnover"		=> array(16, "format_right_currency"),
+						);
+					}
+				}
+			}
+
+			$objPHPExcel = new PHPExcel();
+
+			# set excel meta data
+			$objPHPExcel->getProperties()->setCreator($_arrMetaData["xls_author"]);
+			$objPHPExcel->getProperties()->setLastModifiedBy($_arrMetaData["xls_author"]);
+			$objPHPExcel->getProperties()->setTitle($_arrMetaData["xls_title"]);
+			$objPHPExcel->getProperties()->setSubject($_arrMetaData["xls_title"]);
+
+			$objPHPExcel->setActiveSheetIndex(0);
+			$objPHPExcel->getActiveSheet()->setTitle('Results');
+			$objPHPExcel->getActiveSheet()->getPageSetup()->setOrientation(PHPExcel_Worksheet_PageSetup::ORIENTATION_LANDSCAPE);
+			$objPHPExcel->getActiveSheet()->getPageSetup()->setPaperSize(PHPExcel_Worksheet_PageSetup::PAPERSIZE_A4);
+
+			# add info data area
+			$objPHPExcel->getActiveSheet()->getColumnDimensionByColumn(0)->setWidth(2);
+			$objPHPExcel->getActiveSheet()->getRowDimension(1)->setRowHeight($_arrExcelRowHeights["logo"]);
+			$objDrawing = new PHPExcel_Worksheet_Drawing();
+			$objDrawing->setName('Artfacts.Net Logo');
+			$objDrawing->setPath(AFN_CONFIG_WWW_MEDIA_ROOT . '/part_elements/common/logo/afn_logo_old_trans.png');
+			$objDrawing->setCoordinates('A1');
+			$objDrawing->setWorksheet($objPHPExcel->getActiveSheet());
+
+			$objPHPExcel->getActiveSheet()->SetCellValue('B2', $_arrMetaData["xls_title"]);
+			$objPHPExcel->getActiveSheet()->mergeCellsByColumnAndRow(1,2,5,2); #title
+			$objPHPExcel->getActiveSheet()->getRowDimension(2)->setRowHeight($_arrExcelRowHeights["title"]);
+
+			$objPHPExcel->getActiveSheet()->SetCellValue('B3', utf8_encode(html_entity_decode($_AFN_Platform->getTranslation("opay.top_data.excel.info.created", $_AFN_Platform->getLanguageID(), "raw"))));
+			$objPHPExcel->getActiveSheet()->SetCellValue('C3', $_arrMetaData["xls_datetime"]);
+			$objPHPExcel->getActiveSheet()->mergeCellsByColumnAndRow(2,3,5,3); #date
+			$objPHPExcel->getActiveSheet()->getRowDimension(3)->setRowHeight($_arrExcelRowHeights["info_area"]);
+
+			$objPHPExcel->getActiveSheet()->SetCellValue('B4', utf8_encode(html_entity_decode($_AFN_Platform->getTranslation("opay.top_data.excel.info.results", $_AFN_Platform->getLanguageID(), "raw"))));
+			$objPHPExcel->getActiveSheet()->SetCellValue('C4', utf8_encode(html_entity_decode($_arrMetaData["xls_results"])));
+			$objPHPExcel->getActiveSheet()->mergeCellsByColumnAndRow(2,4,5,4); #results
+			$objPHPExcel->getActiveSheet()->getRowDimension(4)->setRowHeight($_arrExcelRowHeights["info_area"]);
+
+			$objPHPExcel->getActiveSheet()->SetCellValue('B5', utf8_encode(html_entity_decode($_AFN_Platform->getTranslation("opay.top_data.excel.info.filters", $_AFN_Platform->getLanguageID(), "raw"))));
+			$objPHPExcel->getActiveSheet()->SetCellValue('C5', utf8_encode(html_entity_decode(implode("\r\n", $_arrMetaData["xls_filter"]))));
+			$objPHPExcel->getActiveSheet()->mergeCellsByColumnAndRow(2,5,5,5); #filters
+			$objPHPExcel->getActiveSheet()->getRowDimension(5)->setRowHeight($_arrExcelRowHeights["info_area"]*count($_arrMetaData["xls_filter"]));
+
+			$objPHPExcel->getActiveSheet()->SetCellValue('B6', utf8_encode(html_entity_decode($_AFN_Platform->getTranslation("opay.top_data.excel.info.sorting", $_AFN_Platform->getLanguageID(), "raw"))));
+			$objPHPExcel->getActiveSheet()->SetCellValue('C6', utf8_encode(html_entity_decode(implode("\r\n", $_arrMetaData["xls_sortorder"]))));
+			$objPHPExcel->getActiveSheet()->mergeCellsByColumnAndRow(2,6,5,6);
+			$objPHPExcel->getActiveSheet()->getRowDimension(6)->setRowHeight(4+($_arrExcelRowHeights["info_area"]*count($_arrMetaData["xls_sortorder"])));
+
+			$objPHPExcel->getActiveSheet()->getRowDimension(7)->setRowHeight($_arrExcelRowHeights["info_divider"]);
+
+			# font size and alignment
+			$objPHPExcel->getActiveSheet()->getStyle('B2')->applyFromArray($_arrExcelStyles["font_title"]);
+			$objPHPExcel->getActiveSheet()->getStyle('B3:B6')->applyFromArray($_arrExcelStyles["font_info_label"]);
+			$objPHPExcel->getActiveSheet()->getStyle('C3:C6')->applyFromArray($_arrExcelStyles["font_info_value"]);
+			$objPHPExcel->getActiveSheet()->getStyle('A1:F6')->applyFromArray($_arrExcelStyles["align_global"]);
+
+			# render column header and set column width
+			$_intColPointer = 1;
+			$_intRowPointer = 8;
+			foreach ($_arrColumns as $_strLookup => $_arrSubs) {
+
+				if (intval($_strLookup) >= AFN_PARTS_RANKING_START_YEAR) {
+					$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($_intColPointer, $_intRowPointer, utf8_encode(html_entity_decode($_AFN_Platform->getTranslation("opay.top_data.excel.head.analytics", $_AFN_Platform->getLanguageID(), "raw"))) . " " . $_strLookup);
+				} else {
+					$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($_intColPointer, $_intRowPointer, utf8_encode(html_entity_decode($_AFN_Platform->getTranslation("opay.top_data.excel.head." . $_strLookup, $_AFN_Platform->getLanguageID(), "raw"))));
+				}
+
+				$objPHPExcel->getActiveSheet()->getStyleByColumnAndRow($_intColPointer, $_intRowPointer)->applyFromArray($_arrExcelStyles["font_head_parent"]);
+
+				if (count($_arrSubs) > 0) {
+
+					$_intColPointerMergeStart = $_intColPointer;
+
+					# save last column
+					$_intRowPointer++;
+					foreach($_arrSubs as $_strSubLookup => $_arrStyle) {
+						$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($_intColPointer, $_intRowPointer, utf8_encode(html_entity_decode($_AFN_Platform->getTranslation("opay.top_data.excel.headsub." . $_strSubLookup, $_AFN_Platform->getLanguageID(), "raw"))));
+						switch($_strSubLookup) {
+							default:
+								$objPHPExcel->getActiveSheet()->getStyleByColumnAndRow($_intColPointer, $_intRowPointer)->applyFromArray($_arrExcelStyles["font_head_sub_idle"]);
+								break;
+							case "rankpos":
+							case "showtotal":
+							case "auctlotstotal":
+								$objPHPExcel->getActiveSheet()->getStyleByColumnAndRow($_intColPointer, $_intRowPointer)->applyFromArray($_arrExcelStyles["font_head_sub_bold"]);
+								break;
+						}
+						$objPHPExcel->getActiveSheet()->getColumnDimensionByColumn($_intColPointer)->setWidth($_arrStyle[0]);
+
+						$_intColPointer++;
+					}
+					$_intRowPointer--;
+					$_intColPointer--;
+
+					$objPHPExcel->getActiveSheet()->mergeCellsByColumnAndRow($_intColPointerMergeStart,$_intRowPointer,$_intColPointer,$_intRowPointer);
+				}
+
+				# inject divider
+				$_intColPointer++;
+				$objPHPExcel->getActiveSheet()->getColumnDimensionByColumn($_intColPointer)->setWidth($_arrExcelColWidths["separator"]);
+				$_intColPointer++;
+				$objPHPExcel->getActiveSheet()->getColumnDimensionByColumn($_intColPointer)->setWidth($_arrExcelColWidths["separator"]);
+				$_intColPointer++;
+
+			}
+			$_intFillMaxColumn = $_intColPointer;
+			$objPHPExcel->getActiveSheet()->getRowDimension(8)->setRowHeight($_arrExcelRowHeights["head_parent"]);
+			$objPHPExcel->getActiveSheet()->getRowDimension(9)->setRowHeight($_arrExcelRowHeights["head_sub"]);
+			$objPHPExcel->getActiveSheet()->getRowDimension(10)->setRowHeight($_arrExcelRowHeights["head_divider"]);
+
+			# render row data
+			$_intRowPointer = 11;
+			$_intArtistPointer = 1;
+
+			foreach ($_arrArtists as $_arrArtistsData) {
+
+				// echo date('H:i:s') . " " . $_intArtistPointer . ": Peak memory usage: " . (memory_get_peak_usage(true) / 1024 / 1024) . " MB<br />\r\n"; flush();
+
+				$_intColPointer = 1;
+
+				$_intRowHeightMultiply = 1;
+
+				# pos
+				$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($_intColPointer, $_intRowPointer, $_intArtistPointer);
+				$_intColPointer++;
+
+				# artist link
+				$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($_intColPointer, $_intRowPointer, utf8_encode(html_entity_decode($_arrArtistsData["_arrBasics"]["_strFullName"])));
+				$objPHPExcel->getActiveSheet()->getCellByColumnAndRow($_intColPointer, $_intRowPointer)->getHyperlink()->setUrl(AFN_CONFIG_HTTP_URL . $_arrArtistsData["_arrBasics"]["_strLinkHREF"]);
+				$_intColPointer++;
+
+				# artist basic values
+				$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($_intColPointer, $_intRowPointer, utf8_encode(html_entity_decode($_arrArtistsData["_arrBasics"]["_strName"])));
+				$_intColPointer++;
+				$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($_intColPointer, $_intRowPointer, utf8_encode(html_entity_decode($_arrArtistsData["_arrBasics"]["_strLastName"])));
+				$_intColPointer++;
+				$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($_intColPointer, $_intRowPointer, $_arrArtistsData["_arrBasics"]["Type"]);
+				$_intColPointer++;
+
+				# sep jump
+				$_intColPointer++;$_intColPointer++;
+
+				# bio values
+				$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($_intColPointer, $_intRowPointer, $_arrArtistsData["_arrBio"]["Status"]);
+				$_intColPointer++;
+				$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($_intColPointer, $_intRowPointer, $_arrArtistsData["_arrBio"]["Age"]);
+				$_intColPointer++;
+				$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($_intColPointer, $_intRowPointer, $_arrArtistsData["_arrBio"]["BirthYear"]);
+				$_intColPointer++;
+				$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($_intColPointer, $_intRowPointer, utf8_encode(html_entity_decode($_arrArtistsData["_arrBio"]["BirthLocation"])));
+				$_intColPointer++;
+				$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($_intColPointer, $_intRowPointer, $_arrArtistsData["_arrBio"]["DeathYear"]);
+				$_intColPointer++;
+				$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($_intColPointer, $_intRowPointer, utf8_encode(html_entity_decode($_arrArtistsData["_arrBio"]["DeathLocation"])));
+				$_intColPointer++;
+				$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($_intColPointer, $_intRowPointer, $_arrArtistsData["_arrBio"]["Gender"]);
+				$_intColPointer++;
+				$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($_intColPointer, $_intRowPointer, $_arrArtistsData["_arrBio"]["Nationality"]);
+				$_intColPointer++;
+				$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($_intColPointer, $_intRowPointer, utf8_encode(html_entity_decode($_arrArtistsData["_arrBio"]["LivesIn"])));
+				$_intColPointer++;
+				$_strItem = "";
+				if (count($_arrArtistsData["_arrBio"]["_arrMedia"]) > 0) {
+					$_strItem = implode("\r\n", $_arrArtistsData["_arrBio"]["_arrMedia"]);
+					$_intRowHeightMultiply = max($_intRowHeightMultiply, count($_arrArtistsData["_arrBio"]["_arrMedia"]));
+				}
+				$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($_intColPointer, $_intRowPointer, $_strItem);
+				$_intColPointer++;
+				$_strItem = "";
+				if (count($_arrArtistsData["_arrBio"]["_arrMovements"]) > 0) {
+					$_strItem = implode("\r\n", $_arrArtistsData["_arrBio"]["_arrMovements"]);
+					$_intRowHeightMultiply = max($_intRowHeightMultiply, count($_arrArtistsData["_arrBio"]["_arrMovements"]));
+				}
+				$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($_intColPointer, $_intRowPointer, $_strItem);
+				$_intColPointer++;
+
+				# sep jump
+				$_intColPointer++;$_intColPointer++;
+
+				# analtyics basic values
+				$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($_intColPointer, $_intRowPointer, $_arrArtistsData["_arrAnalytics"]["_arrOverview"]["RankCurrent"]);
+				$_intColPointer++;
+				$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($_intColPointer, $_intRowPointer, $_arrArtistsData["_arrAnalytics"]["_arrOverview"]["Trend"]);
+				switch ($_arrArtistsData["_arrAnalytics"]["_arrOverview"]["RankTrendSym"]) {
+					case "=":
+						$objPHPExcel->getActiveSheet()->getStyleByColumnAndRow($_intColPointer, $_intRowPointer)->getFont()->getColor()->setRGB('999999');
+						break;
+					case "+":
+						$objPHPExcel->getActiveSheet()->getStyleByColumnAndRow($_intColPointer, $_intRowPointer)->getFont()->getColor()->setRGB('006600');
+						break;
+					case "-":
+						$objPHPExcel->getActiveSheet()->getStyleByColumnAndRow($_intColPointer, $_intRowPointer)->getFont()->getColor()->setRGB('990000');
+						break;
+				}
+				$_intColPointer++;
+				if (intval($_arrArtistsData["_arrAnalytics"]["_arrOverview"]["TurnOverAVG"]) > 0) {
+					$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($_intColPointer, $_intRowPointer, $_arrArtistsData["_arrAnalytics"]["_arrOverview"]["TurnOverAVG"]);
+				}
+				$_intColPointer++;
+				if (intval($_arrArtistsData["_arrAnalytics"]["_arrOverview"]["TurnOverAVG"]) > 0) {
+					$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($_intColPointer, $_intRowPointer, $_arrArtistsData["_arrAnalytics"]["_arrOverview"]["SoldLots"]);
+				}
+				$_intColPointer++;
+
+				if ($_strMode == "premium") {
+
+					# sep jump
+					$_intColPointer++;$_intColPointer++;
+
+					if (intval($_arrArtistsData["_arrRepresent"]["Museums"]) > 0) {
+						$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($_intColPointer, $_intRowPointer, $_arrArtistsData["_arrRepresent"]["Museums"]);
+					}
+					$_intColPointer++;
+					if (intval($_arrArtistsData["_arrRepresent"]["Museums"]) > 0) {
+						$_strItem = implode("\r\n", $_arrArtistsData["_arrRepresent"]["_arrMuseums"]);
+						if (intval($_arrArtistsData["_arrRepresent"]["Museums"]) > count($_arrArtistsData["_arrRepresent"]["_arrMuseums"])) {
+							$_strItem .= "\r\n...";
+							$_intRowHeightMultiply = max($_intRowHeightMultiply, (count($_arrArtistsData["_arrBio"]["_arrMuseums"])+1));
+						} else {
+							$_intRowHeightMultiply = max($_intRowHeightMultiply, count($_arrArtistsData["_arrBio"]["_arrMuseums"]));
+						}
+						$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($_intColPointer, $_intRowPointer, utf8_encode(html_entity_decode($_strItem)));
+						$objPHPExcel->getActiveSheet()->getCellByColumnAndRow($_intColPointer, $_intRowPointer)->getHyperlink()->setUrl(AFN_CONFIG_HTTP_URL . $_arrArtistsData["_arrBasics"]["_strLinkHREF"] . "#Institutions");
+					}
+					$_intColPointer++;
+
+
+					if (intval($_arrArtistsData["_arrRepresent"]["Dealers"]) > 0) {
+						$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($_intColPointer, $_intRowPointer, $_arrArtistsData["_arrRepresent"]["Dealers"]);
+					}
+					$_intColPointer++;
+					if (intval($_arrArtistsData["_arrRepresent"]["Dealers"]) > 0) {
+						$_strItem = implode("\r\n", $_arrArtistsData["_arrRepresent"]["_arrDealers"]);
+						if (intval($_arrArtistsData["_arrRepresent"]["Dealers"]) > count($_arrArtistsData["_arrRepresent"]["_arrDealers"])) {
+							$_strItem .= "\r\n...";
+							$_intRowHeightMultiply = max($_intRowHeightMultiply, (count($_arrArtistsData["_arrBio"]["_arrDealers"])+1));
+						} else {
+							$_intRowHeightMultiply = max($_intRowHeightMultiply, count($_arrArtistsData["_arrBio"]["_arrDealers"]));
+						}
+						$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($_intColPointer, $_intRowPointer, utf8_encode(html_entity_decode($_strItem)));
+						$objPHPExcel->getActiveSheet()->getCellByColumnAndRow($_intColPointer, $_intRowPointer)->getHyperlink()->setUrl(AFN_CONFIG_HTTP_URL . $_arrArtistsData["_arrBasics"]["_strLinkHREF"] . "#Institutions");
+					}
+					$_intColPointer++;
+
+					# analytics by year
+					for ($_intYear = AFN_PARTS_RANKING_CURRENT_YEAR; $_intYear >= AFN_PARTS_RANKING_CURRENT_YEAR - intval($_arrMetaData["rankedyears"]); $_intYear--) {
+
+						# sep jump
+						$_intColPointer++;$_intColPointer++;
+
+						$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($_intColPointer, $_intRowPointer, $_arrArtistsData["_arrAnalytics"]["_arrByYear"][$_intYear]["RankPos"]);
+						$_intColPointer++;
+						$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($_intColPointer, $_intRowPointer, $_arrArtistsData["_arrAnalytics"]["_arrByYear"][$_intYear]["RankPoints"]);
+						$_intColPointer++;
+						$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($_intColPointer, $_intRowPointer, $_arrArtistsData["_arrAnalytics"]["_arrByYear"][$_intYear]["RankSlope"]);
+						$_intColPointer++;
+						$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($_intColPointer, $_intRowPointer, $_arrArtistsData["_arrAnalytics"]["_arrByYear"][$_intYear]["RankTrend"]);
+						switch ($_arrArtistsData["_arrAnalytics"]["_arrByYear"][$_intYear]["RankTrendSym"]) {
+							case "=":
+								$objPHPExcel->getActiveSheet()->getStyleByColumnAndRow($_intColPointer, $_intRowPointer)->getFont()->getColor()->setRGB('999999');
+								break;
+							case "+":
+								$objPHPExcel->getActiveSheet()->getStyleByColumnAndRow($_intColPointer, $_intRowPointer)->getFont()->getColor()->setRGB('006600');
+								break;
+							case "-":
+								$objPHPExcel->getActiveSheet()->getStyleByColumnAndRow($_intColPointer, $_intRowPointer)->getFont()->getColor()->setRGB('990000');
+								break;
+						}
+						$_intColPointer++;
+						$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($_intColPointer, $_intRowPointer, $_arrArtistsData["_arrAnalytics"]["_arrByYear"][$_intYear]["ShowSolo"]);
+						$_intColPointer++;
+						$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($_intColPointer, $_intRowPointer, $_arrArtistsData["_arrAnalytics"]["_arrByYear"][$_intYear]["ShowGroup"]);
+						$_intColPointer++;
+						$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($_intColPointer, $_intRowPointer, $_arrArtistsData["_arrAnalytics"]["_arrByYear"][$_intYear]["ShowGallery"]);
+						$_intColPointer++;
+						$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($_intColPointer, $_intRowPointer, $_arrArtistsData["_arrAnalytics"]["_arrByYear"][$_intYear]["ShowMuseum"]);
+						$_intColPointer++;
+						$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($_intColPointer, $_intRowPointer, $_arrArtistsData["_arrAnalytics"]["_arrByYear"][$_intYear]["ShowBiennial"]);
+						$_intColPointer++;
+						$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($_intColPointer, $_intRowPointer, $_arrArtistsData["_arrAnalytics"]["_arrByYear"][$_intYear]["ShowTotal"]);
+						$_intColPointer++;
+						$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($_intColPointer, $_intRowPointer, $_arrArtistsData["_arrAnalytics"]["_arrByYear"][$_intYear]["AuctTotal"]);
+						$_intColPointer++;
+						$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($_intColPointer, $_intRowPointer, $_arrArtistsData["_arrAnalytics"]["_arrByYear"][$_intYear]["AuctSold"]);
+						$_intColPointer++;
+						$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($_intColPointer, $_intRowPointer, $_arrArtistsData["_arrAnalytics"]["_arrByYear"][$_intYear]["AuctUnsold"]);
+						$_intColPointer++;
+						$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($_intColPointer, $_intRowPointer, $_arrArtistsData["_arrAnalytics"]["_arrByYear"][$_intYear]["AuctTurnOver"]);
+						$_intColPointer++;
+
+					}
+
+				}
+
+				# adjust row height
+				$objPHPExcel->getActiveSheet()->getRowDimension($_intRowPointer)->setRowHeight($_intRowHeightMultiply*$_arrExcelRowHeights["row_base"]);
+
+				$_intArtistPointer++;
+				$_intRowPointer++;
+
+			}
+
+			AFN_Core::logMessage("ProductManager", "Peak memory usage (after cell creation): " . (memory_get_peak_usage(true) / 1024 / 1024) . " MB", AFN_CONFIG_LOG_LEVEL_NOTICE, AFN_PARTS_OPAY_LOGFILE, AFN_PARTS_OPAY_LOGLEVEL, false);
+
+			# get excel conform col name out of col integer
+			$_strColCord = chr(65 + (floor($_intFillMaxColumn / 26)-1)) . chr(65 + ($_intFillMaxColumn % 26));
+
+			# fills
+			$objPHPExcel->getActiveSheet()->getStyle('A1:'.$_strColCord.'6')->applyFromArray($_arrExcelStyles["fill_background"]);
+			$objPHPExcel->getActiveSheet()->getStyle('A7:'.$_strColCord.'7')->applyFromArray($_arrExcelStyles["fill_rows"]);
+			$objPHPExcel->getActiveSheet()->getStyle('A8:'.$_strColCord.'9')->applyFromArray($_arrExcelStyles["fill_head"]);
+
+			AFN_Core::logMessage("ProductManager", "Peak memory usage (style head): " . (memory_get_peak_usage(true) / 1024 / 1024) . " MB", AFN_CONFIG_LOG_LEVEL_NOTICE, AFN_PARTS_OPAY_LOGFILE, AFN_PARTS_OPAY_LOGLEVEL, false);
+
+			$objPHPExcel->getActiveSheet()->getStyle('A10:'.$_strColCord.$_intRowPointer)->applyFromArray($_arrExcelStyles["fill_rows"]);
+			AFN_Core::logMessage("ProductManager", "Peak memory usage (style rows): " . (memory_get_peak_usage(true) / 1024 / 1024) . " MB", AFN_CONFIG_LOG_LEVEL_NOTICE, AFN_PARTS_OPAY_LOGFILE, AFN_PARTS_OPAY_LOGLEVEL, false);
+
+			# result styles
+			$_intColPointer = 1;
+			foreach ($_arrColumns as $_strLookup => $_arrSubs) {
+
+				if (count($_arrSubs) > 0) {
+
+					# save last column
+					foreach($_arrSubs as $_strSubLookup => $_arrStyle) {
+
+						if ($_intColPointer >= 26) {
+							$_strColCord = chr(65 + (floor($_intColPointer / 26)-1)) . chr(65 + ($_intColPointer % 26));
+						} else {
+							$_strColCord = chr(65 + $_intColPointer);
+						}
+
+						$objPHPExcel->getActiveSheet()->getStyle($_strColCord.'11:'.$_strColCord.$_intRowPointer)->applyFromArray($_arrExcelStyles[$_arrStyle[1]]);
+						$_intColPointer++;
+					}
+				}
+
+				# sep
+				$_intColPointer++;
+				if ($_intColPointer >= 26) {
+					$_strColCord = chr(65 + (floor($_intColPointer / 26)-1)) . chr(65 + ($_intColPointer % 26));
+				} else {
+					$_strColCord = chr(65 + $_intColPointer);
+				}
+				$objPHPExcel->getActiveSheet()->getStyle($_strColCord.'8:'.$_strColCord.$_intRowPointer)->applyFromArray($_arrExcelStyles["border_left_separator"]);
+				$_intColPointer++;
+
+			}
+
+			AFN_Core::logMessage("ProductManager", "Peak memory usage (style/format cols): " . (memory_get_peak_usage(true) / 1024 / 1024) . " MB", AFN_CONFIG_LOG_LEVEL_NOTICE, AFN_PARTS_OPAY_LOGFILE, AFN_PARTS_OPAY_LOGLEVEL, false);
+
+			# apply autofilter
+			$objPHPExcel->getActiveSheet()->setAutoFilter('A10:' . $_strColCord . $_intRowPointer);
+
+			# save file
+			$objWriter = new PHPExcel_Writer_Excel5($objPHPExcel);
+			$objWriter->save($_arrMetaData["output_file"]);
+
+			AFN_Core::logMessage("ProductManager", "Peak memory usage (after writing): " . (memory_get_peak_usage(true) / 1024 / 1024) . " MB", AFN_CONFIG_LOG_LEVEL_NOTICE, AFN_PARTS_OPAY_LOGFILE, AFN_PARTS_OPAY_LOGLEVEL, false);
+
+			$_strFileName = $_arrMetaData["output_file"];
+			if (is_file($_strFileName)) {
+				AFN_Core::logMessage("ProductManager", "... done", AFN_CONFIG_LOG_LEVEL_NOTICE, AFN_PARTS_OPAY_LOGFILE, AFN_PARTS_OPAY_LOGLEVEL, false);
+				$_bolCheck = true;
+			} else {
+				AFN_Core::logMessage("ProductManager", "Error while writing excel file: " . $_arrMetaData["output_file"], AFN_CONFIG_LOG_LEVEL_ERROR, AFN_PARTS_OPAY_LOGFILE, AFN_PARTS_OPAY_LOGLEVEL, false);
+				$_bolCheck = false;
+			}
+
+			return $_bolCheck;
+
+		}

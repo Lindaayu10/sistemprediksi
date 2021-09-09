@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "501814",
+    "ThreadId": "229487",
+    "Html": "<p>Hi Guys</p>\r\n<p>I've got PHPExcel 1.7.4 running on a CentOS server and trying to generate financial reports from a MySQL database.</p>\r\n<p>My query is returning about 5,500 rows and runs in about 10-15 seconds, but the PHPExcel output seems to stall at the line</p>\r\n<p>$objWriter-&gt;setTempDir($server_path.'tmp');</p>\r\n<p>and hits the 300 second timeout limit.</p>\r\n<p>Server info:</p>\r\n<p>PHP Version 5.2.8</p>\r\n<p>Linux 2.6.9-89.0.20.EL&nbsp;</p>\r\n<p>My script starts with:</p>\r\n<p>ini_set(&quot;memory_limit&quot;,&quot;512M&quot;);</p>\r\n<p>$objPHPExcel = new PHPExcel(); <br> $objPHPExcel-&gt;setActiveSheetIndex(0);</p>\r\n<p>My columns run from A to Y and about 10 of them have formatted columns like this:</p>\r\n<p>$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('W')-&gt;getNumberFormat()-&gt;setFormatCode('$#,##0.00'); <br> $objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('K')-&gt;getNumberFormat()-&gt;setFormatCode('#,##0');</p>\r\n<p>Once I've retrieved the rows and populated the cells I call this:</p>\r\n<p><br> header('Content-Type: application/vnd.ms-excel');<br> header('Content-Disposition: attachment;filename=&quot;'.$filename.'.xls&quot;');<br> header ('Expires: Mon, 26 Jul 1997 05:00:00 GMT');<br> header ('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT');<br> header ('Cache-Control: cache, must-revalidate');<br> header ('Pragma: public');<br> $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');</p>\r\n<p>At which point maybe 20-30 seconds have elapsed</p>\r\n<p>$objWriter-&gt;setTempDir($server_path.'tmp');<br> $objWriter-&gt;save('php://output');</p>\r\n<p>These last two lines take forever (yes tmp does exist) and time out the server.</p>\r\n<p>PHP Fatal error: Maximum execution time of 300 seconds exceeded in/httpsdocs/PHPExcel/Writer/Excel5/BIFFwriter.php on line 151</p>\r\n<p>Is this just a resource problem and I need to look at caching or is there something else I can do?</p>\r\n<p>&nbsp;</p>\r\n<p>Cheers</p>\r\n<p>&nbsp;</p>\r\n<p>Lucas</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-10-03T20:10:43.9-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "502209",
+    "ThreadId": "229487",
+    "Html": "<p>Cell caching won't help, that reduces memory usage but at a cost in speed.</p>\r\n<p>$objWriter-&gt;setTempDir($server_path.'tmp'); won't help. Again, it reduces memory usage at a cost in speed.</p>\r\n<p>I can't really explain why it's taking so long to save the file... other than to say it shouldn't take that long.</p>",
+    "PostedDate": "2010-10-04T14:12:36.06-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

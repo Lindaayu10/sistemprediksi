@@ -1,0 +1,74 @@
+[
+  {
+    "Id": "238160",
+    "ThreadId": "69944",
+    "Html": "<p>Hello,</p>\r\n<p>I am using PHPExcel with excel5.</p>\r\n<p>With version 1.67 formula worked ok, but with large files I had problems of memory.</p>\r\n<p>When I am using version 1.7 the problem with memory was solved&nbsp; but I get warning messages: Unable to call PHPExcel_Calculation_Functions::MATCH/INDEX ....</p>\r\n<p>What is the problem?</p>\r\n<p>thanks</p>",
+    "PostedDate": "2009-09-24T00:13:27.11-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "238162",
+    "ThreadId": "69944",
+    "Html": "<p>The Calculation engine has been completely rewritten for 1.7.0, but it has been pretty comprehensively tested, and&nbsp;I'm not aware of any significant problems with it.</p>\r\n<p>Can you provide an example spreadsheet that demonstrates this problem, or (at least) a formula that gives this error so that we can try and replicate it</p>",
+    "PostedDate": "2009-09-24T00:33:09.63-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "238167",
+    "ThreadId": "69944",
+    "Html": "<p>Example of formula:</p>\r\n<p>=MATCH(A3,E5:N5,1)</p>\r\n<p>=MATCH(B3,D6:D22,1)</p>\r\n<p>=INDEX(E6:N22,B6,A6)</p>\r\n<p>The same excel file run okay with 1.67 and get warnings with 1.7</p>\r\n<p>thanks</p>",
+    "PostedDate": "2009-09-24T00:51:42.457-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "238256",
+    "ThreadId": "69944",
+    "Html": "<p>I can't recreate this error at all with either MATCH or INDEX.</p>\r\n<p>Both functions are returning exactly the same values as Excel itself when I use your example formulae, with no PHP errors even when running with E_ALL</p>\r\n<p><strong>A1 Value is </strong>=MATCH(A3,E5:N5,1)<br><strong>Parser Stack :-</strong></p>\r\n<pre>Array\r\n(\r\n    [0] =&gt; A3\r\n    [1] =&gt; E5:N5\r\n    [2] =&gt; 1\r\n    [3] =&gt; 3\r\n    [4] =&gt; MATCH(\r\n)\r\n</pre>\r\n<p><strong>A1 Calculated Value is </strong>7</p>\r\n<h3>Evaluation Log:</h3>\r\n<pre>Array\r\n(\r\n    [0] =&gt; A1 -&gt; Evaluating Cell A3 in current worksheet\r\n    [1] =&gt; A1 -&gt; Evaluation Result for cell A3 is an integer number with a value of 15\r\n    [2] =&gt; A1 -&gt; Evaluating Cell Range E5:N5 in current worksheet\r\n    [3] =&gt; A1 -&gt; Evaluation Result for cells E5:N5 is a matrix with a value of { 2; 4; 6; 8; 10; 12; 14; 16; 18; 20 }\r\n    [4] =&gt; A1 -&gt; Evaluating Function MATCH() with 3 arguments\r\n    [5] =&gt; A1 -&gt; Evaluating MATCH( 15, { 2; 4; 6; 8; 10; 12; 14; 16; 18; 20 }, 1 )\r\n    [6] =&gt; A1 -&gt; Evaluation Result is an integer number with a value of 7\r\n)\r\n</pre>\r\n<p>&nbsp;</p>\r\n<p>As an experiment, could you try modifying line 2678 of Calculation.php This should read:</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$result = call_user_func_array($functionCall,$args); \r\n</pre>\r\n</div>\r\n<p>Change it to</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$result = call_user_func_array(explode(<span style=\"color:#A31515\">'::'</span>,$functionCall),$args);\r\n</pre>\r\n</div>\r\n<p>This may break other functions, but it may also help identify a cause for this problem.</p>",
+    "PostedDate": "2009-09-24T04:26:20.87-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "240763",
+    "ThreadId": "69944",
+    "Html": "<p>Hi,</p>\r\n<p>After changing that line I get no error.</p>\r\n<p>The match work ok but I have problem with the function index.</p>\r\n<p>The formulas I have are:</p>\r\n<p>A6 =&gt; =MATCH(A3,E5:N5,1)&nbsp;&nbsp; calculated&nbsp; 3</p>\r\n<p>B6 =&gt; =MATCH(B3,D6:D22,1) calculated&nbsp; 4</p>\r\n<p>A10 =&gt; =INDEX(E6:N22,A6,B6)</p>\r\n<p>The index should return value of (3,4) but it returns value of (4,3) -&gt; instead of (row, colum) it returns (column,row)</p>\r\n<p>How can I see the evaluation log?</p>\r\n<p>thanks</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-09-30T23:45:47.133-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "240794",
+    "ThreadId": "69944",
+    "Html": "<p>I don't know why the original version of call_user_func_array() wasn't working for you (perhaps a version or platform discrepancy in PHP), but at least that experiment resolves your initial issue. Unfortunately, the experiment I gave you breaks functions that directly call existing PHP functions such as TAN() rather than those explicitly coded in PHPExcel. A full fix to work with all functions should be:</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre><span style=\"color:Blue\">if</span> (strpos(<span style=\"color:#A31515\">'::'</span>,$functionCall) !== false) {\r\n   $result = call_user_func_array(explode(<span style=\"color:#A31515\">'::'</span>,$functionCall),$args);\r\n} <span style=\"color:Blue\">else</span> {\r\n   $result = call_user_func_array($functionCall,$args);\r\n}\r\n</pre>\r\n</div>\r\n<p>I'll make this change in the Subversion code</p>\r\n<p>As regards the incorrect results being returned by INDEX and MATCH, I'll take a look at these now. They may be linked to <a title=\"work item 10629 - Invalid results in formulas with named ranges\" href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10629\">work item 10629</a></p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-10-01T01:38:45.827-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "240796",
+    "ThreadId": "69944",
+    "Html": "<p>The code that I use to debug test formulae, showing the evaluation log is:</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$sheet = $objPHPExcel-&gt;getActiveSheet();\r\nPHPExcel_Calculation::getInstance()-&gt;writeDebugLog = true;\r\n$cell = <span style=\"color:#A31515\">'A1'</span>;\r\n$cellValue = $sheet-&gt;getCell($cell)-&gt;getValue();\r\n<span style=\"color:Blue\">echo</span> <span style=\"color:#A31515\">'&lt;b&gt;'</span>.$cell.<span style=\"color:#A31515\">' Value is &lt;/b&gt;'</span>.$cellValue.<span style=\"color:#A31515\">&quot;&lt;br /&gt;\\n&quot;</span>;\r\n\r\n<span style=\"color:Blue\">echo</span> <span style=\"color:#A31515\">'&lt;b&gt;Parser Stack :-&lt;/b&gt;&lt;pre&gt;'</span>;\r\n$tokens = PHPExcel_Calculation::getInstance()-&gt;parseFormula($cellValue);\r\nprint_r($tokens);\r\n<span style=\"color:Blue\">echo</span> <span style=\"color:#A31515\">'&lt;/pre&gt;'</span>;\r\n$cellValue = $sheet-&gt;getCell($cell)-&gt;getCalculatedValue();\r\n<span style=\"color:Blue\">echo</span> <span style=\"color:#A31515\">'&lt;b&gt;'</span>.$cell.<span style=\"color:#A31515\">' Calculated Value is &lt;/b&gt;'</span>.$cellValue.<span style=\"color:#A31515\">&quot;&lt;br /&gt;\\n&quot;</span>;\r\n<span style=\"color:Blue\">echo</span> <span style=\"color:#A31515\">'&lt;h3&gt;Evaluation Log:&lt;/h3&gt;&lt;pre&gt;'</span>;\r\nprint_r(PHPExcel_Calculation::getInstance()-&gt;debugLog);\r\n<span style=\"color:Blue\">echo</span> <span style=\"color:#A31515\">'&lt;/pre&gt;'</span>;\r\n</pre>\r\n</div>\r\n<p>Setting PHPExcel_Calculation::getInstance()-&gt;writeDebugLog&nbsp;to true generates the log, which can then be retrieved from PHPExcel_Calculation::getInstance()-&gt;debugLog</p>\r\n<p>&nbsp;</p>\r\n<p>Debug logging of a calculation is disabled by default because it adds a small memory and speed overhead to calculations. If enabled, the log is flushed before each call to getCalculatedValue(), so it can only return details of one call at a time; although if a calculation is dependent on other calculated cells, it will log the entire chain.</p>",
+    "PostedDate": "2009-10-01T01:42:35.38-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "240823",
+    "ThreadId": "69944",
+    "Html": "<p>Hi,</p>\r\n<p>It should be strpos($functionCall,'::')</p>",
+    "PostedDate": "2009-10-01T03:08:55.73-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "240832",
+    "ThreadId": "69944",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>zerashn wrote:</strong><br>\r\n<p>Hi,</p>\r\n<p>It should be strpos($functionCall,'::')</p>\r\n</blockquote>\r\n<p>&nbsp;&lt;blush&gt;</p>",
+    "PostedDate": "2009-10-01T03:28:37.427-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,26 @@
+--- Classes/PHPExcel/Reader/Excel2007.php.orig	2011-05-31 18:53:20.000000000 -0600
++++ Classes/PHPExcel/Reader/Excel2007.php	2011-05-31 19:05:54.000000000 -0600
+@@ -200,14 +200,16 @@
+ 		if ($zip->open($pFilename) === true) {
+ 			// check if it is an OOXML archive
+ 			$rels = simplexml_load_string($this->_getFromZipArchive($zip, "_rels/.rels"));
+-			foreach ($rels->Relationship as $rel) {
+-				switch ($rel["Type"]) {
+-					case "http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument":
+-						if (basename($rel["Target"]) == 'workbook.xml') {
+-							$xl = true;
+-						}
+-						break;
++			if ($rels !== false) {
++				foreach ($rels->Relationship as $rel) {
++					switch ($rel["Type"]) {
++						case "http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument":
++							if (basename($rel["Target"]) == 'workbook.xml') {
++								$xl = true;
++							}
++							break;
+ 
++					}
+ 				}
+ 			}
+ 			$zip->close();

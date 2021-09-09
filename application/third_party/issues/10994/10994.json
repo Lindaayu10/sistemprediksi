@@ -1,0 +1,91 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": "2010-01-13T15:19:25.097-08:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I have a template xlsx file that I am importing and then exporting back into PDF, HTML, and Excel as a features test.  I am using the PHP below to perform the import / export.  The issues are as follows:\n \n1. The currency formatting in PDF and HTML omits the decimal point ($1.95 becomes $195).\n2. Grid lines are visible for non-empty cells in HTML.\n3. The background color of the table heading is converted from gray to black in Excel, PDF and HTML.\n4. The font color of the table heading is converted from blue to black in Excel, PDF and HTML.\n \nPHP CODE:\n \n<?php\n/** Error reporting */\nerror_reporting(E_ALL);\n \n/** Include path **/\nini_set('include_path', ini_get('include_path').':./Classes/');\n \n/** PHPExcel */\ninclude 'PHPExcel.php';\ninclude 'PHPExcel/Writer/Excel2007.php';\ninclude 'PHPExcel/IOFactory.php';\n \n// Create new PHPExcel object\necho date('H:i:s') . \" Create new PHPExcel object\\n\";\n$objPHPExcel = new PHPExcel();\n$readerExcel2007 = PHPExcel_IOFactory::createReader('Excel2007');\n$objPHPExcel = $readerExcel2007->load(\"template.xlsx\");\n \n// Save Excel 2007 file\necho date('H:i:s') . \" Write to Excel2007 format\\n\";\n$objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel);\n$objWriter->save('test.xlsx');\n \n// Save HTML file\n$HTMLWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'HTML');\n$HTMLWriter->writeAllSheets();\n$HTMLWriter->save('test.html');\n \n// Save PDF file\n$PDFWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'PDF');\n$PDFWriter->setPreCalculateFormulas(false);\n$PDFWriter->save('test.pdf');\n \n// Echo done\necho date('H:i:s') . \" Done writing file.\\r\\n\";",
+    "LastUpdatedDate": "2013-05-16T05:42:15.31-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-11-25T11:43:24.78-08:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Currency Formatting Omits Decimal Point",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 10994
+  },
+  "FileAttachments": [
+    {
+      "FileId": 3568,
+      "FileName": "template.xlsx",
+      "DownloadUrl": ".\\3568"
+    },
+    {
+      "FileId": 3569,
+      "FileName": "report_html.gif",
+      "DownloadUrl": ".\\3569"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "HTML Output in Firefox (it looks the same in IE).\r\n\r\nThis is using 1.7.1 by the way.",
+      "PostedDate": "2009-11-25T11:49:00.997-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-11-25T11:49:02.04-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": ">> 1. The currency formatting in PDF and HTML omits the decimal point ($1.95 becomes $195).\r\n\r\nCan you try with latest source code?\r\nhttp://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx\r\n\r\nAlso check this:\r\nhttp://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10913\r\n\r\n>> 2. Grid lines are visible for non-empty cells in HTML.\r\n\r\nHmm... can you explain how you want it to look? I'm not sure exactly what you mean.\r\n\r\n>> 3. The background color of the table heading is converted from gray to black in Excel, PDF and HTML.\r\n>> 4. The font color of the table heading is converted from blue to black in Excel, PDF and HTML.\r\n\r\nThis is probably because Excel2007 reader doesn't yet support theme colors. Can you try to use RGB colors?\r\nhttp://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=7033",
+      "PostedDate": "2009-11-26T17:37:23.4-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": ">> >> 1. The currency formatting in PDF and HTML omits the decimal point ($1.95 becomes $195).\r\n>> \r\n>> Can you try with latest source code?\r\n>> http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx\r\n>> \r\n>> Also check this:\r\n>> http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10913\r\n\r\nwi-10913.patch fixed the omitted decimal point.\r\n\r\n>> >> 2. Grid lines are visible for non-empty cells in HTML.\r\n>> \r\n>> Hmm... can you explain how you want it to look? I'm not sure exactly what you mean.\r\n\r\nI would expect that the gridlines wouldn't show by default in HTML and PDF since the template's print preview doesn't show them.  I found the setShowGridlines(false) method call, so I can deal.\r\n\r\n>> >> 3. The background color of the table heading is converted from gray to black in Excel, PDF and HTML.\r\n>> >> 4. The font color of the table heading is converted from blue to black in Excel, PDF and HTML.\r\n>> \r\n>> This is probably because Excel2007 reader doesn't yet support theme colors. Can you try to use RGB colors?\r\n>> http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=7033\r\n\r\nThat worked.\r\n\r\nThanks!",
+      "PostedDate": "2009-11-29T12:08:17.68-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Ok, closing this issue while taking note of your point regarding confusion with gridlines. We can perhaps discuss that at a later point in a separate issue.",
+      "PostedDate": "2010-01-13T15:18:56.9-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-01-13T15:19:25.097-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:03:25.59-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:15.31-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

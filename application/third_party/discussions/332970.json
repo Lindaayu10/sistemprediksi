@@ -1,0 +1,74 @@
+[
+  {
+    "Id": "786045",
+    "ThreadId": "332970",
+    "Html": "<p>a script that has been working for MONTHS has now been throwing this error:</p>\n<p>Call to undefined method PHPExcel_Reader_CSV::setReadDataOnly()</p>\n<p>Any ideas?</p>\n<p>Here's the code:</p>\n<p>&nbsp;</p>\n<div style=\"color: black; background-color: white;\">\n<pre>    set_include_path(get_include_path() . PATH_SEPARATOR . <span style=\"color: #a31515;\">'PHPExcel/Classes/'</span>); \n    <span style=\"color: blue;\">require_once</span> <span style=\"color: #a31515;\">'PHPExcel/Classes/PHPExcel.php'</span>;\n    <span style=\"color: blue;\">require_once</span> <span style=\"color: #a31515;\">'PHPExcel/Classes/PHPExcel/IOFactory.php'</span>;\n    $cacheMethod = PHPExcel_CachedObjectStorageFactory::cache_to_discISAM;\n    PHPExcel_Settings::setCacheStorageMethod($cacheMethod);\n    $objReader = PHPExcel_IOFactory::createReaderForFile($<span style=\"color: blue;\">file</span>);\n    $objReader-&gt;setReadDataOnly(true);\n    $objPHPExcel  = $objReader-&gt;load($<span style=\"color: blue;\">file</span>);\n    $objWorksheet = $objPHPExcel-&gt;getActiveSheet();\n\n</pre>\n</div>",
+    "PostedDate": "2012-02-20T15:09:26.77-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "788421",
+    "ThreadId": "332970",
+    "Html": "<p>maybe you always gave the script some xls file, now you are trying to give a csv file and for csv files read data only method does not exist.</p>",
+    "PostedDate": "2012-02-21T00:55:41.787-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "792001",
+    "ThreadId": "332970",
+    "Html": "<p>The PHPExcel_Reader_IReader interface identifies the methods that are required by all readers: literally just the canRead() and load() methods. All other methods are specific to the readers themselves (i.e. SYLK and CSV are \"single sheet\" formats, so there is no purpose in having a listWorksheetNames() method in those classes; and CSV cannot hold formatting information, so having a setReadDataOnly() method would be meaningless in that class.</p>\r\n<p>Just because the file has an .xls extension, doesn't mean it's a BIFF5 file, so using identify is a good safeguard against rogue files.</p>\r\n<p>It is possible to use the IOFactory's identify() method to return the reader that will be used for a file, instantiate that reader, and change any appropriate settings.</p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>$inputFileName = <span style=\"color: #a31515;\">'./sampleData/example1.xls'</span>;\r\n$inputFileType = PHPExcel_IOFactory::identify($inputFileName);\r\n$objReader = PHPExcel_IOFactory::createReader($inputFileType);\r\n<span style=\"color: green;\">// Set any $objReader configuration here, as identified by $inputFileType</span>\r\n$objPHPExcel = $objReader-&gt;load($inputFileName);\r\n</pre>\r\n</div>",
+    "PostedDate": "2012-02-21T15:08:41.913-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "794959",
+    "ThreadId": "332970",
+    "Html": "<p>I was just about to ask how to tell which reader was created. Thanks, Mark.</p>",
+    "PostedDate": "2012-02-22T07:03:24.343-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "794968",
+    "ThreadId": "332970",
+    "Html": "<p>What are the values returned by identify() so that I can call setReadDataOnly() for BIFF5 files?</p>\n<p>Actually, I may just call my CSV importer when it is a CSV file with an XLS extension.</p>",
+    "PostedDate": "2012-02-22T07:05:23.253-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "795177",
+    "ThreadId": "332970",
+    "Html": "<p>Here's an example of how I detect the file type.</p>\r\n<p>&nbsp;</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre><span style=\"color: green;\">//</span>\r\n<span style=\"color: green;\">// readSpreadsheetData()</span>\r\n<span style=\"color: green;\">//                       $FileName (String): File Name</span>\r\n<span style=\"color: green;\">//</span>\r\n<span style=\"color: blue;\">public</span> <span style=\"color: blue;\">function</span> readSpreadsheetData($FileName) {\r\n  $this-&gt;data = <span style=\"color: blue;\">array</span>();\r\n\r\n  <span style=\"color: blue;\">if</span> (<span style=\"color: blue;\">empty</span>($FileName)) {\r\n    <span style=\"color: blue;\">throw</span> <span style=\"color: blue;\">new</span> Exception(<span style=\"color: #a31515;\">\"No file specified.\"</span>);\r\n  }\r\n\r\n  <span style=\"color: blue;\">if</span> (!file_exists($FileName)) {\r\n    <span style=\"color: blue;\">throw</span> <span style=\"color: blue;\">new</span> Exception(<span style=\"color: #a31515;\">\"Could not open \"</span> . $FileName . <span style=\"color: #a31515;\">\" for reading! File does not exist.\"</span>);\r\n  }\r\n\r\n  <span style=\"color: blue;\">try</span> {\r\n    $FileType = PHPExcel_IOFactory::identify($FileName);\r\n    $SpreadsheetReaderObj = PHPExcel_IOFactory::createReader($FileType);\r\n    <span style=\"color: blue;\">switch</span> ($FileType) {\r\n      <span style=\"color: blue;\">case</span> <span style=\"color: #a31515;\">'Excel2007'</span>:\r\n      <span style=\"color: blue;\">case</span> <span style=\"color: #a31515;\">'Excel2003XML'</span>:\r\n      <span style=\"color: blue;\">case</span> <span style=\"color: #a31515;\">'Excel5'</span>:\r\n      <span style=\"color: blue;\">case</span> <span style=\"color: #a31515;\">'OOCalc'</span>:\r\n      <span style=\"color: blue;\">case</span> <span style=\"color: #a31515;\">'SYLK'</span>:\r\n        <span style=\"color: blue;\">break</span>;\r\n      <span style=\"color: blue;\">case</span> <span style=\"color: #a31515;\">'CSV'</span>:\r\n        $SpreadsheetReaderObj-&gt;setDelimiter(<span style=\"color: #a31515;\">','</span>);\r\n        $SpreadsheetReaderObj-&gt;setEnclosure(<span style=\"color: #a31515;\">'\"'</span>);\r\n        $SpreadsheetReaderObj-&gt;setLineEnding(<span style=\"color: #a31515;\">'\\r\\n'</span>);\r\n        $SpreadsheetReaderObj-&gt;setInputEncoding(<span style=\"color: #a31515;\">'UTF-8'</span>);\r\n        <span style=\"color: blue;\">break</span>;\r\n    }\r\n\r\n    <span style=\"color: green;\">//</span>\r\n    <span style=\"color: green;\">// Get worksheet information.</span>\r\n    <span style=\"color: green;\">//</span>\r\n    $WorksheetListInfo = $SpreadsheetReaderObj-&gt;listWorksheetInfo($FileName);\r\n\r\n    <span style=\"color: green;\">//</span>\r\n    <span style=\"color: green;\">// Estimate maximum chunk size based on system memory.</span>\r\n    <span style=\"color: green;\">//</span>\r\n    $MemoryLimit = $this-&gt;getMemorySizeAsBytes();\r\n    $BufferFactor = 1; \r\n    $RowMemory = (1024 * 1) * $WorksheetListInfo[0][<span style=\"color: #a31515;\">'totalColumns'</span>];\r\n    $MaxChunkSize = max(intval(($MemoryLimit / $BufferFactor) / $RowMemory), 100);\r\n\r\n    $ReadFilter = <span style=\"color: blue;\">new</span> ReadFilter();\r\n    $SpreadsheetReaderObj-&gt;setReadFilter($ReadFilter);\r\n\r\n    <span style=\"color: blue;\">foreach</span> ($WorksheetListInfo <span style=\"color: blue;\">as</span> $WorksheetIndex =&gt; $WorksheetInfo) {\r\n      <span style=\"color: green;\">//</span>\r\n      <span style=\"color: green;\">// Worksheet Id may be used for identifying specific record.</span>\r\n      <span style=\"color: green;\">//</span>\r\n      $WorksheetId = $WorksheetIndex + 1;\r\n\r\n      <span style=\"color: green;\">//</span>\r\n      <span style=\"color: green;\">// If chunk size &gt; total rows in sheet reduce chunk size to total rows.</span>\r\n      <span style=\"color: green;\">//</span>\r\n      $ChunkSize = ($MaxChunkSize &lt; $WorksheetInfo[<span style=\"color: #a31515;\">'totalRows'</span>])\r\n                 ? $MaxChunkSize\r\n                 : $WorksheetInfo[<span style=\"color: #a31515;\">'totalRows'</span>];\r\n\r\n      <span style=\"color: green;\">//</span>\r\n      <span style=\"color: green;\">// Configure read filter.</span>\r\n      <span style=\"color: green;\">//</span>\r\n      $ReadFilter-&gt;setWorksheetName($WorksheetInfo[<span style=\"color: #a31515;\">'worksheetName'</span>]);\r\n      $ReadFilter-&gt;setColumns($this-&gt;getColumnRange(<span style=\"color: #a31515;\">'A'</span>, $WorksheetInfo[<span style=\"color: #a31515;\">'lastColumnLetter'</span>]));\r\n      $ReadFilter-&gt;setEndRow($WorksheetInfo[<span style=\"color: #a31515;\">'totalRows'</span>]);\r\n      $ReadFilter-&gt;setChunkSize($ChunkSize);\r\n\r\n      <span style=\"color: blue;\">for</span> ($StartRow = 1; $StartRow &lt;= $WorksheetInfo[<span style=\"color: #a31515;\">'totalRows'</span>]; $StartRow += $ChunkSize) {\r\n        $ReadFilter-&gt;setStartRow($StartRow);\r\n\r\n        $SpreadsheetObj = $SpreadsheetReaderObj-&gt;load($FileName);\r\n        $SpreadsheetObj-&gt;setActiveSheetIndex($WorksheetIndex);\r\n\r\n        $WorksheetObj = $SpreadsheetObj-&gt;getActiveSheet();\r\n        <span style=\"color: blue;\">foreach</span> ($WorksheetObj-&gt;getRowIterator() <span style=\"color: blue;\">as</span> $RowObj) {\r\n          $RowId = $RowObj-&gt;getRowIndex();\r\n          <span style=\"color: blue;\">if</span> ($RowId &gt; $ChunkSize) {\r\n            <span style=\"color: blue;\">break</span>;\r\n          }\r\n\r\n          $SheetRowId = $StartRow + $RowId - 1;\r\n          <span style=\"color: blue;\">if</span> ($SheetRowId &gt; $WorksheetInfo[<span style=\"color: #a31515;\">'totalRows'</span>]) {\r\n            <span style=\"color: blue;\">break</span>;\r\n          }\r\n\r\n          $RecordId = <span style=\"color: #a31515;\">\"{$WorksheetId}-{$SheetRowId}\"</span>;\r\n          $this-&gt;data[<span style=\"color: #a31515;\">\"{$RecordId}\"</span>] = <span style=\"color: blue;\">array</span>(); <span style=\"color: green;\">// array() represents column data.</span>\r\n        }\r\n      }\r\n    }\r\n  } <span style=\"color: blue;\">catch</span> (Exception $ExceptionObj) {\r\n    <span style=\"color: green;\">//</span>\r\n    <span style=\"color: green;\">// Exception Error Handling</span>\r\n    <span style=\"color: green;\">//</span>\r\n  }\r\n}\r\n\r\n</pre>\r\n</div>\r\n</p>",
+    "PostedDate": "2012-02-22T08:02:46.103-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "795539",
+    "ThreadId": "332970",
+    "Html": "<p>@<a class=\"UserProfileLink\" href=\"http://www.codeplex.com/site/users/view/schir1964\">schir1964</a>&nbsp;Nice little block of code demonstrating how to use identify and the switch for special reader settings, and all wrapped in a nice try/catch block as well.... a perfect example for any future reference. (wishing Codeplex would let me bookmark postings)</p>",
+    "PostedDate": "2012-02-22T09:34:40.347-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "796659",
+    "ThreadId": "332970",
+    "Html": "<p>Will the processing work exactly the same with any type of the files?</p>\n<p>We wrote the code to work only on Excel files, not CSV. We use another class for processing the CSV files.</p>\n<p>If this is so, I may just use PHPExcel to process them, too.</p>\n<p>Have any of the memory issues been settled since 1.7.3c which is what I have installed now. That being said, we have had problems with memory exhaustion on large spreadsheets before. Does the snippet above help with that issue?</p>",
+    "PostedDate": "2012-02-22T18:42:46.35-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "797815",
+    "ThreadId": "332970",
+    "Html": "<p>The snippet above comes from this thread (<a href=\"http://phpexcel.codeplex.com/discussions/259971\">http://phpexcel.codeplex.com/discussions/259971</a>)&nbsp;&nbsp;where I customized the reader files with a new listWorksheetInfo method that returns information about  the worksheets without loading the actual data of the file.</p>\n<p>This allowed my code to be written to adjust the reading so that the memory is never exhausted (but it does take a little longer to read large files).</p>\n<p>Anyway, the new methods and full example code of how to use the read filters is in that thread above.</p>\n<p>Also, Mark Baker is planning on incorporating the listWorksheetInfo method into the next release of the software so the customized code will become standard (which is a cool thing in and of itself).</p>\n<p>&nbsp;</p>\n<p>Note: I use this code to allow customers to upload their data with the file types listed. The actual program will read in the first 10 to 15 lines of the first worksheet and display it as a sample of their data. The web form then lets them pick the appropriate columns and match them to the appropriate data types that the program needs. Then the program reads in all the data based on the selections of the customer. This way we don't have to enforce a specific format or column order from the customer who may or may not be savvy in editing files. After a few bumps in the code it has been refined to the point that we don't have any complaints from the customers uploading their data and we don't have to dedicate time/effort for converting or loading their data for them.</p>\n<p>&nbsp;</p>\n<p>- Christopher Mullins</p>",
+    "PostedDate": "2012-02-23T08:42:58.83-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

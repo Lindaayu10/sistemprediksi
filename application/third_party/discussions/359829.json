@@ -1,0 +1,74 @@
+[
+  {
+    "Id": "849814",
+    "ThreadId": "359829",
+    "Html": "\r\n<p>I'm new to PHPMyExcel. Can someone direct me to some tutorial or an example of exporting the result of a MySQL query to Excel. I tried to scour the documentation along with the PHPExcel libraries but I couldn't find a listing for the same.</p>\r\n",
+    "PostedDate": "2012-06-16T05:23:39.327-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "849819",
+    "ThreadId": "359829",
+    "Html": "\r\n<p>Using MySQL, you should probably switch to using MySQLi or PDO:</p>\r\n<p><span></span></p>\r\n<p>&nbsp;</p>\r\n<p></p>\r\n<div style=\"background-color:white; color:black\">\r\n<pre><span style=\"color:green\">// connection with the database </span>\r\n$dbhost = <span style=\"color:#a31515\">&quot;localhost&quot;</span>; \r\n$dbuser = <span style=\"color:#a31515\">&quot;root&quot;</span>; \r\n$dbpass = <span style=\"color:#a31515\">&quot;&quot;</span>; \r\n$dbname = <span style=\"color:#a31515\">&quot;database&quot;</span>; \r\n\r\nmysql_connect($dbhost,$dbuser,$dbpass); \r\nmysql_select_db($dbname); \r\n\r\n<span style=\"color:green\">// require the PHPExcel file </span>\r\n<span style=\"color:blue\">require</span> <span style=\"color:#a31515\">'Classes/PHPExcel.php'</span>; \r\n\r\n<span style=\"color:green\">// simple query </span>\r\n\r\n$query = <span style=\"color:#a31515\">&quot;SELECT username,emailAdress,locationCity FROM users ORDER by id DESC&quot;</span>; \r\n$headings = <span style=\"color:blue\">array</span>(<span style=\"color:#a31515\">'User Name'</span>, <span style=\"color:#a31515\">'EMail Address'</span>,<span style=\"color:#a31515\">'City'</span>); \r\n\r\n<span style=\"color:blue\">if</span> ($result = mysql_query($query) <span style=\"color:blue\">or</span> <span style=\"color:blue\">die</span>(mysql_error())) { \r\n    <span style=\"color:green\">// Create a new PHPExcel object </span>\r\n    $objPHPExcel = <span style=\"color:blue\">new</span> PHPExcel(); \r\n    $objPHPExcel-&gt;getActiveSheet()-&gt;setTitle(<span style=\"color:#a31515\">'List of Users'</span>); \r\n\r\n    $rowNumber = 1; \r\n    $col = <span style=\"color:#a31515\">'A'</span>; \r\n    <span style=\"color:blue\">foreach</span>($headings <span style=\"color:blue\">as</span> $heading) { \r\n       $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue($col.$rowNumber,$heading); \r\n       $col&#43;&#43;; \r\n    } \r\n\r\n    <span style=\"color:green\">// Loop through the result set </span>\r\n    $rowNumber = 2; \r\n    <span style=\"color:blue\">while</span> ($row = mysql_fetch_row($result)) { \r\n       $col = <span style=\"color:#a31515\">'A'</span>; \r\n       <span style=\"color:blue\">foreach</span>($row <span style=\"color:blue\">as</span> $cell) { \r\n          $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue($col.$rowNumber,$cell); \r\n          $col&#43;&#43;; \r\n       } \r\n       $rowNumber&#43;&#43;; \r\n    } \r\n\r\n    <span style=\"color:green\">// Freeze pane so that the heading line won't scroll </span>\r\n    $objPHPExcel-&gt;getActiveSheet()-&gt;freezePane(<span style=\"color:#a31515\">'A2'</span>); \r\n\r\n    <span style=\"color:green\">// Save as an Excel BIFF (xls) file </span>\r\n    $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, <span style=\"color:#a31515\">'Excel5'</span>); \r\n\r\n   header(<span style=\"color:#a31515\">'Content-Type: application/vnd.ms-excel'</span>); \r\n   header(<span style=\"color:#a31515\">'Content-Disposition: attachment;filename=&quot;userList.xls&quot;'</span>); \r\n   header(<span style=\"color:#a31515\">'Cache-Control: max-age=0'</span>); \r\n\r\n   $objWriter-&gt;save(<span style=\"color:#a31515\">'php://output'</span>); \r\n   <span style=\"color:blue\">exit</span>(); \r\n} \r\n<span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'a problem has occurred... no data retrieved from the database'</span>; \r\n</pre>\r\n</div>\r\n",
+    "PostedDate": "2012-06-16T06:12:13.677-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "849929",
+    "ThreadId": "359829",
+    "Html": "<p>Gracias amigo ! This works just fine. Normally I use PDO but I've to do some additions on an old project where I used MySQL queries. And hence the query.</p>",
+    "PostedDate": "2012-06-16T20:49:32.81-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1307098",
+    "ThreadId": "359829",
+    "Html": "can you upload the PHPExcel file too?\r<br />\n<br />\n-thank you-<br />\n",
+    "PostedDate": "2014-09-22T11:23:21.653-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1307453",
+    "ThreadId": "359829",
+    "Html": "what is the content of PHPexcel file?\r<br />\n<br />\nThankyou<br />\n",
+    "PostedDate": "2014-09-23T08:16:13.8-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1307469",
+    "ThreadId": "359829",
+    "Html": "What PHPExcel file are you talking about?<br />\n",
+    "PostedDate": "2014-09-23T08:47:40.263-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1307507",
+    "ThreadId": "359829",
+    "Html": "I mean this : \r<br />\n<br />\n// require the PHPExcel file \r<br />\nrequire 'Classes/PHPExcel.php';<br />\n",
+    "PostedDate": "2014-09-23T10:33:05.597-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1307514",
+    "ThreadId": "359829",
+    "Html": "That is the main library file that you need to download to use the PHPExcel library.... if you read this site, it has a download tab that gives you access to the PHPExcel download, which provides you with the files you need for the library..... downloads are quite common for libraries, and normally they provide instructions explaining how to install and use them. Reading the instructions provided on this site should help you install it on your site, and show you how to use it.<br />\n",
+    "PostedDate": "2014-09-23T10:57:00.14-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1350666",
+    "ThreadId": "359829",
+    "Html": "Excelente,  me funciono, gracias por el aporte<br />\n",
+    "PostedDate": "2015-02-10T08:51:00.76-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

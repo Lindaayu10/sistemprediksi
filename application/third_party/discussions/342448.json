@@ -1,0 +1,82 @@
+[
+  {
+    "Id": "796494",
+    "ThreadId": "342448",
+    "Html": "\r\n<p>Hi, i have a problem with time format. I summarize times from other cells, but Cell for storage accept only 23:59 as maximum. I need use [h]:mm format instead of h:mm, but PHPExcel dont support his. It is possible to add a new format into library? Have PHPExcel\r\n some other way for storage more than 24 hours in cell?</p>\r\n",
+    "PostedDate": "2012-02-22T16:35:04.317-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "797044",
+    "ThreadId": "342448",
+    "Html": "<p>I thought this did work, I'll need to investigate.</p>",
+    "PostedDate": "2012-02-22T23:47:29.543-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "797177",
+    "ThreadId": "342448",
+    "Html": "<p>Using the following code:</p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre><span style=\"color: green;\">// Array of hrs, mins, seconds values</span>\r\n$timeSeries = <span style=\"color: blue;\">array</span>(<span style=\"color: blue;\">array</span>(3,30,15),\r\n     <span style=\"color: blue;\">array</span>(11,15,25),\r\n     <span style=\"color: blue;\">array</span>(7,20,45),\r\n     <span style=\"color: blue;\">array</span>(9,40,10),\r\n     <span style=\"color: blue;\">array</span>(3,15,25),\r\n       );\r\n$row = 1;\r\n<span style=\"color: green;\">// Set values in cells</span>\r\n<span style=\"color: blue;\">foreach</span> ($timeSeries <span style=\"color: blue;\">as</span> $timeData) {\r\n $time = call_user_func_array(<span style=\"color: #a31515;\">'gmmktime'</span>,$timeData);\r\n $objPHPExcel-&gt;getActiveSheet()\r\n             -&gt;setCellValue(<span style=\"color: #a31515;\">'A'</span>.$row++, fmod(PHPExcel_Shared_Date::PHPToExcel($time),1));\r\n}\r\n<span style=\"color: green;\">// Use a formula to calculate the total hours</span>\r\n$objPHPExcel-&gt;getActiveSheet()\r\n            -&gt;setCellValue(<span style=\"color: #a31515;\">'A'</span>.$row, <span style=\"color: #a31515;\">'=SUM(A1:A'</span>.($row-1).<span style=\"color: #a31515;\">')'</span>);\r\n$objPHPExcel-&gt;getActiveSheet()\r\n            -&gt;setCellValue(<span style=\"color: #a31515;\">'B'</span>.$row, <span style=\"color: #a31515;\">'Total Hrs'</span>);\r\n<span style=\"color: green;\">// Set style for individual value cells</span>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(<span style=\"color: #a31515;\">'A1:A'</span>.($row-1))\r\n            -&gt;getNumberFormat()\r\n            -&gt;setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_DATE_TIME3);\r\n<span style=\"color: green;\">// Set style for the \"total\" cell</span>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(<span style=\"color: #a31515;\">'A1:A'</span>.$row)\r\n            -&gt;getNumberFormat()\r\n            -&gt;setFormatCode(<span style=\"color: #a31515;\">'[h]:mm'</span>);\r\n<span style=\"color: blue;\">echo</span> $objPHPExcel-&gt;getActiveSheet()-&gt;getCell(<span style=\"color: #a31515;\">'A'</span>.$row)-&gt;getFormattedValue(),PHP_EOL;\r\n</pre>\r\n</div>\r\n<p>The data is written cleanly to Excel2007 or Excel5 workbooks so that the total hours is shown correctly. The only problem is the getFormattedValue() call which is failing to format the result, but simply returning the numeric value (1.4597222222219 in this case).</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2012-02-23T01:37:16.483-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "800877",
+    "ThreadId": "342448",
+    "Html": "<p>Thanks, it's working!</p>",
+    "PostedDate": "2012-02-26T14:21:11.47-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1064489",
+    "ThreadId": "342448",
+    "Html": "Hi,<br />\n<br />\nbut what about passing variable to cell. I'm trying to pass to cell variable with value 27:00:00 with format [h]:mm.<br />\n<br />\nexample:<br />\n<pre><code>$phpEx -&gt; getActiveSheet() -&gt; setCellValueByColumnAndRow($start_x+$counter, $start_y+2+$i,'27:00:00');\n$phpEx -&gt; getActiveSheet() -&gt; getStyleByColumnAndRow($start_x+$counter, $start_y+2+$i)-&gt;getNumberFormat()-&gt;setFormatCode('[h]:mm');</code></pre>\n\nThe problem is that value is written to the cell but without formating and this value is not taken to summary bellow cells.<br />\n<br />\n<img src=\"http://oi43.tinypic.com/2natlau.jpg\" alt=\"Image\" /><br />\n<br />\nAll data is ok besides the cell with 27:00:00 (also summary is bad because of that). And i've tried also passing 23:59:00 which was correct and 24:00:00 which is wrong :).<br />\n<br />\nAny idea? :)<br />\n",
+    "PostedDate": "2013-07-04T04:01:55.88-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1064504",
+    "ThreadId": "342448",
+    "Html": "Viewing the example given by Mark: time is not set as a string but as a number.<br />\n",
+    "PostedDate": "2013-07-04T04:34:29.36-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1064514",
+    "ThreadId": "342448",
+    "Html": "Formatting time for hours greater than or equal to 24, try using<br />\n<pre><code>`'[hhh]:mm'`\n</code></pre>\n\nas per MS Excel number format rules<br />\n",
+    "PostedDate": "2013-07-04T05:04:35.67-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1064559",
+    "ThreadId": "342448",
+    "Html": "Sorry - i missed some of this example. <br />\n",
+    "PostedDate": "2013-07-04T06:50:03.12-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1064560",
+    "ThreadId": "342448",
+    "Html": "Mark - it would not help in my case. What I needed to do is to convert string &quot;27:00:00&quot; through unixtime to Exel time number and then pass it to your example. \r<br />\n<br />\nBasically in your example if you change in <code>$timeSeries</code> array first value to <code>array(33,30,15)</code> it will show 9:30 in excel - that was my problem. How to manage to show in cell 33:30 :).<br />\n",
+    "PostedDate": "2013-07-04T06:55:54.12-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1064573",
+    "ThreadId": "342448",
+    "Html": "Try this : <br />\n<pre><code>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('A2', (50/24)+(35/(24*60))+(15/(24*60*60)));\n$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('A2')-&gt;getNumberFormat()-&gt;setFormatCode('[h]:mm:ss');\n</code></pre>\n\nTime is 50:35:15.<br />\n<br />\n(ugly code, but this is just to test.)<br />\n",
+    "PostedDate": "2013-07-04T07:27:39.423-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

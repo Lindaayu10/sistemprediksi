@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "243038",
+    "ThreadId": "71270",
+    "Html": "<p>I'm using a recent version.</p>\r\n<p>Generating a spreadsheeting of 40 columns x 403 rows I'm getting</p>\r\n<p><strong>Fatal error</strong>:  Allowed memory size of 33554432 bytes exhausted (tried to allocate 1572864 bytes) in <strong>/var/www/vhosts/top5000contacts.com/httpdocs/includes/phpexcel/Classes/PHPExcel/Style.php</strong> on line <strong>745</strong></p>\r\n<p>This is only a test - the real one will have upto 2000 rows.</p>\r\n<p>I've seen various other posts - is there a solution (works on my dev pc but not the external server)</p>\r\n<p>&nbsp;</p>\r\n<p>Regards</p>",
+    "PostedDate": "2009-10-07T10:22:23.53-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "243045",
+    "ThreadId": "71270",
+    "Html": "<p>I've just taken out all the styling and I'm getting</p>\r\n<p><strong>Fatal error</strong>:  Allowed memory size of 33554432 bytes exhausted (tried to allocate 96 bytes) in <strong>/var/www/vhosts/top5000contacts.com/httpdocs/includes/phpexcel/Classes/PHPExcel/Worksheet.php</strong> on line <strong>936</strong></p>\r\n<p>How can it fail to allocate 96 bytes?</p>\r\n<p>Regards</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-10-07T10:37:23.293-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "243109",
+    "ThreadId": "71270",
+    "Html": "<p>With the latest code, we estimate memory usage at around an average of 1k/cell, and your memory limit is 32MB. That allows for about 32,000 cells (less the memory footprint of the script itself, about 7.25MB).</p>\r\n<p>Note that the 06largescale.php script in the Tests directory generates a worksheet with 25000 cells, and uses a total of 41.25MB</p>",
+    "PostedDate": "2009-10-07T13:06:53.12-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "243160",
+    "ThreadId": "71270",
+    "Html": "<p>Thanks Mark</p>\r\n<p>I hadn't realised the memory requirement and my dev pc was set to 128mb but the production server 32mb.&nbsp; I've upped this to 64mb and the script now works.</p>\r\n<p>Is the php memory setting per user or per server i.e what hapens if 2 users run the script <span style=\"font-size:10pt\">simultaeneoulsy.</span></p>\r\n<p><br>Regards</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-10-07T14:52:49.787-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "243170",
+    "ThreadId": "71270",
+    "Html": "<p>Memory usage within PHP is per &quot;thread&quot;... while the request is being processed, the max available memory is for that thread (may include paged/swap memory, not necessarily physical memory). If you have 3 or even 4 concurrent threads being processed, most OS will swap to disk (if necessary) if there isn't sufficient physical memory in the server. Once the thread terminates, that memory is freed up again by the web server process.</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-10-07T15:43:20.573-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "432140",
+    "ThreadId": "71270",
+    "Html": "<p>I was having the same problem but I have asigned 512MB of memory... after check I notice it was a circular reference that I have on the php code.</p>\r\n<p>Remember: <strong>Double check all your formulas on excel first then check the php script.</strong></p>\r\n<p>&nbsp;</p>\r\n<p>Regards,</p>",
+    "PostedDate": "2010-04-16T18:11:09.653-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "432196",
+    "ThreadId": "71270",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>tgp wrote:</strong><br>\r\n<p>after check I notice it was a circular reference that I have on the php code.</p>\r\n</blockquote>\r\n<p>&nbsp;:-)</p>\r\n<p>Already ahead of you tgp. Current SVN already handles cyclic references in formulae, either by throwing an error or allowing a user-definable limit to the number of iterations before returning a result. This code will be included in release 1.7.3 (probably around the beginning of May), though you can access it now via the daily downloads.</p>\r\n<p>There's also a number of changes being prepared for the 1.7.3 release that should reduce the overall memory requirements of PHPExcel.</p>",
+    "PostedDate": "2010-04-17T02:29:49.403-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

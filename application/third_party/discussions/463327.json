@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "1111311",
+    "ThreadId": "463327",
+    "Html": "I am receiving a weird error in Worksheet.php, line 1353.  It is saying that $this-&gt;_parent is &quot;&lt;Uninitialized&gt;&quot; so it can't call setActiveSheetIndex().<br />\n<pre><code>foreach($checklists as $key =&gt; $checklist) {\n    $excel-&gt;getActiveSheet()-&gt;setTitle(substr($checklist['checklist']-&gt;get_Name(), 0, 30));\n\n        create_Header($excel, 'A2', 'Text', 'A2:B2');\n        ....\n\n    $new_sheet = new PHPExcel_Worksheet();\n    $excel-&gt;addSheet($new_sheet);\n\n    $excel-&gt;setActiveSheetIndex($excel-&gt;getActiveSheetIndex()+1);\n}\n\nfunction create_Header($excel, $cell, $txt, $merged = '') {\n    $excel-&gt;getActiveSheet()\n        -&gt;setCellValue($cell, $txt);\n\n    if($merged != '') { $excel-&gt;getActiveSheet()-&gt;mergeCells($merged); }\n\n    $excel-&gt;getActiveSheet()\n        -&gt;getStyle($cell)\n        -&gt;getFont()\n        -&gt;applyFromArray($GLOBALS['styles']['header']);\n    $excel-&gt;getActiveSheet()\n        -&gt;getStyle($cell)\n        -&gt;getAlignment()\n        -&gt;applyFromArray($GLOBALS['styles']['right']);\n    $excel-&gt;getActiveSheet()\n        -&gt;getStyle($cell)\n        -&gt;getFill()\n        -&gt;setFillType(PHPExcel_Style_Fill::FILL_SOLID);\n    $excel-&gt;getActiveSheet()\n        -&gt;getStyle($cell)\n        -&gt;getFill()\n        -&gt;setStartColor($GLOBALS['light_brown']);\n}</code></pre>\n\nThe error only occurs on the second iteration through the loop.  The first iteration go through without a hitch.  Any thoughts?  Thanks!<br />\n<br />\n<strong>EDIT</strong>: I forgot to mention that the get the error on the first line after the if block in create_Header().  So even on the second iteration it is able to get through the first couple lines with no problem.<br />\n<br />\n<strong>EDIT 2</strong>: I'm using XAMPP 3.2.1 (which comes with PHP 5.5.3)<br />\n",
+    "PostedDate": "2013-10-23T15:57:14.147-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1111973",
+    "ThreadId": "463327",
+    "Html": "You don't define the parent when you created a new worksheet.\r<br />\nEither you do: $new_sheet = new PHPExcel_Worksheet ($excel); then the addSheet() or you use createSheet which does both.\r<br />\n<br />\nThe one and the other returns the worksheet object that I would spend to create_header rather than 'play' with the active sheet<br />\n",
+    "PostedDate": "2013-10-25T00:50:22.647-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

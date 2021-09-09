@@ -1,0 +1,55 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "In the latest version of PHPExcel (1.7.6), the one decimal number format is not respected. I have a dutch Open Office document with two cells.\nCell 1 has a number format which is set to \"0.0\" and a value of \"21,5\" (note the comma since it is dutch)\nCell 2 has a number format which is set to \"#,##0.0\" and a value of \"21,4\" (note the comma since it is dutch)\n \nThe thousands separator is set to a dot and the decimal separator is set to a comma:\n\\PHPExcel_Shared_String::setDecimalSeparator( ',' );\n\\PHPExcel_Shared_String::setThousandsSeparator( '.' );\n \nThere will be invalid results when calculating the cell value with the following code:\n$formatCode = $excel->getCellXfByIndex( $cell->getXfIndex() )->getNumberFormat()->getFormatCode();\n$value = \\PHPExcel_Style_NumberFormat::toFormattedString( $cell->getCalculatedValue(), $formatCode );\n \nCell 1 will output: \"21.5\" (note the dot)\nCell 2 will output \"21,4\" (note the comma)\n \nThe reason for this is that the function PHPExcel_Style_NumberFormat::toFormattedString does not execute a number_format on the calculated value. On line 677 a check is done for thousands separators. If so, number_format will be used. If not the value is calculated with a sprintf function.\nThe solution would be to rewrite that piece of code so that both cases use the number_format function.",
+    "LastUpdatedDate": "2013-02-21T19:02:02.94-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2012-02-21T03:05:40.41-08:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "One Decimal does not respect thousands and decimal separator",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 17455
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "Actually the number format of Cell 1 is set to \"0,0\" in Open Office which PHPExcel outputs as \"0.0\".\r\nThe number format of Cell 2 is set to \"#.##0,0\" in Open Office which PHPExcel outputs as \"#,##0.0\".\r\n\r\nMy computer language is set to dutch and Open Office uses the default language (that would be dutch).",
+      "PostedDate": "2012-02-21T03:09:18.2-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-02-21T05:44:11.42-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:02:02.94-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

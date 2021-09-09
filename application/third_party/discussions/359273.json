@@ -1,0 +1,194 @@
+[
+  {
+    "Id": "847844",
+    "ThreadId": "359273",
+    "Html": "\r\n<p>Hello,</p>\r\n<p>&nbsp;</p>\r\n<p>I am fighting with charts in PHPExcel 1.7.7. I can create charts as:</p>\r\n<p>$objPHPExcel-&gt;setActiveSheetIndex(0);<br>\r\n<br>\r\n$zakres_number = &quot;'PARETO FOR'!D$16:D$22&quot;;<br>\r\n$zakres_string = &quot;'PARETO FOR'!B$16:B$22&quot;;<br>\r\n&nbsp; $values = new PHPExcel_Chart_DataSeriesValues('Number', $zakres_number);<br>\r\n&nbsp; $categories = new PHPExcel_Chart_DataSeriesValues('String', $zakres_string);<br>\r\n<br>\r\n&nbsp; $series = new PHPExcel_Chart_DataSeries(<br>\r\n&nbsp;&nbsp;&nbsp; PHPExcel_Chart_DataSeries::TYPE_BARCHART,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // plotType<br>\r\n&nbsp;&nbsp;&nbsp; PHPExcel_Chart_DataSeries::GROUPING_CLUSTERED,&nbsp; // plotGrouping<br>\r\n&nbsp;&nbsp;&nbsp; array(0),&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\r\n // plotOrder<br>\r\n&nbsp;&nbsp;&nbsp; array(),&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\r\n // plotLabel<br>\r\n&nbsp;&nbsp;&nbsp; array($categories),&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // plotCategory<br>\r\n&nbsp;&nbsp;&nbsp; array($values)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // plotValues<br>\r\n&nbsp; );<br>\r\n&nbsp; $series-&gt;setPlotDirection(PHPExcel_Chart_DataSeries::DIRECTION_COL);<br>\r\n&nbsp;&nbsp;&nbsp; <br>\r\n&nbsp; $layout = new PHPExcel_Chart_Layout();<br>\r\n&nbsp; $plotarea = new PHPExcel_Chart_PlotArea($layout, array($series));<br>\r\n&nbsp;&nbsp;&nbsp; <br>\r\n&nbsp; $chart = new PHPExcel_Chart('Wykres 1', $title, null, $plotarea);<br>\r\n<br>\r\n&nbsp; $chart-&gt;setTopLeftPosition('J2');<br>\r\n&nbsp; $chart-&gt;setBottomRightPosition('R17');<br>\r\n$chart-&gt;$objPHPExcel-&gt;getActiveSheet()-&gt;addChart($chart);</p>\r\n<p>&nbsp;</p>\r\n<p>A piece of code above generates a chart, but I have few problems:</p>\r\n<p>1. How to add a Title? &nbsp;&nbsp;&nbsp;</p>\r\n<p>$title = new PHPExcel_Chart_Title(null, $layout);<br>\r\n$title-&gt;setCaption('Blady');</p>\r\n<p>It doesn't work?</p>\r\n<p>2. Categories' names don't work. It displays only column's numbers. How to fix it?</p>\r\n<p>3. How to add another data serie with type LINETYPE to the existing chart? Is it possible to add another scale on the right side?</p>\r\n<p>4. How to add a legend and a serie's name?</p>\r\n<p>&lt;Legend works $legend = new PHPExcel_Chart_Legend(-4152, $layout, false);&gt;</p>\r\n<p>Could anybody help me?</p>\r\n",
+    "PostedDate": "2012-06-12T02:46:10.007-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "849894",
+    "ThreadId": "359273",
+    "Html": "<p>Join the club. I've been fighting with charts too. So far I have this new improved demo:</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre><span style=\"color: blue;\">require_once</span>(dirname(<span style=\"color: blue;\">__FILE__</span>) . <span style=\"color: #a31515;\">'PHPExcel/Classes/PHPExcel.php'</span>);\r\n\r\n$workbook = <span style=\"color: blue;\">new</span> PHPExcel();\r\n$sheet = $workbook-&gt;getActiveSheet();\r\n$sheet-&gt;fromArray(<span style=\"color: blue;\">array</span>(\r\n  <span style=\"color: blue;\">array</span>(  <span style=\"color: #a31515;\">''</span>, 2010, 2011),\r\n  <span style=\"color: blue;\">array</span>(<span style=\"color: #a31515;\">'Q1'</span>,   12,   15),\r\n  <span style=\"color: blue;\">array</span>(<span style=\"color: #a31515;\">'Q2'</span>,   56,   73),\r\n  <span style=\"color: blue;\">array</span>(<span style=\"color: #a31515;\">'Q3'</span>,   52,   61),\r\n  <span style=\"color: blue;\">array</span>(<span style=\"color: #a31515;\">'Q4'</span>,   30,   32),\r\n));\r\n$labels = <span style=\"color: blue;\">array</span>(\r\n  <span style=\"color: blue;\">new</span> PHPExcel_Chart_DataSeriesValues(<span style=\"color: #a31515;\">'String'</span>, <span style=\"color: #a31515;\">'Worksheet!$B$1'</span>, null, 1),\r\n  <span style=\"color: blue;\">new</span> PHPExcel_Chart_DataSeriesValues(<span style=\"color: #a31515;\">'String'</span>, <span style=\"color: #a31515;\">'Worksheet!$C$1'</span>, null, 1),\r\n);\r\n$categories = <span style=\"color: blue;\">array</span>(\r\n  <span style=\"color: blue;\">new</span> PHPExcel_Chart_DataSeriesValues(<span style=\"color: #a31515;\">'String'</span>, <span style=\"color: #a31515;\">'Worksheet!$A$2:$A$5'</span>, null, 4),\r\n  <span style=\"color: blue;\">new</span> PHPExcel_Chart_DataSeriesValues(<span style=\"color: #a31515;\">'String'</span>, <span style=\"color: #a31515;\">'Worksheet!$A$2:$A$5'</span>, null, 4),\r\n);\r\n$values = <span style=\"color: blue;\">array</span>(\r\n  <span style=\"color: blue;\">new</span> PHPExcel_Chart_DataSeriesValues(<span style=\"color: #a31515;\">'Number'</span>, <span style=\"color: #a31515;\">'Worksheet!$B$2:$B$5'</span>, null, 4),\r\n  <span style=\"color: blue;\">new</span> PHPExcel_Chart_DataSeriesValues(<span style=\"color: #a31515;\">'Number'</span>, <span style=\"color: #a31515;\">'Worksheet!$C$2:$C$5'</span>, null, 4),\r\n);\r\n$series = <span style=\"color: blue;\">new</span> PHPExcel_Chart_DataSeries(\r\n  PHPExcel_Chart_DataSeries::TYPE_BARCHART,       <span style=\"color: green;\">// plotType</span>\r\n  PHPExcel_Chart_DataSeries::GROUPING_CLUSTERED,  <span style=\"color: green;\">// plotGrouping</span>\r\n  <span style=\"color: blue;\">array</span>(0, 1),                                    <span style=\"color: green;\">// plotOrder</span>\r\n  $labels,                                        <span style=\"color: green;\">// plotLabel</span>\r\n  $categories,                                    <span style=\"color: green;\">// plotCategory</span>\r\n  $values                                         <span style=\"color: green;\">// plotValues</span>\r\n);\r\n$series-&gt;setPlotDirection(PHPExcel_Chart_DataSeries::DIRECTION_COL);\r\n$plotarea = <span style=\"color: blue;\">new</span> PHPExcel_Chart_PlotArea(null, <span style=\"color: blue;\">array</span>($series));\r\n$legend = <span style=\"color: blue;\">new</span> PHPExcel_Chart_Legend(PHPExcel_Chart_Legend::POSITION_RIGHT, null, false);\r\n$chart = <span style=\"color: blue;\">new</span> PHPExcel_Chart(\r\n  <span style=\"color: #a31515;\">'chart1'</span>,                                       <span style=\"color: green;\">// name</span>\r\n  null,                                           <span style=\"color: green;\">// title</span>\r\n  $legend,                                        <span style=\"color: green;\">// legend</span>\r\n  $plotarea,                                      <span style=\"color: green;\">// plotArea</span>\r\n  true,                                           <span style=\"color: green;\">// plotVisibleOnly</span>\r\n  0,                                              <span style=\"color: green;\">// displayBlanksAs</span>\r\n  null,                                           <span style=\"color: green;\">// xAxisLabel</span>\r\n  null                                            <span style=\"color: green;\">// yAxisLabel</span>\r\n);\r\n$chart-&gt;setTopLeftPosition(<span style=\"color: #a31515;\">'A7'</span>);\r\n$chart-&gt;setBottomRightPosition(<span style=\"color: #a31515;\">'H20'</span>);\r\n$sheet-&gt;addChart($chart);\r\n$writer = PHPExcel_IOFactory::createWriter($workbook, <span style=\"color: #a31515;\">'Excel2007'</span>);\r\n$writer-&gt;setIncludeCharts(TRUE);\r\n$writer-&gt;save(<span style=\"color: #a31515;\">'test.xlsx'</span>);</pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n<p>To answer your questions:</p>\r\n<p><em>1. How to add a title</em></p>\r\n<p>I wish I knew. I'll keep working on it more for the sake of axis labels (which appear to have the same problems)</p>\r\n<p><em>2. Category names don't work</em></p>\r\n<p>This tripped me up as well. You need to specify the number of points in the data series for the writer to include the category names</p>\r\n<p><em>3. Multiple series / axis</em></p>\r\n<p>Not sure, not something I've needed to do, although see this if you haven't already:&nbsp;<a href=\"http://phpexcel.codeplex.com/workitem/18228\">http://phpexcel.codeplex.com/workitem/18228</a>. Here I have one DataSeries object with multiple DataSeriesValues which is more than sufficient for my needs.</p>\r\n<p><em>4. Legend / series names</em></p>\r\n<p>Sounds like you partly worked this out for yourself, although see also my example.</p>\r\n<p>&nbsp;</p>\r\n<p>For my&nbsp;immediate&nbsp;project I really need to <strong>work out how to label the axis</strong>. It seems like this should be possible from the existing code, but I can't make it work. Has anyone succeeded in doing this?</p>\r\n<p>Separately&nbsp;I will also want to set min and max values on one of the axis, plus leave no gap between bars. These settings are currently hard coded in the writer and it doesn't look like too much work to extend it to cope with these extra parameters. I'm reluctant to start until I work out what's wrong with the captions though.</p>",
+    "PostedDate": "2012-06-16T14:00:11.573-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "849990",
+    "ThreadId": "359273",
+    "Html": "<p>Adding the following to the PHPExcel_Chart class may help:</p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre> <span style=\"color: green;\">/**\r\n  * Set Title\r\n  *\r\n  * @param PHPExcel_Chart_Title $title\r\n  * @return PHPExcel_Chart\r\n  */</span>\r\n <span style=\"color: blue;\">public</span> <span style=\"color: blue;\">function</span> setTitle(PHPExcel_Chart_Title $title) {\r\n     $this-&gt;_title = $title;\r\n     <span style=\"color: blue;\">return</span> $this;\r\n }\r\n  <span style=\"color: green;\">/**\r\n  * Set Legend\r\n  *\r\n  * @param PHPExcel_Chart_Legend $legend\r\n  * @return PHPExcel_Chart\r\n  */</span>\r\n <span style=\"color: blue;\">public</span> <span style=\"color: blue;\">function</span> setLegend(PHPExcel_Chart_Legend $legend) {\r\n     $this-&gt;_legend = $legend;\r\n     <span style=\"color: blue;\">return</span> $this;\r\n }\r\n <span style=\"color: green;\">/**\r\n  * Set X-Axis Label\r\n  *\r\n  * @param PHPExcel_Chart_Title $label\r\n  * @return PHPExcel_Chart\r\n  */</span>\r\n <span style=\"color: blue;\">public</span> <span style=\"color: blue;\">function</span> setXAxisLabel(PHPExcel_Chart_Legend $label) {\r\n     $this-&gt;_xAxisLabel = $label;\r\n     <span style=\"color: blue;\">return</span> $this;\r\n }\r\n <span style=\"color: green;\">/**\r\n  * Set Y-Axis Label\r\n  *\r\n  * @param PHPExcel_Chart_Title $label\r\n  * @return PHPExcel_Chart\r\n  */</span>\r\n <span style=\"color: blue;\">public</span> <span style=\"color: blue;\">function</span> setYAxisLabel(PHPExcel_Chart_Legend $label) {\r\n     $this-&gt;_yAxisLabel = $label;\r\n     <span style=\"color: blue;\">return</span> $this;\r\n }\r\n</pre>\r\n</div>",
+    "PostedDate": "2012-06-17T03:32:43.713-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "850191",
+    "ThreadId": "359273",
+    "Html": "\r\n<p>Thanks a lot for Your answers. I will check it ASAP.</p>\r\n<p>I have checked the code above. When I want to add a title:</p>\r\n<p>$title = new PHPExcel_Chart_Title('Title', null);<br>\r\n$chart-&gt;setTitle($title);</p>\r\n<p>it fails. I do not know exactly but I think there is something wrong in the constructor of PHPExcel_Chart_Title.</p>\r\n<p>&nbsp;</p>\r\n<p>Setting axis labels with the code (I have changed PHPExcel_Chart_Legend into PHPExcel_Chart_Title):</p>\r\n<pre><span style=\"color:blue\">public</span> <span style=\"color:blue\">function</span> setYAxisLabel(PHPExcel_Chart_Title $label) {\n     $this-&gt;_yAxisLabel = $label;\n     <span style=\"color:blue\">return</span> $this;\n }</pre>\r\n<p>doesn't work.</p>\r\n<p>&nbsp;</p>\r\n<p>To @<a href=\"http://www.codeplex.com/site/users/view/mdryan\">mdryan</a> Thanks a lot. Unfortunately, I still need another right scale. My first values are numbers, second are percentages (yes, I can multiply by the max value, but this isn't the point). I\r\n still cannot add title and axis names and I will be grateful if You will share Your solution with us when You will have it.<span><em><br>\r\n</em></span></p>\r\n",
+    "PostedDate": "2012-06-18T00:15:42.383-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "850710",
+    "ThreadId": "359273",
+    "Html": "<p>It should now be possible to set titles and axis labels using the latest version of the develop branch of the code from github <a href=\"https://github.com/PHPOffice/PHPExcel\">https://github.com/PHPOffice/PHPExcel</a>&nbsp;and I've added 33chartcreate.php (based heavily on mdryans example) as an example in /Tests</p>",
+    "PostedDate": "2012-06-18T23:49:06.057-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "850877",
+    "ThreadId": "359273",
+    "Html": "<p>I've created an example to prove PHPExcel chart functionality based on mdryans example, with multiple series (barchart and linechart).</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre><span style=\"color: green;\">/** Include path * */</span>\r\nset_include_path(get_include_path() . PATH_SEPARATOR . <span style=\"color: #a31515;\">'../Classes/'</span>);\r\n\r\n<span style=\"color: green;\">/** PHPExcel_IOFactory */</span>\r\n<span style=\"color: blue;\">include</span> <span style=\"color: #a31515;\">'PHPExcel/IOFactory.php'</span>;\r\n\r\n$workbook = <span style=\"color: blue;\">new</span> PHPExcel();\r\n$sheet = $workbook-&gt;getActiveSheet();\r\n$sheet-&gt;fromArray(<span style=\"color: blue;\">array</span>(\r\n    <span style=\"color: blue;\">array</span>(<span style=\"color: #a31515;\">''</span>, 2010, 2011, <span style=\"color: #a31515;\">'Porc'</span>),\r\n    <span style=\"color: blue;\">array</span>(<span style=\"color: #a31515;\">'Q1'</span>, 12, 15, 1.25),\r\n    <span style=\"color: blue;\">array</span>(<span style=\"color: #a31515;\">'Q2'</span>, 56, 73, 1.30),\r\n    <span style=\"color: blue;\">array</span>(<span style=\"color: #a31515;\">'Q3'</span>, 52, 61, 1.17),\r\n    <span style=\"color: blue;\">array</span>(<span style=\"color: #a31515;\">'Q4'</span>, 30, 32, 1.07),\r\n));\r\n\r\n$sheet-&gt;getStyle(<span style=\"color: #a31515;\">'D2:D5'</span>)-&gt;getNumberFormat()-&gt;setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_PERCENTAGE);\r\n\r\n$labels = <span style=\"color: blue;\">array</span>(\r\n    <span style=\"color: blue;\">new</span> PHPExcel_Chart_DataSeriesValues(<span style=\"color: #a31515;\">'String'</span>, <span style=\"color: #a31515;\">'Worksheet!$B$1'</span>, null, 1),\r\n    <span style=\"color: blue;\">new</span> PHPExcel_Chart_DataSeriesValues(<span style=\"color: #a31515;\">'String'</span>, <span style=\"color: #a31515;\">'Worksheet!$C$1'</span>, null, 1),\r\n    <span style=\"color: blue;\">new</span> PHPExcel_Chart_DataSeriesValues(<span style=\"color: #a31515;\">'String'</span>, <span style=\"color: #a31515;\">'Worksheet!$D$1'</span>, null, 1)\r\n);\r\n$categories = <span style=\"color: blue;\">array</span>(\r\n    <span style=\"color: blue;\">new</span> PHPExcel_Chart_DataSeriesValues(<span style=\"color: #a31515;\">'String'</span>, <span style=\"color: #a31515;\">'Worksheet!$A$2:$A$5'</span>, null, 4),\r\n    <span style=\"color: blue;\">new</span> PHPExcel_Chart_DataSeriesValues(<span style=\"color: #a31515;\">'String'</span>, <span style=\"color: #a31515;\">'Worksheet!$A$2:$A$5'</span>, null, 4),\r\n    <span style=\"color: blue;\">new</span> PHPExcel_Chart_DataSeriesValues(<span style=\"color: #a31515;\">'String'</span>, <span style=\"color: #a31515;\">'Worksheet!$A$2:$A$5'</span>, null, 4)\r\n);\r\n$values = <span style=\"color: blue;\">array</span>(\r\n    <span style=\"color: blue;\">new</span> PHPExcel_Chart_DataSeriesValues(<span style=\"color: #a31515;\">'Number'</span>, <span style=\"color: #a31515;\">'Worksheet!$B$2:$B$5'</span>, null, 4),\r\n    <span style=\"color: blue;\">new</span> PHPExcel_Chart_DataSeriesValues(<span style=\"color: #a31515;\">'Number'</span>, <span style=\"color: #a31515;\">'Worksheet!$C$2:$C$5'</span>, null, 4)\r\n);\r\n\r\n$series = <span style=\"color: blue;\">new</span> PHPExcel_Chart_DataSeries(\r\n                PHPExcel_Chart_DataSeries::TYPE_BARCHART, <span style=\"color: green;\">// plotType</span>\r\n                PHPExcel_Chart_DataSeries::GROUPING_CLUSTERED, <span style=\"color: green;\">// plotGrouping</span>\r\n                <span style=\"color: blue;\">array</span>(0, 1), <span style=\"color: green;\">// plotOrder</span>\r\n                $labels, <span style=\"color: green;\">// plotLabel</span>\r\n                $categories, <span style=\"color: green;\">// plotCategory</span>\r\n                $values <span style=\"color: green;\">// plotValues</span>\r\n);\r\n\r\n$values2 = <span style=\"color: blue;\">array</span>(\r\n    null, null,\r\n    <span style=\"color: blue;\">new</span> PHPExcel_Chart_DataSeriesValues(<span style=\"color: #a31515;\">'Percentage'</span>, <span style=\"color: #a31515;\">'Worksheet!$D$2:$D$5'</span>, null, 4)\r\n);\r\n\r\n$series2 = <span style=\"color: blue;\">new</span> PHPExcel_Chart_DataSeries(\r\n                PHPExcel_Chart_DataSeries::TYPE_LINECHART, <span style=\"color: green;\">// plotType</span>\r\n                PHPExcel_Chart_DataSeries::GROUPING_STANDARD, <span style=\"color: green;\">// plotGrouping</span>\r\n                <span style=\"color: blue;\">array</span>(2), <span style=\"color: green;\">// plotOrder</span>\r\n                $labels, <span style=\"color: green;\">// plotLabel</span>\r\n                $categories, <span style=\"color: green;\">// plotCategory</span>\r\n                $values2, <span style=\"color: green;\">// plotValues</span>\r\n                true,\r\n                PHPExcel_Chart_DataSeries::STYLE_FILLED\r\n);\r\n\r\n$series-&gt;setPlotDirection(PHPExcel_Chart_DataSeries::DIRECTION_COL);\r\n$layout = <span style=\"color: blue;\">new</span> PHPExcel_Chart_Layout();\r\n$plotarea = <span style=\"color: blue;\">new</span> PHPExcel_Chart_PlotArea($layout, <span style=\"color: blue;\">array</span>($series, $series2));\r\n$legend = <span style=\"color: blue;\">new</span> PHPExcel_Chart_Legend(PHPExcel_Chart_Legend::POSITION_RIGHT, null, false);\r\n$plotTitle = <span style=\"color: blue;\">new</span> PHPExcel_Chart_Title(<span style=\"color: #a31515;\">'Test Multiple Series / Types PHPExcel Chart'</span>);\r\n<span style=\"color: green;\">//$plotTitle = null;</span>\r\n$xTitle = <span style=\"color: blue;\">new</span> PHPExcel_Chart_Title(<span style=\"color: #a31515;\">'xAxisLabel'</span>);\r\n$yTitle = <span style=\"color: blue;\">new</span> PHPExcel_Chart_Title(<span style=\"color: #a31515;\">'yAxisLabel'</span>);\r\n<span style=\"color: green;\">//new PHPExcel_Chart($name, $title, $legend, $plotArea, $plotVisibleOnly, $displayBlanksAs, $xAxisLabel, $yAxisLabel)</span>\r\n$chart = <span style=\"color: blue;\">new</span> PHPExcel_Chart(\r\n                <span style=\"color: #a31515;\">'chart1'</span>, <span style=\"color: green;\">// name</span>\r\n                $plotTitle, <span style=\"color: green;\">// title</span>\r\n                $legend, <span style=\"color: green;\">// legend</span>\r\n                $plotarea, <span style=\"color: green;\">// plotArea</span>\r\n                true, <span style=\"color: green;\">// plotVisibleOnly</span>\r\n                0, <span style=\"color: green;\">// displayBlanksAs</span>\r\n                $xTitle, <span style=\"color: green;\">// xAxisLabel</span>\r\n                $yTitle <span style=\"color: green;\">// yAxisLabel</span>\r\n);\r\n$chart-&gt;setTopLeftPosition(<span style=\"color: #a31515;\">'A7'</span>);\r\n$chart-&gt;setBottomRightPosition(<span style=\"color: #a31515;\">'H20'</span>);\r\n$sheet-&gt;addChart($chart);\r\n$writer = PHPExcel_IOFactory::createWriter($workbook, <span style=\"color: #a31515;\">'Excel2007'</span>);\r\n$writer-&gt;setIncludeCharts(TRUE);\r\n$outputFileName = str_replace(<span style=\"color: #a31515;\">'.php'</span>, <span style=\"color: #a31515;\">'.xlsx'</span>, <span style=\"color: blue;\">__FILE__</span>);\r\n$writer-&gt;save($outputFileName);\r\n</pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>In the example, it's possible to set xAxis and yAxis titles, but I'm still getting trouble with chart main title. I got this error message. please help!</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>PHP Catchable fatal error:  Argument 2 passed to PHPExcel_Writer_Excel2007_StringTable::writeRichTextForCharts() must be an instance of PHPExcel_RichText, string given, called <span style=\"color: blue;\">in</span> D:\\SERVIDORES\\Apache2.2\\htdocs\\PHPExcel\\1.7.7\\Classes\\PHPExcel\\Writer\\Excel2007\\Chart.php on line 141 and defined <span style=\"color: blue;\">in</span> D:\\SERVIDORES\\Apache2.2\\htdocs\\PHPExcel\\1.7.7\\Classes\\PHPExcel\\W\r\nriter\\Excel2007\\StringTable.php on line 232\r\nPHP Stack trace:\r\nPHP   1. {main}() D:\\SERVIDORES\\Apache2.2\\htdocs\\PHPExcel\\1.7.7\\Tests\\00CrearGrafico.php:0\r\nPHP   2. PHPExcel_Writer_Excel2007<span style=\"color: gray;\">-</span><span style=\"color: gray;\">&gt;</span>save() D:\\SERVIDORES\\Apache2.2\\htdocs\\PHPExcel\\1.7.7\\Tests\\00CrearGrafico.php:86\r\nPHP   3. PHPExcel_Writer_Excel2007_Chart<span style=\"color: gray;\">-</span><span style=\"color: gray;\">&gt;</span>writeChart() D:\\SERVIDORES\\Apache2.2\\htdocs\\PHPExcel\\1.7.7\\Classes\\PHPExcel\\Writer\\Excel2007.php:287\r\nPHP   4. PHPExcel_Writer_Excel2007_Chart<span style=\"color: gray;\">-</span><span style=\"color: gray;\">&gt;</span>_writeTitle() D:\\SERVIDORES\\Apache2.2\\htdocs\\PHPExcel\\1.7.7\\Classes\\PHPExcel\\Writer\\Excel2007\\Chart.php:80\r\nPHP   5. PHPExcel_Writer_Excel2007_StringTable<span style=\"color: gray;\">-</span><span style=\"color: gray;\">&gt;</span>writeRichTextForCharts() D:\\SERVIDORES\\Apache2.2\\htdocs\\PHPExcel\\1.7.7\\Classes\\PHPExcel\\Writer\\Excel2007\\Chart.php:141\r\n</pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n<p>PS: Is there any possibility to set linechart to secondary yAxis to create a \"pareto\" chart type?</p>",
+    "PostedDate": "2012-06-19T06:28:30.723-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "850974",
+    "ThreadId": "359273",
+    "Html": "<p>This writeRichTextForCharts() error has been fixed in the develop branch at the new github repository</p>",
+    "PostedDate": "2012-06-19T08:54:49.653-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "851050",
+    "ThreadId": "359273",
+    "Html": "<p>Hi Mark, thanks for your reply. ;)</p>\r\n<p>I've checked the github repository, but I'm still getting same kind of warnings. Please help! <span id=\"result_box\" class=\"short_text\"><span style=\"background-color: #ffffff;\" title=\"saludos\">regards </span></span>from Chile!</p>",
+    "PostedDate": "2012-06-19T11:13:55.797-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "851364",
+    "ThreadId": "359273",
+    "Html": "\r\n<p>Hi,</p>\r\n<p>I am getting this problem, too. I don't know what I am doing wrong?!</p>\r\n<p>With this line $title = new PHPExcel_Chart_Title('Test Chart'); and having $title in the constructor of PHPExcel_Chart, I am getting no chart, only problem with a shape of the chart sent by MS Excel.</p>\r\n<p>&nbsp;</p>\r\n<p>tripexito,</p>\r\n<p>My intention is to create a pareto chart type and a second yAxis is my need.</p>\r\n<p>To Your example, I am still getting few problems: I have only one serie name in legend multiplied by 3 (2010) and none axis labels. I am sending a file to a browser, maybe this is why I have these problems?</p>\r\n",
+    "PostedDate": "2012-06-20T00:15:05.027-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "851386",
+    "ThreadId": "359273",
+    "Html": "\r\n<p>Did you pull the develop branch rather than the master branch? master is intended only for releases, develop should be the latest working code; the charts branch is for additional development on charts, and should also include this fix.</p>\r\n<p>Have you tested the new /Tests/33createchart.php script?</p>\r\n<p>&nbsp;</p>\r\n<p>Secondary Y-axes are not an option at present</p>\r\n",
+    "PostedDate": "2012-06-20T00:56:11.867-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "851449",
+    "ThreadId": "359273",
+    "Html": "\r\n<p>Yes, I did pull the develop branch and tested /Tests/33createchart.php script. When I change in PHPExcel_Chart constructor $title to null it generates a file without a chart. When I change axis labels to null, it generates a file with a chart, legend is\r\n ok.</p>\r\n<p>/Tests/33createchart.php script with changes below works:</p>\r\n<p>$chart = new PHPExcel_Chart(<br>\r\n'chart1',&nbsp;&nbsp;&nbsp; // name<br>\r\nnull,&nbsp;&nbsp;&nbsp; // title<br>\r\n$legend,&nbsp;&nbsp;&nbsp; // legend<br>\r\n$plotarea,&nbsp;&nbsp;&nbsp; // plotArea<br>\r\ntrue,&nbsp;&nbsp;&nbsp; // plotVisibleOnly<br>\r\n0,&nbsp;&nbsp;&nbsp; // displayBlanksAs<br>\r\nnull,&nbsp;&nbsp; // xAxisLabel<br>\r\nnull&nbsp;&nbsp;&nbsp; // yAxisLabel<br>\r\n);</p>\r\n<p>&nbsp;</p>\r\n<p>Where did I make a mistake?</p>\r\n",
+    "PostedDate": "2012-06-20T03:16:16.383-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "851503",
+    "ThreadId": "359273",
+    "Html": "\r\n<p>@daserato, I haven't tried my example sending a file to browser (file download), just by command line ;) and it's working fine!</p>\r\n",
+    "PostedDate": "2012-06-20T05:53:03.307-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "855458",
+    "ThreadId": "359273",
+    "Html": "<p>Hi, I've tested it by sending a file to browser, and it works too ;)</p>\r\n<p>Now, <a title=\"MarkBaker\" href=\"http://www.codeplex.com/site/users/view/MarkBaker\" target=\"_blank\">MarkBaker</a>, Is there any possibilities to implement multiple series (bars and lines chart together, like a pareto chart), with line chart on secondary Y-Axis ASAP?</p>\r\n<p>Or how may I implement it? Please help! Thanks! ;)</p>",
+    "PostedDate": "2012-06-29T07:14:11.33-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "855471",
+    "ThreadId": "359273",
+    "Html": "<p>Hi all,</p>\r\n<p>just another question: is it possible to remove the outer border of the chart (or make it white...)?</p>",
+    "PostedDate": "2012-06-29T07:37:26.15-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "856355",
+    "ThreadId": "359273",
+    "Html": "\r\n<p>Hello, I am trying to create a pie chart.&nbsp; Everything seems to work, but no matter what I can't get the legend to display by default.&nbsp; Going into the Layout ribbon and turning on the legend there makes it appear fine.&nbsp; I am using the code\r\n from the developers branch of GitHub.&nbsp; Here is the code based off mdryan that I am using.</p>\r\n<p><strong>Edit: Nevermind, setting the plotGrouping attribute in the Dataseries to null seems to fix it in case anyone else was wondering.</strong></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>\t$workbook = <span style=\"color:blue\">new</span> PHPExcel();\n\t$sheet = $workbook-&gt;getActiveSheet();\n\t$sheet-&gt;fromArray(<span style=\"color:blue\">array</span>(\n\t\t<span style=\"color:blue\">array</span>(  <span style=\"color:#a31515\">''</span>, <span style=\"color:#a31515\">''</span>),\n\t\t<span style=\"color:blue\">array</span>(<span style=\"color:#a31515\">'Q1'</span>,   12),\n\t\t<span style=\"color:blue\">array</span>(<span style=\"color:#a31515\">'Q2'</span>,   56),\n\t\t<span style=\"color:blue\">array</span>(<span style=\"color:#a31515\">'Q3'</span>,   52),\n\t\t<span style=\"color:blue\">array</span>(<span style=\"color:#a31515\">'Q4'</span>,   30),\n\t));\n\t$categories = <span style=\"color:blue\">array</span>(\n\t\t<span style=\"color:blue\">new</span> PHPExcel_Chart_DataSeriesValues(<span style=\"color:#a31515\">'String'</span>, <span style=\"color:#a31515\">'Worksheet!$A$2:$A$5'</span>, null, 4)\n\t);\n\t$values = <span style=\"color:blue\">array</span>(\n\t\t<span style=\"color:blue\">new</span> PHPExcel_Chart_DataSeriesValues(<span style=\"color:#a31515\">'Number'</span>, <span style=\"color:#a31515\">'Worksheet!$B$2:$B$5'</span>, null, 4)\n\t);\n\t$series = <span style=\"color:blue\">new</span> PHPExcel_Chart_DataSeries(\n\t\tPHPExcel_Chart_DataSeries::TYPE_PIECHART,       <span style=\"color:green\">// plotType</span>\n\t\tPHPExcel_Chart_DataSeries::GROUPING_CLUSTERED,  <span style=\"color:green\">// plotGrouping</span>\n\t\t<span style=\"color:blue\">array</span>(0),                                    \t<span style=\"color:green\">// plotOrder</span>\n\t\tnull,                                        \t<span style=\"color:green\">// plotLabel</span>\n\t\t$categories,                                    <span style=\"color:green\">// plotCategory</span>\n\t\t$values                                         <span style=\"color:green\">// plotValues</span>\n\t);\n\t$title = <span style=\"color:blue\">new</span> PHPExcel_Chart_Title(<span style=\"color:#a31515\">'Test Pie Chart'</span>);\n\t$plotarea = <span style=\"color:blue\">new</span> PHPExcel_Chart_PlotArea(null, <span style=\"color:blue\">array</span>($series));\n\t$legend = <span style=\"color:blue\">new</span> PHPExcel_Chart_Legend(PHPExcel_Chart_Legend::POSITION_RIGHT, null, false);\n\t$chart = <span style=\"color:blue\">new</span> PHPExcel_Chart(\n\t\t<span style=\"color:#a31515\">'chart1'</span>,                                       <span style=\"color:green\">// name</span>\n\t\t$title,                                         <span style=\"color:green\">// title</span>\n\t\t$legend,                                        <span style=\"color:green\">// legend</span>\n\t\t$plotarea,                                      <span style=\"color:green\">// plotArea</span>\n\t\ttrue,                                           <span style=\"color:green\">// plotVisibleOnly</span>\n\t\t0,                                              <span style=\"color:green\">// displayBlanksAs</span>\n\t\tnull,                                           <span style=\"color:green\">// xAxisLabel</span>\n\t\tnull                                            <span style=\"color:green\">// yAxisLabel</span>\n\t);\n\t$chart-&gt;setTopLeftPosition(<span style=\"color:#a31515\">'A7'</span>);\n\t$chart-&gt;setBottomRightPosition(<span style=\"color:#a31515\">'H20'</span>);\n\t$sheet-&gt;addChart($chart);\n\t$writer = PHPExcel_IOFactory::createWriter($workbook, <span style=\"color:#a31515\">'Excel2007'</span>);\n\t$writer-&gt;setIncludeCharts(TRUE);\n\t$writer-&gt;save(<span style=\"color:#a31515\">'test.xlsx'</span>);\n</pre>\r\n</div>\r\n",
+    "PostedDate": "2012-07-02T07:23:25.173-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "880648",
+    "ThreadId": "359273",
+    "Html": "<p>Hi.</p>\r\n<p>How I can display the categories and values in a PIE CHART as labels? Like the template example \"32readwritePieChart3.xlsx\".</p>\r\n<p>Thanks you.</p>\r\n<p>Regards.</p>",
+    "PostedDate": "2012-07-20T11:34:10.01-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "889523",
+    "ThreadId": "359273",
+    "Html": "\r\n<p>Just use below. It's work for me</p>\r\n<p></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>$title = <span style=\"color:blue\">new</span> PHPExcel_Chart_Title(<span style=\"color:blue\">new</span> PHPExcel_RichText(<span style=\"color:blue\">new</span> PHPExcel_Cell(<span style=\"color:#a31515\">'A'</span>,<span style=\"color:#a31515\">'1'</span>,<span style=\"color:#a31515\">'Ttile Chart'</span>,PHPExcel_Cell_DataType::TYPE_STRING,$sheet)));\n</pre>\r\n</div>\r\n<p></p>\r\n<p>&nbsp;</p>\r\n<p><a title=\"Mononoid Best Web Design and Development Solutions\" href=\"http://www.mononoid.com\">Mononoid</a></p>\r\n",
+    "PostedDate": "2012-07-24T01:13:25.257-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "906149",
+    "ThreadId": "359273",
+    "Html": "<p>hi there ,</p>\r\n<p>i want to implement some charts like bubble,stock,scatter,radar etc. but i am not getting any solution from anywhere and also there is not mentioning about the charts in the documentation of phpexcel...so just help me in this ..m stuck in this from many days..</p>\r\n<p>please help</p>",
+    "PostedDate": "2012-08-30T00:27:02.327-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "907255",
+    "ThreadId": "359273",
+    "Html": "<p>I'm putting together some examples for creating the different chart types in the /Tests folder on github at the moment</p>",
+    "PostedDate": "2012-09-01T04:26:48.653-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "907952",
+    "ThreadId": "359273",
+    "Html": "\r\n<p>Hi</p>\r\n<p>PHPExcel is a nice product.</p>\r\n<p>I try to create graph.</p>\r\n<p>With the version 1.7.7 downloaded and MarkBaker examples (<span lang=\"EN-US\" style=\"font-size:11pt\">33chartcreate-area\r\n</span>and others) I succeed to create various type of graphs.</p>\r\n<p>The only problem is that they are perfect in Excel 2010 but cannot be open in Excel 2007.</p>\r\n<p>I also tried to modify a workbook containing a graph just adding the line <br>\r\n$writer-&gt;setIncludeCharts(TRUE);<br>\r\nbut it does not work.</p>\r\n<p>I tried the example 32ReadWrite with graph but I have this error message : <span lang=\"EN-US\" style=\"font-size:11pt\">\r\nWarning</span><span lang=\"EN-US\" style=\"font-size:11pt\">: Invalid argument supplied for foreach() in /classes/PHPExcel/Writer/Excel2007/Chart.php on line 956</span></p>\r\n<p>I downloaded some new files : with the new version of <span lang=\"EN-US\" style=\"font-size:11pt\">\r\n/classes/PHPExcel/Writer/Excel2007/Chart.php, </span>the 32ReadWrite script works well but the scripts used to create graphs (<span lang=\"EN-US\" style=\"font-size:10pt\">33chartcreate-area</span><span lang=\"EN-US\" style=\"font-size:11pt\">\r\n</span>and others) do not work with this new Chart.php version. <br>\r\nI got this error : <span lang=\"EN-US\" style=\"font-size:11pt\">Catchable fatal error: Argument 5 passed to PHPExcel_Writer_Excel2007_Chart::_writePlotArea() must be an instance of PHPExcel_Worksheet, null given, called in /classes/PHPExcel/Writer/Excel2007/Chart.php\r\n on line 91 and defined in /classes/PHPExcel/Writer/Excel2007/Chart.php on line 226.</span></p>\r\n<p>I also tried to change other files (/classes/PHPExcel/Worksheet.php - /classes/PHPExcel/Writer/Excel2007/Worksheet.php - classes/PHPExcel/Writer/Excel2007/Workbook.php) but I also get error messages about each of these files.</p>\r\n<p>What are the files I have to change to be able to use the new <span lang=\"EN-US\" style=\"font-size:11pt\">\r\n/classes/PHPExcel/Writer/Excel2007/Chart.php&nbsp; </span>with the scripts used to created graphs (<span style=\"font-size:10pt\">&nbsp;</span><span lang=\"EN-US\" style=\"font-size:10pt\">33chartcreate-area\r\n</span><span style=\"font-size:10pt\">and others).</span></p>\r\n<p><span style=\"font-size:10pt\">Thanks.</span></p>\r\n",
+    "PostedDate": "2012-09-03T14:12:25.423-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "908056",
+    "ThreadId": "359273",
+    "Html": "<p>If you try working with the latest github code, you should find that these issues have been resolved.</p>",
+    "PostedDate": "2012-09-03T23:44:52.083-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "908378",
+    "ThreadId": "359273",
+    "Html": "\r\n<p>Hi Mark</p>\r\n<p>I downloaded more files from github and now everything is working !</p>\r\n<p>Thanks</p>\r\n",
+    "PostedDate": "2012-09-04T14:46:43.683-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1003822",
+    "ThreadId": "359273",
+    "Html": "Hello,<br />\n<pre><code> I use the exemple &quot;33chartcreate-pie.php&quot; with PHPExcel 1.7.8 and the legend doesn't appear on my graph.\n</code></pre>\n\nHave you found a solution ?<br />\n",
+    "PostedDate": "2013-02-19T23:32:20.033-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1245673",
+    "ThreadId": "359273",
+    "Html": "I have problem with unreadble content when i want to open the generated excel file that i use PHPExcel to draw chart in 3 sheet. Here is the link of my question in stackoverflow.\r<br />\n<a href=\"http://stackoverflow.com/questions/23669078/phpexcel-drawing-chart-cause-unreadable-content-and-chart-removed\" rel=\"nofollow\">http://stackoverflow.com/questions/23669078/phpexcel-drawing-chart-cause-unreadable-content-and-chart-removed</a><br />\n",
+    "PostedDate": "2014-05-15T03:22:44.44-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

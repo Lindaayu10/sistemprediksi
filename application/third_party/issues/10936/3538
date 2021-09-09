@@ -1,0 +1,21 @@
+Index: Classes/PHPExcel/Reader/Excel5.php
+===================================================================
+--- Classes/PHPExcel/Reader/Excel5.php	(revision 1253)
++++ Classes/PHPExcel/Reader/Excel5.php	(working copy)
+@@ -2024,6 +2024,7 @@
+ 			$nlen = ord($recordData{3});
+ 
+ 			// offset: 4; size: 2; size of the formula data (it can happen that this is zero)
++			// note: there can also be additional data, this is not included in $flen
+ 			$flen = $this->_GetInt2d($recordData, 4);
+ 
+ 			// offset: 14; size: var; Name (Unicode string without length field)
+@@ -2031,7 +2032,7 @@
+ 
+ 			// offset: var; size: $flen; formula data
+ 			$offset = 14 + $string['size'];
+-			$formulaStructure = pack('v', $flen) . substr($recordData, $offset, $flen);
++			$formulaStructure = pack('v', $flen) . substr($recordData, $offset);
+ 
+ 			try {
+ 				$formula = $this->_getFormulaFromStructure($formulaStructure);

@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "1230460",
+    "ThreadId": "541232",
+    "Html": "I'm using <strong>PHPExcel</strong> to generate an Excel file for an order.\r<br />\n<br />\nI have some <strong><em>constraints</em></strong>:<br />\n<ul>\n<li>cells are merged </li>\n<li>cell are aligned vertical and horizontal to center</li>\n<li>text is wrapped and on multiple lines</li>\n<li>\ntext need to fit the merge cells: <strong><em>if too long</em></strong> to fit <strong><em>set font smaller</em></strong> but keep the text wrap<br />\n</li>\n</ul>\nI have done the first 3 but I can't achieve the last requirement.\r<br />\n<br />\nExample of:\r<br />\n<br />\nwhat I have\r<br />\n<br />\n<img src=\"http://i.stack.imgur.com/j5J43.jpg\" alt=\"enter image description here\" />\r<br />\n<br />\nwhat I need\r<br />\n<br />\n<img src=\"http://i.stack.imgur.com/18Jqe.jpg\" alt=\"enter image description here\" />\r<br />\n<br />\nThe <strong>rows and columns are standard</strong> width and height and <strong>can't be changed</strong> due to the other cells width and height. Client design....\r<br />\n<br />\nI have tried: <br />\n<pre><code>    $this-&gt;excel-&gt;getActiveSheet()-&gt;mergeCells('A28:C32');      \n    $this-&gt;excel-&gt;getActiveSheet()-&gt;getStyle('A28')-&gt;getAlignment()-&gt;applyFromArray(\n        array(\n            'horizontal' =&gt; PHPExcel_Style_Alignment::HORIZONTAL_CENTER,\n            'vertical'   =&gt; PHPExcel_Style_Alignment::VERTICAL_CENTER,\n            'rotation'   =&gt; 0,\n            'wrap'       =&gt; true\n        )\n    )-&gt;setShrinkToFit(true);    \n</code></pre>\n\nand any other combination of these above:<br />\n<pre><code>            $this-&gt;excel-&gt;getActiveSheet()-&gt;mergeCells('A28:C32');\n            $this-&gt;excel-&gt;getActiveSheet()-&gt;getStyle('A28:C32')-&gt;getAlignment()-&gt;applyFromArray(\n        array(\n            'horizontal' =&gt; PHPExcel_Style_Alignment::HORIZONTAL_CENTER,\n            'vertical'   =&gt; PHPExcel_Style_Alignment::VERTICAL_CENTER,\n            'rotation'   =&gt; 0,\n            'wrap'       =&gt; true\n        )\n     )-&gt;setShrinkToFit(true);\n\n             //or this\n             $this-&gt;excel-&gt;getActiveSheet()-&gt;mergeCells('A28:C32')-&gt;getAlignment()-&gt;setWrapText(true)-&gt;setShrinkToFit(true);\n</code></pre>\n\nI'm aware of <br />\n<pre><code>             $this-&gt;excel-&gt;getActiveSheet()-&gt;getStyle(&quot;A1&quot;)-&gt;getFont()-&gt;setSize(10);\n</code></pre>\n\nbut <strong><em>I need the text to be smaller only if it is not fit the merged cells</em></strong>.\r<br />\n<br />\nThanks for any suggestion.<br />\n",
+    "PostedDate": "2014-04-04T11:04:26.853-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1231250",
+    "ThreadId": "541232",
+    "Html": "In Excel, you cannot have simultaneously 'Wrap' and 'ShrinkToFit'. Although PHPExcel allows you to define both, in the end, Excel will not take it into account.\r<br />\nYou will therefore have to simulate and to do this, know the width and the height you have, calculate the font size so that the string is contained within the available space. Not obvious, even more so with a proportional font.<br />\n",
+    "PostedDate": "2014-04-07T05:58:35.617-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1231306",
+    "ThreadId": "541232",
+    "Html": "Thanks for your answer, LWol. \r<br />\n<br />\nThe only solution I found is to actually <strong>count the number of lines</strong> and set the font accordingly. \r<br />\n<br />\nIf the <strong>number of lines of string is greater</strong> <em>than</em> <strong>number of rows of merged cells</strong> (5 in my case) then set the font smaller.<br />\n<pre><code>  if (substr_count($return_to, &quot;\\n&quot;) &lt;= 4){ //count 5 lines or less -&gt; font = 10\n\n      $this-&gt;excel-&gt;getActiveSheet()-&gt;getStyle(&quot;A28&quot;)-&gt;getFont()-&gt;setSize(10);\n\n  }else{ //count more than 5 lines -&gt; font = 9\n\n      $this-&gt;excel-&gt;getActiveSheet()-&gt;getStyle(&quot;A28&quot;)-&gt;getFont()-&gt;setSize(9);\n\n  } \n\n</code></pre>\n\n",
+    "PostedDate": "2014-04-07T07:13:16.65-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

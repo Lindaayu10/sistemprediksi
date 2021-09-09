@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "70607",
+    "ThreadId": "21221",
+    "Html": "\r\nHi, I'm using the DataValidation but I can't open the xlsx file.  I think code will be better than explanations.  But before, few words about the environment :<br />PHP on Ubuntu/Linux, php -v = PHP 5.2.3-1ubuntu6.3 (cli) (built: Jan 10 2008 09:38:37)<br />PHPExcel version 1.5.5, 2007-12-24<br />Excel 2002 version (10.6834.6830) SP3 with Office 2007 compatibility pack from MicroSoft (version 12.0.6021.5000)<br /><br /><b>Code BEGIN</b><br />require_once('PHPExcel.php');<br />require_once('PHPExcel/Writer/Excel2007.php');<br /><br />$objPHPExcel = new PHPExcel();<br />$objPHPExcel-&gt;setActiveSheetIndex(0);<br />$objPHPExcel-&gt;getActiveSheet()-&gt;setTitle('f1');<br />$objPHPExcel-&gt;createSheet();<br />$objPHPExcel-&gt;setActiveSheetIndex(1);<br />$objPHPExcel-&gt;getActiveSheet()-&gt;setTitle('f2');<br />$objPHPExcel-&gt;setActiveSheetIndex(0);<br />$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('A1','=f2!B2');<br />$objPHPExcel-&gt;setActiveSheetIndex(1);<br /><br />$objValidation = $objPHPExcel-&gt;getActiveSheet()-&gt;getCell('B2')-&gt;getDataValidation();<br />$objValidation-&gt;setType( PHPExcel<i>Cell</i>DataValidation::TYPE_LIST );<br />$objValidation-&gt;setErrorStyle( PHPExcel<i>Cell</i>DataValidation::STYLE_INFORMATION );<br />$objValidation-&gt;setAllowBlank(false);<br />$objValidation-&gt;setShowInputMessage(true);<br />$objValidation-&gt;setShowErrorMessage(true);<br />$objValidation-&gt;setShowDropDown(true);<br />$objValidation-&gt;setErrorTitle('Input error');<br />$objValidation-&gt;setError('Value is not in list.');<br />$objValidation-&gt;setPromptTitle('Pick from list');<br />$objValidation-&gt;setPrompt('Please pick a value from the drop-down list.');<br />$objValidation-&gt;setFormula1('\"Item A\", \"Item B\", \"Item C\"');<br />$objPHPExcel-&gt;getActiveSheet()-&gt;getCell('B2')-&gt;setDataValidation($objValidation);<br /><br />$objPHPExcel-&gt;createSheet();<br />$objPHPExcel-&gt;setActiveSheetIndex(2);<br />$objPHPExcel-&gt;getActiveSheet()-&gt;setTitle('f3');<br /><br />$objPHPExcel-&gt;setActiveSheetIndex(0);<br />    // Save Excel 2007 file<br />$objWriter = new PHPExcel<i>Writer</i>Excel2007($objPHPExcel);<br />$objWriter-&gt;setOffice2003Compatibility(true);<br />$objWriter-&gt;save('test.xlsx');<br /><b>Code END</b><br /><br />What I did wrong?<br /><br />Thank you,<br />JP<br />",
+    "PostedDate": "2008-01-29T08:25:35.99-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "70740",
+    "ThreadId": "21221",
+    "Html": "\r\nThe problem is in this line:<br />$objValidation-&gt;setFormula1('\"Item A\", \"Item B\", \"Item C\"');<br /><br />This should be:<br />$objValidation-&gt;setFormula1('\"Item A, Item B, Item C\"');<br /><br />Basically the full list of comma-separated values must be between \" quotes \".<br />",
+    "PostedDate": "2008-01-29T23:04:37.103-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "70801",
+    "ThreadId": "21221",
+    "Html": "\r\nmaartenba, thank you!  You spot my problem.<br /><br />JP<br />",
+    "PostedDate": "2008-01-30T05:52:09.62-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,65 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "Calculation_Engine",
+      "DisplayName": "Calculation_Engine"
+    },
+    "ClosedComment": "",
+    "ClosedDate": "2009-09-29T23:26:49.323-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "In Worksheet.php, function getCell(), at this point the same regexp is used for both conditions:\n\t\t// Named range?\n\t\tif ((!preg_match('/^'.PHPExcel_Calculation::CALCULATION_REGEXP_CELLREF.'$/i', $pCoordinate, $matches)) &&\n\t\t\t(preg_match('/^'.PHPExcel_Calculation:: CALCULATION_REGEXP_CELLREF.'$/i', $pCoordinate, $matches))) {\n \nAlso, the condition checking if the named range is in the same worksheet does not allow named ranges within the same worksheet to be used, only those referring to another worksheet.\n \nPatched code which returns the cell as expected appears to be:\n \n\t\t// Named range?\n\t\tif ((!preg_match('/^'.PHPExcel_Calculation::CALCULATION_REGEXP_CELLREF.'$/i', $pCoordinate, $matches)) &&\n\t\t\t(preg_match('/^'.PHPExcel_Calculation::CALCULATION_REGEXP_NAMEDRANGE.'$/i', $pCoordinate, $matches))) {\n\t\t\t$namedRange = PHPExcel_NamedRange::resolveRange($pCoordinate, $this);\n\t\t\tif (!is_null($namedRange)) {\n\t\t\t\t$pCoordinate = $namedRange->getRange();\n\t\t\t\tif ($this->getHashCode() != $namedRange->getWorksheet()->getHashCode()) {\n\t\t\t\t\tif (!$namedRange->getLocalOnly()) {\n\t\t\t\t\t\treturn $namedRange->getWorksheet()->getCell($pCoordinate);\n\t\t\t\t\t} else {\n\t\t\t\t\t\tthrow new Exception('Named range ' . $namedRange->getName() . ' is not accessible from within sheet ' . $this->getTitle());\n\t\t\t\t\t}\n\t\t\t\t} else {\n          //Allow named ranges within the same sheet.\n          return $this->getCell($pCoordinate);\n        }\n\t\t\t}\n\t\t}",
+    "LastUpdatedDate": "2013-05-16T05:42:23.797-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-09-24T20:14:21.99-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Named range can no longer be passed to worksheet->getCell()",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 10684
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "Thank you for your fix.\r\nSilly mistake with the regular expression, as you've pointed out.\r\n\r\nLooking slightly further, there's a similar if test using the same regexp twice in the cellExists() method of PHPExcel_Worksheet as well. That also needs patching in the same way, although that second reference doesn't need the additional code for returning named ranges in the same worksheet.\r\n",
+      "PostedDate": "2009-09-25T01:03:02.27-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-09-26T10:24:05.95-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-09-29T23:26:49.323-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:03:37.453-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:23.797-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

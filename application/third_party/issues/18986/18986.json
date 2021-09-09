@@ -1,0 +1,39 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hi!\nI try to parse PNG from Excel sheet. The Excel file has one list (01_Body_Graph_Daily) and going to PHP-script from Microsoft SQL Reporting Services by e-mail and/or SMB-share, in any case, the error is the same:\nPHP Fatal error:  Call to a member function getBlipType() on a non-object in /var/www/mail-edge.mil.zs/Classes/PHPExcel/Reader/Excel5.php on line 995\nPHP code:\n \n\nfunction getBodyImages($dataDir, $parseFile, $reporting_type)\n{\n    try {\n        $objPHPExcel = PHPExcel_IOFactory::load($dataDir . $reporting_type . '/' . $parseFile);\n    } catch (Exception $e) {\n        die('Error loading file: ' . $e->getMessage());\n    }\n    $worksheet = $objPHPExcel->getActiveSheet();\n    foreach ($worksheet->getDrawingCollection() as $i => $drawing) {\n        if ($drawing instanceof PHPExcel_Worksheet_MemoryDrawing) {\n            ob_start();\n            call_user_func(\n                $drawing->getRenderingFunction(),\n                $drawing->getImageResource()\n            );\n            $imageContents = ob_get_contents();\n            ob_end_clean();\n\n            $myFileName = $dataDir . $reporting_type . '/graph_' . ++$i . '.png';\n            $trueFileName = 'graph_' . $i . '.png';\n            file_put_contents($myFileName, $imageContents);\n            $files[] = $trueFileName;\n        }\n    }\n    return $files;\n}\n\n\n \nOk, I download file from server to my Mac, opened it in MS Office 2011 for Mac, just save it (Cmd+S) and upload to server again, then run script - and voila - all drawings parsed successfuly.\n \nSometimes, this error is not appears, but script going to the infinite loop of Notices on this lines:\n \n\n    try {\n        $objPHPExcel = PHPExcel_IOFactory::load($dataDir . $reporting_type . '/' . $parseFile);\n    } catch (Exception $e) {\n        die('Error loading file: ' . $e->getMessage());\n    }\n   \n\n\n \nI cannot post Notices now, but when it appear again I'll do it.\nSo - the question - where is the problem?\nTwo files (broken.xls and okay.xls) in attch.\nUh, and so strange - MacOS doesn't render preview in file icon for broken.xls and render for okay.xls (this file I saved in Excel by hands), screenshot in attch too.\nAttch:\nhttp://phpexcel.codeplex.com/Download/AttachmentDownload.ashx?ProjectName=phpexcel&WorkItemId=10749&FileAttachmentId=6718\nhttp://phpexcel.codeplex.com/Download/AttachmentDownload.ashx?ProjectName=phpexcel&WorkItemId=10749&FileAttachmentId=6719\nThanx!\np.s. sorry for my english.",
+    "LastUpdatedDate": "2013-02-21T19:01:34.057-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2012-11-30T02:13:50.61-08:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "getBlipType() - DrawingCollection issue",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 18986
+  },
+  "FileAttachments": [],
+  "Comments": []
+}

@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "506956",
+    "ThreadId": "230832",
+    "Html": "<p>Hi,</p>\r\n<p>&nbsp;</p>\r\n<p>I've got some xlsx files to process both reading and writing.</p>\r\n<p>The files contain about 10 sheets with 1000 rows * 30 columns = up to <em>300000</em> cells.</p>\r\n<p>Each of the sheet has some <strong>cell style information</strong> like background color and also some <strong>formula</strong> like sum and average inside.</p>\r\n<p>My script is going to read the static data (only!), not the formula or styles. All I need, is the raw data for the reader.</p>\r\n<p>The writer script is appending new data lines and does not touch the style or formula. Also static data, only, and no dynamic or styled content.</p>\r\n<p>&nbsp;</p>\r\n<p>That's why I wonder if the style details and formula are slowing down the script though?</p>\r\n<p>&nbsp;</p>\r\n<p>Currently I try optimization with the</p>\r\n<ul>\r\n<li>PHPExcel_Settings::<span style=\"text-decoration:underline\">CacheStorageMethod</span> and</li>\r\n<li>PHPExcel_Calculation::getInstance()-&gt;<span style=\"text-decoration:underline\">setCalculationCacheEnabled(false)</span>;</li>\r\n</ul>\r\n<p>&nbsp;</p>\r\n<p>Is there something helpful to <strong>disregard the style information</strong> or something else to increase the speed of the reader and/or writer with XLSx?</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks for advice and kind regards,</p>\r\n<p>rabby</p>",
+    "PostedDate": "2010-10-13T17:33:16.487-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "507077",
+    "ThreadId": "230832",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\">\r\n<p>Is there something helpful to <strong>disregard the style information</strong> or something else to increase the speed of the reader and/or writer with XLSx?</p>\r\n</blockquote>\r\n<p>&nbsp;You can disregard reading style information from a workbook.</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>$objReader = PHPExcel_IOFactory::createReader(<span style=\"color:#a31515\">'Excel5'</span>);\r\n<span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'Turning Formatting off for Load&lt;br /&gt;'</span>;\r\n<span style=\"color:green\">/**  Advise the Reader that we only want to load cell data, not formatting  **/</span>\r\n$objReader-&gt;setReadDataOnly(true);\r\n<span style=\"color:green\">/**  Load $inputFileName to a PHPExcel Object  **/</span>\r\n$objPHPExcel = $objReader-&gt;load($inputFileName);\r\n</pre>\r\n</div>",
+    "PostedDate": "2010-10-14T00:30:04.137-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

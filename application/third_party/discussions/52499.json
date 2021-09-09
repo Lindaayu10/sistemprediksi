@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "176442",
+    "ThreadId": "52499",
+    "Html": "hi there<br>\r\n<br>\r\nI need to print 30 horizontal cells into same page. From the MS Excel 2007 I can do that in view-&gt;Page Break View-&gt; move the blue line separator with mouse.<br>\r\n<br>\r\nHow to do that using PHPExcel lib?<br>\r\n",
+    "PostedDate": "2009-04-06T21:28:30.04-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "177065",
+    "ThreadId": "52499",
+    "Html": "You will probably want to do this using:<br>\r\n<br>\r\n<code>$objWorksheet-&gt;setBreak('A30', PHPExcel_Worksheet::BREAK_ROW);</code><br>\r\n<br>\r\n",
+    "PostedDate": "2009-04-08T02:46:01.517-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "177301",
+    "ThreadId": "52499",
+    "Html": "i was trying but without success. the row break is made but not the column. Why?<br>\r\n&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setBreak( 'A35' , PHPExcel_Worksheet::BREAK_ROW );<br>\r\n&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setBreak( 'Z35' , PHPExcel_Worksheet::BREAK_COLUMN );&nbsp;&nbsp; <br>\r\n<br>\r\none more question: Do I have to setup the page size and orientation for each sheet?<br>\r\n<br>\r\n<br>\r\n",
+    "PostedDate": "2009-04-08T11:47:59.103-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "177684",
+    "ThreadId": "52499",
+    "Html": "Hmm... I tried your code:<br>\r\n<br>\r\n<code>\r\n&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setBreak( 'A35' , PHPExcel_Worksheet::BREAK_ROW );<br>\r\n&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setBreak( 'Z35' , PHPExcel_Worksheet::BREAK_COLUMN ); <br>\r\n</code>\r\n<br>\r\nThis gives me a horizontal page break after row 35, and a vertical page break before column Z. Not sure why it is working for me?<br>\r\n<br>\r\nYes, you have to set page size and orientation for each sheet.<br>\r\n<br>\r\n",
+    "PostedDate": "2009-04-09T10:08:54.463-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "181032",
+    "ThreadId": "52499",
+    "Html": "I have no idea about why this doen;t work for me......<br>\r\n<br>\r\nOn 35 columns I have 3 pages( <code>3 BREAK_COLUMN</code> )<br>\r\n<br>\r\nmy code:<br>\r\n&nbsp;&nbsp;&nbsp; $objPageSetup = new PHPExcel_Worksheet_PageSetup();<br>\r\n&nbsp;&nbsp;&nbsp; $objPageSetup-&gt;setPaperSize(PHPExcel_Worksheet_PageSetup::PAPERSIZE_A4);<br>\r\n&nbsp;&nbsp;&nbsp; $objPageSetup-&gt;setOrientation(PHPExcel_Worksheet_PageSetup::ORIENTATION_LANDSCAPE);<br>\r\n&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setBreak( 'A35' , PHPExcel_Worksheet::BREAK_ROW );<br>\r\n&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setBreak( 'Z35' , PHPExcel_Worksheet::BREAK_COLUMN );<br>\r\n&nbsp;&nbsp;&nbsp; $objPageSetup-&gt;setFitToWidth(1);<br>\r\n&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setPageSetup($objPageSetup);<br>\r\n<br>\r\nmany thx<br>\r\n",
+    "PostedDate": "2009-04-19T12:19:16.36-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "181809",
+    "ThreadId": "52499",
+    "Html": "This may be a peculiar thing about Excel rather than PHPExcel. The page setup features can be set individually, but not all values can co-exist.&nbsp; There can be over-constraining and special rules are needed to determine how pages are actually split. In your example it is probably setFitToWidth(1) that is preventing the page break to take effect.<br>\r\n<br>\r\nBest advice is probably to first create your workbook in MS Office Excel the way you want it until you find the correct settings. Then apply the appropriate page setup values to your script in PHPExcel. To get the effect you want, you may need to adjust the page zoom rather than fit-to-width.<br>\r\n<br>\r\n",
+    "PostedDate": "2009-04-21T08:17:41.833-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

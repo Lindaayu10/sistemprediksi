@@ -1,0 +1,66 @@
+[
+  {
+    "Id": "158083",
+    "ThreadId": "47242",
+    "Html": "The problem is the following:<br>\r\nWe are creating an instance of a class testObject and fill a var with a double.<br>\r\n<br>\r\nA class TestExcel extends from PhpExcel and when submitting the object testObject into the constructor we get a scientific notation of the var when we do a var_dump.<br>\r\n<br>\r\nCan anyone help us out. My colleagues and I don't understand how it is possible that the content of an instance can be changed by extending the phpExcel class.<br>\r\n<br>\r\nWhen we don't do the extension, the var_dump returns the correct notation. -- 200000<br>\r\nWhen doing the extension we get the scientific notation -- 2.0E+5\r\n<br>\r\n<br>\r\n[code]<br>\r\n<br>\r\n// instance of the testObject<br>\r\n<br>\r\n$number = new testObject();<br>\r\n$number-&gt;setNumber((double)200000);<br>\r\n&nbsp; &nbsp;&nbsp; &nbsp;<br>\r\n// contruct testExcelClass<br>\r\n$excel = new TestExcel($number);<br>\r\n&nbsp; &nbsp;&nbsp; &nbsp;<br>\r\n<br>\r\n// Class TestObject &nbsp;&nbsp;&nbsp; &nbsp;<br>\r\nclass testObject {<br>\r\n<br>\r\n&nbsp; &nbsp;&nbsp; &nbsp;private $number;<br>\r\n<br>\r\n&nbsp; &nbsp;&nbsp; &nbsp;public function setNumber($number){<br>\r\n&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$this-&gt;number = $number;<br>\r\n&nbsp; &nbsp;&nbsp; &nbsp;}<br>\r\n&nbsp; &nbsp;&nbsp; &nbsp;<br>\r\n&nbsp; &nbsp;&nbsp; &nbsp;public function getNumber(){<br>\r\n&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;return $this-&gt;number;<br>\r\n&nbsp; &nbsp;&nbsp; &nbsp;}<br>\r\n&nbsp; &nbsp;&nbsp; &nbsp;<br>\r\n}<br>\r\n&nbsp; <br>\r\n// class test excell extends from phpexcel &nbsp;<br>\r\nclass TestExcel extends PHPExcel&nbsp; {<br>\r\n&nbsp; <br>\r\n&nbsp;&nbsp;&nbsp; private $number;<br>\r\n&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp;&nbsp; public function __construct($number){<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; parent::__construct();<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $this-&gt;number = $number;<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; print_r($this-&gt;number); exit();<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp;&nbsp; }<br>\r\n&nbsp; <br>\r\n}<br>\r\n[/code]<br>\r\n<br>\r\n",
+    "PostedDate": "2009-02-16T07:14:43.453-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "158101",
+    "ThreadId": "47242",
+    "Html": "Using your classes, and the following code:<br>\r\n[code]<br>\r\n$number = new testObject();<br>\r\n$number-&gt;setNumber((double)200000);<br>\r\nprint_r($number-&gt;getNumber());<br>\r\necho '&lt;hr /&gt;';<br>\r\n// contruct testExcelClass<br>\r\n$excel = new TestExcel($number);<br>\r\n[/code]<br>\r\n<br>\r\nI'm getting <br>\r\n[code]<br>\r\n2.0E+5 <br>\r\n---<br>\r\ntestObject Object ( [number:private] =&gt; 2.0E+5 ) <br>\r\n[/code]<br>\r\nwhich is what I'd expect to see<br>\r\n<br>\r\n<br>\r\nIf I modify the testExcel class to not extend PHPExcel<br>\r\n[code]<br>\r\nclass TestExcel  {<br>\r\n    private $number;<br>\r\n    public function __construct($number){<br>\r\n      $this-&gt;number = $number;<br>\r\n      print_r($this-&gt;number); exit();<br>\r\n    }<br>\r\n}<br>\r\n[/code]<br>\r\nI get exactly the same result<br>\r\n<br>\r\nAnd I get the value displayed in scientific notation if I simply do<br>\r\n[code]<br>\r\necho (float)200000;<br>\r\n[/code]<br>\r\n<br>\r\nHowever, I get an unformatted display if I do<br>\r\n[code]<br>\r\necho (float)234567;<br>\r\n[/code]<br>\r\n<br>\r\n",
+    "PostedDate": "2009-02-16T08:19:08.127-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "158127",
+    "ThreadId": "47242",
+    "Html": "the last example is something we got to.<br>\r\nIndeed echo (float)200000 does give the scientific notation 2.0 E+5<br>\r\nand echo (float)234567; does indeed give the full number but this isn't the answer to my problem.<br>\r\nThat you get the same result with and without the phpexcel class is even a bigger mystery. <br>\r\nThe var_dump of the variable in a class without phpexcel gives us a full number, with phpexcel it gets the scientific notation....<br>\r\n",
+    "PostedDate": "2009-02-16T09:00:02.14-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "158234",
+    "ThreadId": "47242",
+    "Html": "Yeah, this is some annoying behavior of PHP which was introduced unintentionally, it seems, and arguably a bug<br>\r\n<a href=\"http://bugs.php.net/bug.php?id=43053\">http://bugs.php.net/bug.php?id=43053</a><br>\r\n<br>\r\nLooks like this will be fixed in PHP 5.3.0.<br>\r\n<br>\r\n",
+    "PostedDate": "2009-02-16T12:20:16.487-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "158416",
+    "ThreadId": "47242",
+    "Html": "The mistery becomes even bigger:<br>\r\nThere might be a bug in PHP like Koyama said but then we don't get the following issue.<br>\r\n<br>\r\nwhen the TestExcel class above is changed to this:<br>\r\n<br>\r\n[code]<br>\r\nclass TestExcel extends emptyClass { <br>\r\n&nbsp;&nbsp;&nbsp; private $number;<br>\r\n&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp;&nbsp; public function __construct($number){<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $this-&gt;number = $number;<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; print_r($this-&gt;number);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; exit();<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp;&nbsp; } <br>\r\n}<br>\r\n[/code]<br>\r\n<br>\r\nwhere emptyClass is in fact an empty class ( how brilliant is that?)<br>\r\n[code]<br>\r\nclass emptyClass {<br>\r\n&nbsp;&nbsp; &nbsp;<br>\r\n}<br>\r\n[/code]<br>\r\n<br>\r\nthis doesn't give an issue and the ouput is: 200000<br>\r\n<br>\r\nwhen the extendclass is PHPExcel the output is: 2.0 E+5<br>\r\n<br>\r\nIn one or another way PHPExcel must have an influance on this variable......<br>\r\nAny other ideas?\r\n",
+    "PostedDate": "2009-02-17T01:42:37.047-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "158583",
+    "ThreadId": "47242",
+    "Html": "When I try this:<br>\r\n<br>\r\n<code>echo (float)200000;</code><br>\r\n<br>\r\nI am apparently now get this output using PHP 5.2.8 / Linux<br>\r\n<br>\r\n<code>200000</code><br>\r\n<br>\r\nPreviously, on other versions I would get 2.0 E+5. I can't seem to reproduce now, but there is some weirdness going on here and it shows that results depend on your PHP version / installation. I can't imagine how PHPExcel can influence on this.<br>\r\n<br>\r\nBut can you post your scripts, in their full length, with and without extending PHPExcel. We can then copy-paste and test it on a few servers and see what we get.<br>\r\n<br>\r\n",
+    "PostedDate": "2009-02-17T10:50:10.407-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "158888",
+    "ThreadId": "47242",
+    "Html": "You were right with your first answer that this is a bug in php 5.2.6 ( maybe previous versions) but it has been fixed in 5.2.8<br>\r\n<br>\r\nso we did the ugrade and this works correct now.<br>\r\n<br>\r\nThe only thing is that we ( and you to :-) ) still don't understand why the extend with the PHPExcel class changes the notation of the number.<br>\r\nI also cannot give you more code because the code i gave is the one it does not work with.<br>\r\n<br>\r\nso you get two classes to work with<br>\r\n<br>\r\nclass TestExcel { <br>\r\n&nbsp;&nbsp;&nbsp; private $number;<br>\r\n&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp;&nbsp; public function __construct($number){<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $this-&gt;number = $number;<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; print_r($this-&gt;number);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; exit();<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp;&nbsp; } <br>\r\n}<br>\r\n<br>\r\nthis outputs 200000<br>\r\n<br>\r\nclass TestExcel extends PHPExcel{ <br>\r\n&nbsp;&nbsp;&nbsp; private $number;<br>\r\n&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp;&nbsp; public function __construct($number){<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $this-&gt;number = $number;<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; print_r($this-&gt;number);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; exit();<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp;&nbsp; } <br>\r\n}<br>\r\n<br>\r\nthis outputs 2.0 E+5<br>\r\n<br>\r\nafter all the problem has been solved, but we don't know what the solution was.... (without the update off course)<br>\r\n<br>\r\nthank you guys for the follow up of this issue.<br>\r\nbest regards<br>\r\n<br>\r\n",
+    "PostedDate": "2009-02-18T01:53:58.31-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "159188",
+    "ThreadId": "47242",
+    "Html": "Found it!<br>\r\n<br>\r\nApparently, echoing the float gives me <code>2.0E+5</code> on PHP 5.2.6, but only when precision is 15 or higher. On PHP 5.2.8, I never get <code>2.0E+5</code>, but always <code>200000</code>, it seems. Examples:<br>\r\n<br>\r\nTrying on PHP Version 5.2.6-pl7-gentoo<br>\r\n<br>\r\n<code>\r\nini_set('precision', 14);<br>\r\necho (float)200000; // gives 200000<br>\r\n</code>\r\n<br>\r\n<code>\r\nini_set('precision', 15);<br>\r\necho (float)200000; // gives 2.0E+5<br>\r\n</code>\r\n<br>\r\nTrying on PHP Version 5.2.8-0.dotdeb.1<br>\r\n<br>\r\n<code>\r\nini_set('precision', 14);<br>\r\necho (float)200000; // gives 200000<br>\r\n</code>\r\n<br>\r\n<code>\r\nini_set('precision', 15);<br>\r\necho (float)200000; // gives 200000<br>\r\n</code>\r\n<br>\r\nPHPExcel is effectively setting precision to 15 in PHExcel/Calculation/Functions.php. This explains behavior when extending PHPExcel.<br>\r\n<br>\r\n<code>\r\n$savedPrecision = ini_get('precision');<br>\r\nif ($savedPrecision &lt; 15) {<br>\r\n&nbsp;&nbsp;\r\nini_set('precision',15);<br>\r\n}<br>\r\n</code>\r\n<br>\r\nUpgrading from PHP 5.2.6 to 5.2.8 is the solution. I consider this a PHP bug. Thank you for posting your findings.<br>\r\n<br>\r\n",
+    "PostedDate": "2009-02-18T15:23:58.863-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

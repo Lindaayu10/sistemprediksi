@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "617326",
+    "ThreadId": "258797",
+    "Html": "\r\n<p>Hi,</p>\r\n<p>When $inputFileName in PHPExcel_IOFactory::identify($inputFileName) points to an invalid file, e.g. a text file, it should throw an exception. At least that is what the comment of this method suggests:</p>\r\n<p></p>\r\n<pre>\t/**\r\n\t *\tIdentify file type using automatic PHPExcel_Reader_IReader resolution\r\n\t *\r\n\t *\t@static\r\n\t *\t@access public\r\n\t *\t@param \tstring \t\t$pFileName\r\n\t *\t@return\tstring\r\n\t *\t@throws\tException\r\n\t */</pre>\r\n<p></p>\r\n<p>During unit testing of my code that is using this method I noticed that no exception is raised.</p>\r\n<p>May I suggest to throw an exception? I've added the following three lines in Reader/Excel2007.php, method canRead(). Lines 203-205 are new.</p>\r\n<p></p>\r\n<pre>200\t\tif ($zip-&gt;open($pFilename) === true) {\r\n201\t\t\t// check if it is an OOXML archive\r\n202\t\t\t$rels = simplexml_load_string($this-&gt;_getFromZipArchive($zip, &quot;_rels/.rels&quot;));\r\n203\t\t\tif ($rels === false) {\r\n204\t\t\t    throw new Exception(&quot;File &quot; . $pFilename . &quot; contains no valid data.&quot;);\r\n205\t\t\t}\r\n<br></pre>\r\n<p></p>\r\n",
+    "PostedDate": "2011-05-24T06:02:13.98-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "617705",
+    "ThreadId": "258797",
+    "Html": "<p>The canRead() method should throw an exception in exceptional circumstances, such as when the file doesn't exist. If the file is not of the appropriate type for the reader, then the canRead() method returns a boolean false. This is the appropriate behaviour for the canRead() method.</p>\r\n<p>Note that the tests in the Excel2007 canRead() method have been changed in the latest code, so $rels is tested, and the actual content is tested to prevent .docx or .pptx files being erroneously identified as workbooks.</p>\r\n<p>I will modify the canRead() code to throw exceptions if any of the relevant libraries (ZipArchive or gzlib) are not enabled, and modify the createReaderForFile() and identify() methods in the IOFactory to prevent aborting the tests if these exceptions are caught so that they will still test for all file types until a match is found.</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2011-05-24T14:54:19.22-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

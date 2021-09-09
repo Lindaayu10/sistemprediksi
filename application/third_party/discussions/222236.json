@@ -1,0 +1,66 @@
+[
+  {
+    "Id": "475621",
+    "ThreadId": "222236",
+    "Html": "<p>Got a weird problem I hope someone can help me with. I can run the 01simple-download-xls.php example without any problem. But when I add the code to my PHP webpage it gets corrupted.</p>\r\n<p>I am using a form that contains a button to call the download of the xls file. The form calls back the itself so that (in the future) different data&nbsp;for the xls file can be generated and downloaded. My problem is that the download seems to be corrupted.</p>\r\n<p>In doing some investigation I've determined:</p>\r\n<p>1) As I said, the 01simple-download-xls.php</p>\r\n<p>2)I can save the xls file on the server side using...</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre><span style=\"color:green\">// Redirect output to a client&rsquo;s web browser (Excel5) </span>\r\nheader(<span style=\"color:#a31515\">'Content-Type: application/vnd.ms-excel'</span>); \r\nheader(<span style=\"color:#a31515\">'Content-Disposition: attachment;filename=&quot;Arena_Report.xls&quot;'</span>); \r\nheader(<span style=\"color:#a31515\">'Cache-Control: max-age=0'</span>); \r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, <span style=\"color:#a31515\">'Excel5'</span>); \r\n$objWriter-&gt;save(<span style=\"color:#a31515\">'testKAM.xls'</span>); \r\nreadfile(<span style=\"color:#a31515\">&quot;testKAM.xls&quot;</span>); \r\n<span style=\"color:blue\">exit</span>;\r\n</pre>\r\n</div>\r\n<p>And the file on the server (testKAM.xls) is fine - no corruption. But the downloaded file is corrupted.</p>\r\n<p>3)The corruption from the above is exactly the same as the corruption from a regular code that directs the php to stdout</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre><span style=\"color:green\">// Redirect output to a client&rsquo;s web browser (Excel5) </span>\r\nheader(<span style=\"color:#a31515\">'Content-Type: application/vnd.ms-excel'</span>); \r\nheader(<span style=\"color:#a31515\">'Content-Disposition: attachment;filename=&quot;Arena_Report.xls&quot;'</span>); \r\nheader(<span style=\"color:#a31515\">'Cache-Control: max-age=0'</span>); \r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, <span style=\"color:#a31515\">'Excel5'</span>); \r\n$objWriter-&gt;save(<span style=\"color:#a31515\">'php://output'</span>); \r\n<span style=\"color:blue\">exit</span>; \r\n</pre>\r\n</div>\r\n<p>So somehow the act of downloading seems to be messing up somehow. Does anyone have any ideas for me to try?</p>\r\n<p>I am using PHPExcel 1.7.3c, PHP 5.2.12 on an Linux server ver 2.6, with Apache and zip:</p>\r\n<pre>Zip enabled \r\nExtension Version $Id: php_zip.c 287723 2009-08-26 02:16:41Z guenter $ Zip \r\nversion 1.8.11 \r\nLibzip version 0.9.0 </pre>\r\n<p>Thanks, Kevin</p>",
+    "PostedDate": "2010-08-02T14:03:28.433-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "478245",
+    "ThreadId": "222236",
+    "Html": "Can anyone help here? Or is more info required?\r\n\r\nKevin",
+    "PostedDate": "2010-08-09T11:59:13.3-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "482724",
+    "ThreadId": "222236",
+    "Html": "<p>Can you try opening the corrupted file in a standard text editor, and see if there are any obvious text strings displayed (e.g. error messages)</p>",
+    "PostedDate": "2010-08-20T05:17:14.363-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "482920",
+    "ThreadId": "222236",
+    "Html": "<p>Mark,</p>\r\n<p>Thanks for the help.&nbsp;&nbsp; I had already opened the file up in notepad++ with no joy - whole bunches of y's with double dots on top though, it then goes on with the entire HTML page created from the PHP. So I have now decided to go another route.&nbsp; When I first wrote this discussion I had put the PHPExcel code within my PHP code at the very beginning before anything was outputted.&nbsp; I presumed that something was in the output buffered that was screwing things up. Therefore I went a different route.</p>\r\n<p>Now I have created a form with a single button that calls the PHPExcel file by itself without any of the webpage code around.&nbsp; Something like....<br>\r\n<div style=\"color:black;background-color:white\">\r\n<pre><span style=\"color:blue\">&lt;</span><span style=\"color:#a31515\">form</span> <span style=\"color:red\">action</span><span style=\"color:blue\">=</span><span style=\"color:blue\">&quot;reports/simple-download-xls.php&quot;</span> <span style=\"color:red\">method</span><span style=\"color:blue\">=</span><span style=\"color:blue\">&quot;get&quot;</span><span style=\"color:blue\">&gt;</span>\r\n  <span style=\"color:blue\">&lt;</span><span style=\"color:#a31515\">input</span> <span style=\"color:red\">type</span><span style=\"color:blue\">=</span><span style=\"color:blue\">'submit'</span> <span style=\"color:red\">name</span><span style=\"color:blue\">=</span><span style=\"color:blue\">'schedulereport'</span> <span style=\"color:red\">id</span><span style=\"color:blue\">=</span><span style=\"color:blue\">'schedulereport'</span> <span style=\"color:red\">value</span><span style=\"color:blue\">=</span><span style=\"color:blue\">'Schedule Report'</span> <span style=\"color:blue\">/&gt;</span>\r\n<span style=\"color:blue\">&lt;/</span><span style=\"color:#a31515\">form</span><span style=\"color:blue\">&gt;</span>\r\n</pre>\r\n</div>\r\n</p>\r\n<p>and the simple-download-xls.php can almost mirror the examples perfectly.&nbsp; Plu,s using the get, I can pass variables into the file reasonably well.&nbsp; It's a pity that I wasn't able to get the corruption sorted out - maybe after I finish the whole website I can come back and re-address this issue.&nbsp;&nbsp; I really like this library and think it is really great.</p>\r\n<p>I really can't put here what the corruption is because I can't copy it (The 9th char is a null ) and I can't give you a screen shot as I can't attach a pic. So sorry.....</p>\r\n<p>Thanks for everything.&nbsp;&nbsp; If you have any other ideas for checking what the corruption could be please tell me.</p>\r\n<p>Kevin</p>",
+    "PostedDate": "2010-08-20T12:47:56.847-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "574262",
+    "ThreadId": "222236",
+    "Html": "<p>Hi Kevin,</p>\r\n<p>Did you solve&nbsp;downloaded file is corrupting problem.</p>\r\n<p>I'm also have the same problem same as you.</p>\r\n<p>Anyone help me.</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks in advance,</p>\r\n<p>thenndral.</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2011-03-02T01:22:19.023-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "574263",
+    "ThreadId": "222236",
+    "Html": "<p>Hi Kevin,</p>\r\n<p>Did you solve&nbsp;downloaded file is corrupting problem.</p>\r\n<p>I'm also have the same problem same as you.</p>\r\n<p>Anyone help me.</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks in advance,</p>\r\n<p>thenndral.</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2011-03-02T01:22:25.417-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1096814",
+    "ThreadId": "222236",
+    "Html": "Hello all,\r<br />\n<br />\nI have the problem as you, two days I search solution, but can`t find it. \r<br />\n<br />\nIf anyone have a solution for this problem I will be happy to share it.<br />\n",
+    "PostedDate": "2013-09-20T01:29:43.4-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1096849",
+    "ThreadId": "222236",
+    "Html": "I FIND THE SOLUTION OF MY PROBLEM!!!!!\r<br />\n<br />\nJust must clean the buffer before settin the header part like this:\r<br />\n<br />\nif (ob_get_contents()) ob_end_clean();<br />\n",
+    "PostedDate": "2013-09-20T02:50:42.183-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

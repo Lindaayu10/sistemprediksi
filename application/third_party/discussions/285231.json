@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "721506",
+    "ThreadId": "285231",
+    "Html": "\r\n<p>Hello Guys</p>\r\n<p>&nbsp;</p>\r\n<p>I would be interested in the functionality of PHPExcel_Writer_Serialized. I found it in the documentation, but I ve seen on the changelog, that you removed it from the prod release in 1.7.6.</p>\r\n<p>What are your plans on that, are you going to put it back in 1.7.7, if yes when will this one be released, is it gone forever, are there alternatives ???</p>\r\n<p>Curiously looking forward to your reply, best regards, Chris</p>\r\n",
+    "PostedDate": "2012-01-06T07:25:21.767-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "721756",
+    "ThreadId": "285231",
+    "Html": "<p>Serialized had been broken for some releases prior to 1.7.6, and nobody had noticed, so it clearly wasn't being used by anybody... and that's why I took the decision to drop it rather than try to fix it.</p>\n<p>There were three big problems with Serialized:</p>\n<ol>\n<li>The first was cyclic references between workbook/worksheet/cell and back up through cell/worksheet/workbook, which PHP's serialize/unserialize function couldn't handle. The only way to resolve that was to disconnect the parent references in the cell and worksheet, but when unserialized this was creating a new worksheet for each individual cell, and a new workbook for each worksheet. </li>\n<li>Secondly: it wasn't (and couldn't ever be) completely backward compatible between versions, so a workbook serialied using PHPExcel 1.7.0 couldn't be read by PHPExcel 1.7.1... any change to the properties maintained in any of the classes would break unserialize. </li>\n<li>The third reason was cell caching. If the cell data isn't maintained physically in the cell collection object (e.g. APC, discISAM, memcache, php://temp or&nbsp;Wincache), then it was completely lost when serializing. </li>\n</ol>\n<p>With so many problems, and nobody using the feature, it seemed a waste of effort to spend weeks trying to find a solution... and if people do need to persist a workbook between sessions, then xlsx or xls are every bit as effective.</p>\n<p>&nbsp;</p>\n<p>The plans for PHPExcel version 1.7.7 and for ongoing development&nbsp;through 2012 were posted <a href=\"http://phpexcel.codeplex.com/discussions/284725\">here on the forum </a>on 2<sup>nd</sup> January.</p>",
+    "PostedDate": "2012-01-06T15:54:07.873-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "722469",
+    "ThreadId": "285231",
+    "Html": "<p>Hello Mark</p>\r\n<p>Thank you for the detailed reply.</p>\r\n<p>My motivation to serialize the PHPExcel Object was the performance when filling the cells and writing the excel file. I tried to chase it down a little bit, especially for filling the cells. I would like to share my experience with you if you don't mind.</p>\r\n<p>It took me round about 5 sec to fill a phpExcel with 5000 rows and 9 cols. I used getCellByColumnAndRow + setValueExplicit, because I had already figured out that setting the value with an explicit type is only half price.</p>\r\n<p>Within getCellByColumnAndRow I found that these 3 function calls are the most costly ones:</p>\r\n<p>- PHPExcel_Cell::stringFromColumnIndex($pColumn) (12ns);</p>\r\n<p>- new PHPExcel_Cell(...) (20ns)</p>\r\n<p>- PHPExcel_Cell::columnIndexFromString($this-&gt;_cachedHighestColumn) (15ns)</p>\r\n<p>&nbsp;</p>\r\n<p>I was able to reduce the cost of the two static functions to 3ns each by copying their source code into getCellByColumnAndRow directly.</p>\r\n<p>The contructor became a bit faster after removing the strtoupper, not sure if you can renounce that. The rest of the cost seems to come mainly from the _parent assignment. I couldn't really test it, because the workbook just doesn't work any more, when the cells are not connected to their workbook. Could that be possible? If yes, then it would mean that handling references is very costly in PHP.</p>\r\n<p>Maybe it helps if you want to provide so more performance tuning on PHPExcel. I could share my source code if you are interested.</p>\r\n<p>&nbsp;</p>\r\n<p>Best regards, Christian</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2012-01-09T06:14:13.087-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "722614",
+    "ThreadId": "285231",
+    "Html": "<p>Yes, setValueExplicit() is faster than setValue() because it dosn't need to identify the datatype automatically</p>\n<p>&nbsp;</p>\n<p>Copying the source from the statics into the methods that call them breaks most rules of good coding, in that you're duplicating code... and doing it everywhere that they're used would be a bad idea making it harder to maintain;&nbsp;and removing strtoupper() from the new PHPExcel_Cell constructor is a bad idea... I'll then be inundated with messages from people who discover that A1 is then no longer a1.</p>\n<p>And no, cells can't be maintained without a connection to their worksheet, nor worksheets without a link back to the workbook.</p>\n<p>I'm always looking at ways of improving performance, and one option is to hold the cachedHighest Column as&nbsp;a numeric internally (the standard method call will; still return a column character address), to alleviate the need to convert it from a letter address to numeric.... but I'm still testing every reference to ensure that change hasn't broken anything.</p>",
+    "PostedDate": "2012-01-09T09:39:43.597-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "722896",
+    "ThreadId": "285231",
+    "Html": "<p>Yes, copying the statics is bad style, I agree.</p>\r\n<p>The measurements around chachedHighest Column sound good, i will keep track 1.7.7 of it in case it will be integrated.</p>\r\n<p>By now I also found out that the a bigger performance impact in my case derives from cell formatting (getStyleByColumnAndRow($j, $i)-&gt;getNumberFormat()-&gt;setFormatCode() ). I think I will provide an extra link for the user to create the excel sheets on demand, only when he needs it.</p>\r\n<p>Thanks for sharing,</p>\r\n<p>best regards, Christian</p>",
+    "PostedDate": "2012-01-09T23:20:43.677-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "722901",
+    "ThreadId": "285231",
+    "Html": "<p>Setting format code is better done over a range of cells than for each individual cell, so I normally only apply formatting (typically to whole blocks of columns or rows) once I've populated all the data cells. That applies to colours, font styles and number formats equally.</p>",
+    "PostedDate": "2012-01-09T23:30:19.077-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "722902",
+    "ThreadId": "285231",
+    "Html": "<p>Cool, good to know.</p>",
+    "PostedDate": "2012-01-09T23:33:52.263-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

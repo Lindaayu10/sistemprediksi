@@ -1,0 +1,50 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "PHPExcel 1.7.6\n2007 writer\n \nIt seems as though PHPExcel can handle page areas or page breaks, but not both.\nI have a sheet that has both a print area and a page break and only the print area works.  I can open the sheet and set the page break and save it again and it will work.\nI looked at the xml of the sheet, and the difference I can see is that in order for it to work with a print area, the break needs a min and max value:\n<brk id=\"63\" min=\"4\" max=\"14\" man=\"1\" /> \nMy print area is from E1:O200 making me think the min is the start of the print area (D) and 12 columns after that is the end (P)\n \nAdding it manually to the extracted PHPExcel output file seems to make it work correctly.\n \nSo I am thinking we need to add something to PHPExcel_Writer_Excel2007_Worksheet::_writeBreaks() to check to see if a print area is defined and setup the min/max values.\nie:\n/Classes/PHPExcel/Writer/Excel2007/Worksheet.php:824\n//pseudocode\nif($pSheet->isPrintAreaSet())\n{\n  $min = PHPExcel_Cell::columnIndexFromString($pSheet->getPrintArea(1)[0]);\n  $max = PHPExcel_Cell::columnIndexFromString($pSheet->getPrintArea(1)[1]);\n  $objWriter->writeAttribute('min', $min);\n  $objWriter->writeAttribute('max', $max);\n}",
+    "LastUpdatedDate": "2013-02-21T19:02:25.147-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2011-04-22T11:41:44.353-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Print Areas and Page Breaks",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 3,
+    "Id": 15741
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "For me, the manual breaks works but there are also automatic breaks.\r\nExemple :\r\nmanual rows breaks at rows 11, 16, 22, 31, 38... but also an automatic break appears at row 34 and i don't know why ?",
+      "PostedDate": "2012-02-21T06:50:36.873-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:02:25.147-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

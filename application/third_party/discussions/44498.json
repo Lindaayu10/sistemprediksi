@@ -1,0 +1,82 @@
+[
+  {
+    "Id": "148099",
+    "ThreadId": "44498",
+    "Html": "Anyone ever use CodeIgniter before ?<br>\r\nI'm trying to use PHPExcel library within my CI code and i found this strange behaviour.<br>\r\n<br>\r\n<span style=\"text-decoration:underline\"><strong>I want to do this</strong><strong> :<br>\r\n<br>\r\n</strong></span>Create on-the-fly spreadsheet based on a template.<br>\r\nSo i have to load a template, manipulate the content, and send it to the browser.<br>\r\n<br>\r\nI have this file in my CI library :<br>\r\n<br>\r\n<strong>excel.php</strong><br>\r\n<br>\r\n<blockquote><em>&lt;?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');</em><br>\r\n<br>\r\n<em>class Excel &nbsp;</em><br>\r\n<em>{</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;public $workbook;</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;function __construct()</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;{</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// PHPExcel libraries have to be in your include path !</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;require_once('PHPExcel.php');</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;require_once('PHPExcel/IOFactory.php');</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;}</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;function load()</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;{</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// Path to the template file</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$template_location = 'resources/template.xls';</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$xls_reader = PHPExcel_IOFactory::createReader('Excel5');</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$this-&gt;workbook = $xls_reader-&gt;load($template_location);</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;var_dump($this-&gt;workbook); // Yea, successfully load the data</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;}</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;function send()</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;{</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;//So far so good, now let's create the writer</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$xls_writer = PHPExcel_IOFactory::createWriter($this-&gt;workbook, 'Excel5'); // Trouble maker</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// Stops here, no error message, output nothing</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;header('Pragma: public');</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;header('Expires: 0');</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;header('Cache-Control: must-revalidate, post-check=0, pre-check=0');</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;header('Content-Type: application/force-download');</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;header('Content-Type: application/octet-stream');</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;header('Content-Type: application/download');</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;header(&quot;Content-Disposition: attachment;filename=from-template.xls&quot;);</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;header('Content-Transfer-Encoding: binary');</em><br>\r\n<br>\r\n<em>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$xls_writer-&gt;save('php://output');&nbsp;&nbsp; &nbsp;</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;}</em><br>\r\n<em>}</em><br>\r\n<br>\r\n</blockquote>And i have this tester class in my controller :<br>\r\n<br>\r\n<strong>excel_tester.php</strong><br>\r\n<br>\r\n<blockquote><em>&lt;?php</em><br>\r\n<br>\r\n<em>class Excel_tester extends Controller</em><br>\r\n<em>{</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;function __construct()</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;{</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;parent::__construct();</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;}</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;function test()</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;{</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$this-&gt;load-&gt;library('excel');</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$this-&gt;excel-&gt;load();</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$this-&gt;excel-&gt;send();</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;}</em><br>\r\n<em>}</em><br>\r\n</blockquote><br>\r\n<span style=\"text-decoration:underline\"><strong>And here goes the problem :</strong></span><br>\r\n<br>\r\nThe template was loaded successfully. I tried to var_dump'ing the workbook object, and it outputs correctly.<br>\r\nThe code execution <span style=\"text-decoration:underline\">stops right when i call <strong>PHPExcel_IOFactory::createWriter()</strong></span>. No error messages displayed. It just stopped.<br>\r\n<br>\r\nI tried to change the parameter, <br>\r\nso instead of <em>&quot;createWriter(<span style=\"text-decoration:underline\">$this-&gt;workbook</span>, 'Excel5')&quot;</em>, i use &quot;<em>createWriter(<span style=\"text-decoration:underline\">new PHPExcel()</span>, 'Excel5')</em>&quot;.<br>\r\nNo luck.<br>\r\n<br>\r\n<span style=\"text-decoration:underline\"><strong>BUT</strong></span>, when i omit the template load code (that is, no <strong>createReader</strong> executed in my code), the &quot;<em>createWriter(<span style=\"text-decoration:underline\">new PHPExcel()</span>, 'Excel5')</em>&quot; works like a charm, and it outputs the empty xls correcly.<br>\r\n<br>\r\n<br>\r\nWhy is that, and how can i fix my problem here ?<br>\r\nAny helps will be appreciated. As far as i found, PHPExcel fits my needs the most, and i don't want to abandon this library.<br>\r\n",
+    "PostedDate": "2009-01-18T09:39:04.183-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "148106",
+    "ThreadId": "44498",
+    "Html": "I've not tried working with CodeIgniter, but the example described at <a href=\"http://techxplorer.com/2008/12/08/using-phpexcel-with-codeigniter/\">http://techxplorer.com/2008/12/08/using-phpexcel-with-codeigniter/</a> is similar to your code, but with one or two differences that might affect things\r\n",
+    "PostedDate": "2009-01-18T10:09:40.323-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "148109",
+    "ThreadId": "44498",
+    "Html": "Yea i start my code with that one :p . . techxplorer's code is working because he doesn't use <strong>createReader</strong> in his code.<br>\r\nThe problem arise when i call <strong>createReader</strong>, followed by <strong>createWriter</strong>. <br>\r\nI don't see this problem when i code this in plain php (no CI).<br>\r\n",
+    "PostedDate": "2009-01-18T10:25:12.17-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "148154",
+    "ThreadId": "44498",
+    "Html": "We cannot rule out that this is a bug in Excel5 writer. Maybe your template uses some advanced formulas that are not supported by Excel5 writer?<br>\r\n<br>\r\nCan you try replacing your template.xls with a blank workbook and see if the script starts working?<br>\r\n<br>\r\nIf it is the template.xls that is the problem, you may send it to me so I can inspect (erik at phpexcel dot net).<br>\r\n<br>\r\n",
+    "PostedDate": "2009-01-18T16:07:41.79-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "148161",
+    "ThreadId": "44498",
+    "Html": "@koyama<br>\r\ntemplate.xls is a fresh blank workbook. It is created using openoffice, but i don't think this is the problem.<br>\r\nI've tried to change createWriter's parameter, instead <em>of &quot;createWriter(<span style=\"text-decoration:underline\">$this-&gt;workbook</span>, 'Excel5')&quot;</em>, i use &quot;<em>createWriter(<span style=\"text-decoration:underline\">new PHPExcel()</span>, 'Excel5')</em><br>\r\nNothing changed.<br>\r\n",
+    "PostedDate": "2009-01-18T16:53:09.45-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "148162",
+    "ThreadId": "44498",
+    "Html": "Hmm... I now notice that you are saying that it stops before the save().. That probably rules out that it is a a bug in Excel5 writer. It must be something else...<br>\r\n<br>\r\nTry to do a plain read/write with you template outside the CodeIgniter framework. (That is saving ordinarily to disk, not sending to browser.)<br>\r\n<br>\r\n",
+    "PostedDate": "2009-01-18T16:53:25.03-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "148164",
+    "ThreadId": "44498",
+    "Html": "It works correctly outside CI.<br>\r\n<br>\r\n<strong>excel.php</strong><br>\r\n<blockquote><em>&lt;?php</em><br>\r\n<br>\r\n<em>class Excel</em><br>\r\n<em>{</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;private $workbook;</em><br>\r\n<br>\r\n<em>&nbsp;&nbsp; &nbsp;function __construct()</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;{</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// PHPExcel libraries have to be in your include path !&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;require_once('PHPExcel.php');</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;require_once('PHPExcel/IOFactory.php');</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;}</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;function load()</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;{</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// Location relative to the main caller</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$template_location = 'template.xls';</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$xls_reader = PHPExcel_IOFactory::createReader('Excel5');</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$this-&gt;workbook = $xls_reader-&gt;load($template_location);</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;}</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;function send()</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;{</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$xls_writer = PHPExcel_IOFactory::createWriter($this-&gt;workbook, 'Excel5');</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$xls_writer-&gt;save('result/from-template.xls');&nbsp;&nbsp; &nbsp;</em><br>\r\n<em>&nbsp;&nbsp; &nbsp;}</em><br>\r\n<em>}</em><br>\r\n</blockquote><strong>excel-tester.php<br>\r\n</strong><blockquote><em>&lt;?php</em><br>\r\n<br>\r\n<em>require_once('excel.php');</em><br>\r\n<br>\r\n<em>$excel = new Excel();</em><br>\r\n<em>$excel-&gt;load();</em><br>\r\n<em>$excel-&gt;send();</em><br>\r\n<br>\r\n</blockquote>Any suggestion ?<br>\r\n",
+    "PostedDate": "2009-01-18T17:07:47.843-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "148167",
+    "ThreadId": "44498",
+    "Html": "Now that you have got one case working and one case not working, I would try to add lines one by one to the working case (approaching the non-working case) until you find out exactly what makes it fail.<br>\r\n<br>\r\nI am unfortunately not familiar with CodeIgniter.<br>\r\n<br>\r\n",
+    "PostedDate": "2009-01-18T17:25:09.127-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "148171",
+    "ThreadId": "44498",
+    "Html": "I've done some manual tracing before, and i found that the code execution is actually stopped at <strong>PHPExcel/Writer/Excel5/Workbook.php</strong> when it calls <em>require_once 'PHPExcel/Writer/Excel5/Worksheet.php'</em>.<br>\r\n<br>\r\nThe same problem happens to Excel2007 writer. But PDF and HTML writer goes fine for me.<br>\r\n<br>\r\nWell, I decided to write the result to PDF insted of XLS. <br>\r\nIf my clients have to edit something, they have to edit the template file instead :p<br>\r\n<br>\r\nThanks for the help ^^<br>\r\nI hope the bug will be fixed soon.<br>\r\n<br>\r\n",
+    "PostedDate": "2009-01-18T17:47:38.56-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "148174",
+    "ThreadId": "44498",
+    "Html": "Hmm... ok, but this sounds very strange. If you do find that this is a bug in PHPExcel, please let us know.<br>\r\n<br>\r\n",
+    "PostedDate": "2009-01-18T17:59:07.933-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "121155",
+    "ThreadId": "36521",
+    "Html": "Hi All,<br>\r\n<br>\r\nI am new to php spredsheet engine/excel writer and have been working on a project to out put formated data to an excel spredsheet. I am also wrting formulas to calculate the difference between two cloumns. <br>\r\n<br>\r\nAt the moment I have the data out putting to columns correctly, but the column where I out put the formula is displaying the formula rather than the desired result. I have copied and pasted the code for wrting the formula below.<br>\r\n<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue($sIndex, $sFormula);<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle($sIndex)-&gt;applyFromArray($aFormats['arbrnfp']);<br>\r\n<br>\r\nbelow is an example of the put, the final colum display the formula as a string rather than running it&nbsp;and displaying the result, how would&nbsp;I go about correcting this please.&nbsp;<br>\r\n<br>\r\n<br>\r\n<table style=\"width:204pt;border-collapse:collapse\" cellspacing=0 cellpadding=0 width=272 border=0>\r\n    <colgroup>\r\n    <col style=\"width:51pt\" span=4 width=68>\r\n    <tbody>\r\n        <tr style=\"height:12.75pt\" height=17>\r\n            <td class=xl62 style=\"border-right:#f0f0f0;border-top:#f0f0f0;border-left:#f0f0f0;width:51pt;border-bottom:#f0f0f0;height:12.75pt;background-color:transparent\" width=68 height=17><span style=\"font-size:13px;color:#ff0000;font-family:Tahoma\"><b>-7.67%</b></span></td>\r\n            <td class=xl62 style=\"border-right:#f0f0f0;border-top:#f0f0f0;border-left:#f0f0f0;width:51pt;border-bottom:#f0f0f0;background-color:transparent\" width=68><span style=\"font-size:13px;color:#ff0000;font-family:Tahoma\"><b>-10.16%</b></span></td>\r\n            <td class=xl62 style=\"border-right:#f0f0f0;border-top:#f0f0f0;border-left:#f0f0f0;width:51pt;border-bottom:#f0f0f0;background-color:transparent\" width=68><span style=\"font-size:13px;color:#ff0000;font-family:Tahoma\"><b>-1.12%</b></span></td>\r\n            <td class=xl61 style=\"border-right:black 0.5pt solid;border-top:#f0f0f0;border-left:#f0f0f0;width:51pt;border-bottom:#f0f0f0;background-color:transparent\" width=68><span style=\"font-size:13px;font-family:Tahoma\">=I6 - E6</span></td>\r\n        </tr>\r\n        <tr style=\"height:12.75pt\" height=17>\r\n            <td class=xl60 style=\"border-right:#f0f0f0;border-top:#f0f0f0;border-left:#f0f0f0;border-bottom:#f0f0f0;height:12.75pt;background-color:transparent\" height=17><span style=\"font-size:13px;font-family:Tahoma\">21.58%</span></td>\r\n            <td class=xl60 style=\"border-right:#f0f0f0;border-top:#f0f0f0;border-left:#f0f0f0;border-bottom:#f0f0f0;background-color:transparent\"><span style=\"font-size:13px;font-family:Tahoma\">6.73%</span></td>\r\n            <td class=xl62 style=\"border-right:#f0f0f0;border-top:#f0f0f0;border-left:#f0f0f0;border-bottom:#f0f0f0;background-color:transparent\"><span style=\"font-size:13px;color:#ff0000;font-family:Tahoma\"><b>-6.41%</b></span></td>\r\n            <td class=xl61 style=\"border-right:black 0.5pt solid;border-top:#f0f0f0;border-left:#f0f0f0;border-bottom:#f0f0f0;background-color:transparent\"><span style=\"font-size:13px;font-family:Tahoma\">=I7 - E7</span></td>\r\n        </tr>\r\n    </tbody>\r\n</table>\r\n<br>\r\n<br>\r\nMany Thanks in Advance for your help<br>\r\nBob&nbsp;\r\n",
+    "PostedDate": "2008-09-26T06:39:35.647-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "121260",
+    "ThreadId": "36521",
+    "Html": "Hmm... this should really not be happening! I tried various test, but couldn't reproduce the bug. I'm not sure either whether you're using Excel2007 or Excel5 writer. Would it be possible for you to post a complete test script so this can be reproduced?<br>\r\n",
+    "PostedDate": "2008-09-26T15:34:46.64-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "121537",
+    "ThreadId": "36521",
+    "Html": "Hi,<br>\r\n<br>\r\nI have been looking at this and found that the promblem is not the formula or the code that out puts the formula. The problem is with my formatting code.&nbsp;<br>\r\n<br>\r\n<p>$sFormula = &quot;=&quot; .$currentNetSale .&quot;-&quot; .$oldNetSale;</p>\r\n<p>$sCol='M';<br>\r\n$sIndex = $sCol . $iCount;<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue($sIndex, $sFormula);<br>\r\n<strong>$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle($sIndex)-&gt;applyFromArray($aFormats['arbrnfp']);</strong><br>\r\n<br>\r\nI am using formats from arrays held in a formating.php lib file. The code that calls the format for the cells in question is highlighted above and the code for the format is below. I have tracked down the problem to the final line of the format code. I can not see anything wrong with it&nbsp;and I am using this format in other columns without any issues, although those values are calculated by my code rather than a formula.<br>\r\n<br>\r\n$aFormats['arbrnfp']['font']['name'] = 'tahoma';<br>\r\n$aFormats['arbrnfp']['font']['size'] = 10;<br>\r\n$aFormats['arbrnfp']['alignment']['horizontal'] = PHPExcel_Style_Alignment::HORIZONTAL_RIGHT;<br>\r\n$aFormats['arbrnfp']['borders']['right']['style'] = PHPExcel_Style_Border::BORDER_THIN;<br>\r\n<strong>$aFormats['arbrnfp']['numberformat']['code'] = '#,##0.00%;[Red]-#,##0.00%';</strong><br>\r\n<br>\r\n<br>\r\nMany Thanks in Advance for your help<br>\r\nBob<br>\r\n<br>\r\n</p>\r\n",
+    "PostedDate": "2008-09-29T03:51:33.673-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "121572",
+    "ThreadId": "36521",
+    "Html": "forgot to add that I am using&nbsp;&nbsp;Excel5 writer.<br>\r\n<br>\r\nKind Regards<br>\r\nBob\r\n",
+    "PostedDate": "2008-09-29T05:58:42.94-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "121707",
+    "ThreadId": "36521",
+    "Html": "You are affected by this bug in PHPExcel 1.6.3<br>\r\n<a href=\"http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=7536\">http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=7536</a><br>\r\n<br>\r\nPlease download latest source code and test again:<br>\r\n<a href=\"http://www.codeplex.com/PHPExcel/SourceControl/ListDownloadableCommits.aspx\">http://www.codeplex.com/PHPExcel/SourceControl/ListDownloadableCommits.aspx</a><br>\r\n<br>\r\n<br>\r\n",
+    "PostedDate": "2008-09-29T13:36:51.093-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "121802",
+    "ThreadId": "36521",
+    "Html": "Thanks again,&nbsp;<br>\r\n<br>\r\nI will download and update the source files and re-run my code.<br>\r\n<br>\r\nKind Regards<br>\r\nBob\r\n",
+    "PostedDate": "2008-09-30T02:34:35.963-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

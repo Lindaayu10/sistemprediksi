@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "1351698",
+    "ThreadId": "580550",
+    "Html": "Sir/Ma'am\r<br />\n             <br />\n\r<br />\n  I have an excel file. It contains approx. 15 sheets. I want to show only one sheet (FCR). but that sheet is depend on others by some formulas. I am unable to convert those formula values into html table value.\r<br />\n<br />\nI am getting error:\r<br />\n&quot;FCR!B1 -&gt; Cash Rec 1!E5 -&gt; Invalid cell coordinate C &quot;\r<br />\n<br />\nMy Excel file is here : \r<br />\n<a href=\"https://www.dropbox.com/s/1vfjyqqxk9d2nri/Pilgrim_Excel.xlsx?dl=0\" rel=\"nofollow\">Pilgrim_Excel</a><br />\n",
+    "PostedDate": "2015-02-12T02:41:14.103-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1351766",
+    "ThreadId": "580550",
+    "Html": "Here is my Code:-<br />\n<br />\n&lt;?php<br />\nrequire_once 'Classes/PHPExcel.php';<br />\n$objPHPExcel = PHPExcel_IOFactory::load(&quot;Pilgrim_Excel.xlsx&quot;);<br />\nPHPExcel_Calculation::getInstance()-&gt;cyclicFormulaCount = 100;<br />\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'HTML');<br />\n$objWriter-&gt;writeAllSheets();<br />\n$objWriter-&gt;save('php://output');<br />\n?&gt;<br />\n",
+    "PostedDate": "2015-02-12T05:54:55.493-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1351800",
+    "ThreadId": "580550",
+    "Html": "Take a look at the value in cell <code>Cash Rec 1!E5</code>. It looks as though it contains a column reference as <code>C</code>, which isn't something supported by PHPExcel's calculation engine, though I'd need to know the exact formula to confirm.\r<br />\n<br />\nNote that if you only want to display a single sheet in HTML, then you shouldn't be using <br />\n<div style=\"color:Black;background-color:White;\"><pre>\r\n$objWriter-&gt;writeAllSheets();\r\n</pre></div>but specifying the sheet that you do want to display<br />\n<div style=\"color:Black;background-color:White;\"><pre>\r\n$objWriter-&gt;setSheetIndex(\n    $objPHPExcel-&gt;getIndex(\n        $objPHPExcel-&gt;getSheetByName(<span style=\"color:#A31515;\">&#39;FCR&#39;</span>)\n    )\n);\r\n</pre></div>",
+    "PostedDate": "2015-02-12T08:00:43.873-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1352045",
+    "ThreadId": "580550",
+    "Html": "Thanks for the quick reply.\r<br />\n<br />\nAs per the mentioned Error and as far as i can see in my excel sheet, There is not so much hard calculation. \r<br />\n<br />\nIn FCR Cell B1 is based on ='Cash Rec 1'!C5\r<br />\nand in Cash Rec 1 cell C5 is =LOOKUP(E5,CTRL!C:C,CTRL!A:A)    that it takes E5 value (210) and search in CTRL sheet and get correspondence CTRL A value.\r<br />\n<br />\nif still PHPEXCEL not supported this then is there any alternative solution for it ?\r<br />\n<br />\nyou can see and check the the Excel Sheet. I have mentioned the link.\r<br />\n<br />\n<br />\nPlease Help me out.\r<br />\n<br />\nThanks<br />\n",
+    "PostedDate": "2015-02-12T21:36:26.477-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1352079",
+    "ThreadId": "580550",
+    "Html": "Either modify the formula to specify an actual range of cells (if you know the maximum number of rows):\r<br />\n<br />\ne.g<br />\n<pre><code>=LOOKUP(E5,CTRL!C1:C1000,CTRL!A1:A1000)</code></pre>\n\nOr possibly look at some of the alternatives such as COM with MS Excel installed on the server, PUNO with Open/LibreOffice installed on the server, or Ilia's extension that requires the commercial libXL<br />\n",
+    "PostedDate": "2015-02-13T00:18:21.463-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1352163",
+    "ThreadId": "580550",
+    "Html": "Thank you sir, you are genius .\r<br />\n<br />\nthat's going good but now i am getting another error.<br />\n<pre><code>\nPHPExcel_Calculation_Exception' with message 'FCR!C5 -&gt; Cash Rec 1!E5 -&gt; Cash Rec 1!E5 -&gt; Daily Close!O8 -&gt; Cash Rec 1!E5 -&gt; Invalid cell coordinate C</code></pre>\n\nI believe it is different from the previous one. at <strong>Cash Rec 1</strong>  cell no. <strong>E5</strong> there is no formula . but still i am getting error.\r<br />\n<br />\n<br />\nthanks in advance.<br />\n",
+    "PostedDate": "2015-02-13T04:06:36.303-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

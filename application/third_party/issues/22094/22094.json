@@ -1,0 +1,39 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I have this input file bootstrap:\n\n![Image](http://i.stack.imgur.com/YFemD.jpg)\n\nThis input file only accept xls file, when I send the xls file, first I need check in php if the file is only read or not and return a specific number, because I need accept only editable files.\n\nExample what I need:\n\nI send a xls file, in php I check if is a editable file , if is editable file , continue with the next step, and if is not a editable file, return 3.\n\nThis is a only read file:\n\n![Image](http://i.stack.imgur.com/OZyuO.jpg)\n\nI work with phpexcel and when I send a only read file , I have the next error:\n\n![Image](http://i.stack.imgur.com/3JGKU.jpg)\n\nThis is my code in php:\n\n```\n<?php\n\nrequire \"dao/daoExcel.php\";\nrequire \"vendor/autoload.php\";\n\nclass ControllerExcel {\n\n    private $aDatosExcel;\n\n    public function setDataExcel($dataexcel) {\n\n        $estado = true;\n\n        if($this->moverArchivo($dataexcel)==false){\n            $estado = false;\n        }\n\n        if($estado == true && $this->validaHeaders($dataexcel)==false){\n            $estado = false;\n            return 2;\n        }\n\n        if($estado == true){\n            return $this->setInsertExcel($dataexcel);\n        }\n\n    }\n\n    public function moverArchivo($dataexcel) {\n\n\n        $fileName = $_FILES[\"archivo\"][\"name\"]; \n        $fileTmpLoc = $_FILES[\"archivo\"][\"tmp_name\"];\n        $aHeader = new DaoExcel();\n        $excelUrl = $aHeader->getHeaderExel($dataexcel);\n\n        $pathAndName = $excelUrl[17]['par_valor'].$fileName;\n\n        $moveResult = move_uploaded_file($fileTmpLoc, $pathAndName);\n        if ($moveResult == true) {\n           return true;\n        }else{\n           return false;\n        }\n\n    }\n\n    public function validaHeaders($dataexcel){\n\n        $inputFileType = 'Excel5';\n        $aHeader = new DaoExcel();\n        $excelHead = $aHeader->getHeaderExel($dataexcel);\n        $inputFileName = $excelHead[17]['par_valor'].$_FILES[\"archivo\"][\"name\"];\n        $objReader = PHPExcel_IOFactory::createReader($inputFileType);\n        $objPHPExcel = $objReader->load($inputFileName);\n\n        $h1 = $objPHPExcel->getActiveSheet()->getCell('A1')->getValue();\n        $h2 = $objPHPExcel->getActiveSheet()->getCell('B1')->getValue();\n        $h3 = $objPHPExcel->getActiveSheet()->getCell('C1')->getValue();\n        $h4 = $objPHPExcel->getActiveSheet()->getCell('D1')->getValue();\n        $h5 = $objPHPExcel->getActiveSheet()->getCell('E1')->getValue();\n\n        $header = $h1.\"###\".$h2.\"###\".$h3.\"###\".$h4.\"###\".$h5;\n\n        if($excelHead[16]['par_valor'] == $header){\n            return true;\n        }else{\n            return false;\n        }\n\n    }\n\n    public function setInsertExcel($dataexcel){\n\n        $inputFileType = 'Excel5';\n        $aHeader = new DaoExcel();\n        $excelHead = $aHeader->getHeaderExel($dataexcel);\n        $inputFileName = $excelHead[17]['par_valor'].$_FILES[\"archivo\"][\"name\"];\n        $objReader = PHPExcel_IOFactory::createReader($inputFileType);\n        $objPHPExcel = $objReader->load($inputFileName);\n        $contRows = $objPHPExcel->setActiveSheetIndex(0)->getHighestRow();\n\n        for($i=2;$i<=$contRows;$i++){\n            $h1 = $objPHPExcel->getActiveSheet()->getCell('A'.$i)->getValue();\n            $h2 = $objPHPExcel->getActiveSheet()->getCell('B'.$i)->getValue();\n            $h3 = $objPHPExcel->getActiveSheet()->getCell('C'.$i)->getValue();\n            $h4 = $objPHPExcel->getActiveSheet()->getCell('D'.$i)->getValue();\n            $h5 = $objPHPExcel->getActiveSheet()->getCell('E'.$i)->getValue();\n            $aDatos['ac_no']=$h1;\n            $aDatos['custom_no']=$h2;\n            $aDatos['nombre']=$h3;\n            $aDatos['marc']=$h4;\n            $aDatos['estado']=$h5;\n            $aDatos['fecha_registro']=$this->setFecha();\n            $aDatos['rco_oculto']=0;\n            $this->aDatosExcel[]=$aDatos;\n        }\n        return $aHeader->insertDatosExcel($this->aDatosExcel);\n    }\n\n    private function setFecha(){\n\n        date_default_timezone_set(\"America/Santiago\");\n        $now = time();\n        putenv(\"TZ=America/Santiago\");\n        $fecha=date(\"Y-m-d H:i:s\",$now);\n        $date=date(\"Y/m/d H:i:s\", strtotime($fecha));\n        return $date;\n\n    }\n\n}\n\n?>\n\n```\n\nSo I see that by default,phpexcel only accept editable files , but how can I check by my self if a xls file is only read or not with phpexcel , and return a message?\n\nSorry by my english.",
+    "LastUpdatedDate": "2015-11-19T11:11:04.84-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2015-11-19T11:11:04.84-08:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "How can I check if a xls file is editable file or not, using phpexcel?",
+    "Type": {
+      "Name": "Unassigned",
+      "Id": 5
+    },
+    "VoteCount": 1,
+    "Id": 22094
+  },
+  "FileAttachments": [],
+  "Comments": []
+}

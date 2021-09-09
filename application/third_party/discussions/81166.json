@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "278469",
+    "ThreadId": "81166",
+    "Html": "<p>Hi,</p>\r\n<p>Last week we updated our phpexcel version with the new version that was available in the source code. Since then we have trouble with our old code for adding formulas.<br>The formulas are build up dynamically and are set after the formula is create.</p>\r\n<p>$divisionResult =&nbsp; '=IF('.$this-&gt;cell[$column-1].$row.' &gt; 0; ('. $this-&gt;cell[$column-2].$row .'*1000) / ' . $this-&gt;cell[$column-1].$row . ';0)';<br>$sheet-&gt;setCellValue($this-&gt;cell[$column].$row, $divisionResult);</p>\r\n<p>I also tried the following that didn't work:</p>\r\n<p>$sheet-&gt;setCellValue($this-&gt;cell[$column].$row, '=IF(C16 &gt; 0; C16/F16; 0');</p>\r\n<p>If I write the following, the calculation works:</p>\r\n<p>$sheet-&gt;setCellValue($this-&gt;cell[$column].$row, '=C16/F16';</p>\r\n<p>Any ideas how this can be solved?</p>\r\n<p>Thanks</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-01-18T03:56:02.66-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "278476",
+    "ThreadId": "81166",
+    "Html": "<p>Hopefully you used commas</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$sheet-&gt;setCellValue($this-&gt;cell[$column].$row, <span style=\"color:#A31515\">'=IF(C16 &gt; 0, C16/F16, 0'</span>);\r\n</pre>\r\n</div>\r\n</div>\r\n<p>rather than semi-colons</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$sheet-&gt;setCellValue($this-&gt;cell[$column].$row, <span style=\"color:#A31515\">'=IF(C16 &gt; 0; C16/F16; 0'</span>);\r\n</pre>\r\n</div>\r\n</div>\r\n<div style=\"color:Black;background-color:White\">You also seem to be missing a closing bracket in the formula</div>",
+    "PostedDate": "2010-01-18T04:24:29.803-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "278483",
+    "ThreadId": "81166",
+    "Html": "<p>Since which version is this changed? ( ',' instead of ';' )?</p>\r\n<p>We used version 1.6.x and there we had no problems with the ';' .</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-01-18T04:55:46.297-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "278504",
+    "ThreadId": "81166",
+    "Html": "<p>As far as I'm aware, using a ; argument separator has never worked correctly. I've backtracked to PHPExcel 1.6.6 using the formula =SUM(A1;A2;A3) and consistently received a #N/A error, where using a comma separator =SUM(A1,A2,A3) gives the correct result if I execute the getCalculatedValue() from within PHPExcel itself. Excel is still able to open any generated xls file using Excel 2003 where a ; is used as an argument separator, although if you look at the cell formula in Excel, it has been changed to use a comma (on my system) rather than a semi-colon.</p>\r\n<p>Excel itself uses a comma internally, but displays the argument separator based on the locale settings: this character is determined by the List Separator setting for your system, which is specified in the Regional Settings dialog box, accessible via the Control Panel.</p>\r\n<p>&nbsp;</p>\r\n<p>PHPExcel's internal formula parser was re-written for release 1.7.0, and currently enforces a&nbsp;comma separator between function arguments.</p>\r\n<p>Formulae written to file are always in English, but Excel allows you to enter them according to a locale setting, or can render them in various languages when they are displayed. I'm assessing the work required in making formulae locale configurable (e.g. to allow use of the German ANZAHL() or Finnish LASKE() rather than the English COUNT()) and may well be able to modify the argument separator based on a locale setting in the same way.</p>",
+    "PostedDate": "2010-01-18T06:26:05.833-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "278512",
+    "ThreadId": "81166",
+    "Html": "<p>Okay, Thanks for the quick response.</p>\r\n<p>I already changed all our formulas to a comma instead of a ;.</p>\r\n<p>Now everything works fine.</p>",
+    "PostedDate": "2010-01-18T06:42:49.423-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

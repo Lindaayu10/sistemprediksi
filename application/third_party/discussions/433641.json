@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "1003290",
+    "ThreadId": "433641",
+    "Html": "hello everyone, when i run my php script to transform xlsx file to csv file, i get an error like this:<br />\n<pre><code>Fatal error: Uncaught exception 'PHPExcel_Exception' with message 'Sheet1!E2 -&gt;\nInvalid cell coordinate A' in C:\\xampp-portable\\htdocs\\xlsx2csv\\Classes\\PHPExcel\n\\Cell.php on line 307\n\nPHPExcel_Exception: Sheet1!E2 -&gt; Invalid cell coordinate A in C:\\xampp-portable\\\nhtdocs\\xlsx2csv\\Classes\\PHPExcel\\Cell.php on line 307\n\nCall Stack:\n    0.0010     131784   1. {main}() C:\\xampp-portable\\htdocs\\xlsx2csv\\Tests\\test\n.php:0\n    3.7742    3295200   2. PHPExcel_Writer_CSV-&gt;save(string(38)) C:\\xampp-portab\nle\\htdocs\\xlsx2csv\\Tests\\test.php:66\n    3.8375    3314104   3. PHPExcel_Worksheet-&gt;rangeToArray(string(5), string(0)\n, bool, ???, ???) C:\\xampp-portable\\htdocs\\xlsx2csv\\Classes\\PHPExcel\\Writer\\CSV.\nphp:140\n    3.8572    3315336   4. PHPExcel_Cell-&gt;getCalculatedValue(???) C:\\xampp-porta\nble\\htdocs\\xlsx2csv\\Classes\\PHPExcel\\Worksheet.php:2415</code></pre>\n\nfile used: <a href=\"http://phpexcel.codeplex.com/Download/AttachmentDownload.ashx?ProjectName=phpexcel&amp;WorkItemId=10749&amp;FileAttachmentId=6811\" rel=\"nofollow\">123.xlsx</a><br />\n<br />\nthe PHPExcel version i'm using: 1.7.8<br />\n<br />\ndo anyone know how to solve it?<br />\nmy code as follows:<br />\n<pre><code>$baseDir = $argv[1];\n$outDir = $argv[2];\n\nif(!file_exists($baseDir)){\n    echo $baseDir . &quot; (the directory doesn't exist!)&quot;;\n}else{\n    if(is_dir($baseDir) &amp;&amp; $list = opendir($baseDir)){\n        while($filename = readdir($list)){\n            $fullName = $baseDir . DIRECTORY_SEPARATOR . $filename;\n            if(is_file($fullName)){\n                $fileType = substr(strrchr($filename, '.'),1);\n                if($fileType == &quot;xlsx&quot; || $fileType == &quot;xls&quot;){\n                    echo &quot;processing: &quot; . $filename . &quot; ..\\n&quot;;\n                    if($fileType == &quot;xlsx&quot;)\n                        $objReader = new PHPExcel_Reader_Excel2007();\n                    else\n                        $objReader = new PHPExcel_Reader_Excel5();\n                    $objReader-&gt;setReadDataOnly(true);\n                    $objPHPExcel = $objReader-&gt;load($fullName);\n                    $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'CSV');\n                    $objWriter-&gt;save(str_replace('.' . $fileType, '.csv', $outDir . DIRECTORY_SEPARATOR . $filename));\n                }else{\n                    //echo &quot;file type is: &quot; . $fileType . &quot;\\n&quot;;\n                }\n            }\n        }\n    }else{\n        echo &quot;can't open the directory: &quot; . $baseDir . &quot;\\n&quot;;\n    }\n}</code></pre>\n\n",
+    "PostedDate": "2013-02-19T01:35:55.783-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1003388",
+    "ThreadId": "433641",
+    "Html": "PHPExcel's calculation engine can't fully interpret row and column references in formulae:\r<br />\n<br />\nchange<br />\n<pre><code>    =VLOOKUP(D2,Sheet2!A:B,2,FALSE)</code></pre>\n\nto<br />\n<pre><code>    =VLOOKUP(D2,Sheet2!A1:B21,2,FALSE)</code></pre>\n\n",
+    "PostedDate": "2013-02-19T04:46:39.77-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

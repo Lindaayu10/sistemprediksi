@@ -1,0 +1,162 @@
+<?
+require_once("db/db.class.php");
+$db = new db_class;
+require_once("Classes/PHPExcel.php");
+require_once("Classes/PHPExcel/IOFactory.php");
+error_reporting(E_ALL);
+ini_set("display_errors", 1);
+// create the new instance
+$objML = new PHPExcel();
+// and make it the active sheet
+$objML->setActiveSheetIndex(0);
+// set default spreadsheet layout options
+$objML->getDefaultStyle()->getFont()->setName('Calibri');
+$objML->getDefaultStyle()->getFont()->setSize(11);
+$objML->getActiveSheet()->getPageMargins()->setTop(1);
+$objML->getActiveSheet()->getHeaderFooter()->setOddHeader("&C&B&36MATERIAL LIST");
+// $objLogo = new PHPExcel_Worksheet_HeaderFooterDrawing();
+// $objLogo->setName('MASTEC logo');
+// $objLogo->setPath('images/ml_logo.jpg');
+// $objLogo->setHeight(76);
+// $objML->getActiveSheet()->getHeaderFooter()->addImage($objLogo, PHPExcel_Worksheet_HeaderFooter::IMAGE_HEADER_CENTER);
+// set the top of every page that repeats
+if (!$db->connect()) {
+  $db->print_last_error(); }
+else {
+  $q = "select l.teo, l.proj_num, l.city, l.state, q.clli as clli,";
+  $q .= " l.appx, date_format(l.completed,'%m/%d/%Y') AS completed FROM material_lists l";
+  $q .= " JOIN clli_info q ON q.id = l.clli";
+  $q .= " WHERE l.id = '".$ml_id."' LIMIT 1";
+  // echo $q."<br />";
+  $r = $db->select($q);
+  while ($row = $db->get_row($r,'MYSQL_ASSOC')) {
+    // print_r($row)."<br />";
+    // exit;
+    if ($row['appx'] == "0") {
+      $appendix = "";
+    } else {
+      $appendix = $row['appx'];
+    }
+    $citystate = strtoupper($row['city']).", ".strtoupper($row['state']);
+    $teo = $row['teo'];
+    $projno = $row['proj_num'];
+    $completed = $row['completed'];
+    $clli = $row['clli'];
+    $appx = $row['appx'];
+    $mlName = "ML".$appendix."_".$teo."_".$clli;
+    $objML->getActiveSheet()->setCellValue("A1","CUSTOMER ORDER NO:")
+                                  ->setCellValue("E1","$teo")
+                                  ->setCellValue("F1","MASTEC ORD NO:")
+                                  ->setCellValue("G1","$projno")
+                                  ->setCellValue("H1","DATE:")
+                                  ->setCellValue("I1","$completed")
+                                  ->mergeCells("A1:D1")
+                                  ->setCellValue("A2","CLLI:")
+                                  ->setCellValue("E2","$clli")
+                                  ->setCellValue("F2","CITY, STATE:")
+                                  ->setCellValue("G2","$citystate")
+                                  ->setCellValue("H2","APPX:")
+                                  ->setCellValue("I2","$appx")
+                                  ->mergeCells("A2:D2")
+                                  ->setCellValue("A3","OP")
+                                  ->setCellValue("B3","ITEM")
+                                  ->setCellValue("C3","NOTE")
+                                  ->setCellValue("D3","QTY")
+                                  ->setCellValue("E3","MATERIAL ID")
+                                  ->setCellValue("F3","MATERIAL DESCRIPTION")
+                                  ->setCellValue("H3","NOTES");
+  }
+  $objML->getActiveSheet()->getStyle('I2')->getNumberFormat()->setFormatCode("00");
+  $objML->getActiveSheet()->getStyle("A1:H1")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+  $objML->getActiveSheet()->getStyle("A2:H2")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+  $objML->getActiveSheet()->getStyle("E1")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
+  $objML->getActiveSheet()->getStyle("G1")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
+  $objML->getActiveSheet()->getStyle("I1")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
+  $objML->getActiveSheet()->getStyle("E2")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
+  $objML->getActiveSheet()->getStyle("G2")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
+  $objML->getActiveSheet()->getStyle("I2")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+  $objML->getActiveSheet()->getStyle("A3:I3")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+  $objML->getActiveSheet()->getStyle("E3")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
+  $objML->getActiveSheet()->getStyle("A1:I3")->getFont()->setBold(true);
+  $objML->getActiveSheet()->getStyle("A1:I22")->getBorders()->getAllBorders()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+  $objML->getActiveSheet()->getStyle("A3:I3")->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+  $objML->getActiveSheet()->mergeCells("F3:G3");
+  $objML->getActiveSheet()->mergeCells("H3:I3");
+  $objML->getActiveSheet()->getColumnDimension("A")->setWidth(6);
+  $objML->getActiveSheet()->getColumnDimension("B")->setWidth(6);
+  $objML->getActiveSheet()->getColumnDimension("C")->setWidth(6);
+  $objML->getActiveSheet()->getColumnDimension("D")->setWidth(6);
+  $objML->getActiveSheet()->getColumnDimension("E")->setWidth(26);
+  $objML->getActiveSheet()->getColumnDimension("F")->setWidth(17);
+  $objML->getActiveSheet()->getColumnDimension("G")->setWidth(33);
+  $objML->getActiveSheet()->getColumnDimension("H")->setWidth(6);
+  $objML->getActiveSheet()->getColumnDimension("I")->setWidth(17);
+  $objML->getActiveSheet()->getPageSetup()->setRowsToRepeatAtTopByStartAndEnd(1,3);
+  // setup some default styling for the worksheet
+  $objML->getActiveSheet()->setBreak("J3",PHPExcel_Worksheet::BREAK_COLUMN);
+  $objML->getActiveSheet()->getPageSetup()->setOrientation(PHPExcel_Worksheet_PageSetup::ORIENTATION_LANDSCAPE);
+  $objML->getActiveSheet()->getPageSetup()->setPaperSize(PHPExcel_Worksheet_PageSetup::PAPERSIZE_LETTER);
+  $objML->getActiveSheet()->getPageSetup()->setFitToWidth(1);
+  $objML->getActiveSheet()->getPageSetup()->setFitToHeight(0);
+  $objML->getActiveSheet()->getSheetView()->setZoomScale(105);
+}
+// creating the contents of the sheet
+if (!$db->connect()) {
+  $db->print_last_error(); }
+else {
+  $i = 0;
+  $page = 1;
+  $rowMLSheet = 3;
+  $total_cost = 0;
+  $q = "select c.quantity as qty, c.notes, m.*, l.teo as teo, q.clli as clli, l.material_dollars as dollars, l.proj_num as proj_num, l.city as city, l.state as state,";
+  $q .= " l.appx as appx, date_format(l.completed,'%m/%d/%Y') as completed from materials m JOIN ml_contents c ON c.contained_item = m.id";
+  $q .= " JOIN material_lists l ON l.id = c.ml_id JOIN clli_info as q ON q.id = l.clli";
+  $q .= " where c.ml_id = '".$ml_id."'";
+  $r = $db->select($q);
+  while ($row=$db->get_row($r,'MYSQL_ASSOC')) {
+    $i++;
+    $rowMLSheet++;
+    if ($i % 19 == 0) {
+      $objML->getActiveSheet()->setCellValueByColumnAndRow(1,$rowMLSheet,"RESTRICED - PROPIETARY\nNot for use or disclosure outside of AT&T except under written agreement.");
+      $objML->getActiveSheet()->setCellValueByColumnAndRow(8,$rowMLSheet,"PAGE: $page");
+      $objML->getActiveSheet()->getRowDimension($rowMLSheet)->setRowHeight(32);
+      $rowMLSheet++;
+      $temp = "J".$rowMLSheet;
+      $objML->getActiveSheet()->setBreak("$temp",PHPExcel_Worksheet::BREAK_ROW);
+    }
+    $objML->getActiveSheet()->setCellValueByColumnAndRow(1,$rowMLSheet,"A");
+    $objML->getActiveSheet()->setCellValueByColumnAndRow(2,$rowMLSheet,"$i");
+    $objML->getActiveSheet()->setCellValueByColumnAndRow(3,$rowMLSheet,"   ");
+    $qty = $row['qty'];
+    $objML->getActiveSheet()->setCellValueByColumnAndRow(4,$rowMLSheet,"$qty");
+    $partno = $row['mastec_partno'];
+    $objML->getActiveSheet()->setCellValueByColumnAndRow(5,$rowMLSheet,"$partno");
+    $desc = trim(stripslashes($row['description']));
+    $temp = "F".$rowMLSheet.":G".$rowMLSheet;
+    $objML->getActiveSheet()->setCellValueByColumnAndRow(6,$rowMLSheet,"$desc")
+                            ->mergeCells("$temp");
+    $temp = "H".$rowMLSheet.":I".$rowMLSheet;
+    $notes = $row['notes'];
+    $objML->getActiveSheet()->setCellValueByColumnAndRow(6,$rowMLSheet,"$notes")
+                            ->mergeCells("$temp");
+  }
+}
+$temp = "B4:B".$i;
+$objML->getActiveSheet()->getStyle($temp)->getNumberFormat()->setFormatCode("00");
+// set some default sheet properties
+$objML->getProperties()->setCreator("Material List Generator")
+		 ->setLastModifiedBy("Material List Generator")
+		 ->setTitle("Material List")
+		 ->setSubject($mlName)
+		 ->setDescription("Material list for ".$teo)
+		 ->setKeywords("office 2007 openxml php")
+		 ->setCategory("Material List");
+// print_r($objML);
+header('Content-Type: application/vnd.ms-excel');
+// header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+header('Content-Disposition: attachment;filename="'.$mlName.'.xls"');
+header('Cache-Control: max-age=0');
+$objWriter = PHPExcel_IOFactory::createWriter($objML, 'Excel5');
+// $objWriter = PHPExcel_IOFactory::createWriter($objML, 'Excel2007');
+$objWriter->save('php://output');
+?>

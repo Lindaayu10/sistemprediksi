@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "362709",
+    "ThreadId": "155362",
+    "Html": "<p>When I create a new work sheet like this:</p>\r\n<p>//set the sheet name</p>\r\n<p>$ws = $pe-&gt;createSheet();<br>$ws-&gt;setTitle($pre.$baynum);</p>\r\n<p>Is that sheet now the ActiveSheet when I use the function getActiveSheet()?</p>\r\n<p>I can't find in the documuntation how you set the active sheet.&nbsp; Would I just do this $pe-&gt;getActiveSheet(3)?&nbsp; Which would set the active sheet to sheet 3.</p>\r\n<p>Thanks for the help.</p>\r\n<p>Nick</p>",
+    "PostedDate": "2010-02-22T09:01:53.213-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "362720",
+    "ThreadId": "155362",
+    "Html": "<p>You can use:</p>\r\n<p>\r\n<pre><div style=\"color:Black;background-color:White\"><pre>$pe = <span style=\"color:Blue\">new</span> PHPExcel;\r\n<span style=\"color:Green\">//this line creates the sheet, returns the sheet</span>\r\n<span style=\"color:Green\">//that sheet gets passed to getIndex which returns the index in _worksheetCollection</span>\r\n<span style=\"color:Green\">//then use the pe object to set the activesheet to the index returned by getIndex</span>\r\n$pe-&gt;setActiveSheetIndex($pe-&gt;getIndex($pe-&gt;createSheet()));\r\n</pre>\r\n</div>\r\n<br></pre>\r\n</p>",
+    "PostedDate": "2010-02-22T09:21:55.353-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "362741",
+    "ThreadId": "155362",
+    "Html": "<p>But how do I set the active sheet so that I can switch to a different sheet to work on in the saem workbook?</p>\r\n<p>So when I am done creating the one worksheet I create the next one and then set it to the active sheet.</p>",
+    "PostedDate": "2010-02-22T09:51:29.023-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "362743",
+    "ThreadId": "155362",
+    "Html": "<p>I am doing this instead a foreach loop and won't know how many sheets I will be creating as it&nbsp;will all depend on the users query of the database&nbsp;if that helps you understand my problem.</p>",
+    "PostedDate": "2010-02-22T10:08:26.48-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "362777",
+    "ThreadId": "155362",
+    "Html": "<p>&nbsp;</p>\r\n<pre><div style=\"color:Black;background-color:White\"><pre>I wouldn't even mess with active sheet, just create a sheet, do stuff to it then add it to the workbook. See below:<br><br>$pe = <span style=\"color:Blue\">new</span> PHPExcel;\r\n<span style=\"color:Blue\">foreach</span>($users <span style=\"color:Blue\">as</span> $user){\r\n  <span style=\"color:Green\">//when you create the sheet the sheet gets added to the workbook's _worksheetCollection</span>\r\n $wksht = <span style=\"color:Blue\">new</span> PHPExcel_Worksheet($pe,<span style=\"color:#A31515\">'sheet_name'</span>);\r\n\r\n <span style=\"color:Green\">//do stuff to the worksheet here</span>\r\n $wksht-&gt;setTitle(<span style=\"color:#A31515\">'foo'</span>);\r\n\r\n\r\n $pe-&gt;addSheet($wksht);\r\n\r\n}\r\n\r\n$pe-&gt;save(<span style=\"color:#A31515\">'/some/file/path'</span>);\r\n</pre>\r\n</div>\r\n<br></pre>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-02-22T11:25:48.317-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "432066",
+    "ThreadId": "155362",
+    "Html": "<p>I'm getting an error when trying to create &quot;loose&quot; sheets that are unattached to excel documents.</p>\r\n<p>Conceptually:</p>\r\n<p>$e = new Excel();</p>\r\n<p>$s = new Sheet( $e );</p>\r\n<p>addStuffTo( $s );</p>\r\n<p>$e-&gt;addSheet( $s );</p>\r\n<p>&nbsp;</p>\r\n<p>Specifically:</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>$s = <span style=\"color:blue\">new</span> PHPExcel_Worksheet( $excel );\r\n\r\n$s-&gt;setCellValue( $coord, $text );\r\n$s-&gt;getStyle( $coord )-&gt;applyFromArray( <span style=\"color:blue\">array</span>(\r\n  <span style=\"color:#a31515\">'font'</span> =&gt; <span style=\"color:blue\">array</span>(\r\n    <span style=\"color:#a31515\">'bold'</span> =&gt; true\r\n  ) )\r\n);\r\n\r\n\r\n</pre>\r\n</div>\r\n<p>The getStyle/apply fails due to the error:</p>\r\n<p>&lt;b&gt;NOTICE&lt;/b&gt; [8] Undefined index:&nbsp;&nbsp; on line 196 in file PHPExcel-1.7.1/PHPExcel.php&lt;br /&gt;<br>PHP Fatal error:&nbsp; Call to a member function getXSelectedCells() on a non-object in test.php</p>\r\n<p>...however if I insert an $excel-&gt;addSheet( $s ), then the style applies successfully.</p>\r\n<p>Help?</p>\r\n<p>--Robert</p>",
+    "PostedDate": "2010-04-16T13:55:29.427-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "432969",
+    "ThreadId": "155362",
+    "Html": "<p>@ramses0:</p>\r\n<p>Please stick with the createSheet() method:</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>$s = $excel-&gt;createSheet();\r\n\r\n$s-&gt;setCellValue( $coord, $text );\r\n$s-&gt;getStyle( $coord )-&gt;applyFromArray( <span style=\"color:blue\">array</span>(\r\n  <span style=\"color:#a31515\">'font'</span> =&gt; <span style=\"color:blue\">array</span>(\r\n    <span style=\"color:#a31515\">'bold'</span> =&gt; true\r\n  ) )\r\n);\r\n</pre>\r\n</div>\r\n<p>That is the documented way of creating new sheets.</p>",
+    "PostedDate": "2010-04-19T19:25:33.523-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

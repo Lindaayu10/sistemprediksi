@@ -1,0 +1,90 @@
+[
+  {
+    "Id": "1021874",
+    "ThreadId": "438196",
+    "Html": "Hello,\r<br />\n<br />\nI've a problem to format the the cells with a string but I get all the time a error message when I would like to open the Excel file (corrupt file or incorrect xlsx...) it seems that the problem is at &quot;Loop&quot; see marked in Bold but I don't find a solution.\r<br />\nSorry for add the whole code.\r<br />\nI hope you can help me.<br />\n<pre><code>&lt;?php require_once('../Connections/Connection.php'); ?&gt;\n&lt;?php\nif (!function_exists(&quot;GetSQLValueString&quot;)) {\nfunction GetSQLValueString($theValue, $theType, $theDefinedValue = &quot;&quot;, $theNotDefinedValue = &quot;&quot;) \n{\n  if (PHP_VERSION &lt; 6) {\n    $theValue = get_magic_quotes_gpc() ? stripslashes($theValue) : $theValue;\n  }\n\n  $theValue = function_exists(&quot;mysql_real_escape_string&quot;) ? mysql_real_escape_string($theValue) : mysql_escape_string($theValue);\n\n  switch ($theType) {\n    case &quot;text&quot;:\n      $theValue = ($theValue != &quot;&quot;) ? &quot;'&quot; . $theValue . &quot;'&quot; : &quot;NULL&quot;;\n      break;    \n    case &quot;long&quot;:\n    case &quot;int&quot;:\n      $theValue = ($theValue != &quot;&quot;) ? intval($theValue) : &quot;NULL&quot;;\n      break;\n    case &quot;double&quot;:\n      $theValue = ($theValue != &quot;&quot;) ? doubleval($theValue) : &quot;NULL&quot;;\n      break;\n    case &quot;date&quot;:\n      $theValue = ($theValue != &quot;&quot;) ? &quot;'&quot; . $theValue . &quot;'&quot; : &quot;NULL&quot;;\n      break;\n    case &quot;defined&quot;:\n      $theValue = ($theValue != &quot;&quot;) ? $theDefinedValue : $theNotDefinedValue;\n      break;\n  }\n  return $theValue;\n}\n}\n\n/** require the PHPExcel file 1.0*/\n    require '../Classes/PHPExcel.php';\n\n/** Set Memory Limit 1.0*/\n    ini_set(&quot;memory_limit&quot;,&quot;1000M&quot;);\n\n/** Caching to discISAM 1.0 */\n$cacheMethod = PHPExcel_CachedObjectStorageFactory:: cache_to_discISAM;\n$cacheSettings = array( 'dir'  =&gt; '/usr/local/tmp'\n                      );\nPHPExcel_Settings::setCacheStorageMethod($cacheMethod, $cacheSettings);\n\n    mysql_connect($hostname_Connection,$username_Connection,$password_Connection);\n    mysql_select_db($database_Connection);\n\n\n\n/** Query 1.0  */\n    $query = &quot;SELECT DISTINCT tblpsrmonth.PartNo,\ntbltechnical.DrawingNo,\ntbltechnical.Geometry,\ntbltechnical.LabelCategory,\ntbltechnical.Perforation,\ntbltechnical.LengthPart,\ntbltechnical.WidthPart,\ntbltechnical.ThicknessPart,\ntbltechnical.LengthLiner,\ntbltechnical.WidthLiner,\ntbltechnical.LabelMaterial,\ntbltechnical.TestSpec,\ntbltechnical.DeliverySpec,\ntbltechnical.MatSpec,\ntbltechnical.MatNo,\ntbltechnical.MatCodeManuf,\ntbltechnical.Adhesive,\ntbltechnical.AdhesiveEsp,\ntbltechnical.ColorRal,\ntbltechnical.ColorPantone,\ntbltechnical.Warntext,\ntbltechnical.Comment\nFROM tblpsrmonth LEFT JOIN tbltechnical ON tblpsrmonth.PartNo = tbltechnical.PartNo\n&quot;;\n\n    if ($result = mysql_query($query) or die(mysql_error())) {\n\n/** Create a new PHPExcel object 1.0 */\n   $objPHPExcel = new PHPExcel();\n   $objPHPExcel-&gt;getActiveSheet()                         \n                          \n-&gt;setTitle('Technical Data');\n   }  \n \n /** Format Numbers*/\n    $objPHPExcel-&gt;getActiveSheet()                        \n                          \n-&gt;getStyle('F:G')-&gt;getNumberFormat()\n    -&gt;setFormatCode('#,##0.00');\n    $objPHPExcel-&gt;getActiveSheet()                        \n                          \n-&gt;getStyle('I:J')-&gt;getNumberFormat()\n    -&gt;setFormatCode('#,##0.00');\n    $objPHPExcel-&gt;getActiveSheet()                        \n                              \n-&gt;getStyle('H')-&gt;getNumberFormat()\n    -&gt;setFormatCode('#,##0.0000');\n\n____/** Loop 1.0 */\n    $rowNumber = 1;\n    while ($row = mysql_fetch_row($result)) {\n       $col = 'A';\n       foreach($row as $cell) {\n          $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueExplicit($col.$rowNumber,$cell,PHPExcel_Cell_DataType::TYPE_STRING);\n          $col++;\n       }\n       $rowNumber++;\n}__\n/** Create Header*/\n    $objPHPExcel-&gt;getActiveSheet()                        \n                          \n                                  -&gt;setCellValue('A1', 'Part No')\n                                  -&gt;setCellValue('B1', 'Drawing No.')\n                                  -&gt;setCellValue('C1', 'Geometry')\n                                  -&gt;setCellValue('D1', 'Category')\n                                  -&gt;setCellValue('E1', 'Perforation')\n                                  -&gt;setCellValue('F1', 'Length Part')\n                                  -&gt;setCellValue('G1', 'Width Part')\n                                  -&gt;setCellValue('H1', 'Thickness')\n                                  -&gt;setCellValue('I1', 'Length Liner')\n                                  -&gt;setCellValue('J1', 'Width Liner')\n                                  -&gt;setCellValue('K1', 'Label Material')\n                                  -&gt;setCellValue('L1', 'Test Spec.')\n                                  -&gt;setCellValue('M1', 'Delivery Spec.')\n                                  -&gt;setCellValue('N1', 'Material Spec.')\n                                  -&gt;setCellValue('O1', 'Material No.')\n                                  -&gt;setCellValue('P1', 'Material Code Manuf.')\n                                  -&gt;setCellValue('Q1', 'Adhesive')\n                                  -&gt;setCellValue('R1', 'Adhesive Esp.')\n                                  -&gt;setCellValue('S1', 'RAL Color')\n                                  -&gt;setCellValue('T1', 'Pantone Color')\n                                  -&gt;setCellValue('U1', 'Warntext')\n                                  -&gt;setCellValue('V1', 'Comment');\n                                  \n/** Background Header */\n$objPHPExcel-&gt;getActiveSheet()                        \n                          \n-&gt;getStyle('A1:V1')-&gt;getFill()-&gt;applyFromArray(\n    array(\n        'type'       =&gt; PHPExcel_Style_Fill::FILL_SOLID,\n        'startcolor' =&gt; array('rgb' =&gt; 'a9a9a9'),\n    )\n);\n\n/** Autosize */\nfor ($col = 'A'; $col != 'W'; $col++) {\n    $objPHPExcel-&gt;getActiveSheet()                        \n-&gt;getColumnDimension($col)-&gt;setAutoSize(true);\n}\n\n/** Border */\n$styleArray = array(\n       'borders' =&gt; array(\n             'allborders' =&gt; array(\n                    'style' =&gt; PHPExcel_Style_Border::BORDER_THIN,\n                    'color' =&gt; array('argb' =&gt; '000000'),\n             ),\n       ),\n);\n$objPHPExcel-&gt;getActiveSheet()                        \n-&gt;getStyle('A1:V6000')-&gt;applyFromArray($styleArray);                              \n\n/** Alignment function*/\n$alignleft  = array(\n                    'horizontal' =&gt; PHPExcel_Style_Alignment::HORIZONTAL_LEFT,\n                    'rotation'   =&gt; 0\n                );\n$alignright  = array(\n                    'horizontal' =&gt; PHPExcel_Style_Alignment::HORIZONTAL_RIGHT,\n                    'rotation'   =&gt; 0\n                );\n$aligncenter  = array(\n                    'horizontal' =&gt; PHPExcel_Style_Alignment::HORIZONTAL_CENTER,\n                    'rotation'   =&gt; 0\n                );\n\n$objPHPExcel-&gt;getActiveSheet()                        \n-&gt;getStyle('A1:V6000')-&gt;getAlignment()-&gt;applyFromArray($alignleft);\n\n\n/** Autofilter */\n$objPHPExcel-&gt;getActiveSheet()                        \n-&gt;setAutoFilter($objPHPExcel-&gt;getActiveSheet()                        \n-&gt;calculateWorksheetDimension());\n\n/** Create Excel 2007 file with writer 1.0 */\n    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');\n    header('Content-Disposition: attachment;filename=&quot;Technical.xlsx&quot;');\n    header('Cache-Control: max-age=0');\n    $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');\n    $objWriter-&gt;save('php://output');\nexit;\n\n?&gt;</code></pre>\n\n",
+    "PostedDate": "2013-03-27T09:36:22.51-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1022302",
+    "ThreadId": "438196",
+    "Html": "Whenever you get a message in Excel saying that the file is corrupted, open the file in a text editor and look for leading or trailing whitespace characters, a BOM marker, or for any obvious plaintext PHP error messages to help identify the problem<br />\n",
+    "PostedDate": "2013-03-28T03:04:17.473-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1022605",
+    "ThreadId": "438196",
+    "Html": "Hello,\r<br />\n<br />\nI've tried to use the Testfiles like 01simple-download-xlsx there is the same problem \r<br />\nthat the file can't open -&gt; directly or after saving. \r<br />\n<br />\nThe error message fileformat or file extension not valid or corrupt/damaged.\r<br />\n<br />\nAlso I've tried to search the error with the text editior but without success.\r<br />\n<br />\nI've windows 8\r<br />\nPHP Version 5.4.4\r<br />\n<br />\nI hope you can help me<br />\n",
+    "PostedDate": "2013-03-28T12:40:30.977-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1022607",
+    "ThreadId": "438196",
+    "Html": "First off, have you opened any of these files in a text editor? If so, was there anything at all in the file?\r<br />\n<br />\nIf the standard test examples don't work, then please provide full details of your environment, because they work on every environment I test them on, so clearly there's something about your system that is different that I need to identify.<br />\n",
+    "PostedDate": "2013-03-28T12:50:14.93-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1022612",
+    "ThreadId": "438196",
+    "Html": "Hello Mark,<br />\n<br />\n1.) Yes I've opened with a text editor the 01simple-download-xlsx and my own file there was some hieroglyphs in.<br />\n2.) Please explain exactly what kind of informations do you need.<br />\n",
+    "PostedDate": "2013-03-28T13:05:48.36-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1022667",
+    "ThreadId": "438196",
+    "Html": "Output from phpinfo() would be a useful start.\r<br />\nIt's clearly creating some output, but incorrect output; and I have no idea what could be causing that... I've just rerun those test scripts successfully using PHP5.4.7 on Windows 8, and opened the generated files with various versions of MS Excel, Open and Libre Office and Gnumeric without issue; so the only thing I can think of is something in your PHP configuration that isn't being tested for.<br />\n",
+    "PostedDate": "2013-03-28T15:10:44.52-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1022864",
+    "ThreadId": "438196",
+    "Html": "Hello Mark,\r<br />\nI think I've found the failure.\r<br />\n1.) I've deleted and reinstall the PHPExcel Class and now the the script is running but I've still the problem that I need in the whole column B a String because the data has partically leading zeros as you can see I've datas from a query so I can't use <strong>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueExplicit($col.$rowNumber,$cell,PHPExcel_Cell_DataType::TYPE_STRING);</strong> \r<br />\nbut if I use the above script I'll see in the Text editor the following error message:\r<br />\n&lt;b&gt;Notice&lt;/b&gt;:  iconv_substr(): Detected an illegal character in input string in &lt;b&gt;C:\\xampp\\htdocs\\labelmanagementDB\\Classes\\Classes\\PHPExcel\\Shared\\String.php&lt;/b&gt; on line &lt;b&gt;576&lt;/b&gt;&lt;br /&gt;\r<br />\n&lt;br /&gt;\r<br />\n&lt;b&gt;Notice&lt;/b&gt;:  iconv_substr(): Detected an illegal character in input string in &lt;b&gt;C:\\xampp\\htdocs\\labelmanagementDB\\Classes\\Classes\\PHPExcel\\Shared\\String.php&lt;/b&gt; on line &lt;b&gt;576&lt;/b&gt;&lt;br /&gt;\r<br />\n<br />\ndo you have any idea to solve the problem.\r<br />\n<br />\nThanks for your help.<br />\n",
+    "PostedDate": "2013-03-29T04:48:07.127-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1022866",
+    "ThreadId": "438196",
+    "Html": "Without knowing the actual string value, probably not... all string values should be converted to UTF-8 before saving them, though this shouldn't matter for a real numeric value which would normally be pure ASCII characters... but something in this value isn't a normal ASCII character, nor a UTF-8 character<br />\n",
+    "PostedDate": "2013-03-29T05:03:57.73-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1022867",
+    "ThreadId": "438196",
+    "Html": "Possible values are for example:<br />\nDV201030<br />\n00060601<br />\nCH123456<br />\n156782222ANE<br />\nVN9721782A<br />\n0000567844B<br />\nN.A.<br />\nTBD<br />\n....<br />\n....<br />\n....<br />\n<br />\nis there a possibility to show the leading zeros with this kind of values <br />\n<br />\nFYI The Kollation is utf8_general_ci in the MySql database<br />\n",
+    "PostedDate": "2013-03-29T05:11:51.85-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1022914",
+    "ThreadId": "438196",
+    "Html": "Hello Mark,\r<br />\n<br />\nnow I've just solved the problem it was the column &quot;comment&quot; there was the problem with to much datas in.\r<br />\nThe leading zeros are now also solved with $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueExplicit($col.$rowNumber,$cell);\r<br />\nNevertheless thanks for your help.\r<br />\n<br />\nBR\r<br />\nFrank<br />\n",
+    "PostedDate": "2013-03-29T07:34:23.42-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1058458",
+    "ThreadId": "438196",
+    "Html": "Thank..<br />\n",
+    "PostedDate": "2013-06-18T18:52:00.437-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

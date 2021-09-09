@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "1047739",
+    "ThreadId": "444761",
+    "Html": "Hello!<br />\n<br />\nI am using the following bit of code to read a spreadsheet into array, then process it line by line (and when processing a line, mark cells I modified data with text like 'Modified' or 'Error parsing!').<br />\n<br />\n<br />\nNow that my code to process data is almost complete, I am looking to save the modified array as an Excel file to return to the user for further checks on the results.<br />\n<br />\nHow to do this? I was reading the developer documentation, and it only states how to save Excel file that is of a PHPExcel type object - I dont want to use memory twice and write &quot;hacks&quot; to do this, instead of using my current row iterator which goes over the array I process.<br />\n<br />\n<br />\nHere is the code I use to read the Excel file:<br />\n<pre><code>    /**\n     * Initiate the class, and read out the datasheet into memory.\n     * @param String $filename Filepath+Filename to the XLSX file.\n     * @param Bool $ReadFormatting True to read  data WITH formatting. False by default.\n     * @param Int $FirstSheet Number of the first sheet to load, 0 is default.\n     * @throws Exception If loading the file fails for some reason.\n     */\n    function __construct($filename, $ReadFormatting = FALSE, $FirstSheet = 0) {\n        parent::__construct();\n//        iniset('memory_limit', '128M')\n//        $this-&gt;PHPExcel = PHPExcel_IOFactory::load($filename);\n        $this-&gt;PHPExcelReader = new PHPExcel_Reader_Excel2007();  // XLSX file reader.\n        if ($ReadFormatting === FALSE) {\n            $this-&gt;PHPExcelReader-&gt;setReadDataOnly();\n        }\n        try {\n            $this-&gt;ExcelData = $this-&gt;PHPExcelReader-&gt;load($filename);\n            $this-&gt;BezeqInstallDataArr = $this-&gt;ExcelData-&gt;getSheet($FirstSheet)-&gt;toArray(self::EMPTY_CELL_STRING, true, true, true);  // Last parameter makes array with column letters instead of numbers A...Z\n            $this-&gt;BezeqInstallArrLength = count($this-&gt;BezeqInstallDataArr);\n            if ($this-&gt;BezeqInstallArrLength &gt; 2) {\n//                $this-&gt;iCurrentDataRow = 3; // Bezeq spreadsheet has 2 headers.\n                $this-&gt;iCurrentDataRow = 2; // Bezeq spreadsheet has 1 headers.\n            }\n        } catch (Exception $e) {\n            throw new ExcelDataNotLoadedException($e-&gt;getMessage(), $e-&gt;getCode());\n        }\n    }</code></pre>\n\nPlease, any suggestions how to save Excel file composed of the modified array $this-&gt;BezeqInstallDataArr?<br />\n",
+    "PostedDate": "2013-05-23T07:06:50.313-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1048171",
+    "ThreadId": "444761",
+    "Html": "Why twice the memory? When the sheet is copied to your array, &quot;close&quot; (doc.: 4.3) the workbook - that will free the memory - and create a new workbook in which you put the items you want (possibly with fromArray if appropriate).<br />\n",
+    "PostedDate": "2013-05-24T04:35:46.017-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1048442",
+    "ThreadId": "444761",
+    "Html": "Why copy the file you've loaded to an array? Why not modify that worksheet with your 'Modified' or 'Error parsing!' annotations and then save it (using a different filename if you want to create a modified copy)<br />\n",
+    "PostedDate": "2013-05-24T13:49:16.52-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1049467",
+    "ThreadId": "444761",
+    "Html": "Thank you both LWol and MarkBaker, important tips about closing it.\r<br />\n<br />\nIt works now, using like this (for anyone else who might need it):<br />\n<pre><code>    $this-&gt;ExcelData = new PHPExcel();\n    $NewWorkSheet = new PHPExcel_Worksheet($this-&gt;ExcelData, &quot;Modification Results&quot;);\n    $NewWorkSheet-&gt;fromArray($this-&gt;BezeqDataArr, self::EMPTY_CELL_STRING);\n    $this-&gt;ExcelData-&gt;addSheet($NewWorkSheet, 0);\n    $ExcelWriter = new PHPExcel_Writer_Excel2007($this-&gt;ExcelData);\n    header('Content-type: application/vnd.ms-excel');\n    header('Content-Disposition: attachment; filename=&quot;'.$FileName.'&quot;');\n    $ExcelWriter-&gt;save('php://output');</code></pre>\n\n",
+    "PostedDate": "2013-05-28T01:58:00.333-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

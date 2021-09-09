@@ -1,0 +1,113 @@
+Index: W:/test/httpdocs/Library/PHPExcel/1.7.9/PHPExcel/Writer/HTML.php
+===================================================================
+--- W:/test/httpdocs/Library/PHPExcel/1.7.9/PHPExcel/Writer/HTML.php	(revision )
++++ W:/test/httpdocs/Library/PHPExcel/1.7.9/PHPExcel/Writer/HTML.php	(revision )
+@@ -358,7 +358,7 @@
+ 		if (is_null($this->_phpExcel)) {
+ 			throw new PHPExcel_Writer_Exception('Internal PHPExcel object not set to an instance of an object.');
+ 		}
+-
++		
+ 		// Ensure that Spans have been calculated?
+ 		if (!$this->_spansAreCalculated) {
+ 			$this->_calculateSpans();
+@@ -722,6 +722,16 @@
+ 		if (!is_null($this->_cssStyles)) {
+ 			return $this->_cssStyles;
+ 		}
++		// apply conditional formatting
++		foreach ($this->_phpExcel->getAllSheets() as $sheet){
++			/** @var $row PHPExcel_Worksheet_RowIterator */
++			foreach ($sheet->getRowIterator() as $row){
++				/** @var $cell PHPExcel_Cell */
++				foreach ($row->getCellIterator() as $cell){
++					$cell->applyConditionalFormatting();
++				}
++			}
++		}
+ 
+ 		// Ensure that spans have been calculated
+ 		if (!$this->_spansAreCalculated) {
+Index: W:/test/httpdocs/Library/PHPExcel/1.7.9/PHPExcel/Cell.php
+===================================================================
+--- W:/test/httpdocs/Library/PHPExcel/1.7.9/PHPExcel/Cell.php	(revision )
++++ W:/test/httpdocs/Library/PHPExcel/1.7.9/PHPExcel/Cell.php	(revision )
+@@ -974,5 +974,78 @@
+ 		return (string) $this->getValue();
+ 	}
+ 
++	/**
++	 * @param PHPExcel_Style_Conditional $conditionalStyle
++	 * @return bool
++	 * @throws Exception
++	 */
++	private function evaluateConditionalFormula(PHPExcel_Style_Conditional $conditionalStyle)
++	{
++		switch ($conditionalStyle->getConditionType()) {
++			case PHPExcel_Style_Conditional::CONDITION_CELLIS:
++				$cellValue = $this->getCalculatedValue();
++				$conditions = $conditionalStyle->getConditions();
++				switch ($conditionalStyle->getOperatorType()) {
++					case PHPExcel_Style_Conditional::OPERATOR_BEGINSWITH:
++						return strpos($cellValue, $conditions[0]) === 0;
++						break;
++					case PHPExcel_Style_Conditional::OPERATOR_ENDSWITH:
++						return substr($cellValue, strlen($conditions[0]) * -1) == $conditions[0];
++						break;
++					case PHPExcel_Style_Conditional::OPERATOR_EQUAL:
++						return (string) $cellValue === (string) $conditions[0];
++						break;
++					case PHPExcel_Style_Conditional::OPERATOR_GREATERTHAN:
++						return $cellValue > $conditions[0];
++						break;
++					case PHPExcel_Style_Conditional::OPERATOR_GREATERTHANOREQUAL:
++						return $cellValue >= $conditions[0];
++						break;
++					case PHPExcel_Style_Conditional::OPERATOR_LESSTHAN:
++						return $cellValue < $conditions[0];
++						break;
++					case PHPExcel_Style_Conditional::OPERATOR_LESSTHANOREQUAL:
++						return $cellValue <= $conditions[0];
++						break;
++					case PHPExcel_Style_Conditional::OPERATOR_NOTEQUAL:
++						return (string) $cellValue !== (string) $conditions[0];
++						break;
++					case PHPExcel_Style_Conditional::OPERATOR_CONTAINSTEXT:
++						return strpos($cellValue, $conditions[0]) !== false;
++						break;
++					case PHPExcel_Style_Conditional::OPERATOR_NOTCONTAINS:
++						return strpos($cellValue, $conditions[0]) === false;
++						break;
++					case PHPExcel_Style_Conditional::OPERATOR_BETWEEN:
++						return $cellValue >= $conditions[0] && $cellValue <= $conditions[1];
++						break;
++					default:
++						throw new Exception('Operator not implemented ' . $conditionalStyle->getOperatorType());
++						break;
++				}
++				break;
++			default:
++				throw new Exception('Condition not implemented: ' . $conditionalStyle->getConditionType());
++				break;
++		}
++	}
++	
++	public function applyConditionalFormatting(){
++		$sheet = $this->getParent()->getParent();
++		$cellStyle = $sheet->getStyle($this->getCoordinate());
++		if ($sheet && ($conditionalStylesCollection = $sheet->getConditionalStylesCollection())){
++			foreach ($conditionalStylesCollection as $conditionalStyleRange => $conditionalStyles){
++				if ($this->isInRange($conditionalStyleRange)){
++					/** @var $conditionalStyle PHPExcel_Style_Conditional */
++					foreach ($conditionalStyles as $key => $conditionalStyle){
++						if ($this->evaluateConditionalFormula($conditionalStyle)){
++							$style = $conditionalStyle->getStyle();
++							$cellStyle->applyFromArray(array_replace_recursive($cellStyle->toArray(), $style->toArray()));
++						}
++					}
++				}
++			}
++		}
++	}
+ }
+ 

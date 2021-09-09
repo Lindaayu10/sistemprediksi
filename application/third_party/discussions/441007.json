@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "1033412",
+    "ThreadId": "441007",
+    "Html": "I am creating a spreadsheet where, after a cell containing a double quote (&quot;), the formatting becomes broken. Up to this point, each cell is assigned the formatting specified just fine. After this, no formatting is applied and all cells are shown with &quot;General&quot; formatting.<br />\n",
+    "PostedDate": "2013-04-20T10:29:22.673-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1034003",
+    "ThreadId": "441007",
+    "Html": "Can you show an example of your format string: formatting strings containing <code>&quot;</code> should work correctly as long as there are matching closing quotes; or were you trying to embed a lietral quote in the format string?<br />\n",
+    "PostedDate": "2013-04-22T08:14:07.1-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1034603",
+    "ThreadId": "441007",
+    "Html": "<pre><code>// Values and Formatting\n          $letter = 'A';\n          $sheet-&gt;SetCellValue($letter.$i, trim($row['part_name'])); \n            $sheet-&gt;getStyle($letter.$i)-&gt;getNumberFormat()-&gt;setFormatCode('@'); $letter++;\n          $sheet-&gt;getCell($letter.$i)-&gt;setValueExplicit(trim($row['part_number']), PHPExcel_Cell_DataType::TYPE_STRING); // to avoid scientific notation for long strings\n          //$sheet-&gt;SetCellValue($letter.$i, trim($row['part_number'])); \n            $sheet-&gt;getStyle($letter.$i)-&gt;getNumberFormat()-&gt;setFormatCode('@'); $letter++;\n          $sheet-&gt;SetCellValue($letter.$i, trim($row['part_model']));\n            $sheet-&gt;getStyle($letter.$i)-&gt;getNumberFormat()-&gt;setFormatCode('@'); $letter++;\n          $sheet-&gt;SetCellValue($letter.$i, trim($row['manufacturer_name']));\n            $sheet-&gt;getStyle($letter.$i)-&gt;getNumberFormat()-&gt;setFormatCode('@'); $letter++;\n          $sheet-&gt;SetCellValue($letter.$i, trim($row['system']));\n            $sheet-&gt;getStyle($letter.$i)-&gt;getNumberFormat()-&gt;setFormatCode('@'); $letter++;\n          $sheet-&gt;SetCellValue($letter.$i, trim($row['code']));\n            $sheet-&gt;getStyle($letter.$i)-&gt;getNumberFormat()-&gt;setFormatCode('@'); $letter++;\n          $sheet-&gt;SetCellValue($letter.$i, trim($row['part_oh_qty'])); \n            $sheet-&gt;getStyle($letter.$i)-&gt;getNumberFormat()-&gt;setFormatCode('0'); $letter++;\n          for($y=0; $y&lt;=max($years_purch,$years_inv); $y++)\n          {\n            if($y&lt;$years_purch)\n            {\n              $sheet-&gt;SetCellValue($letter.$i, $FYpurchdemand[$y]['OEM_orders']);\n              $sheet-&gt;getStyle($letter.$i)-&gt;getNumberFormat()-&gt;setFormatCode('0');  \n              $letter++; \n            }\n            if($y&lt;$years_inv)\n            {\n              $sheet-&gt;SetCellValue($letter.$i, $FYinvdemand[$y]['inv_demand']);\n              $sheet-&gt;getStyle($letter.$i)-&gt;getNumberFormat()-&gt;setFormatCode('0'); \n              $letter++; \n            }   \n          } \n         // $sheet-&gt;SetCellValue('J'.$i, '=H'.$i.'+I'.$i.'/(DATEDIF(&quot;2010-09-29&quot;, TODAY(),&quot;d&quot;)/365)');\n          $sheet-&gt;SetCellValue($letter.$i, trim($row['part_avg_cost'])); \n            $sheet-&gt;getStyle($letter.$i)-&gt;getNumberFormat()-&gt;setFormatCode('_(&quot;$&quot;* #,##0.00_);_(&quot;$&quot;* \\(#,##0.00\\);_(&quot;$&quot;* &quot;-&quot;??_);_(@_)'); $letter++;\n          $sheet-&gt;SetCellValue($letter.$i, trim($row['part_stock_level']));\n            $sheet-&gt;getStyle($letter.$i)-&gt;getNumberFormat()-&gt;setFormatCode('0'); $letter++;\n          $sheet-&gt;SetCellValue($letter.$i, trim($part_lead_time));\n            $sheet-&gt;getStyle($letter.$i)-&gt;getNumberFormat()-&gt;setFormatCode('0'); $letter++;\n          $sheet-&gt;SetCellValue($letter.$i, trim($row['part_reorder_point']));\n            $sheet-&gt;getStyle($letter.$i)-&gt;getNumberFormat()-&gt;setFormatCode('0'); $letter++;\n          $sheet-&gt;SetCellValue($letter.$i, trim($readiness_impact));\n            $sheet-&gt;getStyle($letter.$i)-&gt;getNumberFormat()-&gt;setFormatCode('@'); </code></pre>\n\n",
+    "PostedDate": "2013-04-23T08:13:26.983-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1034605",
+    "ThreadId": "441007",
+    "Html": "The first 3 rows are displayed with the correct formatting. The 4th row begins with a cell that has a double quote in it and the remainder of the spreadsheet has &quot;General&quot; formatting, instead of the formatting defined.<br />\n",
+    "PostedDate": "2013-04-23T08:14:48.35-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1034792",
+    "ThreadId": "441007",
+    "Html": "I've spent the better part of today continuing to look into this and I'm not so sure it is a double quote which is causing the formatting to break;  however, I don't know what it might be. I put together a number of different spreadsheets, all with various data, and on each the formatting broke after 3-5 rows. What might cause this? The data is correct, but the formatting is not getting applied after a certain point.<br />\n",
+    "PostedDate": "2013-04-23T13:51:10.313-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1034802",
+    "ThreadId": "441007",
+    "Html": "I'm not certain what's causing it at the moment, I'm still trying to recreate the problem.\r<br />\n<br />\nHowever, rather than setting the style for each cell individually immediately after you write the cell, it's more efficient to set the style for a range of cells in a single call.<br />\n<div style=\"color:Black;background-color:White;\"><pre>\r\n$sheet-&gt;getStyle(<span style=\"color:#A31515;\">&#39;A2:A512&#39;</span>)-&gt;getNumberFormat()-&gt;setFormatCode(<span style=\"color:#A31515;\">&#39;@&#39;</span>); \r\n</pre></div>",
+    "PostedDate": "2013-04-23T14:29:32.33-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1097190",
+    "ThreadId": "441007",
+    "Html": "Thanks for the styling tip, Mark! I'm still having issues with formats breaking. Any ideas?<br />\n",
+    "PostedDate": "2013-09-20T13:00:23.113-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

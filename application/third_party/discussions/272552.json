@@ -1,0 +1,74 @@
+[
+  {
+    "Id": "671676",
+    "ThreadId": "272552",
+    "Html": "\r\n<p>Hello all,</p>\r\n<p>I've been searching the discussions for quite some time now and cannot find the solution to my problem.</p>\r\n<p>I'm trying to add the euro sign &euro; in front of my financial numbers.</p>\r\n<p>I've read that this has something to do with the charset so I've forced my php page to UTF-8 with this code:<br>\r\nmb_internal_encoding(&quot;utf-8&quot;);</p>\r\n<p>I tried different ways of adding the euro sign to my NumberFormat:<br>\r\n- $objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('G14')-&gt;getNumberFormat()-&gt;setFormatCode(&quot;&euro; #,##0.00&quot;);<br>\r\n- $objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('G14')-&gt;getNumberFormat()-&gt;setFormatCode(&quot;_&euro; #,##0.00&quot;);</p>\r\n<p>When generating the sheet is says:<br>\r\nNotice: iconv_strlen(): Detected an illegal character in input string in /classes/PHPExcel/Shared/String.php on line 544</p>\r\n<p><br>\r\nCan any of you explain to me how to set the euro sign in a proper way? And if this is the way to set UTF-8 in my PHP page?<br>\r\n<br>\r\nThanks in advanced!!</p>\r\n",
+    "PostedDate": "2011-09-14T05:54:33.777-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "671689",
+    "ThreadId": "272552",
+    "Html": "<p>Also tried to set the string to UTF-8:<br /><br />$currencyFormat = iconv(\"ISO-8859-1\", \"UTF-8\", '&euro; #,##0.00');<br />$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('G14')-&gt;getNumberFormat()-&gt;setFormatCode($currencyFormat);<br /><br />This opens the sheet without a warning but does not display the euro sign &euro;<br /><br /></p>",
+    "PostedDate": "2011-09-14T06:25:31.18-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "672107",
+    "ThreadId": "272552",
+    "Html": "<p>I solved the puzzle.</p>\r\n<p>Here's what I did:<br />$objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue('G14', '=CHAR(128) &amp; \"125\"');</p>\r\n<p>Using the code snippit above gives you the value &euro;125 in cell G14</p>",
+    "PostedDate": "2011-09-15T00:44:53.333-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "672175",
+    "ThreadId": "272552",
+    "Html": "<p>Unfortunately, that is only half the problem - although that works, you are converting the values to strings, so sum (G14:G15) returns 0 (for example).</p>\r\n<p>There must be a solution.....</p>",
+    "PostedDate": "2011-09-15T03:32:24.623-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "672188",
+    "ThreadId": "272552",
+    "Html": "<p>I have found the answer (no idea why it is required) - use:</p>\r\n<p>$currencyFormat =&nbsp; iconv('Windows-1252','utf-8','#,#0.##\\&euro;;[Red]-#,#0.##\\&euro;');</p>\r\n<p>I can;t understand why that works because <code><span style=\"color: #000000;\"></span></code></p>\r\n<p><code><span style=\"color: #000000;\"><span style=\"color: #0000bb;\">var_dump</span><span style=\"color: #007700;\">(</span><span style=\"color: #0000bb;\">iconv_get_encoding</span><span style=\"color: #007700;\">(</span><span style=\"color: #dd0000;\">'all'</span><span style=\"color: #007700;\">)); </span></span></code><code><span style=\"color: #000000;\"></span></code></p>\r\n<p>confirms that the input_encoding on my linux server is ISO-8859-1</p>",
+    "PostedDate": "2011-09-15T04:24:43.417-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "672192",
+    "ThreadId": "272552",
+    "Html": "<p>I'm doing all my calculations in PHP so I don't use excel to calc numbers, that's why it works for me</p>",
+    "PostedDate": "2011-09-15T04:36:15.723-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "689632",
+    "ThreadId": "272552",
+    "Html": "<p>There is another way too - creating a template spreadsheet in Excel (I used Excel 2010) with just one cell (I used A1) containing a number and formatted to display the Euro symbol. You can then duplicate the style in PHPExcel to any cells in the spreadsheet you're working on where the symbol is needed. <br />Here's some code to illustrate (done with CodeIgniter, in case any of the syntax seems weird):</p>\r\n<p>//set template and new spreadsheet locations<br />$templatelocation = '/testdata/excel_templates/euro_cell_template.xls';<br />$filename = 'test_spreadsheet'; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br />$excelfilelocation = '/testdata/my_spreadsheets/' . $filename; <br /><br />//load the CodeIgniter Excel library and create the spreadsheet<br />$this-&gt;load-&gt;library('excel');<br />$objReader = PHPExcel_IOFactory::createReader('Excel5');<br />$this-&gt;excel-&gt;workbook-&gt;createSheet();<br /><br />//set some test currency data<br />$this-&gt;excel-&gt;workbook-&gt;getActiveSheet()-&gt;setCellValue('C3', 300);<br />$this-&gt;excel-&gt;workbook-&gt;getActiveSheet()-&gt;setCellValue('E5', 400);<br />&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br />//get style from template to add the Euro symbol to test data in new spreadsheet<br />$this-&gt;excel-&gt;workbook-&gt;getActiveSheet()-&gt;duplicateStyle($objReader-&gt;load($template_location)-&gt;getActiveSheet()-&gt;getStyle('A1'), 'C3:E5');<br /><br />//add some general data to the spreadsheet<br />$this-&gt;excel-&gt;workbook-&gt;getProperties()-&gt;setCreator(\"Online Tool\");<br />$this-&gt;excel-&gt;workbook-&gt;getProperties()-&gt;setTitle(\"Testing Euro currency formatting in PHPExcel\");<br />$this-&gt;excel-&gt;workbook-&gt;getProperties()-&gt;setSubject(\"Euro formatted cells\");<br /><br />//generate it<br />$objWriter = PHPExcel_IOFactory::createWriter($this-&gt;excel-&gt;workbook, 'Excel2007');<br />$objWriter-&gt;save($excelfilelocation . '.xlsx');</p>\r\n<p>It all boils down to the line where duplicateStyle is used. Hope this helps!</p>",
+    "PostedDate": "2011-10-26T07:30:42.267-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1415860",
+    "ThreadId": "272552",
+    "Html": "enclose the currency symbol in double quote (&quot;)<br />\nlike this:<br />\na. if u enclosed the format pattern in double quote, escape it by adding backslash before the double quote that enclosed ur format symbol<br />\n<pre><code>$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('G14')-&gt;getNumberFormat()-&gt;setFormatCode(&quot; \\&quot;€\\&quot; #,##0.00&quot;); </code></pre>\n\nb.  if u enclosed the format pattern in single quote<br />\n<pre><code>$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('G14')-&gt;getNumberFormat()-&gt;setFormatCode(' &quot;€&quot; #,##0.00'); </code></pre>\n\n<blockquote>\nwhatever option above u chose, the result will be like this: <strong>€ 3,999.22</strong><br />\n</blockquote>\n",
+    "PostedDate": "2015-04-20T01:16:09.753-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1464681",
+    "ThreadId": "272552",
+    "Html": "I use:\r<br />\n $currencyFormat = iconv(&quot;Windows-1252&quot;, &quot;UTF-8&quot;, '€ #,##0.00');\r<br />\n $objPHPExcel-&gt;getActiveSheet()-&gt;getStyle($colonna.'6')-&gt;getNumberFormat()-&gt;setFormatCode($currencyFormat);<br />\n",
+    "PostedDate": "2016-02-26T00:56:45.8-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

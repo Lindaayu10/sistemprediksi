@@ -1,0 +1,90 @@
+[
+  {
+    "Id": "280093",
+    "ThreadId": "81591",
+    "Html": "<p>Php version doesn't matter. I'm running phpexcel 1.7.2</p>\r\n<p>I'd like some help, with formatting a pdf. I'm currently trying to convert an excel sheet to pdf. I can do this but I can't seem to fit ithe excel sheets in the pdf document. So I was wondering if it's possible to make the excel document, fit the pdf. So the excel shrinks, until it fits in. I tried landscaping, though I don't see a difference between normal, and landscape...</p>\r\n<p>I hope someone can help me. This is my code:</p>\r\n<p>&nbsp;</p>\r\n<p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>&lt;?php\r\nerror_reporting(E_ALL);\r\n\r\n<span style=\"color:Blue\">require_once</span> <span style=\"color:#A31515\">'../Classes/PHPExcel/IOFactory.php'</span>;\r\n\r\n<span style=\"color:Blue\">if</span> (!file_exists(<span style=\"color:#A31515\">&quot;temptopdf.xlsx&quot;</span>)) {\r\n<span style=\"color:Blue\">     exit</span>(<span style=\"color:#A31515\">&quot;Test file was not found..\\n&quot;</span>);\r\n}\r\n\r\n$objPHPExcel = PHPExcel_IOFactory::load(<span style=\"color:#A31515\">&quot;temptopdf.xlsx&quot;</span>);\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getPageSetup()-&gt;setOrientation(PHPExcel_Worksheet_PageSetup::ORIENTATION_LANDSCAPE);\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getPageSetup()-&gt;setPaperSize(PHPExcel_Worksheet_PageSetup::PAPERSIZE_A4);\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getPageSetup()-&gt;setFitToWidth(1);\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getPageSetup()-&gt;setFitToHeight(1);\r\n\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, <span style=\"color:#A31515\">'PDF'</span>);\r\n$objWriter-&gt;save(str_replace(<span style=\"color:#A31515\">'.php'</span>, <span style=\"color:#A31515\">'.pdf'</span>, <span style=\"color:Blue\">__FILE__</span>));\r\n<span style=\"color:Blue\">echo</span> <span style=\"color:#A31515\">&quot;Done writing!&quot;</span>;\r\n?&gt;\r\n</pre>\r\n</div>\r\nThanks in advanced.</p>",
+    "PostedDate": "2010-01-21T08:45:35.043-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "280110",
+    "ThreadId": "81591",
+    "Html": "<p>It may not be easy to achieve shrink-to-fit. The problem is that TCPDF (which PHPExcel uses) has somewhat limited features.</p>\r\n<p>If you export to HTML (inline CSS) using PHPExcel, you can send to generated HTML to <a href=\"http://mpdf.bpm1.com/\">mPDF</a>. I once tried that class and I believe it would automatically do shrink-to-fit (width). Some experiments may be needed.</p>",
+    "PostedDate": "2010-01-21T09:05:22.297-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "280122",
+    "ThreadId": "81591",
+    "Html": "<p>Experience programming, or experience with this class. Because I do have experience programming... The only problem I have is... I need to keep the styles used in the excel sheets. Like, column colour, <strong>bold</strong> <span style=\"text-decoration:underline\">underlined</span> <em>italic</em>.... if this is possible, I would much rather prefer knowing how to do this in html, so I can alter it, and write it to pdf.</p>",
+    "PostedDate": "2010-01-21T09:40:02.497-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "280132",
+    "ThreadId": "81591",
+    "Html": "<p>Try to start exporting to HTML like this:</p>\r\n<p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$excel = PHPExcel_IOFactory::load(<span style=\"color:#A31515\">'temptopdf.xlsx'</span>);\r\n\r\n$writer = PHPExcel_IOFactory::createWriter($excel, <span style=\"color:#A31515\">'HTML'</span>);\r\n$writer-&gt;setUseInlineCSS(true);\r\n$writer-&gt;save(<span style=\"color:#A31515\">'write.html'</span>);\r\n</pre>\r\n</div>\r\n</p>\r\n<p>Look at the HTML that is generated (write.html).</p>\r\n<p>mPDF can convert HTML -&gt; PDF. That is what I am suggesting that you try. Bold, underlined, italic should be working too.</p>",
+    "PostedDate": "2010-01-21T09:52:43.557-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "280142",
+    "ThreadId": "81591",
+    "Html": "<p>I tried, and it works. It takes italic, bold, etc... but only one sheet, but I guess i can fix this... Don't know how, If you could tell me how, I won't have to look.</p>\r\n<p>another question though, something goes wrong with the number format. sometimes things such as '#NUM!' and ' 5.684341886080801E-14' apear. Also the numer format is wrong as in: 193283.92 in stead of 193.283,92</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-01-21T10:12:02.02-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "280374",
+    "ThreadId": "81591",
+    "Html": "<p>To write all sheets:</p>\r\n<p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$excel = PHPExcel_IOFactory::load(<span style=\"color:#A31515\">'temptopdf.xlsx'</span>);\r\n\r\n$writer = PHPExcel_IOFactory::createWriter($excel, <span style=\"color:#A31515\">'HTML'</span>);\r\n$writer-&gt;writeAllSheets();\r\n$writer-&gt;setUseInlineCSS(true);\r\n$writer-&gt;save(<span style=\"color:#A31515\">'write.html'</span>);\r\n</pre>\r\n</div>\r\n</p>\r\n<p>As for the other questions, can you upload the Excel file so we can see? You can upload files here: <a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10749\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10749</a></p>",
+    "PostedDate": "2010-01-21T21:17:31.027-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "280477",
+    "ThreadId": "81591",
+    "Html": "<p>I tried uploading there, i just have no idea what happend with the file :P So I uploaded it on my server: <strong></strong></p>\r\n<p><strong>Html output: </strong>http://www.vandenacker.be/pdftest/Tests/write.html<br><strong>xls file:</strong> http://www.vandenacker.be/pdftest/Tests/temptopdf.xlsx <em>*I noticed opening is not working, so you can click right mouse button and save target as*</em></p>\r\n<p>These are the files. Now I noticed, that the empty cells, with <span style=\"text-decoration:underline\">underline</span> on it, make small lines, in both the pdf and the html. Not a big problem, just have to make the sheet better, or check if the cell is empty. <strong>*Speaking of empty cells, check out the html output, it's to long, it goes on with empty cells. I'd like to prevent that*</strong></p>\r\n<p>ps: Thanks for your help :) much appreciated</p>",
+    "PostedDate": "2010-01-22T02:25:35.683-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "280591",
+    "ThreadId": "81591",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>solow wrote:</strong><br>\r\n<p>sometimes things such as '#NUM!'</p>\r\n</blockquote>\r\n<p>This looks like a bug. We need to consult MarkBaker. Work item created:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=11587\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=11587</a></p>\r\n<p>&nbsp;</p>\r\n<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>solow wrote:</strong><br>\r\n<p>and ' 5.684341886080801E-14' apear.</p>\r\n</blockquote>\r\n<p>This is a bug. Now fixed:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=11588\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=11588</a></p>\r\n<p>&nbsp;</p>\r\n<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>solow wrote:</strong><br>\r\n<p>Also the numer format is wrong as in: 193283.92 in stead of 193.283,92</p>\r\n</blockquote>\r\n<p>PHPExcel looks in the servers locale settings to find the appropriate decimal and thousands separators. If it fails, set decimal and thousands separators explicitly like below.</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>PHPExcel_Shared_String::setThousandsSeparator(<span style=\"color:#A31515\">'.'</span>);\r\nPHPExcel_Shared_String::setDecimalSeparator(<span style=\"color:#A31515\">','</span>);\r\n\r\n$excel = PHPExcel_IOFactory::load(<span style=\"color:#A31515\">'temptopdf.xlsx'</span>);\r\n\r\n$writer = PHPExcel_IOFactory::createWriter($excel, <span style=\"color:#A31515\">'HTML'</span>);\r\n$writer-&gt;setUseInlineCSS(true);\r\n$writer-&gt;save(<span style=\"color:#A31515\">'write.html'</span>);\r\n\r\n</pre>\r\n</div>\r\n<p>We are working on some locale features, so in the future this may be handled in a better way.</p>\r\n<p>&nbsp;</p>\r\n<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>solow wrote:</strong><br>\r\n<p>These are the files. Now I noticed, that the empty cells, with <span style=\"text-decoration:underline\">underline</span> on it, make small lines, in both the pdf and the html. Not a big problem, just have to make the sheet better, or check if the cell is empty.</p>\r\n</blockquote>\r\n<p>Now fixed:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=11590\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=11590</a></p>",
+    "PostedDate": "2010-01-22T07:35:42.883-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "280592",
+    "ThreadId": "81591",
+    "Html": "<p>Wow, So in fact i found some minor bugs huh. I love it when am helping out haha. now, why do you direct to that topics? If it's fixed, where do i download the new classes?</p>",
+    "PostedDate": "2010-01-22T07:38:04.26-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "280601",
+    "ThreadId": "81591",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>solow wrote:</strong><br>\r\n<p>Wow, So in fact i found some minor bugs huh. I love it when am helping out haha. now, why do you direct to that topics? If it's fixed, where do i download the new classes?</p>\r\n</blockquote>\r\n<p>There is check-out every 24 hours. Next source code release should be available in about 17 hours from here:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/SourceControl/list/changesets\">http://phpexcel.codeplex.com/SourceControl/list/changesets</a></p>",
+    "PostedDate": "2010-01-22T07:45:41.163-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "280603",
+    "ThreadId": "81591",
+    "Html": "<p>Okay. I will download it from there tommorow. btw i commented the fix with the <span style=\"text-decoration:underline\">underline</span> bug.</p>",
+    "PostedDate": "2010-01-22T07:46:57.64-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

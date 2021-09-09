@@ -1,0 +1,74 @@
+[
+  {
+    "Id": "209734",
+    "ThreadId": "61796",
+    "Html": "<p>Hi,</p>\r\n<p>I just finish my automatic mysql php to excel using your phpExcel, everybody love it it's realy cool.<br>My hard work is paid off that's what i thought, but i found one flaw</p>\r\n<p>I use the .xls format ( excel 5 ) for the output since we all use open office here and I know they can read xlsx recently but i still not trust it<br>the code that i use to save the data to excel:</p>\r\n<p>$this-&gt;writer = new PHPExcel_Writer_Excel5($this-&gt;excel);<br>$filename = 'SID:'.$this-&gt;shortlistdata[0]['shortlistId'].'_'.time().'.xls';</p>\r\n<p>header(&quot;Pragma: public&quot;);<br>header(&quot;Expires: 0&quot;);<br>header(&quot;Cache-Control: must-revalidate, post-check=0, pre-check=0&quot;);<br>header(&quot;Content-Type: application/force-download&quot;);<br>header(&quot;Content-Type: application/octet-stream&quot;);<br>header(&quot;Content-Type: application/download&quot;);<br>header(&quot;Content-Disposition: attachment;filename=$filename &quot;);<br>header(&quot;Content-Transfer-Encoding: binary &quot;);<br>$this-&gt;writer-&gt;save(&quot;php://output&quot;);</p>\r\n<p>Than the user will be force to save the excel file in their computer, they can open it also and the format inside is still intact let just say the result is just what they wanted<br>The problem is it save in Excel5 format so when they reopen the file everything is gone the text still there but all the style broken , the image gone , etc can't be use anymore<br>The only resolve i have now is after they save to their computer they have to save it again and change the format to Excel 97/2000/XP by then it will have no problem when they reopen it</p>\r\n<p>I understand phpExcel is develop this code for MS Office use ( I just check it, it's work ok in MS Office )&nbsp; but if you have a way to make it save to Excel 97/2000/XP instead of Excel 5 please tell me</p>\r\n<p>Thank you</p>",
+    "PostedDate": "2009-07-07T18:49:08.213-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "209737",
+    "ThreadId": "61796",
+    "Html": "<p>Oh one more things, is there away to save using Excel 2007 to .xls format ?</p>",
+    "PostedDate": "2009-07-07T18:59:44.02-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "209744",
+    "ThreadId": "61796",
+    "Html": "<p><em>&gt;&gt; The only resolve i have now is after they save to their computer they have to save<br> &gt;&gt; it again and change the format to Excel 97/2000/XP by then it will have no problem when<br> &gt;&gt; they reopen it</em><br><br>This has already been fixed:<br><a href=\"../WorkItem/View.aspx?WorkItemId=10023\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10023</a><br><br>Can you try to download latest source code:<br><a href=\"../SourceControl/ListDownloadableCommits.aspx\">http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx</a><br><br>&nbsp;&nbsp;&nbsp; <br> <em>&gt;&gt; Oh one more things, is there away to save using Excel 2007 to .xls format ?</em><br> <br> It is not possible to have a fully featured xls file, for example, you will always be limited to 256 columns in the xls file. This is a limitation in the xls format.</p>",
+    "PostedDate": "2009-07-07T19:38:32.377-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "230125",
+    "ThreadId": "61796",
+    "Html": "<p>We are currently using your phpExcel for a new project , your packs are very helpful.</p>\r\n<p>One problem we got here is quite similiar but we still have not got a clear clue .</p>\r\n<p>What we want is to save the excel file in Excel 97/2000/XP so that the xls files can be then processed by other third party's program.</p>\r\n<p>As suggested we downloaded the latest souce code , but still no luck&nbsp; ,&nbsp; By reading <a href=\"../WorkItem/View.aspx?WorkItemId=10023\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10023</a> , i am a bit confused , how do i manage to get the format right?</p>\r\n<p>Your comments are appreciated .</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-09-02T04:00:22.963-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "230137",
+    "ThreadId": "61796",
+    "Html": "<p>@leoli</p>\r\n<p><em>&gt;&gt; What we want is to save the excel file in Excel 97/2000/XP so that the xls files can be then processed by other third party's program.</em></p>\r\n<p>It should suffice to use PHPExcel_Writer_Excel5, example:</p>\r\n<p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$writer = PHPExcel_IOFactory::createWriter($excel, <span style=\"color:#A31515\">'Excel5'</span>);\r\n$writer-&gt;save(<span style=\"color:#A31515\">'write.xls'</span>);\r\n</pre>\r\n</div>\r\n</p>\r\n<p><em>&gt;&gt; By reading <a href=\"../WorkItem/View.aspx?WorkItemId=10023\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10023</a> , i am a bit confused , how do i manage to get the format right?</em></p>\r\n<p>That is an old bug in PHPExcel 1.6.7 which you don't have to worry about any more. The bug would make OpenOffice.org think that xls files created by PHPExcel_Writer_Excel5 were of type Excel 5.0 instead of type Excel 97/2000/XP.</p>",
+    "PostedDate": "2009-09-02T04:40:10.48-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "230363",
+    "ThreadId": "61796",
+    "Html": "<p>@Koyama</p>\r\n<p>thanks for the information ,Actually we have used the APIs , However ,the file saved as the Excel 5 format other than Microsoft Excel , therefore the third party doesn't accept the excel files or read.</p>\r\n<p>Any idea?</p>",
+    "PostedDate": "2009-09-02T12:18:20.69-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "230378",
+    "ThreadId": "61796",
+    "Html": "<p><em>&gt;&gt; therefore the third party doesn't accept the excel files or read.</em></p>\r\n<p>What 3rd party application needs to read the file. Do you have some example of an xls file which the 3rd party application <strong>can</strong> read. If you send the example of to me in an email, I may be able to figure out what the problem is. (erik at phpexcel dot)</p>",
+    "PostedDate": "2009-09-02T12:46:03.593-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "230569",
+    "ThreadId": "61796",
+    "Html": "<p>Hi Koyama.</p>\r\n<p>I can send you the sample Excel docs , but i don't know how to upload the spreadsheets.</p>\r\n<p>Do you have any email address that i can send to ?</p>\r\n<p><span style=\"font-size:9pt\" lang=EN-US>We used the API to generate a spreadsheet called example.xls </span></p>\r\n<p><span style=\"font-size:9pt\" lang=EN-US>&nbsp;</span></p>\r\n<p><span style=\"font-size:9pt\" lang=EN-US>And the required xls format&nbsp; example is demo.xls ,</span></p>\r\n<p><span style=\"font-size:9pt\" lang=EN-US>&nbsp;</span></p>\r\n<p><span style=\"font-size:9pt\" lang=EN-US>The two spreadsheets look pretty much the same , however , the third party cannot process the example.xls .But when we use Microsoft Office to open it and then save ,&nbsp; it can be processed.</span></p>\r\n<p><span style=\"font-size:9pt\" lang=EN-US>&nbsp;</span></p>\r\n<p><span style=\"font-size:9pt\" lang=EN-US>&nbsp;</span></p>\r\n<p><span style=\"font-size:9pt\" lang=EN-US>Regards</span></p>\r\n<p><span style=\"font-size:9pt\" lang=EN-US>Leo</span></p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-09-03T01:45:03.973-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "230666",
+    "ThreadId": "61796",
+    "Html": "<p><em>&gt;&gt; Do you have any email address that i can send to ?</em></p>\r\n<p>You may send example.xls and demo.xls to my email: (erik at phpexcel dot net)</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-09-03T06:27:39.543-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

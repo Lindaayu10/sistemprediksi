@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "107446",
+    "ThreadId": "32393",
+    "Html": "<p>Hi,</p>\r\n<p>I have a strange problem when writing a date-string with PHPExcel. When I open the file saved with PHPExcel (in Excel5 format - unfortunately this is the requirement), it looks fine in OpenOffice, however, when I open it I get two &quot;square&quot; characters (indicating missing characters?) at the end of my date string. However, if I output the values to the console, using print statements, the characters do not appear.</p>\r\n<p>Is there anything special I should consider when writing date strings to the Excel5 format?</p>\r\n<p>Here is a snippet from my code:</p>\r\n<p>---</p>\r\n<p> \t\t$datum = $objPHPExcel-&gt;getActiveSheet()-&gt;getCell($alphabet[$col].$row)-&gt;getValue();<br>\r\n$datum = preg_replace('/&quot;.&quot;/','.',$datum);<br>\r\n$datum = preg_replace('/\\n|\\r/','',$datum);<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueExplicit($alphabet[$col].$row,$datum);<br>\r\n//behandle Datumsformat<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle($alphabet[$col].$row)-&gt;getNumberFormat()-&gt;setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_DATE_DDMMYYYY_POINT);<br>\r\n---</p>\r\n<p>Here is how I read the file originally:</p>\r\n<p>$objPHPExcel = $objReader-&gt;load(&quot;test.xls&quot;);<br>\r\n$objPHPExcel-&gt;setActiveSheetIndex(0);<br>\r\n<br>\r\nand here is how I save it:</p>\r\n<p>$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');<br>\r\n$objWriter-&gt;save('test.xls');<br>\r\n<br>\r\nThank you for any idea how to get rid of the two square characters.</p>\r\n",
+    "PostedDate": "2008-07-28T04:47:31.27-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "107610",
+    "ThreadId": "32393",
+    "Html": "I have not been doing much date formatting with PHPExcel so probably I cannot help. But what does the spreadsheet <code>test.xls</code> look like that you are reading? And is\r\n<code>PHPExcel_Style_NumberFormat::FORMAT_DATE_DDMMYYYY_POINT</code> your home-made constant? I don't see it in the class definition?<br>\r\n<br>\r\nMaybe if you can upload your test files somewhere then someone can inspect them and help.<br>\r\n",
+    "PostedDate": "2008-07-28T17:46:16.213-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "107698",
+    "ThreadId": "32393",
+    "Html": "I did a little more research on the issue.<br>\r\n<br>\r\nThe two &quot;invisible characters&quot;, represented as a square in MS Excel are in fact two invisible ascii characters: ASCII 30 (record separator RS) and ASCII 4 (EOT character). No idea how these characters came into the excel file.<br>\r\n<br>\r\nI tried to replace them with<br>\r\n<br>\r\n$datum = str_replace(chr(4),&quot;&quot;,$datum);<br>\r\nand<br>\r\n$datum = str_replace(chr(30),&quot;&quot;,$datum);<br>\r\n<br>\r\nbut this doesn't seem to help.<br>\r\n<br>\r\n- yes, the &quot;<code>PHPExcel_Style_NumberFormat::FORMAT_DATE_DDMMYYYY_POINT&quot; is my own home-made constant, since there wasn't any constant for the german date format available.<br>\r\n<br>\r\nAny ideas on how to get rid of the ASCII 4 and 30 characters would be appreciated!<br>\r\n<br>\r\nThanks,<br>\r\nAndreas<br>\r\n</code>\r\n",
+    "PostedDate": "2008-07-29T06:00:33.297-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "107717",
+    "ThreadId": "32393",
+    "Html": "hm - experimenting with some other files I see that the problem arises only with 1 or 2 files, not with other files. I can live with that.<br>\r\n<br>\r\nThe strange thing is that those &quot;invisible&quot; low-ascii characters aren't visible in the file before the file was manipulated by PHPExcel, but are visible afterwards.<br>\r\n<br>\r\nI will monitor the issue and see if the problem appears with more files. If yes, I will upload a sample file somewhere.<br>\r\n<br>\r\nAndreas<br>\r\n",
+    "PostedDate": "2008-07-29T07:27:59.237-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

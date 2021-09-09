@@ -1,0 +1,82 @@
+[
+  {
+    "Id": "85182",
+    "ThreadId": "25418",
+    "Html": "\r\nHi all,<br />I'm using PHPExcel in my symfony project, and I when I try to save a new xls:<br /><br />$objWriter = new PHPExcel<i>Writer</i>Excel5($objPHPExcel);<br />$objWriter-&gt;save(\"05pippo.xls\");<br /><br />the browser return me this kind of error:<br /><br /><a href=\"http://www.codeplex.com/PHPExcel/Wiki/View.aspx?title=Exception\">Exception</a><br />Can't open 05pippo.xls. It may be in use or protected.<br />stack trace<br /><br /><ul><li>at ()</li></ul>in SF<i>ROOT</i>DIR/lib/PHPExcel/Shared/OLE/OLE_Root.php line 103<br /><br />...<br />} else {<br />$this-&gt;<i>FILEH</i> = @fopen($filename, \"wb\");<br />if ($this-&gt;<i>FILEH</i> == false) {<br />throw new Exception(\"Can't open $filename. It may be in use or protected.\");<br />}<br />}<br />// Make an array of PPS's (for Save)<br />...<br /><br />Do anybody knows what could be the problem?<br /><br />Thanks<br />Valerio<br />",
+    "PostedDate": "2008-04-05T08:24:29.443-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "85326",
+    "ThreadId": "25418",
+    "Html": "\r\nHave you checked if you can read the file with, say for example, file<i>get</i>contents()?<br />",
+    "PostedDate": "2008-04-06T23:09:45.38-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "85616",
+    "ThreadId": "25418",
+    "Html": "\r\nReally, the things that I have to do in my php page is to let downloadable this xml file to the client, but I don't know how is it implementable! Do you have any suggestion about it?<br /><br />Thanks<br />",
+    "PostedDate": "2008-04-08T10:13:31.757-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "85639",
+    "ThreadId": "25418",
+    "Html": "\r\nDo you have the required file permissions on your hosting account?<br />",
+    "PostedDate": "2008-04-08T11:41:26.29-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "85786",
+    "ThreadId": "25418",
+    "Html": "\r\nNot yet... for now I have just to create a runtime download xml file from sql queries.  <br /><br />for example I'm able to do this with TCPDF class whit one line of code:<br /><br />$pdf-&gt;Output('Statistic.pdf', 'D');<br /><br />the \"Statistic.pdf\" doesn't exist and is create runtime for downloading.<br /><br />I don't have any idea whit PHPXml class because I'm only find the command to create a physical file on the server.<br />",
+    "PostedDate": "2008-04-09T03:41:54.923-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "85803",
+    "ThreadId": "25418",
+    "Html": "\r\nSould be no problem then. Can you try setting the temp path (see docs) and output path to a absolute path? (i.e. /var/www/examplesite/out.xls)<br />",
+    "PostedDate": "2008-04-09T05:44:04.86-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "85829",
+    "ThreadId": "25418",
+    "Html": "\r\nHow can I set the temp path? I tried like this:<br /><br />$objWriter = new PHPExcel<i>Writer</i>Excel5($objPHPExcel);<br />$objWriter.setTempDir(\"/home/valerio/\");<br /><br />but i get this error: Call to undefined function setTempDir()<br />",
+    "PostedDate": "2008-04-09T07:55:33.77-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "85992",
+    "ThreadId": "25418",
+    "Html": "\r\n$objWriter-&gt;setTempDir(\"/home/valerio/\"); should be working... Are you using the latest version of PHPExcel?<br />",
+    "PostedDate": "2008-04-09T23:53:36.12-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "86838",
+    "ThreadId": "25418",
+    "Html": "\r\nHi,<br /><br />Sorry for answer you so late, but I was very busy.<br />My PHPExcel version is:  1.6.0, 2008-02-14<br /><br />and I still get the same error also with \"$objWriter-&gt;setTempDir(\"/home/valerio/\")\" instruction:<br /><br />      Strict Standards: Assigning the return value of new by reference is deprecated in /home/valerio/se<i>1-0</i>fidasonline_com/lib/PHPExcel/Writer/Excel5/Workbook.php on line 186<br /><br />      Strict Standards: Assigning the return value of new by reference is deprecated in /home/valerio/se<i>1-0</i>fidasonline_com/lib/PHPExcel/Writer/Excel5/Workbook.php on line 195<br /><br />-----<br /><br /><a href=\"http://www.codeplex.com/PHPExcel/Wiki/View.aspx?title=Exception\">Exception</a><br />      Can't open pippo.xls. It may be in use or protected.<br /><br />",
+    "PostedDate": "2008-04-15T02:30:07.373-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "112007",
+    "ThreadId": "25418",
+    "Html": "(Using PHPExcel 1.6.2)<br>\r\nI had the same problem and succeeded to resolve it.<br>\r\nSuch like you valerio, i tried to define a temp directory to store a temporary file but it failed with Linux. Why ? It seems that the only that this temporary file is created is with the only readable right just for the root guy, even in the /tmp folder (witch is open in RW for everyone).<br>\r\nI have done that like that :<br>\r\n<br>\r\n$objWriter = new PHPExcel_Writer_Excel5($objPHPExcel);\r\n<br>\r\n$objWriter-&gt;setTempDir(&quot;/var/www/tmp&quot;); <em>//This never worked i don't know why... it still working on the /tmp directory</em><br>\r\n//To store on a local folder<br>\r\n$objWriter-&gt;save($nomficXLS);\r\n<br>\r\n$fp = fopen($nomficXLS, 'rb');\r\n<br>\r\nsleep(1);&nbsp;\r\n//just a pause to let him time but i am not sure now if this is needed<br>\r\nfpassthru($fp);\r\n<br>\r\nfclose($fp);&nbsp;\r\n//to close the file<br>\r\nunlink($nomficXLS);\r\n<br>\r\n<br>\r\nThe previews method never worked for me because of the read only property given for the root<br>\r\nSo I have changed and decided to not work with a temporary file, like that<br>\r\n<br>\r\n$objWriter = new PHPExcel_Writer_Excel5($objPHPExcel);\r\n<br>\r\n//sending the file with the data directly<br>\r\n$objWriter-&gt;save('php://output');\r\n<br>\r\n<br>\r\nAnd it works now... I mean I receave the file and can watch everything fine. The only thing that do not work properly is the cells calculation formated like '=SUM(A4:A100)'. I don't know why, even if i specified : $objPHPExcel-&gt;getActiveSheet()-&gt;getCell('A3')-&gt;getCalculatedValue();<br>\r\nIt doesn't worked. The cell is not calculated. If somebody has a clue... thanx to help :)<br>\r\n<br>\r\n<br>\r\n<br>\r\n<br>\r\n",
+    "PostedDate": "2008-08-19T03:36:02.697-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

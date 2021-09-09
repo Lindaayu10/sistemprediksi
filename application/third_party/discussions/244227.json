@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "559081",
+    "ThreadId": "244227",
+    "Html": "\r\n<p>Hi,</p>\r\n<p>&nbsp;</p>\r\n<p>Using<em>&nbsp;$document-&gt;getActiveSheet()-&gt;setCellValue(&quot;C1&quot;,&quot;2010-12-31&quot;);</em> to fill a formatted date field in a .xls looks like it was not a date, but a string when the .xls is opened in Excel. After clicking the cell (without editing), it becomes\r\n formatted correctly. But by default, it looks like it was set to<em> '2010-12-31</em> - with a ' as initial char. The same issue if the string is date(&quot;d/m/Y&quot;,...).</p>\r\n<p>Other formattings like decimal separator for numbers, % etc. work well, but the date (and also time) cells need are wrong by default :-/</p>\r\n<p>What's wrong with my .xls or is setCallValue() missing additional information for date/time cells?</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks for advice</p>\r\n",
+    "PostedDate": "2011-02-01T17:58:33.927-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "559201",
+    "ThreadId": "244227",
+    "Html": "\r\n<p>Quoting from section 4.6.3 of the Developer Documentation:</p>\r\n<h3>Write a date into a cell</h3>\r\n<p>In Excel, dates are stored as numeric values counting the number of days elapsed since 1900-01-01. For example, the date '2008-12-31' is represented as 39813. You can verify this in Microsoft Office Excel by entering that date in a cell and afterwards changing\r\n the number format to 'General' so the true numeric value is revealed.</p>\r\n<p>Writing a date value in a cell consists of 2 lines of code. Select the method that suits you the best. Here are some examples:</p>\r\n<div>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><span style=\"color:green\"><div style=\"color:black; background-color:white\"><pre><span style=\"color:green\">/* PHPExcel_Cell_AdvanceValueBinder required for this sample */</span> \r\n<span style=\"color:blue\">require_once</span> <span style=\"color:#a31515\">'PHPExcel/Cell/AdvancedValueBinder.php'</span>; \r\n<span style=\"color:green\">// MySQL-like timestamp '2008-12-31' </span>\r\nPHPExcel_Cell::setValueBinder( <span style=\"color:blue\">new</span> PHPExcel_Cell_AdvancedValueBinder() ); \r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(<span style=\"color:#a31515\">'D1'</span>, <span style=\"color:#a31515\">'2008-12-31'</span>); \r\n</pre>\r\n</div>\r\n<span style=\"color:#000000\">Note that setting the Advance Value Binder will affect all subsequent data written to cells, unless you subsequently reset to the Default Value Binder. There is more information about cell value binders in the documentation. </span></span><span style=\"color:#000000\">&nbsp;</span></pre>\r\n</div>\r\n</div>\r\n<div>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><span style=\"color:green\">&nbsp;</span></pre>\r\n<pre><span style=\"color:green\">or</span></pre>\r\n<pre><span style=\"color:green\"><div style=\"color:black; background-color:white\"><pre><span style=\"color:green\">// PHP-time (Unix time) </span>\r\n$time = gmmktime(0,0,0,12,31,2008); <span style=\"color:green\">// int(1230681600) </span>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(<span style=\"color:#a31515\">'D1'</span>, PHPExcel_Shared_Date::PHPToExcel($time));\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(<span style=\"color:#a31515\">'D1'</span>)-&gt;getNumberFormat()-&gt;setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_DATE_YYYYMMDDSLASH); \r\n</pre>\r\n</div>\r\n</span></pre>\r\n<pre>or&nbsp;</pre>\r\n</div>\r\n</div>\r\n<div>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><span style=\"color:green\">// Excel-time</span>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(<span style=\"color:#a31515\">'D1'</span>, 39813)\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(<span style=\"color:#a31515\">'D1'</span>)-&gt;getNumberFormat()-&gt;setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_DATE_YYYYMMDDSLASH)\r\n</pre>\r\n</div>\r\n</div>\r\n<p><span lang=\"EN-GB\" style=\"font-size:10pt\">The above methods for entering a date all yield the same result. PHPExcel_Style_NumberFormat provides a lot of pre-defined date formats.</span></p>\r\n<p>&nbsp;</p>\r\n<p>There is also an entire section of the Function Reference Documentation (section 3.2) dedicated to working with dates, converting between PHP dates and Excel dates, and the methods available in PHPExcel for doing this.</p>\r\n",
+    "PostedDate": "2011-02-02T01:01:40.433-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "559388",
+    "ThreadId": "244227",
+    "Html": "\r\n<p>Hi Mark,</p>\r\n<p>&nbsp;</p>\r\n<p>Although I tried with PHPExcel_Cell::setValueBinder( new PHPExcel_Cell_AdvancedValueBinder() ); there is still an issue on the format.</p>\r\n<p>The date column in the template.xls that I use is set to dd.mm.yyyy. After phpexcel fills the cells with date values, it looks like yyyy-mm-dd and the cell format is set to &quot;custom&quot; instead of &quot;date&quot;. It's able to understand several date input/values, but\r\n why does it overwrite the format again?</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks and regards</p>\r\n",
+    "PostedDate": "2011-02-02T06:57:05.927-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "559512",
+    "ThreadId": "244227",
+    "Html": "\r\n<p>In Excel, when you type a value into a cell that looks like a date (such as 02-Feb-2011), then Excel automatically converts that input string to an Excel date/timestamp value, and sets the cell format mask to the default number format mask for dates (irrespective\r\n of any existing format mask for that cell). PHPExcel's Advanced Value Binder does exactly the same thing... it identifies a string that it believes is a date, converts the string value to an Excel date/timestamp value, and sets the number format mask to the\r\n default format mask for dates, overriding any existing number format mask.</p>\r\n<p>If you've already set a number format mask for your date cells, then you don't want to use the Advanced Value Binder, but simply to convert your date string to an Excel date/timestamp using PHPExcel_Shared_Date::PHPToExcel($dateValue), PHPExcel_Shared_Date::FormattedPHPToExcel($year,\r\n $month, $day, $hours, $minutes, $seconds) or PHPExcel_Shared_Date::stringToExcel($dateValue); without overriding the number format mask that you've already set.</p>\r\n<p>Note that there have been some changes to the PHPExcel_Shared_Date::stringToExcel() method since the 1.7.5 release to prevent PHPExcel from falsely recognising some string as dates.</p>\r\n",
+    "PostedDate": "2011-02-02T09:07:10.283-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

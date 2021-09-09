@@ -1,0 +1,54 @@
+Index: Classes/PHPExcel/Worksheet.php
+===================================================================
+--- Classes/PHPExcel/Worksheet.php	(revision 1188)
++++ Classes/PHPExcel/Worksheet.php	(working copy)
+@@ -428,6 +428,28 @@
+ 	}
+ 
+ 	/**
++	 * Check sheet title for valid Excel syntax
++	 *
++	 * @param string $pValue The string to check
++	 * @return string The valid string
++	 * @throws Exception
++	 */
++	private static function _checkSheetTitle($pValue)
++	{
++		// Some of the printable ASCII characters are invalid:  * : / \ ? [ ]
++		if (preg_match('/(\\*|\\:|\\/|\\\\|\\?|\\[|\\])/', $pValue)) {
++			throw new Exception('Invalid character found in sheet title');
++		}
++
++		// Maximum 31 characters allowed for sheet title
++		if (PHPExcel_Shared_String::CountCharacters($pValue) > 31) {
++			throw new Exception('Maximum 31 characters allowed in sheet title.');
++		}
++
++		return $pValue;
++	}
++
++	/**
+ 	 * Get collection of cells
+ 	 *
+ 	 * @param boolean $pSorted Also sort the cell collection?
+@@ -669,7 +691,6 @@
+      * Set title
+      *
+      * @param string $pValue String containing the dimension of this worksheet
+-	 * @throws Exception
+ 	 * @return PHPExcel_Worksheet
+      */
+     public function setTitle($pValue = 'Worksheet')
+@@ -679,10 +700,8 @@
+     		return;
+     	}
+ 
+-		// Maximum 31 characters allowed for sheet title
+-		if (PHPExcel_Shared_String::CountCharacters($pValue) > 31) {
+-			throw new Exception('Maximum 31 characters allowed in sheet title.');
+-		}
++		// Syntax check
++		self::_checkSheetTitle($pValue);
+ 
+     	// Old title
+     	$oldTitle = $this->getTitle();

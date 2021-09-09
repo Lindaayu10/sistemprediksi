@@ -1,0 +1,21 @@
+Index: Classes/PHPExcel/Writer/Excel5/Worksheet.php
+===================================================================
+--- Classes/PHPExcel/Writer/Excel5/Worksheet.php	(revision 1075)
++++ Classes/PHPExcel/Writer/Excel5/Worksheet.php	(working copy)
+@@ -1166,13 +1166,10 @@
+ 		//   relative if link starts with up-dir, "..\..\somefile.xls"
+ 		//   otherwise, absolute
+ 
+-		$absolute	= 0x02; // Bit mask
+-		if (!preg_match("/\\\/", $url)) {
+-			$absolute	= 0x00;
++		$absolute = 0x00; // relative path
++		if ( preg_match('/^[A-Z]:/', $url) ) {
++			$absolute = 0x02; // absolute path on Windows, e.g. C:\...
+ 		}
+-		if (preg_match("/^\.\.\\\/", $url)) {
+-			$absolute	= 0x00;
+-		}
+ 		$link_type			   = 0x01 | $absolute;
+ 
+ 		// Determine if the link contains a sheet reference and change some of the

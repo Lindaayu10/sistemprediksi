@@ -1,0 +1,82 @@
+[
+  {
+    "Id": "907654",
+    "ThreadId": "394163",
+    "Html": "\r\n<p>$objPHPExcel = new PHPExcel();<br>\r\n$filename = date('Ymd-His').&quot;.csv&quot;;<br>\r\n$sortarr = array('A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z');<br>\r\n$data = array(<br>\r\n&nbsp;&nbsp;&nbsp; &quot;0&quot;=&gt;array('名字','地址','電話號碼','年齡'),<br>\r\n&nbsp;&nbsp;&nbsp; &quot;1&quot;=&gt;array('布賴恩','123假聖','一十八億〇三十零萬〇三百九','18'),<br>\r\n&nbsp;&nbsp;&nbsp; &quot;2&quot;=&gt;array('阿蘭圖靈','美國','62 09 3928二千八百三十','83')<br>\r\n);<br>\r\n$row = 1;<br>\r\nforeach($data as $k=&gt;$v)<br>\r\n{<br>\r\n&nbsp;&nbsp;&nbsp; $col = 1;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;\r\n<br>\r\n&nbsp;&nbsp;&nbsp; foreach($v as $kk =&gt; $vv)<br>\r\n&nbsp;&nbsp;&nbsp; {<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $position = $sortarr[$col-1].$row;<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;setActiveSheetIndex(0)-&gt;setCellValue($position, $vv);<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $col&#43;&#43;;<br>\r\n&nbsp;&nbsp;&nbsp; }<br>\r\n&nbsp;&nbsp;&nbsp; $row &#43;&#43;;<br>\r\n}<br>\r\n$objPHPExcel-&gt;setActiveSheetIndex(0);<br>\r\nheader('Content-Type:application/csv;charset=UTF-8');<br>\r\nheader('Content-Disposition: attachment;filename=&quot;'.$filename.'&quot;');<br>\r\nheader('Cache-Control: max-age=0');<br>\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'CSV');<br>\r\n$objWriter-&gt;setUseBOM(true);<br>\r\n$objWriter-&gt;save('php://output');</p>\r\n<p>It show unreadable code when I view csv file via office 2007.<br>\r\ncan anyone help me?</p>\r\n",
+    "PostedDate": "2012-09-03T01:53:33.557-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "907728",
+    "ThreadId": "394163",
+    "Html": "<p><span class=\"comment\">If you open csv file with notepad, is the encoding correct?</span></p>",
+    "PostedDate": "2012-09-03T04:50:56.783-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "907987",
+    "ThreadId": "394163",
+    "Html": "<p>Thanks for your reply.</p>\r\n<p>Yes, it is encoding correct when i open the csv file with notepad, here is the image :</p>\r\n<p><img src=\"http://sample.bodait.com/1.JPG\" alt=\"\" /></p>",
+    "PostedDate": "2012-09-03T17:40:52.873-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "908052",
+    "ThreadId": "394163",
+    "Html": "<p>So PHPExcel is creating the file correctly. It is a valid CSV file. It opens correctly in MS Excel 2010. It imports correctly into Excel2007 if I open Excel and then select file/open (but fails to recognise the BOM if I simply open the file by double-clicking). I'm really not certain what I can do to fix Excel 2007 and get it to recognise and interpret the BOM correctly when the file is opened with a double-click.</p>\r\n<p>Why not save the file as an xls or xlsx instead?</p>",
+    "PostedDate": "2012-09-03T23:42:27.81-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "908112",
+    "ThreadId": "394163",
+    "Html": "<p><span id=\"result_box\" class=\"short_text\" lang=\"en\"><span>For</span> <span class=\"hps\">user convenience, he could select xls / xlsx / csv file to download when export data, above code is a example.</span></span></p>\r\n<p><span class=\"short_text\" lang=\"en\"><span class=\"hps\">If PHPExcel can't fix the problem, Mabye export data to xls / xlsx with PHPExcel, export data to csv with no php class, I&nbsp; can fix it.</span></span></p>\r\n<p>Thanks for your help.</p>",
+    "PostedDate": "2012-09-04T02:03:21.667-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "908145",
+    "ThreadId": "394163",
+    "Html": "<p>The problem isn't PHPExcel, you confirm yourself that the CSV file is correctly encoded when opened in Notepad.... the problem is a fault in MS Excel 2007... so PHPExcel can't fix it. Somehow, I doubt that you will find a solution although I'll try and think of something that might help.</p>",
+    "PostedDate": "2012-09-04T03:56:05.86-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "908421",
+    "ThreadId": "394163",
+    "Html": "<p>Result is blelow and it works fine.</p>\r\n<p><img src=\"http://sample.bodait.com/2.JPG\" alt=\"\" /></p>\r\n<p>here is the code:</p>\r\n<p>&lt;?php<br />function export_csv($data,$file_name='')<br />{<br />&nbsp;&nbsp;&nbsp; $file_name = $file_name.'_'.date('YmdHi').'.csv';<br />&nbsp;&nbsp;&nbsp; $encoded_filename&nbsp; = urlencode($file_name);<br />&nbsp;&nbsp;&nbsp; $encoded_filename&nbsp; = str_replace(\"+\",\"%20\",$encoded_filename );<br />&nbsp;&nbsp;&nbsp; $content = array_to_string($data);<br />&nbsp;&nbsp;&nbsp; header('Cache-control: private');<br />&nbsp;&nbsp;&nbsp; $ua = $_SERVER[\"HTTP_USER_AGENT\"];<br />&nbsp;&nbsp;&nbsp; if (preg_match(\"/MSIE/\", $ua)) {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; header('Content-Disposition: attachment; filename=\"' . $encoded_filename . '\"');<br />&nbsp;&nbsp;&nbsp; }<br />&nbsp;&nbsp;&nbsp; else if (preg_match(\"/Firefox/\", $ua)) {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; header('Content-Disposition: attachment; filename*=\"utf8\\'\\'' . $file_name . '\"');<br />&nbsp;&nbsp;&nbsp; }<br />&nbsp;&nbsp;&nbsp; else {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; header('Content-Disposition: attachment; filename=\"' . $file_name . '\"');<br />&nbsp;&nbsp;&nbsp; }<br />&nbsp;&nbsp;&nbsp; if(function_exists('mb_convert_encoding')){<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; header('Content-type: text/csv; charset=UTF-16LE');<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; echo(chr(255).chr(254));<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; echo(mb_convert_encoding($content,\"UTF-16LE\",\"UTF-8\"));<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; exit;<br />&nbsp;&nbsp;&nbsp; }<br />}<br /><br />function array_to_string($result)<br />{<br />&nbsp;&nbsp;&nbsp; if(empty($result)){<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; exit(\"this is no data\");<br />&nbsp;&nbsp;&nbsp; }<br />&nbsp;&nbsp;&nbsp; $size_result = count($result);<br />&nbsp;&nbsp;&nbsp; $data = \"\";<br />&nbsp;&nbsp;&nbsp; for($i = 0 ; $i &lt; $size_result ;&nbsp; $i++) {<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $data .= $result[$i].\"\\n\";<br />&nbsp;&nbsp;&nbsp; }<br />&nbsp;&nbsp;&nbsp; return $data;<br />}<br /><br />$data = array('你好','hello','&Uacute;ltimos','電話號碼');<br />export_csv($data,\"mycsv\");<br />?&gt;</p>",
+    "PostedDate": "2012-09-04T18:17:35.013-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "908658",
+    "ThreadId": "394163",
+    "Html": "<p>Alright, I've added a setExcelCompatibility(TRUE) option to the CSV Writer that will generate CSV files encoded in a way that they can be opened with a double-click (or direct open) with MS Excel 2007 and below. Code is in github develop branch.</p>",
+    "PostedDate": "2012-09-05T06:18:21.183-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "910259",
+    "ThreadId": "394163",
+    "Html": "<p>Great, I have checked code is in github develop branch, and test it with new class, it works fine now, good job ~. ^_^, thank you !</p>",
+    "PostedDate": "2012-09-09T19:17:42.473-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1059022",
+    "ThreadId": "394163",
+    "Html": "Hi,<br />\n<br />\nI have that kind of problem with Turkish characters. And although I set the php script to UTF8 without BOM, in notepad the result looks ANSI. Here is my code:<br />\n<pre><code>&lt;?php\n$Host = &quot;localhost&quot;;\n$User = &quot;xxx&quot;;\n$Password = &quot;&quot;;\n$DBName = &quot;mydb&quot;;\n$TableName = &quot;satislar&quot;;\n\n$link = mysql_connect ($Host, $User, $Password) or die('Could not connect: ' . mysql_error());\nmysql_select_db($DBName) or die('Could not select database');\n//mysql_set_charset($link, 'utf8');//if not by default\n\n$select = &quot;SELECT * FROM satislar&quot;;\n$export = mysql_query($select);\n$fields = mysql_num_fields($export);\n    \nfor ($i = 0; $i &lt; $fields; $i++) {\n$csv_output .= mysql_field_name($export, $i) . &quot;\\t&quot;;\n}\n\nwhile($row = mysql_fetch_row($export)) {\n$line = '';\nforeach($row as $value) {\nif ((!isset($value)) OR ($value == &quot;&quot;)) {\n$value = &quot;\\t&quot;;\n} else {\n$value = str_replace('&quot;', '&quot;&quot;', $value);\n$value = '&quot;' . $value . '&quot;' . &quot;\\t&quot;;\n}\n$line .= $value;\n}\n$data .= trim($line).&quot;\\n&quot;;\n}\n$data = str_replace(&quot;\\r&quot;,&quot;&quot;,$data);\n\nheader(&quot;Content-Type: application/vnd.ms-excel&quot;);\nheader(&quot;Content-Disposition: attachment; filename=Aktif2000_Tum_Satislar.xls&quot;);\nheader(&quot;Pragma: no-cache&quot;);\nheader(&quot;Expires: 0&quot;);\nprint $csv_output.&quot;\\n&quot;.$data;\nexit;\n?&gt;\n</code></pre>\n\nCould you tell me how you solved it or give me the link to solution?<br />\n",
+    "PostedDate": "2013-06-20T00:59:53.74-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

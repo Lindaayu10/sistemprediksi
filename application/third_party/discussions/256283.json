@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "606971",
+    "ThreadId": "256283",
+    "Html": "<p>Hi,&nbsp;</p>\n<p>I am trying to read a file with many sheets.&nbsp;</p>\n<p>I am trying to read one sheet at a time with:</p>\n<p>$objReader-&gt;setLoadSheetsOnly($sheet);</p>\n<p>and i am using caching</p>\n<p>$cacheMethod = PHPExcel_CachedObjectStorageFactory:: cache_to_phpTemp;&nbsp;<br /> $cacheSettings = array( ' memoryCacheSize ' =&gt; '1024MB');&nbsp;<span> <br /> </span>PHPExcel_Settings::setCacheStorageMethod($cacheMethod, $cacheSettings);<span> </span>$objReader = new PHPExcel_Reader_Excel2007();</p>\n<p>but when i read the sheet and display its contents, some of the results come from a different sheet.<br /> I am only calling one sheet.</p>\n<p>is it the cache?</p>\n<p>Thanks</p>\n<p>on a windows 7 machine using Chrome and WAMP&nbsp;</p>\n<p>EDIT: I created a new file with only the sheet i am trying to read. When I read that file the data returned is 100% correct.</p>",
+    "PostedDate": "2011-05-04T03:21:49.887-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "609017",
+    "ThreadId": "256283",
+    "Html": "<p>If you're not unsetting each sheet before reading the next, then this could cause problems (though it's not related to caching specifically).</p>\r\n<p>Because PHP cannot handle cleanly unsetting the PHPExcel object automatically, because of cyclic references within the structure of the objects, there is a special method designed to clean these references up before unsetting the object manually using:</p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>$objPHPExcel-&gt;disconnectWorksheets();\r\n<span style=\"color: blue;\">unset</span>($objPHPExcel);\r\n</pre>\r\n</div>\r\n<p>after you've finished processing the current PHPExcel object in your loop.</p>",
+    "PostedDate": "2011-05-07T13:16:14.11-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

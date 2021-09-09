@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "989564",
+    "ThreadId": "430259",
+    "Html": "\r\n<p>I'm pretty new to PHPExcel and I encountered an Error. It says that there is no offset 2 in Calculation.php on Line 2859. I Searched it up and it seems to be the startmatch variable that has no 2nd offset. I tracked the whole process of calculating a formula(yes\r\n that is what I want to do) and it showed that I can't figure why it fails right there.</p>\r\n<p>The Formula I want to parse is: =IF(SUM(B10:BA10)=13;&quot;OK&quot;;&quot;?&quot;)</p>\r\n<p>Can someone of you help me?</p>\r\n<p>I thank you in advance</p>\r\n<p>Rokotark</p>\r\n",
+    "PostedDate": "2013-01-21T01:17:50.07-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "989576",
+    "ThreadId": "430259",
+    "Html": "\r\n<p>As per the documentation: unless you're using one of the locale packs for locale-specific settings, then a comma (,) rather than a semi-colon (;) should be used as the separator for function arguments. When in doubt, en_us rules apply for all formulae.</p>\r\n",
+    "PostedDate": "2013-01-21T01:43:53.067-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "989586",
+    "ThreadId": "430259",
+    "Html": "\r\n<p>Thanks for your answer but this doesn't seem to be the solution</p>\r\n<p>I changed what you suggested but the error remains</p>\r\n<p><br>\r\n<strong>Notice</strong>: Undefined offset: 2 in <strong>C:\\xampp\\htdocs\\UKFB\\Classes\\PHPExcel\\Calculation.php</strong> on line\r\n<strong>2859</strong></p>\r\n<p>The changed Formula:&nbsp; =IF(SUM(B10:BA10)=13,&quot;OK&quot;,&quot;?&quot;)<strong></strong></p>\r\n",
+    "PostedDate": "2013-01-21T02:00:03.517-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "989600",
+    "ThreadId": "430259",
+    "Html": "\r\n<p>I Found my fault</p>\r\n<p>I wasn't thinking about the fact that PHP Excel was written in English. I used the german Formulas. Exchange them with English ones and it works liek a charm.</p>\r\n<p>Thanks for your support</p>\r\n<p>Rokotark</p>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2013-01-21T02:34:53.4-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "989670",
+    "ThreadId": "430259",
+    "Html": "\r\n<p>The real reason is that MS Excel uses English formulas internally, it's the MS Excel GUI that handles conversion to language-specific variants. PHPExcel does replicate this functionality with locale settings for the calculation engine, so you can use formulae\r\n in German and with a ; rather than a , but only if you tell PHPExcel that your locale is german.</p>\r\n<p>&nbsp;</p>\r\n<p>Section 4.6.5 of the Developer Documentation:</p>\r\n<div>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>$locale = <span style=\"color:#a31515\">'de'</span>;\r\n$validLocale = PHPExcel_Settings::setLocale($locale);\r\n<span style=\"color:blue\">if</span> (!$validLocale) {\r\n       <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'Unable to set locale to '</span>.$locale.<span style=\"color:#a31515\">&quot; - reverting to en_us&lt;br /&gt;\\n&quot;</span>;\r\n}\r\n</pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n<div><span style=\"font-size:9pt\">\r\n<div style=\"color:black; background-color:white\">\r\n<pre>$formula = <span style=\"color:#a31515\">'=WENN(SUMME(B10:BA10)=13;&quot;OK&quot;;&quot;?&quot;)'</span>;\r\n$internalFormula = \r\n    PHPExcel_Calculation::getInstance()-&gt;translateFormulaToEnglish($formula);\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(<span style=\"color:#a31515\">'B8'</span>,$internalFormula);\r\n</pre>\r\n</div>\r\n</span>\r\n<p><span style=\"font-size:9pt\">&nbsp;</span></p>\r\n</div>\r\n</div>\r\n",
+    "PostedDate": "2013-01-21T05:03:36.937-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

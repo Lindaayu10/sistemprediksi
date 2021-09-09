@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "521615",
+    "ThreadId": "234611",
+    "Html": "\r\n<p>I'm trying to generate a Excel file with data validators and functions INDEX and MATCH.</p>\r\n<p>I was able to generate most of my sheets, but the last one isn't working properly. Whenever I try to run the php page, the page loads for 4 or 5 minutes, and then it gives me an Error 500. I've checked php logs, and there's nothing there.</p>\r\n<p><span></span>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('C'.$i,'=INDEX(Empresas!A2:A1066,MATCH(B2,Empresas!B2:B1066,0),1)');</p>\r\n<p>If I change this piece of code to the above, the page takes 2 or 3 minutes to load, but it works.&nbsp;</p>\r\n<p><span></span>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('C'.$i,'=INDEX(Empresas!A2:A100,MATCH(B2,Empresas!B2:B100,0),1)');</p>\r\n<p>Please not that I use this exact interval in another Sheet, with no problem whatsoever.</p>\r\n<p>So, I guess this is because of the number of items in the interval? If so, isn't that weird? It's just a cell function, so I don't understand why the interval of values is relevant.</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks,</p>\r\n<p>Eduardo</p>\r\n",
+    "PostedDate": "2010-11-13T15:59:45.663-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "521618",
+    "ThreadId": "234611",
+    "Html": "\r\n<p>If it's close to 5 minutes before you get the 500, then it's likely that the script is timing out: 5 minutes (300 seconds) is the default Apache timeout.</p>\r\n<pre>&gt;&gt; So, I guess this is because of the number of items in the interval?\r\n&gt;&gt; If so, isn't that weird? It's just a cell function, so I don't understand why the interval of values is relevant.</pre>\r\n<p>It is relevant though, and not so weird. When PHPExcel writes a cell containing a formula, by default it writes both the formula and the result of the calculation... and the more data that is included in that calculation, the longer it will take to calculate\r\n the value. You can change this default behaviour, so that PHPExcel doesn't calculate the result when writing.</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, <span style=\"color:#a31515\">'Excel5'</span>);\r\n$objWriter-&gt;setPreCalculateFormulas(false);\r\n$objWriter-&gt;save(<span style=\"color:#a31515\">'myExcelFile.xls'</span>);\r\n</pre>\r\n</div>\r\n",
+    "PostedDate": "2010-11-13T16:26:42.363-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "521622",
+    "ThreadId": "234611",
+    "Html": "\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<strong>MarkBaker wrote:</strong>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, <span style=\"color:#a31515\">'Excel5'</span>);\r\n$objWriter-&gt;setPreCalculateFormulas(false);\r\n$objWriter-&gt;save(<span style=\"color:#a31515\">'myExcelFile.xls'</span>);\r\n</pre>\r\n</div>\r\n</blockquote>\r\n<p>Thank you for the fast response. Unfortunately it didn't work. I still get the Error 500.</p>\r\n<p>I've tried setting&nbsp;max_execution_time and&nbsp;max_input_time to 600 seconds, but it doesn't seem to solve the problem. I'm completely clueless.</p>\r\n",
+    "PostedDate": "2010-11-13T16:58:55.613-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "521624",
+    "ThreadId": "234611",
+    "Html": "\r\n<p>You can check the php script here:&nbsp;<a href=\"http://www.eic.pt/novoreport.txt\">http://www.eic.pt/novoreport.txt</a></p>\r\n<p>Thank you once again for your help.</p>\r\n",
+    "PostedDate": "2010-11-13T17:16:33.847-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "521890",
+    "ThreadId": "234611",
+    "Html": "\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<strong>Edu115 wrote:</strong><br>\r\n<p>I've tried setting&nbsp;max_execution_time and&nbsp;max_input_time to 600 seconds, but it doesn't seem to solve the problem. I'm completely clueless.</p>\r\n</blockquote>\r\n<p>&nbsp;PHP script execution time is still limited by the Apache/webserver time limit. Increasing PHP's max execution time to 600 seconds won't make much difference if Apache is still limiting you to 300 seconds.</p>\r\n",
+    "PostedDate": "2010-11-14T15:18:54.62-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "527994",
+    "ThreadId": "234611",
+    "Html": "\r\n<p>I managed to get this running in a local server, and things are not looking good for me.</p>\r\n<p>The script has been running for 20 minutes, and no output so far. The only change I made is the one I wrote in the original post. I'm using the setPreCalculateFormulas(false) too.</p>\r\n",
+    "PostedDate": "2010-11-28T16:45:03.8-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

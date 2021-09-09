@@ -1,0 +1,39 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hi,\n\nI have faced a issue using the phpexcel class that I would wondering someone could help me.\nI have some codes to create a excel file from my php application. It works perfect on Mozilla, but it is showing 'The file is corrupt and cannot be opened' when I try to open using IE11 or Chrome 34.xxx\n\nHere is part of my code:\n\n<?php\n\nsession_start();\nob_start();\n\ninclude('../PHPExcel/PHPExcel.php');\n\n$objPHPExcel = new PHPExcel();\n\n$objPHPExcel->getProperties()->setCreator('Autor do Documento')\n        ->setLastModifiedBy('Modificado por...')\n        ->setTitle('Lista')\n        ->setSubject('O Assunto')\n        ->setDescription('Lista de todos os registros')\n        ->setKeywords('As Palavras Chave')\n        ->setCategory('A Categoria');\n\n$objXML = simplexml_load_string(utf8_encode($xml));\n\nforeach ($objXML as $chave => $registro) {\n    if ($chave == 'registro') {\n        if ($count == 1) {\n            $cabecalho = 0;\n            foreach ($registro as $key => $campo) {\n                if (isset($campo['titulo'])) {\n                    $objPHPExcel->setActiveSheetIndex(0)\n                            ->setCellValue($arrayAlfabeto[$cabecalho] . '1', $campo['titulo']);\n                    $objPHPExcel->getActiveSheet()->getColumnDimension($arrayAlfabeto[$cabecalho])->setAutoSize(true);\n                    $objPHPExcel->getActiveSheet()->getStyle($arrayAlfabeto[$cabecalho] . '1')->getFont()->setBold(true);\n                    $cabecalho++;\n                }\n            }\n        }\n        $count++;\n        $cabecalho = 0;\n        foreach ($registro as $key => $campo) {\n            if (isset($campo['titulo'])) {\n                $campo = removerParteString($campo, '<span', '</span>');\n                $campo = removerParteString($campo, '<a', '</a>');\n                $campo = strip_tags($campo);\n                if (strpos($campo, 'R$ ') !== false) {\n                    if (is_numeric(limparValor($campo))) {\n                        $campo = (float) campoDouble($campo);\n                        $objPHPExcel->getActiveSheet()->getStyle($arrayAlfabeto[$cabecalho] . $count)->getNumberFormat($campo)->setFormatCode(\"#,##0.00\");\n                    }\n                }\n                if (strpos($campo, '.')) {\n                    if (is_numeric(limparValor($campo))) {\n                        $objPHPExcel->getActiveSheet()->getStyle($arrayAlfabeto[$cabecalho] . $count)->getNumberFormat($campo)->setFormatCode(\"#,##0.00\");\n                    }\n                }\n                $objPHPExcel->setActiveSheetIndex(0)->setCellValue($arrayAlfabeto[$cabecalho] . $count, $campo);\n                $cabecalho++;\n            }\n        }\n    }\n}\n\n\nheader('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');\nheader('Cache-Control: no-store, no-cache, must-revalidate');\nheader('Cache-Control: post-check=0, pre-check=0', false);\nheader('Pragma: no-cache');\nheader('Content-Type: application/vnd.ms-excel; charset=iso-8859-1');\nheader('Content-Disposition: attachment;filename=\"' . $_REQUEST['pagina'] . '-' . date('d_m_Y') . '.xls\"');\n\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');\n\nob_end_flush();\n$objWriter->save('php://output');\n$objPHPExcel->disconnectWorksheets();\n?>\n\nI appreciate any help.\n\nTks",
+    "LastUpdatedDate": "2014-06-18T07:17:01.857-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2014-06-18T07:17:01.857-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "The file is corrupt and cannot be opened",
+    "Type": {
+      "Name": "Unassigned",
+      "Id": 5
+    },
+    "VoteCount": 1,
+    "Id": 21088
+  },
+  "FileAttachments": [],
+  "Comments": []
+}

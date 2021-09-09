@@ -1,0 +1,75 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I'm using version 1.7.5 and I tried to see what PHPExcel_IOFactory::load() does when it is given an invalid file to parse. I uploaded a Windows EXE with an XLS extension and a ZIP file with an XLXS extension. Unfortunately I didn't get any exception as expected. Instead I got warnings and notices of code that should never have executed:\n \n[Wed Dec 29 08:38:49 2010] [error] [client 127.0.0.1] PHP Notice:  Trying to get property of non-object in /usr/local/share/pear/PHPExcel/PHPExcel/Reader/Excel2007.php on line 177, referer: http://otis.local:7777/module/tasks/overview.php\n[Wed Dec 29 08:38:49 2010] [error] [client 127.0.0.1] PHP Warning:  Invalid argument supplied for foreach() in /usr/local/share/pear/PHPExcel/PHPExcel/Reader/Excel2007.php on line 177, referer: http://otis.local:7777/module/tasks/overview.php\n \nSince uploaders can't be trusted, it would be nice to see some unique type of exception thrown such as PHPExcel\\UnknownFileFormatException so that it can be caught and a descriptive error displayed to the uploader.",
+    "LastUpdatedDate": "2013-02-21T19:02:37.98-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2010-12-28T23:52:09.81-08:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Please make PHPExcel_IOFactory::load() throw an exception when parsing of corrupt / invalid files.",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 14982
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "It is always possible to instantiate the appropriate reader, then call its canRead() method before loading. canRead() will return a boolean true or false",
+      "PostedDate": "2010-12-29T02:59:28.157-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "There is also the PHPExcel_IOFactory::identify() method, which uses each Reader's canRead() method to try and identify a filetype/reader, based on the file content and irrespective of extension.",
+      "PostedDate": "2010-12-29T03:39:04.58-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Thanks. I just tried PHPExcel_IOFactory::identify() but it returns 'CSV' for a Win32 executable and when I use an arbitary ZIP file then it also emits warnings and notices:\r\n[Wed Dec 29 13:23:47 2010] [error] [client 127.0.0.1] PHP Notice:  Trying to get property of non-object in /usr/local/share/pear/PHPExcel/PHPExcel/Reader/Excel2007.php on line 177, referer: http://otis.local:7777/module/tasks/overview.php\r\n[Wed Dec 29 13:23:47 2010] [error] [client 127.0.0.1] PHP Warning:  Invalid argument supplied for foreach() in /usr/local/share/pear/PHPExcel/PHPExcel/Reader/Excel2007.php on line 177, referer: http://otis.local:7777/module/tasks/overview.php\r\n[Wed Dec 29 13:23:47 2010] [error] [client 127.0.0.1] CSV, referer: http://otis.local:7777/module/tasks/overview.php\r\n\r\nI know it's not very easy to fix. Detecting the correct file type using magic numbers will work with some exceptions: for CSV files, some 'does_it_look_like_text()' algorithm is needed instead (perhaps the GNU file command contains it), and for XLSX files, since they are specialized XML files packed in ZIP format, the ZIP archive has to be detected, opened, and the contents inspected to find out if it is really Excel2007.\r\n",
+      "PostedDate": "2010-12-29T04:30:27.473-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I also noticed that for an OOCalc document, identify() returns 'OOCalc' but load() returns an Excel2007 reader class.\r\nAnother thing I noticed in the OOCalc class is a vulnerability for DoS attacks when reading the mimetype file. It's easy to create a huge mimetype file of size 2^32-1 bytes containing only spaces. That compresses extremely well, so a hacker can easily just upload many of these to a server and quickly cause it to run out of memory.\r\nPerhaps something like this is safer:\r\n$zip = new ZipArchive();\r\n\t\t\tif ($zip->open($upload['tmp_name']) === true) {\r\n\t\t\t\t// check if it is an OOXML archive\r\n\t\t\t\t$stat = $zip->statName('mimetype');\r\n\t\t\t\tif ($stat && ($stat['size'] <= 255)) { // <= MC Hammer Can't DoS this\r\n\t\t\t\t\terror_log('ZIP mimetype: ' . $zip->getFromName($stat['name'])); // e.g. 'application/vnd.oasis.opendocument.spreadsheet'\r\n\t\t\t\t}\r\n\t\t\t\t$zip->close();\r\n\t\t\t}\r\n",
+      "PostedDate": "2010-12-29T05:27:29.597-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I get those errors too... \r\n\r\nNotice: Trying to get property of non-object in /var/www/html/ssl_proto/includes/PHPExcel-1.7.5/Classes/PHPExcel/Reader/Excel2007.php on line 177 \r\nWarning: Invalid argument supplied for foreach() in /var/www/html/ssl_proto/includes/PHPExcel-1.7.5/Classes/PHPExcel/Reader/Excel2007.php on line 177 \r\n\r\n...but it's when I run Tests/12serializedfileformat.php ? ",
+      "PostedDate": "2011-02-18T10:54:07.653-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "It creates two files: 12serializedfileformat.xlsx (expected), and 12serializedfileformat.phpxl ? ",
+      "PostedDate": "2011-02-18T11:00:53.38-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:02:37.98-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

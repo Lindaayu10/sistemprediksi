@@ -1,0 +1,126 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "The original excel document was a heavily formatted 2003 xls file.  I tried to edit it using the \"excel 5\" format, but the output was bad.  Loss of formatting and formulas that resulted in #DIV/0!\n \nI saved the file to 2007 using Office 2007, and used the 2007 format in PHP Excel for loading and saving.\n \nFormatting appeared correct, but when I changed values, cells that contained formulas did not refresh properly.\n \nIf I do an Excel 2007 -> File -> Save as -> 2003 xls the file work properly\nIf I do an Excel 2007 -> File -> Save (keeping the xlsx format) after changing some cells, the file does not work properly, even when re-opened.\n \nAttached is the PHP Script, the XLSx file in question, and a picture of the problem, which you can also see here:\n \nhttp://i.imgur.com/1gzxc.png",
+    "LastUpdatedDate": "2014-06-25T00:15:09.113-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2011-03-15T12:47:14.44-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "File saved with PHPExcel won't refresh cells properly",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 2,
+    "Id": 15526
+  },
+  "FileAttachments": [
+    {
+      "FileId": 5522,
+      "FileName": "phpexcel_problem.zip",
+      "DownloadUrl": ".\\5522"
+    },
+    {
+      "FileId": 6948,
+      "FileName": "locale.gif",
+      "DownloadUrl": ".\\6948"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "Any ideas why this is happening?  Am I doing something wrong or is it a bug?",
+      "PostedDate": "2011-03-23T11:42:50.19-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:02:28.027-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Im facing the very same problem.\r\n\r\nMy code:\n```\n// load template\n\trequire_once 'xls/Classes/PHPExcel/IOFactory.php';\n\t$objReader = PHPExcel_IOFactory::createReader('Excel2007');\n\t$objPHPExcel = $objReader->load(\"xls/Tilbudsbrev.xlsx\");\r\n\r\n\t// Set properties\n\t$objPHPExcel->getProperties()->setCreator(\"VHU AS\")\n\t\t\t\t\t\t\t\t ->setLastModifiedBy(\"VHU AS\")\n\t\t\t\t\t\t\t\t ->setTitle(\"Tilbudsbrev\")\n\t\t\t\t\t\t\t\t ->setSubject(\"Tilbudsbrev\")\n\t\t\t\t\t\t\t\t ->setDescription(\"Tilbudsbrev, document for Office 2007 XLSX, generated using PHP classes\")\n\t\t\t\t\t\t\t\t ->setKeywords(\"office 2007 openxml php\")\n\t\t\t\t\t\t\t\t ->setCategory(\"Tilbudsbrev\");\r\n\r\n\n\t// Write to sheet\n\t$objPHPExcel->getActiveSheet()->setCellValue('A11', $kunde_navn);\n\t$objPHPExcel->getActiveSheet()->setCellValue('A12', $kunde_kontakt);\n\t$objPHPExcel->getActiveSheet()->setCellValue('A13', $kunde_adresse);\n\t$objPHPExcel->getActiveSheet()->setCellValue('E11', date('d.m.Y'));\n\t\n\t// Redirect output to a client’s web browser (Excel2007)\n\theader('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');\n\theader('Content-Disposition: attachment;filename=\"Tilbudsbrev.xlsx\"');\n\theader('Cache-Control: max-age=0');\n\t$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');\n\t$objWriter->save('php://output');\n\texit;\n```\nScreenshot:\n![Image](http://vhu.gratistoner.com/img/mess.png)\n",
+      "PostedDate": "2013-04-30T03:09:27.11-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Using a valid Content type might help your download:\n```\napplication/xls\n```\nis not a valid MIME type\n",
+      "PostedDate": "2013-04-30T04:33:59.533-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Interesting. I can't see a problem running the script at all, the resulting file looks perfectly clean; but if I open refresh.xlsx in MS Excel 2010 itself and change the value I get \"messy\" cells... selecting then deselecting again clears this; but the problem clearly exists somewhere in the refresh.xlsx file itself.",
+      "PostedDate": "2013-04-30T05:22:36.92-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I have run the code with a blank, new workbook, and also with the \"26template.xlsx\" included in the API documentation, both creating the same \"mess\" as described above. Also see screenshot.\r\n\r\n![Image](http://vhu.gratistoner.com/img/mess.gif)\r\n\r\nI use MS Excel 2010 and PHPExcel version 1.7.8.\r\n\r\nThings Ive tried:\nSaved script file as both ANSI and UTF-8, no effect\nReinstalled PHPExcel, no effect\nMIME type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, no effect\nSaved as Excel 2003 file format (xls), this actually works, but I cannot use it because I need the 2007 functionality\r\n\r\n",
+      "PostedDate": "2013-04-30T07:36:39.69-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "What version of MS Excel are you using? What locale settings? What is the number format mask for the cells that get \"messed up\". I need some way of reproducing a problem to be able to fix it, and I can't recreate your problem at all, not even with your code and your file.",
+      "PostedDate": "2013-05-01T02:53:49.013-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I was able to recreate it using these steps.\r\n\r\nOpen Excel 2010 (Version 14.0.4760.1000 (32-bit)\nIn the new workbook, change cell K5 to 100\nSomewhere below that, do a few formulas.  I did:\r\n\r\nI19 = K5*8\nI20 = K5*4\nI21 = K5*2\nI22 = K5\r\n\r\nJ19 = I19*258\nJ20 = I20*258\nJ21 = I21*258\nJ22 = I22*258\r\n\r\nSave it as \"refresh.xlsx\" and run my code from the zip file above.\r\n\r\nOpen the downloaded \"refresh2.xlsx\" and change K5 to some other number like 75.  The cells below should not refresh properly.\r\n\r\nVersions:\nPHPExcel - 1.7.8\nPHP - 5.3.8 (32 bit)\nExcel 2010 (Version 14.0.4760.1000 (32-bit)",
+      "PostedDate": "2013-05-01T06:07:51.38-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Formatting on the cells got a little weird. Should look like this:\r\n\r\nI19 = K5 * 8\nI20 = K5 * 4\nI21 = K5 * 2\nI22 = K5 \r\n\r\nJ19 = I19 * 258\nJ20 = I20 * 258\nJ21 = I21 * 258\nJ22 = I22 * 258 ",
+      "PostedDate": "2013-05-01T06:09:31.83-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I still can't recreate this problem; but when I mean the format of the cells I don't mean the formula, I mean the number format mask",
+      "PostedDate": "2013-05-01T09:16:06.74-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-01T09:54:07.307-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "My version data:\nPHP Version 5.3.3-7+squeeze15 \nMicrosoft Office Professional Plus 2010\nMicrosoft Excel 14.0.6129.5000 (32-bit)\r\n\r\nCell format mask: Ive tried the default \"General\" format, as well as the \"Accounting\" format with sympbol \"NOK\" and zero decimals. If I change the format mask, I still get the \"messy\" look.\r\n\r\nScreenshot of local OS settings attached.",
+      "PostedDate": "2013-05-01T09:54:08.2-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "![Image](http://vhu.gratistoner.com/img/locale.gif)",
+      "PostedDate": "2013-05-01T09:57:00.9-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Solved, thanks to Nickolay Ermakov aka ermakovnickolay.\r\n\r\nOne possible solution is to paint the cells:\r\n\r\n```\n$objPHPExcel->getActiveSheet()->getStyle('A1')->applyFromArray(\n    array(\n        'fill' => array(\n            'type' => PHPExcel_Style_Fill::FILL_SOLID,\n            'color' => array('rgb' => 'FFFFFF')\n        )\n    )\n);\n```\r\n\r\n\nThis also works for a range of cells. I just made the following function:\n```\nfunction excel_cell_background($objPHPExcel, $range, $color){\n    $objPHPExcel->getActiveSheet()->getStyle($range)->applyFromArray(\n        array(\n            'fill' => array(\n                'type' => PHPExcel_Style_Fill::FILL_SOLID,\n                'color' => array('rgb' => $color)\n            )\n        )\n    );\n}\n```\n",
+      "PostedDate": "2014-06-25T00:13:23.347-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2014-06-25T00:15:09.113-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

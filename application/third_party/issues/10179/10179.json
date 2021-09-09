@@ -1,0 +1,70 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "Assuming fromArray&#40;&#41; and the new styling features are there to the rescue.",
+    "ClosedDate": "2009-06-24T00:21:48.96-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "It got to where I've written a utility function, called addRowToSheet, that takes three parameters--the PHPExcel object, an array of row elements (each of which is an array), and the row number to add.  So, for example, I might have the following for my row elements:\n \n$rowElements = array(\n  array('contents' => 'Name', 'rotation' => '90', 'size' => '10'),\n  array('contents' => 'Title', 'rotation' => '90', 'size' => '20'),\n); \n \nIn the function, I loop through each row element, use the PHPExcel_Cell::stringFromColumnIndex() method to get the column number, and use the appropriate PHPExcel method to process the keys (e.g. if array_key_exists('contents', $element), call the setCellValue() method).  At present, I allow for adding the contents; setting the rotation, vertical, and horizontal alignment; setting the size; toggling bold styling; and setting the number formatting (at least for three possible formats, of my choosing).  I'm finding that this function keeps getting larger and larger, though...",
+    "LastUpdatedDate": "2013-05-16T05:42:36.033-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Medium",
+      "Severity": 100,
+      "Id": 2
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-06-23T09:12:30.627-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Proposal: New addRowToSheet(), addColumnToSheet() and addGridToSheet() methods",
+    "Type": {
+      "Name": "Feature",
+      "Id": 1
+    },
+    "VoteCount": 1,
+    "Id": 10179
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "(I'm the original submitter of this suggestion.)\r\n\r\nHere's my code:\r\n\r\nfunction addRowToSheet(PHPExcel $ssObj, $rowElements, $rowNum)\r\n{\r\n    $colNum = 0;\r\n    foreach ($rowElements as $element)\r\n    {\r\n        $column = PHPExcel_Cell::stringFromColumnIndex($colNum);\r\n        $cell = $column . $rowNum;\r\n        if (array_key_exists('contents', $element))\r\n        {    \r\n            $ssObj->getActiveSheet()->setCellValueExplicit($cell, $element['contents']);\r\n        }\r\n        if (array_key_exists('styles', $element))\r\n        {\r\n            if (is_array($element['styles']))\r\n            {\r\n                $ssObj->getActiveSheet()->getStyle($cell)->applyFromArray($element['styles']);\r\n            }\r\n        }\r\n        if (array_key_exists('size', $element))\r\n        {\r\n            $ssObj->getActiveSheet()->getColumnDimension($column)->setWidth($element['size']);\r\n        }\r\n        $colNum++;\r\n    }\r\n}",
+      "PostedDate": "2009-06-23T09:29:18.07-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I understand that we are here seeking a solution to reduce the complexity of the PHP code needed to generate Excel files.\r\n\r\nWhile the proposed solution may be good for PHPExcel 1.6.7 and before, it may need adjustment for PHPExcel 1.7.0 and later. The problem is that it does take advantage of recent styling optimizations. With the recent optimizations it is much faster to style a range of cells like this:\r\n\r\n$objWorksheet->getStyle('A1:A5000')->getAlignment()->setTextRotation(90);\r\n\r\nrather than like this:\r\n\r\nfor ($i = 1; $i <= 5000; $i++) {\r\n\t$objWorksheet->getStyle('A1:A5000')->getAlignment()->setTextRotation(90);\r\n}\r\n\r\nThe proposed function styles essentially one cell at a time which may not be suitable with PHPExcel 1.7.0. Not sure what to do about this.\r\n\r\nExtra notes:\r\n1) Also look at function $objWorksheet->fromArray(...) which is a bit similar to the shown function\r\n2) setCellValueExplicitByColumnAndRow() can perhaps also used to avoid problems with \"hard-coded\" column letters\r\n\r\nMaybe, with the knowledge of 1) and 2), current situation is acceptable?",
+      "PostedDate": "2009-06-23T12:09:08.72-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "fromArray() does look like it might work.  Can you provide some sample code, perhaps showing how two or three rows (of perhaps three or four columns each) might be put in--or perhaps provide a link to such a sample?  It'd help me wrap my head around things.\r\n\r\nThanks!",
+      "PostedDate": "2009-06-23T12:43:36.91-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-06-24T00:21:48.96-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:03:55.55-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:36.033-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

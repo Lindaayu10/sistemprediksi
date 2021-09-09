@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "557962",
+    "ThreadId": "243962",
+    "Html": "\r\n<p>Hi,</p>\r\n<p>I am trying to make a new xlsx file containing all sheets from different xlsx files by using&nbsp; the function addsheet.&nbsp; The names of the files are in a array : $namesheet. The files contain only one sheet.</p>\r\n<p>The code works but I lose the format and I have some notices :</p>\r\n<p><strong>Notice</strong>: Undefined offset: 3 in <strong>C:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; \\Classes\\PHPExcel.php</strong> on line\r\n<strong>729</strong><br>\r\n...<br>\r\n<strong>Notice</strong>: Undefined offset: 1 in <strong>C:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; \\Classes\\PHPExcel.php</strong> on line\r\n<strong>774</strong></p>\r\n<p>&nbsp;</p>\r\n<p>code :</p>\r\n<p><br>\r\nforeach ($namesheet as $contenu)<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; {<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $objReader= PHPExcel_IOFactory::createReader('Excel2007');<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $objReader-&gt;setReadFilter( new MyReadFilter() );<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $fichier=$repertoire.'/'.$contenu.'.xlsx';<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; try <br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; {<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $objPHPExcel[$k] = $objReader-&gt;load($fichier);<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; } catch(Exception $e) {<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; die('Erreur chargement du fichier : '.$fichier);<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $k&#43;&#43;;<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $writer = new PHPExcel();<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; for($kk=0;$kk&lt;$k ;$kk&#43;&#43;)<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; {&nbsp;&nbsp;&nbsp; <br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; for($ii=0;$ii&lt;$objPHPExcel[$kk]-&gt;getSheetCount();$ii&#43;&#43;)<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; {<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $writer-&gt;addSheet($objPHPExcel[$kk]-&gt;getSheet());<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $save = PHPExcel_IOFactory::createWriter($writer,'Excel2007');<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $save-&gt;save($repertoire.&quot;/&quot;.$nom.&quot;--&quot;.$autre.&quot;.xlsx&quot;);<br>\r\n&nbsp;&nbsp;&nbsp; }</p>\r\n<p>&nbsp;</p>\r\n<p>Thank you for your help</p>\r\n",
+    "PostedDate": "2011-01-31T02:57:30.53-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "558012",
+    "ThreadId": "243962",
+    "Html": "\r\n<p>Hi,</p>\r\n<p>I fixe the problem using addExernalSheet :</p>\r\n<p>$writer-&gt;addExernalSheet($objPHPExcel[$kk]-&gt;getSheet()),$k-1);</p>\r\n<p>Sorry for your time</p>\r\n",
+    "PostedDate": "2011-01-31T04:37:43.703-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,81 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "Calculation_Engine",
+      "DisplayName": "Calculation_Engine"
+    },
+    "ClosedComment": "Production Release 1.7.7",
+    "ClosedDate": "2012-05-20T03:07:31.707-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "=sumproduct(A,B) <> =sumproduct(B,A) in .xlsx\n \ne.g. =SUMPRODUCT($B$11:$D$11,B6:D6) != =SUMPRODUCT(B6:D6,$B$11:$D$11)\n \nPHP 5.3.8, PHPExcel 1.7.6, Windows XP and CentOS\n \nIn this note:\n1. output from testFormula()\n2. php source code to produce error.\nattachments - PHPExcel_176_BugSumProductOrder.xlsx\n \nPETest test1\n aCell: [B16]\n aSheetName: [HW 3.15]\n aFileName: [PHPExcel_176_BugSumProductOrder.xlsx]\n<b>B16 Value is </b>=SUMPRODUCT($B$11:$D$11,B6:D6)<br />\n<b>B16 Expected Value is </b>4<br />\n<b>Parser Stack :-</b><pre>Array\n(\n    [0] => Array\n        (\n            [type] => Cell Reference\n            [value] => $B$11\n            [reference] => $B$11\n        )\n \n    [1] => Array\n        (\n            [type] => Cell Reference\n            [value] => $D$11\n            [reference] => $D$11\n        )\n \n    [2] => Array\n        (\n            [type] => Binary Operator\n            [value] => :\n            [reference] => \n        )\n \n    [3] => Array\n        (\n            [type] => Cell Reference\n            [value] => B6\n            [reference] => B6\n        )\n \n    [4] => Array\n        (\n            [type] => Cell Reference\n            [value] => D6\n            [reference] => D6\n        )\n \n    [5] => Array\n        (\n            [type] => Binary Operator\n            [value] => :\n            [reference] => \n        )\n \n    [6] => Array\n        (\n            [type] => Operand Count for Function SUMPRODUCT()\n            [value] => 2\n            [reference] => \n        )\n \n    [7] => Array\n        (\n            [type] => Function\n            [value] => SUMPRODUCT(\n            [reference] => \n        )\n \n)\n</pre><b>B16 Calculated Value is </b>12<br />\n<h3>Evaluation Log:</h3><pre>Array\n(\n    [0] => HW 3.15!B16 -> Evaluating Cell B11 in current worksheet\n    [1] => HW 3.15!B16 -> Evaluation Result for cell HW 3.15!B11 is a floating point number with a value of 4\n    [2] => HW 3.15!B16 -> Evaluating Cell D11 in current worksheet\n    [3] => HW 3.15!B16 -> Evaluation Result for cell HW 3.15!D11 is a floating point number with a value of 6\n    [4] => HW 3.15!B16 -> Evaluating Range HW 3.15!B11:HW 3.15!D11\n    [5] => HW 3.15!B16 -> Evaluating Cell B6 in current worksheet\n    [6] => HW 3.15!B16 -> Evaluation Result for cell HW 3.15!B6 is a floating point number with a value of 1\n    [7] => HW 3.15!B16 -> Evaluating Cell D6 in current worksheet\n    [8] => HW 3.15!B16 -> Evaluation Result for cell HW 3.15!D6 is an empty string\n    [9] => HW 3.15!B16 -> Evaluating Range HW 3.15!B6:HW 3.15!D6\n    [10] => HW 3.15!B16 -> Evaluating Function SUMPRODUCT() with 2 arguments\n    [11] => HW 3.15!B16 -> Evaluating SUMPRODUCT( { 4, 2, 6 }, { 1, ,  } )\n    [12] => HW 3.15!B16 -> Evaluation Result for SUMPRODUCT() function call is a floating point number with a value of 12\n \n)\n</pre>PETest test1\n aCell: [B17]\n aSheetName: [HW 3.15]\n aFileName: [PHPExcel_176_BugSumProductOrder.xlsx]\n<b>B17 Value is </b>=SUMPRODUCT(B6:D6,$B$11:$D$11)<br />\n<b>B17 Expected Value is </b>4<br />\n<b>Parser Stack :-</b><pre>Array\n(\n    [0] => Array\n        (\n            [type] => Cell Reference\n            [value] => B6\n            [reference] => B6\n        )\n \n    [1] => Array\n        (\n            [type] => Cell Reference\n            [value] => D6\n            [reference] => D6\n        )\n \n    [2] => Array\n        (\n            [type] => Binary Operator\n            [value] => :\n            [reference] => \n        )\n \n    [3] => Array\n        (\n            [type] => Cell Reference\n            [value] => $B$11\n            [reference] => $B$11\n        )\n \n    [4] => Array\n        (\n            [type] => Cell Reference\n            [value] => $D$11\n            [reference] => $D$11\n        )\n \n    [5] => Array\n        (\n            [type] => Binary Operator\n            [value] => :\n            [reference] => \n        )\n \n    [6] => Array\n        (\n            [type] => Operand Count for Function SUMPRODUCT()\n            [value] => 2\n            [reference] => \n        )\n \n    [7] => Array\n        (\n            [type] => Function\n            [value] => SUMPRODUCT(\n            [reference] => \n        )\n \n)\n</pre><b>B17 Calculated Value is </b>4<br />\n<h3>Evaluation Log:</h3><pre>Array\n(\n    [0] => HW 3.15!B17 -> Evaluating Cell B6 in current worksheet\n    [1] => HW 3.15!B17 -> Evaluation Result for cell HW 3.15!B6 is a floating point number with a value of 1\n    [2] => HW 3.15!B17 -> Evaluating Cell D6 in current worksheet\n    [3] => HW 3.15!B17 -> Evaluation Result for cell HW 3.15!D6 is an empty string\n    [4] => HW 3.15!B17 -> Evaluating Range HW 3.15!B6:HW 3.15!D6\n    [5] => HW 3.15!B17 -> Evaluating Cell B11 in current worksheet\n    [6] => HW 3.15!B17 -> Evaluation Result for cell HW 3.15!B11 is a floating point number with a value of 4\n    [7] => HW 3.15!B17 -> Evaluating Cell D11 in current worksheet\n    [8] => HW 3.15!B17 -> Evaluation Result for cell HW 3.15!D11 is a floating point number with a value of 6\n    [9] => HW 3.15!B17 -> Evaluating Range HW 3.15!B11:HW 3.15!D11\n    [10] => HW 3.15!B17 -> Evaluating Function SUMPRODUCT() with 2 arguments\n    [11] => HW 3.15!B17 -> Evaluating SUMPRODUCT( { 1, ,  }, { 4, 2, 6 } )\n    [12] => HW 3.15!B17 -> Evaluation Result for SUMPRODUCT() function call is a floating point number with a value of 4\n)\n</pre>\n \n \n<?php\n/**\n * PHPExcel_176_BugSumProductOrder.php\n *\n * @author Brent Reeves <brent@twinbear.com>\n * tests PHPExcel Sumproduct argument order\n */ \nerror_reporting(E_ALL);\ndate_default_timezone_set('America/Chicago');\n \nClass PETest\n{\n  private $CLASSDIR = '';\n \n  public function test1($aCell, $aSheetName, $aFileName)\n  {\n    print (\"PETest test1\");\n    print (\"\\n aCell: [\" .$aCell. \"]\");\n    print (\"\\n aSheetName: [\" .$aSheetName. \"]\");\n    print (\"\\n aFileName: [\" .$aFileName. \"]\\n\");\n    require_once ($this->CLASSDIR . 'PHPExcel.php');\n    $wkb = $this->readExcelFile($aFileName);\n    $wks = $wkb->getSheetByName($aSheetName);\n    \n    PHPExcel_Calculation::getInstance()->writeDebugLog = true;\n    \n    $this->testFormula($wks,$aCell);\n  }\n \n  function testFormula($sheet,$cell) {\n    $formulaValue = $sheet->getCell($cell)->getValue();\n    echo '<b>'.$cell.' Value is </b>'.$formulaValue.\"<br />\\n\";\n    $expectedValue = $sheet->getCell($cell)->getOldCalculatedValue();\n    echo '<b>'.$cell.' Expected Value is </b>'.$expectedValue.\"<br />\\n\";\n    \n    $calculate = false;\n    try {\n      $tokens = PHPExcel_Calculation::getInstance()->parseFormula($formulaValue,$sheet->getCell($cell));\n      echo '<b>Parser Stack :-</b><pre>';\n      print_r($tokens);\n      echo '</pre>';\n      $calculate = true;\n    } catch (Exception $e) {\n      echo \"PARSER ERROR: \".$e->getMessage().\"<br />\\n\";\n      echo '<b>Parser Stack :-</b><pre>';\n      print_r($tokens);\n      echo '</pre>';\n    }\n    if ($calculate) {\n      try {\n\t$cellValue = $sheet->getCell($cell)->getCalculatedValue();\n\techo '<b>'.$cell.' Calculated Value is </b>'.$cellValue.\"<br />\\n\";\n\techo '<h3>Evaluation Log:</h3><pre>';\n\tprint_r(PHPExcel_Calculation::getInstance()->debugLog);\n\techo '</pre>';\n      } catch (Exception $e) {\n\techo \"CALCULATION ENGINE ERROR: \".$e->getMessage().\"<br />\\n\";\n\techo '<h3>Evaluation Log:</h3><pre>';\n\tprint_r(PHPExcel_Calculation::getInstance()->debugLog);\n\techo '</pre>';\n      }\n    }\n  }\n  \n  function readExcelFile($file) {\n    $px = new PHPExcel();\n    try {\n      $px = PHPExcel_IOFactory::load($file);\n    } catch (Exception $e) {\n      print \"IOFactory::load had trouble: \". $e->getMessage();\n      return NULL;\n    }\n    PHPExcel_Calculation::getInstance()->clearCalculationCache(); \n    return $px;\n  }\n} \n \n$o1 = new PETest();\nif (!empty($argc) && $argc > 1) {\n  $filename  = $argv[1];\n} else {\n  $filename  = \"PHPExcel_176_BugSumProductOrder.xlsx\";\n}\n// b16 and b17 have the same formula, just with arguments switched.\n$o1->test1('B16', \"HW 3.15\", $filename);\n$o1->test1('B17', \"HW 3.15\", $filename);\n \n?>",
+    "LastUpdatedDate": "2013-05-16T05:41:36.513-07:00",
+    "PlannedForRelease": "PHPExcel 1.7.7 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2012-02-27T15:01:52.377-08:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "=sumproduct(A,B) <> =sumproduct(B,A) in xlsx",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 17501
+  },
+  "FileAttachments": [
+    {
+      "FileId": 6274,
+      "FileName": "PHPExcel_176_BugSumProductOrder.xlsx",
+      "DownloadUrl": ".\\6274"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "Hopefully this fixes the problem- consider this implementation of SUMPRODUCT.\r\n\r\n\t/**\r\n\t * SUMPRODUCT\r\n\t *\r\n\t * @param\tmixed\t$value\tValue to check\r\n\t * @return\tfloat\r\n\t */\r\n\tpublic static function SUMPRODUCT() {\r\n\t\t$arrayList = func_get_args();\r\n\r\n\t\t$wrkArray = PHPExcel_Calculation_Functions::flattenArray(array_shift($arrayList));\r\n\t\t$wrkCellCount = count($wrkArray);\r\n\r\n\t\t//bnr start 12/03/05\r\n\t\tfor ($i=0; $i< $wrkCellCount; $i++)\r\n\t\t  if ((!is_numeric($wrkArray[$i])) || (is_string($wrkArray[$i])))\r\n\t\t    $wrkArray[$i] = 0;\r\n\r\n\t\tforeach($arrayList as $matrixData) {\r\n\t\t\t$array2 = PHPExcel_Calculation_Functions::flattenArray($matrixData);\r\n\t\t\t$count = count($array2);\r\n\t\t\tif ($wrkCellCount != $count) {\r\n\t\t\t\treturn PHPExcel_Calculation_Functions::VALUE();\r\n\t\t\t}\r\n\r\n\t\t\tforeach ($array2 as $i => $val) {\r\n\t\t\t  if ((!is_numeric($val)) || (is_string($val))) {\r\n\t\t\t    $val = 0;\r\n\t\t\t  }\r\n\t\t\t  $wrkArray[$i] *= $val;\r\n\t\t\t}\r\n\t\t}\r\n\t\t//bnr end\r\n\r\n\t\treturn array_sum($wrkArray);\r\n\t}\t//\tfunction SUMPRODUCT()\r\n\r\n",
+      "PostedDate": "2012-03-05T06:44:24.253-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Duly noted, I must have had a reason for coding SUMPRODUCT in the way I did... but it's not documented in the code, and I honestly can't remember; but only the first argument is actually used.",
+      "PostedDate": "2012-03-06T05:15:44.693-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-03-12T16:44:14.697-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-05-19T16:14:49.893-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-05-20T03:07:31.707-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:02:02.04-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:41:36.513-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

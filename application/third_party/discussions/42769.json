@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "142133",
+    "ThreadId": "42769",
+    "Html": "hi everyone.<div>i am using PHPExcel to read to contents of an xlsx file and insert them into a db. this is how it works:</div><div><br></div><div>get amount of worksheets.</div><div>foreach worksheet</div><div><span style=\"white-space:pre\">\t</span>get worksheet name</div><div><span style=\"white-space:pre\">\t</span>find first row of text in worksheet<br></div><div><span style=\"white-space:pre\">\t</span>get length of row<br></div><div><span style=\"white-space:pre\">\t</span>foreach cell<br></div><div><span style=\"white-space:pre\">\t\t</span>get text in cell<br></div><div><span style=\"white-space:pre\">\t</span>create a mysql table -&gt; table-name = worksheet-name, columns = first-row-cell-values.<br></div><div><span style=\"white-space:pre\">\t</span>foreach row in the worksheet</div><div><span style=\"white-space:pre\">\t\t</span>addslashes to each cell value, and insert it into the newly created mysql table.<br></div><div>rinse and repeat.</div><div><br></div><div>this workes great for me in english.</div><div>my problems start when my excel tables contain some columns in hebrew (not the column title, just the contents). the inserting of the hebrew values works fine, but when i &quot;SELECT ... ORDER BY a-column-with-hebrew&quot; the order is all wrong.</div><div><br></div><div>before i am told to go to mysql help, i tried that, and when i create an identical table directly using mysql command line or phpmyadmin, the order is fine. the order only gets messed up when i insert the values using phpexcel, and this is why i come to you.</div><div><br></div><div>here is an example of a simple test table i created that illustrates the problem (this is an export from phpMyAdmin):</div><div><span style=\"font-family:verdana;font-size:13px;line-height:16px\">-- Table structure for table `sheet1`<br>--<br><br>CREATE TABLE IF NOT EXISTS `sheet1` (<br>  `id` bigint(20) unsigned NOT NULL auto_increment,<br>  `col` varchar(10839) NOT NULL,<br>  `bla` varchar(10839) NOT NULL,<br>  PRIMARY KEY  (`id`),<br>  UNIQUE KEY `id` (`id`)<br>) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=9 ;<br><br>--<br>-- Dumping data for table `sheet1`<br>--<br><br>INSERT INTO `sheet1` (`id`, `col1`, `col2`) VALUES<br>(1, 'א', 'h'),<br>(2, 'ב', 'g'),<br>(3, 'ג', 'f'),<br>(4, 'ד', 'e'),<br>(5, 'ה', 'd'),<br>(6, 'ו', 'c'),<br>(7, 'ז', 'b'),<br>(8, 'ח', 'a');</span><br></div><div><br></div><div>when i order by col1, the order i get is 1, 7, 8, 2, 3, 4, 5, 6. it should be 1, 2, 3, 4, 5, 6, 7, 8</div><div>when i order by col2, the order i get is 8, 7, 6, 5, 4, 3, 2, 1. this is the correct order.</div><div>as you can see, the table is in utf-8 encoding, so that's not the problem.</div><div><br></div><div>here are some table layout tests i made to try figuring out the problem:</div><div><span style=\"font-family:verdana;font-size:13px;line-height:16px\">* 1 column in hebrew, single char values - order correct.<br>* 1 column in hebrew, multi-char values - order correct.<br>* 1 column in hebrew, multi-char values + white spaces - order correct.<br>* 2 columns in hebrew - order correct.<br>* 2 columns 1 hebrew 1 english, order by english - order correct.</span><br></div><div><span style=\"font-family:verdana;font-size:13px;line-height:16px\">* <strong>2 columns 1 hebrew 1 english, order by hebrew - order messed up.</strong><br></span></div><div><br></div><div>any1 have any ideas? i am at a loss.</div><div><br></div><div>thanx a bunch for any help.</div><div>bobbinsbro.</div>",
+    "PostedDate": "2008-12-21T03:00:38.25-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "142141",
+    "ThreadId": "42769",
+    "Html": "The problem is with your connection character set between PHP and MySQL. It looks like you are using <code>latin1</code>.<br>\r\n<a href=\"http://dev.mysql.com/doc/refman/5.1/en/charset-connection.html\">http://dev.mysql.com/doc/refman/5.1/en/charset-connection.html</a><br>\r\n<br>\r\nEven though your script is correctly using UTF-8 and your MySQL database collation is correctly set to e.g. utf8_unicode_ci, then you need to inform MySQL that your SQL queries are using UTF-8. <br>\r\n<br>\r\nYou will notice the error if you go in phpMyAdmin and look at the table you have created with your PHP script. Here is a reconstruction:<br>\r\n<a href=\"http://img530.imageshack.us/img530/3271/phpmyadminze1.png\">http://img530.imageshack.us/img530/3271/phpmyadminze1.png</a><br>\r\n<br>\r\n<strong>Solution:</strong><br>\r\nYou can set the connection character set during run-time like this. The critical part is the <code>set names</code> shortcut statement:<br>\r\n<br>\r\n<code>\r\n$connect = mysql_connect('localhost', 'account', 'password');<br>\r\n$db = mysql_select_db('test');<br>\r\n<br>\r\n$sql = &quot;set names 'utf8'&quot;;<br>\r\nmysql_query($sql);<br>\r\n<br>\r\n$sql = &lt;&lt;&lt;sql<br>\r\nCREATE TABLE IF NOT EXISTS `sheet1` (<br>\r\n&nbsp; `id` bigint(20) unsigned NOT NULL auto_increment,<br>\r\n&nbsp; `col1` varchar(10839) NOT NULL,<br>\r\n&nbsp; `col2` varchar(10839) NOT NULL,<br>\r\n&nbsp; PRIMARY KEY&nbsp; (`id`),<br>\r\n&nbsp; UNIQUE KEY `id` (`id`)<br>\r\n) ENGINE=InnoDB&nbsp; DEFAULT CHARSET=utf8 AUTO_INCREMENT=9 ;<br>\r\nsql;<br>\r\nmysql_query($sql);<br>\r\n<br>\r\n$sql = &lt;&lt;&lt;sql<br>\r\nINSERT INTO `sheet1` (`id`, `col1`, `col2`) VALUES<br>\r\n(1, 'א', 'h'),<br>\r\n(2, 'ב', 'g'),<br>\r\n(3, 'ג', 'f'),<br>\r\n(4, 'ד', 'e'),<br>\r\n(5, 'ה', 'd'),<br>\r\n(6, 'ו', 'c'),<br>\r\n(7, 'ז', 'b'),<br>\r\n(8, 'ח', 'a');<br>\r\nsql;<br>\r\nmysql_query($sql);<br>\r\n</code>\r\n<br>\r\nAlternatively, if you have access to the MySQL configuration file <code>my.ini</code> (Windows) or <code>my.cnf</code> (Linux), you can edit it and restart the server so it will permanently work as expected.<br>\r\n<br>\r\n",
+    "PostedDate": "2008-12-21T04:19:33.043-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "142142",
+    "ThreadId": "42769",
+    "Html": "wow dude. awesome. problem solved. <div>thanx a lot.</div><div>bobbinsbro.</div>",
+    "PostedDate": "2008-12-21T05:07:35.213-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "429405",
+    "ThreadId": "42769",
+    "Html": "<p>hola bobb me ayudas enviandome este codigo por favor , o me explicas como debe realizarse..</p>\r\n<p>&nbsp;</p>\r\n<p>gracias</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-04-09T14:12:29.293-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

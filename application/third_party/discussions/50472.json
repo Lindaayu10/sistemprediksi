@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "169162",
+    "ThreadId": "50472",
+    "Html": "<p>Hey,<br>\r\n<br>\r\nI want to import a releaselist into a mysql database.I have a problem with the date in the excel sheet.<br>\r\nWhen i import it the value is not a date any more but normal integer.<br>\r\nHow can i solve this problem?<br>\r\nI need belgium date notation DD/MM/YYYY<br>\r\n<br>\r\nThe datafield is always located in column C<br>\r\n<br>\r\nini_set('include_path', ini_get('include_path').':/srv/www/htdocs/intranet/frsbe/life/includes/Classes/');<br>\r\ninclude 'PHPExcel/IOFactory.php';</p>\r\n<p>$objReader = PHPExcel_IOFactory::createReader('Excel5');<br>\r\n$objReader-&gt;setReadDataOnly(true);</p>\r\n<p>$objPHPExcel = $objReader-&gt;load($file);<br>\r\n$objWorksheet = $objPHPExcel-&gt;getActiveSheet();</p>\r\n<p>$highestRow = $objWorksheet-&gt;getHighestRow(); // e.g. 10</p>\r\n<p>$highestColumn = $objWorksheet-&gt;getHighestColumn(); // e.g 'F'<br>\r\n$highestColumnIndex = 2 ;<br>\r\nfor ($row = 2; $row &lt;= $highestRow; ++$row) {<br>\r\n$imput=array();<br>\r\nfor ($col = 0; $col &lt;= $highestColumnIndex; ++$col) {<br>\r\n$value = $objWorksheet-&gt;getCellByColumnAndRow($col, $row)-&gt;getValue();<br>\r\narray_push($imput,$value);<br>\r\n}</p>\r\n<p>$sql = &quot;INSERT INTO Pur_Releaselist VALUES ('','$imput[0]','$imput[1]','$imput[2]', '$imput[3]','$type','$DATE','$UserName')&quot;;<br>\r\necho $sql;<br>\r\n$result = mysql_query($sql)<br>\r\nor die('Invalid: ' . mysql_error());<br>\r\necho &quot;&lt;META HTTP-EQUIV=\\&quot;Refresh\\&quot; Content=\\&quot;0; URL=?page=ADMIN&amp;sub=RELEASELIST&amp;dep=&quot; . $dep . &quot;\\&quot;&gt;&quot;;<br>\r\nexit;<br>\r\n}<br>\r\nunlink($file);<br>\r\necho &quot;The file is uploaded and processed [&quot;.$file.&quot;]&quot;;<br>\r\n}</p>\r\n",
+    "PostedDate": "2009-03-17T13:23:58.363-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "169178",
+    "ThreadId": "50472",
+    "Html": "Here is what I would do. Let's assume that A1 holds the date: 2009-03-17<br>\r\n<br>\r\n<code>\r\n// get the raw value, number of days elapsed since 1. Jan 1900 (or 1904 with Excel Mac workbook)<br>\r\n$value = $sheet-&gt;getCell('A1')-&gt;getValue();<br>\r\nvar_dump($value); // float(39889)<br>\r\n<br>\r\n// convert to PHP time aka Unix time / Unix seconds<br>\r\n$time = PHPExcel_Shared_Date::ExcelToPHP($value);<br>\r\nvar_dump($time); // int(1237248000)<br>\r\n<br>\r\n// convert to formatted string using date(), make sure timezone is set to UTC<br>\r\n$saveTimeZone = date_default_timezone_get();<br>\r\ndate_default_timezone_set('UTC');<br>\r\nvar_dump(date('d/m/y H:i:s', $time)); // string(17) &quot;17/03/09 00:00:00&quot;<br>\r\ndate_default_timezone_set($saveTimeZone);<br>\r\n<br>\r\n// alternative method using strftime()<br>\r\n$saveTimeZone = date_default_timezone_get();<br>\r\ndate_default_timezone_set('UTC');<br>\r\nvar_dump(strftime(&quot;%Y-%m-%d %H:%M:%S&quot;, $time)); // string(19) &quot;2009-03-17 00:00:00&quot;<br>\r\ndate_default_timezone_set($saveTimeZone);<br>\r\n</code>\r\n<br>\r\nAdmitted, it's messy and we should see if we can improve the classes, the problem is that Excel, PHP, and MySQL all have different preferred ways of storing dates. And then there are also time zones to watch out for.<br>\r\n<br>\r\nIn addition to this, Excel on Windows uses 1900 based calendar while Excel on Mac is 1904 based. But PHPExcel_Shared_Date() fortunately inspects the workbook, so this will not give you trouble.<br>\r\n<br>\r\nStick to the suggestions above and you will be safe.<br>\r\n<br>\r\n",
+    "PostedDate": "2009-03-17T14:09:53.33-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

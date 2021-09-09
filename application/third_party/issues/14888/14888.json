@@ -1,0 +1,90 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel_Writer_Excel5",
+      "DisplayName": "PHPExcel_Writer_Excel5"
+    },
+    "ClosedComment": "Production Release 1.7.7",
+    "ClosedDate": "2012-05-20T03:08:46.753-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "It seems that when the last parameter of an IF statement is an empty string, the equation disappears.  Please try the following code to reproduce:\n \n<?php\nrequire_once 'PHPExcel.1.7.5/Classes/PHPExcel.php';\n \n$objPHPExcel = new PHPExcel();\n$objPHPExcel->setActiveSheetIndex(0);\n$objPHPExcel->getActiveSheet()->setCellValue('A1', '10');\n$objPHPExcel->getActiveSheet()->setCellValue('A2', '=IF(A1=10,\"GOOD\",\"BAD\")');\n$objPHPExcel->getActiveSheet()->setCellValue('A3', '=IF(A1=11,\"GOOD\",\"BAD\")');\n$objPHPExcel->getActiveSheet()->setCellValue('A4', '=IF(A1=11,\"GOOD\",\"\")');\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');\n$objWriter->save('test.xls');\n \nIf you click on cell A5 you should see that the equation has disappeared entirely.",
+    "LastUpdatedDate": "2013-05-16T05:41:49.35-07:00",
+    "PlannedForRelease": "PHPExcel 1.7.7 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2010-12-14T19:21:06.88-08:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Simple =IF() formula disappears",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 14888
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "Whoops... code should have read as follows:\r\n\r\n<?php\r\nrequire_once 'PHPExcel.1.7.5/Classes/PHPExcel.php';\r\n\r\n$objPHPExcel = new PHPExcel();\r\n$objPHPExcel->setActiveSheetIndex(0);\r\n$objPHPExcel->getActiveSheet()->setCellValue('A1', '10');\r\n$objPHPExcel->getActiveSheet()->setCellValue('A2', '=IF(A1=10,\"GOOD\",\"BAD\")');\r\n$objPHPExcel->getActiveSheet()->setCellValue('A3', '=IF(A1=11,\"GOOD\",\"BAD\")');\r\n$objPHPExcel->getActiveSheet()->setCellValue('A4', '=IF(A1=11,\"GOOD\",\" \")');\r\n$objPHPExcel->getActiveSheet()->setCellValue('A5', '=IF(A1=11,\"GOOD\",\"\")');\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');\r\n$objWriter->save('test.xls');",
+      "PostedDate": "2010-12-14T19:59:10.087-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "The problem isn't the IF, it's actually the \"\" empty string in the formula. =\"\"&\"A\" will do exactly the same thing. Likewise if you used a NULL instead of \"\".\r\n\r\nThis is also specific to formula parser in the Excel5 Writer, the formula will be correctly written to an Excel2007 file",
+      "PostedDate": "2010-12-15T01:34:17.06-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-12-15T01:35:04.8-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I'm checking a fix into SVN to work with \"\" empty string in the Excel5 Formula Parser. If you need this in the interim, you can pull the code from SVN, or change the following in Classes/PHPExcel/Writer/Excel5/Parser.php\r\n\r\nchange line 1299\r\n$result = $this->_createTree(str_replace('\"\"', '\"', $this->_current_token), '', '');\r\nto\r\n$tmp = str_replace('\"\"', '\"', $this->_current_token);\r\nif (($tmp == '\"') || ($tmp == '')) $tmp = '\"\"';\t//\tTrap for \"\" that has been used for an empty string\r\n$result = $this->_createTree($tmp, '', '');\r\n",
+      "PostedDate": "2010-12-15T02:05:49.963-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-12-15T02:07:59.04-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Awesome... thank you!",
+      "PostedDate": "2010-12-15T23:37:51.693-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-05-20T03:01:48.87-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-05-20T03:08:46.753-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:02:39.073-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:41:49.35-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

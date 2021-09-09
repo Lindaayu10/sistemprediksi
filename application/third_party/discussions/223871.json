@@ -1,0 +1,114 @@
+[
+  {
+    "Id": "481543",
+    "ThreadId": "223871",
+    "Html": "I am using the following code to read an XLS file.\r\n<pre>\r\n    $objReader = PHPExcel_IOFactory::createReaderForFile($file);\r\n    $objReader-&gt;setReadDataOnly(true);\r\n    $objPHPExcel  = $objReader-&gt;load($file);\r\n    $objWorksheet = $objPHPExcel-&gt;getActiveSheet();\r\n    foreach ($objWorksheet-&gt;getRowIterator() as $row) {\r\n      $cellIterator = $row-&gt;getCellIterator();\r\n      $cellIterator-&gt;setIterateOnlyExistingCells(false);\r\n      $values = array();\r\n      foreach ($cellIterator as $cell) \r\n      {\r\n        $cellval = trim($cell-&gt;getValue());\r\n        iconv(&quot;UTF-8&quot;,&quot;CP1252&quot;,&quot;$cellval&quot;);\r\n        if (is_numeric($cellval)) {\r\n          array_push($values, $cellval);\r\n        } else {\r\n          array_push($values, '&quot;'.$cellval.'&quot;');\r\n        } // if (is_numeric($cellval))\r\n      } // foreach ($cellIterator as $cell)\r\n      // build the insert statement from the values in the cells.\r\n      $sql .= &quot;INSERT INTO TABLE VALUES (&quot;.implode(',', $values).&quot;)/n<br>&quot;;\r\n      // insert into the DB here, I am just echoing it out to screen\r\n      //$this-&gt;db-&gt;query(@sql);\r\n    } //foreach ($objWorksheet-&gt;getRowIterator() as $row)\r\n</pre>\r\nA whole lot of data is coming out with the Â character in the first column.\r\nsample output:\r\n<pre>\r\nINSERT INTO TABLE VALUES (&quot;04-1604-1429 Â &quot;,&quot;&quot;,&quot;NE&quot;,1,&quot;&quot;)/n\r\nINSERT INTO TABLE VALUES (&quot;0724000-2&quot;,&quot;&quot;,&quot;NE&quot;,1,&quot;&quot;)/n\r\nINSERT INTO TABLE VALUES (724125,&quot;&quot;,&quot;NE&quot;,1,&quot;&quot;)/n\r\n</pre>\r\n\r\nHow do I strip out those chars?\r\n",
+    "PostedDate": "2010-08-17T12:27:11.817-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "481546",
+    "ThreadId": "223871",
+    "Html": "What happened to the formatting buttons to enter code?\r\nI used &#91;code&#93; tags but it still came out messed up.",
+    "PostedDate": "2010-08-17T12:29:12.677-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "482738",
+    "ThreadId": "223871",
+    "Html": "<p>Doesn't anyone know the answer to this?</p>",
+    "PostedDate": "2010-08-20T05:38:58.297-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "482755",
+    "ThreadId": "223871",
+    "Html": "<p>Have you tried without the</p>\r\n<p>iconv(&quot;UTF-8&quot;,&quot;CP1252&quot;,&quot;$cellval&quot;);</p>\r\n<p>?</p>",
+    "PostedDate": "2010-08-20T06:06:52.57-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "482761",
+    "ThreadId": "223871",
+    "Html": "<p>Yes, and it is the same result.</p>",
+    "PostedDate": "2010-08-20T06:17:50.387-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "482762",
+    "ThreadId": "223871",
+    "Html": "<p>What is the &Acirc; char, anyway?</p>",
+    "PostedDate": "2010-08-20T06:18:41.82-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "482767",
+    "ThreadId": "223871",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>mrbaseball34 wrote:</strong><br>\r\n<p>What is the &Acirc; char, anyway?</p>\r\n</blockquote>\r\n<p>&nbsp;Generally an indication that something is going fubar in the character set conversion. PHPExcel tries to use UTF-8 internally, so it is only normally necessary to use iconv or mbstring to do character conversion if you need the data in a character set other than UTF-8</p>",
+    "PostedDate": "2010-08-20T06:31:35.497-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "482770",
+    "ThreadId": "223871",
+    "Html": "<p>When I open the file in Excel, I don't see this char at all.</p>\r\n<p>So it must be PHPExcel having the problem.</p>\r\n<p>Want me to upload a sample?</p>",
+    "PostedDate": "2010-08-20T06:41:48.62-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "482773",
+    "ThreadId": "223871",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>mrbaseball34 wrote:</strong><br>\r\n<p>When I open the file in Excel, I don't see this char at all.</p>\r\n<p>So it must be PHPExcel having the problem.</p>\r\n<p>Want me to upload a sample?</p>\r\n</blockquote>\r\n<p>&nbsp;Feel free to upload a sample, and I'll take a look at it. We haven't had any issues with charsets in PHPExcel for a long time, so I wouldn't be so sure that it is an issue. When you're echoing the INSERT statements out to your loader page, is the page definitely set as UTF-8?</p>",
+    "PostedDate": "2010-08-20T06:48:38.41-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "482780",
+    "ThreadId": "223871",
+    "Html": "<p>if I str_replace the char out of the value, I cannot trim the spaces off the end of some values.</p>\r\n<p>go figure...</p>\r\n<p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>      <span style=\"color:blue\">foreach</span> ($cellIterator <span style=\"color:blue\">as</span> $cell) \r\n      {\r\n        $cellval = trim(str_replace(<span style=\"color:#a31515\">'&Acirc;'</span>, <span style=\"color:#a31515\">''</span>, $cell-&gt;getValue()));\r\n        <span style=\"color:blue\">if</span> (is_numeric($cellval)) {\r\n          array_push($values, intval($cellval));\r\n        } <span style=\"color:blue\">else</span> {\r\n          array_push($values, <span style=\"color:#a31515\">'&quot;'</span>.trim($cellval).<span style=\"color:#a31515\">'&quot;'</span>);\r\n        } <span style=\"color:green\">// if (is_numeric($cellval))</span>\r\n      } <span style=\"color:green\">// foreach ($cellIterator as $cell)</span>\r\n\r\n</pre>\r\n</div>\r\n</p>",
+    "PostedDate": "2010-08-20T06:57:37.59-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "482783",
+    "ThreadId": "223871",
+    "Html": "<p>Sample file is uploaded in Issue:</p>\r\n<p>http://phpexcel.codeplex.com/workitem/14050</p>",
+    "PostedDate": "2010-08-20T07:00:13.15-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "482786",
+    "ThreadId": "223871",
+    "Html": "<p>Seems the data may be encoded using ISO 8859-1, or at least that is where that char comes from.</p>",
+    "PostedDate": "2010-08-20T07:07:30.513-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "482804",
+    "ThreadId": "223871",
+    "Html": "<p>The spurious character in some of these cells is a non-breaking space character ( character 160, hex A0 in ISO-8859-1, haven't done a lookup for the equivalent character in UTF-8) which is not removed by trim().</p>\r\n<p>You can get rid of it by converting from UTF-8 to ISO-8859-1, then explicitly identifying it in the list of characters that should be removed by trim(). The following is the standard list of characters that trim() will remove, plus the additional \\xA0</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>$cellval = trim(iconv(<span style=\"color:#a31515\">&quot;UTF-8&quot;</span>,<span style=\"color:#a31515\">&quot;ISO-8859-1&quot;</span>,$cell-&gt;getValue()),<span style=\"color:#a31515\">&quot; \\t\\n\\r\\0\\x0B\\xA0&quot;</span>);\r\n</pre>\r\n</div>",
+    "PostedDate": "2010-08-20T07:56:07.88-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "482807",
+    "ThreadId": "223871",
+    "Html": "<p>That worked great, thanks.</p>",
+    "PostedDate": "2010-08-20T08:05:05.307-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

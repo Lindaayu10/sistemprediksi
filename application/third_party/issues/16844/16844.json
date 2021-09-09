@@ -1,0 +1,39 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Embedded CSV enclosures are being escaped according to RFC 4180 (see http://tools.ietf.org/html/rfc4180#section-2) by placing another enclosure next to it, like in \"aa\"\"bb\", but NOT by placing a backslash in front of it, like in \"aa\\\"bb\".\n \nIn order to be RFC 4180-compliant, lines 252-254 of Classes/PHPExcel/Reader/CSV.php in PHPExcel 1.7.6 Production should also read $escapeEnclosures = array( $this->_enclosure . $this->_enclosure ); instead of $escapeEnclosures = array( \"\\\\\" . $this->_enclosure, $this->_enclosure . $this->_enclosure );\n \nIn the current implementation, a text containing backslashes like [%url; \"http://example.com/\"; \"Read more\"; \"style=\\\"color:blue\\\"\"] and escaped as CSV field as \"[%url; \"\"http://example.com/\"\"; \"\"Read more\"\"; \"\"style=\\\"\"color:blue\\\"\"\"\"]\" would become unescaped as [%url; \"http://example.com/\"; \"Read more\"; \"style=\"color:blue\"\"]: The backslashes are missing.\n \nYet I know, there isn't any CSV standard and there are implementations where the enclosure and even the field separator are being escaped by a backslash (read http://www.creativyst.com/Doc/Articles/CSV/CSV01.htm for instance). So you would in principle need two or more configurations of PHPExcel_Reader_CSV in order to support them all. The current configuration, however, tries to support a bit of each CSV implementation and finally isn't compatible to any single one.",
+    "LastUpdatedDate": "2013-02-21T19:02:11.73-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2011-11-03T01:32:40.09-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Unescaping CSV enclosures",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 16844
+  },
+  "FileAttachments": [],
+  "Comments": []
+}

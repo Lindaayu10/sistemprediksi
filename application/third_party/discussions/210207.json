@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "434290",
+    "ThreadId": "210207",
+    "Html": "<p>version :: PHPExcel 1.7.2</p>\r\n<p>I am passing the excel sheet to the client through the browser</p>\r\n<p>The following piece of code works fine, until I uncomment any of the getPageSetup functions.</p>\r\n<p>Then the webpage just goes blank on me.</p>\r\n<p>Is there anything else I need to 'require' to get the page_setup functions to work ?</p>\r\n<p>(I am almost sure its something very basic, but I would appreciate it if someone would point it out! :( Thanks)</p>\r\n<p>require_once 'PHPExcel.php'</p>\r\n<p>&nbsp;&nbsp;&nbsp; private function BoE_header($excel, $worksheet_no) {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /*<br>&nbsp; <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Set the Page Size and Orientation<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $excel-&gt;getActiveSheet()-&gt;getPageSetup()-&gt;setOrientation(PHPExcel_WorksheetPageSetup::ORIENTATION_LANDSCAPE);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $excel-&gt;getActiveSheet()-&gt;getPageSetup()-&gt;setPagerSize(PHPExcel_WorksheetPageSetup::PAPERSIZE_A4);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Ensure that the worksheet is printed in 1 page<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $excel-&gt;getActiveSheet()-&gt;getPageSetup()-&gt;setFitToWidth(1);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $excel-&gt;getActiveSheet()-&gt;getPageSetup()-&gt;setFitToHeight(1);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //Center the page Horizontally and Vertically<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $excel-&gt;getActiveSheet()-&gt;getPageSetup()-&gt;setHorizontalCentered(true);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $excel-&gt;getActiveSheet()-&gt;getPageSetup()-&gt;setVerticalCentered(true);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Show gridlines when printing <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $excel-&gt;getActiveSheet()-&gt;getPageSetup()-&gt;setShowGridlines(true);<br>*/<br><br><br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $excel-&gt;getActiveSheet()-&gt;insertNewRowBefore(1,2);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $excel-&gt;getActiveSheet()-&gt;SetCellValue('J2', 'FORM V');<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $excel-&gt;getActiveSheet()-&gt;SetCellValue('I3', '(SEE REGULATION 7)'); <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $excel-&gt;getActiveSheet()-&gt;mergeCells('I3:K3');<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $excel-&gt;getActiveSheet()-&gt;getStyle('I3')-&gt;getAlignment()-&gt;setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);<br><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $excel-&gt;getActiveSheet()-&gt;SetCellValue('O3', 'BE No.:');<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $excel-&gt;getActiveSheet()-&gt;SetCellValue('H4', 'Bill to Be provided for entry');<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $excel-&gt;getActiveSheet()-&gt;SetCellValue('O4', 'DATE');<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $excel-&gt;getActiveSheet()-&gt;SetCellValue('C5', 'NAME &amp; ADDRESS OF THE');<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $excel-&gt;getActiveSheet()-&gt;SetCellValue('C6', 'authorized consignee');<br>}</p>",
+    "PostedDate": "2010-04-22T11:08:39.86-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "463337",
+    "ThreadId": "210207",
+    "Html": "<p>$excel-&gt;getActiveSheet()-&gt;<span style=\"color:#ff0000\">getPageSetup()-&gt;</span>setShowGridlines(true);</p>\r\n<p>====&gt; $excel-&gt;getActiveSheet()-&gt;setShowGridlines(true);</p>\r\n<p>&nbsp;</p>\r\n<p>$excel-&gt;getActiveSheet()-&gt;getPageSetup()-&gt;setPagerSize(<span style=\"color:#ff0000\">PHPExcel_WorksheetPageSetup::PAPERSIZE_A4</span>);</p>\r\n<p>====&gt; $excel-&gt;getActiveSheet()-&gt;getPageSetup()-&gt;setPaperSize(<span style=\"color:#ff0000\">PHPExcel_Worksheet_PageSetup::PAPERSIZE_A4</span>);</p>\r\n<p>and other Error was also cause of incorrect function call</p>",
+    "PostedDate": "2010-07-04T21:14:44.357-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "464464",
+    "ThreadId": "210207",
+    "Html": "<p>I dunno about bhave13, but while the proper call may in fact be $excel-&gt;getActiveSheet()-&gt;setShowGridlines(true);</p>\r\n<p>It does diddly, no lines, no nothing, at least for me. For the most part things work beautifully, except for a few page settings.</p>\r\n<p>I couldn't get $objPHPExcel-&gt;getActiveSheet()-&gt;getPageSetup()-&gt;setRowsToRepeatAtTopByStartAndEnd(1, 2); to work either, and in the case of a multi-sheet document in bombed (nothing legible in the resulting file). Odd, though, the example runs fine, maybe I'm running it at the wrong spot (despite similar settings working)?</p>",
+    "PostedDate": "2010-07-07T12:54:18.43-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "464906",
+    "ThreadId": "210207",
+    "Html": "<p>Looks like my issue with gridlines was I was using the wrong setting, now I have no idea what setShowGridlines() does... what I wanted was:</p>\r\n<p>$objPHPExcel-&gt;getActiveSheet()-&gt;setPrintGridlines(true);</p>\r\n<p>Still no luck with my repeating rows issue.</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-07-08T08:50:07.31-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "464934",
+    "ThreadId": "210207",
+    "Html": "<p>Ok..now I'm redfaced...</p>\r\n<p>After expecting setShowGridlines to only show in printing, for some reason I expected the repeating rows function to show up in regular view (and I failed to check printing, doh).</p>\r\n<p>It works just fine :-[</p>",
+    "PostedDate": "2010-07-08T09:13:29.17-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "472697",
+    "ThreadId": "210207",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>tracerofwind wrote:</strong><br><p>$excel-&gt;getActiveSheet()-&gt;<span style=\"color:#ff0000\">getPageSetup()-&gt;</span>setShowGridlines(true);</p>\r\n<p>====&gt; $excel-&gt;getActiveSheet()-&gt;setShowGridlines(true);</p>\r\n<p>&nbsp;</p>\r\n<p>$excel-&gt;getActiveSheet()-&gt;getPageSetup()-&gt;setPagerSize(<span style=\"color:#ff0000\">PHPExcel_WorksheetPageSetup::PAPERSIZE_A4</span>);</p>\r\n<p>====&gt; $excel-&gt;getActiveSheet()-&gt;getPageSetup()-&gt;setPaperSize(<span style=\"color:#ff0000\">PHPExcel_Worksheet_PageSetup::PAPERSIZE_A4</span>);</p>\r\n<p>and other Error was also cause of incorrect function call</p></blockquote><p></p>\r\n\r\nThank you, was away from this project for while, usually it does not take me so long to appreciate timely help.\r\nAppreciate the corrections.\r\n",
+    "PostedDate": "2010-07-26T09:08:26.193-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

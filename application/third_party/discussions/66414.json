@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "225610",
+    "ThreadId": "66414",
+    "Html": "<p>Hello,</p>\r\n<p>I'm new to PHPExcel, but I want to start by saying that this library has been a real life saver!<br>I'm working on an accounting project where our end-users want MySQL-driven dynamic<br>data either in CSV, Excel5 or HTML format, and they expect it to look just like their current<br>spreadsheets.&nbsp; The PHPExcel project has saved me a lot of time, so I thank you.</p>\r\n<p>With that said, I was disappointed at the lack of number formatting options available for<br>non-Excel formats.&nbsp; I added my own to the source code, in case anyone is interested.&nbsp; It is<br>for formatting comma-separated numbers with no digits after the decimal place and<br>negative numbers in parentheses.&nbsp; E.g.:</p>\r\n<p>1000.01 --&gt; 1,000<br>-1000.01 --&gt; (1,000)</p>\r\n<p>Here is the code I inserted into Classes/PHPExcel/Style/NumberFormat.php:</p>\r\n<p><span style=\"color:Blue\">\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>54:  <span style=\"color:Blue\">const</span> FORMAT_NUMBER_COMMA_SEPARATED3  = <span style=\"color:#A31515\">'#,##0_);(#,##0)'</span>;\r\n</pre>\r\n</div>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>516:\t\t\t\t<span style=\"color:Blue\">else</span> <span style=\"color:Blue\">if</span> ($format === self::FORMAT_NUMBER_COMMA_SEPARATED3)\r\n</pre>\r\n</div>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>517:\t\t\t\t\t\t<span style=\"color:Blue\">return</span> ($value &gt;= 0 ? number_format($value, 0, <span style=\"color:#A31515\">'.'</span>, <span style=\"color:#A31515\">','</span>) : <span style=\"color:#A31515\">&quot;(&quot;</span> . number_format(abs($value), 0, <span style=\"color:#A31515\">'.'</span>, <span style=\"color:#A31515\">','</span>) . <span style=\"color:#A31515\">&quot;)&quot;</span>);\r\n<br></pre>\r\n</div>\r\n<div style=\"color:Black;background-color:White\">I also noticed that the other comma-separated formats are wrong.&nbsp; They both use:</div>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>number_format($value, 2, &quot;,&quot;, &quot;.&quot;)</pre>\r\n</div>\r\n<div style=\"color:Black;background-color:White\">which sets the '.' as the thousands separator and the ',' as the decimal, which doesn't</div>\r\n<div style=\"color:Black;background-color:White\">match the definition: '#,##0.00'</div>\r\n<div style=\"color:Black;background-color:White\"></div>\r\n<div style=\"color:Black;background-color:White\">I'm thinking that I would be willing to help contribute to this, especially because this</div>\r\n<div style=\"color:Black;background-color:White\">is such a nice way to format HTML pages.&nbsp; I would propose a revised<br>toFormattedString() function that could actually parse any $format and return an</div>\r\n<div style=\"color:Black;background-color:White\">array with an optional color field.&nbsp; Then the writers could interpret the color</div>\r\n<div style=\"color:Black;background-color:White\">information any way that is appropriate.</div>\r\n<div style=\"color:Black;background-color:White\"></div>\r\n<div style=\"color:Black;background-color:White\">Thanks again for a really useful library!</div>\r\n<div style=\"color:Black;background-color:White\"></div>\r\n<div style=\"color:Black;background-color:White\">Matt</div>\r\n</span></p>",
+    "PostedDate": "2009-08-19T14:28:27.3-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "225623",
+    "ThreadId": "66414",
+    "Html": "<p>Can you tell us whether you are using PHPExcel 1.6.7 or 1.7.0 ? Your comment about the wrong <span style=\"font-family:Courier New\">number_format</span> for comma-separated formats leads me to believe that you are using PHPExcel 1.6.7. In PHPExcel 1.7.0 this has been changed so that the decimal/thousands separator is retrieved from the locale settings on the server. This affects output by CSV/HTML/PDF writers in PHPExcel.</p>\r\n<p>You have some valid points with multi-part number formats. Therefore please check your version of PHPExcel so we can discuss this based on latest version. The documentation has also been updated in PHPExcel 1.7.0 with a section &quot;Number Formats&quot; to address your worries in the first part concerning custom number formats. Be sure also to read that. Users were understandably not aware that they were allowed to use custom number formats apart from the predefined class constants.</p>",
+    "PostedDate": "2009-08-19T15:16:59.033-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "225829",
+    "ThreadId": "66414",
+    "Html": "<p>I am using 1.6.7...wasn't aware that a new version was out.&nbsp; I'll take a look at it and the documentation.</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks for your quick reply.</p>\r\n<p>Matt</p>\r\n<p>EDIT:&nbsp; After taking a quick look at the new routines in toFormattedString(), I agree with the comment!</p>\r\n<p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>514     <span style=\"color:Green\">// We should really fetch the relevant part depending on whether we have a positive number,</span>\r\n515     <span style=\"color:Green\">// negative number, zero, or text. But for now we just use first part</span>\r\n\r\n</pre>\r\n</div>\r\nI would also like to see someway of either returning the color codes with the formatted value, or the function taking an additional type argument and having the function imbed the appropriate color information depending on the Writer type.&nbsp; For the time being, I'll have to continue with a hack, because our accountants want to see the negative numbers in parentheses.&nbsp; I can also get away with using the PHP_Style_Conditional class to color negative cells red.&nbsp; I think it would be easy to implement the missing features laid out in that comment however, and I'd love to see that in a future release.</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-08-20T05:00:34.513-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "225839",
+    "ThreadId": "66414",
+    "Html": "<p><em>&gt;&gt; I would also like to see someway of either returning the color codes with the<br> &gt;&gt; formatted value, or the function taking an additional type argument and having the<br> &gt;&gt; function imbed the appropriate color information depending on the Writer type.</em><br> <br> Agreed. <span style=\"font-family:Courier New\">PHPExcel_Style_NumberFormat::toFormattedString()</span> is something we have neglected a bit although it has been improved through recent versions. I will create the necessary work items later this week to get some of this resolved for next release.</p>",
+    "PostedDate": "2009-08-20T05:40:22.187-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "226106",
+    "ThreadId": "66414",
+    "Html": "<p>Work item created:<br><br>Multi-section number format support in HTML/PDF/CSV writers<br><a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10492\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10492</a><br><br>Colored number format support, e.g. [Red], in HTML/PDF output<br><a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10493\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10493</a></p>",
+    "PostedDate": "2009-08-20T17:45:52.947-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "216400",
+    "ThreadId": "63642",
+    "Html": "<p>For the assistance of forum's member. I have solved the download excel issue. However, now I am having another issue of opens and saves the excel file.<br>I found that after open the file and I enter some value to the file and try to save it. It will say that the file is read-only and I need to re-save again instead. Is it anyway to create a non-read-only file?</p>",
+    "PostedDate": "2009-07-27T08:17:21.153-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "216488",
+    "ThreadId": "63642",
+    "Html": "<p>I have never heard of this issue. Can you describe what steps are involved to reproduce this? Please provide some sample code, platform, browser information, screenshots if possible.</p>",
+    "PostedDate": "2009-07-27T11:16:35.673-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "269992",
+    "ThreadId": "63642",
+    "Html": "<p>I had this same issue of read only files that were output to disk (but not with those files pushed for download.) Apache 2.2.14, php 5.3, Mac OS X. For me, it was an issue of file permissions - the saved file's owner was Apache (_www) and writeable for Apache only:</p>\r\n<pre>$ ls -l *.xlsx<br>-rw-r--r--  1 _www  wheel  6339 Dec 18 14:11 test.xlsx<br></pre>\r\n<p>To solve this, I modified the function save() in PHPExcelLib/Classes/PHPExcel/Writer/Excel2007.php @ line 403</p>\r\n<pre>// If a temporary file was used, copy it to the correct file stream<br>if ($originalFilename != $pFilename) {<br>    if (copy($pFilename, $originalFilename) === false) {<br>        throw new Exception(&quot;Could not copy temporary zip file $pFilename to $originalFilename.&quot;);<br>    }<br>    @unlink($pFilename);<br>}<br><br>// change file permissions for a SAVED file... a DOWNLOADED file doesn't need this <br>//echo 'Changing permissions from ', substr(sprintf('%o', fileperms($originalFilename)), -4), &quot;\\n&quot;;<br>if (file_exists($originalFilename) and chmod($originalFilename, 0664) === false) {<br>    throw new Exception(&quot;Could not change file permissions for $originalFilename.&quot;);<br>}<br></pre>\r\n<p>Resulting permissions (I'm a member of group wheel, so I can write to the file):</p>\r\n<pre>$ ls -l *.xlsx<br>-rw-rw-r--  1 _www  wheel  6339 Dec 18 15:20 test.xlsx<br></pre>\r\n<p>HTH, Thom</p>",
+    "PostedDate": "2009-12-22T10:57:35.417-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

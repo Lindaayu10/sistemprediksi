@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "571501",
+    "ThreadId": "247417",
+    "Html": "\r\n<p>I'm wondering why no &quot;search&quot; style function is implemented? I quickly threw this together for the WorkSheet class just to try it and wonder if it's way to resource intensive when the worksheet grows?</p>\r\n<p></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>    <span style=\"color:green\">/**\r\n     *\r\n     * Search for a cell or a collections of cells given it's content\r\n     * @param string $contentString\r\n     */</span>\r\n    <span style=\"color:blue\">public</span> <span style=\"color:blue\">function</span> getColumnByContent($contentString, $mutipleMatches = false) {\r\n    <span style=\"color:blue\">foreach</span>($this-&gt;getRowIterator() <span style=\"color:blue\">as</span> $row){\r\n      $cellIterator = $row-&gt;getCellIterator();\r\n      <span style=\"color:blue\">foreach</span>($cellIterator <span style=\"color:blue\">as</span> $cell){\r\n        <span style=\"color:blue\">if</span>(strcmp($cell-&gt;getValue(), $contentString) == 0) {\r\n          <span style=\"color:blue\">if</span>($mutipleMatches) {\r\n            $cells[] = $cell;\r\n          }\r\n          <span style=\"color:blue\">else</span> {\r\n            <span style=\"color:blue\">return</span> $cell;\r\n          }\r\n        }\r\n      }\r\n    }\r\n    <span style=\"color:blue\">return</span> $cells;\r\n    }<br><br>With this I can now use it a bit like a template system and do<br><div style=\"color:black; background-color:white\"><pre>$pSheet-&gt;getColumnByContent(<span style=\"color:#a31515\">'#EMAIL_ADDRESS#'</span>)-&gt;setValue(<span style=\"color:#a31515\">'foobar@hotmail.com'</span>);\r\n</pre>\r\n</div>\r\n</pre>\r\n</div>\r\n<p></p>\r\n",
+    "PostedDate": "2011-02-24T06:20:20.71-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "571794",
+    "ThreadId": "247417",
+    "Html": "<p>The row and cell iterators are quite processor intensive.</p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre><span style=\"color: blue;\">foreach</span>($this-&gt;getCellCollection(false) <span style=\"color: blue;\">as</span> $cell) {\r\n   ...\r\n}\r\n</pre>\r\n</div>\r\n<p>might be more efficient than using the iterators.</p>\r\n<p>The argument passed to getCellCollection() indicates whether the returned list of cell addresses should be sorted or not... sorting will add overhead.</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2011-02-24T14:05:13.33-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "571973",
+    "ThreadId": "247417",
+    "Html": "<p>Since getCellCollection seems to return an array of cell coordinates I guess you would have to do something like this?</p>\r\n<p>&nbsp;</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre><span style=\"color: blue;\">foreach</span>($this-&gt;getCellCollection(false) <span style=\"color: blue;\">as</span> $cellCoordinate) {\r\n      $cell = $this-&gt;getCell($cellCoordinate);\r\n...\r\n</pre>\r\n</div>\r\n</p>",
+    "PostedDate": "2011-02-24T23:24:11.193-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "572144",
+    "ThreadId": "247417",
+    "Html": "<p>That's right. getCellCollection() only returns the cell addresses, so you'll need to manually fetch each cell rather than doing so through the iterators.</p>\r\n<p>I've not tested the code, but I think it should be faster than the iterators, despite the manual $cell = $this-&gt;getCell($cellCoordinate);</p>",
+    "PostedDate": "2011-02-25T07:19:09.92-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "684885",
+    "ThreadId": "247417",
+    "Html": "<p>Where i can insert this code? I've tries to insert it in Worksheet.php but no luck</p>\n<p>Fatal error: Call to a member function setValue() on a non-object in ...</p>",
+    "PostedDate": "2011-10-16T11:14:14.767-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1290231",
+    "ThreadId": "247417",
+    "Html": "I used what you guys were speaking about to write a helper function.\r<br />\n<br />\nSee: <a href=\"https://phpexcel.codeplex.com/discussions/204003\" rel=\"nofollow\">https://phpexcel.codeplex.com/discussions/204003</a><br />\n",
+    "PostedDate": "2014-08-14T18:28:06.497-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

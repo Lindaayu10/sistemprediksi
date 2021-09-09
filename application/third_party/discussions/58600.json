@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "198356",
+    "ThreadId": "58600",
+    "Html": "<p>Whenever I remove the rows of a large excel file with about 1000+ rows, the last rows on the worksheet does not get removed.&nbsp; Here is the issue.&nbsp; Once I have read in an xls file with a reader, I run a function that traverses the entire worksheet and checks for certain values in a column.&nbsp; Based on this value, the rows with those values are removed from the worksheet.&nbsp; Now, because the worksheet is large, I don't call a removeRow on every row that is checked.&nbsp; The function creates an array of values that contain a starting row and a row count that identifies which contiguous rows in the worksheet will be removed. ie.&nbsp; array(array($start, $count));&nbsp;&nbsp; There are mutliple sections of contiguous rows that get removed after the starting points and row counts are identified.&nbsp; This reduces the amount of times the removeRow function is called significantly.&nbsp; Calling the function on every row is unfeasible. &nbsp; It takes way too long even with using the new memory and speed enhancements svn and runs out of memory on the production version(1.6.7).</p>\r\n<p>The problem is that it always leaves the last section of row removal in the worksheet.&nbsp; Another strange thing is that any row from the final section of removed rows has it's date column changed to a number representing the value of the date.&nbsp; The dollar column from the section of rows that should have been removed also changes to regular numbers without $ signs.&nbsp; My function removes row sections from the end of the worksheet first.</p>\r\n<p>Here is the test excel file:<br>www.chisdev.net/test.xls</p>\r\n<p>As you can see, the first column contains the values I check and based on it, select the contiguous rows to remove.&nbsp; I need to check every row as I do include empty cells in my test case.&nbsp; Here is my function:</p>\r\n<p>protected function _removeAccTypes(){</p>\r\n<p><br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $_accTypes = array('BCS','DBT','APP','IVT','NTR','RDT','CR','HRT');&nbsp; // accounts types to keep<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; // initialize counting and recording.<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $max = $this-&gt;_excel-&gt;getNumRows();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // calls PHPExcel-&gt;getActiveSheet()-&gt;getHighestRow()<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $removes = array();<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; //echo &quot;maxrow=$max : &quot;;<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $oldVal = 'APP';<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $newVal = '';<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $start = 1;<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $count = 1;<br>&nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; for($row=1;$row&lt;=$max;$row++){<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $newVal = $this-&gt;_excel-&gt;getCellValue($row,0);<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; if($newVal == ''){<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; if(in_array($oldVal,$_accTypes) == false){<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $count++;<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }else{<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; if($newVal == $oldVal){<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; if(in_array($oldVal,$_accTypes) == false){<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $count++;<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }else{<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; if(in_array($oldVal,$_accTypes) == false and in_array($newVal,$_accTypes)== true){<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; array_unshift($removes, array($start,$count,$oldVal,$newVal));&nbsp; // places start/count in the front of the array<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $count=1;<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; if(in_array($oldVal,$_accTypes) == true and in_array($newVal,$_accTypes)== false){<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $count=1;<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $start=$row;<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; if(in_array($oldVal,$_accTypes) == false and in_array($newVal,$_accTypes)== false){<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $count++;<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $oldVal = $newVal;<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }<br>&nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; array_unshift($removes, array($start,$count,$oldVal,$newVal));&nbsp;&nbsp; // add the final rows to be removed<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $this-&gt;_removeRows($removes);&nbsp;&nbsp; // loops through and gets the values of the start/count, then calls removeRow($start,$count)<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; }</p>\r\n<p>This could also be a case of the number of rows to be removed causing an issue when the row count is large.&nbsp; In some cases, I need to remove about 1000+ rows from the worksheet.&nbsp; Any help regarding this would be greatly appreciated.&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks.</p>",
+    "PostedDate": "2009-06-05T11:20:39.443-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "198480",
+    "ThreadId": "58600",
+    "Html": "<p>I am able to reproduce the error with your script. Will look into this today.</p>",
+    "PostedDate": "2009-06-05T22:14:29.857-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "198506",
+    "ThreadId": "58600",
+    "Html": "<p><em>&gt;&gt; The problem is that it always leaves the last section of row removal in the worksheet.<br> &gt;&gt; Another strange thing is that any row from the final section of removed rows has it's date<br> &gt;&gt; column changed to a number representing the value of the date.</em><br> <br> There was a bug in PHPExcel 1.6.7. It is fixed now.<br> <a href=\"../WorkItem/View.aspx?WorkItemId=10098\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10098</a><br> <br> You may try next days source code release from here:<br> <a href=\"../SourceControl/ListDownloadableCommits.aspx\">http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx</a><br> <br> <br> <em>&gt;&gt; Calling the function on every row is unfeasible. &nbsp; It takes way too long even<br> &gt;&gt; with using the new memory and speed enhancements svn and runs out of memory<br> &gt;&gt; on the production version(1.6.7).</em><br> <br> The method you are using is a good one. The fewer calls to <span style=\"font-family:Courier New\">removeRow()</span> the faster. In a future version we could perhaps also allow deleting non-contiguous ranges of rows/columns in one function call to allow for even faster operation.<br> <br> With that said, as an experiment you may try to comment the following line in <span style=\"font-family:Courier New\">PHPExcel/ReferenceHelper.php</span> as follows and see if it speeds up things.<br> <span style=\"font-family:Courier New\"><br> // $pSheet-&gt;garbageCollect();</span><br> <br> (It will not make any difference to the generated workbook because <span style=\"font-family:Courier New\">garbageCollect()</span> is anyway called immediately before writing the workbook.)<br></p>",
+    "PostedDate": "2009-06-06T02:15:49.763-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "199297",
+    "ThreadId": "58600",
+    "Html": "<p>Thank you so much.&nbsp; It's working very well now. &nbsp;</p>",
+    "PostedDate": "2009-06-08T18:08:14.13-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1327637",
+    "ThreadId": "58600",
+    "Html": "Hi fivefeet8, \r<br />\n<br />\nCan you please tell me what solved your problem as i am facing the same issue.<br />\n",
+    "PostedDate": "2014-12-01T03:00:31.46-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1327639",
+    "ThreadId": "58600",
+    "Html": "Can you please tell me what solved your problem as i am facing the same issue.<br />\n",
+    "PostedDate": "2014-12-01T03:01:22.88-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1327641",
+    "ThreadId": "58600",
+    "Html": "HI koyama,\r<br />\n<br />\nI am using PHPEXCEL 1.8 but still i am unable to use multiple conditions in if loop to remove multiple rows.<br />\n",
+    "PostedDate": "2014-12-01T03:03:57.507-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

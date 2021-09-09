@@ -1,0 +1,98 @@
+[
+  {
+    "Id": "100719",
+    "ThreadId": "30244",
+    "Html": "Greetings,<div><br></div><div>I would like to format a cell as &quot;Text.&quot; Everything I try seems to turn out as the &quot;General&quot; format. The reason I need the cell to be Text is because I'm outputting several LONG numbers (14-18 digits) in a field and Excel tends to muck them up by turning them into exponents to shorten the display.</div><div><br></div><div>Thanks!</div><div><br></div><div>Caio</div>",
+    "PostedDate": "2008-06-25T01:49:57.247-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "101213",
+    "ThreadId": "30244",
+    "Html": "Even formatted as Test in Excel, longer numbers appear in their exponential form.... formatting as text simply left justifies them.<br>\r\nYou'll need to format them using a numeric format mask such as '0'<br>\r\n<br>\r\n$PHPExcelObject-&gt;getActiveSheet()-&gt;getStyle($cell)-&gt;getNumberFormat()-&gt;setFormatCode('0');<br>\r\n<br>\r\nAlthough you may still have problems with exceptionally long numbers (more than 15 digits).<br>\r\nNote that this problem with long numbers applies within Excel itself, not just PHPExcel\r\n",
+    "PostedDate": "2008-06-27T03:01:40.827-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "161003",
+    "ThreadId": "30244",
+    "Html": "i want the same thing <br>\r\nnot for any single cell but for whole sheet<br>\r\nif i apply it cell by cell the page dies out of timeout<br>\r\nany thing possible here?<br>\r\n<br>\r\nthanks,<br>\r\nSam<br>\r\n",
+    "PostedDate": "2009-02-23T09:12:18.59-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "244997",
+    "ThreadId": "30244",
+    "Html": "<p>Hi I have the same problem , I wanted to display long digits as text , nothing seems to be working&nbsp;</p>\r\n<p>$this-&gt;workbook-&gt;getActiveSheet()-&gt;getStyle($cell)-&gt;getNumberFormat()-&gt;setFormatCode( PHPExcel_Style_NumberFormat::FORMAT_TEXT );</p>\r\n<p>Is also not working , can anyone please tell me how to change the cell format to text so that , long digits could be displayed.</p>\r\n<p>Thanks,Balajee</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-10-13T03:30:39.01-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "245005",
+    "ThreadId": "30244",
+    "Html": "<p>@balajee_78: What number are you are trying to store?</p>",
+    "PostedDate": "2009-10-13T03:52:33-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "245053",
+    "ThreadId": "30244",
+    "Html": "<p>Trying to store bank account numbers which are &nbsp;16 digits long. Also i cannot get the setBold either to working</p>\r\n<p>$this-&gt;workbook-&gt;getActiveSheet()-&gt;getStyle('A2')-&gt;getFont()-&gt;setBold(true);</p>\r\n<p>But setWidth seems to be working , i doubt whether getStyle even works , i am using excel 2007 format , is there any possible change needed for that.</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-10-13T06:30:06.967-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "245079",
+    "ThreadId": "30244",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>balajee_78 wrote:</strong><br>\r\n<p>Trying to store bank account numbers which are &nbsp;16 digits long. Also i cannot get the setBold either to working</p>\r\n<p>$this-&gt;workbook-&gt;getActiveSheet()-&gt;getStyle('A2')-&gt;getFont()-&gt;setBold(true);</p>\r\n<p>But setWidth seems to be working , i doubt whether getStyle even works , i am using excel 2007 format , is there any possible change needed for that.</p>\r\n<p>&nbsp;</p>\r\n</blockquote>\r\n<p>Search for &quot;Excel 15 digit limitation&quot;<br><br>You have to store those 16-digit bank account numbers as strings. This is probably ok since you probably won't use them as numbers in formulas.</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$excel = <span style=\"color:Blue\">new</span> PHPExcel();\r\n\r\n$worksheet = $excel-&gt;getActiveSheet();\r\n\r\n$worksheet-&gt;getCell(<span style=\"color:#A31515\">'A1'</span>)-&gt;setValueExplicit(<span style=\"color:#A31515\">'1234567890123456'</span>, PHPExcel_Cell_DataType::TYPE_STRING);\r\n$worksheet-&gt;getStyle(<span style=\"color:#A31515\">'A1'</span>)-&gt;getFont()-&gt;setBold(true);\r\n$worksheet-&gt;getStyle(<span style=\"color:#A31515\">'A1'</span>)-&gt;getAlignment()-&gt;setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);\r\n\r\n$worksheet-&gt;getColumndimension(<span style=\"color:#A31515\">'A'</span>)-&gt;setWidth(20);\r\n\r\n$writer = PHPExcel_IOFactory::createWriter($excel, <span style=\"color:#A31515\">'Excel2007'</span>);\r\n$writer-&gt;save(<span style=\"color:#A31515\">'16-digit-string.xlsx'</span>);\r\n</pre>\r\n</div>\r\n<p><a href=\"http://img70.imageshack.us/img70/8443/ss20091013161500.png\"><img src=\"http://img70.imageshack.us/img70/8443/ss20091013161500.th.png\" border=0 alt=\"\"></a></p>\r\n<p><a id=\"ctl00_ctl00_MasterContent_Content_FileAttachmentList_ctl02_FileLink\" href=\"http://phpexcel.codeplex.com/Project/Download/AttachmentDownload.ashx?ProjectName=PHPExcel&WorkItemId=10749&FileAttachmentId=3429\">16-digit-string.xlsx</a></p>",
+    "PostedDate": "2009-10-13T07:21:06.767-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "841669",
+    "ThreadId": "30244",
+    "Html": "<p>I also need to set all the cells in my sheet as \"TEXT\".</p>\r\n<p>&nbsp;</p>\r\n<p>The reason of this, is that users with different locales have to fill out this spreadsheet and send it back. I don't want Excel to format the cells as it usually does in terms of dates, decimal points/comma, etc.</p>\r\n<p>&nbsp;</p>\r\n<p>I just want whatever the user writes to simply stay there, and this can only be achieved when setting all the cells to format -&gt; TEXT.</p>\r\n<p>&nbsp;</p>\r\n<p>Is this possible to do with PHPExcel?</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks!!</p>",
+    "PostedDate": "2012-05-28T07:51:11.587-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "841796",
+    "ThreadId": "30244",
+    "Html": "\r\n<p>Use the setValueExplicit() method: the default dataype argument is PHPExcel_Cell_DataType::TYPE_STRING,</p>\r\n<p>And set the cell number formatting style to PHPExcel_Style_NumberFormat::FORMAT_TEXT</p>\r\n",
+    "PostedDate": "2012-05-28T13:30:10.373-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "842248",
+    "ThreadId": "30244",
+    "Html": "<p>Thanks Mark, I got it working for one cell:</p>\r\n<p>$objPHPExcel-&gt;getActiveSheet()-&gt;getCell('A2')-&gt;setValueExplicit('', PHPExcel_Cell_DataType::TYPE_STRING);<br />$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('A2')-&gt;getNumberFormat()-&gt;setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_TEXT);</p>\r\n<p>How can I apply this format to the whole sheet?</p>",
+    "PostedDate": "2012-05-29T13:07:04.517-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "842297",
+    "ThreadId": "30244",
+    "Html": "\r\n<p>You can apply a default style to the whole workbook:</p>\r\n<div style=\"background-color:white; color:black\">\r\n<pre>$objPHPExcel-&gt;getDefaultStyle()\r\n    -&gt;getNumberFormat()\r\n    -&gt;setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_TEXT);\r\n</pre>\r\n</div>\r\n<p>&nbsp;or you can apply a style to a range of cells in one go:</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(<span style=\"color:#a31515\">'A1:Z26'</span>)\r\n    -&gt;getNumberFormat()\r\n    -&gt;setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_TEXT);\r\n</pre>\r\n</div>\r\n<p><br>\r\nThough you'll still have to set the cell datatype for each cell individually</p>\r\n",
+    "PostedDate": "2012-05-29T14:53:35.223-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "918685",
+    "ThreadId": "30244",
+    "Html": "<p>My data comes from a query so I could not just set the value explicitly. I was able to loop through the cells in the column, first getting the value then setting it explicitly as a string.&nbsp;I don't see why you couldn't loop through the entire sheet - but depending on the size of your report that might not be practical.</p>\r\n<div style=\"color: black; background-color: white;\">\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>$worksheet-&gt;getStyle(<span style=\"color: #a31515;\">'A1:A'</span>.$lastrow)-&gt;getNumberFormat()-&gt;setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_TEXT);\r\n\r\n<span style=\"color: blue;\">for</span> ($row = 1; $row &lt;= $lastrow; $row++) {\r\n$cellval = $worksheet-&gt;getCell(<span style=\"color: #a31515;\">'A'</span>.$row)-&gt;getValue();\r\n$worksheet-&gt;getCell(<span style=\"color: #a31515;\">'A'</span>.$row)-&gt;setValueExplicit($cellval, PHPExcel_Cell_DataType::TYPE_STRING);\r\n}\r\n</pre>\r\n</div>\r\n</div>",
+    "PostedDate": "2012-09-27T12:51:14.327-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

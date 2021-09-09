@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "69372",
+    "ThreadId": "20857",
+    "Html": "\r\nIn writing an Excel5 file, I'm finding out that using this constant: FILL_PATTERN_LIGHTGRID<br />produces a fill defined as: white thin-horz-cross when I save the file as HTML.<br /><br />And one that uses this constant: FILL_PATTERN_LIGHTGRAY<br />produces a fill defined as: white thin-diag-stripe when I save the file as HTML.<br /><br />And using one with the constant: FILL_PATTERN_GRAY125<br />produces a fill defined as: white thin-vert-stripe when I save as HTML.<br /><br />Now, aren't those incorrect?<br /><br />Also, why is there a background color being set at all if I just set the fill type? Shouldn't it be set to Automatic<br />if I do not explicitly set a background color for the cell that contains the pattern?<br />",
+    "PostedDate": "2008-01-22T13:22:27.457-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "69442",
+    "ThreadId": "20857",
+    "Html": "\r\nWhen saving as HTML, not all constants are fully equivalent to their (eventual) HTML markup.<br /><br />Do you have any suggestions for better conversion values in this case?<br />",
+    "PostedDate": "2008-01-22T22:58:06.04-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "69727",
+    "ThreadId": "20857",
+    "Html": "<div class=\"quote\" style=\"border: dotted .1em #aaa; border-left: none; border-right: none; font-style: italic; margin: 1em 0em 2.5em 3em;padding: .2em;\"><br />maartenba wrote:<br />When saving as HTML, not all constants are fully equivalent to their (eventual) HTML markup.<br /><br />Do you have any suggestions for better conversion values in this case?<br /><br /></div><br /><a href=\"http://www.crnorthampton.com/new_site/downloadpcrpt.php?pcmonth=04&amp;pcyear=2008&amp;pcday=21\" class=\"externalLink\">http://www.crnorthampton.com/new_site/downloadpcrpt.php?pcmonth=04&amp;pcyear=2008&amp;pcday=21<span class=\"externalLinkIcon\" style=\"font-family:Consolas, Courier New, Courier, Monospace;\"></span></a><br /><br />It doesn't matter if it is saved to HTML or not, the values placed in the file are  incorrect because it shows incorrectly, even in Excel.<br />I only saved in HTML so I could see the actual values being used in the file.<br /><br />If I open the Format-&gt;Cells-&gt;Pattern dialog the values do not correspond to the settings that I created the file with.<br />Here's a screenshot: (Excel5 format file opened in Excel2003, opened with cell A9 selected)<br /><a href=\"http://www.crnorthampton.com/new_site/PHPExcel_Fills.png\" class=\"externalLink\">http://www.crnorthampton.com/new_site/PHPExcel_Fills.png<span class=\"externalLinkIcon\" style=\"font-family:Consolas, Courier New, Courier, Monospace;\"></span></a><br /><br />I'm doing this to alternate the row fill:<br /><br />  $fill= $i % 2 ? PHPExcel<i>Style</i>Fill::FILL<i>PATTERN</i>GRAY125 : PHPExcel<i>Style</i>Fill::FILL_NONE;<br /><br />  and later, using it:<br /><br />      $objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(\"A\".$row)-&gt;getFill()-&gt;setFillType($fill);<br />      $objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(\"B\".$row)-&gt;getFill()-&gt;setFillType($fill);<br />      $objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(\"C\".$row)-&gt;getFill()-&gt;setFillType($fill);<br />      $objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(\"D\".$row)-&gt;getFill()-&gt;setFillType($fill);<br />      $objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(\"E\".$row)-&gt;getFill()-&gt;setFillType($fill);<br /><br />Also, why would a background color be being assigned for the Pattern? Should be set to Automatic. (When you <br />dropdown the Patterns combo, see the color selection)<br /><br />Here is the Biff5 chart for patterns<br /><a href=\"http://www.crnorthampton.com/new_site/Biff5_2.5.12.png\" class=\"externalLink\">http://www.crnorthampton.com/new_site/Biff5_2.5.12.png<span class=\"externalLinkIcon\" style=\"font-family:Consolas, Courier New, Courier, Monospace;\"></span></a><br /><br />The one I want is value 12h<br />",
+    "PostedDate": "2008-01-24T06:52:26.897-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "69765",
+    "ThreadId": "20857",
+    "Html": "<div class=\"quote\" style=\"border: dotted .1em #aaa; border-left: none; border-right: none; font-style: italic; margin: 1em 0em 2.5em 3em;padding: .2em;\"><br />MrBaseball34 wrote:<br />&lt;SNIP&gt;<br />Also, why would a background color be being assigned for the Pattern? Should be set to Automatic. (When you <br />dropdown the Patterns combo, see the color selection)<br /><br />Here is the Biff5 chart for patterns<br /><a href=\"http://www.crnorthampton.com/new_site/Biff5_2.5.12.png\" class=\"externalLink\">http://www.crnorthampton.com/new_site/Biff5_2.5.12.png<span class=\"externalLinkIcon\" style=\"font-family:Consolas, Courier New, Courier, Monospace;\"></span></a><br /><br />The one I want is value 12h<br /><br /></div><br />Ok, I've had a change of heart and done this instead:<br /><br />      $fill   = $i % 2 ? PHPExcel<i>Style</i>Fill::FILL<i>SOLID : PHPExcel</i>Style<i>Fill::FILL</i>NONE;<br />      $color  = $i % 2 ?  '00E0E0E0' : 'FFFFFFFF';<br /><br />      $objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(\"A\".$row)-&gt;getFill()-&gt;setFillType($fill);<br />      $objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(\"A\".$row)-&gt;getFill()-&gt;getStartColor()-&gt;setARGB($color);<br />      $objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(\"B\".$row)-&gt;getFill()-&gt;setFillType($fill);<br />      $objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(\"B\".$row)-&gt;getFill()-&gt;getStartColor()-&gt;setARGB($color);<br />      $objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(\"C\".$row)-&gt;getFill()-&gt;setFillType($fill);<br />      $objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(\"C\".$row)-&gt;getFill()-&gt;getStartColor()-&gt;setARGB($color);<br />      $objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(\"D\".$row)-&gt;getFill()-&gt;setFillType($fill);<br />      $objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(\"D\".$row)-&gt;getFill()-&gt;getStartColor()-&gt;setARGB($color);<br />      $objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(\"E\".$row)-&gt;getFill()-&gt;setFillType($fill);<br />      $objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(\"E\".$row)-&gt;getFill()-&gt;getStartColor()-&gt;setARGB($color);<br />",
+    "PostedDate": "2008-01-24T08:33:17.903-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

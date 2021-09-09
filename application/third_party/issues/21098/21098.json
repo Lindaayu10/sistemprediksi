@@ -1,0 +1,50 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "How can I fix it? Thanks!\n\nCatchable fatal error: Argument 1 passed to PHPExcel_Style::setFont() must be an instance of PHPExcel_Style_Font, null given, called in",
+    "LastUpdatedDate": "2014-06-24T05:02:59.143-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2014-06-23T09:15:40.903-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Catchable fatal error: Argument 1 passed to PHPExcel_Style::setFont()",
+    "Type": {
+      "Name": "Unassigned",
+      "Id": 5
+    },
+    "VoteCount": 2,
+    "Id": 21098
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "Same here..\r\n\r\nhappens in this line:\r\n\r\n$objPHPExcel = $objReader->load($_FILES['file']['tmp_name']);\r\n\r\nAnd yes, its passing the file fine, with CSV files is normal, but with XLS happens the same ",
+      "PostedDate": "2014-06-24T04:53:52.52-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Ok, nvm.. its working now\r\n\r\nhere is my code\r\n\r\n```\n<form action=\"\" method=\"post\" enctype=\"multipart/form-data\" name=\"form1\" id=\"form1\"> \n  Importe o arquivo <br /> \n  <input name=\"file\" type=\"file\" id=\"file\" /> \n  <input type=\"submit\" name=\"Submit\" value=\"Submit\" /> \n</form> \r\n\r\n<?php\nini_set('max_execution_time', 10); //1200 no minimo\r\n\r\n$host='localhost';\n$user='root';\n$pass='';\n$DataBase='emailmarketing';\n$tabela='email';\r\n\r\n$Link=@mysqli_connect($host,$user,$pass,$DataBase) or die('Can\\'t connect ! aa\t '.mysqli_error($Link));\nmysqli_set_charset($Link, 'utf8');\r\n\r\nrequire_once 'phpexcel/PHPExcel/IOFactory.php';\nrequire_once 'phpexcel/PHPExcel.php';\r\n\r\nif ($_FILES['file']['name'] == \"\")\n\texit();\nelse{\n$inputFileName = $_FILES['file']['tmp_name'];\r\n\r\ntry {\n    $inputFileType = PHPExcel_IOFactory::identify($inputFileName);\n    $objReader = PHPExcel_IOFactory::createReader($inputFileType);\n\t$objReader->setReadDataOnly(true);\n\tif($inputFileType == 'CSV')\n\t $objReader->setDelimiter(\";\");\n    $objPHPExcel = $objReader->load($inputFileName);\n} catch (Exception $e) {\n    die('Error loading file \"' . pathinfo($inputFileName, PATHINFO_BASENAME) \n    . '\": ' . $e->getMessage());\n}\n//$objPHPExcel = $objReader->load($_FILES['file']['tmp_name']);\r\n\r\necho \"chgou aqui\";\n//echo date('H:i:s') , \" Iterate worksheets\" , \"<br>\";\nforeach ($objPHPExcel->getWorksheetIterator() as $worksheet) {\n\techo 'Worksheet - ' , $worksheet->getTitle() , \"<br>\";\r\n\r\n\tforeach ($worksheet->getRowIterator() as $row) {\n\t\techo '    Row number - ' , $row->getRowIndex() , \"<br>\";\r\n\r\n\t\t$cellIterator = $row->getCellIterator();\n\t\t$cellIterator->setIterateOnlyExistingCells(false); // Loop all cells, even if it is not set\n\t\t$i = 0;\n\t\tif(strlen($dado[2])>5){\n\t\techo \"Nome: \".$dado[1].\" - Email: \".$dado[2].\"<br>\";\n\t\t$SQL=\"INSERT INTO `emailmarketing`.`email` (`nome`, `email`) VALUES ('\".$dado[1].\"', '\".$dado[2].\"');\";\n\t\t//mysqli_query($Link, $SQL);\n\t\t}\n\t\tforeach ($cellIterator as $cell) {\n\t\t\tif (!is_null($cell)) {\n\t\t\t\techo 'Index: '.$i.' Cell - ' , $cell->getCoordinate() , ' - ' , $cell->getCalculatedValue() , \"<br>\";\n\t\t\t\t$dado[$i] = $cell->getCalculatedValue();\n\t\t\t\t$i++;\n\t\t\t}\n\t\t}\n\t}\n}\r\n\r\n\n// Echo memory peak usage\necho date('H:i:s') , \" Peak memory usage: \" , (memory_get_peak_usage(true) / 1024 / 1024) , \" MB\" , \"<br>\";\n}\n?>\n```",
+      "PostedDate": "2014-06-24T05:02:59.143-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

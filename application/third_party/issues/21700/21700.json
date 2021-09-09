@@ -1,0 +1,86 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "No! Using\n```\n$flightDate = PHPExcel_Shared_Date::ExcelToPHPObject($flightDate)->format($formatDate);\n```\nwould be using a PHP DateTime object",
+    "ClosedDate": "2015-04-06T02:16:33.343-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hello!\n\nToday I found interesting issue. If I set date to '29.01.2037' in xls-file - it change to sring-date correctly by this function:\n\n$var = date($formatDate, PHPExcel_Shared_Date::ExcelToPHP($myDate));\n\nInitial value from xls is 50069.\n\nBut if I set date to '29.01.2038' - date becomes '24.12.1901'. Initial value 50434.\n\nCan you fix this problem?\n\nScreen from FF firebug in attach.",
+    "LastUpdatedDate": "2015-04-06T02:16:33.343-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2015-01-29T18:21:13.563-08:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "2038 year",
+    "Type": {
+      "Name": "Unassigned",
+      "Id": 5
+    },
+    "VoteCount": 1,
+    "Id": 21700
+  },
+  "FileAttachments": [
+    {
+      "FileId": 8818,
+      "FileName": "dates.JPG",
+      "DownloadUrl": ".\\8818"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "MS Excel can handle a large date range (from 1900 or 1904 onwards) but PHP can't if you're using unix timestamps on a 32-bit version of PHP. If you're running a 64-bit version of PHP, or you're using PHP DateTime objects, then you should have no issues.\r\n\r\nYou don't say how you're manipulating your dates on the PHP side (outside of PHPExcel) but I'd guess you're using the unix timestamp on a 32-bit version of PHP.",
+      "PostedDate": "2015-01-30T00:09:17.577-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2015-01-30T00:10:07.947-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I use DateTime object.\r\n\r\nExample:\r\n\r\nif(PHPExcel_Shared_Date::isDateTime($cell_f)) {\n    $flightDate = date($formatDate, PHPExcel_Shared_Date::ExcelToPHP($flightDate));\n    $date_file = date_create_from_format('d.m.Y', $flightDate);\n}\r\n\r\nAnd I use x86 PHP version:\nhttps://www.dropbox.com/s/7dkbezm04x6xtwo/phpinfo_windows.htm?dl=0",
+      "PostedDate": "2015-03-19T00:21:54.647-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I'll repeat, this is not a PHPExcel issue.\r\n\r\nIf you need to work with dates outside the range of a standard 32-but unix timestamp, then either you need to run a 64-bit version of PHP, or you need to use PHP's DateTime objects.\r\n\r\nPHPExcel itself uses DateTime objects internally so that it can handle a full range of dates",
+      "PostedDate": "2015-03-19T01:12:30.94-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Switch to using DateTime objects if you're working with dates outside the 32-bit range of a unix timestamp, or switch to 64-bit PHP\n\n** Closed by MarkBaker 30.01.2015 0:10",
+      "PostedDate": "2015-04-05T23:00:47.587-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2015-04-05T23:00:47.903-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": ">you need to run a 64-bit version of PHP, or you need to use PHP's DateTime objects. \r\n\r\nBut I use DateTime object as I described higher in my code example.\r\n\r\ndate_create_from_format — Alias of DateTime::createFromFormat()\r\n\r\nSee:\nhttp://php.net/manual/ru/function.date-create-from-format.php",
+      "PostedDate": "2015-04-05T23:01:15.753-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2015-04-06T02:16:33.343-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

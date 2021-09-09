@@ -1,0 +1,120 @@
+<?php
+
+ini_set("memory_limit","256M");
+
+
+/** PHPExcel_IOFactory */
+include 'phpExcel/Classes/PHPExcel/IOFactory.php';
+require 'connect.php';
+require_once 'phpExcel/Classes/PHPExcel.php';
+$today = date("Ymd-his");
+
+
+
+ini_set("memory_limit","256M");
+
+
+$today = date("Ymd-his");
+
+ 
+// redirect output to client browser
+header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+header("Content-Disposition: attachment;filename=good_$today.xlsx");
+header('Cache-Control: max-age=0');
+
+
+
+ $tempfile = "tempsca.csv";
+//We nead to know what is used to delimit the csv file 
+$delimiter = ',';
+
+
+
+
+$objReader = PHPExcel_IOFactory::createReader('CSV');
+
+$objReader->setDelimiter($delimiter); 
+$objReader->setEnclosure("");
+$objReader->setLineEnding("\r\n");
+$objReader->setSheetIndex(0);
+$objPHPExcel = $objReader->load($tempfile);
+
+
+//Put an auto filter on the data
+$objPHPExcel->getActiveSheet()->setAutoFilter('A1:' . $objPHPExcel->getActiveSheet()->getHighestColumn() . $objPHPExcel->getActiveSheet()->getHighestRow() );
+
+
+//set the width of the columns
+
+$objPHPExcel->getActiveSheet()->getColumnDimension('A')->setWidth(12);//We will put a title in this colunm, so setting the width explicitly
+
+$highestColumn = $objPHPExcel->getActiveSheet()->getHighestColumn(); //e.g., 'V'
+$highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn); //e.g., 21
+
+for($column =1; $column < $highestColumnIndex; $column++) //start from 1 as columns are 0 indexed, but we dont want to change the first row which we have already set explicitly
+{
+$objPHPExcel->getActiveSheet()->getColumnDimension(PHPExcel_Cell::stringFromColumnIndex($column))->setAutoSize(true);
+}
+
+
+//-----Put in some formatting to the table data to make it easer to read-----
+
+$highestRow = $objPHPExcel->getActiveSheet()->getHighestRow();
+//$highestRow = 56;
+$highestColumn = $objPHPExcel->getActiveSheet()->getHighestColumn();
+$objPHPExcel->getActiveSheet()->insertNewRowBefore($highestRow + 1, 1);//Add one more row as a footer to the table
+
+//set heading row to bold and put a border on the top and bottom rows
+$objPHPExcel->getActiveSheet()->getStyle('A1')->getFont()->setBold(true);
+$objPHPExcel->getActiveSheet()->getStyle('A1')->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+$objPHPExcel->getActiveSheet()->getStyle('A' . ($highestRow + 1) )->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+
+
+//-----Conditionals Processing -----
+$objConditional1 = new PHPExcel_Style_Conditional();
+$objConditional1->setConditionType(PHPExcel_Style_Conditional::CONDITION_CELLIS);
+$objConditional1->setOperatorType(PHPExcel_Style_Conditional::OPERATOR_EQUAL);
+$objConditional1->setCondition('1');
+$objConditional1->getStyle()->getFill()->getStartColor()->setARGB(PHPExcel_Style_Color::COLOR_YELLOW);
+$objConditional1->getStyle()->getFont()->setBold(true);
+$objConditional1->getStyle()->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
+$objConditional1->getStyle()->getFill()->getStartColor()->setARGB(PHPExcel_Style_Color::COLOR_YELLOW);
+$objConditional1->getStyle()->getFill()->getEndColor()->setARGB(PHPExcel_Style_Color::COLOR_YELLOW);
+
+//Loop through all of the rows and put in fill and borders on the edges
+for($row =1; $row<$highestRow + 3; $row++)
+//for($row =1; $row<$highestRow + 2; $row++)
+{
+
+
+//Set the colors, mid blue/grey for the top and bottom rows, with alternating white and light blue/grey
+if ($row == 1 || $row ==$highestRow + 1) $color = 'FFCFDAE7'; 
+else if ($row%2==0) $color = 'FFFFFFFF';
+        else $color = 'FFE7EDF5';
+
+ // set the fill type and apply the color
+$objPHPExcel->getActiveSheet()->getStyle('A' . $row)->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
+$objPHPExcel->getActiveSheet()->getStyle('A' . $row)->getFill()->getStartColor()->setARGB($color);
+
+//duplcate the first cells style (fill plus the top and bottom borders) across the whole row
+$objPHPExcel->getActiveSheet()->duplicateStyle( $objPHPExcel->getActiveSheet()->getStyle('A' . $row), 'B' . $row . ':'. $highestColumn . $row); //copy style set in first column to the rest of the row
+
+//Put some borders on the far left and right cells of the row
+$objPHPExcel->getActiveSheet()->getStyle('A' . $row )->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+$objPHPExcel->getActiveSheet()->getStyle('V' . $row )->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+
+$conditionalStyles = $objPHPExcel->getActiveSheet()->getStyle('E' . $row)->getConditionalStyles();
+array_push($conditionalStyles, $objConditional1);
+$objPHPExcel->getActiveSheet()->getStyle('E' . $row)->setConditionalStyles($conditionalStyles);
+}
+
+
+
+
+
+//-----Create a Writer and output the file to the browser-----
+$objWriter2007 = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+$objWriter2007->save('php://output'); 
+
+exit;
+?>

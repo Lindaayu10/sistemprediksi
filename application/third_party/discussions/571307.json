@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "1319166",
+    "ThreadId": "571307",
+    "Html": "Looking for any advice to spped up processing time.\r<br />\n<br />\nI've got a 23mb .xls file, 33 columns, ~ 49,000 rows.\r<br />\n<br />\nI used the following snipped to read it in chunks so I'm not getting a timeout error anymore, but processing time is still extrodinarily slow. for chunks of 1024, it's taking ~ 20 seconds per chunk.<br />\n<div style=\"color:Black;background-color:White;\"><pre>\r\n    <span style=\"color:Green;\">/**  Create a new Reader of the type defined in $inputFileType  **/</span> \n$objReader = PHPExcel_IOFactory::createReader(<span style=\"color:#A31515;\">&#39;Excel5&#39;</span>); \n\n<span style=\"color:Green;\">/**  Define how many rows we want to read for each &quot;chunk&quot;  **/</span> \n$chunkSize = 1024; \n<span style=\"color:Green;\">/**  Create a new Instance of our Read Filter  **/</span> \n$chunkFilter = <span style=\"color:Blue;\">new</span> ChunkReadFilter(); \n\n<span style=\"color:Green;\">/**  Tell the Reader that we want to use the Read Filter  **/</span> \n$objReader-&gt;setReadFilter($chunkFilter); \n\n    $x = <span style=\"color:Blue;\">new</span> \\DateTime();\n    <span style=\"color:Blue;\">echo</span> $x-&gt;format(<span style=\"color:#A31515;\">&#39;H:i:s&#39;</span>).<span style=\"color:#A31515;\">&quot;\\n&quot;</span>; \n<span style=\"color:Green;\">/**  Loop to read our worksheet in &quot;chunk size&quot; blocks  **/</span> \n<span style=\"color:Blue;\">for</span> ($startRow = 2; $startRow &lt;= 65536; $startRow += $chunkSize) { \n    <span style=\"color:Green;\">/**  Tell the Read Filter which rows we want this iteration  **/</span> \n    $chunkFilter-&gt;setRows($startRow,$chunkSize); \n    <span style=\"color:Green;\">/**  Load only the rows that match our filter  **/</span> \n    $objPHPExcel = $objReader-&gt;load($this-&gt;importDir.$fileName); \n    <span style=\"color:Green;\">//    Do some processing here</span>\n    var_dump($chunkSize);\n    $x = <span style=\"color:Blue;\">new</span> \\DateTime();\n    <span style=\"color:Blue;\">echo</span> $x-&gt;format(<span style=\"color:#A31515;\">&#39;H:i:s&#39;</span>).<span style=\"color:#A31515;\">&quot;\\n&quot;</span>; \n\r\n</pre></div>Is there anything that can be done to speed up the process?\r<br />\n<br />\na) does phpexcel support opcache?\r<br />\nb) would switching to it benefit at all?<br />\n",
+    "PostedDate": "2014-11-04T14:58:56.92-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1319173",
+    "ThreadId": "571307",
+    "Html": "If you're using OpCache, it doesn't care one way or another what PHP code you're running, it simply works.... it's simply a bytecode cache. It saves on the parsing time for the code, and will work with any PHP code..... nothing special is required in that code for it to work with OpCache, so PHPExcel doesn't need to support OpCache, OpCache will simply work with it in the same way that OpCache works with any PHP script.\r<br />\n<br />\nUsing read chunking will slow down your code. Read chunking is a method to reduce memory consumption of PHPExcel by loading only part of the spreadsheet into memory rather than all of it in one go, but at a cost in speed. If you can read the entire workbook into memory in one go, it will be faster. If you don't have enough memory to load it all in one go, then work with the largest chunk size that you can hold in memory so that it uses fewer iterations of the chunking<br />\n",
+    "PostedDate": "2014-11-04T15:25:07.133-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

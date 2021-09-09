@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "445291",
+    "ThreadId": "213270",
+    "Html": "<p>Hello,</p>\r\n<p>&nbsp;</p>\r\n<p>we have a curious problem with a simple graphic in Excel 2003:</p>\r\n<p>1. Step: Creation of an Excel document with a DropDown and a graphic:&nbsp; (2010_05_20_muster_kalibrierung.xls / Screenshot: 2010_05_20_original.jpg).</p>\r\n<p>2. Step: Run the code:&nbsp;&nbsp;&nbsp;\r\n<div style=\"color:black;background-color:white\">\r\n<pre>\t<div style=\"color:black;background-color:white\"><pre><span style=\"color:blue\">include_once</span>(<span style=\"color:#a31515\">'class/PHPExcel/Classes/PHPExcel/IOFactory.php'</span>);\r\n<span style=\"color:blue\">include_once</span>(<span style=\"color:#a31515\">'class/PHPExcel/Classes/PHPExcel/IOFactory.php'</span>);\r\n<span style=\"color:blue\">include</span> <span style=\"color:#a31515\">'class/PHPExcel/Classes/PHPExcel/Writer/Excel2007.php'</span>;\r\n<span style=\"color:blue\">include</span> <span style=\"color:#a31515\">'class/PHPExcel/Classes/PHPExcel/Writer/Excel5.php'</span>;\r\n<span style=\"color:blue\">include</span> <span style=\"color:#a31515\">'class/PHPExcel/Classes/PHPExcel/Reader/Excel2007.php'</span>;\r\n\r\n$objReader = <span style=\"color:blue\">new</span> PHPExcel_Reader_Excel5();\r\n$objPHPExcel = $objReader-&gt;load(<span style=\"color:#a31515\">&quot;2010_05_20_muster_kalibrierung.xls&quot;</span>);\r\n$objPHPExcel-&gt;setActiveSheetIndex(0);\r\n\r\n$tempfile = <span style=\"color:#a31515\">&quot;2010_05_20_29032010_copy.xls&quot;</span>;\r\n\r\n<span style=\"color:blue\">try</span> { $objWriter = <span style=\"color:blue\">new</span> PHPExcel_Writer_Excel5($objPHPExcel);\r\n$objWriter-&gt;save($tempfile);\r\n\r\n}\r\n<span style=\"color:blue\">catch</span>(Exception $exc)\r\n{\r\n<span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">&quot;&lt;br&gt;&quot;</span>.$exc;\r\n<span style=\"color:blue\">die</span>();\r\n}\r\n</pre>\r\n</div>\r\n</pre>\r\n</div>\r\n</p>\r\n<p>&nbsp;</p>\r\n<p>The generated file:&nbsp; 2010_05_20_29032010_copy.xls</p>\r\n<p>&nbsp;</p>\r\n<p>Step 3: Open this generatet file: Anything works great! (Screenshot: 2010_05_20_edit.jpg)</p>\r\n<p>Step 4: Change something in the document (for example change the value of the DropDown and put something another cell)</p>\r\n<p>Step 5: Save this file as 2010_05_20_29032010_copy_2.xls</p>\r\n<p>Step 6: Open 2010_05_20_29032010_copy_2.xls:</p>\r\n<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Now happens some curious effects: If we want to change the value of the DropDown field, the graphic jumps into the DropDown Field. (Screenshot: 2010_05_20_edit2.jpg)</p>\r\n<p>&nbsp;</p>\r\n<p>All this happens if we work with Excel 2003, with Excel2007 it seems that we have no problem at all.</p>\r\n<p>&nbsp;</p>\r\n<p>This effect appears only if we open the document and save it with the PHPExcel_Writer/PHPExcel_Reader</p>\r\n<p>&nbsp;</p>\r\n<p>Please can you check the code or the class if there is anything false.</p>\r\n<p>&nbsp;</p>\r\n<p>All documents/screenshots you can find under: http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10749</p>\r\n<p>&nbsp;</p>\r\n<p>Thank you very much.</p>\r\n<p>&nbsp;</p>\r\n<p>Best regards,</p>\r\n<p>Florian</p>",
+    "PostedDate": "2010-05-20T01:24:53.387-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "451158",
+    "ThreadId": "213270",
+    "Html": "<p>Very strange. I can verify this. I will start running some tests now.</p>",
+    "PostedDate": "2010-06-03T05:30:50.843-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "452006",
+    "ThreadId": "213270",
+    "Html": "<p>Error may have been located.</p>\r\n<p>Look at this file which behaves ok in Microsoft Office Excel 2003:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/Project/Download/AttachmentDownload.ashx?ProjectName=PHPExcel&WorkItemId=10749&FileAttachmentId=4527\">2010_05_20_29032010_copy_2_edited.xls</a></p>\r\n<p>It is the same as 2010_05_20_29032010_copy_2.xls (the buggy one), only thing I changed was one byte at address 0x000009aa in the binary file.<br>01 ---&gt; 02</p>\r\n<p>It is within the msofbtDgg (0xF006) record in MSODRAWINGGROUP. Excel5 writer is apparently not writing it correctly. I am looking for a fix.</p>",
+    "PostedDate": "2010-06-05T08:39:03.24-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "452083",
+    "ThreadId": "213270",
+    "Html": "<p>Work item created:<br><a href=\"http://phpexcel.codeplex.com/workitem/13455\">http://phpexcel.codeplex.com/workitem/13455</a></p>\r\n<p>I think it is fixed now. Please try to run your tests again with latest source code.</p>",
+    "PostedDate": "2010-06-05T17:45:19.99-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

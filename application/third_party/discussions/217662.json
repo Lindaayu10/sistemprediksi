@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "460957",
+    "ThreadId": "217662",
+    "Html": "<p>Hello PHPExcel Developer Team,</p>\r\n<p>&nbsp;</p>\r\n<p>i want to convert some data from grid to excel</p>\r\n<p>on my grid i have a column that it's filled a date data</p>\r\n<p>&nbsp;</p>\r\n<p>when i convert to excel , i see the format cell not work</p>\r\n<p>example : i have data Jun 29,2010 when i convert to excel that format cell should be like mmm dd,yyyy. but it didn't work</p>\r\n<p>it's work when i double click that cell (value has been change to Jun 29,2010 from 2010/06/29)</p>\r\n<p>&nbsp;</p>\r\n<p>my code like that :</p>\r\n<p>&nbsp;&nbsp;&nbsp; for($i=0;$i&lt;count($KdCompln);$i++) {&nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('A'.$rowC)-&gt;getNumberFormat()-&gt;setFormatCode('@');<br>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow(0,$rowC,$KdCompln[$i]);<br>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('B'.$rowC)-&gt;getNumberFormat()-&gt;setFormatCode('mmm dd,yyyy');<br>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow(1,$rowC,date(&quot;Y/m/d&quot;,strtotime($DateCompln[$i])));<br>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('C'.$rowC.':'.chr(64+count($headerwidth)).$rowC)-&gt;getNumberFormat()-&gt;setFormatCode('@');<br>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow(2,$rowC,$UserGrid[$i]);<br>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow(3,$rowC,$CustName[$i]);<br>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow(4,$rowC,$Contact[$i]);<br>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow(5,$rowC,$Menu[$i]);<br>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow(6,$rowC,$Desc[$i]);<br>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$rowC++;<br>&nbsp;&nbsp; &nbsp;}</p>\r\n<p>&nbsp;</p>\r\n<p>in that code i convert value to yyyy/mm/dd&nbsp; from grid</p>\r\n<p>in the excel cell i got yyyy/mm/dd format, when i double click the cell it has been mmm dd,yyyy format</p>\r\n<p>&nbsp;</p>\r\n<p>that is a bug or my code has wrong?</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>Best Regards,</p>\r\n<p>zenixgrace</p>",
+    "PostedDate": "2010-06-28T21:11:29.717-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "461028",
+    "ThreadId": "217662",
+    "Html": "<p>If this</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow(1,$rowC,date(<span style=\"color:#a31515\">&quot;Y/m/d&quot;</span>,strtotime($DateCompln[$i])));\r\n</pre>\r\n</div>\r\n<p>is where you're setting the date value for the cell, then you need to change it and set an Excel date. What you're doing here is setting the cell to be a string containing &quot;2010/06/29&quot;.</p>\r\n<p>Excel holds dates as a positive floating point numeric value, the number of days since 1st January 1900, with the fractional part representing the time. PHP holds dates as a signed&nbsp;integer value, the number of seconds since/before January 1 1970 00:00:00 GMT, or as a SateTime object. When storing a value to be used as a date using PHPExcel, you need to store the numeric value that Excel will recognise: when reading a date from Excel, you need to convert it to a PHP date/timestamp or DateTime object. Functions to perform these conversions are built into the PHPExcel_Shared_Date class.</p>\r\n<p>PHPExcel_Shared_Date::ExcelToPHP($excelDate)</p>\r\n<p>PHPExcel_Shared_Date::ExcelToPHPObject($excelDate)</p>\r\n<p>PHPExcel_Shared_Date::PHPToExcel($PHPDate)</p>\r\n<p>PHPExcel_Shared_Date::FormattedPHPToExcel($year, $month, $day, $hours=0, $minutes=0, $seconds=0)</p>",
+    "PostedDate": "2010-06-29T01:13:07.963-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "461116",
+    "ThreadId": "217662",
+    "Html": "<p>thank you for ur explanation mark</p>\r\n<p>i solved my problem..</p>\r\n<p>i'm used use PHPExcel_Shared_Date::stringToExcel() and it's work fineee...</p>\r\n<p>&nbsp;</p>\r\n<p>i have one problem again ..</p>\r\n<p>when i set the print area, print area show on excel after i'm klik print preview on excel</p>\r\n<p>that is a bug sir?</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>once again thanks for ur explanation sir,</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>Best Regards,</p>\r\n<p>zenixgrace</p>",
+    "PostedDate": "2010-06-29T04:20:48.433-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

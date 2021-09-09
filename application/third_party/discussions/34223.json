@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "113470",
+    "ThreadId": "34223",
+    "Html": "Hy, <br>\r\n<br>\r\nstupid question from buddy user:<br>\r\n<br>\r\n&quot;how I can create a symple XML file and download it onfly?&quot;<br>\r\n<br>\r\nI've try to use the header properties but the test code generate the file on the server.<br>\r\n<br>\r\nSomoeon can help me?<br>\r\n",
+    "PostedDate": "2008-08-25T08:30:51.893-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "113481",
+    "ThreadId": "34223",
+    "Html": "Do you mean XML? Or Excel?<br>\r\n",
+    "PostedDate": "2008-08-25T08:46:11.873-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "113487",
+    "ThreadId": "34223",
+    "Html": "Sorry, I have a php script to generate an html table. <br>\r\nI need to export this table, both text and images, on a xls file (office 2000).<br>\r\nI I simply use the mime info i can open the html table in xls, but i can't insert images. I need to use PHPExcell componet for the images.<br>\r\nI know VERY little XML an Excel!<br>\r\n",
+    "PostedDate": "2008-08-25T09:02:00.037-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "113527",
+    "ThreadId": "34223",
+    "Html": "So you are using the Excel5 writer? Maybe you need to show us some of you code. What is it that is not working?<br>\r\n",
+    "PostedDate": "2008-08-25T10:44:57.107-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "113695",
+    "ThreadId": "34223",
+    "Html": "I'm using the test file 05featuredemo.php.&nbsp; I see it' call an inc. file for build data, the 05featuredemo.php file just write the file on disk.<br>\r\n<br>\r\nI want to change it for download the file without writing it.<br>\r\n<br>\r\nthe 05featuredemo.php code:<br>\r\n<br>\r\n<blockquote>include &quot;05featuredemo.inc.php&quot;;\r\n<br>\r\n&nbsp;<br>\r\n/** PHPExcel_IOFactory */\r\n<br>\r\ninclude 'PHPExcel/IOFactory.php';\r\n<br>\r\n&nbsp;<br>\r\n// Save Excel 2007 file\r\n<br>\r\necho date('H:i:s') . &quot; Write to Excel2007 format\\n&quot;;\r\n<br>\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');\r\n<br>\r\n$objWriter-&gt;save(str_replace('.php', '.xlsx', __FILE__));\r\n<br>\r\n&nbsp;<br>\r\n// Echo memory peak usage\r\n<br>\r\necho date('H:i:s') . &quot; Peak memory usage: &quot; . (memory_get_peak_usage(true) / 1024 / 1024) . &quot; MB\\r\\n&quot;;\r\n<br>\r\n&nbsp;<br>\r\n// Echo done\r\n<br>\r\necho date('H:i:s') . &quot; Done writing file.\\r\\n&quot;;<br>\r\n<br>\r\n</blockquote>The generator code in the inc file is easy to understand, wat I don't know an I don't understand from the documentation is how to put the component output to the browser.<br>\r\n<br>\r\nThanks!<br>\r\n",
+    "PostedDate": "2008-08-26T00:22:01.813-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "113706",
+    "ThreadId": "34223",
+    "Html": "I'm try to use:<br>\r\n<br>\r\n<blockquote>header(&quot;Pragma: public&quot;);<br>\r\nheader(&quot;Expires: 0&quot;);<br>\r\nheader(&quot;Cache-Control: must-revalidate, post-check=0, pre-check=0&quot;); <br>\r\nheader(&quot;Content-Type: application/force-download&quot;);<br>\r\nheader(&quot;Content-Type: application/octet-stream&quot;);<br>\r\nheader(&quot;Content-Type: application/download&quot;);<br>\r\nheader(&quot;Content-Disposition: attachment;filename=prova.xlsx&quot;); <br>\r\nheader(&quot;Content-Transfer-Encoding: binary &quot;);<br>\r\n<br>\r\n//some function to generate the xls//<br>\r\n<br>\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');<br>\r\n$objWriter-&gt;save(&quot;php://output&quot;);<br>\r\n</blockquote>I can download the file but i can't read it. In the file properties i see &quot;application/download&quot; filetype, if I opentit in OpenOffice Calc I see a blank spreadsheet whit the first cell A1 called &quot;HTML_all&quot;...<br>\r\n<br>\r\n",
+    "PostedDate": "2008-08-26T01:26:14.673-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "113726",
+    "ThreadId": "34223",
+    "Html": "woah! I'ved fix:<br>\r\n<br>\r\n<blockquote>header(&quot;Pragma: public&quot;);<br>\r\nheader(&quot;Expires: 0&quot;);<br>\r\nheader(&quot;Cache-Control: must-revalidate, post-check=0, pre-check=0&quot;); <br>\r\nheader(&quot;Content-Type: application/force-download&quot;);<br>\r\nheader(&quot;Content-Type: application/octet-stream&quot;);<br>\r\n<strong>header(&quot;Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet&quot;);</strong><br>\r\nheader(&quot;Content-Disposition: attachment;filename=prova.xlsx&quot;); <br>\r\nheader(&quot;Content-Transfer-Encoding: binary &quot;);<br>\r\n<br>\r\n<br>\r\n/** Error reporting */<br>\r\nerror_reporting(E_ALL);<br>\r\n<br>\r\n/** Include path **/<br>\r\nset_include_path('/PHPExcell/Classes/');<br>\r\n/** PHPExcel */<br>\r\ninclude 'PHPExcel.php';<br>\r\n<br>\r\n/** PHPExcel_IOFactory */<br>\r\ninclude 'PHPExcel/IOFactory.php';<br>\r\n<br>\r\n// Create new PHPExcel object<br>\r\n$objPHPExcel = new PHPExcel();<br>\r\n<br>\r\n// Set properties<br>\r\n$objPHPExcel-&gt;getProperties()-&gt;setCreator(&quot;Maarten Balliauw&quot;);<br>\r\n$objPHPExcel-&gt;getProperties()-&gt;setLastModifiedBy(&quot;Maarten Balliauw&quot;);<br>\r\n$objPHPExcel-&gt;getProperties()-&gt;setTitle(&quot;Office 2007 XLSX Test Document&quot;);<br>\r\n$objPHPExcel-&gt;getProperties()-&gt;setSubject(&quot;Office 2007 XLSX Test Document&quot;);<br>\r\n$objPHPExcel-&gt;getProperties()-&gt;setDescription(&quot;Test document for Office 2007 XLSX, generated using PHP classes.&quot;);<br>\r\n$objPHPExcel-&gt;getProperties()-&gt;setKeywords(&quot;office 2007 openxml php&quot;);<br>\r\n$objPHPExcel-&gt;getProperties()-&gt;setCategory(&quot;Test result file&quot;);<br>\r\n<br>\r\n<br>\r\n// Add some data<br>\r\n$objPHPExcel-&gt;setActiveSheetIndex(0);<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('A1', 'Hello');<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('B2', 'world!');<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('C1', 'Hello');<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('D2', 'world!');<br>\r\n<br>\r\n// Add a drawing to the worksheet<br>\r\n//echo date('H:i:s') . &quot; Add a drawing to the worksheet\\n&quot;;<br>\r\n$objDrawing = new PHPExcel_Worksheet_Drawing();<br>\r\n$objDrawing-&gt;setName('PHPExcel logo');<br>\r\n$objDrawing-&gt;setDescription('PHPExcel logo');<br>\r\n$objDrawing-&gt;setPath('../images/phpexcel_logo.gif');<br>\r\n$objDrawing-&gt;setHeight(36);<br>\r\n$objDrawing-&gt;setCoordinates('D4');<br>\r\n$objDrawing-&gt;setOffsetX(-10);<br>\r\n$objDrawing-&gt;setWorksheet($objPHPExcel-&gt;getActiveSheet());<br>\r\n<br>\r\n// Rename sheet<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setTitle('Simple');<br>\r\n<br>\r\n<br>\r\n// Set active sheet index to the first sheet, so Excel opens this as the first sheet<br>\r\n$objPHPExcel-&gt;setActiveSheetIndex(0);<br>\r\n<br>\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');<br>\r\n$objWriter-&gt;save(&quot;php://output&quot;);<br>\r\n</blockquote>\r\n",
+    "PostedDate": "2008-08-26T02:40:51.703-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

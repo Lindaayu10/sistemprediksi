@@ -1,0 +1,86 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "Calculation_Engine",
+      "DisplayName": "Calculation_Engine"
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "In Excel formulas it is possible to have cell ranges involving names, e.g.\n \n=SUM(monkey:A6)\n \nHere monkey could refer to, say, $A$1:$B$4, so the sum would be over the cells A1:B6\n \nBut the calculation engine raises an error when it sees this kind\n \nTest (plain read/write):\n----\n$file = 'read.xlsx';\n$reader = PHPExcel_IOFactory::createReaderForFile($file);\n \n$excel = $reader->load($file);\n \n$sheet = $excel->getActiveSheet();\nvar_dump($sheet->getCell('E1')->getCalculatedValue());\n \nExpected result:\n----\nfloat(1014.2124)\n \nActual result:\n----\n_raiseFormulaError message is Formula Error: An unexpected error occured\nstring(4) \"#N/A\"\n \nEnvironment:\n----\nPHPExcel 1.7.0 (and latest source code)",
+    "LastUpdatedDate": "2017-11-27T22:26:33.86-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-10-10T03:33:51.293-07:00",
+    "Status": {
+      "Name": "Active",
+      "Id": 2
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Cell range involving name not working with calculation engine",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 10740
+  },
+  "FileAttachments": [
+    {
+      "FileId": 3418,
+      "FileName": "read.xlsx",
+      "DownloadUrl": ".\\3418"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "I must confess I wasn't even aware that named ranges could be used in this way, though it is logical given that : is actually treated as an operator by Excel. Will have a look and see what I can do",
+      "PostedDate": "2009-10-11T02:59:29.677-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Yup, I notice one can also have formulas like this:\r\n=SUM(B2:C22:G6)\r\n\r\nwhich gives the same as\r\n=SUM(B2:G22)\r\n",
+      "PostedDate": "2009-10-11T07:23:06.03-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I'll look at this, but it won't be a quick solution",
+      "PostedDate": "2009-10-11T07:37:22.213-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-10-16T15:10:22.973-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Modified calculation parser to handle range operator (:), but currently only if referenced cells are all in the current worksheet",
+      "PostedDate": "2009-10-17T16:10:30.62-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Added further logic to handle cell ranges in other worksheets.... but not fully validating erroneous references yet, not worksheet names containing characters like spaces",
+      "PostedDate": "2009-10-18T11:56:10.82-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:03:35.363-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2017-11-27T22:26:33.86-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

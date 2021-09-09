@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "127446",
+    "ThreadId": "38418",
+    "Html": "<span style=\"font-family:'Segoe UI';font-size:13px\">I have to print all data from excel table. Code:</span>$0<span style=\"font-family:'Segoe UI';font-size:13px\">$objReader = PHPExcel_IOFactory::createReader('E<wbr>xcel5');</span>$0$0<span style=\"font-family:'Segoe UI';font-size:13px\">$objPHPExcel = $objReader-&gt;load(&quot;features.xls&quot;);</span>$0$0<span style=\"font-family:'Segoe UI';font-size:13px\">$columns = $objPHPExcel-&gt;getActiveSheet()-&gt;get<wbr>ColumnDimensions();</span>$0$0<span style=\"font-family:'Segoe UI';font-size:13px\">foreach($objPHPExcel-&gt;getActiveShee<wbr>t()-&gt;getRowDimensions() as $rows)</span>$0$0<span style=\"font-family:'Segoe UI';font-size:13px\">{ </span>$0$0<span style=\"font-family:'Segoe UI';font-size:13px\">foreach($columns as $col)</span>$0$0<span style=\"font-family:'Segoe UI';font-size:13px\">{</span>$0$0<span style=\"font-family:'Segoe UI';font-size:13px\">$value = $objPHPExcel-&gt;getActiveSheet()-&gt;get<wbr>Cell($col-&gt;getColumnIndex().$rows-&gt;<wbr>getRowIndex())-&gt;getValue();</span>$0$0<span style=\"font-family:'Segoe UI';font-size:13px\">if (gettype($value)==&quot;object&quot;)</span>$0$0<span style=\"font-family:'Segoe UI';font-size:13px\">{ </span>$0$0<span style=\"font-family:'Segoe UI';font-size:13px\">$value = $value-&gt;getPlainText();</span>$0$0<span style=\"font-family:'Segoe UI';font-size:13px\">}</span>$0$0<span style=\"font-family:'Segoe UI';font-size:13px\">echo $value;</span>$0$0<span style=\"font-family:'Segoe UI';font-size:13px\">}</span>$0$0<span style=\"font-family:'Segoe UI';font-size:13px\">echo &quot;&lt;/br&gt;&quot;;</span>$0$0<span style=\"font-family:'Segoe UI';font-size:13px\">}</span>$0$0<span style=\"font-family:'Segoe UI';font-size:13px\">And result of getPlainText() have some overweight symbols. For example, if in excel file I have such text &quot;111  ( 222  ) &quot; with blue text color in the bracket result of the getPlainText() function will be &quot;111В (В 222В В )В &quot;. Why this?$0$0$0$0$0</span>$0",
+    "PostedDate": "2008-10-24T03:19:33.347-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "127478",
+    "ThreadId": "38418",
+    "Html": "Can you upload the file somewhere, or send me the file?<br>\r\n",
+    "PostedDate": "2008-10-24T06:12:41.617-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "127500",
+    "ThreadId": "38418",
+    "Html": "<span><a href=\"http://content.files.mail.ru/Y6CHVO/d927a50948ad325b9c4f27104fa2e64c\">http://content.files.mail.ru/Y6CHVO/d927a50948ad325b9c4f27104fa2e64c</a></span>$0There are input file, script and phpexcel classes :)$0$0$0$0",
+    "PostedDate": "2008-10-24T08:14:25.957-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "127623",
+    "ThreadId": "38418",
+    "Html": "String values returned by PHPExcel are always UTF-8 encoded. For example, when you do like this you get UTF-8 encoded string:<br>\r\n<br>\r\n<code>$value = $objPHPExcel-&gt;getActiveSheet()-&gt;getCell($col-&gt;getColumnIndex().$rows-&gt;getRowIndex())-&gt;getValue();<br>\r\nif (gettype($value)==&quot;object&quot;) {&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp; &nbsp;$value = $value-&gt;getPlainText();<br>\r\n}<br>\r\n// $value is UTF-8 encoded string<br>\r\n</code>\r\n<br>\r\nIf you need to output the text on a web page, you should specify UTF-8 encoding for your web page. <br>\r\nTry this:<br>\r\n<br>\r\n<code>&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=utf-8&quot;&gt;<br>\r\n</code>\r\n<br>\r\nNote that the above may not work if your server is sending HTTP headers specifying a different character set. In that case you may try this instead:<br>\r\n<br>\r\n<code>header('Content-Type: content=text/html;charset=utf-8');<br>\r\n</code>\r\n<br>\r\nTip: Use <a href=\"http://livehttpheaders.mozdev.org/\">LiveHTTPHeaders</a> extension for Firefox 2 to check HTTP headers sent from the server.<br>\r\n<br>\r\nThe &quot;В&quot;s you are seing are &quot;CYRILLIC CAPITAL VE&quot; and stem from &quot;NO-BREAK SPACE&quot; characters between your digits so I guess you are using Windows-1251 encoding. If you change to UTF-8 it will be ok. If, for some reason, it is not possible for you to change the encoding, then you will have to convert the strings:<br>\r\n<br>\r\n<code>$value = iconv(</code><code></code><code>'UTF-8'</code><code>, </code><code>'CP1251'</code><code>, $value); // convert to CP1251<br>\r\n</code>\r\nor<br>\r\n<code>$value = mb_convert_encoding($value, 'CP1251', 'UTF-8');</code><code> // convert to CP1251</code><br>\r\n<br>\r\n<strong>\r\nAdditional note:</strong><br>\r\nIf you always want only the plain text of the Rich-Text strings, then you may use this (which removes all formatting):<br>\r\n<code><br>\r\n$objReader-&gt;setReadDataOnly(true);<br>\r\n<br>\r\n</code>\r\nYou can then skip the step where you use <code>getPlainText()</code><br>\r\n<br>\r\n",
+    "PostedDate": "2008-10-24T16:42:15.23-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "127680",
+    "ThreadId": "38418",
+    "Html": "Thank you very much",
+    "PostedDate": "2008-10-25T00:21:15.743-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

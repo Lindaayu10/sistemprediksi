@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "1071000",
+    "ThreadId": "450734",
+    "Html": "When I use phpexcel without an active record, works fine. But, when I load an active record, the problem appears. The excel generated cannot be opened due to errors inside it.\r<br />\n<br />\nIn a simple controller (with no filters at all), this works:<br />\n<pre><code>public function actionIndex()\n    {\n        Yii::import('ext.phpexcel.PHPExcel');\n        $objPHPExcel = new PHPExcel();\n        \n        $objPHPExcel-&gt;getProperties()-&gt;setCreator(&quot;Name&quot;)\n                             -&gt;setLastModifiedBy(&quot;Name&quot;);\n        \n        $objPHPExcel-&gt;setActiveSheetIndex(0);\n        $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('A1', &quot;Firstname&quot;);\n        $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('B1', &quot;Lastname&quot;);\n        $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('C1', &quot;Phone&quot;);\n        $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('D1', &quot;Fax&quot;);\n        $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('E1', &quot;Is Client ?&quot;);\n\n        $objPHPExcel-&gt;setActiveSheetIndex(0);\n    \n        header('Content-Type: application/vnd.ms-excel');\n        header('Content-Disposition: attachment;filename=&quot;your_name.xlsx&quot;');\n        header('Cache-Control: max-age=0');  \n        \n        $writer = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');  \n        $writer-&gt;save('php://output');\n    }</code></pre>\n\nAnd loading some AR, this doesn't work:<br />\n<pre><code>public function actionIndex()\n    {\n        $model=MyModel::model()-&gt;findAll();\n        \n        Yii::import('ext.phpexcel.PHPExcel');\n        $objPHPExcel = new PHPExcel();\n        \n        $objPHPExcel-&gt;getProperties()-&gt;setCreator(&quot;Name&quot;)\n                             -&gt;setLastModifiedBy(&quot;Name&quot;);\n        \n        $objPHPExcel-&gt;setActiveSheetIndex(0);\n        $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('A1', &quot;Firstname&quot;);\n        $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('B1', &quot;Lastname&quot;);\n        $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('C1', &quot;Phone&quot;);\n        $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('D1', &quot;Fax&quot;);\n        $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('E1', &quot;Is Client ?&quot;);\n\n        $objPHPExcel-&gt;setActiveSheetIndex(0);\n    \n        header('Content-Type: application/vnd.ms-excel');\n        header('Content-Disposition: attachment;filename=&quot;your_name.xlsx&quot;');\n        header('Cache-Control: max-age=0');  \n        \n        $writer = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');  \n        $writer-&gt;save('php://output');\n    }</code></pre>\n\nAlso I have tried modifying phpexcel autoload, and other methods on different blogs but I can't get it work <br />\n",
+    "PostedDate": "2013-07-21T11:29:47.077-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1071823",
+    "ThreadId": "450734",
+    "Html": "Today, with no changes on the controller, it works fine. Buen when I try to do the same on a controller with filters (access control filters), with copy and paste, on the new controller doesn't work. The generated excel says that there is some problem with it and cannot be oppened.<br />\n",
+    "PostedDate": "2013-07-23T08:34:04.78-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1073291",
+    "ThreadId": "450734",
+    "Html": "I guess is something with YII. When the file is saved on the disk, it opens fine; when downloaded, not working.<br />\n",
+    "PostedDate": "2013-07-25T20:13:38.97-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1073293",
+    "ThreadId": "450734",
+    "Html": "Solved adding<br />\n<pre><code>header('Pragma: public');\nob_clean();\n</code></pre>\n\nSo, the part to download is:<br />\n<pre><code>header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');\nheader('Content-Disposition: attachment;filename=&quot;01simple.xlsx&quot;');\nheader('Cache-Control: max-age=0');\nheader('Pragma: public');\nob_clean();</code></pre>\n\n",
+    "PostedDate": "2013-07-25T20:22:47.28-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

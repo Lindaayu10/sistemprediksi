@@ -1,0 +1,39 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I have a file with several worksheets that I'm trying to delete rows from and I'm failing for some reason.\n \nI get these errors:\n \nFatal error: Uncaught exception 'Exception' with message 'Invalid cell coordinate R8 C6' in /home/vaidas/babax/PHPExcel/Cell.php:508\nStack trace:\n#0 /home/vaidas/babax/PHPExcel/ReferenceHelper.php(598): PHPExcel_Cell::coordinateFromString('R8 C6')\n#1 /home/vaidas/babax/PHPExcel/ReferenceHelper.php(570): PHPExcel_ReferenceHelper->_updateSingleCellReference('R8 C6', 'A4', 0, -3)\n#2 /home/vaidas/babax/PHPExcel/ReferenceHelper.php(511): PHPExcel_ReferenceHelper->_updateCellRange('K7:R8 C6:R6 C7:...', 'A4', 0, -3)\n#3 /home/vaidas/babax/PHPExcel/ReferenceHelper.php(306): PHPExcel_ReferenceHelper->updateCellReference('K7:R8 C6:R6 C7:...', 'A4', 0, -3)\n#4 /home/vaidas/babax/PHPExcel/Worksheet.php(1792): PHPExcel_ReferenceHelper->insertNewBefore('A4', 0, -3, Object(PHPExcel_Worksheet))\n#5 /home/vaidas/babax/index.php(32): PHPExcel_Worksheet->removeRow(1, 3)\n#6 {main}\n  thrown in /home/vaidas/babax/PHPExcel/Cell.php on line 508My code is as follows:include('PHPExcel.php');\n$file_name = 'MySheet2.xls';\n$sheet_name = 'MySheet';\n \nclass MyFilter implements PHPExcel_Reader_IReadFilter\n{\n    public function readCell($column, $row, $worksheetName = '')\n    {\n        if (\n             $worksheetName = 'MySheet' &&\n             //in_array($column, $columns) &&\n             $row<28\n           )\n        {\n            return true;\n        }\n    }\n}\n \n$file_type = PHPExcel_IOFactory::identify($file_name);\n$reader = PHPExcel_IOFactory::createReader($file_type);\n$reader->setReadFilter(new MyFilter);\n \n$document = $reader->load($file_name);\n$document->setActiveSheetIndexByName($sheet_name);\n$sheet = $document->getActiveSheet();\n$sheet->removeRow(1,3);\n \n$writer = new PHPExcel_Writer_HTML($document);\n$writer->setSheetIndex(1);\necho $writer->generateStyles(true);\necho $writer->generateSheetData();",
+    "LastUpdatedDate": "2013-02-21T19:02:25.52-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2011-04-19T14:31:04.2-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Reference Helper problem when named range contains an Intersect",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 15719
+  },
+  "FileAttachments": [],
+  "Comments": []
+}

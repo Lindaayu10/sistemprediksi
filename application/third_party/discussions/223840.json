@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "481459",
+    "ThreadId": "223840",
+    "Html": "<p>Interesting one I'm trying to troubleshoot.</p>\r\n<p>The document in question can be found at<br>http://customersat.nsi1.com/horizon/horizon.xls</p>\r\n<p>When PHPExcel_IOFactory::load() is executed on the above file, I get an exception with &quot;Unrecognized token 21 in formula&quot;. (full error message posted below)</p>\r\n<p>I tried digging into this and researched the Microsoft Excel File Format document listed in another thread and all I get is 0x21 is a &quot;function with fixed number of arguments&quot;.</p>\r\n<p>The script appears to break at H22 which is weird because the exact same formula (with different cell references) appears in H16 on down. I tried whacking H22, and the error then occurs with H23.</p>\r\n<p>Baffled...</p>\r\n<p>&nbsp;</p>\r\n<p><strong>Full Error Message</strong></p>\r\n<p><strong>Fatal error</strong>:  Uncaught exception 'Exception' with message  'Unrecognized token 21 in formula' in C:\\Program Files\\Apache Software  Foundation\\Apache2.2\\htdocs\\Excel\\PHPExcel\\Reader\\Excel5.php:4421 Stack trace: #0 C:\\Program Files\\Apache Software  Foundation\\Apache2.2\\htdocs\\Excel\\PHPExcel\\Reader\\Excel5.php(3744):  PHPExcel_Reader_Excel5-&gt;_getNextToken('!??L????A????? ...', 'H22') #1 C:\\Program Files\\Apache Software  Foundation\\Apache2.2\\htdocs\\Excel\\PHPExcel\\Reader\\Excel5.php(3728):  PHPExcel_Reader_Excel5-&gt;_getFormulaFromData('L????A??L????L?...', '',  'H22') #2 C:\\Program Files\\Apache Software  Foundation\\Apache2.2\\htdocs\\Excel\\PHPExcel\\Reader\\Excel5.php(830):  PHPExcel_Reader_Excel5-&gt;_getFormulaFromStructure('L?L????A??L????...',  'H22') #3 C:\\Program Files\\Apache Software  Foundation\\Apache2.2\\htdocs\\Excel\\PHPExcel\\IOFactory.php(191):  PHPExcel_Reader_Excel5-&gt;load('C:/Program File...') #4 C:\\Program Files\\Apache Software  Foundation\\Apache2.2\\htdocs\\Portal\\functions\\upload_bom.php(40):  PHPExcel_IOFactory::load('C:/Program File...') in <strong>C:\\Program Files\\Apache Software Foundation\\Apache2.2\\htdocs\\Excel\\PHPExcel\\Reader\\Excel5.php</strong> on line <strong>4421</strong></p>",
+    "PostedDate": "2010-08-17T08:53:51.9-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "482718",
+    "ThreadId": "223840",
+    "Html": "<p>Simple fix:</p>\r\n<p>On or about line 4724 in classes/PHPExcel/Reader/Excel5.php, which should read:</p>\r\n<p>&nbsp;&nbsp;case 0x41: // function with fixed number of arguments</p>\r\n<p>add</p>\r\n<p>&nbsp;&nbsp;case 0x21: // function with fixed number of arguments</p>\r\n<p>I'll need to look more closely to see if there are any adverse effects, but this does then read your workbook successfully.</p>",
+    "PostedDate": "2010-08-20T05:12:39.047-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "482737",
+    "ThreadId": "223840",
+    "Html": "<p>That WAS a simple fix! Good job MarkBaker!</p>\r\n<p>DB</p>",
+    "PostedDate": "2010-08-20T05:37:37.02-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

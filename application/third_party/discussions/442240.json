@@ -1,0 +1,90 @@
+[
+  {
+    "Id": "1038153",
+    "ThreadId": "442240",
+    "Html": "So I've been at this for hours and reach almost every forumn post I can find, but still I can't find a solution.\r<br />\n<br />\nMy company has a vendor that sends us an .xls file every day. The file needs to be parse and and updated on a website I've built already. The site was developed in PHP using Code Igniter.\r<br />\n<br />\nThe file is not a CVS or XML file masquerading as .xls because I have tried to open it up in a text editor and it's in some sort of binary format.\r<br />\n<br />\nI know it's a valid Excell file because I can open it in my open copy of Excel on my mac.\r<br />\n<br />\nThe code I'm using in my PHP to load the file is this:<br />\n<pre><code>      $inputFileType = PHPExcel_IOFactory::identify(FCPATH .&quot;files/&quot;. $file);                   </code></pre>\n\n$objReader = PHPExcel_IOFactory::createReader($inputFileType); <br />\n<pre><code>    try {\n        $this-&gt;excel = $objReader-&gt;load(FCPATH .&quot;files/&quot;. $file);\n    } catch (Exception $e) {\n        die ($e-&gt;getMessage());\n    } \n</code></pre>\n\nBut it won't work no matter what I try. I get this error message in my logs.\r<br />\n<br />\nUncaught exception 'Exception' with message 'The filename /var/www/mywebsite/my-webapp/files/Digital-Pacing-Report.xls is not recognised as an OLE file'\r<br />\n<br />\nI would appreciate any suggestions at this point. I've tried loading it using the ''Excel2007' and &quot;'Excel2003XML'&quot; and it makes no difference. As far as I can tell PHPExcell can't even identify the file type.\r<br />\n<br />\nHelp please.\r<br />\n<br />\nPhil<br />\n",
+    "PostedDate": "2013-05-01T08:59:54.173-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1038160",
+    "ThreadId": "442240",
+    "Html": "Without seeing the file itself, it's difficult to say.\r<br />\n<br />\nCan you try opening the file in a copy of MS Excel noting any messages you might get while opening), then doing a &quot;save as&quot;. In the &quot;save as&quot; dialogue box, Excel will offer you a choice of formats that you can save the file as, with one of those formats currently as the selected type. What is that currently selected type?<br />\n",
+    "PostedDate": "2013-05-01T09:14:06.027-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1038163",
+    "ThreadId": "442240",
+    "Html": "Is it possible to upload the file to this forum somehow?<br />\n",
+    "PostedDate": "2013-05-01T09:15:46.703-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1038178",
+    "ThreadId": "442240",
+    "Html": "Uploading files can be done in the issue tracker: <a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10749\" rel=\"nofollow\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10749</a>.<br />\n<br />\nSome ground rules for file uploads:<br />\n◾When uploading a file to this issue, give it a clear name<br />\n◾Add a comment to the issue tracker, stating file  is related to discussion post <br />\n",
+    "PostedDate": "2013-05-01T09:41:00.143-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1038218",
+    "ThreadId": "442240",
+    "Html": "Okay, I've uploaded the file to the issue tracker.\r<br />\n<br />\nHere is a link to the file.\r<br />\n<br />\n<a href=\"https://www.codeplex.com/Download/AttachmentDownload.ashx?ProjectName=phpexcel&amp;WorkItemId=19656&amp;FileAttachmentId=6949\" rel=\"nofollow\">https://www.codeplex.com/Download/AttachmentDownload.ashx?ProjectName=phpexcel&WorkItemId=19656&FileAttachmentId=6949</a>\r<br />\n<br />\nI'm curious what this file is, if it's not an Excel file and if it's not Excel is there a way to convert it to a useful format?\r<br />\n<br />\nPhilip<br />\n",
+    "PostedDate": "2013-05-01T10:35:37.22-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1038308",
+    "ThreadId": "442240",
+    "Html": "Excel 2013 opens it in protected mode, which I currently have set for files written using Excel4 (1992) or below. Further checks show that it is actually BIFF4. That means it was created/saved as an OLE1 document (a different format to the later BIFF5-8 OLE2 formats) that only supported a single worksheet. Unfortunately, PHPExcel doesn't support reading any BIFF versions below BIFF5.\r<br />\n<br />\nMost versions of MS Excel should be capable of reading these earlier files, and protected mode can be disabled allowing them to be saved using a more recent format (Excel5/Excel95 or above).<br />\n",
+    "PostedDate": "2013-05-01T15:22:04.027-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1038529",
+    "ThreadId": "442240",
+    "Html": "Hey Mark,\r<br />\n<br />\nThis is helpful. Unfortunately the files are emailed to me, from another company. Is there a way to convert them somehow either with PHPExcel or another PHP package, so that it can work automatically?\r<br />\n<br />\nJust curious.\r<br />\n<br />\nPhilip<br />\n",
+    "PostedDate": "2013-05-02T06:00:23.027-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1038539",
+    "ThreadId": "442240",
+    "Html": "Unless PHPExcel can read the file, it can't convert it; and if it could read the file you wouldn't have this problem anyway. Nor am I aware of any PHP library/script that can read OLE1 files (and I do maintain a long list of libraries).\r<br />\n<br />\nThe only way I can think of to do it is using MS Excel itself (I don't believe that Open/Libre Office or Gunumeric support anything earlier than Excel5)<br />\n",
+    "PostedDate": "2013-05-02T06:12:58.54-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1038540",
+    "ThreadId": "442240",
+    "Html": "Okay, Thanks so much for your help. At least I know now what the problem has been. I really appreciate the feedback.\r<br />\n<br />\nThanks,\r<br />\n<br />\nPhilip<br />\n",
+    "PostedDate": "2013-05-02T06:15:06.15-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1038686",
+    "ThreadId": "442240",
+    "Html": "<strong>pisaacs wrote:</strong><br />\n<blockquote>\nSo I've been at this for hours and reach almost every forumn post I can find, but still I can't find a solution.<br />\n<br />\nHelp please.<br />\n<br />\nPhil<br />\n</blockquote>\nHello Phil,<br />\n<br />\nI am not an expert in this, nevertheless, I gave it a try, you can see the output by clicking on the link below. I saved your file into regular xls file from Excel 2007 and ran my PHPExcel script; except for the logos, I got rest of the contents. Have a look at it.<br />\n<br />\n<a href=\"http://i.imgur.com/humuSK8.png\" rel=\"nofollow\">TEXT</a><br />\n<br />\nRegards<br />\n",
+    "PostedDate": "2013-05-02T10:49:31.727-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1039196",
+    "ThreadId": "442240",
+    "Html": "Thanks for the feedback psb1967, but that wasn't exactly my problem. The issue was having PHPExcell read the file without having to resave it in Excell (by hand ) first, which is what you did. \r<br />\n<br />\nThanks for the help though.\r<br />\n<br />\nPhilip<br />\n",
+    "PostedDate": "2013-05-03T14:26:17.317-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

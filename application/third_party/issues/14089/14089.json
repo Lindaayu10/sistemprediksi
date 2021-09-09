@@ -1,0 +1,80 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel_Writer_HTML",
+      "DisplayName": "PHPExcel_Writer_HTML"
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hi,\nusing 1.7.3c i tried to set some cols hidden. Bit i didn't found the corrosponding styles in the output. I modified the writer\\HTML.php. Maybe not very elegant, but functional in my case.\nI marked the modified lines with \"// new\". \nHope this helps\nIf you need additional infos, ask me. ;-)\n \nline 627 ff:\n\t\t\tforeach ($sheet->getColumnDimensions() as $columnDimension) {\n\t\t\t\tif (($width = PHPExcel_Shared_Drawing::cellDimensionToPixels($columnDimension->getWidth(), $this->_defaultFont)) >= 0) {\n\t\t\t\t\t$css['table.sheet' . $sheetIndex . ' col.col' . $column]['visibility'] = 'collapse';\n\t\t\t\t\t$width = PHPExcel_Shared_Drawing::pixelsToPoints($width);\n\t\t\t\t\t$column = PHPExcel_Cell::columnIndexFromString($columnDimension->getColumnIndex()) - 1;\n\t\t\t\t\t$this->_columnWidths[$sheetIndex][$column] = $width;\n\t\t\t\t\t$css['table.sheet' . $sheetIndex . ' col.col' . $column]['width'] = $width . 'pt';\n} // new\n\t\t\t\t\tif ($columnDimension->getVisible() === false) {\n$column = PHPExcel_Cell::columnIndexFromString($columnDimension->getColumnIndex()) - 1; // new\n\t\t\t\t\t\t$css['table.sheet' . $sheetIndex . ' col.col' . $column]['visibility'] = 'collapse';\n\t\t\t\t\t\t$css['table.sheet' . $sheetIndex . ' col.col' . $column]['display'] = 'none'; // target IE6+7\n\t\t\t\t\t}\n//\t\t\t\t} // new\n\t\t\t}",
+    "LastUpdatedDate": "2017-11-27T22:26:36.04-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2010-08-26T01:46:30.313-07:00",
+    "Status": {
+      "Name": "Active",
+      "Id": 2
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "HTML Writer forget some items in styles",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 14089
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "Is this still an issue with 1.7.4?",
+      "PostedDate": "2010-08-30T05:07:45.487-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Yes, it's the same with 1.7.4. I looked in the code of html.php and see no differences at line 624 ff between 1.7.3 and 1.7.4. Using my modification still fixes the problem.",
+      "PostedDate": "2010-08-31T06:06:36.663-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-09-09T04:46:17.36-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I've just looked at this again, both reading a worksheet with hidden rows and columns, and manually setting rows and columns to hidden.\r\n\r\nThe styles in the html head block read:\r\n      table.sheet0 col.col0 { width:42pt }\r\n      table.sheet0 col.col1 { width:42pt }\r\n      table.sheet0 col.col2 { width:43.37777728pt; visibility:collapse; *display:none }\r\n      table.sheet0 col.col3 { width:42pt }\r\n      table.sheet0 tr { height:12.75pt }\r\n      table.sheet0 tr.row0 { height:12.75pt }\r\n      table.sheet0 tr.row1 { height:12.75pt }\r\n      table.sheet0 tr.row2 { height:12.75pt; display:none; visibility:hidden }\r\n      table.sheet0 tr.row3 { height:12.75pt }\r\n\r\nThe data in the html body reads:\r\n    <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" id=\"sheet0\" class=\"sheet0 gridlines\">\r\n        <col class=\"col0\">\r\n        <col class=\"col1\">\r\n        <col class=\"col2\">\r\n        <col class=\"col3\">\r\n        <tbody>\r\n          <tr class=\"row0\">\r\n            <td class=\"column0 style0 n\">1</td>\r\n            <td class=\"column1 style0 n\">2</td>\r\n            <td class=\"column2 style0 n\">3</td>\r\n            <td class=\"column3 style0 n\">4</td>\r\n          </tr>\r\n          <tr class=\"row1\">\r\n            <td class=\"column0 style0 n\">5</td>\r\n            <td class=\"column1 style0 n\">6</td>\r\n            <td class=\"column2 style0 n\">7</td>\r\n            <td class=\"column3 style0 n\">8</td>\r\n          </tr>\r\n          <tr class=\"row2\">\r\n            <td class=\"column0 style0 n\">9</td>\r\n            <td class=\"column1 style0 n\">10</td>\r\n            <td class=\"column2 style0 n\">11</td>\r\n            <td class=\"column3 style0 n\">12</td>\r\n          </tr>\r\n          <tr class=\"row3\">\r\n            <td class=\"column0 style0 n\">13</td>\r\n            <td class=\"column1 style0 n\">14</td>\r\n            <td class=\"column2 style0 n\">15</td>\r\n            <td class=\"column3 style0 n\">16</td>\r\n          </tr>\r\n        </tbody>\r\n    </table>\r\nwhich should be correct.\r\n\r\nWhen viewed in IE6, IE7, IE8, FF2, FF3 and LunaScape 6 (in Trident and Gecko modes) both rows and columns are hidden as expected\r\nHowever, when viewed in Chrome 6, Netscape 8, Opera 9, and LunaScape 6 (in WebKit mode) the row is hidden, but not the column.\r\n\r\n\r\nThis appears to be a browser-specific style issue. Can anybody suffering from this problem please advise on which browser and version you're using",
+      "PostedDate": "2010-09-14T09:49:03.727-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-09-14T09:50:03.01-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "It seems that not all bowsers correctly observe visibility:collapse or display:none when applied to a column.\r\n\r\nIE 5.5 - uses hidden\r\nIE 6  - uses hidden\r\nIE 7  - uses hidden\r\nIE8 - fully supported\r\nIE9 - fully supported \r\nFF 2.0 - fully supported\r\nFF 3.0 - fully supported\r\nFF 3.5 - fully supported\r\nFF 3.6 - fully supported\r\nFF 4b1 - fully supported\r\nSafari 4.0 Win - NOT SUPPORTED AT ALL\r\nSafari 5.0 Win - NOT SUPPORTED AT ALL \r\nChrome 4 - NOT SUPPORTED AT ALL\r\nChrome 5 - NOT SUPPORTED AT ALL\r\nOpera 9 - NOT SUPPORTED AT ALL\r\nOpera 10.10 - NOT SUPPORTED AT ALL\r\nOpera 10.53 - fully supported\r\nOpera 10.60 - fully supported\r\n",
+      "PostedDate": "2010-09-16T10:02:49.967-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:02:47.833-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2017-11-27T22:26:36.04-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

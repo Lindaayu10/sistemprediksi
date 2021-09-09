@@ -1,0 +1,39 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I have generated an Excel-file using the PHPExcel_Writer_Excel5-class. If I try to access this generated Excel-file with the ADODB-Jet4.0-driver on a Win7-machine, the SQL-statements fail. It seems that the Jet-driver uses the first column instead of the first line for the SQL-column-names. Therefore all SQL-queries with field-names don't work. Directly accessing the fields-collection with column-names fails, too. \n\nExample:\nCol1  Col2  Col3     // column-headers\nVal11 Val12 Val13  // data-row 1\nVal21 Val22 Val23  // data-row 2\nVal31 Val32 Val33  // data-row 3\n\nThis should lead to the SQL-column-names Col1, Col2 and Col3. Effectively, the Jet-driver assumes Col1, Val11, Val21, Val31 to be the column-names. If I load the Excel-file into OO-Calc and re-save it without any modifcation, the Jet-driver can access all fields correctly.\n\nHere's an JavaScript-example for accessing the Excel-file via Jet-driver (execute it in a 32-bit-environment!):\n\n------8<----\nvar cn = new ActiveXObject( 'ADODB.Connection' );\ncn.Open( 'Provider=Microsoft.Jet.OLEDB.4.0;Data Source=' + ExcelFilename + ';Persist Security Info=False;Extended Properties=Excel 8.0;' );\nvar rs = new ActiveXObject( 'ADODB.Recordset' );\nrs.Open( 'select * from [Worksheet$]', cn );\n\nrs.MoveFirst();\nwhile( !rs.eof )\n{\n\tvar Col2 = Recordset.fields( 'Col2' ).Value;   // fails!\n\trs.MoveNext();\n}\nrs.Close();\ncn.Close();\n------8<----\n\nI don't know, if it's important: My PHP-writer looks like this (simplified):\n\n------8<----\n$phpExcelSheet->setCellValueByColumnAndRow( 0, 1, 'Col1' );\n$phpExcelSheet->setCellValueByColumnAndRow( 1, 1, 'Col2' );\n$phpExcelSheet->setCellValueByColumnAndRow( 2, 1, 'Col3' );\n\n$line = 2;\nwhile ( $row = getRow() ) {\n\t...\n\t$phpExcelSheet->setCellValueByColumnAndRow( 0, $line, row['Col1'] );\n\t$phpExcelSheet->setCellValueByColumnAndRow( 1, $line, row['Col2'] );\n\t$phpExcelSheet->setCellValueByColumnAndRow( 2, $line, row['Col3'] );\n\t$line++;\n}\n------8<----",
+    "LastUpdatedDate": "2013-02-21T19:01:31.693-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2013-01-06T07:49:19.15-08:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "ADODB-Jet can't read Excel5-format",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 2,
+    "Id": 19144
+  },
+  "FileAttachments": [],
+  "Comments": []
+}

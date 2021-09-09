@@ -1,0 +1,80 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "Fixed in SVN",
+    "ClosedDate": "2010-05-31T00:23:00.587-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hi!\n \nI've noticed that there are some methods in PHPExcel_Worksheet class returning wrong object instance.\nFor example:\n \n    /**\n     * Set a cell value by using numeric cell coordinates\n     *\n     * @param string \t$pColumn\t\tNumeric column coordinate of the cell\n     * @param string \t$pRow\t\t\tNumeric row coordinate of the cell\n     * @param mixed \t$pValue\t\t\tValue of the cell\n     * @return PHPExcel_Worksheet\n     */\n    public function setCellValueByColumnAndRow($pColumn = 0, $pRow = 0, $pValue = null)\n    {\n    \treturn $this->getCell(PHPExcel_Cell::stringFromColumnIndex($pColumn) . $pRow)->setValue($pValue); // return PHPExcel_Cell\n    }\n \nAccording to phpdoc, we expect the return as PHPExcel_Worksheet ... but instead we got a PHPExcel_Cell\nI think the following modification would fix the problem:\n \n    \treturn $this->getCell(PHPExcel_Cell::stringFromColumnIndex($pColumn) . $pRow)->setValue($pValue)->getParent(); // Return the parent ... PHPExcel_Worksheet\n \nThis mistake occurs in setCellValueExplicitByColumnAndRow method too:\n \nreturn $this->getCell(PHPExcel_Cell::stringFromColumnIndex($pColumn) . $pRow)->setValueExplicit($pValue, $pDataType); // Wrong\nreturn $this->getCell(PHPExcel_Cell::stringFromColumnIndex($pColumn) . $pRow)->setValueExplicit($pValue, $pDataType)->getParent(); // Fixed\n \nI'm using 1.7.3 version\n \nBest regards",
+    "LastUpdatedDate": "2013-05-16T05:41:58.06-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2010-05-28T10:39:19.75-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Wrong method chaining on PHPExcel_Worksheet class",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 13381
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "Personally, I think it's the phpDocumentor tags that are wrong, and the code that's correct in returning a cell",
+      "PostedDate": "2010-05-28T13:09:21.94-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Thinking about it, I can see arguments for either being correct.\r\n\r\nThe current code chaining, returning the cell, allows you to set a cell value, chained with (for example) setting hyperlink or data validation.\r\nReturning the worksheet would allow chaining for setting a whole series of of cells in one go.\r\n\r\nI suspect that the latter would be more useful to the majority of users.\r\n\r\n\r\nMaking this change is probably better done as two code lines rather than using getParent()\r\n\r\n$this->getCell(PHPExcel_Cell::stringFromColumnIndex($pColumn) . $pRow)->setValueExplicit($pValue, $pDataType);\r\nreturn $this;\r\n\r\n\r\nHowever, I'll wait and let Maarten make a call on this\r\n",
+      "PostedDate": "2010-05-28T13:48:28-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I think it makes no sense returning cell object once we are calling a method from Worksheet class.\r\nI'm not sure, but in that case we are using a setter method not a getter. So it makes no sense returning a different class ... at least I think it's not method chaining propose.\r\nIf you need to interact with validation or anything else related with the cell, you have the getCell on Worksheet class:\r\n\r\n$obj->setCellValueByColumnAndRow(1, 1, 'Test')->getCell(...)->...\r\n\r\nThat's what I think ... Personally of course :)",
+      "PostedDate": "2010-05-30T07:19:11.727-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Guess I'll be changing this to return the worksheet by default, but add an optional paramter if you want the cell returned. setCellValue() also returns the worksheet so I think we should respect that.\r\n\r\n    /**\r\n     * Set a cell value by using numeric cell coordinates\r\n     *\r\n     * @param string \t$pColumn\t\tNumeric column coordinate of the cell\r\n     * @param string \t$pRow\t\t\tNumeric row coordinate of the cell\r\n     * @param mixed \t$pValue\t\t\tValue of the cell\r\n\t * @param bool \t\t$returnCell\t\tReturn the worksheet (false, default) or the cell (true)\r\n     * @return PHPExcel_Worksheet|PHPExcel_Cell\tDepending on the last parameter being specified\r\n     */\r\n    public function setCellValueByColumnAndRow($pColumn = 0, $pRow = 0, $pValue = null, $returnCell = false);",
+      "PostedDate": "2010-05-31T00:18:31.157-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-05-31T00:19:48.567-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-05-31T00:23:00.587-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:02:55.853-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:41:58.06-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

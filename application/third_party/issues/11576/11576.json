@@ -1,0 +1,91 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel",
+      "DisplayName": "PHPExcel"
+    },
+    "ClosedComment": "Fixed in SVN.",
+    "ClosedDate": "2010-01-25T04:13:26.37-08:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "From thread (by Muck):\nhttp://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=81566\n----\n \nWe have the following Problem:\n \nWe generte a big Excel from a Database in a loop with setCellValueByColumnAndRow:\n$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($col, $row, $val);\n \nIf we have a string-value that starts with a single charachter (e.g. \"A better tomorrow\") then the cell is formated as date, not as String, and the value is the current date.\nWe can reproduce this with every single character. When the string-value start with 2 characters (e.g. \"Aa better tomorrow\") than it works.\n \nWe cant use \"setValueExplicit\" to declare the data-type, because of the DB-Loop.\n \nWe are grateful for any information or hint. Is this a know Problem?\n \n \nEnvironment:\n----\nPHPExcel 1.7.2",
+    "LastUpdatedDate": "2013-05-16T05:42:11.013-07:00",
+    "PlannedForRelease": "PHPExcel 1.7.3 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2010-01-21T06:30:31.607-08:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "AdvancedValueBinder.php: String sometimes becomes a date when it shouldn't",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 2,
+    "Id": 11576
+  },
+  "FileAttachments": [
+    {
+      "FileId": 3728,
+      "FileName": "wi-11576.patch",
+      "DownloadUrl": ".\\3728"
+    },
+    {
+      "FileId": 3729,
+      "FileName": "Date.php",
+      "DownloadUrl": ".\\3729"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "Problem:\r\ndate_parse('A better tomorrow') doesn't give any errors for some reason.\r\n\r\nWill put restriction so allowed dates in setValue() must be of the form e.g.\r\n'2009-12-31'\r\n'2009-12-31 15:59'\r\n'2009-12-31 15:59:56'\r\n\r\n( Later we can expand to allow dates to be input in other formats permitted by Excel. )\r\n\r\nFixing this in SVN\r\n\r\nAttaching wi-11576.patch and the resulting PHPExcel\\Shared\\Date.php",
+      "PostedDate": "2010-01-21T07:03:27.107-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-01-21T07:03:29.21-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-01-21T07:03:58.263-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-01-21T07:04:01.213-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Thx for the quick fix, but it seems that ist doesn't work :-(\r\n\r\nWe implemented your regex-patch, but the problem as described still exists.\r\nTo test it, we set always a \"return false\" in the function \"stringToExcel\", but still the same.\r\nIt seems the our call ($objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($col, $row, $val);) doesn't use this function...\r\n\r\nAny hint? ",
+      "PostedDate": "2010-01-22T07:38:20.963-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-01-25T04:13:26.37-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:03:18.653-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:11.013-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

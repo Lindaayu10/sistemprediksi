@@ -1,0 +1,98 @@
+[
+  {
+    "Id": "552677",
+    "ThreadId": "242617",
+    "Html": "\r\n<p>Is Tests/01simple-download-pdf.php expected to produce a blank page 2, in addition to the expected data on page 1?</p>\r\n<p>I have PHPExcel 1.7.5, PHP 5.2.10, and CentOS 5.5.</p>\r\n",
+    "PostedDate": "2011-01-20T08:58:03.977-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "557593",
+    "ThreadId": "242617",
+    "Html": "\r\n<p>Perhaps not the best answer to give, but &quot;probably&quot;.</p>\r\n<p>PHPExcel uses a third-party library to actually build the PDF. What we do is build an HTML string (using the same basic output as the HTML Writer), and then feed that string to the tcPDF library that is bundled with PHPExcel.</p>\r\n<p>tcPDF has a few problems... particularly with rendering cell borders correctly. It is also incredibly slow to build the PDF from HTML, and can't handle larger worksheets without using very large amounts of memory. I've been looking at a few alternatives,\r\n such as DomPDF and mPDF to perform the same function, but each has its pros and cons.</p>\r\n<p><strong>tcPDF</strong></p>\r\n<ul>\r\n<li>Pros<br>\r\nNo observed problems with any UTF-8 characters<br>\r\nSupports Document Information properties </li><li>Cons<br>\r\nProblems with borders, especially with merged cells<br>\r\nDisplays thick grid around non-null cells when setShowGridLines(true)<br>\r\nDisplays incredibly thick grid around all cells when setShowGridLines(false)<br>\r\nSuperscript/Subscript appear out of place wrt the cell borders<br>\r\nSlow </li><li>Typical Performance<br>\r\nCall time to save Worksheet 1 to PDF file was 23.6305 seconds<br>\r\nMemory usage: 29.25 MB </li><li>Output file size is 894 KB </li></ul>\r\n<p><br>\r\n<strong>DomPDF</strong></p>\r\n<ul>\r\n<li>Pros<br>\r\nHandles borders cleanly, even for merged cells<br>\r\nDisplays Superscript/Subscript correctly </li><li>Cons<br>\r\nMisses the first row to be displayed on each page<br>\r\nRequires PHP v5.2.9, otherwise it doesn't page correctly, but latest beta overwrites the first page with all subsequent pages<br>\r\nLatest fixes (post) generates an addition blank page on every page break<br>\r\nCan't display some UTF-8 characters<br>\r\nTop Margin settings on 2nd and subsequent pages are ignored (suspect problem will be replicated with bottom margins on all but the last page)<br>\r\nDisplays grid only around null cells when setShowGridLines(true)<br>\r\nNo support for Document Information properties </li><li>Typical Performance<br>\r\nCall time to save Worksheet 1 to PDF file was 16.6204 seconds<br>\r\nMemory usage: 42.25 MB </li><li>Output file size is 13 KB </li></ul>\r\n<p><br>\r\n<strong>mPDF</strong></p>\r\n<ul>\r\n<li>Pros<br>\r\nHandles borders cleanly, even for merged cells<br>\r\nCorrectly displays grid around all cells when setShowGridLines(true); no problems when setShowGridLines(false)<br>\r\nNo problems with any UTF-8 characters<br>\r\nSupports Document Information properties </li><li>Cons<br>\r\nGPLv2<br>\r\nMemory-hungry<br>\r\nProblems with subscripted text (can't see it in resultant PDF) </li><li>Typical Performance<br>\r\nCall time to save Worksheet 1 to PDF file was 14.3668 seconds<br>\r\nMemory usage: 69.25 MB </li><li>Output file size is 74 KB </li></ul>\r\n<p>None of the three works well with large worksheets.</p>\r\n<p>mPDF is the best overall, fast and with very clean output (I might even be able to improve on the high memory usage): apart from the license issues, which conflicts with&nbsp;PHPExcel's LGPL license. I may have a word with the developers and see if they're\r\n willing to allow us to include it in our distribution under LGPL, but I'm not sure they would.</p>\r\n<p>An alternative is for me to drop the actual PDF library itself from the distribution; and just provide wrappers for a number of the more popular libraries, so that you could use your own preferred PDF library, selecting it&nbsp;via PHPExcel_Settings before\r\n using the PDF Writer. One major benefit of this would be a drop in the size of the distribution. The PHPExcel classes directory and subdirectories take up about 19.6MB on disk, of which 16.8MB is tcPDF. (DomPDF needs 9.14MB and mPDF needs a mammoth 29.9MB).</p>\r\n<p>If anybody is aware of any other PDF libraries that can render from HTML input, I'd be interested to know so that it could run comparative tests to see if there is anything better suited for rendering worksheets.</p>\r\n",
+    "PostedDate": "2011-01-30T06:16:19.417-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "565785",
+    "ThreadId": "242617",
+    "Html": "<p>Hello.&nbsp; I have only been using PHPExcel for a short time, and I am really impressed with its capabilities.&nbsp; I have been looking for the right combination of excel to pdf for quite some time.&nbsp; I have been using Livedocx, but always have problems with it and it is limiting on its capabilities.&nbsp;</p>\r\n<p>Well to get to your poll.&nbsp; To me I would think it would be better suited for your time to be spent on your package.&nbsp; I think Developers like options and tying a single PDF package to PHPExcel may limit what a developer can do.&nbsp; I have just recently been trying out mPDF and am so far happy with the output I have been seeing.&nbsp; Your Excel template to HTML conversion is superb and makes it extremely easy to integrate both packages. This seems to work for me, but other PDF packages may offer features that other developers want over mPDF. &nbsp;</p>\r\n<p>To me, it seems that this would be the preferred route, but that is just my opinion.&nbsp;</p>",
+    "PostedDate": "2011-02-14T03:55:30.647-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "569608",
+    "ThreadId": "242617",
+    "Html": "<p>I would like to choose as well, like some Drupal modules allow.</p>\r\n<p>Can I use mPDF w/1.7.5?</p>",
+    "PostedDate": "2011-02-21T06:21:58.783-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "569624",
+    "ThreadId": "242617",
+    "Html": "<blockquote style=\"padding-right: 0.25em; padding-left: 0.25em; padding-bottom: 0px; margin: 0.25em 1em 0px; padding-top: 0px; font-style: italic; border: #ccc 0.1em solid;\"><strong>ScottMSanders wrote:</strong><br />\r\n<p>I would like to choose as well, like some Drupal modules allow.</p>\r\n<p>Can I use mPDF w/1.7.5?</p>\r\n</blockquote>\r\n<p><br />Not with version 1.7.5, unless you write your own PHPExcel_Writer_PDF.php to work with mPDF.</p>\r\n<p>I have partially completed writing configurable wrappers for mPDF and DomPDF, and part-converted the existing tcPDF wrapper to be configurable; but haven't yet completed the configuration side of this. This feature is likely to be included in version 1.7.7 - targetted for around Easter, after the 1.7.6 release ( hopefully later this week ). I'd still like to&nbsp;bundle&nbsp;a default PDF library, so that the PDF option is still available \"out of the box\"; and to dump the existing bundled tcPDF. mPDF is (in my opinion) the best choice, but unfortunately the licenses do clash.</p>",
+    "PostedDate": "2011-02-21T06:51:55.88-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "611067",
+    "ThreadId": "242617",
+    "Html": "<p>Hi guys,<br />first thanks for such a perfect skript.</p>\r\n<p>Here is the \"quick solution\" , if you see blank page after your PDF content generated.</p>\r\n<p>Go to PHPExcel&gt;Writer&gt;PDF.php line 287 and insert just above $pdf-&gt;writeHTML($html) :</p>\r\n<p>$html = \"&lt;html&gt;&lt;head&gt;&lt;/head&gt;&lt;body&gt;\".$html;<br />$html = str_replace(\"page-break-after:always\",\"\", $html);</p>\r\n<p>&nbsp;</p>\r\n<p>I spent dose of time ... and I hope it will save yours :)</p>\r\n<p>I guess in next version PHPExcel MarkBaker will update it</p>",
+    "PostedDate": "2011-05-11T10:06:47.597-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "666761",
+    "ThreadId": "242617",
+    "Html": "<p>Hi guys,</p>\r\n<p>I'm also having the same issue with a blank page and the end of my PDF.</p>\r\n<p>I tried jakubrulec solution but it didn't work.</p>\r\n<p>I'm using PHPExcel 1.7.6</p>\r\n<p>Did someone find a way to solve this ?</p>\r\n<p>Thanks</p>",
+    "PostedDate": "2011-09-02T02:37:00.237-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "666802",
+    "ThreadId": "242617",
+    "Html": "<p>My solution: create HTML, and send to mPDF.</p>",
+    "PostedDate": "2011-09-02T05:16:46.057-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "667968",
+    "ThreadId": "242617",
+    "Html": "<p>Hi all,</p>\r\n<p>I found a way to fix it, I downloaded the last version of TCPDF and added it in PHPExcel-&gt;Shared-&gt;PDF</p>\r\n<p>I modified the script in PHPExcel-&gt;Writer-&gt;HTML.php and i commented the line 606 $css['table']['page-break-after'] = 'always';</p>\r\n<p>Hope it will helps</p>",
+    "PostedDate": "2011-09-06T00:45:54.627-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "674605",
+    "ThreadId": "242617",
+    "Html": "<p>Can anyone place a little how-to implement the mPDF solution?</p>",
+    "PostedDate": "2011-09-21T02:54:03.29-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "674647",
+    "ThreadId": "242617",
+    "Html": "<p>There are some examples in the mPDF package that are fairly self-explanatory: <a href=\"http://www.mpdf1.com/mpdf/\">http://www.mpdf1.com/mpdf/</a></p>\n<p>You just need to provide your HTML which mPDF will make into a PDF.</p>",
+    "PostedDate": "2011-09-21T05:24:46.677-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "844651",
+    "ThreadId": "242617",
+    "Html": "<p>Latest SVN code for PHPExcel now allows choice of PDF Rendering library from tcPDF, mPDF and DomPDF.</p>\r\n<p>Basic testing done using 05featuredemo.inc.php worksheet with the following versions:</p>\r\n<ul>\r\n<li>tcPDF 5.9</li>\r\n<li>mPDF 5.4</li>\r\n<li>DomPDF 0.6.0beta3</li>\r\n</ul>\r\n<p>Has not yet been tested with complex workbooks, or complex formatting</p>\r\n<p>Problem with spurious blank last page has also been eliminated</p>",
+    "PostedDate": "2012-06-04T14:40:21.42-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

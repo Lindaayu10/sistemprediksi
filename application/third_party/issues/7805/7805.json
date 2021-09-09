@@ -1,0 +1,80 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel",
+      "DisplayName": "PHPExcel"
+    },
+    "ClosedComment": "Fixed in SVN",
+    "ClosedDate": "2008-10-17T09:11:12.89-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I'm writing a large worksheet using the HTML Writer, and discovered that the output is limited to 26 columns, any column from \"AA\" onwards is being ignored.\n \nHaving looked in the code, there's a call to calculate the dimensions for a worksheet:\n$dimension = explode(':', $sheet->calculateWorksheetDimension());\nThis is returning \"A1:Z67\"\n \n$sheet->calculateWorksheetDimension() in turn calls $sheet->getHighestColumn(), which is used in quite a few places in the worksheet class. I'm guessing that the getHighestColumn() method is consistently returning erroneous values for a range of methods.\n \nLooking at the getHighestColumn() method:\n \n    public function getHighestColumn()\n    {\n        // Highest column\n        $highestColumn = 'A';\n               \n        // Loop trough cells\n        foreach ($this->_cellCollection as $cell) {\n        \tif (PHPExcel_Cell::columnIndexFromString($highestColumn) < PHPExcel_Cell::columnIndexFromString($cell->getColumn())) {\n        \t\t$highestColumn = $cell->getColumn();\n        \t}\n        }\n        \n        // Loop trough column dimensions\n        foreach ($this->_columnDimensions as $dimension) {\n        \tif ($highestColumn < $dimension->getColumnIndex()) {\n        \t\t$highestColumn = $dimension->getColumnIndex();\n        \t}\n        }\n \n        // Return\n        return $highestColumn;\n    }\n \nThe $highestColumn value is correct after the loop through _cellCollection, but reduced to 'Z' by the loop through _columnDimensions.\n \nLooking even further at the if test in the dimension loop, the code is comparing 'AJ' (in my case) against 'A', 'B', 'C', etc. as an alpha comparison. Therefore 'Z' is higher that 'AJ'. This comparison should be against the numeric Column Index, not against the alpha column name.",
+    "LastUpdatedDate": "2013-05-16T05:43:11.313-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Medium",
+      "Severity": 100,
+      "Id": 2
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2008-10-15T07:49:10.747-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "HTML/PDF Writers limited to 26 columns by calculateWorksheetDimension",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 7805
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "The fix to this is easy.\r\nThe key question is: how many other features/bugs will at affect?",
+      "PostedDate": "2008-10-15T08:11:01.613-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2008-10-15T08:18:55.697-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2008-10-15T08:23:35.197-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "e.g. Could this be the cause behind work item 7789?",
+      "PostedDate": "2008-10-15T08:50:47.833-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Mark, I think this one is fixed correctly. The fix will probably not affect any other portion of code as I've added this last piece of code quite late in the development process (WI 7372 and WI 7380)",
+      "PostedDate": "2008-10-15T23:16:40.01-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2008-10-17T09:11:12.89-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:04:42.04-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:43:11.313-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

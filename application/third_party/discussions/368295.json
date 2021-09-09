@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "867047",
+    "ThreadId": "368295",
+    "Html": "\r\n<p>hello</p>\r\n<p>i have the <a href=\"http://websantory.net/phpexcel/template.xlsx\" target=\"_blank\">\r\ntemplate</a></p>\r\n<p>and use the code :</p>\r\n<pre><div style=\"background-color:white; color:black\"><pre>$objReader = PHPExcel_IOFactory::createReader(<span style=\"color:#a31515\">'Excel2007'</span>);\r\n$objPHPExcel = $objReader-&gt;load($repertoire_travail_cable.<span style=\"color:#a31515\">&quot;template/rapport cable2.xlsx&quot;</span>);\r\n$worksheet = $objPHPExcel-&gt;setActiveSheetIndexByName(<span style=\"color:#a31515\">&quot;Cuivre&quot;</span>);\r\n\r\n...............\r\n\r\n\t\r\n$writer = PHPExcel_IOFactory::createWriter($objPHPExcel, <span style=\"color:#a31515\">'Excel2007'</span>);\r\n$writer-&gt;save($repertoire_travail_cable.$row_client[<span style=\"color:#a31515\">'Client'</span>].<span style=\"color:#a31515\">'.xlsx'</span>);\r\n</pre>\n</div>\n</pre>\r\n<p>And in the result, the background cell are not keept. and the code :</p>\r\n<p>&#65279;</p>\r\n<div style=\"background-color:white; color:black\">\r\n<pre>$worksheet-&gt;getStyleByColumnAndRow(0, 2)-&gt;getFill()-&gt;getStartColor()-&gt;setARGB(<span style=\"color:#a31515\">'FF00FF'</span>)\r\n</pre>\r\n</div>\r\n<p>doesn't change the background cell as well.</p>\r\n<p>You can see the <a href=\"http://www.websantory.net/phpexcel/toto.xlsx\" target=\"_blank\">\r\nresult</a></p>\r\n<p>Do you know how can i keep and change the background, on my generated file ?</p>\r\n<p>thanks</p>\r\n",
+    "PostedDate": "2012-07-14T16:15:58.533-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "867724",
+    "ThreadId": "368295",
+    "Html": "<p>It helps to understand that setARGB expects an ARGB (<em>red green blue alpha</em>) colour value,</p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>$worksheet-&gt;getStyleByColumnAndRow(0, 2)-&gt;getFill()-&gt;getStartColor()-&gt;setARGB(<span style=\"color: #a31515;\">'FFFF00FF'</span>)\r\n</pre>\r\n</div>\r\n<p>You're passing an RGB colour value, but PHPExcel doesn't automatically add&nbsp;an alpha channel for you.</p>\r\n<p>&nbsp;</p>\r\n<p>setRGB is the method that expects a simple&nbsp;RGB colour value without any alpha channel</p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>$worksheet-&gt;getStyleByColumnAndRow(0, 2)-&gt;getFill()-&gt;getStartColor()-&gt;setRGB(<span style=\"color: #a31515;\">'FF00FF'</span>)\r\n</pre>\r\n</div>\r\n<p>and that will add the alpha channel required to hold the value</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2012-07-15T03:15:53.477-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

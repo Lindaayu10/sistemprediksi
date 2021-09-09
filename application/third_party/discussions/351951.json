@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "822539",
+    "ThreadId": "351951",
+    "Html": "\r\n<p>HI.</p>\r\n<p>I'm creating workbook with about 100 worksheets, and setTitle takes 0.001 seconds on first sheet, and 0.5 seconds on last sheet.</p>\r\n<p>If I remove setTitle, everything is OK.</p>\r\n<p>Here is code</p>\r\n<p></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>\r\n$objPHPExcel = <span style=\"color:blue\">new</span> PHPExcel();\r\n$start0 = (float) array_sum(explode(<span style=\"color:#a31515\">' '</span>,microtime()));\r\n$dummy=<span style=\"color:blue\">array</span>();\r\n<span style=\"color:blue\">for</span>($i=0;$i&lt;30;$i&#43;&#43;) $dummy[]=<span style=\"color:blue\">array</span>(1,2,<span style=\"color:#a31515\">&quot;some text&quot;</span>,<span style=\"color:#a31515\">&quot;more text&quot;</span>,4,5,6,7,8,<span style=\"color:#a31515\">&quot;text&quot;</span>);\r\n<span style=\"color:blue\">for</span>($sheet=0;$sheet&lt;100;$sheet&#43;&#43;)\r\n{\r\n\r\n\t$objWorksheet1 = $objPHPExcel-&gt;createSheet();\r\n\t\t$start = (float) array_sum(explode(<span style=\"color:#a31515\">' '</span>,microtime()));  <span style=\"color:green\">// start time</span>\r\n\t$objWorksheet1 -&gt;setTitle(<span style=\"color:#a31515\">&quot;Worksheet_&quot;</span>.$sheet);  <span style=\"color:green\">// this line is problem</span>\r\n\t\t$end = (float) array_sum(explode(<span style=\"color:#a31515\">' '</span>,microtime())); <span style=\"color:green\">// end time</span>\r\n\t$objWorksheet1-&gt;fromArray($dummy, null, <span style=\"color:#a31515\">&quot;A3&quot;</span>);\r\n\t\r\n\t$objWorksheet1-&gt;setCellValueByColumnAndRow(0,1,($end-$start)); // write time to cell\r\n}\r\n$objPHPExcel-&gt;setActiveSheetIndex(0);\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow(0,1,($end-$start0));\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, <span style=\"color:#a31515\">'Excel2007'</span>);\r\n$objWriter-&gt;save(<span style=\"color:#a31515\">'phpexcel.xlsx'</span>);\r\n</pre>\r\n</div>\r\n<p></p>\r\n",
+    "PostedDate": "2012-04-11T12:05:20.927-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "822563",
+    "ThreadId": "351951",
+    "Html": "<p>It's a bug if it doesn't work as expected, a performance issue if it's slow.</p>\n<p>When you change a worksheet title using setTitle(), the code checks all existing cells on all existing sheets to see if there are any formulae that reference the worksheet that you're renaming, and modify the formula as well. Obviously, the more worksheets you have, the longer this will take.</p>\n<p>When you're creating a new sheet and setting the title for the first time, this is clearly an unnecessary overhead: this was a known issue, so the latest SVN code supports a flag in the setTitle() method that suppresses this reference check (although it still performs standard title validation).</p>\n<p>&nbsp;P.S.</p>\n<p>Your use of</p>\n<div style=\"color: black; background-color: white;\">\n<pre>$start = (float) array_sum(explode(<span style=\"color: #a31515;\">' '</span>,microtime())); \r\n</pre>\n</div>\n<p>isn't sensible... the two parts returned by microtime() are measured in microseconds and seconds respectively, so you're adding values in different units.</p>\n<p>use</p>\n<div style=\"color: black; background-color: white;\">\n<pre>$start = microtime(true);\r\n</pre>\n</div>\n<p>instead (and the equivalent for $end)</p>",
+    "PostedDate": "2012-04-11T12:45:31.4-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "1078662",
+    "ThreadId": "452936",
+    "Html": "I'm using an .XLS spreadsheet to calculate some data, inputting/updating numerous fields with a base value and having excel calculate the sums for me. \r<br />\n<br />\nI am able to save all the data to a new .XLS file, and all calculations are correct. \r<br />\n<br />\nWhen opening the created file, and accessing the cells for the required values a null value is being returned. <br />\n<pre><code>$objPHPExcel = PHPExcel_IOFactory::load(ABSPATH .'wp-content/plugins/folder/UKPAYE-2013-2014v1-work-base.xls');\n    \n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('C5', $options['class_2_ni']);\n\n$nowtime = time();  \n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, &quot;Excel5&quot;);\n$objWriter-&gt;save(ABSPATH .'wp-content/plugins/folder/UKPAYE-2013-2014-'.$nowtime.'.xls');\n\n//Load file\n$objReader = new PHPExcel_Reader_Excel5();\n$objReader-&gt;setReadDataOnly(true);\n$objPHPExcel = $objReader-&gt;load(ABSPATH .'wp-content/plugins/folder/UKPAYE-2013-2014-'.$nowtime.'.xls');\n\n$total = $objPHPExcel-&gt;getActiveSheet()-&gt;getCell('G7')-&gt;getCalculatedValue();\necho $total;</code></pre>\n\nThe cell that holds the required value is populated from many cells. Some of which contain the following\r<br />\n=IF(C18&gt;=G21,IF(C18&gt;=I21,I21<em>F21,C18</em>F21),0)\r<br />\n=IF((C18-I21)&gt;0,C18-I21,0)\r<br />\n<br />\nIf this is down to the sums, is it possible to save the data as a flat .xls?\r<br />\n<br />\nThanks<br />\n",
+    "PostedDate": "2013-08-09T03:56:16.903-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1078676",
+    "ThreadId": "452936",
+    "Html": "Could you explain what a <code>flat .xls</code> is? I've never heard of it before<br />\n",
+    "PostedDate": "2013-08-09T04:46:22.19-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1078757",
+    "ThreadId": "452936",
+    "Html": "Sorry, that's not really a technical term. I meant having a .xls file that was created that didn't have the formula in it. Anyway, I've figured out what the problem was.\r<br />\n<br />\nSome of my cells were percentage values, however phpexcel didn't understand the cell format and was entering them as a string. To resolve this issue I change the following:\r<br />\n<br />\nFrom:<br />\n<pre><code>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('F21', $options['tax_1'].'%'));</code></pre>\n\nTo:<br />\n<pre><code>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('F21', ($options['tax_1'] / 100));\n$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('F21')-&gt;getNumberFormat()-&gt;setFormatCode('0.00%');</code></pre>\n\nRegards<br />\n",
+    "PostedDate": "2013-08-09T08:43:41.397-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

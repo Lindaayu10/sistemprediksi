@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "116005",
+    "ThreadId": "34927",
+    "Html": "Hello,<br>\r\nI create an Excel 2007 file as template with some conditional formatting in. Then I wrote some more data in it with a PHP script and export this file again.<br>\r\nI read the file with Excel 2003 because it is the only software we have as standard here.<br>\r\nAnd there is an error concerning the conditional formatting: <br>\r\n&quot;<br>\r\nThis file was created in a newer version of Microsoft Excel. The file has been converted to a format you can work with but the following issues were encountered. The file has been opened in read-only mode to protect the original file.<br>\r\n<br>\r\n- Some cells contain types of conditional formatting that are not supported in this version of Excel.<br>\r\n&quot;<br>\r\nThen the conditional formatting is not working in Excel2003. The funny thing is that the conditional formatting in the template is working when I open it with Excel2003. Do you have any ideas how to solve this issue?<br>\r\n<br>\r\nThank you!<br>\r\nLudo<br>\r\n",
+    "PostedDate": "2008-09-04T06:38:19.4-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "116012",
+    "ThreadId": "34927",
+    "Html": "Not sure about this one as I have not worked much with conditional formatting. Sounds like Excel2007 writer is writing some extra data which is not needed, but which makes MS Office Excel 2003 choke.<br>\r\n<br>\r\nCan you possibly try to cut the problem down to simplest possible spreadsheet still showing the error and upload the file somewhere? E.g. just a single cell with conditional formatting. Then maybe some of us can do some tests. Also, do you see the error after a plain read/write using Excel2007 reader/writer without adding any data?<br>\r\n",
+    "PostedDate": "2008-09-04T06:58:46.363-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "116049",
+    "ThreadId": "34927",
+    "Html": "Hello Koyama,<br>\r\n<br>\r\nI uploaded my file here -&gt; <a title=\"simple test file\" href=\"http://www.sendspace.com/file/whtopy\">http://www.sendspace.com/file/whtopy</a>. There is conditional formatting in this simple template. You can test it when writting a bigger number in 'Served market' than in 'Total market' for example.<br>\r\n<br>\r\nHere is the code I used for plain read/write test: <br>\r\n<br>\r\n&lt;?<br>\r\nsession_start();<br>\r\ninclude('mysql_connection.php');<br>\r\n<br>\r\n/** Error reporting */<br>\r\nerror_reporting(E_ALL);<br>\r\n<br>\r\n/** Include path **/<br>\r\nset_include_path(get_include_path() . PATH_SEPARATOR . '../Classes/');<br>\r\n<br>\r\n/** Include different files from the library to read and write **/<br>\r\ninclude 'PHPExcel/IOFactory.php';<br>\r\ninclude 'PHPExcel/Reader/Excel2007.php';<br>\r\ninclude 'PHPExcel/Writer/Excel5.php';<br>\r\nif (!file_exists(&quot;../files/testingphpexcel.xlsx&quot;)) {<br>\r\n&nbsp;&nbsp;&nbsp; exit(&quot;Can not find the template file!&quot;);<br>\r\n}<br>\r\n<br>\r\necho date('H:i:s') . 'start loading'.'&lt;br/&gt;';<br>\r\necho date('H:i:s') . &quot; Peak memory usage: &quot; . (memory_get_peak_usage(true) / 1024 / 1024) . &quot; MB\\r\\n&quot;.'&lt;br/&gt;';<br>\r\n<br>\r\n$objReader = PHPExcel_IOFactory::createReader(&quot;Excel2007&quot;);<br>\r\n$objPHPExcel = $objReader-&gt;load(&quot;../files/testingphpexcel.xlsx&quot;);<br>\r\n<br>\r\necho date('H:i:s') . 'file loaded'.'&lt;br/&gt;';<br>\r\necho date('H:i:s') . &quot; Peak memory usage: &quot; . (memory_get_peak_usage(true) / 1024 / 1024) . &quot; MB\\r\\n&quot;.'&lt;br/&gt;';<br>\r\n<br>\r\n<br>\r\necho date('H:i:s') .'no write (test)'.'&lt;br/&gt;';<br>\r\necho date('H:i:s') . &quot; Peak memory usage: &quot; . (memory_get_peak_usage(true) / 1024 / 1024) . &quot; MB\\r\\n&quot;.'&lt;br/&gt;';<br>\r\n<br>\r\n//Save the template file as Excel 2003 and not 2007<br>\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');<br>\r\n$objWriter-&gt;setOffice2003Compatibility(true);<br>\r\n$objWriter-&gt;save(&quot;../files/success2007.xlsx&quot;);<br>\r\n<br>\r\necho date('H:i:s') .'saved'.'&lt;br/&gt;';<br>\r\necho date('H:i:s') . &quot; Peak memory usage: &quot; . (memory_get_peak_usage(true) / 1024 / 1024) . &quot; MB\\r\\n&quot;.'&lt;br/&gt;';<br>\r\n?&gt;<br>\r\n<br>\r\n<br>\r\nThen the conditional formatting is not working any more! :-(<br>\r\n<br>\r\nHere is the result I got: <br>\r\n<br>\r\n17:38:15start loading<br>\r\n17:38:15 Peak memory usage: 6 MB <br>\r\n17:38:29file\r\nloaded<br>\r\n17:38:29 Peak memory usage: 64.75 MB <br>\r\n17:38:29no write\r\n(test)<br>\r\n17:38:29 Peak memory usage: 64.75 MB <br>\r\n17:39:28saved<br>\r\n17:39:28\r\nPeak memory usage: 69 MB <br>\r\nThank you very much for providing so much help!<br>\r\nLudo<br>\r\n",
+    "PostedDate": "2008-09-04T08:43:17.38-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "116101",
+    "ThreadId": "34927",
+    "Html": "Hmm... this looks like a bug. Let's see what the Excel2007 developers say?<br>\r\n<br>\r\n<a href=\"http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=7516\">http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=7516</a><br>\r\n",
+    "PostedDate": "2008-09-04T11:07:20.187-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "116200",
+    "ThreadId": "34927",
+    "Html": "Ok, thanks Koyama for your help!<br>\r\n",
+    "PostedDate": "2008-09-04T17:05:40.81-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

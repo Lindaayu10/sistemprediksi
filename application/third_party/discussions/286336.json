@@ -1,0 +1,66 @@
+[
+  {
+    "Id": "725991",
+    "ThreadId": "286336",
+    "Html": "<p>I am using PHPExcel to pull data on a certain sheet. The sheet references a value of a logical test cell, and is producing an incorrect value. Perhaps there is something wrong with the cell formula...</p>\n<pre>=IF($C$22&lt;&gt;\"\",$C$22*$E$20,$B$22*$E$20)</pre>\n<p>When I use the code below, it will use the 'false' value of the logical test even if it's true.</p>\n<div style=\"color: black; background-color: white;\">\n<pre>$objReader = PHPExcel_IOFactory::createReader(<span style=\"color: #a31515;\">'Excel2007'</span>);\n$objReader-&gt;setReadDataOnly(true);\n$objPHPExcel = $objReader-&gt;load(<span style=\"color: #a31515;\">\"file.xlsx\"</span>);\n$objWorksheet = $objPHPExcel-&gt;setActiveSheetIndex(4);\nPHPExcel_Calculation::getInstance()-&gt;disableCalculationCache();\n<span style=\"color: blue;\">echo</span> <span style=\"color: #a31515;\">'&lt;table border=1&gt;'</span> . <span style=\"color: #a31515;\">\"\\n\"</span>;\n<span style=\"color: blue;\">foreach</span> ($objWorksheet-&gt;getRowIterator() <span style=\"color: blue;\">as</span> $row) {\n  <span style=\"color: blue;\">echo</span> <span style=\"color: #a31515;\">'&lt;tr&gt;'</span> . <span style=\"color: #a31515;\">\"\\n\"</span>;\n  $cellIterator = $row-&gt;getCellIterator();\n  $cellIterator-&gt;setIterateOnlyExistingCells(false); <span style=\"color: green;\">// This loops all cells,</span>\n                                                     <span style=\"color: green;\">// even if it is not set.</span>\n                                                     <span style=\"color: green;\">// By default, only cells</span>\n                                                     <span style=\"color: green;\">// that are set will be</span>\n                                                     <span style=\"color: green;\">// iterated.</span>\n  <span style=\"color: blue;\">foreach</span> ($cellIterator <span style=\"color: blue;\">as</span> $cell) {\n    <span style=\"color: blue;\">echo</span> <span style=\"color: #a31515;\">'&lt;td&gt;'</span> . $cell-&gt;getCalculatedValue() . <span style=\"color: #a31515;\">'&lt;/td&gt;'</span> . <span style=\"color: #a31515;\">\"\\n\"</span>;\n  }\n  <span style=\"color: blue;\">echo</span> <span style=\"color: #a31515;\">'&lt;/tr&gt;'</span> . <span style=\"color: #a31515;\">\"\\n\"</span>;\n}\n<span style=\"color: blue;\">echo</span> <span style=\"color: #a31515;\">'&lt;/table&gt;'</span> . <span style=\"color: #a31515;\">\"\\n\"</span>;\n</pre>\n</div>",
+    "PostedDate": "2012-01-16T13:11:26.687-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "725997",
+    "ThreadId": "286336",
+    "Html": "<p>PHPExcel uses the false value even when true using this formula as well.</p>\r\n<p>\r\n<pre>=IF($C$22=\"\",$B$22*$E$20,$C$22*$E$20)</pre>\r\n</p>",
+    "PostedDate": "2012-01-16T13:22:59.857-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "726006",
+    "ThreadId": "286336",
+    "Html": "<p>I found a work around in discussion:62010 to use getOldCalculatedValue().</p>\r\n<p>Can someone please explain to why getOldCalculatedValue works?</p>\r\n<p>I believe this may relate to:</p>\r\n<pre>Bugfix:   (MB) Work item 10362 - getCalculatedValue() sometimes incorrect with IF formula and 0-values<br />Bugfix:   (MBaker) Work item 10563 - IF formula calculation problem in PHPExcel 1.7.0 (string comparisons)<br />Bugfix:   (ET) Work item 10272 - Problem in reading formula : IF( IF ) with PHPExcel_Reader_Excel5<br /><br /></pre>",
+    "PostedDate": "2012-01-16T13:38:24.36-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "726184",
+    "ThreadId": "286336",
+    "Html": "<p>getOldCalculatedValues() reads the value as it was last calculated by MS Excel (if available) though you can't guarantee it will always be there, or be correct if it is (you can disable autocalculation in MS Excel, or it won't be set if loading a CSV file); while getCalculatedValue() actually recalculates the value within PHPExcel itself.</p>\r\n<p>Quite why your formula isn't calculating correctly is a problem... can you generate a test case spreadsheet or at least let me know the values for the referenced cells.</p>",
+    "PostedDate": "2012-01-16T23:40:08.337-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "726659",
+    "ThreadId": "286336",
+    "Html": "<p>Can I add attachments on here?</p>\n<p>Here is my PHP code:</p>\n<div style=\"color: black; background-color: white;\">\n<pre>$objReader = PHPExcel_IOFactory::createReader(<span style=\"color: #a31515;\">'Excel2007'</span>);\r\n$objReader-&gt;setReadDataOnly(true);\r\n$objPHPExcel = $objReader-&gt;load(<span style=\"color: #a31515;\">\"file.xlsx\"</span>);\r\n$objWorksheet = $objPHPExcel-&gt;setActiveSheetIndex(0);\r\nPHPExcel_Calculation::getInstance()-&gt;disableCalculationCache();\r\n<span style=\"color: blue;\">echo</span> <span style=\"color: #a31515;\">'&lt;table border=1&gt;'</span> . <span style=\"color: #a31515;\">\"\\n\"</span>;\r\n<span style=\"color: blue;\">foreach</span> ($objWorksheet-&gt;getRowIterator() <span style=\"color: blue;\">as</span> $row) {\r\n  <span style=\"color: blue;\">echo</span> <span style=\"color: #a31515;\">'&lt;tr&gt;'</span> . <span style=\"color: #a31515;\">\"\\n\"</span>;\r\n  $cellIterator = $row-&gt;getCellIterator();\r\n  $cellIterator-&gt;setIterateOnlyExistingCells(false); <span style=\"color: green;\">// This loops all cells,</span>\r\n                                                     <span style=\"color: green;\">// even if it is not set.</span>\r\n                                                     <span style=\"color: green;\">// By default, only cells</span>\r\n                                                     <span style=\"color: green;\">// that are set will be</span>\r\n                                                     <span style=\"color: green;\">// iterated.</span>\r\n  <span style=\"color: blue;\">foreach</span> ($cellIterator <span style=\"color: blue;\">as</span> $cell) {\r\n    <span style=\"color: blue;\">echo</span> <span style=\"color: #a31515;\">'&lt;td&gt;'</span> . $cell-&gt;getCalculatedValue() . <span style=\"color: #a31515;\">'&lt;/td&gt;'</span> . <span style=\"color: #a31515;\">\"\\n\"</span>;\r\n  }\r\n  <span style=\"color: blue;\">echo</span> <span style=\"color: #a31515;\">'&lt;/tr&gt;'</span> . <span style=\"color: #a31515;\">\"\\n\"</span>;\r\n}\r\n<span style=\"color: blue;\">echo</span> <span style=\"color: #a31515;\">'&lt;/table&gt;'</span> . <span style=\"color: #a31515;\">\"\\n\"</span>;\r\n</pre>\n</div>\n<hr />\n<p>Here is what file.xlsx looks like in Excel:</p>\n<table>\n<tbody>\n<tr>\n<td>&nbsp;</td>\n<td>A</td>\n<td>B</td>\n<td>C</td>\n</tr>\n<tr>\n<td>1</td>\n<td>Factor</td>\n<td>50</td>\n<td>&nbsp;</td>\n</tr>\n<tr>\n<td>2</td>\n<td colspan=\"3\">&nbsp;</td>\n</tr>\n<tr>\n<td>3</td>\n<td>Column 1</td>\n<td>Column 2</td>\n<td>Use Column 2 if not empty</td>\n</tr>\n<tr>\n<td>4</td>\n<td>20</td>\n<td>0</td>\n<td>0</td>\n</tr>\n</tbody>\n</table>\n<p>Cell C4 has the formula \"﻿﻿﻿﻿﻿﻿﻿﻿﻿=IF($B$4&lt;&gt;\"\",($B$4*$B$1),($A$4*$B$1))</p>\n<p>After I run PHP Excel, it ignores the '0' in B4 and calculates 20*50 instead of 20*0.</p>\n<p>Make sense?</p>",
+    "PostedDate": "2012-01-17T12:47:11.153-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "726671",
+    "ThreadId": "286336",
+    "Html": "<p>Files can't be attached to discussion threads, but we do have a Work Item specially for that purpose. <a href=\"http://phpexcel.codeplex.com/workitem/10749?ProjectName=phpexcel\">http://phpexcel.codeplex.com/workitem/10749?ProjectName=phpexcel</a></p>",
+    "PostedDate": "2012-01-17T13:04:09.63-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "726730",
+    "ThreadId": "286336",
+    "Html": "<p>http://phpexcel.codeplex.com/Download/AttachmentDownload.ashx?ProjectName=phpexcel&amp;WorkItemId=10749&amp;FileAttachmentId=6128</p>",
+    "PostedDate": "2012-01-17T14:11:31.493-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "731237",
+    "ThreadId": "286336",
+    "Html": "<blockquote style=\"border: solid .1em #ccc; font-style: italic; margin: .25em 1em 0 1em; padding: 0 .25em 0 .25em;\"><strong>MarkBaker wrote:</strong><br />\r\n<p>Files can't be attached to discussion threads, but we do have a Work Item specially for that purpose. <a href=\"http://phpexcel.codeplex.com/workitem/10749?ProjectName=phpexcel\">http://phpexcel.codeplex.com/workitem/10749?ProjectName=phpexcel</a></p>\r\n</blockquote>\r\n<p>Mark,</p>\r\n<p>Any updates on this?</p>",
+    "PostedDate": "2012-01-26T10:53:40.933-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

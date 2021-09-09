@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "1035729",
+    "ThreadId": "441581",
+    "Html": "Same issue on two different systems:\r<br />\nMac OS 10.6, PHP 5.3.10, PHPExcel 1.7.8\r<br />\nCentOS 5.5, PHP 5.3.3, PHPExcel 1.7.8\r<br />\n<br />\nI have a spreadsheet that contains &quot;COUNTIFS&quot; ... I know that PHPExcel does not &quot;know&quot; (for lack of a better word) about this function. That is OK since I do not need to read the calculated value from it. I do want to keep it in the spreadsheet, though, so I am proceeding by setting setPreCalculateFormulas to false.\r<br />\n<br />\nIf I do nothing more than below, I get completely empty cells where the COUNTIFS functions should be. Of course, if I do not setPreCalculateFormulas(FALSE), then it complaints about the function and does not save anything out... Can anyone think of a reason why setPreCalculateFormulas(FALSE) would be removing all formulas from the Excel spreadsheet?\r<br />\n<br />\n$objReader = PHPExcel_IOFactory::createReader('Excel2007');\r<br />\n$xlsx = $objReader-&gt;load($template);\r<br />\n<br />\n$objWriter = PHPExcel_IOFactory::createWriter($xlsx,'Excel2007');\r<br />\n$objWriter-&gt;setPreCalculateFormulas(FALSE);\r<br />\n$objWriter-&gt;save($summary);\r<br />\n<br />\nThanks for any help provided.<br />\n",
+    "PostedDate": "2013-04-25T09:52:37.07-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1036042",
+    "ThreadId": "441581",
+    "Html": "I've never experienced this at all. setPreCalculateFormulas to False simply stops the save from executing the calculation engine to retrieve the calculated value for every cell. The actual formula should be written regardless; and in fact will be written even if it's an invalid formula; though MS EXcel would almost certainly complain when a spreadsheet containing invalid formulae was loaded.<br />\n",
+    "PostedDate": "2013-04-26T05:00:47.64-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1037124",
+    "ThreadId": "441581",
+    "Html": "Hello,\r<br />\ni can confirm that it is possible to write &quot;unknown&quot; formulas in excel setting setPreCalculateFormulas to False\r<br />\nI did it with some special bloomberg functions with no problem at all..<br />\n",
+    "PostedDate": "2013-04-29T07:02:06.68-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1038267",
+    "ThreadId": "441581",
+    "Html": "The spreadsheet in question has multiple sheets with formulas referencing other sheets (and these sheet names have spaces). I really don't know what is going on, but I do know this client likes to get really &quot;creative&quot; when designing Excel spreadsheets. Maybe the sheet names/hidden rows/etc has something to do with it on top of setPreCalculateFormulas? Possible its elsewhere.\r<br />\n<br />\nI can create my own spreadsheet with &quot;COUNTIFS&quot; formulas and setPreCalculateFormulas does not remove them, but for whatever reason this spreadsheet is giving me problems. I can't save the spreadsheet w/out &quot;setPreCalculateFormulas&quot; because of the COUNIFS formulas, and I can't setPreCalculateFormulas to false because it completely removes the formula altogether.\r<br />\n<br />\nI wish I could provide the spreadsheet to prove my case, but can't since it is from a large (financial industry, lots of regulations) client who would not appreciate it being shared. I can guarantee you formulas are being removed from the spreadsheet, though. I'll post a response here if I ever do figure it out. For now, I think I'll try to come up with an alternate solution to getting data into this sheet...<br />\n",
+    "PostedDate": "2013-05-01T13:13:52.403-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1038316",
+    "ThreadId": "441581",
+    "Html": "Are they array formulas? At present PHPExcel doesn't support these, which is one of the reasons I'm restructuring the cell definition and rewriting the calculation engine.<br />\n",
+    "PostedDate": "2013-05-01T15:37:45.213-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1041526",
+    "ThreadId": "441581",
+    "Html": "They are array formulas, indeed. Interesting that they're completely removed from the cells. At least now I know why.<br />\n",
+    "PostedDate": "2013-05-09T12:28:25.217-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

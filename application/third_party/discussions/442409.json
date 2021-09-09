@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "1038832",
+    "ThreadId": "442409",
+    "Html": "Hello, fairly new PHPExcel user here, but pretty experienced with PHP. I really like PHPExcel, and think it will be incredibly useful for my application. Thanks to all who support it.\r<br />\n<br />\nI think this is a pretty simple question, but I have spent a bunch of hours Googling and even reading the documentation ;) with no success.\r<br />\n<br />\nI get spreadsheets from all over the world, each formatted in its own way. In other words, I have no idea whether a given cell will be a string, date, numeric, etc. What I need to do is read the cell contents as displayed in the spreadsheet, regardless of what the underlying Excel data type is. Then I store the contents in a database.\r<br />\n<br />\nHere's a recent example. Let's say cell A1 looks like &quot;24:00:00&quot; when you open it in Excel. But if you look at the formula, it's value is &quot;1/1/1900  12:00:00 AM&quot;. I need to retrieve and store the contents of A1 as &quot;24:00:00&quot;.\r<br />\n<br />\nBut no matter what I've tried, I keep getting &quot;1&quot; as the cell content. I realize that this is the correct value for 1/1/1990, the MS date system. I cannot explicitly reformat the contents of A1 to get &quot;24:00:00&quot; because the next spreadsheet from the next client will have something totally different in A1.\r<br />\n<br />\nI've tried using toArray and getFormattedValue. I am NOT using setReadDataOnly. I'm having PHPExcel choose the reader type (love this feature!). I was intrigued by the setValueExplicit function, but I need a &quot;getValueExplicit&quot;.\r<br />\n<br />\nTo reiterate, the above example of &quot;24:00:00&quot; is just an example, I've run into multiple situations where the value I've retrieved does not look like what is displayed in the spreadsheet.\r<br />\n<br />\nThe issue is not with my database (SQL Server) because I haven't gotten that far yet. I've done var_dump (with toArray) and also written to a csv with the PHPExcel csv writer, and comparing the results to what is displayed in the spreadsheet.\r<br />\n<br />\nAgain, thanks for the wonderful tool, and any suggestions you can offer.\r<br />\n<br />\nDave<br />\n",
+    "PostedDate": "2013-05-02T18:22:14.497-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1038891",
+    "ThreadId": "442409",
+    "Html": "getValue() will return 1 for your example, but getFormattedValue() or getCalculatedValue() should certainly work converting the time/datestamp to a formatted time and/or date string automatically; but without knowing exactly what's in the cell and what number format masking it uses I can't really expand any further. You could also consider getDataType() which returns the type set by get getValueExplicit() but which is PHPExcel_Cell_DataType::TYPE_NUMERIC for both numbers and for dates.<br />\n",
+    "PostedDate": "2013-05-02T23:37:50.337-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1039113",
+    "ThreadId": "442409",
+    "Html": "Mark,\r<br />\n<br />\nThank you for your quick reply! Most of what I've learned about PHPExcel to date are from your answers to newbies like me in various forums like this!\r<br />\n<br />\nI tried both getFormattedValue() and getCalculatedValue() for my &quot;24:00:00&quot; example, and both return &quot;1&quot;. If I open the spreadsheet and look at the cell format, it is custom: &quot;[h]:mm:ss&quot;. In fact, I'm pretty sure that every case in which I'm unable to retrieve a cell's contents as they appear in the spreadsheet, the cell has had a custom format. \r<br />\n<br />\nAnother example is a cell which has what looks like a straightforward date, &quot;1/15/2013&quot;. But its Excel format was also custom, not one of the usual Excel date formats. No matter how I read it, the contents are converted to &quot;1-15-2013&quot; (i.e. slashes changed to dashes). Believe it or not, this simple substitution causes grief for my application (don't ask me why, very complicated ;). If I change the cell format to the standard Excel &quot;mm/dd/yy&quot; format, then I can read it with slashes.\r<br />\n<br />\nSo my problem seems to revolve around custom cell formats, primarily with date and time. I could upload an example spreadsheet, but not sure how.\r<br />\n<br />\nFor the record, here is my code:\r<br />\n<br />\n$XLFileType = PHPExcel_IOFactory::identify('tiny.xls');\r<br />\n$objReader = PHPExcel_IOFactory::createReader($XLFileType);\r<br />\n$objReader-&gt;setLoadSheetsOnly($sheetname);\r<br />\n$objPHPExcel = $objReader-&gt;load($XLFileName); \r<br />\n$objWorksheet = $objPHPExcel-&gt;setActiveSheetIndexByName('sheet1');\r<br />\necho 'cell A1 is ' . $objPHPExcel-&gt;getActiveSheet()-&gt;getCell('A1')-&gt;getFormattedValue();\r<br />\n<br />\nRegards,\r<br />\nDave<br />\n",
+    "PostedDate": "2013-05-03T10:01:15.623-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1039115",
+    "ThreadId": "442409",
+    "Html": "minor corrections to posted code above:\r<br />\n<br />\n$XLFileType = PHPExcel_IOFactory::identify('tiny.xls'); \r<br />\n$objReader = PHPExcel_IOFactory::createReader($XLFileType); \r<br />\n$objReader-&gt;setLoadSheetsOnly('sheet1'); \r<br />\n$objPHPExcel = $objReader-&gt;load('tiny.xls'); \r<br />\n$objWorksheet = $objPHPExcel-&gt;setActiveSheetIndexByName('sheet1'); \r<br />\necho 'cell A1 is ' . $objPHPExcel-&gt;getActiveSheet()-&gt;getCell('A1')-&gt;getFormattedValue(); <br />\n",
+    "PostedDate": "2013-05-03T10:04:11.17-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

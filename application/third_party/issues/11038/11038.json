@@ -1,0 +1,126 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel_Reader_SYLK",
+      "DisplayName": "PHPExcel_Reader_SYLK"
+    },
+    "ClosedComment": "Fixed in SVN.",
+    "ClosedDate": "2010-01-25T04:13:36.01-08:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "The SYLK reader does not decode special characters and umlauts.\n \nI've hacked a quick solution that works for me, but a lot of special chars and accents are missing.\n \nThe patch is against PHPExcel/Reader/SYLK.php as of version 1.7.1.",
+    "LastUpdatedDate": "2013-05-16T05:42:14.89-07:00",
+    "PlannedForRelease": "PHPExcel 1.7.3 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-12-04T07:25:14.303-08:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Special characters and accents in SYLK reader",
+    "Type": {
+      "Name": "Feature",
+      "Id": 1
+    },
+    "VoteCount": 1,
+    "Id": 11038
+  },
+  "FileAttachments": [
+    {
+      "FileId": 3586,
+      "FileName": "SYLK.patch",
+      "DownloadUrl": ".\\3586"
+    },
+    {
+      "FileId": 3676,
+      "FileName": "SYLK-2.patch",
+      "DownloadUrl": ".\\3676"
+    },
+    {
+      "FileId": 3677,
+      "FileName": "SYLK.php",
+      "DownloadUrl": ".\\3677"
+    },
+    {
+      "FileId": 3680,
+      "FileName": "wi-11038.patch",
+      "DownloadUrl": ".\\3680"
+    },
+    {
+      "FileId": 3681,
+      "FileName": "sylk-cp1252.slk",
+      "DownloadUrl": ".\\3681"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "hopfgartner, thanks for your patch.\r\n\r\nI have tried to break down your patch and make some minor modifications/simplifications.\r\nUploading SYLK-2.patch together and for easiness also the patched SYLK.php.\r\n\r\nI am not so familiar with SYLK file format. Quoting from Wikipedia:\r\nhttp://en.wikipedia.org/wiki/SYmbolic_LinK_%28SYLK%29\r\n-----\r\n\"Note that even if a SYLK file is created by an application that supports Unicode (for example Microsoft Excel), the SYLK file will be encoded in the current system's ANSI code page, not in Unicode. If the application contained characters that were displayable in Unicode but have no codepoint in the current system's code page, they will be converted to question marks ('?') in the SYLK file.\"\r\n--end of quote\r\n\r\nAs I understand it you will in general need to know the systems's ANSI code page (where it was saved) in order to read the SYLK file correctly.\r\n\r\nSome more investigation is probably needed. Maybe MarkBaker can shed some light?",
+      "PostedDate": "2010-01-10T20:33:30.06-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-01-10T20:33:36.63-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-01-10T20:34:33.38-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-01-10T20:34:35.98-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "The SYLK encodes everything in straight ANSI through some escapes.\r\nThe resulting PHPExcel objects has the same ancoding as the PHP file, which is UTF-8, since it takes the charcters from the attributes $_accents and $_specialChars.\r\nAs I understand it, I the patch does not depend on the systems code page, but only on the encoding of the sylk.php.\r\n\r\nPeter",
+      "PostedDate": "2010-01-11T05:09:48.633-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "After looking at this issue in greater detail I agree with your latest comment. I had misunderstood the quote from Wikipedia.\r\n\r\nInstead applied wi-11038.patch to latest source code.\r\n\r\nDownload latest source code:\r\nhttp://phpexcel.codeplex.com/SourceControl/list/changesets\r\n\r\nWhat I did was to go through all 256-5 = 251 characters in Windows-1252 character set and check directly the escape sequences by opening the test file sylk-cp1252.slk in a text editor. Built the mapping using brute force. (There were some escape sequence which didn't look like one treated in the initial patch, as an example the EURO symbol: € )\r\n\r\nTested that SYLK files can now be read with characters within the entire Windows-1252.\r\nMany thanks again for looking into this!",
+      "PostedDate": "2010-01-11T23:54:02.34-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-01-11T23:54:11.623-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-01-11T23:54:41.15-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-01-11T23:54:45.457-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-01-25T04:13:36.01-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:03:25.08-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:14.89-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

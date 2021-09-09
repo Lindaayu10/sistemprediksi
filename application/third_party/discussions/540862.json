@@ -1,0 +1,106 @@
+[
+  {
+    "Id": "1229201",
+    "ThreadId": "540862",
+    "Html": "Hi,<br />\ni wrote the following code:<br />\n<pre><code>            $inputFileName = 'doc/ModUnico';\n            $excel2 = PHPExcel_IOFactory::createReader('Excel2007');\n            $excel2 = $excel2-&gt;load($inputFileName.'.xlsx');\n            $excel2-&gt;setActiveSheetIndex(0);\n            $excel2-&gt;getActiveSheet()-&gt;setCellValue('H5', '4');\n            $objWriter = PHPExcel_IOFactory::createWriter($excel2, 'Excel2007');\n            $objWriter-&gt;save($inputFileName.'_.xlsx');\n\n\n            $objPHPexcel = PHPExcel_IOFactory::load($inputFileName.'_.xlsx');\n            header('Content-Type: application/pdf');\n            header('Content-Disposition: attachment;filename=&quot;test.pdf&quot;');\n            header('Cache-Control: max-age=0');\n\n            $objWriter = PHPExcel_IOFactory::createWriter($objPHPexcel, 'PDF');\n            $objWriter-&gt;writeAllSheets();\n            $objWriter-&gt;setPreCalculateFormulas(false);\n            $objWriter-&gt;save('php://output');\n</code></pre>\n\nbut the returned pdf seems to be corrupted, since whe i want to open it i get &quot;Impossible to load file&quot;. Could it due to the complexity of the Excel file?<br />\n",
+    "PostedDate": "2014-04-01T14:55:24.92-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1229210",
+    "ThreadId": "540862",
+    "Html": "What PDF rendering engine are you using? I don't see you setting it anywhere\r<br />\n<br />\nAnd why are you creating the intermediate $inputFileName.'_.xlsx' file?<br />\n",
+    "PostedDate": "2014-04-01T15:48:10.01-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1229275",
+    "ThreadId": "540862",
+    "Html": "Well, i don't know exactly what you mean but i forgot to post these three lines:<br />\n<pre><code>            error_reporting(E_ALL);\n            date_default_timezone_set('Europe/London');\n            require_once 'phpExcel/PHPExcel/IOFactory.php';\n            require_once 'phpExcel/PHPExcel.php';\n\n</code></pre>\n\nI create the intermediate file only to check if the setCellValue('H5', '4'); works correctly, it is only a test. Once i see that the whole works, i'll clean it.<br />\n",
+    "PostedDate": "2014-04-01T22:48:00.39-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1229293",
+    "ThreadId": "540862",
+    "Html": "PHPExcel doesn't include an actual PDF Rendering engine library, juts wrappers to three of the more popular libraries, but you need to install either tcPDF, mPDF or DomPDF separately, and point PHPExcel to which one you have installed - See section <code>6.9.1</code> (&quot;PHPExcel_Writer_PDF&quot;) of the developer documentation, and example <code>01simple-download-pdf.php</code> in the <code>/Examples</code> folder<br />\n",
+    "PostedDate": "2014-04-01T23:57:54.123-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1229301",
+    "ThreadId": "540862",
+    "Html": "OK, i'm new in php and in this stuff so i didn't knew about the renderer. I added the following code:<br />\n<pre><code>            $rendererName = PHPExcel_Settings::PDF_RENDERER_MPDF;\n            $rendererLibrary = 'mpdf.php';\n            $rendererLibraryPath = dirname(__FILE__).'/MPDF57/' . $rendererLibrary;\n\n\n            if (!PHPExcel_Settings::setPdfRenderer(\n                    $rendererName,\n                    $rendererLibraryPath\n                )) {\n                die(\n                    'NOTICE: Please set the $rendererName and $rendererLibraryPath values' .\n                    '&lt;br /&gt;' .\n                    'at the top of this script as appropriate for your directory structure'\n                );\n            }\n</code></pre>\n\nit seems that the rendere is initilizazed correctly, since the message is not put out, but the result is the same... <br />\n",
+    "PostedDate": "2014-04-02T00:34:41.18-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1229325",
+    "ThreadId": "540862",
+    "Html": "Then either save to a filesystem file and see if that file can be opened by a PDF reader; or open the resulting file in a text editor and look for leading/trailing whitespace characters, BOM headers, plaintext error messages, etc<br />\n",
+    "PostedDate": "2014-04-02T01:10:35.353-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1229334",
+    "ThreadId": "540862",
+    "Html": "OK, when i comment the headers, i got the html error page:<br />\n<pre><code>( ! ) Fatal error: Maximum execution time of 30 seconds exceeded in C:\\Program Files (x86)\\Wamp\\www\\Terzer\\MPDF57\\mpdf.php on line 30620 \nCall Stack\n#   Time    Memory  Function    Location\n1   0.0010  153984  {main}( )   ..\\generatePdf3.php:0\n2   21.0122 24642968    save ( )    ..\\generatePdf3.php:59\n3   21.0122 24643168    PHPExcel_Writer_PDF-&gt;__call( )  ..\\generatePdf3.php:59\n4   21.0122 24643448    call_user_func_array ( )    ..\\PDF.php:87\n5   21.0122 24643632    PHPExcel_Writer_PDF_mPDF-&gt;save( )   ..\\PDF.php:87\n6   29.8607 31357056    mPDF-&gt;WriteHTML( )  ..\\mPDF.php:122\n7   29.8717 31361400    mPDF-&gt;purify_utf8( )    ..\\mpdf.php:12824\n8   29.8727 33167792    mPDF-&gt;is_utf8( )    ..\\mpdf.php:30641</code></pre>\n\n",
+    "PostedDate": "2014-04-02T01:22:25.077-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1229363",
+    "ThreadId": "540862",
+    "Html": "Well you are still saving as Excel2007 and then reloading again, all of which takes time; remove those spurious overheads and see if that reduces the execution time enough for the pdf writer to finish its work; and/or increase execution time<br />\n",
+    "PostedDate": "2014-04-02T02:22:36.63-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1229410",
+    "ThreadId": "540862",
+    "Html": "Tried the following code:<br />\n<pre><code>            error_reporting(E_ALL);\n            ini_set('display_errors', TRUE);\n            ini_set('display_startup_errors', TRUE);\n            date_default_timezone_set('Europe/London');\n            require_once 'phpExcel/PHPExcel/IOFactory.php';\n            require_once 'phpExcel/PHPExcel.php';\n\n\n            $rendererName = PHPExcel_Settings::PDF_RENDERER_MPDF;\n            $rendererLibrary = 'MPDF57';\n            $rendererLibraryPath = dirname(__FILE__).'/' . $rendererLibrary;\n\n\n            if (!PHPExcel_Settings::setPdfRenderer(\n                    $rendererName,\n                    $rendererLibraryPath\n                )) {\n                die(\n                    'NOTICE: Please set the $rendererName and $rendererLibraryPath values' .\n                    '&lt;br /&gt;' .\n                    'at the top of this script as appropriate for your directory structure'\n                );\n            }\n\n            $inputFileName = 'doc/ModUnico';\n\n            $objPHPexcel = PHPExcel_IOFactory::load($inputFileName.'.xlsx');\n\n            $objWriter = PHPExcel_IOFactory::createWriter($objPHPexcel, 'PDF');\n            $objWriter-&gt;save('php://output');\n</code></pre>\n\nGot same result/error.\r<br />\nAre you shure that ALL xlsx are supported?<br />\n",
+    "PostedDate": "2014-04-02T04:49:42.99-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1229417",
+    "ThreadId": "540862",
+    "Html": "I've just tried a simple xlsx...and it works :/<br />\n",
+    "PostedDate": "2014-04-02T05:02:13.903-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1229427",
+    "ThreadId": "540862",
+    "Html": "Then increase the php max execution time from 30 seconds to perhaps 60 seconds, I can't control how long it takes mpdf to generate the output<br />\n",
+    "PostedDate": "2014-04-02T05:34:27.467-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1229446",
+    "ThreadId": "540862",
+    "Html": "I found other people with the similar problem <br />\n<a href=\"https://phpexcel.codeplex.com/discussions/399683\" rel=\"nofollow\">https://phpexcel.codeplex.com/discussions/399683</a>\r<br />\nand\r<br />\n<a href=\"https://phpexcel.codeplex.com/discussions/261394\" rel=\"nofollow\">https://phpexcel.codeplex.com/discussions/261394</a>\r<br />\n<br />\n...but these post weren't useful...<br />\n",
+    "PostedDate": "2014-04-02T06:20:54.057-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1229450",
+    "ThreadId": "540862",
+    "Html": "My xlsx has a size of 94k, includes only one sheet, reaches to cell AU372 for 5 DIN4 pages. When i cut it in order to have only one page it works.<br />\n<br />\nIncreased execution time:<br />\n<br />\nFatal error: Allowed memory size of 134217728 bytes exhausted (tried to allocate 38 bytes)<br />\n",
+    "PostedDate": "2014-04-02T06:29:01.277-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

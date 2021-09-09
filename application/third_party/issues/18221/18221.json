@@ -1,0 +1,66 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "setLoadSheetsOnly expects a worksheet name, not a number&#58;&#47;&#42;&#42; &#42; Set which sheets to load &#42; &#42; &#64;param mixed &#36;value &#42;&#9;&#9;This should be either an array of worksheet names to be loaded, or a string containing a single worksheet name. &#42;&#9;&#9;If NULL, then it tells the Reader to read all worksheets in the workbook &#42; &#42; &#64;return PHPExcel_Reader_Excel2007 &#42;&#47;Your sheet name is &#39;2012&#39;, but you&#39;re trying to load a sheet called &#39;0&#39;&#58; As a sheet with a name &#39;0&#39; doesn&#39;t exist, no sheets will be loaded",
+    "ClosedDate": "2012-06-12T02:38:32.63-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "This is the code I use to open the excel first sheet:\n \n\trequire_once($_BASE_PATH.'PHPExcel.php');\n\trequire_once($_BASE_PATH.'PHPExcel/IOFactory.php');\n \n\tclass MyReadFilter implements PHPExcel_Reader_IReadFilter {\n\t\tpublic function readCell($column, $row, $worksheetName = '') {\n\t\t\tif ($row <$GLOBALS['num_rows'] && $col<$GLOBALS['num_cols']) return true;\n\t\t\telse return false;\n\t\t}\n\t}\n \n\t$filterSubset = new MyReadFilter();\n \n\t$reader_type = PHPExcel_IOFactory::identify($name);\n\t$objReader = PHPExcel_IOFactory::createReader($reader_type);\n\t$objReader->setLoadSheetsOnly(0);\n\t$objReader->setReadDataOnly(true);\n\t$objReader->setReadFilter($filterSubset);\n \n\t$objPHPExcel = $objReader->load($name);\n \n\t$objPHPExcel->setActiveSheetIndex(0);\n \nThe last line returns Exception: Active sheet index is out of bounds. with the simple single-sheet xls file provided in attachment. Maybe it's the sheet name, which is numeric?",
+    "LastUpdatedDate": "2013-05-16T05:41:33.353-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2012-06-12T02:17:32.257-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "setActiveSheetIndex(0) returns Exception: Active sheet index is out of bounds.",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 18221
+  },
+  "FileAttachments": [
+    {
+      "FileId": 6472,
+      "FileName": "file upload rates(1).xls",
+      "DownloadUrl": ".\\6472"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "Sorry, I forgot I was using a customized version. My fault!",
+      "PostedDate": "2012-06-12T02:33:49.09-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-06-12T02:38:32.63-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:01:53.64-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:41:33.353-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

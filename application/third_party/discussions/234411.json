@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "520943",
+    "ThreadId": "234411",
+    "Html": "\r\n<p>Hello. I'm using PHPExcel in a tool for manipulating xls files, and it is a godsend. Thank you very much for all your hard work.</p>\r\n<p>There's just one issue I'm having at the moment: My xls files often have Japanese sheet names, and all formulas containing references to cells on these sheets, no matter how simple the formula may be, will cause getCalculatedValue() to throw an exception:\r\n &quot;Formula Error: An unexpected error occured&quot;.</p>\r\n<p>I imagine this could be an encoding issue, or lack of consideration for multibyte sheet names? Is there anything I can do to get around this? (Renaming the sheets is not an option).</p>\r\n<p>I've made a simple test file that demonstrates this problem. I can supply it to you if it would be helpful.</p>\r\n<p>Thank you for any advice you can offer.</p>\r\n",
+    "PostedDate": "2010-11-12T00:19:09.64-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "520959",
+    "ThreadId": "234411",
+    "Html": "\r\n<p>I've only really started introducing support for non-ASCII values in formulae over the last couple of releases, and I'm in fairly uncharted territory with Japanese, but the regular expressions used in the calculation engine probably won't work with multi-byte\r\n characters in the worksheet name. It should be fairly straightforward for me to fix this (though I've a nagging feeling that it'll require a couple of other changes in the calculation engine code besides the one regular expression). I'd certainly appreciate\r\n a test file to work with.</p>\r\n",
+    "PostedDate": "2010-11-12T01:19:43.873-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "520965",
+    "ThreadId": "234411",
+    "Html": "\r\n<p>Thanks for your quick reply.</p>\r\n<p>The file is available here: <a href=\"http://dl.dropbox.com/u/2459482/phpexcel-test.xls\">\r\nhttp://dl.dropbox.com/u/2459482/phpexcel-test.xls</a></p>\r\n<p>As indicated, reading cell A2 on the sheet &quot;Test&quot; will cause getCalculatedValue() to throw an exception.</p>\r\n<p>Note that setActiveSheetIndexByName() has no problem setting Japanese-named sheets, and reading values from such sheets is not problematic either. As far as I can tell it's really only calculating formulas with Japanese (non-ASCII?) cell references that\r\n is an issue.</p>\r\n<p>I haven't looked at the regex used by the calculation engine, but if you're using one of the preg_ functions, it's usually sufficient to set the /u flag at the end of the search string. The mb_ereg functions are kind of crappy, so in general I think they're\r\n not recommended.</p>\r\n<p>Also FYI, be aware that Microsoft has a hardon for Shift-JIS encoding in general for anything Japanese. So if you run into encoding issues (I haven't so far; PHPExcel provides and accepts sheet names in UTF-8, thank god) you might try converting to/from\r\n that. However, when using mb_convert_encoding, you should always use &quot;SJIS-win&quot; (not just &quot;SJIS&quot;) as the encoding name, and you often have to suggest it as the source encoding (otherwise e.g. mb_detect_encoding will just return NULL or FALSE or whatever when\r\n trying to detect the encoding of a SJIS string).</p>\r\n",
+    "PostedDate": "2010-11-12T01:46:42.74-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "521295",
+    "ThreadId": "234411",
+    "Html": "\r\n<p>On 12/11/2010 09:46, amake wrote:</p>\r\n<blockquote>\r\n<div id=\"x_x_ThreadNotificationPostBody\">\r\n<p>I haven't looked at the regex used by the calculation engine, but if you're using one of the preg_ functions, it's usually sufficient to set the /u flag at the end of the search string. The mb_ereg functions are kind of crappy, so in general I think they're\r\n not recommended.</p>\r\n</div>\r\n</blockquote>\r\n<p>The regexp used for parsing cell references in the calculation engine is</p>\r\n<pre>(((\\w*)|(\\'[^\\']*\\')|(\\&quot;[^\\&quot;]*\\&quot;))!)?\\$?([a-z]{1,3})\\$?(\\d&#43;) </pre>\r\n<p>so the /u switch should work correctly for multibyte sheet names, as you suggest. It's using a preg_match()... I wouldn't use mb_ereg() as I've had problems with it in the past, and there's a likelihood that it will be deprecated (like the ereg functions)\r\n before long.<br>\r\n<br>\r\nIf you're feeling generous and helpful, can you also try using a multibyte named range, both defining it within code, and then using it within a formula? I've a suspicion that this might be a problem in formulae as well; and if I'm fixing multibyte worksheet\r\n names in the calc engine, I might as well check/fix multibyte named ranges at the same time. The regexp used for Named Ranges is</p>\r\n<pre>(((\\w*)|(\\'.*\\')|(\\&quot;.*\\&quot;))!)?([_A-Z][_A-Z0-9]*)</pre>\r\n<p>so this is likely to be slightly more awkward to fix than simply setting the /u flag; but should still be fairly straightforward.</p>\r\n",
+    "PostedDate": "2010-11-12T13:28:11.023-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "521304",
+    "ThreadId": "234411",
+    "Html": "This discussion has been copied to a work item. Click <a href=\"http://phpexcel.codeplex.com/workitem/14679\">here</a> to go to the work item and continue the discussion.",
+    "PostedDate": "2010-11-12T13:40:52.127-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

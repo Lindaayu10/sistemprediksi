@@ -1,0 +1,66 @@
+[
+  {
+    "Id": "1342972",
+    "ThreadId": "577984",
+    "Html": "Hi there,<br />\n<br />\ni have a Little Problem with PHP Excel. I use folowing to convert a xls (xlsx) file to csv:<br />\n<pre><code>    $excel = @PHPExcel_IOFactory::load($source);\n    $writer = PHPExcel_IOFactory::createWriter($excel, 'CSV');\n    $writer-&gt;setDelimiter(&quot;;&quot;);\n    $writer-&gt;setEnclosure('&quot;');\n    $writer-&gt;save($target);\n    unset( $excel );</code></pre>\n\nThats works fine so far...<br />\n<br />\nIn my XLS File is a date like 04.07.1975 and the date Format is set to dd.mm.YYYY. Excel Shows me the Date correct. but after converting in the csv it Shows 07-04-75.<br />\n<br />\nThats a real Problem, because i dont know which year is mean. 75 can be 1975 or 2075 or 1875...<br />\n<br />\nWhy Shows Excel the date correct, but the csv Shows wrong?<br />\n<br />\nI've tried so convert all fields to &quot;text&quot; with folowing:<br />\n<pre><code> $inputFileType = PHPExcel_IOFactory::identify($source);\n $objReader = PHPExcel_IOFactory::createReader($inputFileType);\n $objPHPExcel = $objReader-&gt;load($source);   \n  $objPHPExcel-&gt;getDefaultStyle()\n    -&gt;getNumberFormat()\n    -&gt;setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_TEXT);  </code></pre>\n\nBut this doesnt help...<br />\n<br />\nThe stringoftime function doesnt help me too, because the year is obscure...<br />\n<br />\nI dont know what i can do. The only Thing is to convert the whole sheet to text in excel. But when i have a sheet with postal codes like 04478 it changes after converting to 4478. What i try, i cant find a solution....<br />\n<br />\nSome Ideas???<br />\n<br />\nThanks for your help....<br />\n",
+    "PostedDate": "2015-01-17T15:38:54.853-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1342974",
+    "ThreadId": "577984",
+    "Html": "How are you checking this date conversion? Are you opening the CSV file in MS Excel, or in a text editor?<br />\n",
+    "PostedDate": "2015-01-17T16:08:16.16-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1342977",
+    "ThreadId": "577984",
+    "Html": "I dont check date conversion. In the XML File it Shows the date correkt and i set it to dd.mm.yyyy in Excel.\r<br />\n<br />\nIt doesnt matter if i open the csv in text Editor or MS Excel - It Shows me the date Format mm-dd-yy after converting...<br />\n",
+    "PostedDate": "2015-01-17T17:01:49.137-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1342985",
+    "ThreadId": "577984",
+    "Html": "Hmmm this seems like a bug or something\r<br />\n<br />\nI saved the xlsx as xls and try it with php excelreader (which only can handle xls). \r<br />\n<br />\nWhen i read the date with excelreader it Shows me mm/dd/yyyy\r<br />\n<br />\nWhen i read the same fle with phpexcel it Shows me the mm-dd-yy\r<br />\n<br />\nFor Example: In Excel i set the date format to dd.mm.yyyy and save the value 18.04.2015\r<br />\n<br />\nWhen i read the file with php excelreader it gives me 04/18/2015\r<br />\n<br />\nWhen i read the same file with phpexel it gives me 04-18-15\r<br />\n<br />\nOK both formats are not correct setted like in the Excel file, but 04/18/2015 is better then 04-18-15, because in excelreader i can read the year, which makes it easy to convert the date...\r<br />\n<br />\nWhat can i do to fix this? Is it a bug?\r<br />\n<br />\nHope for your Help. Thank you!<br />\n",
+    "PostedDate": "2015-01-17T20:23:31.713-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1342986",
+    "ThreadId": "577984",
+    "Html": "ahhh i found something interesting<br />\n<pre><code>    $excel = @PHPExcel_IOFactory::load($source);\n    $excel-&gt;getActiveSheet()\n    -&gt;getStyle('A1:E99')\n    -&gt;getNumberFormat()\n    -&gt;setFormatCode(\n        PHPExcel_Style_NumberFormat::FORMAT_DATE_YYYYMMDD2\n    );       \n    $writer = PHPExcel_IOFactory::createWriter($excel, 'CSV');\n    $writer-&gt;setDelimiter(&quot;;&quot;);\n    $writer-&gt;setEnclosure('&quot;');\n    $writer-&gt;save($target);\n    unset( $excel );</code></pre>\n\nThis works nearly - but getStyle('A1:E99') ist Problem. Dont know where file Begins (a1 i think) and where it Ends....\r<br />\n<br />\nCan you help me?\r<br />\n<br />\nCan i set the PHPExcel_Style_NumberFormat::FORMAT_DATE_YYYYMMDD2 for the whole writer (createWriter)?<br />\n",
+    "PostedDate": "2015-01-17T20:38:49.197-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1342988",
+    "ThreadId": "577984",
+    "Html": "OK i again (sorry)\r<br />\n<br />\ni now have this 2 functions. First one gives me the first and the last field in the file\r<br />\n<br />\nsecond one converts<br />\n<pre><code>function get_xls_startend ($source) {\nrequire_once 'phpexcel/PHPExcel/IOFactory.php';\n$inputFileType = PHPExcel_IOFactory::identify($source);\n    \n    $objReader = PHPExcel_IOFactory::createReader($inputFileType);\n    $objReader-&gt;setReadDataOnly(true);\n\n$objPHPExcel = $objReader-&gt;load($source);\n//$objWorksheet = $objPHPExcel-&gt;setActiveSheetIndex($dail_sheet);\n    $objWorksheet = $objPHPExcel-&gt;setActiveSheetIndex(0);\n    \n    $highestRow=$objWorksheet-&gt;getHighestDataRow();\n    $highestColumn=$objWorksheet-&gt;getHighestDataColumn();\n    \n    \n    $highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn);  \n    \n    \n$row = 0;\n$lowestrow=1;\n  for($row = $lowestrow; $row &lt;= $highestRow; $row++)\n      {\n    for ($col = 0; $col &lt;= $highestColumnIndex; ++$col)\n      {\n        if($objWorksheet-&gt;getCellByColumnAndRow($col, $row)-&gt;getValue()!=&quot;NULL&quot;)\n         {\n          $lowestrow=$row;\n          $col =$highestColumnIndex;\n          $row = $highestRow;\n         }\n      \n      \n      }\n\n      }\n    unset( $objReader );  \n    $resultarr = array();  \n    $resultarr[] = &quot;A&quot;.$lowestrow;\n    $resultarr[] = $highestColumn.$highestRow;\n    return $resultarr;\n}    \n\n\n\nfunction xls2csv($source,$target) {\n    require_once 'phpexcel/PHPExcel/IOFactory.php';\n    $inputFileType = PHPExcel_IOFactory::identify($source);\n    \n    $objReader = PHPExcel_IOFactory::createReader($inputFileType);\n    \n    list($start,$end) = get_xls_startend($source);\n    \n    $startend = $start.&quot;:&quot;.$end;\n\n    \n    if($inputFileType != &quot;HTML&quot;) {\n    $excel = @PHPExcel_IOFactory::load($source);\n    $excel-&gt;getActiveSheet()\n    -&gt;getStyle($startend)\n    -&gt;getNumberFormat()\n    -&gt;setFormatCode(\n        PHPExcel_Style_NumberFormat::FORMAT_DATE_YYYYMMDD2\n    );       \n    $writer = PHPExcel_IOFactory::createWriter($excel, 'CSV');\n    $writer-&gt;setDelimiter(&quot;;&quot;);\n    $writer-&gt;setEnclosure('&quot;');\n    $writer-&gt;save($target);\n    unset( $excel );\n    }\n}</code></pre>\n\nBut now all integer fields will be converted to a date....Better way where a Default date Format for the csv writer...is this possible?<br />\n",
+    "PostedDate": "2015-01-17T21:13:22.983-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1343010",
+    "ThreadId": "577984",
+    "Html": "No, it isn't a bug.\r<br />\n<br />\nYour problem is<br />\n<div style=\"color:Black;background-color:White;\"><pre>\r\n$objReader-&gt;setReadDataOnly(true);\r\n</pre></div>You're telling PHPExcel to read only the raw data for cells, not the cell formatting, not the number format masks, etc.\r<br />\n<br />\nThis means that PHPExcel can't tell whether a cell contains a number that should be formatted as a &quot;date&quot;, or simply a number; PHPExcel will realise that the value loaded from an xlsx file should be a date, but not what format it should be displayed as (because you've told it to ignore that information), so it uses a default format.<br />\n",
+    "PostedDate": "2015-01-18T02:56:30.07-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1343042",
+    "ThreadId": "577984",
+    "Html": "OK i have the setReadDataOnly(true) out. So my 2 Functions:<br />\n<pre><code>function get_xls_startend ($source) {\nrequire_once 'phpexcel/PHPExcel/IOFactory.php';\n$inputFileType = PHPExcel_IOFactory::identify($source);\n    \n    $objReader = PHPExcel_IOFactory::createReader($inputFileType);\n    //$objReader-&gt;setReadDataOnly(true);\n\n$objPHPExcel = $objReader-&gt;load($source);\n//$objWorksheet = $objPHPExcel-&gt;setActiveSheetIndex($dail_sheet);\n    $objWorksheet = $objPHPExcel-&gt;setActiveSheetIndex(0);\n    \n    $highestRow=$objWorksheet-&gt;getHighestDataRow();\n    $highestColumn=$objWorksheet-&gt;getHighestDataColumn();\n    \n    \n    $highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn);  \n    \n    \n$row = 0;\n$lowestrow=1;\n  for($row = $lowestrow; $row &lt;= $highestRow; $row++)\n      {\n    for ($col = 0; $col &lt;= $highestColumnIndex; ++$col)\n      {\n        if($objWorksheet-&gt;getCellByColumnAndRow($col, $row)-&gt;getValue()!=&quot;NULL&quot;)\n         {\n          $lowestrow=$row;\n          $col =$highestColumnIndex;\n          $row = $highestRow;\n         }\n      \n      \n      }\n\n      }\n    unset( $objReader );  \n    $resultarr = array();  \n    $resultarr[] = &quot;A&quot;.$lowestrow;\n    $resultarr[] = $highestColumn.$highestRow;\n    return $resultarr;\n}    \n\n\n\nfunction xls2csv($source,$target) {\n    require_once 'phpexcel/PHPExcel/IOFactory.php';\n    $inputFileType = PHPExcel_IOFactory::identify($source);\n    $objReader = PHPExcel_IOFactory::createReader($inputFileType);\n    \n    list($start,$end) = get_xls_startend($source);\n    \n    $startend = $start.&quot;:&quot;.$end;\n\n    \n    if($inputFileType != &quot;HTML&quot;) {\n    $excel = @PHPExcel_IOFactory::load($source);\n    $excel-&gt;getActiveSheet()\n    -&gt;getStyle($startend)\n    -&gt;getNumberFormat()\n    -&gt;setFormatCode(\n        PHPExcel_Style_NumberFormat::FORMAT_DATE_YYYYMMDD2\n    );       \n    $writer = PHPExcel_IOFactory::createWriter($excel, 'CSV');\n    $writer-&gt;setDelimiter(&quot;;&quot;);\n    $writer-&gt;setEnclosure('&quot;');\n    $writer-&gt;save($target);\n    unset( $excel );\n    }\n}</code></pre>\n\nThis changes nothing and brings still the same Problem that all numbers convertet to date, because the setReadDataOnly(true); was only set in the first function, that tells me only the first and the last cell of the php file. The convert function is the second function and there is no setReadDataOnly(true); set...\r<br />\n<br />\nThe Problem is, that the first function gives me ALL cells of the whole sheet and i set ist to FORMAT_DATE_YYYYMMDD2. I cant set only the date cells to date Format, because the user gives me the xls and i dont know which cells contains date informations....\r<br />\n<br />\nWhat is my fault in this case?\r<br />\n<br />\nI've read that php Excel can detect if a cell is a date. is it posible to detect it in the first function and set only this cells to FORMAT_DATE_YYYYMMDD2?<br />\n",
+    "PostedDate": "2015-01-18T08:27:27.123-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

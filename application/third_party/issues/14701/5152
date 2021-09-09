@@ -1,0 +1,105 @@
+Index: Excel2007.php
+===================================================================
+--- Excel2007.php	(revision 1230)
++++ Excel2007.php	(working copy)
+@@ -50,6 +50,8 @@
+  */
+ class PHPExcel_Reader_Excel2007 implements PHPExcel_Reader_IReader
+ {
++	private $_enableMemoryOptimization = false;
++
+ 	/**
+ 	 * Read data only?
+ 	 *
+@@ -74,7 +76,28 @@
+ 
+ 	private $_referenceHelper = null;
+ 
++
+ 	/**
++	 * Gets memory optimization feature.
++	 * @return bool  true if enabled.
++	 */
++	public function getMemoryOptimization(){
++		return $this->_enableMemoryOptimization;
++	}
++
++	/**
++	 *Enable memory optimization. In this calse Reader will not create Cell objects.
++	 * and will be write cells array as ( row =>  ( col => data ) );
++	 * @param bool $enableOptimization
++	 */
++	public function enableMemoryOptimization($enableOptimization=true){
++		$this->_enableMemoryOptimization = $enableOptimization;
++		if ( $enableOptimization ) {
++			$this->setReadDataOnly(true);
++		}
++	}
++
++		/**
+ 	 * Read data only?
+ 	 *
+ 	 * @return boolean
+@@ -654,6 +677,10 @@
+ 								}
+ 							}
+ 
++							if ( $this->_enableMemoryOptimization) {
++								$docSheet->cells = array();
++								$docSheet->xf = array();
++							}
+ 							if ($xmlSheet && $xmlSheet->sheetData && $xmlSheet->sheetData->row) {
+ 								foreach ($xmlSheet->sheetData->row as $row) {
+ 									if ($row["ht"] && !$this->_readDataOnly) {
+@@ -767,22 +794,37 @@
+ 											$value = $value->getPlainText();
+ 										}
+ 
+-										$cell = $docSheet->getCell($r);
+-										// Assign value
+-										if ($cellDataType != '') {
+-											$cell->setValueExplicit($value, $cellDataType);
+-										} else {
+-											$cell->setValue($value);
++										if ($this->_enableMemoryOptimization) {
++											$coordinates = PHPExcel_Cell::coordinateFromString($r);
++											$ncol = $coordinates[0];
++											$nrow = $coordinates[1];
++											unset($coordinates);
++											$docSheet->cells[$nrow][$ncol] = $value;
++											if ($c["s"] && !$this->_readDataOnly) {
++												$styleIdx = intval($c["s"]);
++												if (array_key_exists($styleIdx, $styles)) {
++													$docSheet->xf[$nrow . ":" . $ncol] = $styleIdx;
++												}
++											}
+ 										}
+-										if (!is_null($calculatedValue)) {
+-											$cell->setCalculatedValue($calculatedValue);
+-										}
++										else {
++											$cell = $docSheet->getCell($r);
++											// Assign value
++											if ($cellDataType != '') {
++												$cell->setValueExplicit($value, $cellDataType);
++											} else {
++												$cell->setValue($value);
++											}
++											if (!is_null($calculatedValue)) {
++												$cell->setCalculatedValue($calculatedValue);
++											}
+ 
+-										// Style information?
+-										if ($c["s"] && !$this->_readDataOnly) {
+-											// no style index means 0, it seems
+-											$cell->setXfIndex(isset($styles[intval($c["s"])]) ?
+-												intval($c["s"]) : 0);
++											// Style information?
++											if ($c["s"] && !$this->_readDataOnly) {
++												// no style index means 0, it seems
++												$cell->setXfIndex(isset($styles[intval($c["s"])]) ?
++																intval($c["s"]) : 0);
++											}
+ 										}
+ 									}
+ 								}

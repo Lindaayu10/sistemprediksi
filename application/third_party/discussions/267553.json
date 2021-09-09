@@ -1,0 +1,146 @@
+[
+  {
+    "Id": "651643",
+    "ThreadId": "267553",
+    "Html": "\r\n<p>I&rsquo;m trying to implement PHP Excel and have got the tests up and running no problem so I am now trying to manipulate it to do what I would like it to do &ndash; Create an Excel Spreadsheet using data from a MySQL DB using PHP.</p>\r\n<p>Is this something that is possible? Within a php file I have a form with hidden values that I would like to be posted over to my excel.php page, in order to then use those $values and put them within the spreadsheet. When using your simple-download-xls.php\r\n as a template (which worked nicely), I tried adding this</p>\r\n<p>$_GET['storenumber'];</p>\r\n<p>$_GET['storename'];</p>\r\n<p>$_GET['operatingdate'];</p>\r\n<p>&nbsp;This has been unsuccessful and I get an error upon opening the file &ndash; &ldquo;The file you are trying to open is in a different format than specified by the file extension&hellip;&rdquo;</p>\r\n<p>Errors like this are displayed in the spreadsheet - Notice: Undefined index: storenumber in /var/www/html/leads/leadsexcel.php on line 24 - &nbsp;followed by numerous symbols spread around.</p>\r\n<p>I was hoping to also use these values to carry out a MySQL query and then use the data from the query within the spreadsheet too, is this possible?</p>\r\n<p>Any response would be greatly appreciated, many thanks.</p>\r\n",
+    "PostedDate": "2011-08-03T03:32:29.41-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "651658",
+    "ThreadId": "267553",
+    "Html": "<p>Just to update, the error was my own stupid fault, still pretty new to PHP, I can use the variables by modifying my code to this:</p>\r\n<p>$storenumber=\"$_REQUEST[storenumber]\";<br />$storename=\"$_REQUEST[storename]\";<br />$capturedate=\"$_REQUEST[capturedate]\";</p>\r\n<p>Will try the MySQL thing and reply again if needed.</p>",
+    "PostedDate": "2011-08-03T04:04:02.52-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "651681",
+    "ThreadId": "267553",
+    "Html": "<p>I would change that to the following if I were you:</p>\r\n<p>&nbsp;</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>$storenumber = $_REQUEST[<span style=\"color: #a31515;\">'storenumber'</span>];\r\n$storename = $_REQUEST[<span style=\"color: #a31515;\">'storename'</span>];\r\n$capturedate = $_REQUEST[<span style=\"color: #a31515;\">'capturedate'</span>];\r\n</pre>\r\n</div>\r\nAnd don't forget to check if the request vars are actually present, and verify if the values make sense.... ;)</p>",
+    "PostedDate": "2011-08-03T04:55:36.773-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "651684",
+    "ThreadId": "267553",
+    "Html": "<p>Hi borft,</p>\r\n<p>Thanks for your reply. Your suggestion is definietly better practise thanks for the headsup.</p>\r\n<p>The values are definitely working now, I was able to use the variables in cells within the spreadsheet. I've now managed to get a query running using them, see below.</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre><span style=\"color: green;\">// Collect the posted details for the Leads Query</span>\r\n$storenumber=$_REQUEST[<span style=\"color: #a31515;\">'storenumber'</span>];\r\n$storename=$_REQUEST[<span style=\"color: #a31515;\">'storename'</span>];\r\n$operatingdate=$_REQUEST[<span style=\"color: #a31515;\">'operatingdate'</span>];\r\n\r\n$mdb2 =&amp; MDB2::factory($dsn, $MDB2options);\r\n$res =&amp; $mdb2-&gt;query(<span style=\"color: #a31515;\">\"SELECT * FROM leads WHERE storenumber='$storenumber' AND operatingdate='$operatingdate' \"</span>);\r\n<span style=\"color: blue;\">if</span> (PEAR::isError($res)) {\r\n\t\t\t\terrorhandler(<span style=\"color: #a31515;\">\"leads.php/003: \"</span>.$res-&gt;getMessage().<span style=\"color: #a31515;\">' - '</span>.$res-&gt;getUserinfo(), $a);\r\n\t\t\t}\r\n</pre>\r\n</div>\r\n</p>\r\n<p>(Nice code insert option in this forum, very impressed!)</p>\r\n<p>My next challenge which I could really use some help with is inserting the results from the query into appropriate cells in the spreadsheet. There are lots of columns which I've put the headings in as required:</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre><span style=\"color: green;\">// Add some data</span>\r\n$objPHPExcel-&gt;setActiveSheetIndex(0)\r\n         -&gt;setCellValue(<span style=\"color: #a31515;\">'A1'</span>, <span style=\"color: #a31515;\">'Lead ID'</span>)\r\n         -&gt;setCellValue(<span style=\"color: #a31515;\">'B1'</span>, <span style=\"color: #a31515;\">'Privilege Card'</span> )\r\n         -&gt;setCellValue(<span style=\"color: #a31515;\">'C1'</span>, <span style=\"color: #a31515;\">'Wills Card'</span> )\r\n\t-&gt;setCellValue(<span style=\"color: #a31515;\">'D1'</span>, <span style=\"color: #a31515;\">'Expert Card'</span> )\r\n\t-&gt;setCellValue(<span style=\"color: #a31515;\">'E1'</span>, <span style=\"color: #a31515;\">'Title'</span> )\r\n\t-&gt;setCellValue(<span style=\"color: #a31515;\">'F1'</span>, <span style=\"color: #a31515;\">'First Name'</span> )\r\n\t-&gt;setCellValue(<span style=\"color: #a31515;\">'G1'</span>, <span style=\"color: #a31515;\">'Last Name'</span> )\r\n\t-&gt;setCellValue(<span style=\"color: #a31515;\">'H1'</span>, <span style=\"color: #a31515;\">'Email'</span> )\r\n\t-&gt;setCellValue(<span style=\"color: #a31515;\">'I1'</span>, <span style=\"color: #a31515;\">'Contact Number'</span> )\r\n\t-&gt;setCellValue(<span style=\"color: #a31515;\">'J1'</span>, <span style=\"color: #a31515;\">'Postcode'</span> )\r\n</pre>\r\n</div>\r\n</p>\r\n<p>There are lots more up to AF1!!</p>\r\n<p>How can I use my while loop to get imput the data where it is needed?\r\n<div style=\"color: black; background-color: white;\">\r\n<pre><span style=\"color: blue;\">while</span> (($row = $res-&gt;fetchRow(MDB2_FETCHMODE_ASSOC)))\r\n</pre>\r\n</div>\r\nThanks in advance for any help guys!!</p>",
+    "PostedDate": "2011-08-03T05:04:57.813-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "651691",
+    "ThreadId": "267553",
+    "Html": "<p>how about someting like:</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>\r\n$rowIterator = 2;\r\n$columns = <span style=\"color: blue;\">array</span>(<span style=\"color: #a31515;\">'A'</span>, <span style=\"color: #a31515;\">'B'</span>, <span style=\"color: #a31515;\">'C'</span>);\r\n<span style=\"color: blue;\">while</span> ( $row = $res-&gt;fetch_assoc() ){\r\n  <span style=\"color: blue;\">foreach</span> ( $columns <span style=\"color: blue;\">as</span> $column ){\r\n    $value = array_shift($row);    <br />    $objPHPExcel-&gt;setActiveSheetIndex(0)-&gt;getCellByColumnAndRow($column, $rowIterator)-&gt;setValueExplicit($value, PHPExcel_Cell_DataType::TYPE_STRING)\r\n  }\r\n  $rowIterator++;\r\n}\r\n</pre>\r\n</div>\r\n</p>",
+    "PostedDate": "2011-08-03T05:19:50.13-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "651698",
+    "ThreadId": "267553",
+    "Html": "<p>Thanks for another prompt response borft, I'm getting an error though - Parse error: syntax error, unexpected '}' - the one just before $rowIterator++.</p>\r\n<p>Where should I be using this code? presumeably pretty much anywhere after the query? I've tried moving it around a bit and removing and adding } here and there but no luck!</p>",
+    "PostedDate": "2011-08-03T05:40:37.92-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "651707",
+    "ThreadId": "267553",
+    "Html": "<p>after your query ;)</p>\r\n<p>&nbsp;</p>\r\n<p>it seems I forgot a semicolon (;) after setting the cell value.</p>",
+    "PostedDate": "2011-08-03T05:56:27.383-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "651751",
+    "ThreadId": "267553",
+    "Html": "<p>Well that was a hectic hour or so! Had hundres of calls and emails all of a sudden.</p>\r\n<p>&nbsp;</p>\r\n<p>Sorry borft I don;t quite follow, could you please repaste the code with the semicolon I can't figure it out lol!</p>",
+    "PostedDate": "2011-08-03T07:08:44.293-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "651757",
+    "ThreadId": "267553",
+    "Html": "<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>$rowIterator = 2;\r\n$columns = <span style=\"color: blue;\">array</span>(<span style=\"color: #a31515;\">'A'</span>, <span style=\"color: #a31515;\">'B'</span>, <span style=\"color: #a31515;\">'C'</span>);\r\n<span style=\"color: blue;\">while</span> ( $row = $res-&gt;fetchRow(MDB2_FETCHMODE_ASSOC) ){\r\n  <span style=\"color: blue;\">foreach</span> ( $columns <span style=\"color: blue;\">as</span> $column ){\r\n    $value = array_shift($row);    \r\n    $objPHPExcel-&gt;setActiveSheetIndex(0)-&gt;getCellByColumnAndRow($column, $rowIterator)-&gt;setValueExplicit($value, PHPExcel_Cell_DataType::TYPE_STRING);\r\n  }\r\n  $rowIterator++;\r\n}\r\n</pre>\r\n</div>\r\n</p>",
+    "PostedDate": "2011-08-03T07:20:22.237-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "651793",
+    "ThreadId": "267553",
+    "Html": "<p>Thanks borft, that's sorted the } issue out. I have a new one now though (can you believe it?!).</p>\r\n<p>I now have an error upon opening the file - &ldquo;The file you are trying to open is in a different format than specified by the file extension&hellip;&rdquo;</p>\r\n<p>And within the file this error - Deprecated: Assigning the return value of new by reference is deprecated in /usr/share/pear/MDB2/Driver/mysql.php on line 924</p>",
+    "PostedDate": "2011-08-03T08:05:00.4-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "651800",
+    "ThreadId": "267553",
+    "Html": "<p>it is a waring, so not fatal, but it can be solved by not assigining the return value&nbsp; (of your query) by reference. This means you have to move the &amp; (ampersand) from the line in which you assign the query result:</p>\n<p>&nbsp;</p>\n<p>&nbsp;</p>\n<div style=\"color: black; background-color: white;\">\n<pre>$res = $mdb2-&gt;query(<span style=\"color: #a31515;\">\"SELECT * FROM leads WHERE storenumber='$storenumber' AND operatingdate='$operatingdate' \"</span>);\n</pre>\n</div>\n<p>&nbsp;</p>\n<p>furthermore wouldn't recommend inserting variables into queries this way. Prepared statements are the way to go, or atleast use something like sprintf:</p>\n<p>&nbsp;</p>\n<p>&nbsp;</p>\n<div style=\"color: black; background-color: white;\">\n<pre>$query = <span style=\"color: #a31515;\">'SELECT * FROM leads WHERE storenumber=%d AND operatingdate=\"%s\"'</span>;\n\n$res = $mdb2-&gt;query(sprintf($query, $storenumber, $operatingdate));\n</pre>\n</div>\n<p>&nbsp;</p>\n<p>I have no experience with mdb2, but I cannot imagine machanisms like prepared statements are not available. If you can format your date as a number (eg. 20110803) you can safely use %d instead of %s for the date.</p>",
+    "PostedDate": "2011-08-03T08:13:31.257-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "651802",
+    "ThreadId": "267553",
+    "Html": "<p>hmm, upon rereading your error, I guess it is not the assignment of the result, but the assignment of the initialisation of the mdb2 object that is causing the error. Remove the &amp; there and the warning will be gone ;)</p>",
+    "PostedDate": "2011-08-03T08:16:01.243-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "651806",
+    "ThreadId": "267553",
+    "Html": "<p>Thanks for the suggestion of removing the &amp; borft but I still have exactly the same errors coming up. Thanks also for the headsup on the sprintf I shall see to that.</p>\r\n<p>&nbsp;</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre><span style=\"color: green;\">// Collect the posted details for the Leads Query</span>\r\n$storenumber=$_REQUEST[<span style=\"color: #a31515;\">'storenumber'</span>];\r\n$storename=$_REQUEST[<span style=\"color: #a31515;\">'storename'</span>];\r\n$operatingdate=$_REQUEST[<span style=\"color: #a31515;\">'operatingdate'</span>];\r\n\r\n$mdb2 = MDB2::factory($dsn, $MDB2options);\r\n\r\n$res = $mdb2-&gt;query(<span style=\"color: #a31515;\">\"SELECT * FROM leads WHERE storenumber='$storenumber' AND operatingdate='$operatingdate' \"</span>);\r\n<span style=\"color: blue;\">if</span> (PEAR::isError($res)) {\r\nerrorhandler(<span style=\"color: #a31515;\">\"leads.php/003: \"</span>.$res-&gt;getMessage().<span style=\"color: #a31515;\">' - '</span>.$res-&gt;getUserinfo(), $a);\r\n\t\t\t}\r\n$rowIterator = 2;\r\n$columns = <span style=\"color: blue;\">array</span>(<span style=\"color: #a31515;\">'A'</span>, <span style=\"color: #a31515;\">'B'</span>, <span style=\"color: #a31515;\">'C'</span>);\r\n<span style=\"color: blue;\">while</span> ( $row = $res-&gt;fetchRow(MDB2_FETCHMODE_ASSOC) ){\r\n<span style=\"color: blue;\">foreach</span> ( $columns <span style=\"color: blue;\">as</span> $column ){\r\n$value = array_shift($row);    \r\n $objPHPExcel-&gt;setActiveSheetIndex(0)-&gt;getCellByColumnAndRow($column, $rowIterator)-&gt;setValueExplicit($value, PHPExcel_Cell_DataType::TYPE_STRING);\r\n  }\r\n  $rowIterator++;\r\n}\r\n</pre>\r\n</div>\r\n</p>",
+    "PostedDate": "2011-08-03T08:24:18.423-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "651827",
+    "ThreadId": "267553",
+    "Html": "<p>Changing error reporting to 0 has got rid of both errors, only downside is, the data I want isn't displaye</p>\r\n<p>&nbsp;</p>\r\n<p>error_reporting(0);</p>",
+    "PostedDate": "2011-08-03T08:55:25.957-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "652860",
+    "ThreadId": "267553",
+    "Html": "<p>I've still not resolved this, can anyone help? All I could think of was to change this to my column headings and also my table columns but not luck:</p>\r\n<p>$columns = array ('id','privilegecard'.......</p>",
+    "PostedDate": "2011-08-04T23:54:46.457-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "653125",
+    "ThreadId": "267553",
+    "Html": "<p>Nevermind, sorted it.</p>",
+    "PostedDate": "2011-08-05T07:14:32.55-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "728641",
+    "ThreadId": "267553",
+    "Html": "<p>hey can you explain how did you sort the issue</p>\r\n<p>I have the same issue in my project</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2012-01-21T06:58:32.887-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "729185",
+    "ThreadId": "267553",
+    "Html": "<p>Hi,</p>\r\n<p>I'm really sorry but I can't remember what it was, it's a few months ago now.</p>\r\n<p>&nbsp;</p>\r\n<p>I've tried reviewing the code but can't figure it out I'm afraid. I'll have another look shortly to see if I can spot it for you.</p>",
+    "PostedDate": "2012-01-23T02:50:40.177-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

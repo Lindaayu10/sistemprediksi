@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "181329",
+    "ThreadId": "53858",
+    "Html": "Hi, i have a problem with a character as 'è', 'ò', 'ù'...<br>\r\nWhen i create the cell with value contenent character 'è' i can't open correctly the file .xls created.<br>\r\n<br>\r\n<div id=\"result_box\" dir=ltr style=\"text-align:left\">I changed the code in the exemple file '02types.php', varying the value of the cell<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('A1', 'ciao è');<br>\r\n</div>\r\n<div id=\"result_box\" dir=ltr style=\"text-align:left\">How can it display correctly?<br>\r\nThanks</div>\r\n",
+    "PostedDate": "2009-04-20T08:16:36.367-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "181383",
+    "ThreadId": "53858",
+    "Html": "<p>try</p>\r\n<p>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('A1',iconv(&quot;UTF-8&quot;,&quot;UTF-8&quot;,&quot;ciao è&quot;));</p>\r\n<p>or</p>\r\n<p>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('A1',utf8_encode(&quot;ciao è&quot;));</p>\r\n",
+    "PostedDate": "2009-04-20T09:43:43.743-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "181623",
+    "ThreadId": "53858",
+    "Html": "it works with <br>\r\n<p>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('A1',utf8_encode(&quot;ciao è&quot;));<br>\r\n<br>\r\n<br>\r\nThanks!!!</p>\r\n",
+    "PostedDate": "2009-04-21T00:08:56.453-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "181716",
+    "ThreadId": "53858",
+    "Html": "the first example will not work because there should be set correct encoding-from. here you attempt to convert from utf-8 to utf-8. it's abnormal. <br>\r\n<br>\r\nthe second example converts from <span>ISO-8859-1</span> to utf-8.<br>\r\n<br>\r\nYou can test the following:<br>\r\n<br>\r\n<code><span>$str = &quot;ciao è&quot;;<br>\r\n$current_enc = mb_detect_encoding</span></code>($str);<br>\r\necho <code><span>$current_enc</span></code>;<code><span></span></code><br>\r\n<br>\r\nThis will tell the encoding of symbol &quot;<code><span>è</span></code>&quot;. So you can use mb_convert_encoding($str, &quot;UTF-8&quot;, <code><span>$current_enc</span></code>); although mb_convert_encoding() allows to skip last parameter. In that case, the internal encoding will be used.<br>\r\n<br>\r\nIf you prefer to use iconv() you can write the following: iconv($current_enc, &quot;UTF-8&quot;, $str);<br>\r\n",
+    "PostedDate": "2009-04-21T04:25:52.373-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

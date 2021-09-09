@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "1254126",
+    "ThreadId": "547926",
+    "Html": "I can't figure out what I am doing wrong.  But I can't read any data from a cell in my spreadsheet.\r<br />\nHere is the code:<br />\n<pre><code>/** Include PHPExcel */\n    require_once dirname(__FILE__) . '/../Classes/PHPExcel.php';\n    \n    $inputFileName = 'CCCStocks.xls';\n    \n    /**  Identify the type of $inputFileName  **/\n    //$inputFileType = PHPExcel_IOFactory::identify($inputFileName);\n    \n    /**  Create a new Reader of the type defined in $inputFileType  **/ \n    //$objReader = PHPExcel_IOFactory::createReader($inputFileType); \n    $objReader = new PHPExcel_Reader_Excel5();\n    \n    /**  Advise the Reader that we only want to load cell data  **/\n    $objReader-&gt;setReadDataOnly(true);\n\n    $worksheetNames = $objReader-&gt;listWorksheetNames($inputFileName);\n\n    echo &quot;&lt;h3&gt;Reading $inputFileName&lt;/h3&gt;&quot;;\n    echo &quot;&lt;ol&gt;&quot;;\n    \n    /**  Set a sheet index  **/ \n    $sheet = 0; \n    $query = &quot;SELECT Category FROM ccccategories&quot;;\n    $result = mysqli_query($con, $query);\n    $cats = array();\n    while($row = mysqli_fetch_array($result, MYSQLI_NUM)) {\n        $cats[] = $row[0];\n    }\n    print_r($cats);\n    //$objReader-&gt;setLoadSheetsOnly(0);\n    \n    /**  Load $inputFileName to a PHPExcel Object  **/\n    $objPHPExcel = $objReader-&gt;load($inputFileName);\n    $objWorksheet = $objPHPExcel-&gt;setActiveSheetIndex('0');\n        $cat = $cats[0];\n        echo &quot;&lt;li&gt;$cat&lt;/li&gt;&quot;;\n        //$objPHPExcel-&gt;setActiveSheetIndexByName(&quot;Champions&quot;);\n        $col = 0;\n        $row = 0;\n        $cell = $objWorksheet-&gt;getCellByColumnAndRow($col, $row)-&gt;getValue();\n        echo &quot;&lt;ol&gt;&quot;;\n        echo &quot;&lt;li&gt;$cell&lt;/li&gt;&quot;;\n        while($cell != null &amp;&amp; $cell != &quot;&quot;) {\n            echo &quot;&lt;li&gt;$cell&lt;/li&gt;&quot;;\n            $cell = $objPHPExcel-&gt;getActiveSheet()-&gt;getCellByColumnAndRow($col, $row)-&gt;getValue();\n            $row++;\n        }\n    echo '&lt;/ol&gt;&lt;/ol&gt;';</code></pre>\n\n",
+    "PostedDate": "2014-06-08T08:25:28.23-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1256164",
+    "ThreadId": "547926",
+    "Html": "So this line: <br />\n<pre><code>echo &quot;&lt;li&gt;$cell&lt;/li&gt;&quot;;</code></pre>\n\noutput nothing.  Any ideas what I am doing wrong?\r<br />\nThanks\r<br />\nMike<br />\n",
+    "PostedDate": "2014-06-13T13:15:34.057-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1256175",
+    "ThreadId": "547926",
+    "Html": "There isn't a $row = 0 in an Excel spreadsheet, row numbers start at 1<br />\n",
+    "PostedDate": "2014-06-13T13:58:22.71-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1256177",
+    "ThreadId": "547926",
+    "Html": "Heh, figured it's be something simple like that.  So rows start at 1 and columns start at 0?<br />\n",
+    "PostedDate": "2014-06-13T14:14:43.91-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

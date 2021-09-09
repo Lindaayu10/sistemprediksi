@@ -1,0 +1,75 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "Fixed in version 1.8.0",
+    "ClosedDate": "2014-03-04T03:18:30.38-08:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Here is my code for reading a excel file:\n\n        $file = storage_path() . '/uploads/test.xls';\n        $sheetName = 'sheet1';\n\n        $excelType = PHPExcel_IOFactory::identify($file);\n        $reader = PHPExcel_IOFactory::createReader($excelType);\n        $reader->setLoadSheetsOnly($sheetName);\n        $excel = $reader->load($file);\n        $sheetData = $excel->getActiveSheet()->toArray();\n\nAnd i got a Exception:\n\n        Unknown codepage: 10008",
+    "LastUpdatedDate": "2014-03-04T03:18:30.38-08:00",
+    "PlannedForRelease": "PHPExcel 1.8.0 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2013-06-07T17:43:22.467-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Fixed"
+    },
+    "Summary": "Unknown codepage: 10008",
+    "Type": {
+      "Name": "Feature",
+      "Id": 1
+    },
+    "VoteCount": 1,
+    "Id": 19827
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "So can you tell me what Codepage 10008 should be? I can't find it identified anyway to assign it to an appropriate charset.",
+      "PostedDate": "2013-06-08T01:47:09.77-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Code page 10008 is hz-gb-2312 (__MAC - Simplified Chinese (GB 2312)__).\r\n\r\nWhy should you get such an error any way, can't PHPExcel read any workbook?",
+      "PostedDate": "2013-06-08T13:31:29.56-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Sorry, I meant __x-mac-chinesesimp__, 10008, MAC Simplified Chinese (GB 2312).",
+      "PostedDate": "2013-06-08T13:32:51.61-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Which equals to Windows __code page 936__.",
+      "PostedDate": "2013-06-08T13:35:41.31-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "You get that error because PHPExcel can only work with code pages that it recognises.... the list of valid codepages is in Classes/PHPExcel/Shared/CodePage.php which covers every codepage I've come across before.... suggesting that if PHPExcel can't read Mac Chinese it can't read any workbook is pretty insulting....\nTry adding\n```php\n    case 10008:    return 'CP936';\n```\nto the case statement in that file.\r\n\r\nOf course, the operating system you're running on also needs to have that codepage enabled for icon to handle the translation from CP936 to UTF-8\n",
+      "PostedDate": "2013-06-08T15:00:39.857-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Fixed in develop branch on github",
+      "PostedDate": "2013-08-23T01:10:31.103-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2014-03-04T03:18:30.38-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

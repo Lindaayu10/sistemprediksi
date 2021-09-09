@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "95841",
+    "ThreadId": "28739",
+    "Html": "I'll want to use PHPExcel to generate XLSX files from MySQL results. That part works fine and dandy, but the issue I've got is the execution time needed to create a large file. To test it I'm generating an array that simulates a MySQL result object and feeding that to PHPExcel. Using something like 10 columns by 100 or 1000 rows doesn't take a great deal of time, although it's quite a bit longer than the PEAR Excel option I've been using. While that's not really a huge deal the attraction of PHPExcel is it's ability to create a XLSX file containing more than 65,000 rows. The problem: trying to generate a 50 column by 75,000 row spreadsheet with up to 10 characters per cell take an enormous amount of time to generate.<br>\r\n<br>\r\nServer Specs: 2x Dual Core AMD with 16GB Ram and 10000 rpm scsi drives.<br>\r\n<br>\r\nArray object is built using:<br>\r\n<br>\r\n$a = 50; //cols<br>\r\n$b = 75000; // rows<br>\r\n$result = array();<br>\r\nfor($i=1;$i&lt;=$b;$i++) {<br>\r\n&nbsp;&nbsp;&nbsp; for($j=1;$j&lt;=$a;$j++) {<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $result['Row'.$i.'']['Col '.$j.'']=&quot;data $j&quot;;<br>\r\n&nbsp;&nbsp;&nbsp; }<br>\r\n}<br>\r\n<br>\r\n<br>\r\nObject is parsed by PHPExcel using:<br>\r\n<br>\r\n$r=2; // Set row pointer<br>\r\nforeach ($result AS $row) {<br>\r\n&nbsp;&nbsp;&nbsp; $c=0; // Set column pointer<br>\r\n&nbsp;&nbsp;&nbsp; foreach ($row AS $cell) {<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow($c,$r,$cell);<br>\r\n&nbsp;&nbsp;&nbsp; $c++;&nbsp;&nbsp;&nbsp; <br>\r\n&nbsp;&nbsp;&nbsp; }<br>\r\n&nbsp;&nbsp;&nbsp; <br>\r\n$r++;&nbsp;&nbsp;&nbsp; <br>\r\n}<br>\r\n<br>\r\nAgain, this is for simulation/proof of concept only at the moment, using an actual query I can't get past 1300 rows before it blows up but that could be for any number of other reasons. I have successfully generated a 30K row file using the above method but that took almost 5 minutes to create.&nbsp; I'm up to 10 minutes on PHP's maximum execution limit and still can't create the 75K row file. Any ideas?<br>\r\n",
+    "PostedDate": "2008-05-30T11:03:44.843-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "96139",
+    "ThreadId": "28739",
+    "Html": "This is a known issue, based on PHP's internal memory structure regarding objects. We are still searching for a good, easy-to-implement solution/workaround for this.\r\n",
+    "PostedDate": "2008-06-01T22:53:19.813-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "96509",
+    "ThreadId": "28739",
+    "Html": "Putting you read and write within the same loop might help.<br>\r\n<br>\r\n<div style=\"border-right:medium none;padding-right:0.2em;border-top:#aaa 0.1em dotted;padding-left:0.2em;padding-bottom:0.2em;margin:1em 0em 2.5em 3em;border-left:medium none;padding-top:0.2em;border-bottom:#aaa 0.1em dotted;font-style:italic\"><br>\r\n<span style=\"font-family:courier new\">$a = 50; //cols<br>\r\n$b = 75000; // rows<br>\r\n$r=2; // Set row pointer<br>\r\nfor($i=1;$i&lt;=$b;$i++) {<br>\r\n    $c=0; // Set column pointer<br>\r\n    for($j=1;$j&lt;=$a;++$j) {<br>\r\n        $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow($c++,$r,&quot;data $j&quot;);<br>\r\n    }<br>\r\n   $r++;    <br>\r\n}<br>\r\n</span><br>\r\n<br>\r\n</div>\r\n",
+    "PostedDate": "2008-06-03T08:39:22.84-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

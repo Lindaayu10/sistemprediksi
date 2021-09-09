@@ -1,0 +1,82 @@
+[
+  {
+    "Id": "1049001",
+    "ThreadId": "445054",
+    "Html": "Hi,\r<br />\nI have an excel sheet with so many formulae. I am using excel2007 for reading and writing the sheets. i get correct outputs after the calculations. but when i am fetching the the outputs to the html page it shows #VALUE!.  ANybody helps me to solve this?\r<br />\n<br />\nThanks in advance..<br />\n",
+    "PostedDate": "2013-05-26T23:11:17.587-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1049085",
+    "ThreadId": "445054",
+    "Html": "Check that all the functions used in these formulae are supported by PHPExcel. If you're writing to HTML, then PHPExcel needs to calculate all those formulae, and if it can't calculate a valid result you'll get a #VALUE.... but without knowing what your formulae contain, I can't do very much about it<br />\n",
+    "PostedDate": "2013-05-27T02:53:00.03-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1049403",
+    "ThreadId": "445054",
+    "Html": "I used hlookup formula. Does it work with phpexcel?<br />\n",
+    "PostedDate": "2013-05-27T21:43:00.993-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1049427",
+    "ThreadId": "445054",
+    "Html": "\r\n<div>On 28/05/2013 05:43, soumyashreyas wrote:<br>\r\n</div>\r\n<blockquote type=\"cite\">\r\n<p>From: soumyashreyas</p>\r\n<div id=\"ThreadNotificationPostBody\">I used hlookup formula. is it work with phpexcel?<br>\r\n</div>\r\n</blockquote>\r\nQuoting from the documentation<br>\r\n<br>\r\n&gt; HLOOKUP CATEGORY_LOOKUP_AND_REFERENCE *** Not yet Implemented<br>\r\n<br>\r\n<pre cols=\"72\">-- \r\nMark Baker</pre>\r\n",
+    "PostedDate": "2013-05-27T23:33:56.917-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1049437",
+    "ThreadId": "445054",
+    "Html": "Thanks Mark. Do you have any other alternative solution for this?<br />\n",
+    "PostedDate": "2013-05-28T00:10:17.123-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1049461",
+    "ThreadId": "445054",
+    "Html": "Unfortunately, short of writing the code to implement HLOOKUP, I don't have any solution; though if you're loading and then using getCalculatedValue() to display the result without changing any of the underlying data, you can call getOldCalculatedValue() to return the result from the last time MS Excel itself recalculated a cell value. Note that as it is possible to disable autocalculation in MS Excel, this isn't guaranteed<br />\n",
+    "PostedDate": "2013-05-28T01:38:27.77-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1049533",
+    "ThreadId": "445054",
+    "Html": "<strong>soumyashreyas wrote:</strong><br />\n<blockquote>\nI used hlookup formula. Does it work with phpexcel?<br />\n</blockquote>\nHi, <br />\n<br />\nI just tried hlookup formula and had no problem in importing the result into mysql and into my html<br />\n<br />\nI always use getCalculatedValue and so far not faced any problem importing cells with formula or linked cell values.<br />\n<br />\nYou can take a look at the image: <a href=\"http://imgur.com/0FrlCUt\" rel=\"nofollow\">HLOOKUP</a><br />\n<br />\nRegards<br />\n",
+    "PostedDate": "2013-05-28T04:17:24.07-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1049539",
+    "ThreadId": "445054",
+    "Html": "I'm impressed, clearly HLOOKUP is working for you even though it hasn't been coded and should simply return a string containing '#Not Yet Implemented'. I really don't know what to say. Are you running a modified version of PHPExcel? If so, it'd be wonderful if you could contribute the HLOOKUP code<br />\n",
+    "PostedDate": "2013-05-28T04:29:19.763-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1049546",
+    "ThreadId": "445054",
+    "Html": "<strong>MarkBaker wrote:</strong><br />\n<blockquote>\nI'm impressed, clearly HLOOKUP is working for you even though it hasn't been coded and should simply return a string containing '#Not Yet Implemented'. I really don't know what to say. Are you running a modified version of PHPExcel? If so, it'd be wonderful if you could contribute the HLOOKUP code<br />\n</blockquote>\nHello Mark,<br />\n<br />\nHonoured to receive your reply. I use the version 1.7.8,  Released: Oct 12, 2012;  I don't know about any modified version. When I was developing PHPExcel to import my excel data to mysql database, I simply followed your advices and LWol's guidance.<br />\n<br />\nJust tested, even getFormattedValue is working without any issues.<br />\n<br />\nI will post my entire code in few minutes.<br />\n<br />\nRegards<br />\n<br />\nNB: I am a total amateur programmer, yet to learn a lot.<br />\n",
+    "PostedDate": "2013-05-28T04:51:07.5-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1049565",
+    "ThreadId": "445054",
+    "Html": "<strong>MarkBaker wrote:</strong><br />\n<blockquote>\nI'm impressed, clearly HLOOKUP is working for you even though it hasn't been coded and should simply return a string containing '#Not Yet Implemented'. I really don't know what to say. Are you running a modified version of PHPExcel? If so, it'd be wonderful if you could contribute the HLOOKUP code<br />\n</blockquote>\nHello Mark,<br />\n<br />\nSorry for the slight delay in replying, had to go down to water my plants for, they have been starving since morning.<br />\n<br />\nPresenting here my PHPExcel code:<br />\n<pre><code>&lt;?php\n//In case you want the script to be executed at a predefined time interval, use this\n /*header('Refresh: 30'); */\n\n$mysqli = new mysqli(&quot;localhost&quot;, &quot;userid&quot;,&quot;pw&quot;,&quot;db&quot;); \n\nif (mysqli_connect_errno()) {\n    echo mysqli_connect_error();\n    exit();\n} \n\nrequire 'c:/server/www/classes/phpexcel.php';\nrequire_once 'c:/server/www/classes/phpexcel/iofactory.php';\n\n$inputFileName  = 'c:/server/users.xls';\n$inputFileType  = 'Excel5'; \n\n$objReader      = PHPExcel_IOFactory::createReader(&quot;$inputFileType&quot;);\n$objReader-&gt;setReadDataOnly(true);\n\n$objPHPExcel    = $objReader-&gt;load(&quot;$inputFileName&quot;);\n$objWorksheet   = $objPHPExcel-&gt;getActiveSheet();\n\n$highestRow     = $objWorksheet-&gt;getHighestRow();\n$highestColumn  = $objWorksheet-&gt;getHighestColumn();\n$highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn);\n\necho '&lt;table&gt;' . &quot;\\n&quot;;\nfor ($row = 1; $row &lt;= $highestRow; ++$row) {\n    echo '&lt;tr&gt;' . &quot;\\n&quot;;\n\nfor ($col = 0; $col &lt;= $highestColumnIndex; ++$col) {\n    echo '&lt;td&gt;' . $objWorksheet-&gt;getCellByColumnAndRow($col, $row)-&gt;getCalculatedValue() . '&lt;/td&gt;' . &quot;\\n&quot;; \n/*  echo '&lt;td&gt;' . $objWorksheet-&gt;getCellByColumnAndRow($col, $row)-&gt;getFormattedValue() . '&lt;/td&gt;' . &quot;\\n&quot;; */\n\n}\necho '&lt;/tr&gt;' . &quot;\\n&quot;;    \n}\necho '&lt;/table&gt;' . &quot;\\n&quot;;\n\nfor($row = 2; $row &lt;= $highestRow; ++$row) {\nfor($col = 0; $col &lt; $highestColumnIndex; ++$col) {\n\n    $rows[$col] = $objWorksheet-&gt;getCellByColumnAndRow($col, $row)-&gt;getCalculatedValue();\n/*  $rows[$col] = $objWorksheet-&gt;getCellByColumnAndRow($col, $row)-&gt;getFormattedValue(); */\n\n}\n// Prepared Statement\n$stmt = $mysqli-&gt;prepare(&quot;INSERT INTO users (Username,Email,Gender,Country) VALUES (?,?,?,?)&quot;);\n\n//Prepared Statement Bound\n$stmt-&gt;bind_param('ssss', $Username, $Email, $Gender, $Country);\n\n    $Username   =&quot;$rows[0]&quot;;\n    $Email      =&quot;$rows[1]&quot;;\n    $Gender     =&quot;$rows[2]&quot;;\n    $Country    =&quot;$rows[3]&quot;;\n\n//Prepared Statement Executed\n$stmt-&gt;execute();\n/*printf(&quot;%s Row Inserted.\\n&quot;, $stmt-&gt;affected_rows); */\nprintf (&quot;New Record id %d.\\n&quot;, $mysqli-&gt;insert_id);\n\n//Prepared Statement Closed\n$stmt-&gt;close();\n\n// If you don't want to use prepared statement, you can use this one\n/* $mysqli-&gt;query(&quot;INSERT INTO users (Username,Email,Gender,Country) VALUES ('$rows[0]', '$rows[1]', '$rows[2]', '$rows[3]')&quot;); */\n\n}\n\n$mysqli-&gt;close();\n?&gt;</code></pre>\n\nRegards<br />\n",
+    "PostedDate": "2013-05-28T05:48:08.823-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,308 @@
+<?php
+$maxCols = 20;
+$maxRows = 7000;
+$minLen = 40;
+
+
+echo "columns: $maxCols\n";
+echo "rows: $maxRows\n";
+echo "cells: " . ($maxRows * $maxCols) . "\n";
+
+function getdata($maxLen)
+{
+	return str_repeat("*", $maxLen );
+	$str = "";
+	for( $i=0; $i < $maxLen; ++$i ) {
+		$str .= chr( rand(ord('a'), ord('z' ) ));
+	}
+	return $str;
+	
+}
+function report( $msg, $start )
+{
+	echo sprintf("%20s: %15s\n", $msg, number_format( (memory_get_usage() - $start)) );
+}
+
+
+echo "===================== Single Value =================== \n";
+
+
+$mem =  memory_get_usage();
+for( $nrow=0; $nrow< $maxRows; ++$nrow) {
+
+	$row = array();
+	for( $col = 0; $col < $maxCols; ++$col ) {
+		$row[] = getdata( $minLen ); 
+	}
+	$rows[] = $row;
+	unset( $row );
+}
+report( "array row ", $mem);
+unset( $rows );
+
+
+$mem =  memory_get_usage();
+for( $nrow=0; $nrow< $maxRows; ++$nrow) {
+
+	$row = array();
+	for( $col = 0; $col < $maxCols; ++$col ) {
+		$row[chr( ord('A') + $col )] = getdata( $minLen ); 
+	}
+	$rows[] = $row;
+	unset( $row );
+}
+report( "named array row ", $mem);
+unset( $rows );
+
+
+
+class NamedClass
+{
+	public  $item1;	
+	public  $item2;	
+	public  $item3;	
+	public  $item4;	
+	public  $item5;	
+}
+$mem =  memory_get_usage();
+
+
+
+for( $nrow=0; $nrow< $maxRows; ++$nrow) {
+
+	$row = new NamedClass();
+	for( $col = 0; $col < $maxCols; ++$col ) {
+		$item = "item".$col;
+		$row->$item = getdata( $minLen ); 
+	}
+	$rows[] = $row;
+	unset( $row );
+}
+report( "named row ", $mem);
+//print_r( $rows );
+
+unset( $rows );
+//echo "unset: ". number_format( (memory_get_usage() - $mem)) ."\n";
+
+
+
+
+$mem =  memory_get_usage();
+for( $nrow=0; $nrow< $maxRows; ++$nrow) {
+
+	$row = new stdclass;
+	for( $col = 0; $col < $maxCols; ++$col ) {
+		$item = "item".$col;
+		$row->$item = getdata( $minLen ); 
+	}
+	$rows[] = $row;
+	unset( $row );
+}
+report( "stdclass row ", $mem);
+unset( $rows );
+//echo "unset: ". number_format( (memory_get_usage() - $mem)) ."\n";
+
+class Cell
+{
+	public $value;
+}
+
+$mem =  memory_get_usage();
+for( $nrow=0; $nrow< $maxRows; ++$nrow) {
+
+	for( $col = 0; $col < $maxCols; ++$col ) {
+		$cell = new Cell();
+		$cell->value = getdata( $minLen );
+		$row[] =  $cell;
+	}
+	$rows[] = $row;
+	unset( $row );
+}
+report( "cell class per item", $mem);
+//print_r( $rows );
+
+unset( $rows );
+//echo "unset: ". number_format( (memory_get_usage() - $mem)) ."\n";
+
+echo "===================== Value pairs =================== \n";
+
+$mem =  memory_get_usage();
+for( $nrow=0; $nrow< $maxRows; ++$nrow) {
+
+	$row = array();
+	$typerow = array();
+	for( $col = 0; $col < $maxCols; ++$col ) {
+		$row[] = getdata( $minLen );
+		$typerow[] = 'n'; 
+	}
+	$rows[] = $row;
+	$typearrays[] = $typerow;
+
+	unset( $row );
+}
+report( "two arrays ", $mem);
+
+unset( $rows );
+unset( $typearrays );
+
+
+$mem =  memory_get_usage();
+
+for( $nrow=0; $nrow< $maxRows; ++$nrow) {
+
+	$row = array();
+	for( $col = 0; $col < $maxCols; ++$col ) {
+		$row[] = array( getdata( $minLen ), 'n' ); 
+	}
+	$rows[] = $row;
+	unset( $row );
+}
+
+report( "indexed array pair ", $mem);
+unset( $rows );
+
+
+$mem =  memory_get_usage();
+for( $nrow=0; $nrow< $maxRows; ++$nrow) {
+
+	$row = array();
+	for( $col = 0; $col < $maxCols; ++$col ) {
+		$row[] = array( 'value' => getdata( $minLen ), 'type' => 'n' ); 
+	}
+	$rows[] = $row;
+	unset( $row );
+}
+
+report( "named array pair ", $mem);
+unset( $rows );
+
+
+
+$mem =  memory_get_usage();
+
+for( $nrow=0; $nrow< $maxRows; ++$nrow) {
+
+	for( $col = 0; $col < $maxCols; ++$col ) {
+		$cell = new Cell();
+		$cell->value = getdata( $minLen );
+		$cell->type = 'n';
+		$row[] =  $cell;
+	}
+	$rows[] = $row;
+	unset( $row );
+}
+report( "Cell class pair ", $mem);
+unset( $rows );
+//echo "unset: ". number_format( (memory_get_usage() - $mem)) ."\n";
+
+
+echo "===================== Cell 3 fields per cell =================== \n";
+
+$mem =  memory_get_usage();
+$rows = array();
+for( $nrow=0; $nrow< $maxRows; ++$nrow) {
+
+	$row = array();
+	$typerow = array();
+	$xfrow = array();
+	for( $col = 0; $col < $maxCols; ++$col ) {
+		$row[] = getdata( $minLen );
+		$typerow[] = 'n'; 
+		$xfrow[] = 1;
+	}
+	$rows[] = $row;
+	$typearrays[] = $typerow;
+	$xfarray[] = $xfrow;
+
+	unset( $row );
+	unset( $typerow );
+	unset( $xfrow );
+}
+$fieldsMem =  memory_get_usage() - $mem ;
+report( "3 arrays ", $mem);
+unset( $rows );
+unset( $typearrays );
+unset( $xfarray );
+
+
+
+
+class Proxy
+{
+	var $owner;	
+	var $values = array();
+	var $types = array();
+	var $xf = array();
+
+	function __construct( $row, $col, $owner ) {
+		$this->owner = $owner;
+		$this->row = $row;
+		$this->col = $col;
+	}
+
+	function set( $str, $type, $xf ) {
+		$this->owner->values[$this->row][$this->col] = $str;
+		$this->owner->types[$this->row][$this->col] = $type;
+		$this->owner->xf[$this->row][$this->col] = $xf;
+	}
+}
+
+class Holder
+{
+	function getCell( $row, $col ) 
+	{
+		return new Proxy( $row, $col, $this );
+	}
+}
+
+
+
+$mem =  memory_get_usage();
+$rows = array();
+$holder = new Holder();
+for( $nrow=0; $nrow< $maxRows; ++$nrow) {
+	for( $col = 0; $col < $maxCols; ++$col ) {
+		$cell = $holder->getCell( $nrow, $col );
+		$cell->set( getdata( $minLen ), 'n', 1 );
+	}
+}
+$membersMem =  memory_get_usage() - $mem ;
+report( "Proxy 3 members", $mem);
+
+unset( $holder->values );
+unset( $holder->xf );
+unset( $holder->types);
+unset( $holder );
+
+$a = 0; //nop drop memory
+
+
+$mem =  memory_get_usage();
+$rows = array();
+for( $nrow=0; $nrow< $maxRows; ++$nrow) {
+
+	for( $col = 0; $col < $maxCols; ++$col ) {
+		$cell = new Cell();
+		$cell->value = getdata( $minLen );
+		$cell->type = 'n';
+		$cell->xf = 1;
+		$row[] =  $cell;
+	}
+	$rows[] = $row;
+	unset( $row );
+}
+$membersMem =  memory_get_usage() - $mem ;
+//print_r( $rows );
+report( "Cell 3 members", $mem);
+unset( $rows );
+
+
+
+
+//echo "unset: ". number_format( (memory_get_usage() - $mem)) ."\n";
+
+//$delta = ($membersMem - $fieldsMem);
+//echo "Delta abs     :".  number_format($delta) ."\n";
+//echo "Delta per item: " . ($delta) /($maxCols * $maxRows) ."\n";
+
+

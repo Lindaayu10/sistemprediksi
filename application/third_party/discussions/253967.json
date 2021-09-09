@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "597555",
+    "ThreadId": "253967",
+    "Html": "\r\n<p>Task : read all cells from an uploaded excel 2007 file and write into csv format.</p>\r\n<p>Issue : reading dates and writing them into mm/dd/yyyy format ( using PHP)</p>\r\n<p>Now once it is determined that a cell being read has date , it can be converted from MS datatype ( days since 1 jan 1900) to MM/DD/YYYY using</p>\r\n<p>PHPExcel_Shared_Date::ExcelToPHPObject($objWorksheet-&gt;getCellByColumnAndRow($col, $row)-&gt;getValue())-&gt;format('m/d/Y');</p>\r\n<p>But really the problem is : How to determine if a cell being read has date value in it ? Have done a lot of research online and through the documentation but no luck.</p>\r\n<p>I tried using echo $objWorksheet-&gt;getCellByColumnAndRow($col, $row)-&gt;getDataType(); but it returns 'n' for even datatype for date values.</p>\r\n<p>Any help will be greatly appreciated.</p>\r\n",
+    "PostedDate": "2011-04-14T16:19:39.187-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "597715",
+    "ThreadId": "253967",
+    "Html": "<p>If you want the whole worksheet, then read using Excel2007, select&nbsp;required worksheet, and write using CSV... as long as you don't set readDataOnly(true), then that's the simplest 5 or 6 lines to do a conversion between formats.</p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>$objReader = PHPExcel_IOFactory::createReader(<span style=\"color: #a31515;\">'Excel2007'</span>);\r\n$objPHPExcel = $objReader-&gt;load($inputFileName);\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, <span style=\"color: #a31515;\">'CSV'</span>);\r\n$objWriter-&gt;save($outputFileName);\r\n</pre>\r\n</div>\r\n<p>And this will handle all date conversions for you, using the formats identified in the Excel worksheet.</p>\r\n<p>To Excel, a date is just a number, hence the return from getDataType().</p>\r\n<p>If you want to test a cell to identify if it's a date, perhaps to change the date formatting:</p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>$isDate = PHPExcel_Shared_Date::isDateTime($objWorksheet-&gt;getCellByColumnAndRow($col, $row));\r\n</pre>\r\n</div>",
+    "PostedDate": "2011-04-14T23:40:05.587-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "597839",
+    "ThreadId": "253967",
+    "Html": "<p>Thanks Mark for your response.</p>\r\n<p>isDateTime() worked .</p>",
+    "PostedDate": "2011-04-15T04:03:01.013-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "597872",
+    "ThreadId": "253967",
+    "Html": "<p>I am facing more problems now.</p>\r\n<p>Here is the code snippet to read a cell and determine whether it is date or not</p>\r\n<p>&nbsp;if( PHPExcel_Shared_Date::isDateTime($objWorksheet-&gt;getCellByColumnAndRow($j, $i) )){<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $cell = PHPExcel_Shared_Date::ExcelToPHPObject($objWorksheet-&gt;getCellByColumnAndRow($j, $i)-&gt;getValue())-&gt;format('m/d/Y');<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }else{<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $cell =&nbsp; $objWorksheet-&gt;getCellByColumnAndRow($j, $i)-&gt;getCalculatedValue();<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</p>\r\n<p>On uploading an excel 2007 file with just 10 rows, the conversion runs out of both php execution time and Allocated memory. I upped the php execution time to 200 ( set_time_limit) and Allocated memory to '512M' . But even then the php maximum execution time was reached.</p>\r\n<p>Can't figure out what is going wrong. Full code below.</p>",
+    "PostedDate": "2011-04-15T05:28:59.653-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "597875",
+    "ThreadId": "253967",
+    "Html": "<p>&lt;?php<br />require_once '../Classes/PHPExcel/IOFactory.php';<br />set_time_limit(80);<br />ini_set('memory_limit','512M');<br />$objReader = PHPExcel_IOFactory::createReader('Excel2007');<br />$objReader-&gt;setReadDataOnly('true');<br /><br />$objPHPExcel = $objReader-&gt;load(\"test.xlsx\");<br />$objWorksheet = $objPHPExcel-&gt;getActiveSheet();<br />$highestRow = $objWorksheet-&gt;getHighestRow(); // e.g. 10<br />$highestColumn = $objWorksheet-&gt;getHighestColumn(); // e.g 'F'<br /><br />$highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn); // e.g. 5<br /><br />echo '&lt;table&gt;' . \"\\n\";<br />for ($row = 1; $row &lt;= $highestRow; ++$row) {<br />&nbsp; echo '&lt;tr&gt;' . \"\\n\";<br /><br />&nbsp; for ($col = 0; $col &lt;= $highestColumnIndex; ++$col) {<br />&nbsp;&nbsp;&nbsp; &nbsp; if(PHPExcel_Shared_Date::isDateTime($objWorksheet-&gt;getCellByColumnAndRow($col, $row))){<br />&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; //echo \"&lt;td&gt;\" .\"yes &lt;/td&gt; \\n\";<br />&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; echo '&lt;td&gt;' . PHPExcel_Shared_Date::ExcelToPHPObject($objWorksheet-&gt;getCellByColumnAndRow($col, $row)-&gt;getValue())-&gt;format('m/d/Y') . '&lt;/td&gt;' . \"\\n\";<br />&nbsp;&nbsp;&nbsp; &nbsp; }else{<br />&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; echo '&lt;td&gt;' . $objWorksheet-&gt;getCellByColumnAndRow($col, $row)-&gt;getValue(). '&lt;/td&gt;' . \"\\n\";&nbsp;&nbsp;&nbsp; &nbsp; <br />&nbsp;&nbsp;&nbsp; &nbsp; }<br />&nbsp; }<br /><br />&nbsp; echo '&lt;/tr&gt;' . \"\\n\";<br />}<br />echo '&lt;/table&gt;' . \"\\n\";<br />?&gt;</p>",
+    "PostedDate": "2011-04-15T05:48:22.453-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "597878",
+    "ThreadId": "253967",
+    "Html": "<p>isDateTime doesn't work without setting</p>\r\n<p>$objReader-&gt;setReadDataOnly('true');</p>\r\n<p>And when setReadDataOnly is not set to true, the loading of small xlsx file takes forever and doesn't complete successfully.</p>",
+    "PostedDate": "2011-04-15T05:50:25.163-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "597917",
+    "ThreadId": "253967",
+    "Html": "<p>Now it seems to be related to 3 blank columns in the uploaded file which caused the trouble. Testing.</p>",
+    "PostedDate": "2011-04-15T06:40:25.847-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

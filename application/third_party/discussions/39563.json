@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "131283",
+    "ThreadId": "39563",
+    "Html": "Hello,<br>\r\n<br>\r\ni have problems adding the euro symbol to a text field like &quot;abc 200 €!&quot;.<br>\r\nEverytime the euro symbol will be displayed as &quot;?&quot;.<br>\r\n<br>\r\nI have the latest PHPExcel version, PHP5.2.6 with mbstring.<br>\r\n<br>\r\nAny ideas?<br>\r\n<br>\r\nRegards,<br>\r\nfreibeuter \r\n",
+    "PostedDate": "2008-11-10T01:15:13.907-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "131300",
+    "ThreadId": "39563",
+    "Html": "How are you adding the Euro symbol? Can you show some code? Did you remember to save your PHP script as UTF-8?<br>\r\n",
+    "PostedDate": "2008-11-10T02:43:18.05-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "131301",
+    "ThreadId": "39563",
+    "Html": "Hi,<br>\r\n<br>\r\nno problem:<br>\r\n<br>\r\n$cell=&quot;A1&quot;;<br>\r\n$data=utf8_encode(&quot;abc 123 €!&quot;);<br>\r\n<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue($cell, $data);<br>\r\n<br>\r\nThx<br>\r\n",
+    "PostedDate": "2008-11-10T02:48:25.26-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "131308",
+    "ThreadId": "39563",
+    "Html": "Why not just save file as UTF-8 (without BOM)? You can then insert Unicode characters directly. That is the elegant way... and faster too!<br>\r\n<br>\r\n<code>\r\n$cell=&quot;A1&quot;;<br>\r\n//$data=utf8_encode(&quot;abc 123 €!&quot;);<br>\r\n$data=&quot;abc 123 €!&quot;;<br>\r\n<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue($cell, $data);<br>\r\n</code>\r\n<br>\r\nScreenshot in Notepad++ :<br>\r\n<a href=\"http://img389.imageshack.us/img389/5811/nnscreenshotup7.png\">http://img389.imageshack.us/img389/5811/nnscreenshotup7.png</a><br>\r\n&nbsp;<br>\r\n",
+    "PostedDate": "2008-11-10T03:17:21.267-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "187703",
+    "ThreadId": "39563",
+    "Html": "An easy way to handle the euro symbol in PHPExcel2007 :<br>\r\n<br>\r\n<code>\r\n$cell=&quot;A1&quot;;<br>\r\n//$data=utf8_encode(&quot;abc 123 €!&quot;);<br>\r\n$data=</code>str_replace(chr(0xC2).chr(0x80) , chr(0xE2).chr(0x82).chr(0xAC),  <code></code><code> utf8_encode(&quot;abc 123 €!&quot;) );<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue($cell, </code><code>$data);<br>\r\n<br>\r\n</code>\r\nOr if you source file is already UTF8 encoded :<br>\r\n<br>\r\n<code>\r\n$cell=&quot;A1&quot;;<br>\r\n//$data=utf8_encode(&quot;abc 123 €!&quot;);<br>\r\n$data=</code><code>&quot;abc 123 &quot;.</code>chr(0xE2).chr(0x82).chr(0xAC)<code>.&quot;!&quot;;<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue($cell, </code><code>$data);<br>\r\n</code><br>\r\n<br>\r\nThis also works for number formats.<br>\r\n<br>\r\n",
+    "PostedDate": "2009-05-07T05:34:09.093-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

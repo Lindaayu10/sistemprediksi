@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "92873",
+    "ThreadId": "27839",
+    "Html": "Hello All.<br>\r\n<br>\r\nI've noticed that paragraph&nbsp; 4.3.32 of the developer document discusses&nbsp; redirection to the client's browser.<br>\r\n<a name=\"_Toc197135685\"><span lang=EN-GB><span><br>\r\n</span></span></a><blockquote><strong><span style=\"font-size:14px\"><a name=\"_Toc197135685\"><span lang=EN-GB><span>4.3.32.<span style=\"font-family:'times new roman';font-style:normal;font-variant:normal;font-weight:normal;font-size:7pt;line-height:normal\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\r\n</span></span></span>&lt;!--[endif]--&gt;<span lang=EN-GB>Redirect\r\noutput to a client’s web browser</span></a></span></strong>\r\n<p><span lang=EN-GB>Sometimes,\r\none really wants to output a file to a client’s browser, especially when\r\ncreating spreadsheets on-the-fly. There are some easy steps that can be\r\nfollowed to do this:&lt;o:p&gt;&lt;/o:p&gt;</span></p>\r\n<ul>\r\n    <li><span lang=EN-GB>Create your PHPExcel\r\n    spreadsheet&lt;o:p&gt;&lt;/o:p&gt;</span></li>\r\n    <li><span lang=EN-GB>Output HTTP headers for the\r\n    type of document you wish to output&lt;o:p&gt;&lt;/o:p&gt;</span></li>\r\n    <li><span lang=EN-GB>Use the PHPExcel_Writer_* of\r\n    your choice, and save to “php://output”&lt;o:p&gt;&lt;/o:p&gt;</span></li>\r\n</ul>\r\n<p><span lang=EN-GB>PHPExcel_Writer_Excel2007\r\nuses temporary storage when writing to php://output. By default, temporary\r\nfiles are stored in the script’s working directory. When there is no access, it\r\nfalls back to the operating system’s temporary files location.</span></p>\r\n</blockquote>\r\n<br>\r\n<br>\r\nHas anyone got a nice code snippet to demonstrate this? <a name=\"_Toc197135685\"><span lang=EN-GB></span></a>\r\n<p><span lang=EN-GB>&lt;o:p&gt;&lt;/o:p&gt;</span></p>\r\n",
+    "PostedDate": "2008-05-16T01:55:13.973-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "92917",
+    "ThreadId": "27839",
+    "Html": "Hey,<br>\r\nThis is wat I am doing:<br>\r\n<br>\r\n1.create PHPExcel object--&gt; <strong>$objPHPExcel = new PHPExcel();<br>\r\n</strong>2. Output the headers:<br>\r\n<br>\r\n<strong>header(&quot;Pragma: public&quot;);<br>\r\nheader(&quot;Expires: 0&quot;);<br>\r\nheader(&quot;Cache-Control: must-revalidate, post-check=0, pre-check=0&quot;); <br>\r\nheader(&quot;Content-Type: application/force-download&quot;);<br>\r\nheader(&quot;Content-Type: application/octet-stream&quot;);<br>\r\nheader(&quot;Content-Type: application/download&quot;);;<br>\r\nheader(&quot;Content-Disposition: attachment;filename=File.xls&quot;); <br>\r\nheader(&quot;Content-Transfer-Encoding: binary &quot;);</strong><br>\r\n<br>\r\n3. Retrieve data to populate the excel sheet(file will be called File.xls)<br>\r\n<br>\r\n4: <strong>$objWriter = new PHPExcel_Writer_Excel5($objPHPExcel);</strong>    //  (I want the output for 2003)<br>\r\n<strong>   $objWriter-&gt;save('php://output');<br>\r\n</strong><br>\r\n",
+    "PostedDate": "2008-05-16T06:14:05.793-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "93067",
+    "ThreadId": "27839",
+    "Html": "<span style=\"font-family:verdana\">Thanks for this.<br>\r\n<br>\r\nMaybe this code snippet could be an addition to the developer documentation.<br>\r\n<br>\r\nWhat do people think?<br>\r\n<br>\r\n</span>\r\n",
+    "PostedDate": "2008-05-16T14:23:49.617-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "93312",
+    "ThreadId": "27839",
+    "Html": "Will add it to the documentation. Thanks!\r\n",
+    "PostedDate": "2008-05-18T23:14:57.373-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "110523",
+    "ThreadId": "27839",
+    "Html": "hallo all...<br>\r\n<br>\r\ni'm newby but i have nice code for example. I 'm trying&nbsp; to load xlsx file from TEMPLATE_DIR,<br>\r\nadding some additional data, and redirecting the result to client browser.<br>\r\n<br>\r\n&nbsp;&nbsp;&nbsp; include 'PHPExcel/Reader/Excel2007.php';<br>\r\n&nbsp;&nbsp;&nbsp; include 'PHPExcel/Writer/Excel2007.php';<br>\r\n&nbsp;&nbsp;&nbsp; if (!file_exists(TEMPLATE_DIR.$filename.'.xlsx')) {<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; exit('Template '.$filename.&quot;.xlsx doesn't exist.\\n&quot;);<br>\r\n&nbsp;&nbsp;&nbsp; }<br>\r\n&nbsp;&nbsp;&nbsp; <br>\r\n&nbsp;&nbsp;&nbsp; $objReader = new PHPExcel_Reader_Excel2007();<br>\r\n&nbsp;&nbsp;&nbsp; $objPHPExcel = $objReader-&gt;load(TEMPLATE_DIR.$filename.'.xlsx');<br>\r\n&nbsp;&nbsp;&nbsp; header(&quot;Pragma: public&quot;);<br>\r\n&nbsp;&nbsp;&nbsp; header(&quot;Expires: 0&quot;);<br>\r\n&nbsp;&nbsp;&nbsp; header(&quot;Cache-Control: must-revalidate, post-check=0, pre-check=0&quot;);<br>\r\n&nbsp;&nbsp;&nbsp; header(&quot;Content-Type: application/force-download&quot;);<br>\r\n&nbsp;&nbsp;&nbsp; header(&quot;Content-Type: application/octet-stream&quot;);<br>\r\n&nbsp;&nbsp;&nbsp; header(&quot;Content-Type: application/download&quot;);;<br>\r\n&nbsp;&nbsp;&nbsp; header(&quot;Content-Disposition: attachment;filename=$filename.xls&quot;);<br>\r\n&nbsp;&nbsp;&nbsp; header(&quot;Content-Transfer-Encoding: binary &quot;);<br>\r\n&nbsp;&nbsp;&nbsp; $objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel); <br>\r\n&nbsp;&nbsp;&nbsp; $objWriter-&gt;setOffice2003Compatibility(true);<br>\r\n&nbsp;&nbsp;&nbsp; <br>\r\n&nbsp;&nbsp;&nbsp; //Add some additional data <br>\r\n<br>\r\n&nbsp;&nbsp;&nbsp; $objWriter-&gt;save('php://output');<br>\r\n<br>\r\nThanks PHPExcel Team. You have developed magnificent php library.<br>\r\n",
+    "PostedDate": "2008-08-12T01:25:30.463-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "110524",
+    "ThreadId": "27839",
+    "Html": "hallo all...<br>\r\n<br>\r\ni'm newby but i have nice code for example. I 'm trying&nbsp; to load xlsx file from TEMPLATE_DIR,<br>\r\nadding some additional data, and redirecting the result to client browser.<br>\r\n<br>\r\n&nbsp;&nbsp;&nbsp; include 'PHPExcel/Reader/Excel2007.php';<br>\r\n&nbsp;&nbsp;&nbsp; include 'PHPExcel/Writer/Excel2007.php';<br>\r\n&nbsp;&nbsp;&nbsp; if (!file_exists(TEMPLATE_DIR.$filename.'.xlsx')) {<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; exit('Template '.$filename.&quot;.xlsx doesn't exist.\\n&quot;);<br>\r\n&nbsp;&nbsp;&nbsp; }<br>\r\n&nbsp;&nbsp;&nbsp; <br>\r\n&nbsp;&nbsp;&nbsp; $objReader = new PHPExcel_Reader_Excel2007();<br>\r\n&nbsp;&nbsp;&nbsp; $objPHPExcel = $objReader-&gt;load(TEMPLATE_DIR.$filename.'.xlsx');<br>\r\n<br>\r\n&nbsp;&nbsp;  //Add some additional data here :)<br>\r\n<br>\r\n&nbsp;&nbsp;&nbsp; header(&quot;Pragma: public&quot;);<br>\r\n&nbsp;&nbsp;&nbsp; header(&quot;Expires: 0&quot;);<br>\r\n&nbsp;&nbsp;&nbsp; header(&quot;Cache-Control: must-revalidate, post-check=0, pre-check=0&quot;);<br>\r\n&nbsp;&nbsp;&nbsp; header(&quot;Content-Type: application/force-download&quot;);<br>\r\n&nbsp;&nbsp;&nbsp; header(&quot;Content-Type: application/octet-stream&quot;);<br>\r\n&nbsp;&nbsp;&nbsp; header(&quot;Content-Type: application/download&quot;);;<br>\r\n&nbsp;&nbsp;&nbsp; header(&quot;Content-Disposition: attachment;filename=$filename.xls&quot;);<br>\r\n&nbsp;&nbsp;&nbsp; header(&quot;Content-Transfer-Encoding: binary &quot;);<br>\r\n&nbsp;&nbsp;&nbsp; $objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel); <br>\r\n&nbsp;&nbsp;&nbsp; $objWriter-&gt;setOffice2003Compatibility(true);<br>\r\n&nbsp;&nbsp;&nbsp; $objWriter-&gt;save('php://output');<br>\r\n<br>\r\nThanks PHPExcel Team. You have developed magnificent php library.<br>\r\n",
+    "PostedDate": "2008-08-12T01:25:58.79-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

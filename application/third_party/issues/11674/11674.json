@@ -1,0 +1,121 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel_Writer_PDF",
+      "DisplayName": "PHPExcel_Writer_PDF"
+    },
+    "ClosedComment": "",
+    "ClosedDate": "2010-05-11T00:59:12.027-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Test:\n----\nSource code was taken from Tests\\21pdf.php \n \nIt wasn't changed and was executed both with $objPHPExcel->getActiveSheet()->setShowGridLines(false); and $objPHPExcel->getActiveSheet()->setShowGridLines(true);\n \nvar_dump($objPHPExcel->getActiveSheet()->getShowGridLines()); told it was bool(true)\n \nsaved files are the same (both with 'true' and 'false' options)\n \nExpected result:\n----\nScreen gridlines do not show with 'false' option and show with 'true' in document when opened in Adobe Reader\n \nActual result:\n----\nScreen gridlines do not show at all in document when opened in Adobe Reader\n \nEnvironment:\n----\nPHPExcel: source from codeplex download section (1.7.2)",
+    "LastUpdatedDate": "2017-11-27T22:26:09.433-08:00",
+    "PlannedForRelease": "PHPExcel 1.7.3 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2010-02-01T22:49:14.11-08:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "setShowGridLines(true) not working with PHPExcel_Writer_PDF",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 11674
+  },
+  "FileAttachments": [
+    {
+      "FileId": 3821,
+      "FileName": "21pdf_ShowGridLines_true_false.pdf",
+      "DownloadUrl": ".\\3821"
+    },
+    {
+      "FileId": 3901,
+      "FileName": "wi-11674.patch",
+      "DownloadUrl": ".\\3901"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "Agreed, we unfortunately still have the problem that TCPDF doesn't support borders with its writeHTML() function.",
+      "PostedDate": "2010-02-04T15:10:26.743-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I know that TCPDF doesn't support borders but could you look at screenshot of that page?\r\nhttp://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=53617\r\n-----------------\r\nScreenshots that illustrate the problems 1-2:\r\nPDF     http://img17.imageshack.us/img17/2899/pdfg.jpg\r\n-----------------\r\n\r\nby 1.6.7 version setShowGridLines(true) showed gridlines as it should show in PDF.\r\n\r\nwhat's the different? ",
+      "PostedDate": "2010-02-04T22:41:39.577-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I analyzed tcpdf.php library and found something.\r\nThere is a method \"getCellCode()\" in this file.\r\nAdding \"$borders=1\" at the top of that method let us to see borders in generated pdf-page.\r\nProbably, that information can help in further. ",
+      "PostedDate": "2010-02-08T01:18:24.063-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Using <table borders=\"1\"...> also seems to do the trick for getting gridlines via TCPDF writeHTML() method.\r\n\r\nSetting this to fixed. Can you test with latest source code tomorrow?\r\nhttp://phpexcel.codeplex.com/SourceControl/list/changesets",
+      "PostedDate": "2010-02-16T15:00:31.277-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Sure I can test but would you be so kind and attach necessary patch? I can download full source code... but the patch will be much better.",
+      "PostedDate": "2010-02-16T22:28:24.07-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Sure, he is patch wi-11674.patch",
+      "PostedDate": "2010-02-20T14:26:01.05-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-02-20T14:26:05.587-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "sorry for long response. i was out of the city.\r\nI applied your patch. Generated pdf files were same. After that I decided to add var_dump($pSheet->getShowGridLines()); exit; at the beginning of the private function _generateTableHeader($pSheet). And it seems that _generateTableHeader() function isn't executed/called at all. PHPExcel version 1.7.2, 2010-01-11\r\n\r\nDo you think I should download full source code and to test with it?",
+      "PostedDate": "2010-02-27T04:10:40.663-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "wait. there is a caching function that helps me not to generate same files again and again. i forgot. i should recheck.",
+      "PostedDate": "2010-02-27T04:15:34.037-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "@koyama\r\nI'm sorry, your patch works. Gridlines are shown.",
+      "PostedDate": "2010-02-27T04:19:17.163-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-05-11T00:59:12.027-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:03:15.647-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:09.247-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2017-11-27T22:26:09.433-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

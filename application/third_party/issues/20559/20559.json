@@ -1,0 +1,51 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I'm using conditional formatting to do zebra striping for the rows, the stripping works as it should but when I set a column to use wrapped text using `setWrapText(true)` the cell expands to the proper height but the text doesn't actually wrap (see attached screen shot)\n\nBelow is all the formatting code in use. I've included all of it to be safe and have marked anything that is knowingly applied to the column I apply the conditional too\n\n```\n// set the headings style\n$excel_sheet->getStyle($cols[0].$data_table_start_row.':'.$cols[count($cols)-1].$data_table_start_row)->applyFromArray($this->excel_styles['data']['headings']);\n\n// table border\n$excel_sheet->getStyle($table_area)->applyFromArray($this->excel_styles['data']['table']);\n\n// center align everything < CONDITIONAL COLUMN IS INCLUDED\n$excel_sheet->getStyle($data_area)\n\t->getAlignment()\n\t\t->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER)\n\t\t->setVertical(PHPExcel_Style_Alignment::VERTICAL_TOP);\n\n// left align the description < THE CONDITIONAL COLUMN\n$excel_sheet->getStyle($description_col)\n\t->getAlignment()\n\t\t->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT)\n\t\t->setWrapText(true);\n\n// format cost as money\n$excel_sheet->getStyle($cost_col)\n\t->getNumberFormat()\n\t->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_CURRENCY_USD);\n\n// manage widths\nforeach($cols as $letter){\n\tif($letter==$description_letter) // < THE CONDITIONAL COLUMN\n\t\tcontinue;\n\t$excel_sheet->getColumnDimension($letter)->setAutoSize(true);\n}\n$excel_sheet->getColumnDimension($description_letter)->setWidth(76); // < THE CONDITIONAL COLUMN\n\n\n// OUR CONDITIONAL FORMAT SETUP HERE\n// description zebra strip\n$zebra_style = new PHPExcel_Style();\n$zebra_style->getFill()\n\t->setFillType(PHPExcel_Style_Fill::FILL_SOLID)\n\t->setEndColor( new PHPExcel_Style_Color('ff'.$this->excel_styles['data']['rows']['odd']['fill']['color']['rgb']) );\n$zebra_style->getAlignment()\n\t->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT)\n\t->setVertical(PHPExcel_Style_Alignment::VERTICAL_TOP)\n\t->setWrapText(true);\n\n$zebra = new PHPExcel_Style_Conditional();\n$zebra\n\t->setConditionType(PHPExcel_Style_Conditional::CONDITION_EXPRESSION)\n\t->setOperatorType(PHPExcel_Style_Conditional::OPERATOR_NONE)\n\t->setCondition('MOD(ROW(),2)=0')\n\t->setStyle($zebra_style);\n\n$cond_styles = $excel_sheet->getStyle($description_col)->getConditionalStyles();\narray_push($cond_styles, $zebra);\n$excel_sheet->getStyle($description_col)->setConditionalStyles($cond_styles);\n```\n\nInitially was using v 1.7.6 and upgraded to 1.7.9 and still having problems. Using the Excel2007 writer and being viewed in Excel 2010. PHP version is 5.4.19",
+    "LastUpdatedDate": "2014-10-15T09:35:54.54-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2013-12-23T11:11:45.373-08:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Conditional Formatting and Wrapped Text doesn't actually wrap",
+    "Type": {
+      "Name": "Unassigned",
+      "Id": 5
+    },
+    "VoteCount": 1,
+    "Id": 20559
+  },
+  "FileAttachments": [
+    {
+      "FileId": 7317,
+      "FileName": "excel_text_wrap_issue.png",
+      "DownloadUrl": ".\\7317"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "I believe this problem has been traced to its cause here: https://phpexcel.codeplex.com/workitem/21454\r\n\r\nI've traced it for NumberFormat, and I'm guessing alignment is a similar problem.  Subscribe to that work item for updates.",
+      "PostedDate": "2014-10-15T09:35:54.54-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

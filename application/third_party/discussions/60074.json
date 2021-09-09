@@ -1,0 +1,178 @@
+[
+  {
+    "Id": "203339",
+    "ThreadId": "60074",
+    "Html": "<p>Does PHPExcel's $cell-&gt;getCalculatedValue() support calculations which reference other xls files? Example: ='|someOtherExcelDoc.xls|Other Worksheet'!A1</p>",
+    "PostedDate": "2009-06-19T07:05:43.663-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "203398",
+    "ThreadId": "60074",
+    "Html": "<p>Simple answer is no. Even the new calculation engine won't do that, because PHPExcel doesn't have direct access to any external workbook files.</p>",
+    "PostedDate": "2009-06-19T08:59:46.49-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "205070",
+    "ThreadId": "60074",
+    "Html": "<pre>Should it at least still process what it can of the file?  I got an error when uploading a spreadsheet:<br><br><strong>Notice</strong>:  Undefined offset:  2 in <strong>/home/william/svn/ezyield_v3/library/D2EApplication/_packages/PHPExcel/Reader/Excel5.php</strong> on line <strong>4237</strong><br><br>Then I got a different error while trying to recreate the first error on a sheet that I can share with you:<br><br>Notice: Undefined index:   in /Users/william/Downloads/1.6.7/Classes/PHPExcel/Shared/OLERead.php on line 232<br><br>&lt;?php\r\n\terror_reporting(E_ALL);\r\n    require_once(&quot;PHPExcel.php&quot;);\r\n\trequire_once(&quot;PHPExcel/Reader/Excel5.php&quot;);\r\n\trequire_once(&quot;PHPExcel/Shared/Date.php&quot;);\r\n\r\n\t$excelReader = new PHPExcel_Reader_Excel5();\r\n\t$excelReader-&gt;setReadDataOnly(true);\r\n\techo &quot;Loading referenceerror.xls\\n&quot;;\r\n\t$excelDoc = $excelReader-&gt;load('referenceerror.xls');\r\n\t$activeWorksheet = $excelDoc-&gt;getActiveSheet();\r\n\t$value = $activeWorksheet-&gt;getCellByColumnAndRow(0,1)-&gt;getValue();\r\n\tvar_dump($value);</pre>\r\n<p>http://www.mediafire.com/?sharekey=db041a7dd4757e53d2db6fb9a8902bda is the file.&nbsp; I created it in Excel for Mac by referencing another file.&nbsp; Opening it with OpenOffice and saving it will 'fix' the file so it can be read.</p>",
+    "PostedDate": "2009-06-24T09:51:50.433-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "205071",
+    "ThreadId": "60074",
+    "Html": "<p>Note that you can actually change that file so it has no external links and that A1 contains just '1' and not a calculation at all and the same error is given.</p>",
+    "PostedDate": "2009-06-24T09:52:40.99-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "206416",
+    "ThreadId": "60074",
+    "Html": "<p>@wccrawford: With that file I indeed get errors? I get errors like these when I try to read the xls file:<br> <br> Notice: Undefined property: PHPExcel_Shared_OLERead::$rootentry in C:\\xampp\\htdocs\\_phpexcel\\PHPExcel\\Classes\\PHPExcel\\Shared\\OLERead.php on line 173<br> <br> Notice: Undefined index: in C:\\xampp\\htdocs\\_phpexcel\\PHPExcel\\Classes\\PHPExcel\\Shared\\OLERead.php on line 173<br> <br> Notice: Undefined index: in C:\\xampp\\htdocs\\_phpexcel\\PHPExcel\\Classes\\PHPExcel\\Shared\\OLERead.php on line 232<br> <br> I will investigate the problem.</p>",
+    "PostedDate": "2009-06-28T17:56:49.797-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "207476",
+    "ThreadId": "60074",
+    "Html": "<p>Thanks for looking into this, Koyama.</p>",
+    "PostedDate": "2009-07-01T04:06:15.803-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "208084",
+    "ThreadId": "60074",
+    "Html": "<p>I have looked into this further and determined that I'm getting this error because the file is small enough to use 'smallblock' instead of 'bigblock'.</p>\r\n<p>This is completely unrelated to my original problem, and I'm uninterested in this particular error.&nbsp; If I can reproduce my original error, I'll post more information.</p>",
+    "PostedDate": "2009-07-02T11:49:53.98-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "208087",
+    "ThreadId": "60074",
+    "Html": "<p>For the error:</p>\r\n<p>&nbsp;</p>\r\n<p>Notice: Undefined offset:&nbsp; 2 in /Users/william/svn/ezyield_v3/library/D2EApplication/_packages/PHPExcel/Reader/Excel5.php on line 4237<br><br>Notice: Undefined offset:&nbsp; 2 in /Users/william/svn/ezyield_v3/library/D2EApplication/_packages/PHPExcel/Reader/Excel5.php on line 4238</p>\r\n<p>&nbsp;</p>\r\n<p>It seems to work If I insert this code at line 4236:</p>\r\n<p>&nbsp;</p>\r\n<p>if(!isset($this-&gt;_sheets[$this-&gt;_ref[$index]['firstSheetIndex']]['name'])) { return false; }</p>\r\n<p>&nbsp;</p>\r\n<p>This file reproduces the error:&nbsp; http://www.mediafire.com/?sharekey=db041a7dd4757e53d2db6fb9a8902bda</p>\r\n<p>To create the file, I took a file that referenced another file, but did not have the second file.&nbsp; Then I loaded it with Excel for Mac, clicked 'ignore links', and then saved it again.&nbsp; There may be something in particular about this file that is odd beyond the missing referenced file as I did not have this trouble with creating a file from scratch.</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-07-02T12:09:42.357-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "208095",
+    "ThreadId": "60074",
+    "Html": "<p>Thanks for the update, I now posted this in the issue tracker. There is also a report for a similar bug in the php-excel-reader on Google Code. Not strange as they are based on the same class.</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10252\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10252</a></p>\r\n<p>I will definitely have a look at your fix. It seems we are seeing two unrelated bugs at once here. I'm a bit confused right now, but we should get these things fixed. Will return and post back later this week.</p>",
+    "PostedDate": "2009-07-02T12:20:54.503-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "209020",
+    "ThreadId": "60074",
+    "Html": "<p>I've got another issue that I think is related to the last one somehow, but I'm not sure...&nbsp; That's why I'm posting here and not on the issue you posted on the tracker.</p>\r\n<p>If I pull up that last file I posted in Excel, C6 is 'L0' (it's a reference to another sheet that I don't have, but the value still shows.)</p>\r\n<p>If I pull it up in PHPExcel, I get &quot;='Sant''Elena'!$U430&quot; .</p>\r\n<p>The actual value is &quot;='@:Srv2003sbs:DATI:Documenti:Pricing:[Pricing Santelena 2009.xls]Situazione'!$U430&quot; .</p>\r\n<p>For some reason, it seems to be re-writing the formula to use the current page instead of the other file, but then returns the formula instead of the computation.&nbsp; (The other file does not exist on my computer.)</p>",
+    "PostedDate": "2009-07-06T10:04:44.32-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "209024",
+    "ThreadId": "60074",
+    "Html": "<p>Sorry, on that last post, I just realized (after I hit 'post') that I'm using 'GetValue' which would return the formula, so that's right.&nbsp; GetCalculatedValue() returns 'NULL', instead of 'L0' as I'd expect.</p>\r\n<p>Thanks,</p>\r\n<p>William</p>",
+    "PostedDate": "2009-07-06T10:06:09.523-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "209823",
+    "ThreadId": "60074",
+    "Html": "<p>@wccrawford: Fixed those notices. There was indeed a bug in Excel5 reader:<br> <a href=\"../WorkItem/View.aspx?WorkItemId=10274\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10274</a><br> <br> When a workbook is saved in MS Office Excel, it usually stores the value from the last calculation. That is why you can still see the values when you open the file next time even when the referenced external file is not there.<br> <br> To retrieve those values in PHPExcel, do like this:<br> <span style=\"font-family:Courier New\">$sheet-&gt;getCell('C6')-&gt;getOldCalculatedValue();</span></p>",
+    "PostedDate": "2009-07-08T02:07:55.317-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "210014",
+    "ThreadId": "60074",
+    "Html": "<p>Thank you!&nbsp; I just tried the latest SVN code with my test file and I do get the 'L0' value from A6 now, but I still get a lot of:</p>\r\n<p>Notice: Undefined offset:&nbsp; 2 in /Users/william/src/phpexcel/Classes/PHPExcel/Reader/Excel5.php on line 4337<br><br>Notice: Undefined offset:&nbsp; 2 in /Users/william/src/phpexcel/Classes/PHPExcel/Reader/Excel5.php on line 4338</p>\r\n<p>Thanks,</p>\r\n<p>William</p>",
+    "PostedDate": "2009-07-08T09:12:56.667-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "210016",
+    "ThreadId": "60074",
+    "Html": "<p>Sorry, meant C6.&nbsp; :)</p>",
+    "PostedDate": "2009-07-08T09:17:31.557-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "210064",
+    "ThreadId": "60074",
+    "Html": "<p><em>&gt;&gt; but I still get a lot of:...</em><br> <br> Ok, I see I checked the patch in a bit too late. This error has already been solved. It should be gone in tomorrows source code release. Alternatively, you can download the patch found at the issue I linked to.</p>",
+    "PostedDate": "2009-07-08T10:19:31.053-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "210116",
+    "ThreadId": "60074",
+    "Html": "<p>Ah, okay.&nbsp; I assumed when I checked out from SVN that it was always the latest.&nbsp; I used that patch (manually, couldn't get it to work using the 'patch' command, but that's probably my fault) and everything seems to work great!</p>\r\n<p>Thanks again!</p>",
+    "PostedDate": "2009-07-08T12:03:57.037-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "441041",
+    "ThreadId": "60074",
+    "Html": "<p>Hi... Am trying to read a file whose extension is changed(Like .doc to .xls) But am getting so many exceptions like<br><br>Notice: Undefined property: PHPExcel_Shared_OLERead::$wrkbook in C:\\xampp\\htdocs\\Classes\\PHPExcel\\Shared\\OLERead.php&nbsp; on line 176<br><br>Notice: Undefined index: in C:\\xampp\\htdocs\\assignment16\\vijay\\Classes\\PHPExcel\\Shared\\OLERead.php on line 176<br><br>Notice: Undefined property: PHPExcel_Shared_OLERead::$wrkbook in C:\\xampp\\htdocs\\assignment16\\PHPExcel\\Shared\\OLERead.php on line 180<br><br>Notice: Undefined index: in C:\\xampp\\htdocs\\assignment16\\vijay\\Classes\\PHPExcel\\Shared\\OLERead.php on line 180<br><br>Notice: Undefined index: in C:\\xampp\\htdocs\\assignment16\\vijay\\Classes\\PHPExcel\\Shared\\OLERead.php on line 187<br><br>Notice: Undefined index: in C:\\xampp\\htdocs\\assignment16\\vijay\\Classes\\PHPExcel\\Shared\\OLERead.php on line 187<br><br>Notice: Undefined index: in C:\\xampp\\htdocs\\assignment16\\vijay\\Classes\\PHPExcel\\Shared\\OLERead.php on line 187<br><br>Notice: Undefined index: in C:\\xampp\\htdocs\\assignment16\\vijay\\Classes\\PHPExcel\\Shared\\OLERead.php on line 187<br><br>Am really not getting what to do with this... Please help me</p>",
+    "PostedDate": "2010-05-10T05:39:05.81-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "443209",
+    "ThreadId": "60074",
+    "Html": "<p>If you're trying to read a Word document using PHPExcel, then you can expect all kinds or errors.</p>",
+    "PostedDate": "2010-05-15T04:05:01.203-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "443704",
+    "ThreadId": "60074",
+    "Html": "<p>Its just for validating... If someone tries to read the invalid file(eg: some .doc renamed to .xls),if we try to open the file it shows&nbsp; file format is not valid... what i want to do is if its such kind of file, the reader created still tries to read the file and shows the above exceptions..... I just have to catch those exceptions and display to users something like [Invalid file]. please find me out some way. I tried with canRead(), read and also is_readable.. nothing worked......</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-05-17T03:33:41.977-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "444121",
+    "ThreadId": "60074",
+    "Html": "Can you please tell if there is any inbuilt class or any other method to fix the above.?? As i said above i tried with canRead() and read(). But i didnt get the result expected.",
+    "PostedDate": "2010-05-17T22:55:29.533-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "446944",
+    "ThreadId": "60074",
+    "Html": "<p>Please suggest something... I am waiting for the reply.</p>",
+    "PostedDate": "2010-05-24T23:23:16.127-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "447465",
+    "ThreadId": "60074",
+    "Html": "<p>There is no method built into PHPExcel that will do this for you, not without a lot of additional verification of the file format. The canRead() method only tests as far as validating that the file is an OLE file (that could be from any MS Office product) using the following logic in the canRead() method of /Classes/PHPExcel/Reader/Excel5.php</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>  <span style=\"color:blue\">try</span> {\r\n   <span style=\"color:green\">// Use ParseXL for the hard work.</span>\r\n   $ole = <span style=\"color:blue\">new</span> PHPExcel_Shared_OLERead();\r\n   <span style=\"color:green\">// get excel data</span>\r\n   $res = $ole-&gt;read($pFilename);\r\n   <span style=\"color:blue\">return</span> true;\r\n  } <span style=\"color:blue\">catch</span> (Exception $e) {\r\n   <span style=\"color:blue\">return</span> false;\r\n  }\r\n</pre>\r\n</div>\r\n<p>Feel free to extend this validation if you want. We get very few instances of people renaming .doc files as .xls, so it's very low on our priority list at the moment</p>",
+    "PostedDate": "2010-05-26T00:52:12.93-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

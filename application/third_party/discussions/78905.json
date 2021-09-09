@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "270171",
+    "ThreadId": "78905",
+    "Html": "<p>&nbsp;</p>\r\n<div id=\"_mcePaste\" style=\"overflow-y:hidden;left:-10000px;overflow-x:hidden;width:1px;top:0px;height:1px\">error_reporting(E_ALL); &nbsp;</div>\r\n<p>\r\n<p>The following is my code, I have two problem:</p>\r\n<p>1. it seems that the row is start with 1 , but the column is start with 0.</p>\r\n<p>2. I cannot save a formula into the cell with SetCellValueByColumnAndRow. When I open the file I generate, the cell 11 is empty, the formula is gone. However, If I quote the formula to be a string ( add a '&nbsp; to the beginning), then I can get the formula string without problem.</p>\r\n<p>&nbsp;My PHP: 5.2.8, PHPExcel: 1.7.0, Excel: Chinese Excel 2007, OS: Chinese Windows XP SP3</p>\r\n<p>Regards,</p>\r\n<p>Francois</p>\r\n<p>&nbsp;</p>\r\n<p>error_reporting(E_ALL); &nbsp;</p>\r\n<p>require_once 'classes/PHPExcel.php';&nbsp;</p>\r\n<p>require_once 'classes/PHPExcel/IOFactory.php';&nbsp;</p>\r\n<p>\r\n<p>&nbsp;&nbsp; &nbsp; &nbsp;for($rr=1;$rr&lt;10;$rr++) { &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</p>\r\n<p>&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;for($cc=0;$cc&lt;10;$cc++) { &nbsp; &nbsp; &nbsp;</p>\r\n<p>&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;$objPHPExcel-&gt;setActiveSheetIndex(0)-&gt;setCellValueByColumnAndRow($cc, $rr , $rr+$cc); &nbsp;</p>\r\n<p>&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;}</p>\r\n<p>&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;$formula = '=sum(r' . $rr . 'c1:r' . $rr . 'c10)';&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</p>\r\n<p>&nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;$objPHPExcel-&gt;setActiveSheetIndex(0)-&gt;setCellValueByColumnAndRow(11, $rr, $formula);&nbsp;</p>\r\n<p>&nbsp;&nbsp; &nbsp; &nbsp;}</p>\r\n<p>$objPHPExcel-&gt;setActiveSheetIndex(0); &nbsp;</p>\r\n</p>\r\n<p>\r\n<p>header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');</p>\r\n<p>header('Content-Disposition: attachment;filename=&quot;myfile.xls&quot;');</p>\r\n<p>header('Cache-Control: max-age=0');</p>\r\n<p>$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');</p>\r\n<p>$objWriter-&gt;save('php://output');</p>\r\n<p>exit;&nbsp;</p>\r\n</p>\r\n</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-12-22T23:15:31.257-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "278123",
+    "ThreadId": "78905",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>FrancoisYu wrote:</strong><br>\r\n<div id=\"_mcePaste\" style=\"overflow:hidden;left:-10000px;width:1px;top:0px;height:1px\">error_reporting(E_ALL); &nbsp;</div>\r\n<p>1. it seems that the row is start with 1 , but the column is start with 0.</p>\r\n</blockquote>\r\n<p>Yes, that is intentional.</p>\r\n<p>&nbsp;</p>\r\n<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>FrancoisYu wrote:</strong><br>\r\n<p>2. I cannot save a formula into the cell with SetCellValueByColumnAndRow. When I open the file I generate, the cell 11 is empty, the formula is gone. However, If I quote the formula to be a string ( add a '&nbsp; to the beginning), then I can get the formula string without problem.</p>\r\n</blockquote>\r\n<p>What does your formula look like?</p>",
+    "PostedDate": "2010-01-17T02:59:26.997-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "502859",
+    "ThreadId": "78905",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>koyama wrote:</strong><br>\r\n<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>FrancoisYu wrote:</strong><br>\r\n<div id=\"_mcePaste\" style=\"overflow:hidden;left:-10000px;width:1px;top:0px;height:1px\">error_reporting(E_ALL); &nbsp;</div>\r\n<p>1. it seems that the row is start with 1 , but the column is start with 0.</p>\r\n</blockquote>\r\n<p>Yes, that is intentional.</p>\r\n</blockquote>\r\n<p>&nbsp;</p>\r\n<p>So then why is it not stated so in the documentation? It says:</p>\r\n<p>&quot;</p>\r\n<p style=\"margin-bottom:0cm;background:none repeat scroll 0% 0% #f3f3f3;border:1px solid #000000;padding:0.04cm 0.14cm\" lang=en-GB><span style=\"color:#333333\"><span style=\"font-family:Courier New,monospace\"><span style=\"font-size:x-small\">// Set cell B8<br>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow(1, 8, 'Some value');</span></span></span></p>\r\n<p>&quot;</p>\r\n<p>&nbsp;</p>\r\n<p>I lost almost half a day until I figured this out. It's very not nice.</p>",
+    "PostedDate": "2010-10-06T00:59:59.293-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

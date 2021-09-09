@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "99022",
+    "ThreadId": "29699",
+    "Html": "There are 6 photos with the same widths. <br>\r\nSheet columns have different widths. <br>\r\n<div id=\"result_box\" dir=ltr> I need to position photos on the worksheet with the same distance from each other.<br>\r\n<br>\r\nHow can I determine widths of columns in pixels?<br>\r\n</div>\r\n<br>\r\n",
+    "PostedDate": "2008-06-16T01:23:55.433-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "99039",
+    "ThreadId": "29699",
+    "Html": "<br>\r\nI found:<br>\r\n<br>\r\nhttp://processtrends.com/pg_charts_cell_size.htm<br>\r\n<br>\r\nBut <em><strong>Column Width (Characters)&nbsp; = (Width&nbsp;\r\nPixels - 5)/5 </strong>doesn't always work properly.<br>\r\n</em>\r\n",
+    "PostedDate": "2008-06-16T03:15:34.31-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "99050",
+    "ThreadId": "29699",
+    "Html": "Have a look at the imagettfbbox() function in the PHP GD library. This takes as parameters the font, font size, text string (and display angle if the text is rotated) and returns an array for the positions of the top, bottom, left and right coordinates of the bounding box in pixels.<br>\r\nIf you know the width of the box in characters, and the font used, then you can work out the pixel width for a standard character string.<br>\r\n&nbsp;<br>\r\nRemember that the default PHPExcel font, Calibri, is proportionally spaced. You probably want to set the font to be a monospaced font (such as Courier New).\r\n",
+    "PostedDate": "2008-06-16T03:57:40.483-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "99493",
+    "ThreadId": "29699",
+    "Html": "http://www.xtremevbtalk.com/showthread.php?t=67565<br>\r\n",
+    "PostedDate": "2008-06-18T05:18:40.683-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "99526",
+    "ThreadId": "29699",
+    "Html": "Thank's for the tip!\r\n",
+    "PostedDate": "2008-06-18T08:31:56.037-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "99782",
+    "ThreadId": "29699",
+    "Html": "No. This formula is wrong.<br>\r\n<br>\r\nWe can simple use methods _sizeCol and _sizeRow from PHPExcel_Writer_Excel5_Worksheet class (Excel 5 Writer)<br>\r\n<br>\r\n/**<br>\r\n&nbsp;&nbsp;&nbsp; * Convert the width of a cell from user's units to pixels. By interpolation<br>\r\n&nbsp;&nbsp;&nbsp; * the relationship is: y = 7x +5. If the width hasn't been set by the user we<br>\r\n&nbsp;&nbsp;&nbsp; * use the default value. If the col is hidden we use a value of zero.<br>\r\n&nbsp;&nbsp;&nbsp; *<br>\r\n&nbsp;&nbsp;&nbsp; * @access private<br>\r\n&nbsp;&nbsp;&nbsp; * @param integer $col The column<br>\r\n&nbsp;&nbsp;&nbsp; * @return integer The width in pixels<br>\r\n&nbsp;&nbsp;&nbsp; */<br>\r\nfunction _sizeCol($col)<br>\r\n&nbsp;&nbsp;&nbsp; {<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; // Look up the cell value to see if it has been changed<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; if (isset($this-&gt;col_sizes[$col])) {<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; if ($this-&gt;col_sizes[$col] == 0) {<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; return(0);<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; } else {<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; return(floor(7 * $this-&gt;col_sizes[$col] + 5));<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; } else {<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; return(64);<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }<br>\r\n&nbsp;&nbsp;&nbsp; } <br>\r\n<br>\r\n&nbsp;&nbsp;&nbsp; /**<br>\r\n&nbsp;&nbsp;&nbsp; * Convert the height of a cell from user's units to pixels. By interpolation<br>\r\n&nbsp;&nbsp;&nbsp; * the relationship is: y = 4/3x. If the height hasn't been set by the user we<br>\r\n&nbsp;&nbsp;&nbsp; * use the default value. If the row is hidden we use a value of zero. (Not<br>\r\n&nbsp;&nbsp;&nbsp; * possible to hide row yet).<br>\r\n&nbsp;&nbsp;&nbsp; *<br>\r\n&nbsp;&nbsp;&nbsp; * @access private<br>\r\n&nbsp;&nbsp;&nbsp; * @param integer $row The row<br>\r\n&nbsp;&nbsp;&nbsp; * @return integer The width in pixels<br>\r\n&nbsp;&nbsp;&nbsp; */<br>\r\n&nbsp;&nbsp;&nbsp; function _sizeRow($row)<br>\r\n&nbsp;&nbsp;&nbsp; {<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; // Look up the cell value to see if it has been changed<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; if (isset($this-&gt;_row_sizes[$row])) {<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; if ($this-&gt;_row_sizes[$row] == 0) {<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; return(0);<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; } else {<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; return(floor(4/3 * $this-&gt;_row_sizes[$row]));<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; } else {<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; return(17);<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }<br>\r\n&nbsp;&nbsp;&nbsp; }<br>\r\n<br>\r\n&nbsp;_col_sizes - array of column widths in symbols.<br>\r\nThese formulas are very precise (for Excel 5).<br>\r\n<br>\r\nTips:<br>\r\n1) We can not&nbsp; use large pictures in&nbsp; BIFF5.<br>\r\nUse phpThumb (http://phpthumb.sourceforge.net/) to generate BMP thumbnails:<br>\r\n<br>\r\nphpThumb-&gt;resetObject();<br>\r\n$phpThumb-&gt;setSourceFilename($input_file);<br>\r\n$phpThumb-&gt;setParameter('w', $this-&gt;thumbnail_width);<br>\r\n$phpThumb-&gt;setParameter('config_output_format', 'bmp');<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>\r\nif ($phpThumb-&gt;GenerateThumbnail())<br>\r\n&nbsp; $phpThumb-&gt;RenderToFile($output_file);<br>\r\n<br>\r\n2) Do not use BIFF8!<br>\r\n3) Gnumeric can open BIFF5 with pictures. OpenOffice can not it.<br>\r\n4) Direct usage PHPExcel_Writer_Excel5 class is faster than working with PHPExcel class.<br>\r\n<br>\r\n",
+    "PostedDate": "2008-06-19T10:09:40.683-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

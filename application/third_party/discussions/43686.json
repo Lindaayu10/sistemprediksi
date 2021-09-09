@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "145302",
+    "ThreadId": "43686",
+    "Html": "this is my code:<br>\r\n&lt;?php<br>\r\nerror_reporting(E_ALL);<br>\r\n<br>\r\n/** Include path **/<br>\r\nset_include_path(get_include_path() . PATH_SEPARATOR . '../class');<br>\r\n<br>\r\n/** PHPExcel_IOFactory */<br>\r\ninclude 'PHPExcel/IOFactory.php';<br>\r\n<br>\r\necho date('H:i:s') . &quot; Load from Excel file&lt;br/&gt;&quot;;<br>\r\n$objReader = PHPExcel_IOFactory::createReader('Excel2007');<br>\r\n$objPHPExcel = $objReader-&gt;load(&quot;2009Q1.xlsx&quot;);<br>\r\n<br>\r\n//$objReader = PHPExcel_IOFactory::createReader('Excel5');<br>\r\n//$objPHPExcel = $objReader-&gt;load(&quot;2009Q1.xls&quot;);<br>\r\n$sheet = $objPHPExcel-&gt;getSheet(0);<br>\r\n// Echo memory peak usage<br>\r\necho date('H:i:s') . &quot; Peak memory usage: &quot; . (memory_get_peak_usage(true) / 1024 / 1024) . &quot; MB&lt;br/&gt;&quot;;<br>\r\n//<br>\r\n$HighestRow = $objPHPExcel-&gt;getActiveSheet()-&gt;getHighestRow();<br>\r\n$HighestCol = $objPHPExcel-&gt;getActiveSheet()-&gt;getHighestColumn();<br>\r\n<br>\r\n//print_r($objPHPExcel);<br>\r\nfor($i=1;$i&lt;=$HighestRow;$i++){<br>\r\n&nbsp;&nbsp; &nbsp;for($j='A';$j&lt;=$HighestCol;$j++){<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $val = $sheet-&gt;getCell($j.$i)-&gt;getValue();<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; echo $j.$i.&quot;[&quot;.$charset.&quot;]=&quot;.$val.&quot;&lt;br&gt;&quot;;<br>\r\n&nbsp;&nbsp; &nbsp;}<br>\r\n}<br>\r\n?&gt;<br>\r\n<br>\r\nWebpage will print this file content like this:<br>\r\n<br>\r\n11:54:29 Load from Excel file<br>\r\n11:54:30 Peak memory usage: 9.25 MB<br>\r\nA1[]=项目<br>\r\nB1[]=模块<br>\r\nC1[]=功能<br>\r\nD1[]=备注<br>\r\nE1[]=工作量<br>\r\nF1[]=截止时间<br>\r\nG1[]=优先级<br>\r\nA2[]=UNIQLO<br>\r\nB2[]=电话处理模块<br>\r\nC2[]=IB电话内容监控<br>\r\n<div><strong>Unknown Error Type:</strong> 4096 - D:\\xampp\\htdocs\\harmony\\t.php @ L28</div>\r\n<br>\r\nCell C3's Content was:&nbsp;&nbsp;\r\n<table height=22 cellspacing=0 cellpadding=0 border=0 width=507 style=\"border-collapse:collapse\">\r\n    <col width=507 style=\"width:380pt\">\r\n    <tbody>\r\n        <tr height=18 style=\"height:13.5pt\">\r\n            <td height=18 width=507 style=\"height:13.5pt;width:380pt\">IB内容统计<span>/各项内容比率</span></td>\r\n        </tr>\r\n    </tbody>\r\n</table>\r\n<br>\r\n<br>\r\n<br>\r\n\r\n",
+    "PostedDate": "2009-01-07T19:58:46.47-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "145303",
+    "ThreadId": "43686",
+    "Html": "if i change my code as this:<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; echo $j.$i.&quot;[&quot;.$charset.&quot;]=&quot;.$val.&quot;&lt;br&gt;&quot;;&nbsp;&nbsp; ---&gt;&nbsp;&nbsp;&nbsp; echo $j.$i.&quot;[&quot;.$charset.&quot;]=&quot;.urldecode(urlencode($val)).&quot;&lt;br&gt;&quot;; <br>\r\n<br>\r\nIt will output a blank line and without any error message.<br>\r\n",
+    "PostedDate": "2009-01-07T20:02:51.937-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "145304",
+    "ThreadId": "43686",
+    "Html": "Can you send me the file? (erik at phpexcel dot net)<br>\r\n<br>\r\n",
+    "PostedDate": "2009-01-07T20:03:37.423-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "145307",
+    "ThreadId": "43686",
+    "Html": "I sent a mail to you just now.<br>\r\n",
+    "PostedDate": "2009-01-07T20:21:15.667-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "145312",
+    "ThreadId": "43686",
+    "Html": "The problem is that some of your cell values contain Rich-Text. If you try to echo a Rich-Text value you get error.<br>\r\n<br>\r\nI found out like this:<br>\r\n<br>\r\n<code>for($i=1;$i&lt;=$HighestRow;$i++){<br>\r\n&nbsp;&nbsp;&nbsp; for($j='A'; $j&lt;=$HighestCol; $j++){<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $val = $sheet-&gt;getCell($j . $i)-&gt;getValue();<br>\r\n<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //echo $j.$i.&quot;[]=&quot;.$val.&quot;&lt;br&gt;&quot;;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;var_dump(get_class($sheet-&gt;getCell($j . $i)-&gt;getValue()));<br>\r\n<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}<br>\r\n}<br>\r\n</code>\r\n<br>\r\nIf you are only interested in the plain text, use this:<br>\r\n<br>\r\n<code>\r\n$objReader-&gt;setReadDataOnly(true);<br>\r\n</code>\r\n<br>\r\nRelated discussion:<br>\r\n<a href=\"http://www.codeplex.com/PHPExcel/Thread/View.aspx?ThreadId=34513\">http://www.codeplex.com/PHPExcel/Thread/View.aspx?ThreadId=34513</a><br>\r\n<br>\r\n",
+    "PostedDate": "2009-01-07T20:54:16.13-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "145313",
+    "ThreadId": "43686",
+    "Html": "@maarten: Is it possible to implement magical __toString() method for PHPExcel_RichText ?<br>\r\n<br>\r\n",
+    "PostedDate": "2009-01-07T21:00:18.23-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "145317",
+    "ThreadId": "43686",
+    "Html": "you are right.<br>\r\n<br>\r\nif I add <code>$objReader-&gt;setReadDataOnly(true);</code> it's works.<br>\r\n<br>\r\nthank you very much.<br>\r\n<br>\r\n<br>\r\n",
+    "PostedDate": "2009-01-07T21:28:08.733-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

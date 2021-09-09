@@ -1,0 +1,66 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hi\nWhen I write on a template most of the time it goes good but sometime the format get corrupted.\nThis hasn't happened yet for outputting in browser.\nWhile using the same template and the same formating files and thesem columns from db this thing may happen for different arguments to the sp giving the data, this also affect the file name. \n\n\nI'll upload two file, emptied of data, the first one is a exported file looking good and the other is the error i am talking about.\n\nI just want to know if someone now some workaround for for this.",
+    "LastUpdatedDate": "2014-10-10T11:22:33.013-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2013-12-12T07:19:25.027-08:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Save seems to corrupt format on xlsx-files, sometimes",
+    "Type": {
+      "Name": "Unassigned",
+      "Id": 5
+    },
+    "VoteCount": 1,
+    "Id": 20512
+  },
+  "FileAttachments": [
+    {
+      "FileId": 7305,
+      "FileName": "Ok.xlsx",
+      "DownloadUrl": ".\\7305"
+    },
+    {
+      "FileId": 7306,
+      "FileName": "Strange.xlsx",
+      "DownloadUrl": ".\\7306"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "Anyone seen this bugg?\nBtw here are some code\r\n\r\n-- the save part that differs in the cases\n```\ntry{\n$objPHPExcel->setActiveSheetIndex($savesheetnr);\n$resulting_filename=save_file($pathtowrite,$filetowrite,$objPHPExcel,$filetype);\nif ($debug==true)\n{\n\tfile_get_contents($pathtowrite.$resulting_filename);\r\n\r\n}\n\t\t\t\t\t\t\t\tif ($onthefly==true)\n\t\t\t\t\t\t{ // this gives good format\n\t\t\t\t\t\t\t\t//$answer[]=$pathtowrite.$resulting_filename;\n\t\t\t\t\t\t\t\t//@ob_end_clean();\n\t\t\t\t\t\t\t\tset_time_limit(60000);\n\t\t\t\t\t\t\t\tob_clean();\n\t\t\t\t\t\t\t\t if(ini_get('zlib.output_compression'))\n\t\t\t\t\t\t\t\t\t\tini_set('zlib.output_compression', 'Off');\n\t\t\t\t\t\t\t\theader(\"Expires: Mon, 26 Jul 1997 05:00:00 GMT\");\n\t\t\t\t\t\t\t\theader(\"Last-Modified: \" . gmdate(\"D, d M Y H:i:s\") . \" GMT\");\n\t\t\t\t\t\t\t\theader(\"Cache-Control: no-store, no-cache, must-revalidate\");\n\t\t\t\t\t\t\t\theader(\"Cache-Control: post-check=0, pre-check=0\", false);\n\t\t\t\t\t\t\t\theader(\"Pragma: no-cache\");\n\t\t\t\t\t\t\t\tob_start(); \n\t\t\t\t\t\t\t\t$fHandler = new FileFuncs();\n\t\t\t\t\t\t\t\t$fHandler->FileDownload($pathtowrite.$resulting_filename, true, true);\n\t\t\t\t\t\t\t\tEndFlush();\n\t\t\t\t\t\t\t\t//ob_end_flush();\t \n\t\t\t\t\t\t\t\t//exit();\n\t\t\t\t\t\t}\n\t\t\t\t\t\telse\n\t\t\t\t\t\t{ // this sometimes gives a loss of format\n\t\t\t\t\t\t\twrite_metadatafile($pathtowrite, $resulting_filename,$metadata_type, $norows, $premisions);\n\t\t\t\t\t\t\t//echo \"logga \".$pathtowrite.\" \". $resulting_filename.\" \".$sql.\"\\n\";\n\t\t\t\t\t\t\tlog_exported_file($pathtowrite, $resulting_filename,$sql,$conn);\n\t\t\t\t\t\t}\n//write_metadatafile($pathtowrite, $resulting_filename,$metadata_type, $norows, $premisions);\n}\n\t\t\t\t\t  catch( Exception $e ) {\n\t\t\t\t\t\t\techo 'Problem aving '.$filetowrite.'<br>';\n\t\t\t\t\t\t\techo $e->getMEssage();\n\t\t\t\t\t  }\n```\n-- the actual save part is mostly sets the filnames if the projekted filename is bizzy.\n```\nfunction save_file($path,$savename,$objPHPExcel,$filetype)\n{\n\t$filer=2;\n\t$paths=explode(\"\\\\\",$path);\n\t\n\t$path2='';\n\t//print_r($paths);\n\tforeach($paths as $path3)\n\t{\n\t\tif($path3<> '')\n\t\t{\n\t\t\tif ($path3[1]==\":\")\n\t\t\t{\n\t\t\t\t$path2=$path3.\"\\\\\";\n\t\t\t}\n\t\t\telseif($path3<> '')\n\t\t\t{\n\t\t\t\t\t$path2=$path2.$path3.\"\\\\\";\n\t\t\t\t\t//echo $path2.'<br>';\n\t\t\t\t\tif (file_exists($path2)==false)\n\t\t\t\t\t{\n\t\t\t\t\t\tmkdir($path2);\n\t\t\t\t\t\t\n\t\t\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n\t\n\t//echo \"Test1 \".$savename.'<br>';\n\tif (file_exists($path.$savename))\n\t{\n\t $savename=strrev(substr(strrev($savename),strpos(strrev($savename),'.')+1)).'_'.$filer.'.'.strrev(substr(strrev($savename),0,strpos(strrev($savename),'.')));\n\t \n\t// echo \"Test2 \".$savename.'<br>';\n\t //echo \"Test \".$savename.'<br>';\n\t while (file_exists($path.$savename))\n\t {\n\t\t$filer++;\n\t\t$savename=strrev(substr(strrev($savename),strpos(strrev($savename),'_')+1)).'_'.$filer.'.'.strrev(substr(strrev($savename),0,strpos(strrev($savename),'.')));\n\t\t//echo \"Test3 \".$savename.'<br>';\n\t }\n\t \n\t}\n\t$justthefilename=$savename;\n\t$savename=$path.$savename;\n//$otherfiletype='';\n\t\tswitch($filetype)\n\t\t{\n\t\t\tcase 'excel':\n\t\t\t\t$otherfiletype= 'Excel2007';//'Excel5';\n\t\t\t\tbreak;\n\t\t\tcase 'excel2007':\n\t\t\t\t$otherfiletype='Excel2007';\n\t\t\t\tbreak;\n\t\t\tcase 'xlsx':\n\t\t\t\t$otherfiletype='Excel2007';\n\t\t\t\tbreak;\t\t\t\t\n\t\t\tcase 'csv':\n\t\t\t\t$otherfiletype='csv';\n\t\t\t\tbreak;\n\t\t\tcase 'pdf':\n\t\t\t\t$otherfiletype='PDF';\n\t\t\t\tbreak;\n\t\t\tdefault:\n\t\t\t\tthrow new Exception(\"Sorry \".$filetype.\" isn't definered (yet)\");\n\t\t\n\t\t}\n\t\r\n\r\n\t\n\t\ttry\n\t\t{\n\t\t\t$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, $otherfiletype);\n\t\t\tif ($otherfiletype=='PDF')\n\t\t\t{\n\t\t\t\t$objWriter->writeAllSheets();\n\t\t\t}\n\t\t}\n\t\tcatch( Exception $e ) \n\t\t{\n\t\t\t\techo $e->getMessage().'<br>';\n\t\t\t\tthrow new Exception(\"Sorry \".$otherfiletype.\" isn't definered in createwriter \");\n\t\t\t\texit();\n        }\n\t\t\n\t\ttry\n\t\t{\n\t\t\t//echo 'Lets save '.$savename.'<br>';\n\t\t\t$objWriter->save($savename);\t\n\t\t}\n\t\tcatch( Exception $e ) \n\t\t{\n\t\t\t\techo $e->getMessage().'<br>';\n\t\t\t\tthrow new Exception(\"bummer \".$savename.\"  wasn't saveable<br>\");\n\t\t\t\texit();\n        }\t\t\n\t\techo $savename.' is saved.<br>';\n\t\treturn($justthefilename);\n}\r\n\r\n```\n-- opening of templates, taking care of extra sheets here too. \n```\n\t\t\t\t\t\t$objPHPExcel=PHPExcel_IOFactory::load($inputfile[$i-1]);\n\t\t\t\t\t\t$savesheetnr=$objPHPExcel->getActiveSheetIndex();\n\t\t\t\t\t\t$reader = new PHPExcel_Reader_Excel2007();\n\t\t\t\t\t\t$working_sheet_name_list =$reader->listWorksheetNames($inputfile[$i-1]);\n\t\t\t\t\t\t$worksheetworkaround= false;\n\t\t\t\t\t\t$stepadjust=0;\n\t\t\t\t\t\tforeach($objPHPExcel->getSheetNames() as $index=>$name)\n\t\t\t\t\t\t{\n\t\t\t\t\t\t foreach($working_sheet_name_list as $keep)\n\t\t\t\t\t\t {\n\t\t\t\t\t\t\tif ($name==$keep)\n\t\t\t\t\t\t\t\t$worksheetworkaround= true;\n\t\t\t\t\t\t }\n\t\t\t\t\t\t if ($worksheetworkaround== false)\n\t\t\t\t\t\t { // radera...\n\t\t\t\t\t\t\t$index=$index-$stepadjust;\n\t\t\t\t\t\t\t$objPHPExcel->removeSheetByIndex($index);\n\t\t\t\t\t\t\t$stepadjust++;\n\t\t\t\t\t\t }\n\t\t\t\t\t\t $worksheetworkaround= false;\n```\r\n\r\nAnd i just use .xlsx templates, and i save to .xlsx too.",
+      "PostedDate": "2014-05-21T06:53:50.73-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Has noone seen this error before? Am I the first to encounter it?\nI've noticed that which files that are corrupted depends on the order the files are generated and some more than others.",
+      "PostedDate": "2014-09-08T04:26:05.113-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Okey I've found that this error is visable in xl\\styles.xml where the xml seems to be missing parts when this error occurs. And as I said it doesn't happens all the time and not when just exporting one file, however when i batch exports it appears on the same exports with just that  sequence of files and data from the database.\r\n\r\nexample: to day we generated 14 files, the 2d, 6th, 8th,  9th, 12th and 13th got this error.\nWhen exporting they again with this days data that sequence reappears, quite litterer y in the same why too. \r\n\r\nMy guess is data is lost during reading when more stuff if running.\r\n\r\nI would like to get some kind of response on this...\nusing PHPExcel 1.8.0 ",
+      "PostedDate": "2014-10-10T11:22:33.013-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

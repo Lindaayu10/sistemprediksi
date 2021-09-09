@@ -1,0 +1,146 @@
+[
+  {
+    "Id": "230556",
+    "ThreadId": "67827",
+    "Html": "<p>Is it possible to make pivot tables with php excel?</p>\r\n<p>Why does phpexcel writer delete my already created pivot table in Office 2007 or Office 2003?</p>",
+    "PostedDate": "2009-09-03T01:23:21.2-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "230629",
+    "ThreadId": "67827",
+    "Html": "<p>At present, PHPExcel has no support for either reading or writing pivot tables, so that the pivot isn't read from your &quot;already created&quot; workbook, and the writer is therefore blissfully aware of its existence and cannot even try to write it.</p>\r\n<p>Support for pivot tables is <a title=\"Pivot Table Support Request\" href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=17\">planned for the future</a></p>",
+    "PostedDate": "2009-09-03T04:29:24.727-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "558719",
+    "ThreadId": "67827",
+    "Html": "\r\n<p>so maybe is it difficult to create an excel pivot. but : how about editing the source of an existing excel file that already has a pivot that will autorefresh on open ? all that is there to do, is to create another sheet instead of the original one which\r\n has the original source.</p>\r\n<p>to make myself clear: we have a file test.xlsx (or xls &gt;=2003 version). in the file we have a sheet &quot;pivottable&quot; which represent the pivot table with the source &quot;Sheet1!$A$1:$M$65536&quot;.</p>\r\n<p>so all we have to do is either to delete the Sheet1 sheet and recreate it, or just to erase the existing data and repopulate the values.</p>\r\n<p>the sheet &quot;pivottable&quot; from my example has checked the option &quot;auto refresh pivot when document opens&quot;. the theory works. i use it for the moment with ms sql dts. i delete the sheet and recreate it.</p>\r\n<p>this will not create a pivot, but you may use an already existing template.</p>\r\n",
+    "PostedDate": "2011-02-01T07:40:25.697-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "568595",
+    "ThreadId": "67827",
+    "Html": "<p>@<a class=\"UserProfileLink\" href=\"http://www.codeplex.com/site/users/view/yo9gnc\">yo9gnc</a> I thought of your solution just recently. However when i implemented it, PHPExcel saves the modified template but the pivot table is lost.</p>\r\n<p>My guess is that since it's unable to read pivot tables, it cannot write them either for the entire file is loaded into memory before written out again (not just one sheet).</p>\r\n<p>The code i have so far just opens the template file and writes it out to the browser. My excel file only has 2 sheets:- Sheet1 has the pivot table and Sheet2 has the data-source.</p>\r\n<p>Any ideas for a work-around?</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>&lt;?php\r\n<span style=\"color: green;\">/** Error reporting */</span>\r\nerror_reporting(E_ALL);\r\n\r\n<span style=\"color: green;\">/** Include path **/</span>\r\nini_set(<span style=\"color: #a31515;\">'include_path'</span>, ini_get(<span style=\"color: #a31515;\">'include_path'</span>).<span style=\"color: #a31515;\">';../Classes/'</span>);\r\n\r\n<span style=\"color: green;\">/** PHPExcel */</span>\r\n<span style=\"color: blue;\">include</span> <span style=\"color: #a31515;\">'PHPExcel.php'</span>;\r\n\r\n<span style=\"color: green;\">/** PHPExcel_Writer_Excel2007 */</span>\r\n<span style=\"color: blue;\">include</span> <span style=\"color: #a31515;\">'PHPExcel/Writer/Excel2007.php'</span>;\r\n\r\ndefine(<span style=\"color: #a31515;\">'TEMPLATE_PATH'</span>, <span style=\"color: #a31515;\">'templates'</span>);\r\n$template_name = <span style=\"color: #a31515;\">'report_template'</span>;\r\n$template_file = TEMPLATE_PATH . <span style=\"color: #a31515;\">'/'</span> . $template_name . <span style=\"color: #a31515;\">'.xlsx'</span>;\r\n\r\n<span style=\"color: green;\">// Load template</span>\r\n<span style=\"color: blue;\">if</span> (!file_exists($template_file)) {\r\n\t<span style=\"color: blue;\">exit</span>(<span style=\"color: #a31515;\">\"Template does not exist.\"</span>);\r\n}\r\n\r\n<span style=\"color: green;\">// Open Excel File</span>\r\n$objPHPExcel = PHPExcel_IOFactory::load($template_file);\r\n\r\n<span style=\"color: green;\">// Save Excel 2007 file</span>\r\n<span style=\"color: green;\">// redirect output to client browser</span>\r\nheader(<span style=\"color: #a31515;\">'Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'</span>);\r\nheader(<span style=\"color: #a31515;\">\"Content-Disposition: attachment;filename={$template_name}\"</span>);\r\nheader(<span style=\"color: #a31515;\">'Cache-Control: max-age=0'</span>);\r\n\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, <span style=\"color: #a31515;\">'Excel2007'</span>);\r\n$objWriter-&gt;save(<span style=\"color: #a31515;\">'php://output'</span>); \r\n\r\n</pre>\r\n</div>\r\n</p>",
+    "PostedDate": "2011-02-18T08:14:52.93-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "569552",
+    "ThreadId": "67827",
+    "Html": "<p>if you will only run the following script, you`ll see that the pivot informations are lost.&nbsp; because phpexcel doesn`t know how to write any other data then it is built to work with.</p>\n<div style=\"color: black; background-color: white;\">\n<pre>&lt;?php\n//the template file has sheet2 - a pivot table, sheet1 - the source of the pivot.<br /><span style=\"color: blue;\">require_once</span>(<span style=\"color: #a31515;\">\"../Classes/PHPExcel.php\"</span>);\n$objPHPexcel = PHPExcel_IOFactory::load(<span style=\"color: #a31515;\">'templatefile.xls'</span>);\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPexcel, <span style=\"color: #a31515;\">'Excel2007'</span>);\n$objWriter-&gt;save(<span style=\"color: #a31515;\">'resultfile.xlsx'</span>);\n?&gt;\n//in this case we will have both sheets in resulfile.xlsx but sheet2 will be just some text with any other information lost when saved.</pre>\n</div>\n<p>i was just wondering if it was easyer to develop this aspect instead the whole creating pivot thing.</p>\n<p>P.S. same thing in perl with&nbsp; Spreadsheet::ParseExcel and Spreadsheet::ParseExcel::SaveParser;</p>",
+    "PostedDate": "2011-02-21T04:26:11.41-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "569637",
+    "ThreadId": "67827",
+    "Html": "<p>@<a class=\"UserProfileLink\" href=\"http://www.codeplex.com/site/users/view/yo9gnc\">yo9gnc </a>I have a workaround! (for windows)</p>\r\n<p>We can use the Microsoft Office Primary Interop Assemblies dll (Excel.Application) to open excel, refresh the datasource and then save the updated excel file to disk. I hope this works for you too.</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>&lt;?php\r\n\r\n<span style=\"color: green;\">// Start Excel</span>\r\n$excel = <span style=\"color: blue;\">new</span> COM(<span style=\"color: #a31515;\">\"Excel.Application\"</span>) <span style=\"color: blue;\">or</span> <span style=\"color: blue;\">die</span> (<span style=\"color: #a31515;\">\"Could not load Excel.Application\"</span>);\r\n\r\n<span style=\"color: green;\">// Make Excel visible.</span>\r\n$excel-&gt;Application-&gt;Visible = 1; \r\n\r\n<span style=\"color: green;\">// Open  workbook</span>\r\n$Workbook = $excel-&gt;Workbooks-&gt;Open($template_file) <span style=\"color: blue;\">or</span> <span style=\"color: blue;\">die</span>(<span style=\"color: #a31515;\">\"Could not open $template_file\"</span>);\r\n\r\n<span style=\"color: green;\">// Refresh all pivot tables</span>\r\n$Workbook-&gt;RefreshAll();\r\n\r\n<span style=\"color: green;\">// Save updated excel file out to disk somewhere</span>\r\n$Workbook-&gt;SaveAs($updated_template_file);\r\n\r\n<span style=\"color: green;\">// Close all instances of excel:</span>\r\n$Workbook-&gt;Close(false);\r\n<span style=\"color: blue;\">unset</span>($Workbook);\r\n\r\n$excel-&gt;Workbooks-&gt;Close();\r\n$excel-&gt;Quit();\r\n<span style=\"color: blue;\">unset</span>($excel);\r\n?&gt;\r\n\r\n</pre>\r\n</div>\r\n</p>\r\n<div id=\"_mcePaste\" class=\"mcePaste\" style=\"position: absolute; left: -10000px; top: 0px; width: 1px; height: 1px; overflow: hidden;\">\r\n<h2 id=\"DownloadName\" class=\"header details-h2\">Primary Interop Assemblies</h2>\r\n</div>",
+    "PostedDate": "2011-02-21T07:18:53.18-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "569640",
+    "ThreadId": "67827",
+    "Html": "<p>@islandblaze</p>\r\n<p>If you can use Microsoft Office Primary Interop Assemblies, then surely you have no need to use PHPExcel at all?</p>",
+    "PostedDate": "2011-02-21T07:32:26.197-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "569644",
+    "ThreadId": "67827",
+    "Html": "<blockquote style=\"padding-right: 0.25em; padding-left: 0.25em; padding-bottom: 0px; margin: 0.25em 1em 0px; padding-top: 0px; font-style: italic; border: #ccc 0.1em solid;\"><strong>yo9gnc wrote:</strong><br />\r\n<p>if you will only run the following script, you`ll see that the pivot informations are lost.&nbsp; because phpexcel doesn`t know how to write any other data then it is built to work with.</p>\r\n<p>was just wondering if it was easyer to develop this aspect instead the whole creating pivot thing.</p>\r\n</blockquote>\r\n<p>The PHPExcel Readers use exactly the same methods to populate the PHPExcel object as you would use within a script&nbsp;to create/edit the content of that object, so it is actually harder to develop reader capabilities to&nbsp;load pivot table without the create/edit options. The PHPExcel object itself doesn't have any way of knowing whether it is being created/populated by a Reader object, or by a user script.</p>",
+    "PostedDate": "2011-02-21T07:43:47.24-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "646955",
+    "ThreadId": "67827",
+    "Html": "<p>Hi everybody&nbsp;</p>\n<p>I have a question, because I have the same issue: what about VB Code? what if I writte a Macro (or make one with the assistant), and put a \"button\" in the sheet with the pivot table? Can PHPExcel read and writte back a macro, or any vb code?&nbsp;</p>\n<p>Update: Sorry, I just saw that that is not possible (yet)</p>\n<p>Thanks,</p>\n<p>Al.</p>",
+    "PostedDate": "2011-07-25T00:18:56.743-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "646959",
+    "ThreadId": "67827",
+    "Html": "<p>Hi all</p>\r\n<p>&nbsp;</p>\r\n<p>You could do it like this. First you make xml spreadsheet. Then you read spreadsheet with Microsoft Office Primary Interop Assemblies and save it like xls or xlsx. That's all.</p>\r\n<p>&nbsp;</p>\r\n<p>Regards</p>",
+    "PostedDate": "2011-07-25T00:25:36.88-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "647719",
+    "ThreadId": "67827",
+    "Html": "<p>or you may have the VBA (macro) already stored in personal.xlsb and then just run it ( or press some predefined keys). the problem is that i needed it to automatically generate xls(x)/reports and send it in emails.</p>",
+    "PostedDate": "2011-07-26T06:31:38.233-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "699520",
+    "ThreadId": "67827",
+    "Html": "<p>Hi all,</p>\r\n<p>is there any update on this? Does anyone have an estimation of when the pivot table functionality will be added to PHPExcel?</p>\r\n<p>Thank you in advance</p>",
+    "PostedDate": "2011-11-17T04:40:57.197-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "896438",
+    "ThreadId": "67827",
+    "Html": "\r\n<p>Hi all,</p>\r\n<p>&nbsp;</p>\r\n<p>i really need manipulate a excel with a pivot table, i know is not implemented yet in PHPExcel and i trying the interop workaround, but my instance of excel can't read the template.xlsx.</p>\r\n<p>&nbsp;</p>\r\n<p>what can i do?</p>\r\n<p>&nbsp;</p>\r\n<p>Regards.</p>\r\n<p>&nbsp;</p>\r\n<p>PS: have this problem another solution? maybe another library or else? i cannot found anything.</p>\r\n",
+    "PostedDate": "2012-08-07T03:27:05.437-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "896515",
+    "ThreadId": "67827",
+    "Html": "\r\n<p>nevermind what i said <em>&quot;can`t you use the pivot separatelly in a file with the source being the file you generate ?</em>&quot;.i`m tired :)</p>\r\n",
+    "PostedDate": "2012-08-07T06:46:36.37-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "897445",
+    "ThreadId": "67827",
+    "Html": "\r\n<div dir=\"ltr\">Hi<br>\r\n<br>\r\nYou can try making xml spreadsheet. There u just need to enter pivot template. How do get template of pivot? Just save some spreadsheet in microsoft excel as xml spreadsheet 2003. Than u can with any editor just copy a part with pivot table. Than u can implement\r\n that part as u whish in php.<br>\r\n<br>\r\nRegards<br>\r\n<br>\r\n<div>\r\n<div id=\"SkyDrivePlaceholder\"></div>\r\n<hr id=\"stopSpelling\">\r\nFrom: [email removed]<br>\r\nTo: [email removed]<br>\r\nDate: Tue, 7 Aug 2012 06:46:40 -0700<br>\r\nSubject: Re: Making pivot tables [PHPExcel:67827]<br>\r\n<br>\r\nFrom: yo9gnc<br>\r\n<div id=\"ecxThreadNotificationPostBody\">can`t you use the pivot separatelly in a file with the source being the file you generate ?<br>\r\n</div>\r\n<div id=\"ecxThreadNotificationFooter\">Read the <a href=\"http://phpexcel.codeplex.com/discussions/67827#post896515\" target=\"_blank\">\r\nfull discussion online</a>.<br>\r\nTo add a post to this discussion, reply to this email (<a href=\"mailto:PHPExcel@discussions.codeplex.com?subject=[PHPExcel:67827]\">PHPExcel@discussions.codeplex.com</a>)<br>\r\nTo start a new discussion for this project, email <a href=\"mailto:PHPExcel@discussions.codeplex.com\">\r\nPHPExcel@discussions.codeplex.com</a><br>\r\nYou are receiving this email because you subscribed to this discussion on CodePlex. You can\r\n<a href=\"https://phpexcel.codeplex.com/discussions/67827/unsubscribe/\" target=\"_blank\">\r\nunsubscribe</a> on CodePlex.com.<br>\r\nPlease note: Images and attachments will be removed from emails. Any posts to this discussion will also be available online at CodePlex.com<br>\r\n</div>\r\n</div>\r\n</div>\r\n",
+    "PostedDate": "2012-08-09T02:53:28.217-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "897480",
+    "ThreadId": "67827",
+    "Html": "<p>Instead of just suggesting alternative tools, utilities, libraries, etc for handling pivot tables in Excel files, why does nobody ever consider that PHPExcel is <em><strong>Open Source</strong></em>. That means you can look at the code, see how it works; change the code; add new features to the code. It means that you can write the code necessary to handle pivot tables yourselves, perhaps even submit it back for inclusion in future versions of PHPExcel. We've made this even easier now by moving all the source to github.</p>\r\n<p>Instead of relying on one or occasionally two people writing all these features in their spare time, and criticising us because we can't provide everything that everyone wants instantly</p>",
+    "PostedDate": "2012-08-09T04:33:15.013-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "897898",
+    "ThreadId": "67827",
+    "Html": "\r\n<p>Hi all,</p>\r\n<p>&nbsp;</p>\r\n<p>I'll try and tell you Joesun99, many thanks!</p>\r\n<p>&nbsp;</p>\r\n<p>EDIT* How can i export the pivot table to xml? the plug in tell me ist not possible *&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>EDIT2* I cant export my pivot table to xml, and can do interop work properly... any tip? i feel lost</p>\r\n<p>&nbsp;</p>\r\n<p>(sorry about my bad english)</p>\r\n<p>&nbsp;</p>\r\n<p>Hi Mark,</p>\r\n<p>i'm not complaining about the current PHPExcel Features, this is an awesome library, i just have a problem and im asking for help, im sorry if you missundersand me.</p>\r\n<p>&nbsp;</p>\r\n<p>Regards.</p>\r\n",
+    "PostedDate": "2012-08-09T23:35:12.83-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1036049",
+    "ThreadId": "67827",
+    "Html": "Mark - answer is quite simple. I'm personally simply way too dumb to handle something that complex :) \r<br />\n<br />\nWhich causes me to have great deal of admiration to people such as yourself. \r<br />\n<br />\nI've been using phpexcel little bit over the years. While not quite critical, it is handy operationally for such horrible programmers like myself. Thank you for all your hard work. <br />\n",
+    "PostedDate": "2013-04-26T05:18:33.307-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

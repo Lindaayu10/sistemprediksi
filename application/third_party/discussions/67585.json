@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "229697",
+    "ThreadId": "67585",
+    "Html": "<p>I am trying to loop through spreadsheets in a particular directory to create an array that will later be used to create worksheets in a PHPExel written workbook.&nbsp; The problem I have is that memory usage continues to grow as the loop is executed.&nbsp; I am not running out of memory but it seems I have something missing or wrong in my code.&nbsp; Any suggestions?</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>&lt;?php<br><br><span style=\"color:Blue\">include</span> <span style=\"color:#A31515\">'PHPExcel.php'</span>;<br><span style=\"color:Blue\">include</span> <span style=\"color:#A31515\">'PHPExcel/IOFactory.php'</span>;<br><br><br>$objReader = PHPExcel_IOFactory::createReader(<span style=\"color:#A31515\">'Excel5'</span>);<br>$objReader-&gt;setReadDataOnly(true);<br><br>$directory = <span style=\"color:#A31515\">&quot;/home/products/Estimating/Bronx Lebanon Hospital 09-218/BOM/&quot;</span>;<br><br>$sheets = <span style=\"color:Blue\">array</span>();<br><span style=\"color:Blue\">if</span> ($handle = opendir(<span style=\"color:#A31515\">&quot;$directory&quot;</span>)) {<br>        <span style=\"color:Blue\">while</span> (false !== ($<span style=\"color:Blue\">file</span> = readdir($handle))) {<br>                <span style=\"color:Blue\">if</span> (strpos($<span style=\"color:Blue\">file</span>, <span style=\"color:#A31515\">&quot;.xls&quot;</span>)) {<br>                        $objPHPExcel = $objReader-&gt;load(<span style=\"color:#A31515\">&quot;$directory$file&quot;</span>);<br>                        $sourceSheet = $objPHPExcel-&gt;setActiveSheetIndex(0);<br>                        $rows = $sourceSheet-&gt;getHighestRow();<br><br>                        <span style=\"color:Blue\">for</span> ($x=1;$x&lt;=$rows; $x++) {<br>                                $col = $sourceSheet-&gt;getCell(<span style=\"color:#A31515\">&quot;M$x&quot;</span>)-&gt;getValue();<br>                                $sheets[$col] = $col;<br>                        }<br>                <span style=\"color:Blue\">echo</span> memory_get_usage() . <span style=\"color:#A31515\">&quot;&lt;br/&gt;&quot;</span>;<br>                }<br>        }<br>}<br>?&gt;<br></pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n<pre>With $objReader-&gt;setReadDataOnly(true); inserted memory usage is <br>14935752<br>15377688<br>15818888<br>16309104<br>16750168<br>17191288<br>17660496<br>18119712<br>18560760<br>18931712<br>19391032<br>19832072<br>20203032<br>20858864<br>21229784<br>21689144<br>22059992<br>22448992<br>22908208<br>23349368<br>23791000<br>24232064<br>24673160<br>25114280<br>25485200<br>....<br><br>without much bigger obviously.  So where did I go wrong?<br><br>Thanks,<br><br><br></pre>",
+    "PostedDate": "2009-09-01T06:23:27.073-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "229971",
+    "ThreadId": "67585",
+    "Html": "<p>This is unfortunately a known problem. PHP itself is a part of the problem the way it handles recursive references. (Not sure whether PHP 5.3 offers a solution.)<br><br>See this thread for more info:<br><a href=\"http://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=18404\">http://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=18404</a><br><br>We will work on reducing PHP memory usage via a cache provider. I think it may solve the memory leak you are describing too.</p>",
+    "PostedDate": "2009-09-01T18:06:34.287-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

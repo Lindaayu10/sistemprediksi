@@ -1,0 +1,178 @@
+[
+  {
+    "Id": "427654",
+    "ThreadId": "208399",
+    "Html": "<p>Hi,</p>\r\n<p>I saw some earlier discussions regarding macro support with PHPExcel.&nbsp; At the time, macros were not being supported.</p>\r\n<p>In my case, I do not want to access or modify the macros at all.&nbsp; I would simply like to maintain them as-is when my .xlsm file is written.</p>\r\n<p>I would like to read an .xlsm file, modify some of the cells, and write it back out, leaving the macro intact.</p>\r\n<p>I added the following to public static function createReaderForFile($pFilename) in IOFactory.php in order to read in an .xlsm file:</p>\r\n<p style=\"padding-left:60px\">case 'xlsm':<br>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$reader = self::createReader('Excel2007');<br>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;break;</p>\r\n<p>&nbsp;</p>\r\n<p>However, when I try to write out the updated .xlsm file, I get something like the following:</p>\r\n<p>$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');</p>\r\n<p>$objWriter-&gt;save($_SESSION['sheetWriteDir'].&quot;/&quot;.$_SESSION['sheetname']);</p>\r\n<p>&nbsp;</p>\r\n<p><strong>Fatal error</strong>:  Maximum execution time of 30 seconds exceeded in <strong>C:\\PHPExcel\\Classes\\PHPExcel\\Calculation.php</strong> on line <strong>1935 or</strong></p>\r\n<p><strong>Fatal error</strong>:  Maximum execution time of 30 seconds exceeded in <strong>C:\\PHPExcel\\Classes\\PHPExcel\\Calculation.php</strong> on line <strong>2706</strong></p>\r\n<p>(I tried bumping up the time out time, but I don't really think that's the issue, especially if PHPExcel just doesn't like that there are macros in the .xlsm.)</p>\r\n<p>&nbsp;</p>\r\n<p>Is there any way to accomplish what I'm trying to do?&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks very much,</p>\r\n<p>-ira</p>\r\n<p><strong><br></strong></p>",
+    "PostedDate": "2010-04-05T18:07:12.76-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "433007",
+    "ThreadId": "208399",
+    "Html": "<p>Sorry, we have not made any progress on this. I think it is not as simple as just carrying over the macro sheet.</p>",
+    "PostedDate": "2010-04-19T21:38:14.573-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "543438",
+    "ThreadId": "208399",
+    "Html": "\r\n<p>I just ran into this issue and this is what I did.</p>\r\n<p>First xlsx and xlsm files are nothing more than a fancy zip file.</p>\r\n<p>knowing that you should be able to open the xlsm file with PHP's zip library.&nbsp; Look under the xl folder for files named *.bin.<br>\r\nMy example used vbaProject.bin</p>\r\n<p>You can store the contents of that file to the temporary directory. Generate your xlsx file and with a little bit of magic generate your xlsm file again.</p>\r\n<ol>\r\n<li>Reinsert your vbaProject.bin files in the xl folder </li><li>Update [Content_Types].xml file </li><li>Update xl/_rels/workbook.xml.rels file </li></ol>\r\n<p>/**************************************************************************************************/</p>\r\n<p>THIS IS TO GET YOU INTO THE RIGHT DIRECTION NOT GUARANTEEING THAT THIS SOLUTION IS GOING TO WORK FOR EACH UNIQUE CASE<br>\r\nTHIS EXAMPLE INCLUDE ONE MACRO IN A SIMPLE EXCEL DOCUMENT</p>\r\n<p>/*************************************************************************************************/</p>\r\n<p>Here is my example<br>\r\n<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Write Excel 2007 document &nbsp;&nbsp; &nbsp;&nbsp;\r\n<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel);<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Generate a temp file and save Excel document to temp file<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $tmpfname = tempnam(&quot;/tmp&quot;, &quot;FOO&quot;);<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $objWriter-&gt;save($tmpfname);<br>\r\n&nbsp;&nbsp;&nbsp; <br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; require_once('ZipArchive.php'); // Referance post http://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=60358 helper class for PHP builds missing ZIp wrappers.<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $zip = new ZipArchive; // Start Zip archive<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $zip-&gt;open($tmpfname); // Open our stored Excel document<br>\r\n<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; // Add our VBA script to the Excel Zip Document<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $zip-&gt;addFile('[PATH_TO_YOUR_STORED_VBA_BIN_FILE]/vbaProject.bin', 'xl/vbaProject.bin');<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; // Get the contents of our Content Types xml document from our Excel Zip Document<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $ContentTypes = $zip-&gt;getFromName('[Content_Types].xml');<br>\r\n<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; // Generate an XML object with PHP's DOM functions http://us.php.net/manual/en/book.dom.php<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $ContentTypesXML = new DomDocument();<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $success = (int) @$ContentTypesXML-&gt;loadXML( $ContentTypes );<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $Types = $ContentTypesXML-&gt;getElementsByTagName('Types')-&gt;item(0);<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; // Add Override node to our Content Types with the file location of our VBA script<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $Override = $ContentTypesXML-&gt;createElement(&quot;Override&quot;);<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $Override = $Types-&gt;appendChild($Override);<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $Override-&gt;setAttribute('PartName', '/xl/vbaProject.bin');<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $Override-&gt;setAttribute('ContentType', 'application/vnd.ms-office.vbaProject');<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; // Find out workbook and update the content type to be xlsm instead of xlsx<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; foreach($Types-&gt;getElementsByTagName('Override') as $Override){<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; if($Override-&gt;hasAttribute('PartName') &amp;&amp; $Override-&gt;getAttribute('PartName')==&quot;/xl/workbook.xml&quot; ){<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $Override-&gt;setAttribute('ContentType', 'application/vnd.ms-excel.sheet.macroEnabled.main&#43;xml');<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; // Save content type back to our Excel Zip Document<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $zip-&gt;addFromString('[Content_Types].xml', $ContentTypesXML-&gt;saveXML() );<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; // Get our workbook relationship xml document<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $Workbook = $zip-&gt;getFromName('xl/_rels/workbook.xml.rels');<br>\r\n<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; // Generate an XML object with PHP's DOM functions http://us.php.net/manual/en/book.dom.php<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $WorkbookXML = new DomDocument();<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $success = (int) @$WorkbookXML-&gt;loadXML( $Workbook );<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $Rltns = $WorkbookXML-&gt;getElementsByTagName('Relationships')-&gt;item(0);<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; // Add Relationship that points to our VBA script<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $Rltn = $WorkbookXML-&gt;createElement(&quot;Relationship&quot;);<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $Rltn = $Rltns-&gt;appendChild($Rltn);<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $Rltn-&gt;setAttribute('Id', 'rId99'); // Arbitraty Relationship ID NOTE may need a higher number based on the number of worksheets and other elements in your Excel document, update would be to calculate the number of children\r\n inside the Relationships XML Node<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $Rltn-&gt;setAttribute('Type', 'http://schemas.microsoft.com/office/2006/relationships/vbaProject');<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $Rltn-&gt;setAttribute('Target', 'vbaProject.bin'); // Our VBA script<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; // Save our updated XML to our Workbook relationship xml<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $zip-&gt;addFromString('xl/_rels/workbook.xml.rels', $WorkbookXML-&gt;saveXML() );&nbsp;&nbsp;&nbsp;\r\n<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $zip-&gt;close(); // Close the zip file.</p>\r\n<p>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; // Output xlsm headers<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; header('Content-Type: application/vnd.ms-excel.sheet.macroEnabled.main&#43;xml'); // xlsm<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; //header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'); // xlsx<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; header('Content-Disposition: attachment;filename=&quot;Report.xlsm&quot;');<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; header('Cache-Control: max-age=0');&nbsp;&nbsp;\r\n<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; <br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $handle = fopen($tmpfname, &quot;r&quot;);<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $BUFF = fread($handle, filesize($tmpfname));<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; fclose($handle);<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; unset($handle);<br>\r\n<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; echo $BUFF;<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; unlink($tmpfname);</p>\r\n<p>&nbsp;</p>\r\n<p>Good Luck</p>\r\n",
+    "PostedDate": "2011-01-03T15:23:27.29-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "608577",
+    "ThreadId": "208399",
+    "Html": "<p>is there any advance on this, is there a way to clone a .xlsm file and keep the macros in the new file ?</p>",
+    "PostedDate": "2011-05-06T08:54:48.023-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "608721",
+    "ThreadId": "208399",
+    "Html": "<p>There has been no development on support for xlsm files, nor for macros. This is very low on the priority list.</p>",
+    "PostedDate": "2011-05-06T14:09:59.557-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "662554",
+    "ThreadId": "208399",
+    "Html": "<p>I add the feature base on&nbsp;<span class=\"ProjectListSubLink\"><a href=\"http://phpexcel.codeplex.com/releases/view/45412\"><span class=\"HighlightItem\">PHP</span><span class=\"HighlightItem\">Excel</span>&nbsp;1.7.6</a>&nbsp;, and fix some bug , but I can't submit source  code into SVN .&nbsp;</span></p>\n<p><span class=\"ProjectListSubLink\">Someone want to use it ,please contact me!</span></p>\n<p><span class=\"ProjectListSubLink\">In my new revision, PhpExcel can copy a xlsm file with micro as a template and save it as another xlsm file , the micro or VBA project will be remained in new file;</span></p>",
+    "PostedDate": "2011-08-24T01:49:32.48-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "673658",
+    "ThreadId": "208399",
+    "Html": "<p>Hi,</p>\r\n<p>We would like to have a look first to your feature before implementing the \"zip rebuild\" method. Could you please sent it to me ?</p>\r\n<p>THX</p>\r\n<p>Bruno</p>",
+    "PostedDate": "2011-09-19T06:40:16.31-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "677755",
+    "ThreadId": "208399",
+    "Html": "<blockquote style=\"border: solid .1em #ccc; font-style: italic; margin: .25em 1em 0 1em; padding: 0 .25em 0 .25em;\"><strong>wuyuqun wrote:</strong><br />\r\n<p>I add the feature base on&nbsp;<span class=\"ProjectListSubLink\"><a href=\"http://phpexcel.codeplex.com/releases/view/45412\"><span class=\"HighlightItem\">PHP</span><span class=\"HighlightItem\">Excel</span>&nbsp;1.7.6</a>&nbsp;, and fix some bug , but I can't submit source  code into SVN .&nbsp;</span></p>\r\n<p><span class=\"ProjectListSubLink\">Someone want to use it ,please contact me!</span></p>\r\n<p><span class=\"ProjectListSubLink\">In my new revision, PhpExcel can copy a xlsm file with micro as a template and save it as another xlsm file , the micro or VBA project will be remained in new file;</span></p>\r\n</blockquote>\r\n<p>hi wuyuqun,</p>\r\n<p>I want to use the macro function, could you send me a copy?</p>",
+    "PostedDate": "2011-09-28T08:55:10.017-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "691670",
+    "ThreadId": "208399",
+    "Html": "<p>I want the feature,my&nbsp; email is dongkui122811@hotmail.com</p>",
+    "PostedDate": "2011-10-31T08:18:10.067-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "701502",
+    "ThreadId": "208399",
+    "Html": "<p>Hello, I am very interested in the feature to read a xlsm template and save it as xlsm. Could you please send it to me ? My address is benjaminabbou@hotmail.com</p>\r\n<p>Thanks in advance</p>",
+    "PostedDate": "2011-11-21T14:30:35.313-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "712101",
+    "ThreadId": "208399",
+    "Html": "<blockquote style=\"border: solid .1em #ccc; font-style: italic; margin: .25em 1em 0 1em; padding: 0 .25em 0 .25em;\"><strong>wuyuqun wrote:</strong><br />\r\n<p>I add the feature base on&nbsp;<span class=\"ProjectListSubLink\"><a href=\"http://phpexcel.codeplex.com/releases/view/45412\"><span class=\"HighlightItem\">PHP</span><span class=\"HighlightItem\">Excel</span>&nbsp;1.7.6</a>&nbsp;, and fix some bug , but I can't submit source  code into SVN .&nbsp;</span></p>\r\n<p><span class=\"ProjectListSubLink\">Someone want to use it ,please contact me!</span></p>\r\n<p><span class=\"ProjectListSubLink\">In my new revision, PhpExcel can copy a xlsm file with micro as a template and save it as another xlsm file , the micro or VBA project will be remained in new file;</span></p>\r\n</blockquote>\r\n<p>I need to edit and modify the<span class=\"ProjectListSubLink\"> xlsm file with micro as a template and save it as another xlsm file. so could share the script with me. my mailid: suriit38@gmail.com<br /></span></p>",
+    "PostedDate": "2011-12-14T05:52:59.083-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "714034",
+    "ThreadId": "208399",
+    "Html": "<blockquote style=\"border: solid .1em #ccc; font-style: italic; margin: .25em 1em 0 1em; padding: 0 .25em 0 .25em;\"><strong>suryaindus wrote:</strong><br />\r\n<blockquote style=\"border: solid .1em #ccc; font-style: italic; margin: .25em 1em 0 1em; padding: 0 .25em 0 .25em;\"><strong>wuyuqun wrote:</strong><br />\r\n<p>I add the feature base on&nbsp;<span class=\"ProjectListSubLink\"><a href=\"http://phpexcel.codeplex.com/releases/view/45412\"><span class=\"HighlightItem\">PHP</span><span class=\"HighlightItem\">Excel</span>&nbsp;1.7.6</a>&nbsp;, and fix some bug , but I can't submit source  code into SVN .&nbsp;</span></p>\r\n<p><span class=\"ProjectListSubLink\">Someone want to use it ,please contact me!</span></p>\r\n<p><span class=\"ProjectListSubLink\">In my new revision, PhpExcel can copy a xlsm file with micro as a template and save it as another xlsm file , the micro or VBA project will be remained in new file;</span></p>\r\n</blockquote>\r\n<p>I need to edit and modify the<span class=\"ProjectListSubLink\"> xlsm file with micro as a template and save it as another xlsm file. so could share the script with me. my mailid: suriit38@gmail.com<br /> </span></p>\r\n</blockquote>\r\n<p>Hi <strong>wuyuqun,]</strong></p>\r\n<p><strong>I am in great need of your script, could you please send it my mail is. my mail id: </strong><span class=\"ProjectListSubLink\">suriit38@gmail.com</span></p>",
+    "PostedDate": "2011-12-18T21:54:55.54-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "714421",
+    "ThreadId": "208399",
+    "Html": "<p>I want too the feature,my&nbsp; email id:&nbsp; <span id=\"mailru-webagent-gen-23\" class=\"val\">akvamarion@gmail.com</span></p>",
+    "PostedDate": "2011-12-19T12:09:51.753-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "714430",
+    "ThreadId": "208399",
+    "Html": "<p>&nbsp;<strong>I am in great need of your script too</strong></p>\r\n<p><strong>my mail id: </strong><span id=\"mailru-webagent-gen-22\" class=\"val\">lookameroly@gmail.com</span></p>",
+    "PostedDate": "2011-12-19T12:24:16.233-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "714595",
+    "ThreadId": "208399",
+    "Html": "<blockquote style=\"border: solid .1em #ccc; font-style: italic; margin: .25em 1em 0 1em; padding: 0 .25em 0 .25em;\"><strong>wuyuqun wrote:</strong><br />\r\n<p>I add the feature base on&nbsp;<span class=\"ProjectListSubLink\"><a href=\"http://phpexcel.codeplex.com/releases/view/45412\"><span class=\"HighlightItem\">PHP</span><span class=\"HighlightItem\">Excel</span>&nbsp;1.7.6</a>&nbsp;, and fix some bug , but I can't submit source  code into SVN .&nbsp;</span></p>\r\n<p><span class=\"ProjectListSubLink\">Someone want to use it ,please contact me!</span></p>\r\n<p><span class=\"ProjectListSubLink\">In my new revision, PhpExcel can copy a xlsm file with micro as a template and save it as another xlsm file , the micro or VBA project will be remained in new file;</span></p>\r\n</blockquote>\r\n<p>&nbsp;</p>\r\n<p><strong>I am in great need of your script, could you please send it my mail is. my mail id: </strong><span class=\"ProjectListSubLink\">suriit38@gmail.com</span></p>",
+    "PostedDate": "2011-12-19T20:57:17.03-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "720212",
+    "ThreadId": "208399",
+    "Html": "<p>Does anyone really get the email about the script??&nbsp;</p>",
+    "PostedDate": "2012-01-04T02:22:58.323-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "720231",
+    "ThreadId": "208399",
+    "Html": "<p>No, did not get any answer</p>",
+    "PostedDate": "2012-01-04T03:38:58.64-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1339901",
+    "ThreadId": "208399",
+    "Html": "Could you send me the code please.\r<br />\n<br />\nMy email es <a href=\"mailto:rodolfoh@neus42.com\r\n\r\nThanks\" rel=\"nofollow\">rodolfoh@neus42.com\r\n\r\nThanks</a> in Advance<br />\n",
+    "PostedDate": "2015-01-07T17:07:08.307-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1409102",
+    "ThreadId": "208399",
+    "Html": "Anyone has received the script?<br />\n<br />\nif yes, can someone send me please.<br />\n<br />\nMy email is <a href=\"mailto:ponderarvalor.jonathan@gmail.com\n\nThank\" rel=\"nofollow\">ponderarvalor.jonathan@gmail.com\n\nThank</a> you<br />\n",
+    "PostedDate": "2015-04-13T04:06:08.57-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1449052",
+    "ThreadId": "208399",
+    "Html": "I'm interested in this script.\r<br />\n<br />\nCan someone send me: <a href=\"mailto:feusebio@gmail.com\" rel=\"nofollow\">feusebio@gmail.com</a><br />\n<br />\nThanks<br />\n",
+    "PostedDate": "2015-10-19T09:29:08.047-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1456227",
+    "ThreadId": "208399",
+    "Html": "Hi Guys,\r<br />\n<br />\nPlease share the script with me.\r<br />\n<br />\nMy email id is <a href=\"mailto:ajaytripathi.10@gmail.com\r\n\r\nThank\" rel=\"nofollow\">ajaytripathi.10@gmail.com\r\n\r\nThank</a> You.<br />\n",
+    "PostedDate": "2015-12-16T22:37:46.763-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1464556",
+    "ThreadId": "208399",
+    "Html": "e<br />\n",
+    "PostedDate": "2016-02-25T04:30:23.467-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

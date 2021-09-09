@@ -1,0 +1,70 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "All",
+      "DisplayName": "All"
+    },
+    "ClosedComment": "Fixed in SVN",
+    "ClosedDate": "2009-01-05T00:27:17.44-08:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I have noticed that users are having many of the same problems when redirecting output to a client's browser. I think we can avoid many bug reports if we update the documentation a bit.\n \nI suggest that we replace this part in the documentation:\n \n-----\nHTTP headers\n \nSome example headers that can be used to force a download can be found below. Make sure to replace filename with the filename you want to output.\n \nheader(\"Pragma: public\");\nheader(\"Expires: 0\");\nheader(\"Cache-Control: must-revalidate, post-check=0, pre-check=0\"); \nheader(\"Content-Type: application/force-download\");\nheader(\"Content-Type: application/octet-stream\");\nheader(\"Content-Type: application/download\");\nheader(\"Content-Disposition: attachment;filename=filename\"); \nheader(\"Content-Transfer-Encoding: binary \");\n------\n \n \nwith the following one:\n \n----\nHTTP headers\n \nExample of a script redirecting an Excel 2007 file to the client's browser:\n \n<?php\n/* Here there will be some code where you create $objPHPExcel */\n \n// redirect output to client browser\nheader('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');\nheader('Content-Disposition: attachment;filename=\"myfile.xlsx\"');\nheader('Cache-Control: max-age=0');\n \n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');\n$objWriter->save('php://output'); \n?>\n \nExample of a script redirecting a BIFF8 Excel file to the client's browser:\n \n<?php\n/* Here there will be some code where you create $objPHPExcel */\n \n// redirect output to client browser\nheader('Content-Type: application/vnd.ms-excel');\nheader('Content-Disposition: attachment;filename=\"myfile.xls\"');\nheader('Cache-Control: max-age=0');\n \n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');\n$objWriter->save('php://output'); \n?>\n \nCaution:\n* Make sure not to include any echo statements or output any other contents than the Excel file. There should be no whitespace before the opening <?php tag and at most one line break after the closing ?> tag (which can also be omitted to avoid problems).\n \n* Make sure that your script is saved without a BOM (Byte-order mark). (Because this counts as echoing output)\n \n* Same things apply to all included files\n \nFailing to follow the above guidelines may result in corrupt Excel files arriving at the client browser, and/or that headers cannot be set by PHP (resulting in warning messages).\n \n------\nend of suggestion\n \nThe headers above are the headers that have always worked for me. The 'Cache-Control: max-age=0' is what works in Internet Explorer for preventing caching. If one tries with other variants of Cache-Control statements, one finds that the suggested filename is ignored by Internet Explorer (at least IE6, but also IE7 if I recall correctly).",
+    "LastUpdatedDate": "2013-05-16T05:43:00.2-07:00",
+    "PlannedForRelease": "PHPExcel 1.6.5 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-01-04T10:05:22.963-08:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Redirect output to a client's browser: Update recommendation in documentation",
+    "Type": {
+      "Name": "Task",
+      "Id": 2
+    },
+    "VoteCount": 1,
+    "Id": 8806
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "Theses instructions are correct with the version 1.6.4 but doesn't work with the version 1.6.5.\r\nI just install it, and now i have some hieroglyphe in excel.\r\nif I save the file and open it from excel, it's ok.\r\n\r\nIf i reinstall the version 1.6.4, it works fine in the both way ( directly from the browser or open from excel after saving).\r\n \r\nI work on windows.",
+      "PostedDate": "2009-01-05T08:52:55.137-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "@leursfre: This is really strange as there have not been made any changes in PHPExcel from 1.6.4 to 1.6.5 related to this. Can you provide more details. Are you using Excel5 or Excel2007 writer? Can you attach the broken sample file so we can inspect ?\r\n",
+      "PostedDate": "2009-01-05T09:06:50.333-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "update: I am investigating this, it looks like there indeed is a problem with PHPExcel 1.6.5. It is not the headers that are the problem.",
+      "PostedDate": "2009-01-05T09:26:21.64-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "update: separate work item created to fix issue reported by leursfre\r\nhttp://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=8810",
+      "PostedDate": "2009-01-05T10:24:42.507-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:04:28.92-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:43:00.2-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

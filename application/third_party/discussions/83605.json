@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "287420",
+    "ThreadId": "83605",
+    "Html": "<p>Hi all<br>i have a problem on my php 5.2.12, WinXP SP3, PHPExcel 1.7.2:</p>\r\n<p>$objPHPExcel = new PHPExcel();</p>\r\n<p>$worksheet2 = $objPHPExcel-&gt;createSheet();<br>$objPHPExcel-&gt;setActiveSheetIndex(1);</p>\r\n<p>$worksheet2 = $objPHPExcel-&gt;getActiveSheet();</p>\r\n<p>$worksheet2-&gt;setCellValue('A1','=Worksheet.D2');</p>\r\n<p><br>header('Content-Type: application/vnd.ms-excel');<br>header('Content-Disposition: attachment;filename=&quot;uprtabel_pe.xls&quot;');<br>header('Cache-Control: max-age=0');<br><br>$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');<br>$objWriter-&gt;save('php://output');</p>\r\n<p>&nbsp;i have an error message in my uprtabel_pe.xls:</p>\r\n<p>Fatal error: Uncaught exception 'Exception' with message 'Formula Error: An unexpected error occured' in C:\\Inetpub\\wwwroot\\repsys\\Classes\\PHPExcel\\Calculation.php:3067 Stack trace: #0<br>Why phpexcel cant write formula on Worksheet2? When i do it manually directly in Excel it works fine</p>",
+    "PostedDate": "2010-02-08T22:20:56.297-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "287460",
+    "ThreadId": "83605",
+    "Html": "<p>Based on your code above, =Worksheet.D2 isn't a a valid formula. What are you actually trying to do with this?</p>",
+    "PostedDate": "2010-02-09T01:04:42.517-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "288035",
+    "ThreadId": "83605",
+    "Html": "<p>I solved a problem.</p>\r\n<p>formula &quot;=Worksheet.D2&quot; works fine in my Excel (in case when im typing manually ), it represents a value of a cell D2 from worksheet Worksheet</p>\r\n<p>I changed formula to &quot;='Worksheet'!D2&quot;</p>\r\n<p>but i get same error with formula &quot;=IF(K39&gt;0;ROUND(K39*C39/F39;0);0)&quot;</p>\r\n<p>solved</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-02-09T22:04:13.163-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "288096",
+    "ThreadId": "83605",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>tzi0 wrote:</strong><br>\r\n<p>I solved a problem.</p>\r\n<p>formula &quot;=Worksheet.D2&quot; works fine in my Excel (in case when im typing manually ), it represents a value of a cell D2 from worksheet Worksheet</p>\r\n<p>I changed formula to &quot;='Worksheet'!D2&quot;</p>\r\n<p>but i get same error with formula &quot;=IF(K39&gt;0;ROUND(K39*C39/F39;0);0)&quot;&nbsp;</p>\r\n</blockquote>\r\n<p>&nbsp;What locale are you from tzi0? What country/language are you using for Excel?</p>\r\n<p>PHPExcel 1.7.2 only supports formulae using English formatting, i.e</p>\r\n<ul>\r\n<li>&middot;<span style=\"font:7pt 'Times New Roman'\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>Decimal separator is '.' (period)</li>\r\n<li>&middot;<span style=\"font:7pt 'Times New Roman'\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>Function argument separator is ',' (comma)</li>\r\n<li>&middot;<span style=\"font:7pt 'Times New Roman'\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>Matrix row separator is ';' (semicolon)</li>\r\n<li>&middot;<span style=\"font:7pt 'Times New Roman'\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>Always use English function names</li>\r\n</ul>\r\n<p>Your formula is using semi-colon as the argument separator</p>\r\n<p>The latest SVN code does support some localisation for a number of languages <span style=\"font-size:12pt\" lang=EN-GB>&ndash;</span> currently Czech (Če&scaron;tina), Danish (Dansk), German (Deutsch), Spanish (Espa&ntilde;ol), Finnish (Suomi), French (Fran&ccedil;ais), Hungarian (Magyar), Italian (Italiano), Dutch (Nederlands), Norwegian (Norsk), Polish (Język polski), Portuguese (Portugu&ecirc;s), Brazilian Portuguese (Portugu&ecirc;s Brasileiro), Russian and Swedish (Svenska)&nbsp;<span style=\"font-size:12pt\" lang=EN-GB>&ndash;</span> specifically local language function names and argument separator. Over the next few months, I'll be extending that and looking at how we can handle decimal separators and other locale formatting, I wasn't aware that worksheet/cell references could be formatted differently (e.g. Worksheet.D2 rather than Worksheet!D2, using a dot rathe rthan an exclamation mark) in different locales, but I can try to incorporate that as well, as long as I know what the formatting is for different locales.</p>",
+    "PostedDate": "2010-02-10T01:20:09.307-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "288106",
+    "ThreadId": "83605",
+    "Html": "<p>I'm from Russia, thank you alot. I'm beginner in using PHPExcel</p>\r\n<p>Now i trying to use English formating everywhere.</p>\r\n<p>Thanks for your great work ;)</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-02-10T01:37:40.23-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

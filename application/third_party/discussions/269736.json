@@ -1,0 +1,66 @@
+[
+  {
+    "Id": "660727",
+    "ThreadId": "269736",
+    "Html": "\r\n<p>Does the OOCalc reader support rich text?</p>\r\n<p>It seems to be entirely omitting rich-text runs from read cells, i.e. losing data rather than faulting to plain text.</p>\r\n",
+    "PostedDate": "2011-08-19T11:02:06.87-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "660747",
+    "ThreadId": "269736",
+    "Html": "<p>Looking at the highly-styled Tests/OOCalcReader.php and its plain output XLSX, it seems that it almost entirely does not.</p>\r\n<p>But my issue is mainly on test row 28. There is some text with a few words in <strong>bold</strong> -- those <strong>bold</strong> words are totally missing in the output XLSX.</p>\r\n<p>I can live without rich text for ODS, but it has to at least read all the text data.</p>",
+    "PostedDate": "2011-08-19T11:47:46.777-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "660795",
+    "ThreadId": "269736",
+    "Html": "<p>It seems to have something to do with how SimpleXML parses the text. If you have XML like this...</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre><span style=\"color: blue;\">&lt;</span><span style=\"color: #a31515;\">table</span><span style=\"color: blue;\">:</span><span style=\"color: #a31515;\">table-cell</span> <span style=\"color: red;\">office:value-type</span><span style=\"color: blue;\">=</span><span style=\"color: black;\">\"</span><span style=\"color: blue;\">string</span><span style=\"color: black;\">\"</span> <span style=\"color: red;\">table:style-name</span><span style=\"color: blue;\">=</span><span style=\"color: black;\">\"</span><span style=\"color: blue;\">ce1</span><span style=\"color: black;\">\"</span><span style=\"color: blue;\">&gt;</span><span style=\"color: blue;\">&lt;</span><span style=\"color: #a31515;\">text</span><span style=\"color: blue;\">:</span><span style=\"color: #a31515;\">p</span><span style=\"color: blue;\">&gt;</span>Download from <span style=\"color: blue;\">&lt;</span><span style=\"color: #a31515;\">text</span><span style=\"color: blue;\">:</span><span style=\"color: #a31515;\">s</span><span style=\"color: blue;\">/&gt;</span><span style=\"color: blue;\">&lt;</span><span style=\"color: #a31515;\">text</span><span style=\"color: blue;\">:</span><span style=\"color: #a31515;\">span</span> <span style=\"color: red;\">text:style-name</span><span style=\"color: blue;\">=</span><span style=\"color: black;\">\"</span><span style=\"color: blue;\">T8</span><span style=\"color: black;\">\"</span><span style=\"color: blue;\">&gt;</span>http://www.phpexcel.net<span style=\"color: blue;\">&lt;/</span><span style=\"color: #a31515;\">text</span><span style=\"color: blue;\">:</span><span style=\"color: #a31515;\">span</span><span style=\"color: blue;\">&gt;.</span><span style=\"color: blue;\">&lt;/</span><span style=\"color: #a31515;\">text</span><span style=\"color: blue;\">:</span><span style=\"color: #a31515;\">p</span><span style=\"color: blue;\">&gt;</span><span style=\"color: blue;\">&lt;/</span><span style=\"color: #a31515;\">table</span><span style=\"color: blue;\">:</span><span style=\"color: #a31515;\">table-cell</span><span style=\"color: blue;\">&gt;</span>\r\n</pre>\r\n</div>\r\n...it just drops everything between and including the text:span tags.</p>",
+    "PostedDate": "2011-08-19T14:01:16.463-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "663920",
+    "ThreadId": "269736",
+    "Html": "<p>This should resolve it, so that at least all of the plain text (but no rich text) is there -- search for \"case 'string'\" in Reader/OOCalc.php and replace with this...</p>\n<div style=\"color: black; background-color: white;\">\n<pre><span style=\"color: blue;\">case</span> <span style=\"color: #a31515;\">'string'</span> :\n\t$type = PHPExcel_Cell_DataType::TYPE_STRING;\n\t$dataValue = $cellDataText-&gt;p;\n\t<span style=\"color: blue;\">if</span> (<span style=\"color: blue;\">isset</span>($dataValue-&gt;a)) {\n\t\t$dataValue = $dataValue-&gt;a;\n\t\t$cellXLinkAttributes = $dataValue-&gt;attributes($namespacesContent[<span style=\"color: #a31515;\">'xlink'</span>]);\n\t\t$hyperlink = $cellXLinkAttributes[<span style=\"color: #a31515;\">'href'</span>];\n\t} <span style=\"color: blue;\">elseif</span> (<span style=\"color: blue;\">isset</span>($dataValue-&gt;span)) { <span style=\"color: green;\">// new</span>\n\t\t$dataValue = (string)$cellDataText-&gt;p-&gt;asXml();\n\t\t$dataValue = str_replace(<span style=\"color: #a31515;\">\"&lt;text:s/&gt;\"</span>, <span style=\"color: #a31515;\">\" \"</span>, $dataValue);\n\t\t$dataValue = strip_tags($dataValue);\n\t}\n\t<span style=\"color: blue;\">break</span>;\n</pre>\n</div>",
+    "PostedDate": "2011-08-26T09:53:35.213-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "846569",
+    "ThreadId": "269736",
+    "Html": "<p>Bump: still an issue -- can we add the above to the latest?</p>",
+    "PostedDate": "2012-06-08T06:20:14.11-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "846586",
+    "ThreadId": "269736",
+    "Html": "<p>I made a partial change to this last night... not rich text yet, but just to handle multiple p blocks that could contain multiple spans. Next step will be to read the style information from that</p>",
+    "PostedDate": "2012-06-08T06:55:36.617-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "915873",
+    "ThreadId": "269736",
+    "Html": "\r\n<p>I'm just now testing this with latest working dev from GitHub, and I don't think it's all working just yet.</p>\r\n<p>I have a paragraph with a single <em>italic</em> word in it. Instead of returning the whole paragraph in plain text, only this single word is returned. Hmm...</p>\r\n",
+    "PostedDate": "2012-09-21T12:30:14.69-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "915906",
+    "ThreadId": "269736",
+    "Html": "<p>This makes it work again, near line 560...</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre><span style=\"color: blue;\">foreach</span> ($cellDataText-&gt;p <span style=\"color: blue;\">as</span> $pData) {\r\n\t<span style=\"color: blue;\">if</span> (<span style=\"color: blue;\">isset</span>($pData-&gt;span)) {\r\n\t\t<span style=\"color: green;\">// span sections do not newline, so we just create one large string here</span>\r\n\t\t<span style=\"color: green;\">/* $spanSection = \"\";\r\n\t\tforeach ($pData-&gt;span as $spanData) {\r\n\t\t\t$spanSection .= $spanData;\r\n\t\t}\r\n\t\tarray_push($dataArray, $spanSection); */</span>\r\n\t\t\r\n\t\t$dataValue = (string)$pData-&gt;asXml();\r\n\t\t$dataValue = str_replace(<span style=\"color: #a31515;\">\"&lt;text:s/&gt;\"</span>, <span style=\"color: #a31515;\">\" \"</span>, $dataValue);\r\n\t\t$dataValue = strip_tags($dataValue);\r\n\t\t\r\n\t\tarray_push($dataArray, $dataValue);\r\n\t} <span style=\"color: blue;\">else</span> {\r\n\t\tarray_push($dataArray, $pData);\r\n\t}\r\n}\r\n</pre>\r\n</div>\r\n</p>",
+    "PostedDate": "2012-09-21T12:57:56.117-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

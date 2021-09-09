@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "931278",
+    "ThreadId": "400507",
+    "Html": "\r\n<p>Our web server has recently upgraded from php 5.2.9 to 5.4.7 and PHPExel no longer works. All of the files that get created give the error:</p>\r\n<p>&quot;Excel found unreadable content in file.xls. Do you want to recover...&quot;</p>\r\n<p>I've update to the latest version of PHPExcel 1.7.8 but get the same error. When I point to one of our old servers still running php 5.2.9 there is no issue.</p>\r\n<p>I tried to debug this and I stripped out most everything and I see that even this basic call will cause problems if the string passed in is more than about 25-30 characters.</p>\r\n<p><span></span>$coverSheet = $this-&gt;_objPHPExcel-&gt;getActiveSheet();</p>\r\n<p><span></span>$coverSheet-&gt;setCellValue('B1', 'My String');</p>\r\n<p>In the above if &quot;My String&quot; is larger than about 25-30 characters I get the issue. Any idea what's going on and how to fix this?</p>\r\n<p>Robert</p>\r\n",
+    "PostedDate": "2012-10-23T12:24:28.607-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "931323",
+    "ThreadId": "400507",
+    "Html": "<p>There should be nothing in PHPExcel that's incompatible with PHP 5.4.7, it should work without issue: nor are there any known problems with cell content length until you start hitting Excel's own limits (32,767 characters since Excel 2003).</p>\r\n<p>One obvious PHP settings that could cause issues is if the timezone hasn't been set (which now issues a warning in PHP whenever date functions are used)</p>\r\n<p>Open the files in a text editor, and see if they contain any error messages at the top of the file before the stream of binary data.</p>",
+    "PostedDate": "2012-10-23T13:56:24.587-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "931356",
+    "ThreadId": "400507",
+    "Html": "<p>Mark, thanks for your quick response. Something is definitely weird here. I have pretty much commented out everything out of the code generating this file other than this line:</p>\r\n<p>&nbsp;</p>\r\n<p>$coverSheet-&gt;setCellValue('B1', 'My bike is red and blue and white'); &lt;&lt; This will give me a corrupt file that will not open with XL.</p>\r\n<p>when I change the line to the one below it works fine.</p>\r\n<p>$coverSheet-&gt;setCellValue('B1', 'My bike is red and blue and whit'); &lt;&lt; This opens OK</p>\r\n<p>So there is something going on here related to cell size/string length. Seems that 32 characters is the max before I see the problem. &nbsp;Like I said when I point my browser to the server still running PHP 5.2.9 there is no issues.</p>\r\n<p>There are no errors in the file when I look at it with vi text editor. Any other suggestions?</p>",
+    "PostedDate": "2012-10-23T14:53:15.46-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "931359",
+    "ThreadId": "400507",
+    "Html": "<p>Do the test scripts work correctly: in particular /Tests/05featuredemo.php?</p>",
+    "PostedDate": "2012-10-23T15:02:40.547-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "931827",
+    "ThreadId": "400507",
+    "Html": "<p>Ah, good suggestion Mark! No they do not!</p>\r\n<p>When I point my browser to the server running the older version of php the xls file is created and I can open and read it no problem. It contains the invoice info with a big red \"PAID\" The only thing I had to do is comment out the zip file stuff in the file Excel2007.php because that server doesn't have that stuff setup.</p>\r\n<p>On the server with the latest php 5.4.7 I get the same issue. The file is written out but when I open it I get the error:</p>\r\n<p>Excel found unreadable content in '05featuredemo.xls'. Do you want to recvoer the contents of this workbook? If you trust the source of this workbook, click Yes.</p>\r\n<p>Clicking yes, another dialogue pops up about the damage being to extensive for excel to recover it..</p>\r\n<p>Was this actually tested against php 5.4.7? If so then it has to be something on this server's php configuration.</p>\r\n<p>Here is the output I get in the browser running the script in 5.4.7:</p>\r\n<p>6:59:59 Create new PHPExcel object 17:00:00 Set document properties 17:00:00 Add some data 17:00:00 Add comments 17:00:00 Add rich-text string 17:00:00 Merge cells 17:00:00 Protect cells 17:00:00 Set cell number formats 17:00:00 Set column widths 17:00:00 Set fonts 17:00:00 Set alignments 17:00:00 Set thin black border outline around column 17:00:00 Set thick brown border outline around Total 17:00:00 Set fills 17:00:00 Set style for header row using alternative method 17:00:00 Unprotect a cell 17:00:00 Add a hyperlink to the sheet 17:00:00 Add a drawing to the worksheet 17:00:00 Add a drawing to the worksheet 17:00:00 Add a drawing to the worksheet 17:00:00 Play around with inserting and removing rows and columns 17:00:01 Set header/footer 17:00:01 Set page orientation andsize 17:00:01 Rename first worksheet 17:00:01 Create a second Worksheet object 17:00:01 Add some data 17:00:01 Set the worksheet tab color 17:00:01 Set alignments 17:00:01 Set column widths 17:00:01 Set fonts 17:00:01 Add a drawing to the worksheet 17:00:01 Setpage orientation and size 17:00:01 Rename second worksheet 17:00:01 Write to Excel2007 format17:00:02 File written to 05featuredemo.xlsx17:00:02 Write to Excel5 format<br />Notice: iconv(): Unknown error (0) in /utils/phpExcel178/Classes/PHPExcel/Shared/String.php on line 496<br />Notice: iconv(): Unknown error (0) in /utils/phpExcel178/Classes/PHPExcel/Shared/String.php on line 496<br />Notice: iconv(): Unknown error (0) in /utils/phpExcel178/Classes/PHPExcel/Shared/String.php on line 496<br />Notice: iconv(): Unknown error (0) in /utils/phpExcel178/Classes/PHPExcel/Shared/String.php on line 496<br />Notice: iconv(): Unknown error (0) in /utils/phpExcel178/Classes/PHPExcel/Shared/String.php on line 496<br />Notice: iconv(): Unknown error (0) in /utils/phpExcel178/Classes/PHPExcel/Shared/String.php on line 49617:00:02 File written to 05featuredemo.xls17:00:02 Peak memory usage: 6 MB17:00:02 Done writing filesFiles have been created in /utils/phpExcel178/Tests</p>",
+    "PostedDate": "2012-10-24T09:23:00.097-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "931840",
+    "ThreadId": "400507",
+    "Html": "<p>Mark thank you! The errors from the demo gave me something to dig into and I think I know what the problem is. It looks like php 5.4.7 may have some issues with this iconv() function. See this web link that shows some failing tests:</p>\r\n<p>http://qa.php.net/reports/?version=5.4.7-dev</p>\r\n<p>I just commented out the call to iconv() in the function ConverEncoding() in file String.php and let it fall through to mb_convert_encoding() and the demo now works and so do my applications.</p>",
+    "PostedDate": "2012-10-24T09:40:32.883-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,86 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "Not an issue",
+    "ClosedDate": "2008-07-10T23:49:57.317-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I am excited about the new PDF export feature. However, I am still experiencing problems producing clean output. For testing purpose I generated a spreadsheet writing 'hello' in each of the cells in range A1:D4. The XSLX file is fine, but the PDF file is weird. Here the cell height seems to double when the column index increases by 1.\n \nAcrobat screen shot\nhttp://img352.imageshack.us/img352/8676/screenshotacrobatky4.png\n \nExcel 2007 screen shot:\nhttp://img352.imageshack.us/img352/7175/screenshotexcel2007pt9.png\n \nI put borders on the cells so one can better see what is going on. Is this expected behavior?\n \nSample code:\n \n$objPHPExcel = new PHPExcel();\n$ws = $objPHPExcel->getActiveSheet();\n \n$ws->duplicateStyleArray(\n\tarray(\n\t\t'font' => array(\n\t\t\t'bold' => true,\n\t\t),\n\t\t'borders' => array(\n\t\t\t'top' => array(\n\t\t\t\t'style' => PHPExcel_Style_Border::BORDER_THIN,\n\t\t\t),\n\t\t\t'left' => array(\n\t\t\t\t'style' => PHPExcel_Style_Border::BORDER_THICK,\n\t\t\t),\n\t\t\t'bottom' => array(\n\t\t\t\t'style' => PHPExcel_Style_Border::BORDER_THICK,\n\t\t\t),\n\t\t),\n\t\t'alignment' => array(\n\t\t\t'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_RIGHT,\n\t\t\t'vertical' => PHPExcel_Style_Alignment::VERTICAL_TOP,\n\t\t),\n\t),\n\t'A1:D4'\n);\n \n$col = 0;\n$row = 1;\nfor ($col = 0; $col <= 3; $col++) {\n\tfor ($row = 1; $row <= 4; $row++) {\n\t\t$ws->setCellValueByColumnAndRow($col, $row, 'hello');\n\t}\n}\n \n$writer = new PHPExcel_Writer_PDF($objPHPExcel);\n$writer->save(\"temp/test.pdf\");\n \n$writer = new PHPExcel_Writer_Excel2007($objPHPExcel);\n$writer->save(\"temp/test.xlsx\");\n \n-------\nEnvironment:\nPHPExcel: latest snapshot (changeset 13825)",
+    "LastUpdatedDate": "2013-05-16T05:43:31.85-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2008-07-05T20:33:34.723-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "PDF output shows exponential doubling of cell height",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 6773
+  },
+  "FileAttachments": [
+    {
+      "FileId": 1727,
+      "FileName": "pdf-doubling-of-cell-height.zip",
+      "DownloadUrl": ".\\1727"
+    },
+    {
+      "FileId": 1811,
+      "FileName": "test.pdf",
+      "DownloadUrl": ".\\1811"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "This code renders perfectly on my machine? (check attachment)",
+      "PostedDate": "2008-07-09T05:53:04.937-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2008-07-09T05:53:05.39-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "OMG... I found my error. Thanks to your test I knew it had to be my fault. It turned out that I had previously downloaded fpdf.php and saved it as FPDF.php in my class library. It was then being loaded by the following line 12 in PHPExcel/Shared/PDF/fpdf.php because I had an __autoload() function defined elsewhere.\r\n\r\nif(!class_exists('FPDF'))\r\n\r\nSo the FPDF class provided by PHPExcel was never loaded, and it must have been different from the other one I had.\r\n\r\nNow everything is ok. I did have to tweak my __autoload function to avoid getting an error from that class_exists() function call, but I am now very satisfied.\r\n",
+      "PostedDate": "2008-07-09T18:47:53.157-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Ok, can be closed then :-)\r\n\r\nRegards,\r\nMaarten",
+      "PostedDate": "2008-07-10T23:49:47.173-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2008-07-10T23:49:57.317-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:05:10.44-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:43:31.85-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

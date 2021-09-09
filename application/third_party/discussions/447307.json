@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "1057830",
+    "ThreadId": "447307",
+    "Html": "Hi,\r<br />\n<br />\nI have some issues to load an Excel file when I load the internet page i have an error message like this:\r<br />\n<br />\nFatal error: Uncaught exception 'Exception' with message 'Cell coordinate must be a range of cells.' in .../Classes/PHPExcel/Worksheet/PageSetup.php:649 Stack trace: #0 .../Classes/PHPExcel/Reader/Excel2007.php(1702): PHPExcel_Worksheet_PageSetup-&gt;setPrintArea('#N/A') #1 page.php(39): PHPExcel_Reader_Excel2007-&gt;load('../../Excel/...') #2 {main} thrown in .../Classes/PHPExcel/Worksheet/PageSetup.php on line 649\r<br />\n<br />\nI don't know why the setPrintArea function is the error because I don't use it in my code maybe the load function use it?\r<br />\n<br />\nHere is an extract of my code:<br />\n<pre><code>$objReader = PHPExcel_IOFactory::createReaderForFile(&quot;/file.xlsx&quot;);\n\n                $objReader-&gt;setReadDataOnly(true); \n\n                $objPHPExcel= $objReader-&gt;load(&quot;/file.xlsx&quot;);</code></pre>\n\n",
+    "PostedDate": "2013-06-17T09:26:34.13-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1057875",
+    "ThreadId": "447307",
+    "Html": "Line 1702 in reader is : $docSheet-&gt;getPageSetup()-&gt;setPrintArea(implode(',',$newRangeSets));\r<br />\n<br />\nThis line is called if there is one or more defined print areas.\r<br />\nI do not know what led to have #N/A at this location (a few quick tests show a range valid or not name).\r<br />\n<br />\nQuick fix: adds a test to this line checking the absence of #N/A in $extractedRange before calling setPrintArea.\r<br />\n(There are more elegant solutions but this should troubleshoot you quickly)\r<br />\n<br />\nI think that Mark will have a look at this file or know how it manages to get this case<br />\n",
+    "PostedDate": "2013-06-17T11:14:28.823-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1057942",
+    "ThreadId": "447307",
+    "Html": "I update the library i was in the 1.7.8 version and now it function maybe a corrected bug. Thank you for your response ;)<br />\n",
+    "PostedDate": "2013-06-17T14:55:55.95-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

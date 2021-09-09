@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "413263",
+    "ThreadId": "203574",
+    "Html": "<p>Hello - just downloaded the latest version (1.7.2) from<br>http://phpexcel.codeplex.com/releases/view/10719.<br><br>Running on a Windows 7 Professional running WAMP V2.0 with PHP 5.2.9-1.<br><br>Upon running the &quot;test&quot; &quot;runall.php&quot; contained in the &quot;Tests&quot; folder, I see all of the tests run, however they all appear to generate the same error:<br>Fatal error: Class 'ZipArchive' not found in C:\\wamp\\www\\Classes\\PHPExcel\\Writer\\Excel2007.php on line 287</p>\r\n<p>Here's sample output from the first two tests...</p>\r\n<pre id=line1>============== TEST ==============<br>Test name: 01simple.php<br><br>12:04:02 Create new PHPExcel object<br>12:04:02 Set properties<br>12:04:02 Add some data<br>12:04:02 Rename sheet<br>12:04:02 Write to Excel2007 format<br><br>Fatal error: Class 'ZipArchive' not found in C:\\wamp\\www\\Classes\\PHPExcel\\Writer\\Excel2007.php on line 287<br><br><br>============== TEST ==============<br>Test name: 02types.php<br><br>12:04:02 Create new PHPExcel object<br>12:04:02 Set properties<br>12:04:02 Set default font<br>12:04:02 Add some data<br>12:04:02 Rename sheet<br>12:04:02 Write to Excel2007 format<br><br>Fatal error: Class 'ZipArchive' not found in C:\\wamp\\www\\Classes\\PHPExcel\\Writer\\Excel2007.php on line 287<br><br></pre>\r\n<p>Now, after searching these forums I have found the following test script:<br>&lt;?php<br>error_reporting(E_ALL);<br>ini_set('display_errors', '1');<br><br>$x = new ZipArchive();<br>var_dump($x);<br>?&gt;<br><br>When I run this script, I get no errors and see the following output:<br>object(ZipArchive)#1 (5) {<br>&nbsp; [&quot;status&quot;]=&gt;<br>&nbsp; int(0)<br>&nbsp; [&quot;statusSys&quot;]=&gt;<br>&nbsp; int(0)<br>&nbsp; [&quot;numFiles&quot;]=&gt;<br>&nbsp; int(0)<br>&nbsp; [&quot;filename&quot;]=&gt;<br>&nbsp; string(0) &quot;&quot;<br>&nbsp; [&quot;comment&quot;]=&gt;<br>&nbsp; string(0) &quot;&quot;<br>}<br><br>Obviously, my &quot;php_zip.dll&quot; extension is uncommented in the php.ini.<br>This is what my &quot;zip&quot; entry looks like from a phpinfo() call:<br><a href=\"http://prntscr.com/4q44\">http://prntscr.com/4q44</a><br><br>If you can provide me with any hints as to why I am getting this error, I would be very thankful.</p>\r\n<p>Let me know if there is any additional information missing.</p>",
+    "PostedDate": "2010-03-02T09:17:10.933-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "414775",
+    "ThreadId": "203574",
+    "Html": "<p>We did have problems last Summer with a corrupted php_zip.dll for Windows. I can't recall exactly which versions caused the problem, but your Feb 2009 build may be at issue. The solution was to update purely that dll to the most recent version. I'm not sure where you'd find that as&nbsp;<a href=\"http://pecl4win.php.net/\">http://pecl4win.php.net/</a> is still unavailable (how many months has it been now?) but I'm sure there must be other sites that maintain more recent windows builds from PECL. <a href=\"http://snaps.php.net/win32/php5.2-win32-latest.zip\"><span style=\"color:#3e62a6\">http://snaps.php.net/win32/php5.2-win32-latest.zip</span></a><span style=\"color:#30332d\">&nbsp;is probably a last resort because it's a very large download for just one file.</span></p>\r\n<p>The other possibility that crosses my mind is if you're running Windows 7 64-bit... I've had some problems with 32-bit PHP/Apache myself on Windows 7 64-bit, although in my case Apache crashes whenever a script times out.</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-03-05T14:12:39.043-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "425033",
+    "ThreadId": "203574",
+    "Html": "<p>Hello,</p>\r\n<p>I am having the exact same issue as cpIMac88 above.&nbsp; I am also running Windows 7 with a WAMP 2.0&nbsp;server and php 5.2.11.</p>\r\n<p>I get the exact same error message when trying to run the a few of the&nbsp;sample tests.&nbsp; I checked php.ini&nbsp;to ensure the extension php_zip is enabled.</p>\r\n<p>However, when I run the test sceipt as mention above:</p>\r\n<p>&lt;?php<br>error_reporting(E_ALL);<br>ini_set('display_errors', '1');<br><br>$x = new ZipArchive();<br>var_dump($x);<br>?&gt;</p>\r\n<p>I get the following error: Fatal error: Class 'ZipArchive' not found in C:\\Users\\ADMIN\\Desktop\\PHP-1.php on line 5.</p>\r\n<p>I am sure this may be an issue with my WAMP stack as opposed to your software, but can you provide any guidance or a known workaround?&nbsp; Thank you.</p>",
+    "PostedDate": "2010-03-29T10:35:48.117-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "425145",
+    "ThreadId": "203574",
+    "Html": "<p><a id=\"ctl00_ctl00_MasterContent_Content_PostRepeater_ctl04_UserNameLink\" href=\"http://www.codeplex.com/site/users/view/pkenny1999\">pkenny1999</a></p>\r\n<p>What does phpinfo() tell you about the zip extension? It should look something like:</p>\r\n<h2>zip</h2>\r\n<table border=0 cellpadding=3 width=600>\r\n<tbody>\r\n<tr>\r\n<td>Zip</td>\r\n<td>enabled</td>\r\n</tr>\r\n<tr>\r\n<td>Extension Version</td>\r\n<td>$Id: php_zip.c 276389 2009-02-24 23:55:14Z iliaa $</td>\r\n</tr>\r\n<tr>\r\n<td>Zip version</td>\r\n<td>1.9.1</td>\r\n</tr>\r\n<tr>\r\n<td>Libzip version</td>\r\n<td>0.9.0</td>\r\n</tr>\r\n</tbody>\r\n</table>",
+    "PostedDate": "2010-03-29T15:45:12.207-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "425206",
+    "ThreadId": "203574",
+    "Html": "<table border=0 cellpadding=3 width=600>\r\n<tbody>\r\n<tr>\r\n<td>\r\n<p>Here is what phpinfo() gave me:</p>\r\n<p>Zip</p>\r\n</td>\r\n<td>\r\n<p>&nbsp;</p>\r\n<p>enabled</p>\r\n</td>\r\n</tr>\r\n<tr>\r\n<td>Extension Version</td>\r\n<td>$Id: php_zip.c 287723 2009-08-26 02:16:41Z guenter $</td>\r\n</tr>\r\n<tr>\r\n<td>Zip version</td>\r\n<td>1.8.11</td>\r\n</tr>\r\n<tr>\r\n<td>Libzip version</td>\r\n<td>0.9.0</td>\r\n</tr>\r\n</tbody>\r\n</table>",
+    "PostedDate": "2010-03-29T19:41:36.22-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

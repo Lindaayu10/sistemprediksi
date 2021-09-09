@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "178519",
+    "ThreadId": "53086",
+    "Html": "1) many thx to PHPExcel dev team for this great lib. I really don't know how/who to thank you, but koyama replayed at my threads and I will mention it.<br>\r\n2) I'm trying to make a monthly report with the&nbsp; visitors from a site and to have this report as a excel file. I have a pattern/template for this excel file (35sheets x 30col x 50rows). When I try to read this pattern excel file i get the following error: <br>\r\n<strong>Fatal error</strong>:  Allowed memory size of 134217728 bytes exhausted (tried to allocate 15888 bytes) in <strong>C:\\wamp\\www\\Tests\\PHPExcel\\Reader\\Excel5.php</strong> on line <strong>3286</strong><br>\r\n<br>\r\nmy questions are:<br>\r\na) how to prevent having this error?<br>\r\nb) 30sheets(from 35) are almoust the same (just different sheet name, as being the name of the day). Can I reduce this to one sheet template/pattern and use it in PHPExcel? How to load just one sheet pattern.<br>\r\nc) which is the best approach to use when i have such a big number of sheets. I don't have too many datas, just the number of users per day and hour, in a array from a mysql DB. I need to have in the excel file colored cells &amp; formulas.<br>\r\n<br>\r\nAfter some readings on this forum I increased the memory limit and execution time. Now I'm stuked to this error:<br>\r\nPeak memory usage: 409.25 MB<br>\r\n<strong>Fatal error</strong>: Uncaught exception 'Exception' with message 'Syntax\r\nerror: ), lookahead: , current char: 0' in\r\nC:\\wamp\\www\\Tests\\PHPExcel\\Writer\\Excel5\\Parser.php:1406\r\nStack trace:\r\n#0 C:\\wamp\\www\\Tests\\PHPExcel\\Writer\\Excel5\\Parser.php(1312):\r\nPHPExcel_Writer_Excel5_Parser-&gt;_fact()\r\n#1 C:\\wamp\\www\\Tests\\PHPExcel\\Writer\\Excel5\\Parser.php(1272):\r\nPHPExcel_Writer_Excel5_Parser-&gt;_term()\r\n#2 C:\\wamp\\www\\Tests\\PHPExcel\\Writer\\Excel5\\Parser.php(1220):\r\nPHPExcel_Writer_Excel5_Parser-&gt;_expression()\r\n#3 C:\\wamp\\www\\Tests\\PHPExcel\\Writer\\Excel5\\Parser.php(1207):\r\nPHPExcel_Writer_Excel5_Parser-&gt;_condition()\r\n#4 C:\\wamp\\www\\Tests\\PHPExcel\\Writer\\Excel5\\Worksheet.php(965):\r\nPHPExcel_Writer_Excel5_Parser-&gt;parse(''$'!$B$3')\r\n#5 C:\\wamp\\www\\Tests\\PHPExcel\\Writer\\Excel5\\Worksheet.php(484):\r\nPHPExcel_Writer_Excel5_Worksheet-&gt;_writeFormula(26, 2, '='$'!$B$3',\r\n92)\r\n#6 C:\\wamp\\www\\Tests\\PHPExcel\\Writer\\Excel5\\Workbook.php(492):\r\nPHPExcel_Writer_Excel5_Worksheet-&gt;close()\r\n#7 C:\\wamp\\www\\Tests\\PHPExcel\\Writer\\Excel5\\Workbook.php(233):\r\nPHPExcel_Writer_Excel5_Work in <strong>C:\\wamp\\www\\Tests\\PHPExcel\\Writer\\Excel5\\Parser.php</strong> on line <strong>1406</strong><br>\r\n<br>\r\nI don't know yet which is the best approach for me in order to have a a excel file with many sheets and formulas. <br>\r\n",
+    "PostedDate": "2009-04-13T04:21:02.463-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "178738",
+    "ThreadId": "53086",
+    "Html": "a) With the planned modifications in PHPExcel, the use of shared styles will reduce memory consumption and most users will not need to increase memory limit. We hope to have something ready for PHPExcel 1.6.7.<br>\r\n<br>\r\nb) Example how to load a template with just one sheet and copy it within the workbook:<br>\r\n<br>\r\n<code>$reader = PHPExcel_IOFactory::createReader('Excel2007');<br>\r\n$excel = $reader-&gt;load('template.xlsx');<br>\r\n<br>\r\n$sheet = $excel-&gt;getActiveSheet();<br>\r\n<br>\r\n$copiedSheet = $sheet-&gt;copy();<br>\r\n$copiedSheet-&gt;setTitle('Monkey');<br>\r\n<br>\r\n$excel-&gt;addSheet($copiedSheet);<br>\r\n</code>\r\n<br>\r\nPerformance-wise, this is the correct approach, rather than loading a template with many identical sheets.<br>\r\n<br>\r\nc) In the future, the recommended best-approach for styling in PHPExcel is likely to be the <code>duplicateStyleArray()</code> method where you can style many cells at once, e.g. <code>'A1:Z900'</code>. This way, the PHPExcel core can operate fast.<br>\r\n<br>\r\nd) Unfortunately, Excel5 writer is having a problem with one of your formulas. It can apparently not handle sheet names such as <code>$</code>. Sorry, but we need to fix this:<br>\r\n<a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=7895\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=7895</a><br>\r\n<br>\r\n",
+    "PostedDate": "2009-04-13T18:14:44.013-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "179159",
+    "ThreadId": "53086",
+    "Html": "many thx for your replay :)<br>\r\n<br>\r\nI'm using a complex excel file template. I can send it to you if you are curious and wish to test it with my scenario. my e-mail adress is: dole.doug [at] yahoo [dot] com.<br>\r\n<br>\r\nmy question now: which is the best approach to use? To use a excel file with formulas or to fill the excel with computed data using PHP from a multi-dimensional array.<br>\r\n",
+    "PostedDate": "2009-04-14T11:36:09.157-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "179333",
+    "ThreadId": "53086",
+    "Html": "&gt;&gt; my question now: which is the best approach to use? To use a excel file\r\nwith formulas or to fill the excel with computed data using PHP from a\r\nmulti-dimensional array.<br>\r\nWell, you would end up two different Excel files. Personally, I would keep the formulas in the Excel file so the end user has the chance to see how results were calculated.<br>\r\n<br>\r\nYou are welcome to send me your Excel template (erik at phpexcel dot net). We can use it for testing.<br>\r\n",
+    "PostedDate": "2009-04-14T19:30:16.62-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "578255",
+    "ThreadId": "53086",
+    "Html": "<p>Same problem for me.</p>\r\n<p>I've solved it by enlarge memory limit at the begining of my script:</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>ini_set(<span style=\"color: #a31515;\">\"memory_limit\"</span>,<span style=\"color: #a31515;\">\"100M\"</span>);\r\n</pre>\r\n</div>\r\n</p>\r\n<p>If your server can support this memory extension, this will solve your pb.</p>\r\n<p>For exemple, with this :</p>\r\n<p>ini_set(\"memory_limit\",\"12M\");</p>\r\n<p>I obtained&nbsp;</p>\r\n<p><strong>Fatal error</strong>: Allowed memory size of 12582912 bytes exhausted (tried to allocate 71 bytes) in&nbsp;<strong>/servers/apache/sites/www.zoom43.fr/dev_site/_mod/sondage.php</strong>&nbsp;on line&nbsp;<strong>237</strong></p>\r\n<p>with 50M :</p>\r\n<p><strong>Fatal error</strong>: Allowed memory size of 52428800 bytes exhausted (tried to allocate 95 bytes) in&nbsp;<strong>/servers/apache/sites/www.zoom43.fr/dev_site/_mod/PHPExcel1.7.5/Classes/PHPExcel/Worksheet.php</strong>on line&nbsp;<strong>961</strong></p>\r\n<p><strong><br /></strong></p>",
+    "PostedDate": "2011-03-10T00:41:13.013-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

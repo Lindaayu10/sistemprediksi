@@ -1,0 +1,101 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel_Writer_Excel2007",
+      "DisplayName": "PHPExcel_Writer_Excel2007"
+    },
+    "ClosedComment": "Production Release 1.7.7",
+    "ClosedDate": "2012-05-20T03:07:29.643-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "A stack trace indicates that this is the autofilter defined name failing to recognise a reference containing a worksheet name.\nThe PHPExcel_Cell::absoluteCoordinate() method requires a simple cell ref, without a worksheet name; but is being passed a cell reference including a worksheet name, so it triggers an error.\n \nThe fix is in the _writeDefinedNameForAutofilter() method of the PHPExcel_Writer_Excel2007_Workbook class; modifying it to strip the worksheet name before calling PHPExcel_Cell::absoluteCoordinate().\nI'll patch this in the latest SVN code within the next half hour or so.",
+    "LastUpdatedDate": "2013-05-16T05:41:44.753-07:00",
+    "PlannedForRelease": "PHPExcel 1.7.7 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2011-03-03T14:55:21.793-08:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Invalid cell coordinate in Autofilter for Excel2007 Writer",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 15459
+  },
+  "FileAttachments": [
+    {
+      "FileId": 6223,
+      "FileName": "src.xlsx",
+      "DownloadUrl": ".\\6223"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "Hi,\r\nI load a XLSX file (src.xlsx) with PHPExcel_IOFactory::load($src);\r\nThe 'test' tab contains AutoFilter on line 4.\r\nI write this file to 'sortie.xlsx' with:\r\n$writer = PHPExcel_IOFactory::createWriter($phpExcel, 'Excel2007');\r\n$writer->setOffice2003Compatibility(true);\r\n$writer->save('sortie.xlsx');\r\nAutoFilter is not saved on line 4 but on  A1 cell.\r\nIs it a bug ?\r\nCould you correct it.\r\nThanks",
+      "PostedDate": "2012-02-13T02:59:30.247-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "It is a bug, but I can't see why yet: The stored value is 'test'!$A$4:$C$4 which should be correct",
+      "PostedDate": "2012-02-13T14:54:40.163-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Ah! The value stored as the named range in the workbook is 'test'!$A$4:$C$4, which is correct; but the value stored in the worksheet is TEST!A4:C4, but it shouldn't have the worksheet reference. Fixed in SVN",
+      "PostedDate": "2012-02-13T17:04:13.28-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Thank you for your good job and your reactivity.\r\nHave a nice day.\r\n",
+      "PostedDate": "2012-02-13T23:58:28.307-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "The same correction in Writer/Excel5.php is it possible ?\r\nThanks.",
+      "PostedDate": "2012-02-14T05:41:59.907-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "So this is still an issue, correct? 1.7.6 seems to give this error when opening an excell2007 xslx and then resaving. ",
+      "PostedDate": "2012-04-03T09:39:31.003-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "You can download Writer/Excel2007.php in the 'Source Code' tab.\r\n",
+      "PostedDate": "2012-04-04T00:50:44.573-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-05-19T16:11:56.197-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-05-20T03:07:29.643-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:02:29.76-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:41:44.753-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

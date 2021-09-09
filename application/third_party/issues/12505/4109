@@ -1,0 +1,17 @@
+Index: Classes/PHPExcel/Writer/Excel5/Workbook.php
+===================================================================
+--- Classes/PHPExcel/Writer/Excel5/Workbook.php	(revision 1404)
++++ Classes/PHPExcel/Writer/Excel5/Workbook.php	(working copy)
+@@ -700,6 +700,12 @@
+ 				try {
+ 					$error = $this->_parser->parse($range);
+ 					$formulaData = $this->_parser->toReversePolish();
++
++					// make sure tRef3d is of type tRef3dR (0x3A)
++					if (isset($formulaData{0}) and ($formulaData{0} == "\x7A" or $formulaData{0} == "\x5A")) {
++						$formulaData = "\x3A" . substr($formulaData, 1);
++					}
++
+ 					if ($namedRange->getLocalOnly()) {
+ 						// local scope
+ 						$scope = $this->_phpExcel->getIndex($namedRange->getScope()) + 1;

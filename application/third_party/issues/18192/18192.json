@@ -1,0 +1,39 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I'm using PHPExcel to extract data from big Excel file (to store it in the database). But in some cases the data is calculated using formulae shared on a range of cells. Here is an extract of the Open XML data of my file :\n \n \n \n \n<c r=\"EA6\" s=\"42\" t=\"str\">\n  <f t=\"shared\" ref=\"EA6:ER6\" si=\"0\">IF(SUM(EA16:EA22)=0,\"\",SUM(EA16:EA22))</f>\n  <v/>\n</c>\n<c r=\"EB6\" s=\"42\" t=\"str\">\n  <f t=\"shared\" si=\"0\"/>\n  <v/>\n</c>\n<c r=\"EC6\" s=\"57\">\n  <f t=\"shared\" si=\"0\"/>\n  <v>2.88889</v>\n</c>\n<c r=\"ED6\" s=\"57\">\n  <f t=\"shared\" si=\"0\"/>\n  <v>2.88889</v>\n</c>\n<c r=\"EE6\" s=\"57\">\n  <f t=\"shared\" si=\"0\"/>\n  <v>2.88889</v>\n</c>\n<c r=\"EF6\" s=\"57\">\n  <f t=\"shared\" si=\"0\"/>\n  <v>2.88889</v>\n</c>\n \n \n \n \nAs you can see, the calculated values are not null, but when I read the file, it returns me an empty string.\n \nFor the record, here is my \"setup\" of PHPExcel, using a ReaderFilter, and custom cache method :\n \n \n \n \n//Set the cache for PHPExcel\n$cacheMethod = PHPExcel_CachedObjectStorageFactory::cache_to_phpTemp;\n$cacheSettings = array( 'memoryCacheSize' => '128MB');\nPHPExcel_Settings::setCacheStorageMethod($cacheMethod,$cacheSettings);\n \n//Declare a reader for an \"xlsx\" file\n$objReader = new PHPExcel_Reader_Excel2007();\n \n//Read data without format only\n$objReader->setReadDataOnly(true);\n//Implement settings of PHPExcel Reader and loads the file\n$startRow=1;\n$chunkSize = 1;\n$chunkFilter = new App_MyReaderFilter();\n$objReader->setReadFilter($chunkFilter);\n$chunkFilter->setRows($startRow,$chunkSize);\n$objReader->setLoadSheetsOnly(array($sheetName));\n$excel = $objReader->load($file);\n \nThe problem is likely to be the read filter ignoring the cell containing the original definition of the shared formula, so it's not available to other cells included by the read filter that use it",
+    "LastUpdatedDate": "2013-02-21T19:01:54.053-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2012-06-06T08:50:37.813-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Shared formula returns empty cell when Read Filter applied?",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 18192
+  },
+  "FileAttachments": [],
+  "Comments": []
+}

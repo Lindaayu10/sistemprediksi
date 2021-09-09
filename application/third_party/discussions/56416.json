@@ -1,0 +1,66 @@
+[
+  {
+    "Id": "190624",
+    "ThreadId": "56416",
+    "Html": "<p>Hi !</p>\r\n<p>I've a problem with that script... The include doesn't work, i tried a lot of things but the script stop at the very beginning, when i've to include &quot;PHPExcel.php&quot;</p>\r\n<p>My include_path is correct, and it does that on my server even for the files of Tests... I just don't understand what's happening... It happen nothing...</p>\r\n<p>Does anyone knows the solution?</p>",
+    "PostedDate": "2009-05-15T02:11:12.98-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "190627",
+    "ThreadId": "56416",
+    "Html": "<p>Try to put this at the beginning of your script, and tell us if you get any error messages:<br> <br> <span style=\"font-family:Courier New\">error_reporting(E_ALL);</span><br style=\"font-family:Courier New\"> <span style=\"font-family:Courier New\">ini_set('display_errors', '1');</span></p>\r\n<p><span style=\"font-family:Courier New\"><br></span></p>",
+    "PostedDate": "2009-05-15T02:24:26.33-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "190632",
+    "ThreadId": "56416",
+    "Html": "<p>I don't have any error message... It's just an empty page.</p>\r\n<p>Here is my code (my file is in /public/www/backoffice/PHPExcel/Tests/ and i'm just trying to create an empty file there) :</p>\r\n<p><br>&lt;?php<br>error_reporting(E_ALL);<br>ini_set('display_errors', '1');<br>set_include_path(get_include_path() . PATH_SEPARATOR . '../Classes/');<br><br>echo &quot;Include PHPExcel&quot;;<br>include 'PHPExcel.php';<br><br>echo &quot;Include IO&quot;;<br>include 'PHPExcel/IOFactory.php';<br><br>$objPHPExcel = new PHPExcel();<br><br>$writer = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');<br>$writer-&gt;save('write.xls');<br>?&gt;</p>\r\n<p>&nbsp;</p>\r\n<p>And here is the result in a white page:</p>\r\n<p>Include PHPExcel</p>\r\n<p>(and if i don't put any echos, it doesn't work too...)</p>\r\n<p>&nbsp;</p>\r\n<p>Kei</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-05-15T02:38:23.777-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "190641",
+    "ThreadId": "56416",
+    "Html": "<p>Sounds strange. Try to edit <span style=\"font-family:Courier New\">PHPExcel.php</span> putting some echo statement at the top like this in that file:<br> <br> <span style=\"font-family:Courier New\">echo 'hello';exit;</span><br style=\"font-family:Courier New\"> <span style=\"font-family:Courier New\">/** PHPExcel_Cell */</span><br style=\"font-family:Courier New\"> <span style=\"font-family:Courier New\">require_once 'PHPExcel/Cell.php';</span><br> <br> If you see the 'hello' message, start moving the line downwards until you find out where the script stops. That way the error can be tracked down.</p>",
+    "PostedDate": "2009-05-15T03:01:15.61-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "190643",
+    "ThreadId": "56416",
+    "Html": "<p>Strange... It comes from require_once 'PHPExcel/Shared/ZipStreamWrapper.php';</p>\r\n<p>It shows hello every where before this line... But i never touch it or change anything... And it seems totally normal...</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-05-15T03:12:48.03-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "190645",
+    "ThreadId": "56416",
+    "Html": "<p>Do you error message if you change this in ZipStreamWrapper.php:<br> <br> <span style=\"font-family:Courier New\">&nbsp;&nbsp;&nbsp; public static function register() {</span><br style=\"font-family:Courier New\"> <span style=\"font-family:Courier New\">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; @stream_wrapper_unregister(&quot;zip&quot;);</span><br style=\"font-family:Courier New\"> <span style=\"font-family:Courier New\">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; @stream_wrapper_register(&quot;zip&quot;, __CLASS__);</span><br style=\"font-family:Courier New\"> <span style=\"font-family:Courier New\">&nbsp;&nbsp;&nbsp; }</span><br> <br> to this<br> <br> <span style=\"font-family:Courier New\">&nbsp;&nbsp;&nbsp; public static function register() {</span><br style=\"font-family:Courier New\"> <span style=\"font-family:Courier New\">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; stream_wrapper_unregister(&quot;zip&quot;);</span><br style=\"font-family:Courier New\"> <span style=\"font-family:Courier New\">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; stream_wrapper_register(&quot;zip&quot;, __CLASS__);</span><br style=\"font-family:Courier New\"> <span style=\"font-family:Courier New\">&nbsp;&nbsp;&nbsp; }</span></p>",
+    "PostedDate": "2009-05-15T03:22:03.473-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "190697",
+    "ThreadId": "56416",
+    "Html": "<p>You were right !</p>\r\n<p>The problem comme from those function :  <strong></strong></p>\r\n<p><strong>Fatal error</strong>:  Call to undefined function stream_wrapper_unregister() in <strong>[..]/public/www/backoffice/PHPExcel/Classes/PHPExcel/Shared/ZipStreamWrapper.php</strong> on line <strong>73</strong></p>\r\n<p>Did you ever got this problem??</p>",
+    "PostedDate": "2009-05-15T05:47:42.99-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "190778",
+    "ThreadId": "56416",
+    "Html": "<p>Can you check what version of PHP you are using? According to the PHP documentation, that function should be available in PHP 5.1.0 and higher:<br><a href=\"http://php.net/manual/en/function.stream-wrapper-unregister.php\">http://php.net/manual/en/function.stream-wrapper-unregister.php</a></p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-05-15T08:59:33.803-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

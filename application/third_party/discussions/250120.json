@@ -1,0 +1,162 @@
+[
+  {
+    "Id": "582138",
+    "ThreadId": "250120",
+    "Html": "\r\n<p>I am getting this weird problem where I am not being able to output the excel file to the browser (It say file is not in proper format). I can save excel file but not output to the browser. However if I output PDF file then it works. I am using PHPExcel\r\n version 1.7.6 and Zend Framework.</p>\r\n<p>Anybody can give me any insight in this issue please.</p>\r\n<p></p>\r\n<pre>$excel = new PHPExcel();\r\n$excel-&gt;setActiveSheetIndex(0);\r\n$worksheet = $excel-&gt;getActiveSheet();\r\n$worksheet-&gt;getCell('A1')-&gt;setValue('tet');\r\n$worksheet-&gt;getCell('B1')-&gt;setValue('tet');\r\n\r\nheader(&quot;Last-Modified: &quot; . gmdate(&quot;D, d M Y H:i:s&quot;) . &quot; GMT&quot;);\r\nheader(&quot;Cache-Control: no-store, no-cache, must-revalidate&quot;);\r\nheader(&quot;Cache-Control: post-check=0, pre-check=0&quot;, false);\r\nheader(&quot;Pragma: no-cache&quot;);\r\nheader('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');\r\nheader('Content-Disposition: attachment;filename=&quot;Report.xlsx&quot;');\r\n$objWriter = PHPExcel_IOFactory::createWriter($excel, 'Excel2007');\r\n$objWriter-&gt;save('php://output'); //THIS DOES NOT WORK WHY?\r\n//$objWriter-&gt;save('test.xlsx');  THIS WORKS\r\n$excel-&gt;disconnectWorksheets();\r\nunset($excel);</pre>\r\n<p></p>\r\n",
+    "PostedDate": "2011-03-17T08:28:31.17-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "582150",
+    "ThreadId": "250120",
+    "Html": "<p>Perhaps Zend uses some kind of output buffering?</p>\n<p>&nbsp;</p>\n<p>try putting</p>\n<p>&nbsp;</p>\n<div style=\"color: black; background-color: white;\">\n<pre>ob_end_clean();\n</pre>\n</div>\n<p>before the call to save(); That should get rid of any output buffering ;)</p>\n<p>&nbsp;</p>\n<p>Moreover, you don;t have to send any headers, PHPExcel takes care of that for you, so simply calling save() should do the trick.</p>",
+    "PostedDate": "2011-03-17T08:40:58.323-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "582155",
+    "ThreadId": "250120",
+    "Html": "<p>Thank you very much for your reply. Unfortunately the solution that you have provided did not work. Here is my updated code that I tried as per your suggestion. I even tried without header like you have suggested still no luck.</p>\r\n<p>\r\n<pre>public function test12Action()\r\n{\r\n    $this-&gt;_helper-&gt;layout-&gt;disableLayout();\r\n    $this-&gt;_helper-&gt;viewRenderer-&gt;setNoRender();\r\n    $excel = new PHPExcel();\r\n    $excel-&gt;setActiveSheetIndex(0);\r\n    $worksheet = $excel-&gt;getActiveSheet();\r\n    $worksheet-&gt;getCell('A1')-&gt;setValue('tet');\r\n    $worksheet-&gt;getCell('B1')-&gt;setValue('tet');\r\n\r\n    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');\r\n    header('Content-Disposition: attachment;filename=\"myfile.xlsx\"');\r\n    header('Cache-Control: max-age=0');\r\n    $objWriter = PHPExcel_IOFactory::createWriter($excel, 'Excel2007');\r\n    ob_end_clean();\r\n    $objWriter-&gt;save('php://output');\r\n    $excel-&gt;disconnectWorksheets();\r\n    unset($excel);\r\n}</pre>\r\n</p>",
+    "PostedDate": "2011-03-17T08:51:24.297-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "582161",
+    "ThreadId": "250120",
+    "Html": "<p>Hmm, strange. Is there no output at all? If you don't send any headers, does PHPExcel send the right headers? Did you check the php error log? Are you sure the script is finished and not still running? Have you tried adding some debug info after the save() call?</p>",
+    "PostedDate": "2011-03-17T09:00:00.89-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "582200",
+    "ThreadId": "250120",
+    "Html": "<p>It sends an output I can even save the excel file. But when I try to open it</p>\r\n<p>Excel cannot open the file myfile.xlsx because the file format or file extension is not valid. Verify that the file has not been corrupted and that the file extension matches the format of the file.</p>\r\n<p>Any idea why this happening.</p>",
+    "PostedDate": "2011-03-17T10:05:07.577-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "582204",
+    "ThreadId": "250120",
+    "Html": "<p>not really :(, but if the file is not empty, the answer may be hidden in the file. Could you try opening the file in an plain text editor, perhaps there is some superfluous whitespace in there.</p>",
+    "PostedDate": "2011-03-17T10:07:07.34-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "582213",
+    "ThreadId": "250120",
+    "Html": "<p>This is the top few line of output.</p>\r\n<p>\r\n<pre> PK\u0003\u0004\u0014   \b \u0010^q&gt;G�D�X\u0001  �\u0004  \u0013   [Content_Types].xml��MN�0\u0010���\"�\u0016%nY ��vAa\t�(\u00070����ؖg�w{&amp;i\u000b\b�@�nbE�{��y��d۸l\r\n\tm�\u0018\u0016\u0003����X�(���)��7\u0007\u0011:�B�\u0018'}\u0019\u001b;���Ƶ��G����\u0017PK\u0003\u0004\u0014   \b \u0010^q&gt;��\u0018�J\u0005  \u000e\u001b  \u0013   xl/theme/theme1.xml�Y[s�8\u0014~�_��{k\f6%��L ��i3\t�N\u001f\u000f��Ud�#����=���X��Mgw��\u0001,�;������/)'wT*&amp;���=�9�f��X\u0016��\u000f����C��,\u0002.2:v�T9�g��S�Д\u0012$��)��D���uU�۠���fxo%d\r\n\u001a�2v#\t��6�n��\u001b�)��!\u0019����,���߄�ɶ9hn$\u001e�~��\u001b\fU[��(u~����|s�G߹x�Ҁ!�v\u0007���:x�УG\f6��\u0006�\u001d��j-�C&uuml;u��ʁ��Fv�\u001e�V�k�'�����\u001a#��m&frac34;G�a���\ty�J�E�A���ܔ�j�� O�8e��w(�\u001d6�D˴E�\u001e�*,��&gt;y�э��K��&amp;j8�� �B�'4�^gx�)\u001b��\u000f�+�Oh9\u000b�\u001eqZ��~��U�+��nB�HȢ C��B|�@\u001f�1:6�X7[%��,]E\u001f��ܸ���� Ā�/!D� iygg:��{x&lt;�k������S��(|iSȑ\u0015�)�ؚ\u000b@��\tg� PK\u0003\u0004\u0014   \b \u0010^q&gt;�KR\"x   �   #   xl/worksheets/_rels/sheet1.xml.relsM�1\u000e\u0002!\u0010 {_A��@\u000bc�q�� �\u000f�p+\u0010a!,1�{)-'��y����$\u0016�p�\f(bW�����~ݟAIG�0\u0015&amp;\u000b_\u0012X��|��}4\u0012b\u00155&amp;,\u0016B�����@\u0019e*�x�gi\u0019���uE�BO�h�I��\u0007��\u0007PK\u0001\u0002  \u0014   \b \u0010^q&gt;G�D�X\u0001  �\u0004  \u0013                 [Content_Types].xmlPK\u0001\u0002  \u0014   \b \u0010^q&gt;\u0017�78�   K\u0002  \u000b             �\u0001  _rels/.relsPK\u0001\u0002  \u0014   \b \u0010^q&gt;�$�V�   �\u0002  \u001a             �\u0002  xl/_rels/workbook.xml.relsPK\u0001\u0002  \u0014   \b \u0010^q&gt;��\u0004�\u0001  ;\u0003  \u0010             �\u0003  docProps/app.xmlPK\u0001\u0002  \u0014   \b \u0010^q&gt;۲a[q\u0001  \u0011\u0003  \u0011             p\u0005  docProps/core.xmlPK\u0001\u0002  \u0014   \b \u0010^q&gt;��\u0018�J\u0005  \u000e\u001b  \u0013             \u0010\u0007  xl/theme/theme1.xmlPK\u0001\u0002  \u0014   \b \u0010^q&gt;�\u0013�ٌ   �   \u0014             �\f  xl/sharedStrings.xmlPK\u0001\u0002  \u0014   \b \u0010^q&gt;Q�9C�\u0001  �\u0004  \r\n             I\r\n  xl/styles.xmlPK\u0001\u0002  \u0014   \b \u0010^q&gt;)� -�\u0001  �\u0002  \u000f             r\u000f  xl/workbook.xmlPK\u0001\u0002  \u0014   \b \u0010^q&gt;�l\u0017�\u0002  �\u0005  \u0018             6\u0011  xl/worksheets/sheet1.xmlPK\u0001\u0002  \u0014   \b \u0010^q&gt;�KR\"x   �   #             \u0002\u0014  xl/worksheets/_rels/sheet1.xml.relsPK\u0005\u0006    \u000b \u000b �\u0002  �\u0014    </pre>\r\nI know it is a lot of non-readable characters.</p>",
+    "PostedDate": "2011-03-17T10:16:59.26-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "582217",
+    "ThreadId": "250120",
+    "Html": "<p>hmm, that doesn't really make any sense to me :) Can you open the file with zip? Or perhaps post the zip somewhere where I could download it, to have a closer look at it? Since the file saved to disk is ok, I still think the file contains some extra characters that cause it to be none readable. If you save to disk (instead of stadnard out), is there any visible output that is sent to the browser?</p>",
+    "PostedDate": "2011-03-17T10:23:06.83-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "582218",
+    "ThreadId": "250120",
+    "Html": "<p>Is that a leading space character before the initial \"PK\"?</p>",
+    "PostedDate": "2011-03-17T10:24:04.523-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "582227",
+    "ThreadId": "250120",
+    "Html": "<p>nice one, and now the quest starts for that one include file with a space before or after the php tag ;)</p>",
+    "PostedDate": "2011-03-17T10:32:43.51-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "582255",
+    "ThreadId": "250120",
+    "Html": "<p>@MarkBaker you are right there is one space in-front. But how come</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>$objWriter-&gt;save(<span style=\"color: #a31515;\">'php://output'</span>); <span style=\"color: green;\">//Does not work</span>\r\n<span style=\"color: green;\">//$objWriter-&gt;save('test.xlsx'); //This does work.</span>\r\n</pre>\r\n</div>\r\n@Borft unfortunately I cannot put file in public IP however I can email it to you if you send me your email address. Please check the notification that I sent you.</p>",
+    "PostedDate": "2011-03-17T11:25:43.68-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "582284",
+    "ThreadId": "250120",
+    "Html": "<p>I discovered one thing if I do this then it works.</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre><span style=\"color: blue;\">public</span> <span style=\"color: blue;\">function</span> test12Action()\r\n{\r\n    $response = $this-&gt;_response;\r\n    $this-&gt;_helper-&gt;layout-&gt;disableLayout();\r\n    $this-&gt;_helper-&gt;viewRenderer-&gt;setNoRender();\r\n       \t\t\r\n    $excel = <span style=\"color: blue;\">new</span> PHPExcel();\r\n    $excel-&gt;setActiveSheetIndex(0);\r\n    $worksheet = $excel-&gt;getActiveSheet();\r\n    $worksheet-&gt;getCell(<span style=\"color: #a31515;\">'A1'</span>)-&gt;setValue(<span style=\"color: #a31515;\">'tet'</span>);\r\n    $worksheet-&gt;getCell(<span style=\"color: #a31515;\">'B1'</span>)-&gt;setValue(<span style=\"color: #a31515;\">'tet'</span>);\r\n\r\n    $response-&gt;setHeader(<span style=\"color: #a31515;\">'Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'</span>,true);\r\n    $response-&gt;setHeader(<span style=\"color: #a31515;\">'Content-Disposition: attachment;filename=\"myfile.xlsx\"'</span>,true);\r\n    $response-&gt;setHeader(<span style=\"color: #a31515;\">'Cache-Control: max-age=0'</span>,true);\r\n    ob_end_clean();\r\n    $objWriter = PHPExcel_IOFactory::createWriter($excel, <span style=\"color: #a31515;\">'Excel2007'</span>);\r\n    <span style=\"color: green;\">//$objWriter-&gt;save('php://output');</span>\r\n    $objWriter-&gt;save(<span style=\"color: #a31515;\">'test.xlsx'</span>);\r\n    ob_end_clean();\r\n    $bits = @file_get_contents(<span style=\"color: #a31515;\">'test.xlsx'</span>);\r\n    $response-&gt;setBody($bits);\r\n    $excel-&gt;disconnectWorksheets();\r\n    <span style=\"color: blue;\">unset</span>($excel);\r\n}\r\n</pre>\r\n</div>\r\nAny reason why?</p>",
+    "PostedDate": "2011-03-17T12:20:58.903-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "582294",
+    "ThreadId": "250120",
+    "Html": "<p>Finally after working for long hours I solved this issue. Just in case if anybody is curious about the solution here is what I did.</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>    <span style=\"color: blue;\">public</span> <span style=\"color: blue;\">function</span> test12Action()\r\n    {\r\n        $response = $this-&gt;_response;\r\n        \r\n        $this-&gt;_helper-&gt;layout-&gt;disableLayout();\r\n        $this-&gt;_helper-&gt;viewRenderer-&gt;setNoRender();\r\n               \r\n        $excel = <span style=\"color: blue;\">new</span> PHPExcel();\r\n        $excel-&gt;setActiveSheetIndex(0);\r\n        $worksheet = $excel-&gt;getActiveSheet();\r\n        $worksheet-&gt;getCell(<span style=\"color: #a31515;\">'A1'</span>)-&gt;setValue(<span style=\"color: #a31515;\">'tet'</span>);\r\n        $worksheet-&gt;getCell(<span style=\"color: #a31515;\">'B1'</span>)-&gt;setValue(<span style=\"color: #a31515;\">'tet'</span>);\r\n        \r\n        ob_end_clean();\r\n        \r\n        header(<span style=\"color: #a31515;\">\"Last-Modified: \"</span> . gmdate(<span style=\"color: #a31515;\">\"D, d M Y H:i:s\"</span>) . <span style=\"color: #a31515;\">\" GMT\"</span>);\r\n        header(<span style=\"color: #a31515;\">\"Cache-Control: no-store, no-cache, must-revalidate\"</span>);\r\n        header(<span style=\"color: #a31515;\">\"Cache-Control: post-check=0, pre-check=0\"</span>, false);\r\n        header(<span style=\"color: #a31515;\">\"Pragma: no-cache\"</span>);\r\n        header(<span style=\"color: #a31515;\">'Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'</span>);\r\n        header(<span style=\"color: #a31515;\">'Content-Disposition: attachment;filename=\"Report.xlsx\"'</span>);\r\n\r\n        $objWriter = PHPExcel_IOFactory::createWriter($excel, <span style=\"color: #a31515;\">'Excel2007'</span>);\r\n        ob_end_clean();\r\n        \r\n        $objWriter-&gt;save(<span style=\"color: #a31515;\">'php://output'</span>);\r\n        $excel-&gt;disconnectWorksheets();\r\n        <span style=\"color: blue;\">unset</span>($excel);\r\n        \r\n    }\r\n</pre>\r\n</div>\r\nMy special thanks goes to borft and Mark Baker.</p>",
+    "PostedDate": "2011-03-17T12:34:53.197-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "631303",
+    "ThreadId": "250120",
+    "Html": "<p>&nbsp;</p>\r\n<p><strong><span class=\"hps\" title=\"Нажмите, чтобы увидеть альтернативный перевод\">nicholasnet</span></strong><br /><span class=\"hps\" title=\"Нажмите, чтобы увидеть альтернативный перевод\">Thanks a lot,</span>&nbsp;<span class=\"hps\" title=\"Нажмите, чтобы увидеть альтернативный перевод\">helped me a lot</span>&nbsp;<span class=\"hps\" title=\"Нажмите, чтобы увидеть альтернативный перевод\">your</span>&nbsp;<span class=\"hps\" title=\"Нажмите, чтобы увидеть альтернативный перевод\">code</span><span title=\"Нажмите, чтобы увидеть альтернативный перевод\">, develop</span>&nbsp;<span class=\"hps\" title=\"Нажмите, чтобы увидеть альтернативный перевод\">Zend</span>&nbsp;<span class=\"hps\" title=\"Нажмите, чтобы увидеть альтернативный перевод\">and</span>&nbsp;not&nbsp;<span class=\"hps\" title=\"Нажмите, чтобы увидеть альтернативный перевод\">one day</span>&nbsp;<span class=\"hps\" title=\"Нажмите, чтобы увидеть альтернативный перевод\">already</span>&nbsp;<span class=\"hps\" title=\"Нажмите, чтобы увидеть альтернативный перевод\">trying to</span><span class=\"hps\" title=\"Нажмите, чтобы увидеть альтернативный перевод\">figure out</span>&nbsp;<span class=\"hps\" title=\"Нажмите, чтобы увидеть альтернативный перевод\">why</span>&nbsp;<span class=\"hps\" title=\"Нажмите, чтобы увидеть альтернативный перевод\">not get</span>&nbsp;<span class=\"hps\" title=\"Нажмите, чтобы увидеть альтернативный перевод\">a</span>&nbsp;<span class=\"hps\" title=\"Нажмите, чтобы увидеть альтернативный перевод\">file</span>&nbsp;excel<span title=\"Нажмите, чтобы увидеть альтернативный перевод\">.</span>&nbsp;<span class=\"hps\" title=\"Нажмите, чтобы увидеть альтернативный перевод\">And</span>&nbsp;<span class=\"hps\" title=\"Нажмите, чтобы увидеть альтернативный перевод\">after searching</span>&nbsp;<span class=\"hps\" title=\"Нажмите, чтобы увидеть альтернативный перевод\">found</span>&nbsp;<span class=\"hps\" title=\"Нажмите, чтобы увидеть альтернативный перевод\">your</span>&nbsp;<span class=\"hps\" title=\"Нажмите, чтобы увидеть альтернативный перевод\">code</span><span title=\"Нажмите, чтобы увидеть альтернативный перевод\">, you will</span>&nbsp;<span class=\"hps\" title=\"Нажмите, чтобы увидеть альтернативный перевод\">be extremely helpful</span>&nbsp;<span class=\"hps\" title=\"Нажмите, чтобы увидеть альтернативный перевод\">thank you!</span></p>",
+    "PostedDate": "2011-06-22T11:22:34.727-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "688199",
+    "ThreadId": "250120",
+    "Html": "<p>@nicholasnet</p>\r\n<p>Thanks for your solution. It works, however, upon opening the Excel file it says part of the file has been corrupted and asks if I would&nbsp;like a validation/repair. After this repair session, the file shows correctly. Any suggestions? Thanks!</p>",
+    "PostedDate": "2011-10-23T20:24:47.983-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "697539",
+    "ThreadId": "250120",
+    "Html": "<p>There is a known problem with certain versions of Zip .. from the manual:</p>\n<p>&nbsp;</p>\n<h4 class=\"western\" lang=\"en-GB\">Excel 2007 cannot open the file generated by PHPExcel_Writer_2007 on Windows</h4>\n<p class=\"western\" style=\"margin-bottom: 0cm;\" lang=\"en-GB\">&ldquo;<em>Excel found unreadable content in '*.xlsx'. Do you want to recover the contents of this workbook? If you trust the source of this workbook, click Yes.&rdquo;</em></p>\n<p class=\"western\" style=\"margin-bottom: 0cm;\"><span lang=\"en-GB\">Some versions of the php_zip extension on Windows contain an error when creating ZIP files. The version that can be found on </span><span style=\"color: #0000ff;\"><span style=\"text-decoration: underline;\"><a href=\"http://snaps.php.net/win32/php5.2-win32-latest.zip\"><span lang=\"en-GB\">http://snaps.php.net/win32/php5.2-win32-latest.zip</span></a></span></span><span lang=\"en-GB\"> should  work at all times.</span></p>\n<p class=\"western\" style=\"margin-bottom: 0cm;\" lang=\"en-GB\">Alternatively, upgrading to at least PHP 5.2.9 should solve the problem.</p>\n<p class=\"western\" style=\"margin-bottom: 0cm;\" lang=\"en-GB\">If you can&rsquo;t locate a clean copy of ZipArchive, then you can use the PCLZip library as an alternative when writing Excel2007 files, as described above.</p>\n<p class=\"western\" style=\"margin-bottom: 0cm;\" lang=\"en-GB\">&nbsp;</p>\n<p class=\"western\" style=\"margin-bottom: 0cm;\" lang=\"en-GB\">Finally, it is worth remembering that Windows, bless it, has a nasty habit of ignoring the mime type you send and looking at the file name to try and work out what the file is supposed to be.</p>\n<p class=\"western\" style=\"margin-bottom: 0cm;\" lang=\"en-GB\">Why? who knows, but remember that when sending Excel 5 and Excel 2007 files <strong>not only</strong> change the mime type, but <strong>change the file name also</strong> ...</p>\n<p class=\"western\" style=\"margin-bottom: 0cm;\" lang=\"en-GB\">eg:</p>\n<p class=\"western\" style=\"margin-bottom: 0cm;\" lang=\"en-GB\">&nbsp;</p>\n<p class=\"western\" style=\"margin-bottom: 0cm;\" lang=\"en-GB\">&nbsp;</p>\n<div style=\"color: black; background-color: white;\">\n<pre>\t\t <span style=\"color: blue;\">private</span> <span style=\"color: blue;\">function</span> outputExcel5(){\n\t\t \t$objWriter = <span style=\"color: blue;\">new</span> PHPExcel_Writer_Excel5($this-&gt;xls);\n\n\t\t \tob_end_clean();\n\t\t \theader(<span style=\"color: #a31515;\">\"Last-Modified: \"</span> . gmdate(<span style=\"color: #a31515;\">\"D, d M Y H:i:s\"</span>) . <span style=\"color: #a31515;\">\" GMT\"</span>);\n\t\t \theader(<span style=\"color: #a31515;\">\"Cache-Control: no-store, no-cache, must-revalidate\"</span>);\n\t\t \theader(<span style=\"color: #a31515;\">\"Cache-Control: post-check=0, pre-check=0\"</span>, false);\n\t\t \theader(<span style=\"color: #a31515;\">\"Pragma: no-cache\"</span>);\n\t\t \theader(<span style=\"color: #a31515;\">'Content-Type: application/vnd.ms-excel'</span>);\n\t\t \theader(<span style=\"color: #a31515;\">'Content-Disposition: attachment;filename=\"Report.xls\"'</span>);\n\n\t\t \t$objWriter-&gt;save(<span style=\"color: #a31515;\">'php://output'</span>);\n\t\t }\n\n\t\t <span style=\"color: blue;\">private</span> <span style=\"color: blue;\">function</span> outputExcel2007(){\n\t\t \t$objWriter = <span style=\"color: blue;\">new</span> PHPExcel_Writer_Excel2007($this-&gt;xls);\n\n\t\t \tob_end_clean();\n\t\t \theader(<span style=\"color: #a31515;\">\"Last-Modified: \"</span> . gmdate(<span style=\"color: #a31515;\">\"D, d M Y H:i:s\"</span>) . <span style=\"color: #a31515;\">\" GMT\"</span>);\n\t\t \theader(<span style=\"color: #a31515;\">\"Cache-Control: no-store, no-cache, must-revalidate\"</span>);\n\t\t \theader(<span style=\"color: #a31515;\">\"Cache-Control: post-check=0, pre-check=0\"</span>, false);\n\t\t \theader(<span style=\"color: #a31515;\">\"Pragma: no-cache\"</span>);\n\t\t \theader(<span style=\"color: #a31515;\">'Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'</span>);\n\t\t \theader(<span style=\"color: #a31515;\">'Content-Disposition: attachment;filename=\"Report.xlsx\"'</span>);\n\n\t\t \t$objWriter-&gt;save(<span style=\"color: #a31515;\">'php://output'</span>);\n\t\t }\n</pre>\n</div>",
+    "PostedDate": "2011-11-13T06:06:14.737-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "806524",
+    "ThreadId": "250120",
+    "Html": "<p>I'm having the same issues.&nbsp; I tried to use the code above, just to get anything working.&nbsp; My version:</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>\t\t\t$excel = <span style=\"color: blue;\">new</span> PHPExcel();\r\n\t\t\t$excel-&gt;setActiveSheetIndex(0);\r\n\t\t\t$worksheet = $excel-&gt;getActiveSheet();\r\n\t\t\t$worksheet-&gt;getCell(<span style=\"color: #a31515;\">'A1'</span>)-&gt;setValue(<span style=\"color: #a31515;\">'tet'</span>);\r\n\t\t\t$worksheet-&gt;getCell(<span style=\"color: #a31515;\">'B1'</span>)-&gt;setValue(<span style=\"color: #a31515;\">'tet'</span>);\r\n\t\t\t\r\n\t\t\tob_end_clean();\r\n\t\t\t\r\n\t\t\theader(<span style=\"color: #a31515;\">\"Last-Modified: \"</span> . gmdate(<span style=\"color: #a31515;\">\"D, d M Y H:i:s\"</span>) . <span style=\"color: #a31515;\">\" GMT\"</span>);\r\n\t\t\theader(<span style=\"color: #a31515;\">\"Cache-Control: no-store, no-cache, must-revalidate\"</span>);\r\n\t\t\theader(<span style=\"color: #a31515;\">\"Cache-Control: post-check=0, pre-check=0\"</span>, false);\r\n\t\t\theader(<span style=\"color: #a31515;\">\"Pragma: no-cache\"</span>);\r\n\t\t\theader(<span style=\"color: #a31515;\">'Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'</span>);\r\n\t\t\theader(<span style=\"color: #a31515;\">'Content-Disposition: attachment;filename=\"Report.xlsx\"'</span>);\r\n\t\r\n\t\t\t$objWriter = PHPExcel_IOFactory::createWriter($excel, <span style=\"color: #a31515;\">'Excel2007'</span>);\r\n\t\t\tob_end_clean();\r\n\t\t\t\r\n\t\t\t$objWriter-&gt;save(<span style=\"color: #a31515;\">'php://output'</span>);\r\n\t\t\t$excel-&gt;disconnectWorksheets();\r\n\t\t\t<span style=\"color: blue;\">unset</span>($excel);\r\n</pre>\r\n</div>\r\nFor some reason having the two end cleans works better than removing one.&nbsp; With them both in I at least get Excel trying to recover it.&nbsp; Removing either one results in file format or file extension error and no open of the spreadsheet.</p>\r\n<p>PHP 5.3.3 on Red Hat.&nbsp; Using Firephp.</p>\r\n<div id=\"_mcePaste\" class=\"mcePaste\" style=\"position: absolute; left: -10000px; top: 0px; width: 1px; height: 1px; overflow: hidden;\">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $excel = new PHPExcel();<br />&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $excel-&gt;setActiveSheetIndex(0);<br />&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $worksheet = $excel-&gt;getActiveSheet();<br />&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $worksheet-&gt;getCell('A1')-&gt;setValue('tet');<br />&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $worksheet-&gt;getCell('B1')-&gt;setValue('tet');<br />&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br />&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; ob_end_clean();<br />&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br />&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; header(\"Last-Modified: \" . gmdate(\"D, d M Y H:i:s\") . \" GMT\");<br />&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; header(\"Cache-Control: no-store, no-cache, must-revalidate\");<br />&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; header(\"Cache-Control: post-check=0, pre-check=0\", false);<br />&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; header(\"Pragma: no-cache\");<br />&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');<br />&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; header('Content-Disposition: attachment;filename=\"Report.xlsx\"');<br />&nbsp;&nbsp;&nbsp; <br />&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $objWriter = PHPExcel_IOFactory::createWriter($excel, 'Excel2007');<br />&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; ob_end_clean();<br />&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br />&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $objWriter-&gt;save('php://output');<br />&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $excel-&gt;disconnectWorksheets();<br />&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; unset($excel);</div>",
+    "PostedDate": "2012-03-06T15:18:34.97-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "836864",
+    "ThreadId": "250120",
+    "Html": "<p>ob_end_clean(); works great for me.&nbsp;</p>",
+    "PostedDate": "2012-05-15T12:45:15.403-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1353578",
+    "ThreadId": "250120",
+    "Html": "If useful for someone my problem was my editor software (PSPad). In program settings, uncheck the Ident. bytes in UTF-8 coding. And everything works for me.<br />\n",
+    "PostedDate": "2015-02-17T17:37:49.607-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1442308",
+    "ThreadId": "250120",
+    "Html": "I am having the same problem. I am able to save the file in csv and pdf format. The users can download the pdf file no problems, but the xls file is not saving or downloading correctly. Parts of the data is missing from the file and the &quot;We found a problem with some content...&quot; message pops up.\r<br />\n<br />\nI have this in one file:<br />\n<pre><code>$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');\n\n$objWriter-&gt;save(str_replace('.csv', '.xls', $inputFileName));\n\n\n$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('A1:'.$col)-&gt;applyFromArray($styleArray);\nunset($styleArray);\n$objPHPExcel-&gt;getActiveSheet()-&gt;setShowGridlines(FALSE);\n\n$objWriterpdf = PHPExcel_IOFactory::createWriter($objPHPExcel, 'PDF');\n\n//You need to include and print to PDF the entire worksheets contained in the workbook\n\n$objWriterpdf-&gt;writeAllSheets();\n\n//You need to assign a filename to the PDF file (write.pdf for example)\n$objWriterpdf-&gt;save(str_replace('.csv', '.pdf', $inputFileName));</code></pre>\n\nand this in another:<br />\n<pre><code>$filedate =date('mdY');\n$filename='dash'.$_GET[&quot;site&quot;].'-'.$filedate.'.xls';\n$rows=$_GET[&quot;rows&quot;];\nif ($_GET[&quot;site&quot;]&gt;'')\n   parsing_csv('c:/webroot/dashExport/dash'.$_GET[&quot;site&quot;].'-', 'I'.$rows,$_GET['site'] ); \nheader('Content-disposition: attachment; filename=dash'.$_GET[&quot;site&quot;].'-'.$filedate.'.xls');\nheader('Content-type: application/vnd.ms-excel');\nreadfile($filename);</code></pre>\n\nThe download is executed when I call in the main file using this line:<br />\n<pre><code>&lt;input type=&quot;button&quot; value=&quot;&quot; title=&quot;Export to Excel&quot; class=&quot;button_add&quot; onClick=&quot;window.location.href='../dashExport/downloadExcelone.php?site=Global&amp;rows=&lt;?php echo $rowcnt;?&gt;&amp;consortium=&lt;?php echo $consortium;?&gt; &amp;research=&lt;?php echo $research;?&gt;  '&quot;  /&gt; </code></pre>\n\nCan anyone help me?<br />\n",
+    "PostedDate": "2015-08-28T13:15:49.833-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

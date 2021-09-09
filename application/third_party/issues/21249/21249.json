@@ -1,0 +1,85 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I've used this PHPExcel class for .xls files prior to this with success, but this time I've been running into issues. Now, I'm trying to load and read a .xlsx file and can't even get past the load() function. \n\nI should mention I'm not getting any errors what so ever. None in the logs and none in the browser or console. It simply executes the code and returns nothing. \n\nThe file I'm trying to upload has formulas as well as links to other data sources (when I open the file it asks to update the links to retieve the latest data). This is what could possibly be causing the issues, but below is my initialization code for this PHP class:\n\n```\nrequire($modules . \"/PHPExcel/Classes/PHPExcel/IOFactory.php\"); \n\n$inputFileType = \"Excel2007\";\n\n$inputFileName = $_FILES[\"file\"][\"tmp_name\"]; // my file is being uploaded rather than hard coded\n$objReader = PHPExcel_IOFactory::createReader($inputFileType); // I've also tried to put the type inside here\n\n$objReader->setReadDataOnly(false); // also tried true, but neither seem to make a difference\n$objPHPExcel = $objReader->load($inputFileName);\n```\n\nCan anyone help me determine what is going on? If I change the file to a .xls and use the Excel5 input file type it seems to work. However, the Excel file will inform me that saving it in this format causes fidelity loss and possibly breaks the formulas/links within the file. \n\nAny help would be greatly appreciated.",
+    "LastUpdatedDate": "2014-09-04T10:45:49.713-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2014-08-21T08:33:59.987-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Can't load .xlsx file to read",
+    "Type": {
+      "Name": "Unassigned",
+      "Id": 5
+    },
+    "VoteCount": 1,
+    "Id": 21249
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "I am facing the same issue with latest code on git. Please suggest any solution.",
+      "PostedDate": "2014-08-21T11:36:37.55-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Don't echo/print any output at all from your PHP script when sending a download to the browser",
+      "PostedDate": "2014-08-21T12:49:00.64-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Well I need to echo out whether or not the script fails/succeeds. I've used this class for two other projects and have outputed the same information with both of them. I have not ran into this issue until I started loading .xlsx files with formatting, formulas, and linked data sources. Both my prior projects I was utilizing .xls files without formulas or linked data sources. The output cannot be the reason I am having this issue. To me it appears there are issues with the class being able to read a .xlsx file with formulas and/or linked data sources.",
+      "PostedDate": "2014-08-22T06:28:44.677-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "In regards to my previous post, I should also mention there isn't just an echo in my script. I'm uploading a file via AJAX, executing the PHPExcel class script, and json_encoding a pass/fail string. This is the approach I've done with my prior two projects where PHPExcel was utilized. This is the first time I've ran into this issue where the class is unable to read the file __and__ doesn't return any sort of error.",
+      "PostedDate": "2014-08-22T06:36:31.63-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Apologies for that, I can't delete messages in issues, but had meant to post that as an answer to another raised issue with writing to php://output that di have echoes in the code",
+      "PostedDate": "2014-08-22T07:23:30.183-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Oh, not a problem. I have been altering the Excel file to see if I could get it to upload. Ultimately, I ended up opening up a fresh workbook with no values, formulas, or formatting. I then just stuck in some random numbers in one column and saved it as a .xlsx file. When I tried uploading it I received the same issue with no errors being shown in the logs. I don't even get my \"fail\" message from the output because it literally stops executing code on the $objReader->load() function for .xlsx files only. I took the same file with the one column and saved it as a .xls and it worked just fine. Are there any known issues with the Excel2007 reader?",
+      "PostedDate": "2014-08-22T08:27:39.15-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "There are many known issues with all the Readers, but that only affect a very tiny fraction of a percentage of cases..... but generally, PHPExcel will completely ignore anything that it doesn't understand (such as form elements) so they shouldn't cause any problems. The Excel2007 Reader is normally more tolerant because it's simply looking for specific XML markup tags\r\n\r\nThe most common causes of failure are timeout and exceeded memory.\r\n\r\nwhat I can't do is tell you what the problem is without the ability to debug this specific case",
+      "PostedDate": "2014-08-22T10:04:49.313-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I understand completely and wouldn't expect you to be able to tell me what the problem is without debugging it yourself, but I thought I'd post on here to see if anyone else has run into this issue before and found a solution. I ended up just converting the .xlsx file to a .xls and used the Excel5 reader. It's certainly not ideal, but at least it works for the purpose I'm trying to serve. \r\n\r\nI do know I'm not getting any timeout or exceeded memory issues and I even manual set both of these on my page to ensure this wasn't this issue. \r\n\r\nI just thought it was strange that I couldn't get the Excel2007 reader to function at all. With a completely fresh workbook, with just a value of \"10\" in cell A1, and it still doesn't work. I thought maybe the issue was due from formatting, formulas, linked data sources, etc., but after testing the Excel2007 reader in the way I did it appears the reader itself is \"broke\" (for lack for a better word). \r\n\r\nUltimately, this class still rocks because it beats having to perform the workaround approach and provides so many useful methods/functions to manipulate the reading/writing of data that would otherwise make it not even worth trying to perform the functionality this class provides.  \r\n\r\nI appreciate your time spent looking into this issue. Thank you for your help.",
+      "PostedDate": "2014-08-26T08:26:12.59-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Hi, I am having same the issue I am not able to open a downloaded file using both Excel5 and Excel2007 readers.\nBefore sending to php://output I saved my file in the server so I opened both the downloaded and the saved one using a text editor to be compared. The one downloaded is broken down in multiple lines while the saved one shows a compact structure. I found no logical cause for this mismatch.\nI can say is not my dynamically generated file as I did a test using a couple of files from PHPExcel documentation (26template.xlsx and 27template.xls) and I got the same result.\nHave some found a solution for this? Thanks in advance.\n \n",
+      "PostedDate": "2014-09-04T10:45:49.713-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

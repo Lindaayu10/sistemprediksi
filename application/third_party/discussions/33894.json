@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "112296",
+    "ThreadId": "33894",
+    "Html": "Hello,<br>\r\nI have a script that loops through a large number of organizations that I pull from a table.&nbsp; Each organization gets it's own copy of an excel file that is specific to that organization while the template for the excel file starts out the same.&nbsp; The problem I am having is that the memory of my script is growing huge because I need load the template file for each organization (<strong>$objPHPExcel = $objReader-&gt;load($import_file);</strong>).&nbsp; Origially I tried to load the file once into a master $objPHPExcel object and just copy or clone that object for each organization, but it seems that whatever changes you do to a copy also change the master $objPHPExcel object (even though it would seem that&nbsp;<a href=\"http://us3.php.net/clone\">http://us3.php.net/clone</a>&nbsp;says that that should not happen).&nbsp; <br>\r\n<br>\r\nSo my question is:<br>\r\n<br>\r\nIs there a way to create a $objPHPExcel object that you can keep pristine as a template object that you could reuse in the same script without altering the original $objPHPExcel?<br>\r\n<br>\r\nThanks,<br>\r\nBryan <br>\r\n<br>\r\n**UPDATE:&nbsp; I see there is a similar &quot;Issue&quot; at the workbook level that is addressed here:&nbsp;<a href=\"http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=7157\">http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=7157</a>&nbsp;<br>\r\nIs there any plans for a &quot;copy&quot; function for an entire PHPExcel object?\r\n",
+    "PostedDate": "2008-08-20T05:17:02.563-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "112334",
+    "ThreadId": "33894",
+    "Html": "Here is a small example you can use to see the issue:<br>\r\n<br>\r\n<p>$objPHPExcel = new PHPExcel();<br>\r\n$objPHPExcel2 = clone $objPHPExcel;<br>\r\n<br>\r\n$objPHPExcel-&gt;getSheet(0)-&gt;setTitle(&quot;objPHPExcel Title&quot;);<br>\r\nprint &quot;\\$objPHPExcel Sheet 1 Title = &quot;.$objPHPExcel-&gt;getSheet(0)-&gt;getTitle().&quot;&lt;br&gt;&quot;;<br>\r\n//Shows &quot;objPHPExcel Title&quot;<br>\r\n$objPHPExcel2-&gt;getSheet(0)-&gt;setTitle(&quot;objPHPExcel2 Title&quot;);<br>\r\nprint &quot;\\$objPHPExcel2 Sheet 1 Title = &quot;.$objPHPExcel2-&gt;getSheet(0)-&gt;getTitle().&quot;&lt;br&gt;&quot;;<br>\r\n//Shows &quot;objPHPExcel2 Title&quot;<br>\r\nprint &quot;\\$objPHPExcel Sheet 1 Title = &quot;.$objPHPExcel-&gt;getSheet(0)-&gt;getTitle().&quot;&lt;br&gt;&quot;;<br>\r\n//Shows &quot;objPHPExcel2 Title&quot;, but seems like it should still show &quot;objPHPExcel Title&quot;</p>\r\n",
+    "PostedDate": "2008-08-20T07:27:00.447-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

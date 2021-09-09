@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "909415",
+    "ThreadId": "394705",
+    "Html": "\r\n<p></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><span style=\"color:green\">//The code:</span>\r\n\r\n<span style=\"white-space:pre\">\t</span>$objReader = PHPExcel_IOFactory::createReader(<span style=\"color:#a31515\">'Excel5'</span>); \r\n        <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">&quot;after createReader,memory_get_usage:&quot;</span>.(memory_get_usage()/1000000).<span style=\"color:#a31515\">&quot;MB&lt;/br&gt;&quot;</span>;        \r\n        $objPHPExcel = $objReader-&gt;load($excelFileName);$objReader=<span style=\"color:#a31515\">''</span>;\r\n        <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">&quot;after readerload,memory_get_usage:&quot;</span>.(memory_get_usage()/1000000).<span style=\"color:#a31515\">&quot;MB&lt;/br&gt;&quot;</span>;\r\n        $sheet = $objPHPExcel-&gt;getSheet(1);\r\n        $sheet=null;<span style=\"color:blue\">unset</span>($sheet);\r\n        $objPHPExcel=null;<span style=\"color:blue\">unset</span>($objPHPExcel); \r\n        <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">&quot;after set objPHPExcel and sheet to  null,memory_get_usage:&quot;</span>.(memory_get_usage()/1000000).<span style=\"color:#a31515\">&quot;MB&lt;/br&gt;&quot;</span>;\r\n        <span style=\"color:blue\">die</span>();\r\n\r\n\r\n\r\n<span style=\"color:green\">//The output:</span>\r\n<span style=\"color:green\">/*\r\n\r\nafter createReader,memory_get_usage:12.033416MB\r\nafter readerload,memory_get_usage:92.257536MB\r\nafter set $objPHPExcel and $sheet to null,memory_get_usage:92.257432MB\r\n\r\n*/</span>\r\n\r\n<span style=\"color:green\">//The question:</span>\r\n<span style=\"color:green\">//How to minimize the extra 80MB memory usage?</span>\r\n</pre>\r\n<pre><span style=\"color:green\">//The way by setting an variable to NULL and then unset the variable seems not work.  </span></pre>\r\n</div>\r\n<p></p>\r\n",
+    "PostedDate": "2012-09-06T18:50:17.727-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "909469",
+    "ThreadId": "394705",
+    "Html": "<p>is there anyway to cut off some properties of phpExcel ?</p>",
+    "PostedDate": "2012-09-06T23:24:39.303-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "909470",
+    "ThreadId": "394705",
+    "Html": "<p>There are plenty of documented ways of reducing the memory usage of PHPExcel:</p>\r\n<ul>\r\n<li>When loading files: If you only want data, and aren't worried about the formatting of the content, then the readerssetReadDataOnly(TRUE) option, or setLoadSheetsOnly() to only load those worksheets that you need.</li>\r\n<li>Reading a file in \"chunks\" so that it isn't all \"memory resident\" at the same time.</li>\r\n<li>Cell caching</li>\r\n</ul>\r\n<p>These are documented features, and there's plenty of information about using theme here on the forum.</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2012-09-06T23:37:38.867-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "909472",
+    "ThreadId": "394705",
+    "Html": "<blockquote style=\"border: solid .1em #ccc; font-style: italic; margin: .25em 1em 0 1em; padding: 0 .25em 0 .25em;\"><strong>MarkBaker wrote:</strong><br />\r\n<p>There are plenty of documented ways of reducing the memory usage of PHPExcel:</p>\r\n<ul>\r\n<li>When loading files: If you only want data, and aren't worried about the formatting of the content, then the readerssetReadDataOnly(TRUE) option, or setLoadSheetsOnly() to only load those worksheets that you need. </li>\r\n<li>Reading a file in \"chunks\" so that it isn't all \"memory resident\" at the same time. </li>\r\n<li>Cell caching </li>\r\n</ul>\r\n<p>These are documented features, and there's plenty of information about using theme here on the forum.</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n</blockquote>\r\n<p>Thank u very much.</p>\r\n<p>&nbsp;</p>\r\n<p>1.How to&nbsp;<span>read a file in \"chunks\" ? PhpExcel seems to be load an excel file all by once.</span></p>\r\n<p><span>2 About '<span>Cell caching</span>' ,you mean using memocache or gzip ? I have already used this.</span></p>",
+    "PostedDate": "2012-09-06T23:56:01.703-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "909496",
+    "ThreadId": "394705",
+    "Html": "\r\n<p><em><strong>By default</strong></em>, PHPExcel will load the entire file, but it can read only parts of the file if you tell it which parts you want to read.</p>\r\n<p>There is an entire document in the /Documentation directory called &quot;PHPExcel User Documentation - Reading Spreadsheet Files.doc&quot; all about reading files. This explains how to read only the data (not the formatting) from a file; how to read only named worksheets\r\n from a file, and how to read only certain cells from a worksheet using a read filter, and so to the file in &quot;chunks&quot;.</p>\r\n<p>&nbsp;</p>\r\n<p>You will also find sample code demonstrating a lot of the methods that are described in that document in the /Documentation/Examples/Reader directory.</p>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2012-09-07T01:18:40.483-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "911308",
+    "ThreadId": "394705",
+    "Html": "<blockquote style=\"border: solid .1em #ccc; font-style: italic; margin: .25em 1em 0 1em; padding: 0 .25em 0 .25em;\"><strong>MarkBaker wrote:</strong><br />\r\n<p><em><strong>By default</strong></em>, PHPExcel will load the entire file, but it can read only parts of the file if you tell it which parts you want to read.</p>\r\n<p>There is an entire document in the /Documentation directory called \"PHPExcel User Documentation - Reading Spreadsheet Files.doc\" all about reading files. This explains how to read only the data (not the formatting) from a file; how to read only  named worksheets from a file, and how to read only certain cells from a worksheet using a read filter, and so to the file in \"chunks\".</p>\r\n<p>&nbsp;</p>\r\n<p>You will also find sample code demonstrating a lot of the methods that are described in that document in the /Documentation/Examples/Reader directory.</p>\r\n<p>&nbsp;</p>\r\n</blockquote>\r\n<p>Thanks a lot&nbsp;</p>",
+    "PostedDate": "2012-09-11T23:35:34.713-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "1204666",
+    "ThreadId": "529909",
+    "Html": "on this moment I'm using the PHPExcel library to generate reports in excel from a stored template on my server\r<br />\n<br />\nmy problem is that the graph on the generated file has not same style as my template.\r<br />\n<br />\nI show you attached template file and the result\r<br />\n<br />\nTemplate: \r<br />\n<img src=\"http://sdz-upload.s3.amazonaws.com/prod/upload/avant9.png\" alt=\"Image\" />\r<br />\n<br />\nResulat: \r<br />\n<img src=\"http://sdz-upload.s3.amazonaws.com/prod/upload/apres1.png\" alt=\"Image\" /><br />\n<pre><code>/** Error reporting */\nerror_reporting(E_ALL);\nini_set('display_errors', TRUE);\nini_set('display_startup_errors', TRUE);\ndate_default_timezone_set('Europe/London');\n\ndefine('EOL',(PHP_SAPI == 'cli') ? PHP_EOL : '&lt;br /&gt;');\n\n/** Include PHPExcel */\nrequire_once '../Classes/PHPExcel.php';\ninclude '../Classes/PHPExcel/IOFactory.php';\n\n$inputFileType = 'Excel2007';\n$inputFileNames = 'dada.xlsx';\n\n    $objReader = PHPExcel_IOFactory::createReader($inputFileType);\n    $objReader-&gt;setIncludeCharts(TRUE);\n\n    $objPHPExcel = $objReader-&gt;load($inputFileNames);\n    //$objPHPExcel-&gt;setActiveSheetIndex(0);\n\n$query = &quot;SELECT SQL_CALC_FOUND_ROWS UCASE(lib_cause) as lib_cause,COUNT( CASE WHEN id_panne IS NOT NULL THEN 0 END ) AS DD_ES,COUNT( CASE WHEN abreviation = 'aet' THEN 0  END ) AS AET,COUNT( CASE WHEN abreviation = 'arz' THEN 0 END ) AS ARZ,COUNT( CASE WHEN abreviation = 'ess' THEN 0 END ) AS ESS,COUNT( CASE WHEN abreviation = 'gdy' THEN 0 END ) AS GDY FROM ( SELECT id_panne,cause FROM suipbdd.intervention inner JOIN appel ON ( intervention.id_panne = appel.id_call ) WHERE ras ='' AND date_creat BETWEEN  '$openDate' AND  '$closeDate') AS bnnbbn RIGHT JOIN cause ON ( bnnbbn.cause = cause.id_cause ) LEFT JOIN appel ON ( bnnbbn.id_panne = appel.id_call ) LEFT JOIN agence ON ( appel.agence = agence.id_ag ) GROUP BY lib_cause ORDER BY lib_cause ASC , abreviation ASC &quot;;\n\n$result = mysql_query($query) or die(mysql_error());\n\n$rowCount = 2;\n\nwhile($row = mysql_fetch_array($result)){\n    $objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue('A'.$rowCount, $row['lib_cause']);\n    $objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue('B'.$rowCount, $row['DD_ES']);\n    $objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue('C'.$rowCount, $row['AET']);\n    $objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue('D'.$rowCount, $row['ARZ']);\n    $objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue('E'.$rowCount, $row['ESS']);\n    $objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue('F'.$rowCount, $row['GDY']);\n\n\n    $rowCount++;\n}\nheader(&quot;Content-Type: application/vnd.ms-excel&quot;);\nheader('Cache-Control: max-age=0');\nheader(&quot;content-disposition: attachment;filename=chartData.xlsx&quot;);\n\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');\n$objWriter-&gt;setIncludeCharts(TRUE);\n$objWriter-&gt;save('php://output');</code></pre>\n\n",
+    "PostedDate": "2014-02-07T15:54:05.093-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1205907",
+    "ThreadId": "529909",
+    "Html": "up<br />\n",
+    "PostedDate": "2014-02-09T12:19:30.283-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

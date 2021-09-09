@@ -1,0 +1,57 @@
+Index: String.php
+===================================================================
+--- String.php	(revision 629)
++++ String.php	(working copy)
+@@ -35,6 +35,18 @@
+  */
+ class PHPExcel_Shared_String
+ {
++	private static $ControlCharacters = array();
++
++	private static function BuildControlCharacters() {
++		for ($i = 0; $i <= 19; ++$i) {
++			if ($i != 9 && $i != 10 && $i != 13) {
++				$find = '_x' . sprintf('%04s' , strtoupper(dechex($i))) . '_';
++				$replace = chr($i);
++				self::$ControlCharacters[$find] = $replace;
++			}
++		}
++	}
++
+ 	/**
+ 	 * Convert from OpenXML escaped control character to PHP control character
+ 	 *
+@@ -50,13 +62,11 @@
+ 	 * @return 	string
+ 	 */
+ 	public static function ControlCharacterOOXML2PHP($value = '') {
+-		for ($i = 0; $i <= 19; ++$i) {
+-			if ($i != 9 && $i != 10 && $i != 13) {
+-				$value = str_replace('_x' . sprintf('%04s' , strtoupper(dechex($i))) . '_', chr($i), $value);
+-			}
++		if(empty(self::$ControlCharacters)) {
++			self::BuildControlCharacters();
+ 		}
+ 
+-		return $value;
++		return str_replace( array_keys(self::$ControlCharacters), array_values(self::$ControlCharacters), $value );
+ 	}
+ 
+ 	/**
+@@ -74,13 +84,11 @@
+ 	 * @return 	string
+ 	 */
+ 	public static function ControlCharacterPHP2OOXML($value = '') {
+-		for ($i = 0; $i <= 19; ++$i) {
+-			if ($i != 9 && $i != 10 && $i != 13) {
+-				$value = str_replace(chr($i), '_x' . sprintf('%04s' , strtoupper(dechex($i))) . '_', $value);
+-			}
++		if(empty(self::$ControlCharacters)) {
++			self::BuildControlCharacters();
+ 		}
+ 
+-		return $value;
++		return str_replace( array_values(self::$ControlCharacters), array_keys(self::$ControlCharacters), $value );
+ 	}
+ 
+ 	/**

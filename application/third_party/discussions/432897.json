@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "1000258",
+    "ThreadId": "432897",
+    "Html": "i am tryign to get my head around the PDF set up in order to get it to work but i am getting no where fast.\r<br />\n<br />\n<br />\nI keep getting stuck at the<br />\n<pre><code>if (!PHPExcel_Settings::setPdfRenderer(....</code></pre>\n\nI have the following settings:<br />\n<pre><code>/** Include PHPExcel */\nrequire_once '../classes/PHPExcel/IOFactory.php';\nrequire_once '../classes/PHPExcel.php';\n\n$rendererName = PHPExcel_Settings::PDF_RENDERER_DOMPDF;\n$rendererLibrary = 'domPDF0.6.0beta3';\n$rendererLibraryPath = dirname(__FILE__). 'libs/classes/dompdf' . $rendererLibrary;\n\n\n    if (!PHPExcel_Settings::setPdfRenderer(....\n</code></pre>\n\nNow the 'libs/classes/dompdf/' is the folder where the domPDF code resides and is the complete code from the zip file\r<br />\n<br />\nI do not understand what part the $rendererLibrary has is it a fiel or folder name if so then there is no file/folder with that name\r<br />\n<br />\nWhat can i be missing here??\r<br />\n<br />\nPHPExcel Version: 1.7.8\r<br />\nDOMPDF Version: dompdf_0-6-0_beta3\r<br />\nMAC M. Lion\r<br />\n<br />\nThanks<br />\n",
+    "PostedDate": "2013-02-12T13:16:38.613-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1000458",
+    "ThreadId": "432897",
+    "Html": "PHPExcel provides a wrapper for each of three different PDF rendering libraries (tcPDF, mPDF and DomPDF),\r<br />\nWhen specifying which library you want to use, you need to tell PHPExcel two things: which of the three libraries you are using, and where to find that library. These are the two values that you pass to the setPdfRenderer() method.\r<br />\n<br />\nThe first argument identifies which of the three libraries you intend to use, so that PHPExcel knows which of the three wrappers found in Classes/PHPExcel/Writer/PDF to use.\r<br />\nThe second argument is the directory path to the Rendering engines root directory.\r<br />\n<br />\nFor simplicity, when I use these settings myself, I create standard PHP variables to use as arguments, rathe rthan passing values directly:<br />\n<ul>\n<li>$rendererName (pretty obvious) - set to the appropriate rending engine &quot;name&quot; using the constants defined.</li>\n<li>\n$rendererLibraryPath - the directory path to the root directory for the library that I use\r<br />\nBecause I've tested with a number of different versions of the various PDF libraries, and hold them all in subdirectories under a common '/php/libraries/PDF/' directory, I also use a $rendererLibrary variable to identify which specific library version I'm testing against. The only place this is used is defining $rendererLibraryPath using a standard PHP concatentaion. It is not necessary, PHPExcel doesn't know or care that the variable exists, nor does DomPDF or any of the other rendering libraries. It is used purely in a concatenation to define the path to the rendering library root directory.<br />\n</li>\n</ul>\nThe code you're using to set $rendererLibraryPath is standard PHP concatenation. What you're doing is telling PHPExcel that it's in a folder<br />\n<blockquote>\nlibs/classes/dompdfdomPDF0.6.0beta3<br />\n</blockquote>\nIf your PDF library is in the folder libs/classes/dompd, then you set <br />\n<div style=\"color:Black;background-color:White;\"><pre>\r\n$rendererLibraryPath = dirname(<span style=\"color:Blue;\">__FILE__</span>). <span style=\"color:#A31515;\">&#39;libs/classes/dompdf&#39;</span>;\r\n</pre></div>",
+    "PostedDate": "2013-02-13T01:30:33.15-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1000465",
+    "ThreadId": "432897",
+    "Html": "Hi @MarkBaker many thanks for the reply, thats what i thought i tried all possible methods before posting  but will give it another try.<br />\n",
+    "PostedDate": "2013-02-13T01:43:32.193-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1000472",
+    "ThreadId": "432897",
+    "Html": "right i have re-jigged some stuff and i am not getting the same error and it outputs a PDF fine.\r<br />\n<br />\nBUT i here you say, well when I goto open the PDF it gives me an error:<br />\n<blockquote>\nAcrobat could not open '01simple (1).pdf' because it is either not a supported file type or because the file has been damaged...<br />\n</blockquote>\nTo Test i am using the PHPExcel '01simple-download-pdf.php' and my code is as follows:<br />\n<pre><code>/** Error reporting */\nerror_reporting(E_ALL);\nini_set('display_errors', TRUE);\nini_set('display_startup_errors', TRUE);\ndate_default_timezone_set('Europe/London');\n\n//-- get correct path details\n$pathDetails = pathinfo(dirname(__FILE__));\n$libsPath = $pathDetails['dirname'];\n$classPath = $libsPath .'/classes/';\n\n\nif (PHP_SAPI == 'cli')\n    die('This example should only be run from a Web Browser');\n\n/** Include PHPExcel */\n    require_once $classPath . 'PHPExcel.php';\n\n//  Change these values to select the Rendering library that you wish to use and its directory location on your server\n$rendererName = PHPExcel_Settings::PDF_RENDERER_DOMPDF;\n$rendererLibraryPath = $classPath . 'dompdf-master';\n\n// Create new PHPExcel object\n$objPHPExcel = new PHPExcel();\n\n// Set document properties\n$objPHPExcel-&gt;getProperties()-&gt;setCreator(&quot;Maarten Balliauw&quot;)\n                             -&gt;setLastModifiedBy(&quot;Maarten Balliauw&quot;)\n                             -&gt;setTitle(&quot;PDF Test Document&quot;)\n                             -&gt;setSubject(&quot;PDF Test Document&quot;)\n                             -&gt;setDescription(&quot;Test document for PDF, generated using PHP classes.&quot;)\n                             -&gt;setKeywords(&quot;pdf php&quot;)\n                             -&gt;setCategory(&quot;Test result file&quot;);\n\n\n// Add some data\n$objPHPExcel-&gt;setActiveSheetIndex(0)\n            -&gt;setCellValue('A1', 'Hello')\n            -&gt;setCellValue('B2', 'world!')\n            -&gt;setCellValue('C1', 'Hello')\n            -&gt;setCellValue('D2', 'world!');\n\n// Miscellaneous glyphs, UTF-8\n$objPHPExcel-&gt;setActiveSheetIndex(0)\n            -&gt;setCellValue('A4', 'Miscellaneous glyphs')\n            -&gt;setCellValue('A5', 'éàèùâêîôûëïüÿäöüç');\n\n// Rename worksheet\n$objPHPExcel-&gt;getActiveSheet()-&gt;setTitle('Simple');\n$objPHPExcel-&gt;getActiveSheet()-&gt;setShowGridLines(false);\n\n// Set active sheet index to the first sheet, so Excel opens this as the first sheet\n$objPHPExcel-&gt;setActiveSheetIndex(0);\n\n\nif (!PHPExcel_Settings::setPdfRenderer(\n        $rendererName,\n        $rendererLibraryPath\n    )) {\n    die(\n        'NOTICE: Please set the $rendererName and $rendererLibraryPath values' .\n        '&lt;br /&gt;' .\n        'at the top of this script as appropriate for your directory structure'\n    );\n}\n// Redirect output to a client’s web browser (PDF)\nheader('Content-Type: application/pdf');\nheader('Content-Disposition: attachment;filename=&quot;01simple.pdf&quot;');\nheader('Cache-Control: max-age=0');\n\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'PDF');\n$objWriter-&gt;save('php://output');\nexit;</code></pre>\n\nMany Thanks<br />\n",
+    "PostedDate": "2013-02-13T02:05:03.713-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1000505",
+    "ThreadId": "432897",
+    "Html": "Open the resulting file in a text editor. Look for any leading or trailing whitespace (or BOM markers), or any obvious error messages <br />\n",
+    "PostedDate": "2013-02-13T03:41:31.927-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1000509",
+    "ThreadId": "432897",
+    "Html": "Thanks again for this i got the following error:<br />\n<blockquote>\nPHP-font-lib must either be installed via composer or copied to lib/php-font-lib<br />\n</blockquote>\nWhich i know what this is as came across it when using the Dompdf as a separate file so got the latest version from <a href=\"http://code.google.com/p/dompdf/downloads/list\" rel=\"nofollow\">dompdf_0-6-0_beta3</a> and this solved that issue.\r<br />\n<br />\nSo did the same and yup i can produce the pdf now, much appreciated Mark Baker<br />\n",
+    "PostedDate": "2013-02-13T03:56:34.253-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "538679",
+    "ThreadId": "239099",
+    "Html": "\r\n<p>This problem has turned up at the beginning of trying to use this.</p>\r\n<p>This just the base - total groups = 61</p>\r\n<p>&nbsp; $x = 1;&nbsp;&nbsp;&nbsp; <br>\r\n&nbsp; foreach ($groups as $ID_Group =&gt; $Name_Group)<br>\r\n&nbsp; {<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp; $objPHPExcel-&gt;createSheet();<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp; $objPHPExcel-&gt;setActiveSheetIndex($i);<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setTitle($Name_Group);<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp; if($Name_Group != 'Gesamt') {<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('A1', 'Kto.:'.$groupaccountnrs[$ID_Group]);<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp; }<br>\r\n&nbsp;&nbsp;&nbsp; $x&#43;&#43;;<br>\r\n&nbsp; }</p>\r\n<p>And this throws the following error<br>\r\n11:49:05 Create new PHPExcel object<br>\r\nPHP Fatal error:&nbsp; Uncaught exception 'Exception' with message 'Active sheet index is out of bounds.' in /var/www/html/dailyreport/classes/PHPExcel.php:371<br>\r\nStack trace:<br>\r\n#0 /var/www/html/dailyreport/new_index.php(1912): PHPExcel-&gt;setActiveSheetIndex(9)<br>\r\n#1 {main}<br>\r\n&nbsp; thrown in /var/www/html/dailyreport/classes/PHPExcel.php on line 371</p>\r\n<p>&nbsp;</p>\r\n<p>Any ideas why ?</p>\r\n",
+    "PostedDate": "2010-12-21T03:04:52.863-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "539035",
+    "ThreadId": "239099",
+    "Html": "\r\n<p>Sheets are indexed from 0, not from 1... so the first sheet you add using createSheet() is index 0, but your setActiveSheetIndex($i) is trying to set the active index to 1.</p>\r\n",
+    "PostedDate": "2010-12-21T15:22:29.187-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "539195",
+    "ThreadId": "239099",
+    "Html": "\r\n<p>I thought i had a sheet already, this is the two lines above the script</p>\r\n<p>&nbsp;</p>\r\n<p>$objPHPExcel = new PHPExcel();<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setTitle('Ueberblick');<br>\r\n&nbsp; $x = 1;&nbsp;&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>so theoretically i am trying to create sheet 1&#43;&#43; as i already have a 0 or have i missed something ?</p>\r\n",
+    "PostedDate": "2010-12-22T00:36:57.82-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "539239",
+    "ThreadId": "239099",
+    "Html": "\r\n<p>You might change your code to:</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>$objPHPExcel-&gt;createSheet($x);\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setTitle($Name_Group);\r\n</pre>\r\n</div>\r\n<p>because createSheet() with an index value argument will automatically set the newly created&nbsp;sheet to be the active sheet.</p>\r\n<p>&nbsp;</p>\r\n<p>Or set the active sheet to $x rather than $i</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2010-12-22T02:20:32.907-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "539807",
+    "ThreadId": "239099",
+    "Html": "\r\n<p>that does this trick !</p>\r\n<p>thanks</p>\r\n",
+    "PostedDate": "2010-12-23T01:16:10.923-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

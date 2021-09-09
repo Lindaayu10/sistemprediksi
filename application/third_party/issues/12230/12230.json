@@ -1,0 +1,65 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Using 1.7.2 on Debian. I'm trying to reduce memory usage by reading in chunks of a large worksheet one at a time using a Read Filter. However, the PHPExcel object created by the Reader (Excel5 in my case) creates blank rows in place of those I'm filtering out. So if I'm trying to read in rows 1000 to 1999, it creates blank rows in positions 1-999.\n \nIn addition, memory usage continues to grow as I read in each chunk of the worksheet, even when I unset all PHPExcel objects after each one.",
+    "LastUpdatedDate": "2013-02-21T19:03:06.903-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2010-03-23T13:55:05.417-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Blank rows created when using a ReadFilter to ignore first N rows",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 12230
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "Problem 1)\r\nIt is intentional behavior that cells are not \"pushed up\" when you exclude rows using the read filter.\r\n\r\nProblem 2)\r\nThis is unfortunately due to a memory leak caused by some circular references. We are aware of the problem. Only solution is to read 1 chunk per executed PHP script.",
+      "PostedDate": "2010-03-24T18:31:59.197-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Have the memory leak issues been resolved?",
+      "PostedDate": "2012-09-12T04:22:46.843-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "The memory leaks can't be directly resolved because they're an issue with PHP itself, and the way it handles cyclic references... although more recent versions of PHP have improved this, and may work, we still need to retain the backward compatibility with PHP 5.2.x so we can't rely on that.\r\n\r\nThis is why we introduced the disconnectCells() and disconnectWorksheets() methods, so that these can be called against a worksheet object before unsetting it, or a workbook object before unsetting that.",
+      "PostedDate": "2012-09-12T15:00:18.547-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Additionally, those blank rows do not take up memory in the cell cache because the cells are never read",
+      "PostedDate": "2012-09-17T15:48:10.79-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:03:06.903-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

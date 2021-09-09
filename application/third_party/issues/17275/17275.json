@@ -1,0 +1,65 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "Documentation",
+      "DisplayName": "Documentation"
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I would like to share what I did with PHPExcel, saving an entire table from MySQL to XLS:\n \n/** PHPExcel */\nrequire_once 'PHPExcel.php';\n \n// Create new PHPExcel object\n$objPHPExcel = new PHPExcel();\n \n// Database with existing object\n$sql = \"SELECT * FROM `table` ORDER BY `id` ASC\";\n$res = $db->query($sql);\n \n// First Row (Names)\n$objPHPExcel->setActiveSheetIndex(0);\nforeach ($res->getColumnNames() as $coluna=>$num) {\n    $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow ($num,1,$coluna);\n}\n \n// Other Rows (Data)\n$i = 2;\nwhile ($row = $res->fetchrow()) {\n    foreach ($row as $col=>$dado) $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow ($col,$i,$dado);\n    $i++;\n}\n \n// Redirect output to a clientâ€™s web browser (Excel5)\nheader('Content-Type: application/vnd.ms-excel');\nheader('Content-Disposition: attachment;filename=\"table.xls\"');\nheader('Cache-Control: max-age=0');\n \n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');\n$objWriter->save('php://output');\nexit;",
+    "LastUpdatedDate": "2013-08-22T07:51:09.707-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2012-01-17T09:37:37.243-08:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Dynamic Database Example",
+    "Type": {
+      "Name": "Feature",
+      "Id": 1
+    },
+    "VoteCount": 1,
+    "Id": 17275
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "Where do $db variable came from?",
+      "PostedDate": "2013-08-22T05:20:23.47-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Hm... I discovered it comes from PEAR code.",
+      "PostedDate": "2013-08-22T05:24:20.52-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Sharing is good; but please. This isn't an issue or a problem or a bug with PHPExcel, so it really shouldn't be posted in the issues log. Discussion is probably more appropriate",
+      "PostedDate": "2013-08-22T06:29:27.383-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "@rsieja $db will be __any__ database connection object (e.g. PDO), it's not anything to do with PEAR",
+      "PostedDate": "2013-08-22T06:31:26.607-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "@MarkBaker so he just ommited the related code? my bad hehe :)",
+      "PostedDate": "2013-08-22T07:51:09.707-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

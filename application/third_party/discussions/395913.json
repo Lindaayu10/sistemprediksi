@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "914007",
+    "ThreadId": "395913",
+    "Html": "\r\n<p>Hi all,</p>\r\n<p>i'm having a big and strange problem with reader and excel file with merged cells, created by phpexcel.</p>\r\n<p>In details: i create a file with phpexcel, and it has some merged cells inside (all ok)</p>\r\n<p>If i read this file with phpexcel, all is ok and merged cells are read correctly.</p>\r\n<p>If i edit this file (even only opening and saving it) with excel, something changes (nothig that can be seen in the file..) and i'm no more able to read it with phpexcel, because an error on merge cells is given</p>\r\n<p>Fatal error: Uncaught exception 'Exception' with message 'Merge must be set on a range of cells.' in [...]\\Includes\\Classes\\PHPExcel\\PHPExcel\\Worksheet.php:1656 Stack trace: #0 [...]\\Includes\\Classes\\PHPExcel\\PHPExcel\\Reader\\Excel2007.php(1105): PHPExcel_Worksheet-&gt;mergeCells('U35')\r\n #1 [...]\\index.php(438): PHPExcel_Reader_Excel2007-&gt;load('./[...]') #2 {main} thrown in [...]\\Includes\\Classes\\PHPExcel\\PHPExcel\\Worksheet.php on line 1656</p>\r\n<p>so, it seems that for READING the file, phpexcel is calling the &quot;mergeCells&quot; on single cells (why?), and something is not working.</p>\r\n<p>What kind of problem is this?</p>\r\n<p>the error is given even if i save in excel 2003 format, so i don't think it can depend on excel 2010 differences with excel 2007.</p>\r\n<p>Mark please save me :)</p>\r\n",
+    "PostedDate": "2012-09-18T03:31:18.8-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "914030",
+    "ThreadId": "395913",
+    "Html": "<p>I'll need to try and recreate this. Do you actually have any example code that I can use as a basis?</p>",
+    "PostedDate": "2012-09-18T04:10:56.31-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "914060",
+    "ThreadId": "395913",
+    "Html": "<p>the problem is given (obvious if you see the class code) only when setReadDataOnly is not set to TRUE.</p>\r\n<p>I'm using this part only to read the \"merged cells array\" (if you remember, we already talked about this)</p>\r\n<p>Now, i've commented the line in worksheet.php that throws the exception, and in this way everything is working, but i can see that it's trying to merge A LOT of cells.</p>\r\n<p>I've created a little test script and a test xlsx file (that is the one created me problems, but without contents..)</p>\r\n<p>Here they are</p>\r\n<p><a href=\"https://www.dropbox.com/s/673gopo6g5hk7uo/TestMerge.zip\">https://www.dropbox.com/s/673gopo6g5hk7uo/TestMerge.zip</a></p>\r\n<p>Thank you Mark!</p>",
+    "PostedDate": "2012-09-18T05:30:24.557-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "914891",
+    "ThreadId": "395913",
+    "Html": "<p>Ridiculous of Excel to allow a single cell to be set as a merge range, it seems totally ridiculous.</p>\r\n<p>Readers fixed to discard meaningless single-cell merges in the develop branch on github</p>",
+    "PostedDate": "2012-09-19T16:36:41.14-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "915014",
+    "ThreadId": "395913",
+    "Html": "<p>Sorry Mark, i haven't understood.</p>\r\n<p>Is there a problem in my code? (i mean the code generated the file, not the stupid code of the test script)</p>\r\n<p>Why the problem is rising only after opening and saving the file with excel?</p>\r\n<p>Thanks and sorry if i did any mistake :)</p>",
+    "PostedDate": "2012-09-20T01:17:03.963-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "915016",
+    "ThreadId": "395913",
+    "Html": "\r\n<p>lol, i'm SO noob, i'm not able to download files from github :)</p>\r\n<p>any help? :P</p>\r\n<p>(Edit: Ok, downloaded it all, and it works! thanks mark!)</p>\r\n<p>&nbsp;</p>\r\n<p>(next test script will be excel 2010 compatibility for &quot;setReadDataOnly :P)</p>\r\n",
+    "PostedDate": "2012-09-20T01:27:02.667-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "915041",
+    "ThreadId": "395913",
+    "Html": "<p>I don't know how the problem originated, because PHPExcel will only set merges if you explicitly tell it to set merges, and won't allow you to merge a single cell, only a range of cells. I wasn't able to replicate any situation that created single cell merge ranges other than using MS Excel itself, and even then I had to tell MS Excel to set those merge ranges on single cells.</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2012-09-20T02:55:50.917-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

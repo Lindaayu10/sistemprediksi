@@ -1,0 +1,206 @@
+Index: PHPExcel/Writer/Excel5.php
+===================================================================
+--- PHPExcel/Writer/Excel5.php	(revision 1250)
++++ PHPExcel/Writer/Excel5.php	(working copy)
+@@ -66,6 +66,13 @@
+ class PHPExcel_Writer_Excel5 implements PHPExcel_Writer_IWriter
+ {
+ 	/**
++	 * Pre-calculate formulas
++	 *
++	 * @var boolean
++	 */
++	private $_preCalculateFormulas;
++
++	/**
+ 	 * PHPExcel object
+ 	 *
+ 	 * @var PHPExcel
+@@ -128,6 +135,7 @@
+ 	 * @param	PHPExcel	$phpExcel	PHPExcel object
+ 	 */
+ 	public function __construct(PHPExcel $phpExcel) {
++		$this->_preCalculateFormulas = true;
+ 		$this->_phpExcel		= $phpExcel;
+ 		$this->_BIFF_version	= 0x0600;
+ 		$this->_tempDir			= sys_get_temp_dir();
+@@ -174,6 +182,7 @@
+ 									   $this->_str_total, $this->_str_unique,
+ 									   $this->_str_table, $this->_colors,
+ 									   $this->_parser, $this->_tempDir,
++									   $this->_preCalculateFormulas,
+ 									   $phpSheet);
+ 			$this->_writerWorksheets[$i] = $writerWorksheet;
+ 		}
+@@ -258,4 +267,22 @@
+ 		return $this;
+ 	}
+ 
++	/**
++	 * Get Pre-Calculate Formulas
++	 *
++	 * @return boolean
++	 */
++	public function getPreCalculateFormulas() {
++		return $this->_preCalculateFormulas;
++	}
++
++	/**
++	 * Set Pre-Calculate Formulas
++	 *
++	 * @param boolean $pValue	Pre-Calculate Formulas?
++	 */
++	public function setPreCalculateFormulas($pValue = true) {
++		$this->_preCalculateFormulas = $pValue;
++	}
++
+ }
+Index: PHPExcel/Writer/Excel5/Worksheet.php
+===================================================================
+--- PHPExcel/Writer/Excel5/Worksheet.php	(revision 1250)
++++ PHPExcel/Writer/Excel5/Worksheet.php	(working copy)
+@@ -69,6 +69,9 @@
+ 	define('PHPEXCEL_ROOT', dirname(__FILE__) . '/../../../');
+ }
+ 
++/** PHPExcel_Cell_DataType */
++require_once PHPEXCEL_ROOT . 'PHPExcel/Cell/DataType.php';
++
+ /** PHPExcel_Writer_Excel5_Parser.php */
+ require_once PHPEXCEL_ROOT . 'PHPExcel/Writer/Excel5/Parser.php';
+ 
+@@ -265,7 +268,7 @@
+ 	public function __construct($BIFF_version,
+ 												&$str_total,
+ 												&$str_unique, &$str_table, &$colors,
+-												$parser, $tempDir = '', $phpSheet)
++												$parser, $tempDir = '', $preCalculateFormulas, $phpSheet)
+ 	{
+ 		// It needs to call its parent's constructor explicitly
+ 		parent::__construct();
+@@ -277,6 +280,7 @@
+ 		}
+ 
+ 
++		$this->_preCalculateFormulas = $preCalculateFormulas;
+ 		$this->_str_total		= &$str_total;
+ 		$this->_str_unique		= &$str_unique;
+ 		$this->_str_table		= &$str_table;
+@@ -523,7 +527,9 @@
+ 					break;
+ 
+ 				case PHPExcel_Cell_DataType::TYPE_FORMULA:
+-					$this->_writeFormula($row, $column, $cell->getValue(), $xfIndex);
++					$calculatedValue = $this->_preCalculateFormulas ?
++						$cell->getCalculatedValue() : null;
++					$this->_writeFormula($row, $column, $cell->getValue(), $xfIndex, $calculatedValue);
+ 					break;
+ 
+ 				case PHPExcel_Cell_DataType::TYPE_BOOL:
+@@ -947,18 +953,56 @@
+ 	 * @param integer $col	 Zero indexed column
+ 	 * @param string  $formula The formula text string
+ 	 * @param mixed   $format  The optional XF format
++	 * @param mixed   $calculatedValue  Calculated value
+ 	 * @return integer
+ 	 */
+-	private function _writeFormula($row, $col, $formula, $xfIndex)
++	private function _writeFormula($row, $col, $formula, $xfIndex, $calculatedValue)
+ 	{
+ 		$record	= 0x0006;	 // Record identifier
+ 
+-		// Excel normally stores the last calculated value of the formula in $num.
+-		// Clearly we are not in a position to calculate this a priori. Instead
+-		// we set $num to zero and set the option flags in $grbit to ensure
+-		// automatic calculation of the formula when the file is opened.
+-		//
+-		$num	   = 0x00;				// Current value of formula
++		// Initialize possible additional value for STRING record that should be written after the FORMULA record?
++		$stringValue = null;
++
++		// calculated value
++		if (isset($calculatedValue)) {
++
++			// Since we can't yet get the data type of the calculated value,
++			// we use best effort to determine data type
++
++			if (is_bool($calculatedValue)) {
++				// Boolean value
++				$num = pack('CCCvCv', 0x01, 0x00, (int)$calculatedValue, 0x00, 0x00, 0xFFFF);
++
++			} elseif (is_int($calculatedValue) || is_float($calculatedValue)) {
++				// Numeric value
++				$num = pack('d', $calculatedValue);
++
++			} elseif (is_string($calculatedValue)) {
++				if (array_key_exists($calculatedValue, PHPExcel_Cell_DataType::getErrorCodes())) {
++					// Error value
++					$num = pack('CCCvCv', 0x02, 0x00, $this->_mapErrorCode($calculatedValue), 0x00, 0x00, 0xFFFF);
++
++				} elseif ($calculatedValue === '' && $this->_BIFF_version == 0x0600) {
++					// Empty string (and BIFF8)
++					$num = pack('CCCvCv', 0x03, 0x00, 0x00, 0x00, 0x00, 0xFFFF);
++
++				} else {
++					// Non-empty string value (or empty string BIFF5)
++					$stringValue = $calculatedValue;
++					$num = pack('CCCvCv', 0x00, 0x00, 0x00, 0x00, 0x00, 0xFFFF);
++
++				}
++
++			} else {
++				// We are really not supposed to reach here
++				$num = pack('d', 0x00);
++
++			}
++
++		} else {
++			$num = pack('d', 0x00);
++		}
++
+ 		$grbit	 = 0x03;				// Option flags
+ 		$unknown   = 0x0000;			  // Must be zero
+ 
+@@ -982,9 +1026,17 @@
+ 			$length	 = 0x16 + $formlen;	 // Length of the record data
+ 
+ 			$header	= pack("vv",	  $record, $length);
+-			$data	  = pack("vvvdvVv", $row, $col, $xfIndex, $num,
+-										 $grbit, $unknown, $formlen);
++
++			$data	  = pack("vvv", $row, $col, $xfIndex)
++						. $num
++						. pack("vVv", $grbit, $unknown, $formlen);
+ 			$this->_append($header . $data . $formula);
++
++			// Append also a STRING record if necessary
++			if ($stringValue !== null) {
++				$this->_writeStringRecord($stringValue);
++			}
++
+ 			return 0;
+ 
+ 		} catch (Exception $e) {
+@@ -994,6 +1046,22 @@
+ 	}
+ 
+ 	/**
++	 * Write a STRING record. This
++	 *
++	 * @param string $stringValue
++	 */
++	private function _writeStringRecord($stringValue)
++	{
++		$record = 0x0207;	 // Record identifier
++		$data = PHPExcel_Shared_String::UTF8toBIFF8UnicodeLong($stringValue);
++
++		$length = strlen($data);
++		$header = pack('vv', $record, $length);
++
++		$this->_append($header . $data);
++	}
++
++	/**
+ 	 * Write a hyperlink.
+ 	 * This is comprised of two elements: the visible label and
+ 	 * the invisible link. The visible label is the same as the link unless an

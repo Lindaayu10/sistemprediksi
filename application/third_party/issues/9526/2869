@@ -1,0 +1,64 @@
+--- PHPExcel/HashTable.php.org	2009-03-02 08:09:44.000000000 +0100
++++ PHPExcel/HashTable.php	2009-03-13 14:19:17.000000000 +0100
+@@ -93,7 +93,13 @@
+      * @throws 	Exception
+      */
+     public function add(PHPExcel_IComparable $pSource = null) {
+-	    $hashCode = $pSource->getHashCode();
++	    $hashIndex = $pSource->getHashIndex();
++	    if ( is_null ( $hashIndex ) )
++	        $hashCode = $pSource->getHashCode();
++	    else if ( isset ( $this->_keyMap[$hashIndex] ) )
++	        $hashCode = $this->_keyMap[$hashIndex];
++	    else
++	        $hashCode = $pSource->getHashCode();
+    		if (!isset($this->_items[ $hashCode ])) {
+             $this->_items[ $hashCode ] = $pSource;
+             $index = count($this->_items) - 1;
+--- PHPExcel/Worksheet.php.org	2009-03-02 08:09:44.000000000 +0100
++++ PHPExcel/Worksheet.php	2009-03-13 14:23:01.000000000 +0100
+@@ -1940,6 +1940,9 @@
+    			$iterator->next();
+    		}
+ 
++        $styleHashCode = array();
++        $styleHashCode['default'] = $this->_styles['default']->getHashCode();
++
+     	// Find cells that can be cleaned
+     	foreach ($this->_cellCollection as $coordinate => $cell) {
+     		// Can be cleaned?
+@@ -1948,10 +1951,20 @@
+     		// Empty value?
+     		if (is_null($cell->getValue()) || (!is_object($cell->getValue()) && $cell->getValue() === '' && !$cell->hasHyperlink())) {
+     			// Style set? Default style?
+-    			if (!isset($this->_styles[$coordinate]) || $this->_styles[$coordinate]->getHashCode() == $this->_styles['default']->getHashCode()) {
++    			if (!isset($this->_styles[$coordinate])) {
+     				// It can be cleaned!
+     				$canBeCleaned = true;
+     			}
++                else {
++                    $hashIndex = $this->_styles[$coordinate]->getHashIndex();
++                    if ( !isset ( $styleHashCode[$hashIndex] ) ) {
++                        $styleHashCode[$hashIndex] = $this->_styles[$coordinate]->getHashCode();
++    				}
++                    if ($styleHashCode[$hashIndex] == $styleHashCode['default']) {
++    					// It can be cleaned!
++    					$canBeCleaned = true;
++    				}
++    			}
+     		}
+ 
+     		// Referenced in image?
+@@ -1964,8 +1977,10 @@
+     			unset($this->_cellCollection[$coordinate]);
+ 
+     			// Does it resemble the default style?
+-    			if (isset($this->_styles[$coordinate]) && $this->_styles[$coordinate]->getHashCode() == $this->_styles['default']->getHashCode()) {
+-    				unset($this->_styles[$coordinate]);
++    			if (isset($this->_styles[$coordinate])) {
++    				if ($styleHashCode[$this->_styles[$coordinate]->getHashIndex()] == $styleHashCode['default']) {
++                        unset($this->_styles[$coordinate]);
++                    }
+     			}
+     		}
+     	}

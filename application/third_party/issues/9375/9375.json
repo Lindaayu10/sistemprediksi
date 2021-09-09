@@ -1,0 +1,101 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel",
+      "DisplayName": "PHPExcel"
+    },
+    "ClosedComment": "Fixed in SVN",
+    "ClosedDate": "2009-03-02T00:03:16.123-08:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "From thread:\nhttp://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=48732\n--------------\n \nHello,\n \nFirst of all: I'm using PHPExcel SVN version 25510 in combination with PHP 5.2.6 (ubuntu version)\n \nMy problem:\nWhen I clone a cell validation, php won't give me any output:\n<?php\nset_include_path(get_include_path() . PATH_SEPARATOR . '../functies/');\ninclude 'PHPExcel.php';\ninclude 'PHPExcel/IOFactory.php';\n \n$report = new PHPExcel();\n \n$report->setActiveSheetIndex(0);\n \n$objValidation = $report->getActiveSheet()->getCell('B3')->getDataValidation();\n$objValidation->setType( PHPExcel_Cell_DataValidation::TYPE_DECIMAL );\n$objValidation->setErrorStyle( PHPExcel_Cell_DataValidation::STYLE_STOP );\n$objValidation->setAllowBlank(true);\n$objValidation->setShowInputMessage(true);\n$objValidation->setShowErrorMessage(true);\n$objValidation->setErrorTitle('Fout bij ingeven');\n$objValidation->setError('Uw invoer is niet geldig. De punten moeten tussen 0 en 10 liggen.');\n$objValidation->setPromptTitle('Geldige invoer');\n$objValidation->setPrompt('Enkel cijfers tussen 0 en 10 zijn toegelaten.');\n$objValidation->setFormula1(0);\n$objValidation->setFormula2(10);\n$report->getActiveSheet()->getCell('B3')->setDataValidation($objValidation);\n \n$report->getActiveSheet()->getCell('B4')->setDataValidation(clone $objValidation);\n \n/**\n * SCRIPT NEVER REACHES HERE\n */\n \nheader('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');\nheader('Content-Disposition: attachment;filename=\"myfile.xlsx\"');\nheader('Cache-Control: max-age=0');\n \n$objWriter = PHPExcel_IOFactory::createWriter($report, 'Excel2007');\n$objWriter->save('php://output');\n?>",
+    "LastUpdatedDate": "2013-05-16T05:42:51.723-07:00",
+    "PlannedForRelease": "PHPExcel 1.6.7 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-02-28T06:46:09.513-08:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Cloning data validation object causes script to stop",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 9375
+  },
+  "FileAttachments": [
+    {
+      "FileId": 2791,
+      "FileName": "wi-9375.patch",
+      "DownloadUrl": ".\\2791"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "I'm suspecting that this has to do with recursive object references causing infinite loops.\r\n\r\nEffectively, it seems the __clone method for the data validation object clones also the parent cell and via that also the entire workbook. I think one is not expecting the parent to be cloned? Something between a shallow copy and a deep clone may be better?\r\n\r\nUnbinding the parent may do the trick, but I have not looked deep into this. Check attached patch. Other classes may be affected too.",
+      "PostedDate": "2009-02-28T07:25:48.14-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-02-28T07:25:48.967-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "This also works:\r\n<?php\r\nfunction __clone() {\r\n    foreach($this as $key => $val) {\r\n        if(is_object($val)||(is_array($val))){\r\n            $this->{$key} = unserialize(serialize($val));\r\n        }\r\n    }\r\n}\r\n?> \r\nSource: 1st comment on\r\nhttp://be.php.net/language.oop5.cloning\r\n\r\nYour patch also works. I don't know what would be the best solution. I haven't jumped yet into OO programming in PHP.",
+      "PostedDate": "2009-02-28T12:20:39.767-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "The __clone() method for deep cloning by cheetah at tanabi dot org also works when the object to be cloned contains references to itself. This is not the case for any variation of the __clone() method in edit danbrown at php dot net.\r\n\r\nWe are taking advantage of the fact that one can serialize an object that references itself.\r\n\r\nExample:\r\n\r\n<?php\r\nclass Foo\r\n{\r\n\tfunction __construct()\r\n\t{\r\n\t\t$this->_myself = $this;\r\n\t}\r\n\r\n\tfunction __clone() {\r\n\t\tforeach ($this as $key => $val) {\r\n\t\t\tif (is_object($val) || (is_array($val))) {\r\n\t\t\t\t$this->{$key} = unserialize(serialize($val));\r\n\t\t\t}\r\n\t\t}\r\n\t}\r\n}\r\n\r\n// this object references itself\r\n$foo = new Foo();\r\n\r\n// create a deep clone\r\n$bar = clone $foo;\r\n\r\n// check if we reach this point\r\necho 'Finished cloning!';\r\n?>\r\n\r\nReplacing the __clone() method with the one in edit by danbrown at php dot net we run into an infinite loop, and we never get message 'Finished cloning!'.",
+      "PostedDate": "2009-03-01T12:27:45.973-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "@maartenba: I think we may need to be careful replacing the __clone() methods in PHPExcel. If true deep cloning starts to work correctly in PHPExcel this could blow up memory usage?",
+      "PostedDate": "2009-03-01T12:32:56.72-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Will fix this one. Clone method should be checking some things prior to cloning.",
+      "PostedDate": "2009-03-01T23:11:51.91-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-03-01T23:57:48.097-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-03-02T00:02:41.59-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-03-02T00:03:16.123-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:04:17.763-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:51.723-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

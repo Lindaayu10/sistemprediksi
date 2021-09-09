@@ -1,0 +1,66 @@
+[
+  {
+    "Id": "216293",
+    "ThreadId": "63604",
+    "Html": "<p>&nbsp;</p>\r\n<p>I tried to insert hyperlink into cell G1, with the sheet name string converted from gb2312&nbsp;to utf-8.</p>\r\n<p>but, I got messy code while the mouse on the cell G1. I also can't goto the sheet I want to go after click the hyperlinked characters in cell G1.</p>\r\n<p>I wonder whether phpexcel suport utf-8 while setUrl?</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$mysheet = iconv(<span style=\"color:#A31515\">'gb2312'</span>,<span style=\"color:#A31515\">'utf-8'</span>,$mysheet);\r\n$url = <span style=\"color:#A31515\">&quot;sheet://&quot;</span>.$mysheet.<span style=\"color:#A31515\">&quot;!A1&quot;</span>;\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getCell(<span style=\"color:#A31515\">'G1'</span>)-&gt;getHyperlink()-&gt;setUrl($url);\r\n</pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n<p>I used function mb_convert_encoding to convert the code, and I got the same result.</p>",
+    "PostedDate": "2009-07-27T01:14:42.303-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "216297",
+    "ThreadId": "63604",
+    "Html": "<p>??</p>",
+    "PostedDate": "2009-07-27T01:27:43.973-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "216546",
+    "ThreadId": "63604",
+    "Html": "<p><em>&gt;&gt; I wonder whether phpexcel suport utf-8 while setUrl?</em><br> <br> I just checked the code, and indeed you are right. There was a bug (assuming you were using Excel5 writer), but it should be fixed now.<br> <a href=\"../WorkItem/View.aspx?WorkItemId=10352\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10352</a></p>",
+    "PostedDate": "2009-07-27T14:29:37.377-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "216616",
+    "ThreadId": "63604",
+    "Html": "<p>thank you <a id=\"ctl00_ctl00_MasterContent_Content_PostRepeater_ctl04_UserNameLink\" style=\"text-decoration:underline;color:#3e62a6\" href=\"http://www.codeplex.com/site/users/view/koyama\">koyama</a>.</p>\r\n<p>&nbsp;</p>\r\n<p>I used the following command to patch:</p>\r\n<p>&nbsp;</p>\r\n<p>patch -R Worksheet.php wi-10352.patch</p>\r\n<p>and I saw the result after the command:</p>\r\n<p>&nbsp;</p>\r\n<div id=\"_mcePaste\" style=\"left:-10000px;top:0px;width:1px;height:1px;overflow-x:hidden;overflow-y:hidden\">(Stripping trailing CRs from patch.)</div>\r\n<div id=\"_mcePaste\" style=\"left:-10000px;top:0px;width:1px;height:1px;overflow-x:hidden;overflow-y:hidden\">patching file /eprogram/estar/include/PHPexcel/PHPExcel/Writer/Excel5/Worksheet.php</div>\r\n<div id=\"_mcePaste\" style=\"left:-10000px;top:0px;width:1px;height:1px;overflow-x:hidden;overflow-y:hidden\">Unreversed patch detected! &nbsp;Ignore -R? [n] y</div>\r\n<div id=\"_mcePaste\" style=\"left:-10000px;top:0px;width:1px;height:1px;overflow-x:hidden;overflow-y:hidden\">Hunk #1 succeeded at 1076 (offset -12 lines).</div>\r\n<p>&nbsp;</p>\r\n<p>(Stripping trailing CRs from patch.)</p>\r\n<p>patching file /eprogram/estar/include/PHPexcel/PHPExcel/Writer/Excel5/Worksheet.php</p>\r\n<p>Unreversed patch detected! &nbsp;Ignore -R? [n] y</p>\r\n<p>Hunk #1 succeeded at 1076 (offset -12 lines).</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>and I also saw the change in&nbsp;Worksheet.php:</p>\r\n<p>&nbsp;</p>\r\n<pre>function _writeUrlInternal($row1, $col1, $row2, $col2, $url)\r\n\t{\r\n\t\t$record\t  = 0x01B8;\t\t\t\t\t   // Record identifier\r\n\t\t$length\t  = 0x00000;\t\t\t\t\t  // Bytes to follow\r\n\r\n\t\t// Strip URL type\r\n\t\t$url = preg_replace('/^internal:/', '', $url);\r\n\r\n\t\t// Pack the undocumented parts of the hyperlink stream\r\n\t\t$unknown1\t= pack(&quot;H*&quot;, &quot;D0C9EA79F9BACE118C8200AA004BA90B02000000&quot;);\r\n\r\n\t\t// Pack the option flags\r\n\t\t$options\t = pack(&quot;V&quot;, 0x08);\r\n\r\n\t\t// Convert the URL type and to a null terminated wchar string\r\n\t\t$url .= &quot;\\0&quot;;\r\n\r\n\t\t// character count\r\n\t\t$url_len = PHPExcel_Shared_String::CountCharacters($url);\r\n\t\t$url_len = pack('V', $url_len);\r\n\r\n\t\t$url = PHPExcel_Shared_String::ConvertEncoding($url, 'UTF-16LE', 'UTF-8');\r\n\r\n\t\t// Calculate the data length\r\n\t\t$length\t  = 0x24 + strlen($url);\r\n\r\n\t\t// Pack the header data\r\n\t\t$header\t  = pack(&quot;vv&quot;,   $record, $length);\r\n\t\t$data\t\t= pack(&quot;vvvv&quot;, $row1, $row2, $col1, $col2);\r\n\r\n\t\t// Write the packed data\r\n\t\t$this-&gt;_append($header . $data .\r\n\t\t\t\t\t   $unknown1 . $options .\r\n\t\t\t\t\t   $url_len . $url);\r\n\t\treturn 0;\r\n\t}</pre>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>but, I got an error while excuting:</p>\r\n<p>&nbsp;</p>\r\n<p><span style=\"font-family:simsun;border-collapse:collapse;color:#ff0000;font-size:14px\"><strong>Warning</strong>: Missing argument 2 for PHPExcel_Shared_String::CountCharacters(), called in /eprogram/estar/include/PHPexcel/PHPExcel/Writer/Excel5/Worksheet.php on line 1082 and defined in<strong>/eprogram/estar/include/PHPexcel/PHPExcel/Shared/String.php</strong>&nbsp;on line&nbsp;<strong>253</strong><br><br><strong>Notice</strong>: Undefined variable: enc in&nbsp;<strong>/eprogram/estar/include/PHPexcel/PHPExcel/Shared/String.php</strong>&nbsp;on line&nbsp;<strong>256</strong><br>enc is:&nbsp;</span></p>",
+    "PostedDate": "2009-07-27T19:44:22.47-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "216624",
+    "ThreadId": "63604",
+    "Html": "<p>ok, now I add the second argument to</p>\r\n<pre>$url_len = PHPExcel_Shared_String::CountCharacters($url, 'utf-8');</pre>\r\n<pre></pre>\r\n<pre>now, it works.</pre>\r\n<pre></pre>\r\n<pre>thank you!</pre>",
+    "PostedDate": "2009-07-27T20:20:07.557-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "216989",
+    "ThreadId": "63604",
+    "Html": "<p>Ok, great, and if others are experiencing the same problem it should be working with latest source code:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx\">http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx</a></p>",
+    "PostedDate": "2009-07-28T15:59:25.987-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "227529",
+    "ThreadId": "63604",
+    "Html": "<p>Hi guys,</p>\r\n<p>I am getting a big headache by using the PHPExcel class. Why? Whenever I try to view the file generated by the PHPEXcel_Writer_Excel5 I cannot have the real file. MS Excel will tell me that the content of the file is different from the extension of the file which is&nbsp; xls. And if it will display some fancy characters. I have tried the php function utf8encode and decode but still. I don't know what to do. The bad side is that I am building a banking software. Please help me before the world collapse on me.</p>\r\n<p>I am generating the excel file from a php array.</p>\r\n<p>&nbsp;</p>\r\n<p>Thankx..........</p>",
+    "PostedDate": "2009-08-25T09:29:06.85-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "227537",
+    "ThreadId": "63604",
+    "Html": "<p>@BigToch: Is this only happening with PHPExcel_Writer_Excel5, or is it also happening with PHPExcel_Writer_Excel2007? Also, are you saving file to disk, or are you sending file via HTTP to client browser for download?</p>",
+    "PostedDate": "2009-08-25T09:41:11.497-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

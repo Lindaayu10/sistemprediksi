@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "102510",
+    "ThreadId": "30825",
+    "Html": "Hello all,<br>\r\n<br>\r\nI am trying to use PHPExcel to export the results of a query to Excel.&nbsp; Is this possible?<br>\r\n<br>\r\nHere is the query and my attempt to get its output:<br>\r\n<br>\r\n<p>$sql = &quot;SELECT * FROM brev_pending_summary_detail WHERE name = '$name_code'&quot;;<br>\r\n&nbsp;if (!empty($case_age)) {<br>\r\n&nbsp;&nbsp;$sql.=&quot; AND case_age_group = '$case_age'&quot;;<br>\r\n&nbsp;}<br>\r\n&nbsp;if (!empty($case_cat)) {<br>\r\n&nbsp;&nbsp;$sql.=&quot; AND case_category = '$case_cat'&quot;;<br>\r\n&nbsp;}<br>\r\n&nbsp;if (!empty($case_status)) {<br>\r\n&nbsp;&nbsp;$sql.=&quot; AND case_status = '$case_status'&quot;;<br>\r\n&nbsp;} // Start our query of the database<br>\r\n$query = ifx_query($sql, $connect_id);<br>\r\n$row = ifx_fetch_row($query);</p>\r\n<p>echo date('H:i:s') . &quot; Add some data&lt;br /&gt;\\n&quot;;<br>\r\nif(!empty($query)) {<br>\r\nwhile ($row = ifx_fetch_row($query)) {<br>\r\n&nbsp;$stat_year = $row['stat_year'];<br>\r\n&nbsp;$stat_month = $row['stat_month'];<br>\r\n&nbsp;$name = $row['name'];<br>\r\n&nbsp;$case_number = $row['case_number'];<br>\r\n&nbsp;echo &quot;This &quot;.$stat_year.&quot; &quot;.$stat_month.&quot; &quot;.$j_name.&quot; &quot;.$case_number.&quot;&lt;br /&gt;\\n&quot;;<br>\r\n&nbsp;$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('A', $stat_year);<br>\r\n&nbsp;$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('B', $stat_month);<br>\r\n&nbsp;$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('C', $name);<br>\r\n&nbsp;$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('D', $case_number);<br>\r\n&nbsp;}<br>\r\n}<br>\r\n<br>\r\nWhenever I execute my query and it saves the Excel file, instead of getting a row for each result of my query, I get a spreadsheet with 65,535 empty rows and row 65,536 contains the very last result row from my query.&nbsp; How do I get it to print out correctly?<br>\r\n<br>\r\nThanks.</p>\r\n",
+    "PostedDate": "2008-07-03T10:03:20.787-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "102533",
+    "ThreadId": "30825",
+    "Html": "Okay, I figured it out! However, I am now constantly getting an error of &quot;PHP Fatal error: Allowed memory size of 16777216 bytes exhausted (tried to allocate 936 bytes)&nbsp;on line 689&quot;<br>\r\n<br>\r\nIs there a way to continuously write to the file and avoid getting this error?<br>\r\n<br>\r\n<span class=q><span style=\"color:#550055\">Here is the working code:<br>\r\n<br>\r\n$sql = &quot;SELECT * FROM brev_pending_summary_detail WHERE name = '$name_code'&quot;;<br>\r\n&nbsp;if (!empty($case_age)) {<br>\r\n&nbsp;&nbsp;$sql.=&quot; AND case_age_group = '$case_age'&quot;;<br>\r\n&nbsp;}<br>\r\n&nbsp;if (!empty($case_cat)) {<br>\r\n&nbsp;&nbsp;$sql.=&quot; AND case_category = '$case_cat'&quot;;<br>\r\n&nbsp;}<br>\r\n&nbsp;if (!empty($case_status)) {<br>\r\n&nbsp;&nbsp;$sql.=&quot; AND case_status = '$case_status'&quot;;<br>\r\n&nbsp;} // Start our query of the database<br>\r\n$query = ifx_query($sql, $connect_id);<br>\r\n</span></span>$row = ifx_fetch_row($query);<br>\r\n$results = array();<span class=q>\r\n<p>echo date('H:i:s') . &quot; Add some data&lt;br /&gt;\\n&quot;;</p>\r\n</span>\r\n<p>for ($i = 3, $j = 0; $i &lt;= $count; $i++, $j++) {<br>\r\n&nbsp;$results[$j] = ifx_fetch_row($query);</p>\r\n<p>&nbsp;$objPHPExcel-&gt;getActiveSheet(<wbr>)-&gt;setCellValue('A' . $i, $results[$j]['stat_year']);<br>\r\n&nbsp;$objPHPExcel-&gt;getActiveSheet(<wbr>)-&gt;setCellValue('B' . $i, $results[$j]['stat_month']);<br>\r\n&nbsp;$objPHPExcel-&gt;getActiveSheet(<wbr>)-&gt;setCellValue('C' . $i, $results[$j]['name']);<br>\r\n&nbsp;$objPHPExcel-&gt;getActiveSheet(<wbr>)-&gt;setCellValue('D' . $i, $results[$j]['case_age_group']<wbr>);<br>\r\n&nbsp;}</p>\r\n",
+    "PostedDate": "2008-07-03T11:35:25.737-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "102535",
+    "ThreadId": "30825",
+    "Html": "You'll have to increase the memory limit, I'm affraid... Is it really necessary to keep track of all results in the $results array? Here's a possible optimization by simply fetching data into $results = ifx_fetch_row() and copying it to PHPExcel.&nbsp;&nbsp;&nbsp;&nbsp;\r\n",
+    "PostedDate": "2008-07-03T11:41:37.957-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "102539",
+    "ThreadId": "30825",
+    "Html": "I just need to output all of the data into PHPExcel. I was getting the PHP Fatal error: Allowed memory size of 16777216 bytes exhausted error when trying to just output 130 rows with 12 columns.<br>\r\n<br>\r\nSo are you saying to replace $results = array(); with $results = ifx_fetch_row() and run it just like that?<br>\r\n<br>\r\nLike this code:<br>\r\n<br>\r\n<span style=\"color:#550055\">$sql = &quot;SELECT * FROM brev_pending_summary_detail WHERE name = '$name_code'&quot;;<br>\r\n&nbsp;if (!empty($case_age)) {<br>\r\n&nbsp;&nbsp;$sql.=&quot; AND case_age_group = '$case_age'&quot;;<br>\r\n&nbsp;}<br>\r\n&nbsp;if (!empty($case_cat)) {<br>\r\n&nbsp;&nbsp;$sql.=&quot; AND case_category = '$case_cat'&quot;;<br>\r\n&nbsp;}<br>\r\n&nbsp;if (!empty($case_status)) {<br>\r\n&nbsp;&nbsp;$sql.=&quot; AND case_status = '$case_status'&quot;;<br>\r\n&nbsp;} // Start our query of the database<br>\r\n$query = ifx_query($sql, $connect_id);<br>\r\n</span>$row = ifx_fetch_row($query);<br>\r\n<span class=q>\r\n<p>$results = ifx_fetch_row();<br>\r\n<br>\r\necho date('H:i:s') . &quot; Add some data&lt;br /&gt;\\n&quot;;</p>\r\n</span>\r\n<p>for ($i = 3, $j = 0; $i &lt;= $count; $i++, $j++) {<br>\r\n&nbsp;$results[$j] = ifx_fetch_row($query);</p>\r\n<p>&nbsp;$objPHPExcel-&gt;getActiveSheet(<wbr>)-&gt;setCellValue('A' . $i, $results[$j]['stat_year']);<br>\r\n&nbsp;$objPHPExcel-&gt;getActiveSheet(<wbr>)-&gt;setCellValue('B' . $i, $results[$j]['stat_month']);<br>\r\n&nbsp;$objPHPExcel-&gt;getActiveSheet(<wbr>)-&gt;setCellValue('C' . $i, $results[$j]['name']);<br>\r\n&nbsp;$objPHPExcel-&gt;getActiveSheet(<wbr>)-&gt;setCellValue('D' . $i, $results[$j]['case_age_group']<wbr>);<br>\r\n&nbsp;}</p>\r\n",
+    "PostedDate": "2008-07-03T11:52:21.027-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "102541",
+    "ThreadId": "30825",
+    "Html": "maartenba,<br>\r\n<br>\r\nI bumped the max memory size from 16MB to 256MB and the max timeout form 30 to 60.&nbsp; Trying to export a file with 3600 rows still times out.<br>\r\n<br>\r\nIs there something different I can do to make the code more efficient and less memory intensive?\r\n",
+    "PostedDate": "2008-07-03T12:08:40.193-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "102543",
+    "ThreadId": "30825",
+    "Html": ".\r\n",
+    "PostedDate": "2008-07-03T12:28:29.81-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

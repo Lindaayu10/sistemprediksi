@@ -1,0 +1,66 @@
+[
+  {
+    "Id": "200513",
+    "ThreadId": "59224",
+    "Html": "<p>I have a large Excel document, about 1.5 MB with about 7 worksheets. &nbsp;It is being used to encapsulate the business logic of a web application.</p>\r\n<p>The application has 5 screens. &nbsp;Screens 2 and 3 take in user inputs, screen 4 takes in user input and shows results, and screen 5 only shows results. &nbsp;Screen 4 shows the results, which are from calculations based in input from screens 2 and 3. &nbsp;However, screen 5 shows values which are dummy data, not the actual value calculated by the formula with the inputs from screens 2-4.</p>\r\n<p>All calculated data is retrieved like this: $excelDoc-&gt;getActiveSheet()-&gt;getCell('A1')-&gt;getCalculatedValue();&nbsp;</p>\r\n<p>The calculated values shown in screen 4 are based on the inputs in screens 2-3, and the cells have sample data, yet screen 4 shows the calculated value and not the sample data, while screen 5 only shows the sample data, not the calculated value, despite using the getCalculatedValue() method.</p>\r\n<p>How can this be resolved? &nbsp;Also, I read somewhere a week or so ago that when reading in the Excel document, there is a method which prevents the calculations running at load time, if there is such a function would it help with my issue?</p>\r\n<p>Also, on the FAQ (http://phpexcel.codeplex.com/Wiki/View.aspx?title=FAQ&amp;referringTitle=Home) in the section &quot;Formulas don&rsquo;t seem to be calculated in Excel2003 using compatibility pack?&quot; it says that recalculation can be forced, yet I have not seen anywhere how this can be done. &nbsp;Can anyone shed on light on the matter?</p>\r\n<p>Thank you!</p>",
+    "PostedDate": "2009-06-11T11:22:52.083-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "200658",
+    "ThreadId": "59224",
+    "Html": "<p>It sounds like you are doing everything right, but not getting results as expected. Would it be possible to illustrate the problem with some code snippets?</p>",
+    "PostedDate": "2009-06-11T18:36:28.037-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "201105",
+    "ThreadId": "59224",
+    "Html": "<p>&gt;&gt;Also, I read somewhere a week or so ago that when reading in the Excel document, there is a method which prevents the calculations running at load time, if there is such a function would it help with my issue?</p>\r\n<p>This option is available from within Excel under Tools --&gt;Options--&gt;Calculation</p>\r\n<p>Calculation settinsg are held at the application level rather than for each workbook.</p>\r\n<p>confusingly these application level settings are saved in each workbook, but only the settings in the first workbook opened are actioned: <strong>the settings in subsequent workbooks are ignored.</strong></p>\r\n<p><strong></strong></p>\r\n<p>&gt;&gt;Also, on the FAQ (http://phpexcel.codeplex.com/Wiki/View.aspx?title=FAQ&amp;referringTitle=Home) in the section &quot;Formulas don&rsquo;t seem to be&nbsp;calculated in Excel2003 using compatibility pack?&quot; it says that recalculation can be forced, yet I have not seen anywhere how this can be done. &nbsp;Can anyone shed on light on the matter?</p>\r\n<p>Re-calculation can be forced when viewing a worksheet in Excel by pressing <strong>SHIFT+F9</strong> for the current worksheet, or&nbsp;<strong>CTRL+ALT+SHIFT+F9</strong>&nbsp; for the entire workbook (from Excel 2002)</p>",
+    "PostedDate": "2009-06-13T03:50:55.83-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "202065",
+    "ThreadId": "59224",
+    "Html": "<p>What I am doing is this:</p>\r\n<p>Page 2 and 3 on submit:</p>\r\n<p>include('PHPExcel.php');</p>\r\n<p>$excelObj = $_SESSION['excel'];</p>\r\n<p>$var = $_POST['var'];</p>\r\n<p>$excelObj-&gt;setActiveSheetIndex(1);</p>\r\n<p>$excelObg-&gt;getActiveSheet()-&gt;setCellValueExplicit('C73',$var,PHPExcel_Cell_DataType::TYPE_NUMERIC); # PHPExcel craps out if I don't use setCellValueExplicit() as if it can't detect the data type</p>\r\n<p>$_SESSION['excel'];</p>\r\n<p>&nbsp;</p>\r\n<p>Page 4:</p>\r\n<p>\r\n<p>include('PHPExcel.php');</p>\r\n<p>$excelObj = $_SESSION['excel'];</p>\r\n<p>$excelObj-&gt;setActiveSheetIndex(1);</p>\r\n<p>$someValueForForm = $excelObj-&gt;getActiveSheet-&gt;getCell('D1')-&gt;getCalculatedValue(); # works! different results for different inputs</p>\r\n</p>\r\n<p>&nbsp;</p>\r\n<p>Page 4 submit:</p>\r\n<p>\r\n<p>include('PHPExcel.php');</p>\r\n<p>$excelObj = $_SESSION['excel'];</p>\r\n<p>$excelObj-&gt;setActiveSheetIndex(1);</p>\r\n<p>\r\n<p>$excelObg-&gt;getActiveSheet()-&gt;setCellValueExplicit('D2',$var,PHPExcel_Cell_DataType::TYPE_NUMERIC); # PHPExcel craps out if I don't use setCellValueExplicit() as if it can't detect the data type</p>\r\n<p>$_SESSION['excel'];</p>\r\n</p>\r\n<p>&nbsp;</p>\r\n<p>Page 5:</p>\r\n<p>\r\n<p>include('PHPExcel.php');</p>\r\n<p>$excelObj = $_SESSION['excel'];</p>\r\n<p>$excelObj-&gt;setActiveSheetIndex(1);</p>\r\n<p>$someValueForForm = $excelObj-&gt;getActiveSheet-&gt;getCell('D1')-&gt;getCalculatedValue(); # does not work, same value for any inputs</p>\r\n</p>\r\n<p>&nbsp;</p>\r\n<p>Page 5 shows the same values for all inputs, yet the values are not crazy, they would be valid values, except that the value is the same regardless of the output. &nbsp;If I put in the same inputs into Excel itself, then I get the proper results, so PHPExcel is not reading the spreadsheet properly. &nbsp;That or the calculations are already done for Page 5 at the beginning and it won't update the values after the user's input from Pages 2-4 (if that makes any sense). The calculations in page 5 are summations mostly, nothing too crazy.</p>\r\n</p>\r\n<p>Thank you.</p>",
+    "PostedDate": "2009-06-16T08:20:48.42-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "202229",
+    "ThreadId": "59224",
+    "Html": "<p>I can't spot any errors in your code. Maybe Mark can? Mark, is there any caching involved in the calculation engine?</p>\r\n<p>rjzak, I know it may not be easy, but would it be possible to set up a simple example we are able to run showing the error?</p>",
+    "PostedDate": "2009-06-16T14:53:56.593-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "202332",
+    "ThreadId": "59224",
+    "Html": "<p>&gt;&gt; is there any caching involved in the calculation engine?</p>\r\n<p>The Calculation engine does cache results by default</p>\r\n<p>Caching can be diabled by</p>\r\n<p>PHPExcel_Calculation::getInstance-&gt;setCalculationCacheEnabled(False)</p>",
+    "PostedDate": "2009-06-17T00:25:22.02-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "202532",
+    "ThreadId": "59224",
+    "Html": "<p>Mark- Disabling the cache seems to have no effect.</p>\r\n<p>Koyama- I am working to get the site running in a publicly available fashion.</p>",
+    "PostedDate": "2009-06-17T08:53:42.347-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "207166",
+    "ThreadId": "59224",
+    "Html": "<p>Is there a list of Excel functions and operations that are <strong>not</strong> supported by PHPExcel?</p>",
+    "PostedDate": "2009-06-30T10:56:26.61-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

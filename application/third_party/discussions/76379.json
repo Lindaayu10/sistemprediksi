@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "261069",
+    "ThreadId": "76379",
+    "Html": "<p>Hello all,</p>\r\n<p>I have a problem with the function removeRow().</p>\r\n<p>I trying to remove a row from an excel with 500 rows and 100 columns. This excel worksheet will be created in 22 seconds, but the excution time for remove one Row seems to be endless.</p>\r\n<p>Here is my code:</p>\r\n<p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$startTime = mktime();\r\n\r\n<span style=\"color:Blue\">require_once</span> APPLICATION_EXTERN_PATH . <span style=\"color:#A31515\">'/phpexcel/Classes/PHPExcel.php'</span>;\r\n<span style=\"color:Blue\">require_once</span> APPLICATION_EXTERN_PATH . <span style=\"color:#A31515\">'/phpexcel/Classes/PHPExcel/IOFactory.php'</span>;\r\n\r\n$objPHPExcel = <span style=\"color:Blue\">new</span> PHPExcel( );\r\n\r\n<span style=\"color:Blue\">for</span>( $j = 1; $j &lt; 500; $j++)\r\n{\r\n        <span style=\"color:Blue\">for</span>( $i = 1; $i &lt; 100; $i++ )\r\n        {\r\n                $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue( PHPExcel_Cell::stringFromColumnIndex($i).$j, <span style=\"color:#A31515\">&quot;its a funny string {$i}{$j}&quot;</span> );\r\n        }\r\n}\r\n\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;removeRow(399);\r\n\r\n<span style=\"color:Blue\">echo</span> memory_get_peak_usage() . <span style=\"color:#A31515\">&quot;&lt;br&gt;&quot;</span>;\r\n<span style=\"color:Blue\">echo</span> memory_get_usage() . <span style=\"color:#A31515\">&quot;&lt;br&gt;&quot;</span>;\r\n<span style=\"color:Blue\">echo</span> ( mktime() - $startTime ) . <span style=\"color:#A31515\">&quot; s&quot;</span>;\r\n</pre>\r\n</div>\r\n</p>\r\n<p>I use the phpexcel version 29536</p>\r\n<p>Can anybody help me please?</p>\r\n<p>greets Mike</p>",
+    "PostedDate": "2009-11-27T00:33:58.317-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "280425",
+    "ThreadId": "76379",
+    "Html": "<p>Actually, your example is working:<br><br>The signature for removeRow:</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre><span style=\"color:Green\">/**<br> * Delete a row, updating all possible related data<br> *<br> * @param     int    $pRow        Remove starting with this one<br> * @param     int    $pNumRows    Number of rows to remove<br> * @throws     Exception<br> * @return PHPExcel_Worksheet<br> */</span><br><span style=\"color:Blue\">public</span> <span style=\"color:Blue\">function</span> removeRow($pRow = 1, $pNumRows = 1)<br></pre>\r\n</div>\r\n<p>You have this:</p>\r\n<pre>$objPHPExcel-&gt;getActiveSheet()-&gt;removeRow(399);<br></pre>\r\n<p>So what you are doing is to remove 1 row starting from row 399 (which amount to removing just row 399). The output looks correct:<br><br></p>\r\n<p><a href=\"http://img59.imageshack.us/img59/6771/ss20100122092338.png\"><img src=\"http://img59.imageshack.us/img59/6771/ss20100122092338.th.png\" border=0 alt=\"\"></a></p>",
+    "PostedDate": "2010-01-22T00:29:25.983-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

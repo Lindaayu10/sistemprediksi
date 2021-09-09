@@ -1,0 +1,45 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "This is not so much an issue as it is a suggestion. If I'm posting it in the wrong place just let me know.\n\nI noticed in PHPExcel_Worksheet::fromArray() there is a condition for strictNullComparison that sits inside two foreach loops. It seems to me that this strickNullComparison check need only be done once, outside the foreach loops.\n\nhere is the code snippet I'm referring to\n```\n// Loop through $source\nforeach ($source as $rowData) {\n\t$currentColumn = $startColumn;\n\tforeach($rowData as $cellValue) {\n\t\tif ($strictNullComparison) {\n\t\t\tif ($cellValue !== $nullValue) {\n\t\t\t\t// Set cell value\n\t\t\t\t$this->getCell($currentColumn . $startRow)->setValue($cellValue);\n\t\t\t}\n\t\t} else {\n\t\t\tif ($cellValue != $nullValue) {\n\t\t\t\t// Set cell value\n\t\t\t\t$this->getCell($currentColumn . $startRow)->setValue($cellValue);\n\t\t\t}\n\t\t}\n\t\t++$currentColumn;\n\t}\n\t++$startRow;\n}\n\n```\n\nI was able to speed up processing by extending this class and overwriting fromArray(), then having the new fromArray() method do the strict null comparison check one time and relaying the $source, $nullValue and $startCell variables to one of two new methods that either preform a stricNullComparison or a non-strict null comparison based on the value of $stricNullComparison. I'll attach my new class to this ticket.\n\non a sheet with 4935 rows to build this change cut my processing time from around 104 seconds down to 37 seconds.",
+    "LastUpdatedDate": "2015-01-07T08:59:55.437-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2015-01-07T08:59:54.603-08:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Suggestion for Speeding up processing on fromArray",
+    "Type": {
+      "Name": "Unassigned",
+      "Id": 5
+    },
+    "VoteCount": 1,
+    "Id": 21648
+  },
+  "FileAttachments": [
+    {
+      "FileId": 8804,
+      "FileName": "Worksheet.php",
+      "DownloadUrl": ".\\8804"
+    }
+  ],
+  "Comments": []
+}

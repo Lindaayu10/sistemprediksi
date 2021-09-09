@@ -1,0 +1,91 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel_Reader_OOCalc",
+      "DisplayName": "PHPExcel_Reader_OOCalc"
+    },
+    "ClosedComment": "",
+    "ClosedDate": "2012-05-19T14:38:56.01-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "While I am reading ods files (xls and xlsx are ok) using PHPExcel class and two cells are together and contain the same data, the second cell goes blank, Is it a bug? Here is my code:\n \n \n \n \n<?php\n\tset_include_path(get_include_path() . PATH_SEPARATOR . '../../Librerias/phpexcel/Classes/');\n\tinclude 'PHPExcel/IOFactory.php';\n \n\t$input_fileName = dirname(__FILE__) . '/bug.ods';\n\t$input_file_type = PHPExcel_IOFactory::identify($input_fileName);   \n\t$reader = PHPExcel_IOFactory::createReader($input_file_type);\n\t$reader->setReadDataOnly(true); \n\t$objPHPExcel = $reader->load($input_fileName);  \n\t$objPHPExcel->setActiveSheetIndex(0);\n\t$rowIterator = $objPHPExcel->getActiveSheet()->getRowIterator();\n \n\t$array_data = array();\n\tforeach($rowIterator as $row){\n\t\t$cellIterator = $row->getCellIterator();\n\t\t$cellIterator->setIterateOnlyExistingCells(false);\n\t\t$rowIndex = $row->getRowIndex ();    \n\t\tforeach ($cellIterator as $cell) {\n\t\t\t\t$array_data[$rowIndex][$cell->getColumn()] = $cell->getCalculatedValue();\n\t\t}\n\t}\n\techo '<pre>' ; print_r($array_data); echo '</pre>' ;\n?>\n \n \n \n \nHere is the content into bug.ods\n \n \n \n \n  | A   |   B   |   C   |   D   |   E   |   F\n-----------------------------------------------\n1 | 1   |   1   |   2   |   2   |   3   |   3\n2 | 2   |   2   |   1   |   1   |   3   |   3\n3 | 3   |   3   |   1   |   1   |   2   |   2\n4 | a   |   a   |   b   |   b   |   c   |   c\n5 | b   |   b   |   a   |   a   |   c   |   c\n6 | c   |   c   |   a   |   a   |   b   |   b\n \n \n \n \n... and here is the print_r output.\n \n \n \n \nArray\n(\n    [1] => Array\n        (\n            [A] => 1\n            [B] => \n            [C] => 2\n            [D] => \n            [E] => 3\n        )\n \n    [2] => Array\n        (\n            [A] => 2\n            [B] => \n            [C] => 1\n            [D] => \n            [E] => 3\n        )\n \n    [3] => Array\n        (\n            [A] => 3\n            [B] => \n            [C] => 1\n            [D] => \n            [E] => 2\n        )\n \n    [4] => Array\n        (\n            [A] => a\n            [B] => \n            [C] => b\n            [D] => \n            [E] => c\n        )\n \n    [5] => Array\n        (\n            [A] => b\n            [B] => \n            [C] => a\n            [D] => \n            [E] => c\n        )\n \n    [6] => Array\n        (\n            [A] => c\n            [B] => \n            [C] => a\n            [D] => \n            [E] => b\n        )\n \n)\n \n \n \n \n \nAm I doing something wrong? Is it a bug?\n \nSome idea?",
+    "LastUpdatedDate": "2013-05-16T05:41:36.653-07:00",
+    "PlannedForRelease": "PHPExcel 1.7.7 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Medium",
+      "Severity": 100,
+      "Id": 2
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2012-02-23T23:26:19.573-08:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "OOCalc cells contain same data bug?",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 17471
+  },
+  "FileAttachments": [
+    {
+      "FileId": 6402,
+      "FileName": "OOCalc-number-columns-repeated-fix.diff",
+      "DownloadUrl": ".\\6402"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "This is because the reader is ignoring the \"number-columns-repeated\" xml tag.  In my case, it looks like this:\r\n\r\n/table:table-row><table:table-row table:style-name=\"ro3\"><table:table-cell table:number-columns-repeated=\"2\" office:value-type=\\\r\n\"string\"><text:p>stringtest</text:p></table:table-cell><table:table-cell office:value-type=\"string\"><text:p>stringtest2</text:p></table:table-cell>\r\n\r\nThe first stringtest comes through just fine, but the second one is uninitialized\r\n\r\nThis is a fundamental omission that makes reading ods files unreliable with this library.\r\n\r\n",
+      "PostedDate": "2012-05-09T16:14:49.107-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-05-09T18:26:54.913-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Fix for this issue.",
+      "PostedDate": "2012-05-09T18:26:56.943-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Thank you cyberconte\r\n\r\nOpenOffice didn't make any noticeable use of the number-columns-repeated tag, but LibreOffice uses it extensively. I'd already implemented a simple fix, but it idn't allow for more than two repeats (so it did work with bug.ods, but not with other ods files) but your solution works for two or more repeats so I've implemented it \"as is\".\r\n",
+      "PostedDate": "2012-05-13T11:09:31.157-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-05-13T11:58:36.147-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-05-19T14:35:03.233-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-05-19T14:38:56.01-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:02:02.38-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:41:36.653-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

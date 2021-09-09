@@ -1,0 +1,76 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "Calculation_Engine",
+      "DisplayName": "Calculation_Engine"
+    },
+    "ClosedComment": "",
+    "ClosedDate": "2009-09-30T22:59:40.143-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "From thread:\nhttp://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=70597\n \nTest:\n----\n$reader = new PHPExcel_Reader_Excel2007;\n$excel = $reader->load('read.xlsx');\n \n$sheet = $excel->getActiveSheet();\n \nvar_dump($sheet->getCell('A1')->getValue());\nvar_dump($sheet->getCell('A1')->getCalculatedValue());\n \nExpected result:\n----\nstring(8) \"=test!A2\"\nfloat(56)\n \nActual result:\n----\nstring(8) \"=test!A2\"\nNULL\n \nEnvironment:\n----\nPHPExcel 1.7.0\n \nNote:\n----\nWith PHPExcel 1.6.7 it works as expected.",
+    "LastUpdatedDate": "2013-05-16T05:42:23.197-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-09-30T08:41:42.173-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Calculations sometimes not working with cell references to other sheets (regression since 1.6.7)",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 10708
+  },
+  "FileAttachments": [
+    {
+      "FileId": 3414,
+      "FileName": "read.xlsx",
+      "DownloadUrl": ".\\3414"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "Cause identified.\r\nEngine was doing a cellExists() test before trying to retrieve the value, returning a null if the cell didn't exist. However, it was testing to see if the cell existed in the current worksheet, not the named worksheet. So it would pass if a cell existed at the same row/column in the current worksheet, fail if it didn't, and therefore return a null even though the cell did exist in the named worksheet.\r\n\r\nFix will be uploaded to SVN this evening.",
+      "PostedDate": "2009-09-30T09:24:00.097-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Ahh... I was wondering why it sometimes worked and sometimes not. Now I see the pattern.",
+      "PostedDate": "2009-09-30T09:31:15.923-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-09-30T13:52:48.783-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-09-30T22:59:40.143-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:03:36.41-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:23.197-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

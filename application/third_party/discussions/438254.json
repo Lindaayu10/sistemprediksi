@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "1022180",
+    "ThreadId": "438254",
+    "Html": "This is probably a really stupid question. I have it running and shows the data on the page perfectly. Now, I need to take the data, cell by cell, and go through it to add it to the database. What I normally do for all other files, CSV and XLS is to take all the first names and string them together separated with a |. I then add all the first names to the FirstName field in the database. Then so on and so on with the rest of the user account info. My problem is that I can't seem to get just the first name cell, last name cell, etc. In a nutshell this is it...\r<br />\n<br />\n$first = '';\r<br />\n<br />\nstart for or while statement to rifle through all the rows here\r<br />\nif($first == '') {\r<br />\n$first .= &quot;&quot;. code for first name cell;\r<br />\n} else {\r<br />\n$first .= &quot;|&quot;.code for first name cell;\r<br />\n}\r<br />\nend for or while statement to rifle through all the rows here\r<br />\n<br />\nThen I add all the pipe delimited firsts to the database here with a simple INSERT query.\r<br />\n<br />\nI just can't find anything to show me how to use PHPExcel to dynamically get the cell data.\r<br />\n<br />\nAny help would be appreciated!!<br />\n",
+    "PostedDate": "2013-03-27T18:29:18.437-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1022360",
+    "ThreadId": "438254",
+    "Html": "<pre><code>$objPHPExcel = PHPExcel_IOFactory::load('YourFile.xlsx');\n$F=$objPHPExcel-&gt;getActiveSheet();\n$Col='C'; // column with the wanted data\n$Row=2// first line with data\n$first='';\nwhile($F-&gt;cellExist($Col.$Row)){\nif($first == '') {\n$first .= &quot;&quot;. $F-&gt;getCell($Col.$Row)-&gt;getValue();\n} else {\n$first .= &quot;|&quot;.$F-&gt;getCell($Col.$Row)-&gt;getValue();\n} \n++$Row;\n}</code></pre>\n\nThere are some precautions to take if the values are not numbers or strings.<br />\n",
+    "PostedDate": "2013-03-28T05:45:03.167-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1022418",
+    "ThreadId": "438254",
+    "Html": "Thanks sooo much!. Couple of tweaks and worked perfect. You're a real life saver!!\r<br />\n<br />\nThanks again.<br />\n",
+    "PostedDate": "2013-03-28T07:21:47.357-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

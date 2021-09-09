@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "525480",
+    "ThreadId": "235632",
+    "Html": "\r\n<p>Hi guys,</p>\r\n<p>I'm trying out this program and i'm having a little trouble.</p>\r\n<p>My setup:</p>\r\n<p>I'm using the current version (downloaded today) of PHPExcel.</p>\r\n<p>I have a myphpadmin database and im extracting information from that to excel. (all works good)</p>\r\n<p>I have a template and are inputting the data into the template.</p>\r\n<p>Now, I have a data list First name Last Name Company ect..&nbsp; and the information is being correctly inputted,</p>\r\n<p><br>\r\nHowever, i created a data list so that the user (who ever uses it) will be able to sort ascending, descending ect.. and i eventually plan on using pivot tables to display certain data.</p>\r\n<p><br>\r\nWhen the data is imported and saved to my computer, the data list fields doesn't work, and i can't sort, however the field names are still there.</p>\r\n<p>Is there a way to select a certain range of values and create the data list? Whats the function to do this? Is it possible?</p>\r\n<p>&nbsp;</p>\r\n<p>Hope this made sense.</p>\r\n<p>Note: data list can be created by going to data -&gt;list -&gt; create list in excel.</p>\r\n",
+    "PostedDate": "2010-11-22T11:58:42.98-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "525712",
+    "ThreadId": "235632",
+    "Html": "\r\n<p>Can you provide a sample worksheet to demonstrate this problem</p>\r\n",
+    "PostedDate": "2010-11-23T00:50:22.793-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "525828",
+    "ThreadId": "235632",
+    "Html": "\r\n<p>Here both the files are. One is the template with the data list fields, and the other is the one that phpexcel exports without the correct formatting.</p>\r\n<p>&nbsp;</p>\r\n<p>http://www.megaupload.com/?f=Y2Y7NODP</p>\r\n",
+    "PostedDate": "2010-11-23T06:16:34.427-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "527081",
+    "ThreadId": "235632",
+    "Html": "\r\n<p>Could anybody please help me?</p>\r\n<p>The template has formatting which is lost when writing the data and saving it. Im using Excel5 format. Also the macros that I created within the template gets lost aswell, so i can't use a macro to fix the issue. PLease help!</p>\r\n<p>Here is the code if it helps...</p>\r\n<p>&nbsp;</p>\r\n<pre>/** Error reporting */\r\n            error_reporting(E_ALL);\r\n\r\n            date_default_timezone_set('Europe/London');\r\n\r\n            /** PHPExcel */\r\n            require_once ('../php/classes/PHPExcel.php');\r\n\r\n            $objPHPexcel = PHPExcel_IOFactory::load('../templates/excel/membership.xls');\r\n\r\n            // redirect output to client browser\r\n            header('Content-Type: application/vnd.ms-excel');\r\n            header('Content-Disposition: attachment;filename=&quot;membership.xls&quot;');\r\n            header('Cache-Control: max-age=0');\r\n\r\n            $objWriter = PHPExcel_IOFactory::createWriter($objPHPexcel, 'Excel5');\r\n            $objWorksheet = $objPHPexcel-&gt;getActiveSheet();\r\n\r\n\r\n            $curseurMax = $mysql-&gt;get_num_rows();\r\n\r\n           \r\n\r\n            $rset_members = $mysql-&gt;query($query_members);\r\n\r\n            $num_rows = mysql_num_rows($rset_members);\r\n\r\n            $loop_members = array();\r\n\r\n     \r\n            $counter = 2;\r\n\r\n            while(($parse_members = $mysql-&gt;fetch_record($rset_members)) !== false)\r\n\r\n            {\r\n                $objWorksheet-&gt;setCellValueByColumnAndRow(0, $counter, $parse_members['company']);\r\n                $objWorksheet-&gt;setCellValueByColumnAndRow(1, $counter, $parse_members['last_name']);\r\n                $objWorksheet-&gt;setCellValueByColumnAndRow(2, $counter, $parse_members['first_name']);\r\n                $objWorksheet-&gt;setCellValueByColumnAndRow(3, $counter, $parse_members['address']);\r\n                $objWorksheet-&gt;setCellValueByColumnAndRow(4, $counter, $parse_members['city']);\r\n                $objWorksheet-&gt;setCellValueByColumnAndRow(5, $counter, $parse_members['country']);\r\n                $objWorksheet-&gt;setCellValueByColumnAndRow(6, $counter, $parse_members['postal_code']);\r\n                $objWorksheet-&gt;setCellValueByColumnAndRow(7, $counter, $parse_members['work_phone']);\r\n                $objWorksheet-&gt;setCellValueByColumnAndRow(8, $counter, $parse_members['fax']);\r\n                $objWorksheet-&gt;setCellValueByColumnAndRow(9, $counter, $parse_members['email']);\r\n                $objWorksheet-&gt;setCellValueByColumnAndRow(10, $counter, $parse_members['city']);\r\n                $objWorksheet-&gt;setCellValueByColumnAndRow(19, $counter, $parse_members['member_type']);\r\n               \r\n                $counter&#43;=1;\r\n            \r\n          \r\n\r\n            }\r\n\r\n\r\n            $objWriter-&gt;save('php://output'); </pre>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2010-11-25T11:46:34.64-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "527747",
+    "ThreadId": "235632",
+    "Html": "\r\n<p>Macros are not supported within PHPExcel. Any feature of Excel that isn't supported is ignored when reading from a template file; so the macros aren't loaded, and so can't be written when you save the workbook. Other features that aren't currently supported\r\n include Pivot tables.</p>\r\n",
+    "PostedDate": "2010-11-27T14:52:00.607-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "528004",
+    "ThreadId": "235632",
+    "Html": "\r\n<p>Oh damn, thats sorta inconvenient.</p>\r\n<p>Is there any other way to do this? Get a template and write the data to it saving the macros? Or any way to write the macro to save in excel? Perhaps there is another program to do this?</p>\r\n",
+    "PostedDate": "2010-11-28T18:05:39.297-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "528078",
+    "ThreadId": "235632",
+    "Html": "\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<strong>mace519 wrote:</strong><br>\r\n<p>Is there any other way to do this? Get a template and write the data to it saving the macros? Or any way to write the macro to save in excel? Perhaps there is another program to do this?</p>\r\n</blockquote>\r\n<p>&nbsp;The only way that I know is to use PHPs COM interface, which also requires a copy of MS Excel running on the server... hence&nbsp;you also need&nbsp;a Windows server.</p>\r\n",
+    "PostedDate": "2010-11-29T00:58:10.5-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

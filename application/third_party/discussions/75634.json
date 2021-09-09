@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "258775",
+    "ThreadId": "75634",
+    "Html": "<p>Hi,</p>\r\n<p>This is my environment:</p>\r\n<ul>\r\n<li>PHPExcel 1.7.1</li>\r\n<li>PHP 5.2.0</li>\r\n<li>Windows 2000 Advanced Server</li>\r\n</ul>\r\n<p>The install.txt file included with PHPExcel indicates that PHP version 5.2 is required. However, when I try to create an Excel 5 workbook on this system, I get this PHP error.</p>\r\n<pre><span style=\"color:Blue\">&lt;</span><span style=\"color:#A31515\">b</span><span style=\"color:Blue\">&gt;</span>Fatal error<span style=\"color:Blue\">&lt;/</span><span style=\"color:#A31515\">b</span><span style=\"color:Blue\">&gt;</span>:  Call to undefined function sys_get_temp_dir() in <span style=\"color:Blue\">&lt;</span><span style=\"color:#A31515\">b</span><span style=\"color:Blue\">&gt;</span>G:\\Web Files\\YUI\\PHPExcel\\Classes\\PHPExcel\\Writer\\Excel5.php<span style=\"color:Blue\">&lt;/</span><span style=\"color:#A31515\">b</span><span style=\"color:Blue\">&gt;</span> on line <span style=\"color:Blue\">&lt;</span><span style=\"color:#A31515\">b</span><span style=\"color:Blue\">&gt;</span>133<span style=\"color:Blue\">&lt;/</span><span style=\"color:#A31515\">b</span><span style=\"color:Blue\">&gt;</span><span style=\"color:Blue\">&lt;</span><span style=\"color:#A31515\">br</span> <span style=\"color:Blue\">/&gt;</span><br></pre>\r\n<p>I looked at sys_get_temp_dir() in the PHP manual (http://php.net/manual/en/function.sys-get-temp-dir.php), and sure enough, it requires PHP 5.2.1. So you might want to update the install.txt file to indicate PHP 5.2.1 or higher is required.</p>\r\n<p>Thanks!<br>Josh</p>",
+    "PostedDate": "2009-11-19T10:14:29.26-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "258972",
+    "ThreadId": "75634",
+    "Html": "<p>Woops... You are quite right. Instead of requiring PHP 5.2.1 a workaround has now been incorporated like in comment:</p>\r\n<p><a href=\"http://php.net/manual/en/function.sys-get-temp-dir.php#94119\">http://php.net/manual/en/function.sys-get-temp-dir.php#94119</a></p>\r\n<p>To avoid confusion the install.txt has also been updated so it now says <em>&quot;PHP version 5.2.0 or higher&quot;</em> instead of just <em>&quot;PHP version 5.2 or higher&quot;</em>.</p>\r\n<p>Can you check in a couple of hours with latest source code that things are working correctly on PHP 5.2.0 ? Thanks for reporting this.</p>\r\n<p>Latest source code:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx\">http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx</a></p>",
+    "PostedDate": "2009-11-19T23:23:45.423-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "412810",
+    "ThreadId": "75634",
+    "Html": "<p>If you can't upgrade your php version you can implement this function:</p>\r\n<p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>&lt;?php\r\n <span style=\"color:Blue\">if</span> ( !function_exists(<span style=\"color:#A31515\">'sys_get_temp_dir'</span>)) {\r\n  <span style=\"color:Blue\">function</span> sys_get_temp_dir() {\r\n      <span style=\"color:Blue\">if</span>( $temp=getenv(<span style=\"color:#A31515\">'TMP'</span>) )        <span style=\"color:Blue\">return</span> $temp;\r\n      <span style=\"color:Blue\">if</span>( $temp=getenv(<span style=\"color:#A31515\">'TEMP'</span>) )        <span style=\"color:Blue\">return</span> $temp;\r\n      <span style=\"color:Blue\">if</span>( $temp=getenv(<span style=\"color:#A31515\">'TMPDIR'</span>) )    <span style=\"color:Blue\">return</span> $temp;\r\n      $temp=tempnam(<span style=\"color:Blue\">__FILE__</span>,<span style=\"color:#A31515\">''</span>);\r\n      <span style=\"color:Blue\">if</span> (file_exists($temp)) {\r\n          unlink($temp);\r\n          <span style=\"color:Blue\">return</span> dirname($temp);\r\n      }\r\n      <span style=\"color:Blue\">return</span> null;\r\n  }\r\n }\r\n\r\n <span style=\"color:Blue\">echo</span> realpath(sys_get_temp_dir());\r\n?&gt;\r\n\r\n</pre>\r\n</div>\r\n</p>\r\n<p>I did this in my server with php 5.1.26 and worked fine.</p>\r\n<p>Source of code:</p>\r\n<p>http://mx.php.net/manual/en/function.sys-get-temp-dir.php#94119</p>\r\n<p>Greetings!!</p>\r\n<p>&nbsp;</p>\r\n<p><span><span><br></span></span></p>",
+    "PostedDate": "2010-03-01T11:12:01.763-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

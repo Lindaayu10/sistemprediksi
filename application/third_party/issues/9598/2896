@@ -1,0 +1,47 @@
+Index: Classes/PHPExcel/Shared/String.php
+===================================================================
+--- Classes/PHPExcel/Shared/String.php	(revision 876)
++++ Classes/PHPExcel/Shared/String.php	(working copy)
+@@ -250,7 +250,7 @@
+ 	 * @param string $enc Encoding
+ 	 * @return int Character count
+ 	 */
+-	public static function CountCharacters($value, $enc)
++	public static function CountCharacters($value, $enc = 'UTF-8')
+ 	{
+ 		if (self::getIsMbstringEnabled()) {
+ 			$count = mb_strlen($value, $enc);
+Index: Classes/PHPExcel/Worksheet.php
+===================================================================
+--- Classes/PHPExcel/Worksheet.php	(revision 876)
++++ Classes/PHPExcel/Worksheet.php	(working copy)
+@@ -89,6 +89,9 @@
+ /** PHPExcel_Shared_Font */
+ require_once 'PHPExcel/Shared/Font.php';
+ 
++/** PHPExcel_Shared_String */
++require_once 'PHPExcel/Shared/String.php';
++
+ /** PHPExcel_Shared_PasswordHasher */
+ require_once 'PHPExcel/Shared/PasswordHasher.php';
+ 
+@@ -578,6 +581,7 @@
+      * Set title
+      *
+      * @param string $pValue String containing the dimension of this worksheet
++	 * @throws Exception
+      */
+     public function setTitle($pValue = 'Worksheet')
+     {
+@@ -585,6 +589,11 @@
+     	if ($this->getTitle() == $pValue) {
+     		return;
+     	}
++
++		// Maximum 31 characters allowed for sheet title
++		if (PHPExcel_Shared_String::CountCharacters($pValue) > 31) {
++			throw new Exception('Maximum 31 characters allowed in sheet title.');
++		}
+     	
+     	// Old title
+     	$oldTitle = $this->getTitle();

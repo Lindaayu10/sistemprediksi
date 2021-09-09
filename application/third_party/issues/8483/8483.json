@@ -1,0 +1,171 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "All",
+      "DisplayName": "All"
+    },
+    "ClosedComment": "Fixed in SVN",
+    "ClosedDate": "2009-02-20T04:47:04.87-08:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "In each Excel workbook there is stored a flag saying whether 1900 or 1904 based calendar should be used by the calculation engine for resolving date values.\n \nOn Windows this defaults to 1900, but on Mac it defaults to 1904. Still, one can manually toggle this flag through the preferences in Excel.\n \nhttp://img355.imageshack.us/img355/9927/1904pn1.png\n \nWhen one does this, the date values change since the real numeric values (under the hood) do not.\n \nPHPExcel does not support this flag. This results in that 1904-based template workbooks containing fixed dates will fail plain read/write test.\n \nTest (plain read/write of 1904-based workbook):\n----\n$reader = new PHPExcel_Reader_Excel2007();\n$excel = $reader->load('read.xlsx');\n \n$writer = new PHPExcel_Writer_Excel2007($excel);\n$writer->save('write.xlsx');\n \nExpected result:\n----\nOutput is identical to input\n \nActual result:\n----\nDate has changed in A1 from 2008-05-23 to 2012-05-24\n \nEnvironment:\n----\nPHPExcel: Latest source from SVN (1.6.4)",
+    "LastUpdatedDate": "2013-05-16T05:43:01.65-07:00",
+    "PlannedForRelease": "PHPExcel 1.6.5 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2008-12-10T22:27:23.447-08:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Support for Excel 1904 calendar date mode (Mac)",
+    "Type": {
+      "Name": "Feature",
+      "Id": 1
+    },
+    "VoteCount": 2,
+    "Id": 8483
+  },
+  "FileAttachments": [
+    {
+      "FileId": 2422,
+      "FileName": "1904.zip",
+      "DownloadUrl": ".\\2422"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "The date functions take the calendar into account by setting the $ExcelBaseDate flag in PHPExcel_Shared_Date using the PHPExcel_Shared_Date::setExcelCalendar() and PHPExcel_Shared_Date::getExcelCalendar() methods; but at the moment neither the readers nor the writers access this.\r\nThe default for this value is the Windows 1900 calendar, which even allows for the infamous 1900 leap year bug.\r\n\r\nHowever, it's never been properly tested with real Excel files.",
+      "PostedDate": "2008-12-11T10:18:09.523-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "If the readers can be modified to set the $ExcelBaseDate flag, and the writers modified to test its value and write accordingly, I'll ensure that the date functions work correctly.",
+      "PostedDate": "2008-12-11T10:19:48.837-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Thanks for the info, Mark. I was not sure about the situation with calculation engine.\r\n\r\nIf PHPExcel core will support the $ExcelBaseDate flag I will modify PHPExcel_Reader_Excel5 and PHPExcel_Writer_Excel5 so the flag penetrates to the Excel file.",
+      "PostedDate": "2008-12-11T12:40:54.51-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Mark, please let me know when the flag has been correctly implemented. Will modify Excel2007 reader and writer then.",
+      "PostedDate": "2008-12-12T01:38:50.97-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Ok, implemented for Excel2007 and working. Erik, can you do the Excel5?",
+      "PostedDate": "2008-12-12T02:30:48.53-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2008-12-12T02:30:49.657-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Great, I'll fix this for Excel5 reader/writer. I have just one concern for now: If we put the flag in the calculation engine and not in the PHPExcel object itself, will this work if one has multiple workbooks loaded with different 1900/1904 base ? I know this is unlikely, but still.... ?",
+      "PostedDate": "2008-12-12T03:02:17.513-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "That would require us to re-writethe calculation engine. For now, there's one global engine, other cases would require a calculation engine per workbook.",
+      "PostedDate": "2008-12-12T05:21:56.623-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I'll run some tests to see that the date functions work, hopefully this weekend (time, cats and girlfriend permitting): if not then, I'll be finishinh work for the Christmas break in a week's time, so I'll get the opportunity then.\r\n\r\nRe: multiple workbooks. Maarten's right that it would need a calculation engine for each workbook, which is a massive rework, as well as a significant memory and performance overhead. The only additional benefit would be to make it easier to return references rather than values from functions; but the drawbacks definitely outweigh any benefits.\r\nAn alternative might be to hold the calendar value at workbook level, and set it to that value in PHPExcel_Shared_Date after parsing but before executing any formula calculation.",
+      "PostedDate": "2008-12-12T06:38:18.39-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Changes should now be in place for Excel5 reader/writer. Looking forward to the outcome of your tests, Mark.\r\n\r\nRe: Re: Multiple workbooks. I follow you along with the complications having a global calculations engine. I can live with this limitation for now.\r\nStill, at a later point I would perhaps suggest that we store the flag in both the PHPExcel object and the calculation engine during read, and let the writer read the flag from PHPExcel instead of from the calculation engine. This way there might still be errors in date calculations as long as we have only one calculation engine, but multiple workbooks with differing calendar bases will have their correct flags after read/write.\r\n\r\nPlease take this as just a memo for later discussion, I'm quite happy with the improvements as they stand :)",
+      "PostedDate": "2008-12-12T09:44:40.757-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "That approach would still lead to confusion... Setting the flag on each calculation, read and write is an option but that sounds like unnecessary instructions.",
+      "PostedDate": "2008-12-14T22:57:38.21-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2008-12-15T01:59:55.163-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2008-12-15T02:00:03.74-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Interesting observation with using PHPExcel to write a workbook using the Mac 1904 calendar in both xls and xlsx.\r\nOpening the xls in Excel 2003, no problem.\r\nOpening the xls in Excel 2007, no problem.\r\nOpening the xlsx in Excel 2003 and the compatibility pack, date appears to be incorrect by one day.\r\nOpening the xlsx in Excel 2007, no problem.\r\n\r\nCan anybody else confirm my observations?",
+      "PostedDate": "2009-01-10T15:11:28.583-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Sounds very strange... I haven't tested because I don't have working installation of Excel 2003 with compatibility pack.\r\nCan you try the following test which does not involve PHPExcel:\r\n1. From MS Office Excel 2007 open a blank document\r\n2. Set the file to use 1904 date mode (there is checkbox for setting this under advanced preferences)\r\n3. Type a date in of the cells\r\n4. Save file\r\n5. Open file in Excel 2003 with compatibility pack\r\n6. Is the date off by one day ?",
+      "PostedDate": "2009-01-11T09:43:34.757-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Fixed in SVN\r\n\r\n** Closed by maartenba 12/15/2008 2:00 AM",
+      "PostedDate": "2009-01-13T05:44:03.077-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Re-opened after issues with a single day discrepancy noted with Mac 1904 workbooks",
+      "PostedDate": "2009-01-13T05:44:03.42-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-01-13T10:37:25.907-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-01-16T06:37:54.727-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Now that the latest SVN code is correctly identifying hard (non-formula) date values when reading workbooks, I should be able to focus more directly on the Mac calendar issue",
+      "PostedDate": "2009-01-16T06:39:26.15-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Readers/Writers now recognise the calendar flag, and date functions support both calendars",
+      "PostedDate": "2009-02-05T00:53:14.81-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-02-05T00:53:15.76-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-02-20T04:47:04.87-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:04:30.793-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:43:01.65-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

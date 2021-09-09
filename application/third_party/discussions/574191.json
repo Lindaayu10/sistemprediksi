@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "1329287",
+    "ThreadId": "574191",
+    "Html": "I've got some issues when setting cells with special characters (as á, é, í, etc.). If I do it directly with &quot;setCellValue&quot; it's ok, but when I'm trying to do it with  the function &quot;fromArray&quot; it sets the cell as &quot;FALSE&quot;. My array is defined this way:<br />\n<pre><code>foreach ($reporte-&gt;result() as $fila) {\n    $datosReporte[] = array(\n            'Fecha'             =&gt; $fila-&gt;NombreDia.&quot; &quot;.$fila-&gt;Fecha, \n            'Horario'           =&gt; $fila-&gt;HoraEntrada.&quot; - &quot;.$fila-&gt;HoraSalida,\n            'Entrada'           =&gt; $fila-&gt;ChecadaEntrada,\n            'Salida'            =&gt; $fila-&gt;ChecadaSalida,\n            'Incidencia'        =&gt; utf8_encode($fila-&gt;Tipo)\n    );  \n}</code></pre>\n\nSo the value &quot;Incidencia&quot;, which is the one I have problems with, is already encoded. I have also checked the file encoding in Sublime Text 2 and it shows UTF-8 as well. Any ideas what might be the problem? <br />\n",
+    "PostedDate": "2014-12-05T15:01:03.45-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1329295",
+    "ThreadId": "574191",
+    "Html": "The problem is likely to arise in <code>utf8_encode($fila-&gt;Tipo)</code>. If <code>utf8_encode()</code> fails, then it will return a value of false<br />\n",
+    "PostedDate": "2014-12-05T15:16:28.617-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1329310",
+    "ThreadId": "574191",
+    "Html": "Indeed, apparently the value in my array ($reporte-&gt;result()) was wrong, so I casted the value from the stored procedure that generates it (as &quot;CAST(Tipo AS CHAR CHARACTER SET utf8) AS Tipo&quot;) and there is no more encoded needed and that solved my problem. Thank you.<br />\n",
+    "PostedDate": "2014-12-05T16:45:57.687-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": "2014-12-05T16:46:23.583-08:00"
+  }
+]

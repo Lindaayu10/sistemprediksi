@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "896050",
+    "ThreadId": "390436",
+    "Html": "\r\n<p>Hi all,</p>\r\n<p>I've just installed PHPExcel 1.7.7 for testing purposes, but a fatal exception was thrown when trying the first example file (01simple.php):</p>\r\n<p><em>15:22:29 Create new PHPExcel object </em><br>\r\n<em><strong>Fatal error</strong>: Class 'PHPExcel_Worksheet' not found in <strong>\r\n/public/sites/phpexcel.hbs-artemis.nl/Classes/PHPExcel.php</strong> on line <strong>\r\n108</strong></em></p>\r\n<p>I've made no changes whatsoever to the code and both Classes and Tests directories are in the root of the subdomain (phpexcel.hbs-artemis.nl).</p>\r\n<p>As far as I know, I match the requirements, tested with the following code, which returns OK for all extensions:</p>\r\n<p><em>&nbsp;echo &quot;GD: &quot;, extension_loaded('gd') ? 'OK' : 'MISSING', '&lt;br&gt;';</em><br>\r\n<em>&nbsp;echo &quot;XML: &quot;, extension_loaded('xml') ? 'OK' : 'MISSING', '&lt;br&gt;';</em><br>\r\n<em>&nbsp;echo &quot;zip: &quot;, extension_loaded('zip') ? 'OK' : 'MISSING', '&lt;br&gt;';</em></p>\r\n<p>Is this a bug in 1.7.7, of a configuration error at my site?</p>\r\n<p>Yours faithfully,</p>\r\n<p>Roy van Lamoen</p>\r\n",
+    "PostedDate": "2012-08-06T07:26:11.56-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "896336",
+    "ThreadId": "390436",
+    "Html": "<p>This isn't normal behaviour, otherwise it would affect everybody including myself. PHPExcel uses an autoloader to include the files that it needs: Line 34 of 01simple.php includes the core PHPExcel class file, and the autoloader is loaded by the first few lines of code in that (lines 30-33) which set the directory path for the PHPExcel library, and require the autoloader file. The autoloader registers itself using the standard spl_autoload_register function, and also includes a couple of other PHPExcel library files that are being included correctly else your error would occur when it tries to autoload them.</p>\r\n<p>Can you provide a call stack trace (would normally be displayed when the fatal error is thrown) to help try and diagnose why the autoloader is selectively loading some files and not others. thank you</p>",
+    "PostedDate": "2012-08-06T23:39:18.403-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "896363",
+    "ThreadId": "390436",
+    "Html": "\r\n<p>Unfortunately, I don't get a call&nbsp;stack trace (not on screen nor in error_log). Only the above mentioned fatal error is shown.</p>\r\n<p>So I added some echo statement in de Autoloader Load function which output the loaded and not loaded files. Complete output is as follows:</p>\r\n<pre>Loading /public/sites/phpexcel.hbs-artemis.nl/Classes/PHPExcel/Shared/ZipStreamWrapper.php\r\nLoading /public/sites/phpexcel.hbs-artemis.nl/Classes/PHPExcel/Shared/String.php\r\n08:33:17 Create new PHPExcel object \r\nLoading /public/sites/phpexcel.hbs-artemis.nl/Classes/PHPExcel/Worksheet.php\r\nLoading /public/sites/phpexcel.hbs-artemis.nl/Classes/PHPExcel/Writer/Excel5/BIFFwriter.php\r\n\r\nFatal error: Class 'PHPExcel_Worksheet' not found in /public/sites/phpexcel.hbs-artemis.nl/Classes/PHPExcel.php on line 108</pre>\r\n<p>The fatal error is thrown when the new PHPExcel object is created in 01simple.php on line 39.&nbsp;</p>\r\n<p>If you need more of this manual debug info, let me know!</p>\r\n<p>Edit:<br>\r\nI've just tried v1.7.6 on a seperate subdomain (<a href=\"http://phpexcel176.hbs-artemis.nl\">http://phpexcel176.hbs-artemis.nl</a>) and this version seems to work for me. An update to 1.7.7 breaks PHPExcel again.</p>\r\n",
+    "PostedDate": "2012-08-07T00:47:45.19-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "898081",
+    "ThreadId": "390436",
+    "Html": "<p>@MarkBaker</p>\r\n<p>any news on this issue yet? Although v1.7.6 is working fine, I would like to be able to use the latest version.</p>",
+    "PostedDate": "2012-08-10T07:55:20.94-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "898595",
+    "ThreadId": "390436",
+    "Html": "<p>I haven't been able to identify any circumstance that can cause the autoloader to fail other than conflicts with other libraries using autoloaders that don't conforml to the SPL autoloader registration standards</p>",
+    "PostedDate": "2012-08-12T13:32:52.253-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1000501",
+    "ThreadId": "390436",
+    "Html": "For anyone wondering, I solved this in my autoloader. Separating durectories in classnames with an underscore is something PHP <em>should</em> handle, but doesn't always do. Alter this autoloader to your taste and things will work as far as autoloading goes:<br />\n<pre><code>\n&lt;?php\n\n\nfunction my_autoloader($_class)\n{\n\n\n    //for classes where dir separator was replaced by an underscore\n    if (strpos($_class, '_') !== False)\n    {\n        $_class = str_replace('_', DIRECTORY_SEPARATOR ,$_class);\n        require_once dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'classes' . DIRECTORY_SEPARATOR . $_class . '.php';\n\n    }\n\n    else\n    {\n        $possible_class_locations = array();\n\n        $possible_class_locations[] = dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'classes' . DIRECTORY_SEPARATOR . $_class . '.class.php';\n        $possible_class_locations[] = dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'classes' . DIRECTORY_SEPARATOR . $_class . '.php';\n        $possible_class_locations[] = dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'classes' . DIRECTORY_SEPARATOR . 'phpexcel' . DIRECTORY_SEPARATOR . $_class . '.php';\n        foreach($possible_class_locations as $cls)\n        {\n            if(file_exists($cls))\n            {\n                require_once($cls);\n                break;\n            }\n            else\n            {\n                //echo $cls . ' doesnt exist!' . &quot;&lt;br /&gt;&quot;;\n                continue;\n            }\n        }\n        //require_once WEBROOT . '/classes/' . $className . '.class.php';\n    }\n\n}\nspl_autoload_register('my_autoloader');\n\n?&gt;\n</code></pre>\n\nBest regards,<br />\nMarv<br />\n",
+    "PostedDate": "2013-02-13T03:34:55.597-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

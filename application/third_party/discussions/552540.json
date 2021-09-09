@@ -1,0 +1,90 @@
+[
+  {
+    "Id": "1275449",
+    "ThreadId": "552540",
+    "Html": "There are no possible white spaces when the file is being rendered.\r<br />\n&lt;?php\r<br />\n$objPHPExcel = new PHPExcel();\r<br />\n$objPHPExcel-&gt;setActiveSheetIndex(0);\r<br />\n<br />\n//Functions for rendering data\r<br />\n<br />\nheader('Content-Type: application/vnd.ms-excel');\r<br />\nheader('Content-Disposition: attachment;filename=&quot;SeedApplicants.xls&quot;');\r<br />\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');\r<br />\n$objWriter-&gt;save('php://output');\r<br />\nexit;\r<br />\n?&gt;\r<br />\n<br />\nI am trying to render blank excel for testing purpose, but still its rendering me a excel which is not readable by MSExcel (2007 &amp; 2013). Tested in Ubuntu and Windows. I checked the file by opening it in notepad, I didn't find any php errors or some echo statements.\r<br />\n<br />\nCan anyone help me in this? It was working fine, but all of sudden it stopped. I am using 1.7.8v of phpexcel and 5.3 of PHP.<br />\n",
+    "PostedDate": "2014-07-23T05:43:59.127-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1275455",
+    "ThreadId": "552540",
+    "Html": "As always, open the file in a text editor and look for any leading/trailing whitespace characters, any BOM header in the first 3 bytes of the file, or any obvious plaintext error messages<br />\n",
+    "PostedDate": "2014-07-23T05:57:44.933-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1275491",
+    "ThreadId": "552540",
+    "Html": "Yes, I have checked everything, There are absolutely no leading or trailing whitespace characters. And no BOM header and error messages.<br />\n",
+    "PostedDate": "2014-07-23T07:25:49.607-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1275554",
+    "ThreadId": "552540",
+    "Html": "Have you tried writing to a file on the server, then doing a manual file transfer to your local PC to see if that will load in MS Excel correctly?<br />\n",
+    "PostedDate": "2014-07-23T09:38:02.857-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1277289",
+    "ThreadId": "552540",
+    "Html": "Yes , i tried that. It is rendering a blank excel file.<br />\n",
+    "PostedDate": "2014-07-24T05:26:37.57-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1277635",
+    "ThreadId": "552540",
+    "Html": "when i remove \r<br />\nheader('Content-Type: application/vnd.ms-excel');\r<br />\nheader('Content-Disposition: attachment;filename=&quot;SeedApplicants.xlsx&quot;');\r<br />\n<br />\nand change \r<br />\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5'); \r<br />\nto\r<br />\n$objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel);\r<br />\n<br />\nand change \r<br />\n$objWriter-&gt;save('php://output');\r<br />\nto\r<br />\n$objWriter-&gt;save(str_replace('.php', '.xlsx', <strong>FILE</strong>));\r<br />\n<br />\nThe file rendered works just fine.<br />\n",
+    "PostedDate": "2014-07-25T02:09:35.683-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1277657",
+    "ThreadId": "552540",
+    "Html": "So if, instead of using the IO factory, you did<br />\n<div style=\"color:Black;background-color:White;\"><pre>\r\n$objWriter = <span style=\"color:Blue;\">new</span> PHPExcel_Writer_Excel5($objPHPExcel); \n\n$objWriter-&gt;save(str_replace(<span style=\"color:#A31515;\">&#39;.php&#39;</span>, <span style=\"color:#A31515;\">&#39;.xls&#39;</span>, FILE)); \r\n</pre></div>does it work?<br />\n",
+    "PostedDate": "2014-07-25T03:53:01.837-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1277699",
+    "ThreadId": "552540",
+    "Html": "Thats right, the file saved on my local machine and worked fine. But since i want the client to be able to download it for himself, i add the headers and everything goes wrong.<br />\n",
+    "PostedDate": "2014-07-25T06:28:01.077-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1277719",
+    "ThreadId": "552540",
+    "Html": "So the PHPExcel save() works without problem for both Excel and Excel2007: which narrows it down to something in the IOFactory, or in your script:\r<br />\n<br />\nIf you try doing<br />\n<div style=\"color:Black;background-color:White;\"><pre>\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, <span style=\"color:#A31515;\">&#39;Excel5&#39;</span>); \n$objWriter-&gt;save(str_replace(<span style=\"color:#A31515;\">&#39;.php&#39;</span>, <span style=\"color:#A31515;\">&#39;.xls&#39;</span>, FILE)); \r\n</pre></div>does that create a valid Excel file on the server?<br />\n",
+    "PostedDate": "2014-07-25T07:12:29.917-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1278279",
+    "ThreadId": "552540",
+    "Html": "The file got created and was a valid one.<br />\n",
+    "PostedDate": "2014-07-27T22:53:40.613-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1280323",
+    "ThreadId": "552540",
+    "Html": "i got the same problem on Ubuntu Server with php 5.5.3.\r<br />\n<br />\nbut i think it is server related, cuz i didn't change anything and a few days ago i could open xls files on LibreOffice 4.3.0 and now i can't.<br />\n",
+    "PostedDate": "2014-08-01T17:38:55.2-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

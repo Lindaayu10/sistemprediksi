@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "561121",
+    "ThreadId": "244738",
+    "Html": "\r\n<p>i need to create a excel file from php. When i create the file by default the file name and the sheet name are same.</p>\r\n<p>My requirnment is that i want different sheet name from file name</p>\r\n<p>eg (for what i am getting):</p>\r\n<p>if filename:&quot;Report_For_01_05_11.xsl&quot;</p>\r\n<p>sheetname:&quot;Report_For_01_05_11&quot;</p>\r\n<p>&nbsp;</p>\r\n<p>eg (What i need):</p>\r\n<p>if filename:&quot;Report_For_01_05_11.xsl&quot;</p>\r\n<p>sheetname:&quot;report1&quot;</p>\r\n<p>&nbsp;</p>\r\n<p>if anybody can help me</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks in advanve</p>\r\n<p>Regards:</p>\r\n<p>Rajveer singh jhala</p>\r\n",
+    "PostedDate": "2011-02-04T21:26:39.1-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "561153",
+    "ThreadId": "244738",
+    "Html": "\r\n<p>I think that's it's actually the workbook filename you're referring to, and it doesn't have any default. It will be called whatever name you specify when you save.... and it shouldn't normally have an xsl extension... that's usually used for a totally different\r\n type of file.</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, <span style=\"color:#a31515\">'Excel5'</span>);\r\n$objWriter-&gt;save(<span style=\"color:#a31515\">'Whatever name you want to give your workbook file.xls'</span>);\r\n</pre>\r\n</div>\r\n<p>A worksheet name (or title) is the name displayed on the tab for that worksheet when you open it in Excel. This defaults to 'Worksheet' (or 'Worksheet1' if you add more worksheets to your workbook).</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><div style=\"color:black; background-color:white\"><pre>$objPHPExcel = <span style=\"color:blue\">new</span> PHPExcel();\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setTitle(<span style=\"color:#a31515\">'This is Worksheet #1'</span>);\r\n$objPHPExcel-&gt;createSheet();  <span style=\"color:green\">// Create a new sheet and set it as the active sheet</span>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setTitle(<span style=\"color:#a31515\">'This is Worksheet #2'</span>);\r\n</pre>\r\n</div>\r\n</pre>\r\n</div>\r\n",
+    "PostedDate": "2011-02-05T02:07:46.397-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "562465",
+    "ThreadId": "244738",
+    "Html": "\r\n<p>thanks for reply</p>\r\n<p>that really helps me</p>\r\n<p>but i am using the below code and getting following error</p>\r\n<p>&nbsp;</p>\r\n<p>$objPHPexcel = PHPExcel_IOFactory::load($file);<br>\r\n$objWorksheet = $objPHPexcel-&gt;setActiveSheetIndex(0);<br>\r\n$title=$objWorksheet-&gt;setTitle('StartingPosition');<br>\r\n<br>\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPexcel, 'Excel2007');<br>\r\n$objWriter-&gt;save($file);</p>\r\n<p>&nbsp;</p>\r\n<p><strong>Fatal error</strong>: Uncaught exception 'Exception' with message 'Could not open 'path of file'&nbsp; in /home/gymflex/public_html/classes/PHPExcel/Writer/Excel2007.php:232</p>\r\n<p>when i replace 'Excel2007'&nbsp; with '<span style=\"color:#a31515\">Excel5</span>' the file is generated but the data with &lt;table&gt;&lt;tr&gt;&lt;td&gt;Number&lt;/td&gt;.............. like present although it raplaces the worksheet name.</p>\r\n<p>&nbsp;</p>\r\n<p>can you suggest me any thing about this?</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2011-02-08T01:33:20.43-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "562478",
+    "ThreadId": "244738",
+    "Html": "\r\n<p>Is the value of $file a string containing 'path of file' ?</p>\r\n<p>&nbsp;</p>\r\n<p>What type of file are you actually loading?</p>\r\n<p>&lt;table&gt;&lt;tr&gt;&lt;td&gt;Number&lt;/td&gt;.............. looks like HTML markup, not like any flavour of Excel file that I've ever come across.</p>\r\n",
+    "PostedDate": "2011-02-08T01:44:38.077-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "562601",
+    "ThreadId": "244738",
+    "Html": "\r\n<p>1. Yes $file contain complete path of the file</p>\r\n<p>2. The file i am loding a excel file name=&quot;GymFlexUpload20110207.xls&quot;</p>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2011-02-08T05:29:54.327-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "562608",
+    "ThreadId": "244738",
+    "Html": "\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<strong>rajveer wrote:</strong><br>\r\n<p>1. Yes $file contain complete path of the file</p>\r\n</blockquote>\r\n<p>I have absolutely no idea what is happening here. &nbsp;The error message should be displaying the value of $file, and instead it is displaying the string 'path of file'. I'm at a complete loss to explain how the filename could be changed in this way within\r\n the save() method.</p>\r\n<p>&nbsp;</p>\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<strong>rajveer wrote:</strong><br>\r\n<p>2. The file i am loding a excel file name=&quot;GymFlexUpload20110207.xls&quot;</p>\r\n</blockquote>\r\n<p>&nbsp;Is it possible for you to upload a copy of this file to the <a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10749\">\r\nupload link here</a>&nbsp;so that I can run some tests.</p>\r\n",
+    "PostedDate": "2011-02-08T05:49:29.803-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "563169",
+    "ThreadId": "244738",
+    "Html": "\r\n<p>The file that you are trying to load is not an Excel file... it's an HTML file that has had the extension changed from .html to .xls If you open it in a text editor, you can see this for yourself.</p>\r\n<p>This is a common method&nbsp;used to create &quot;Excel&quot; files by people who don't realise that .xls is not an html markup file but a binary file. They are fortunate that MS Excel can actually read html markup.</p>\r\n<p>When you use the PHPExcel_IOFactory::load($file) method, PHPExcel attempts to identify the actual type of file based on its content (rather than its extension), and use the appropriate Reader. The default behaviour (if it does not match any of the recognised\r\n file types) is to treat it as a CSV file, and use the CSV Reader, which explains why you are getting content like &quot;&lt;table&gt;&lt;tr&gt;&lt;td&gt;Number&lt;/td&gt;...............&quot; in the cells.</p>\r\n<p>PHPExcel does not currently have an HTML Reader (I have done some work on this, but it isn't yet accurate enough to include in the library).</p>\r\n",
+    "PostedDate": "2011-02-09T01:28:58.34-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

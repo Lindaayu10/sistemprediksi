@@ -1,0 +1,101 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Using PHPExcel to generate a very simple .xls file (Excel5 Writer). Whenever that file is opened on Windows 7 using Excel 2010 or 2007, it gives the following error: \n \n\"Excel found unreadable content in 'XXXXXXX.xls'. Do you want to recover the contents of this workbook? If you trust the source of this workbook, click Yes.\"\n \nWhen the same file is opened in MS Excel 2007 or MS Excel 2010 in Windows XP it works fine. If it is opened in OpenOffice, it works regardless of the OS.\n \nWindows 7 / Excel 2010: Error\nWindows 7 / Excel 2007: Error\nWindows XP / Excel 2010: Works\nWindows XP / Excel 2007: Works\nAny / OpenOffice: Works\n \nMay be related to the following article http://support.microsoft.com/kb/2411912 from MS Support, suggesting that the problem is in PHP_OLE.",
+    "LastUpdatedDate": "2017-11-27T22:26:36.783-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "High",
+      "Severity": 150,
+      "Id": 3
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2011-03-10T14:53:08.777-08:00",
+    "Status": {
+      "Name": "Active",
+      "Id": 2
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "“Excel found unreadable content” for .xls files read using MS Excel2007+ on Windows 7",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 2,
+    "Id": 15508
+  },
+  "FileAttachments": [
+    {
+      "FileId": 6077,
+      "FileName": "test-emailed.xlsx",
+      "DownloadUrl": ".\\6077"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "I am not sure if this will help, but I was having the same problem with Windows 7 and XP...  Worked fine in open office on ubuntu...  I had it working before I made some formatting changes, specifically the setWidth() and setAutoSize(), I tried using all setAutoSize() it still gave me the error, I tried to use all setWidth() and it still gave me the error.  I then commented all of the setWidth / setAutoSize call out and it no longer gives me the unreadable error...  I will post anything else I find as I start to put some of the calls back in...",
+      "PostedDate": "2011-05-13T23:02:52.817-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Maybe others have this problem aswell: for me it was fixed when I used proper UTF-8 encoded strings instead of ISO-8859-1. Maybe PHPExcel can hint about bad encodings?\r\n",
+      "PostedDate": "2011-06-28T02:52:37.583-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I am getting there error running running PHP Version 5.3.3 on an Linux server while creating .xlsx files. The odd thing is that I can click a link and have it generate and send to the browser the excel file to download but when I have it email me this xlsx file I get the error. I am saving the xlsx file to the server before I email it, and this also gives me the same error. I don't see how it could be caused by the UTF-8 encoding since if I output to the browser it works correctly. Any thoughts?\r\n\r\nBelow is the code I am using that generates the xlsx file\r\n----------------------------------------------------------\r\n$objWriter = PHPExcel_IOFactory::createWriter($this->objPHPExcel, 'Excel2007');\r\nif ($this->get_Rule('Delivery_Type')=='browser')\t{\r\n\theader('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');\r\n\theader('Content-Disposition: attachment;filename=\"' . $this->get_SaveAsFileName() . '\"');\r\n\theader('Cache-Control: max-age=0');\r\n\r\n\t$objWriter->save('php://output');\r\n\tdie;\r\n}\telse\t{\r\n\tob_start();\r\n\t$objWriter->save('php://output');\r\n\t$this->report_output = ob_get_contents();\r\n\tob_end_clean();\r\n}",
+      "PostedDate": "2011-12-28T21:07:03.65-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Please note that the first check to make whenever you get this error is to open the file in a text editor, and see if there is any extraneous white space at the beginning or end of the file, or if there are any obvious error messages in the file.",
+      "PostedDate": "2012-01-02T03:31:45.493-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-01-02T11:50:55.157-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I dont see any errors or white spaces but opening the good file... and the bad file in notepad I noticed the first bit of the document looks different. Since I know the text wont come out correctly, I am also attaching the bad xlsx file.\r\n\r\nGood Generated File\r\nPK\u0003\u0004\u0014   \b ài!@ Í­Ov\u0001  \"\u0006  \u0013   [Content_Types].xml\r\n\r\nBad Generated File\r\nPK\u0003\u0004\u0014   \b \u001ck\"@ Í­Ov\u0001  \"\u0006  \u0013   [Content_Types].xml",
+      "PostedDate": "2012-01-02T11:50:56.827-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-01-19T05:52:50.8-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Same issue. I'm using windows 7 64-bit and am unable to open xls generated with PHPExcel. The same file transferred to other computer is readable under WindowsXP and Excel 2010.",
+      "PostedDate": "2012-01-19T05:55:32.813-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Spreadsheet_Excel_Writer from PEAR suffers a fairly similar bug in OLE_PPS_Root. There's an open ticket where a user has provided a valid fix:\r\n\r\nhttp://pear.php.net/bugs/bug.php?id=19284#1344445946 (see comment on 2012-08-08 17:12 UTC)\r\n\r\nYour code for OLE_PPS_Root seems different so the fix probably won't apply but I have the impression that the bug lies there as well.",
+      "PostedDate": "2012-12-07T02:53:11.317-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:02:28.827-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2017-11-27T22:26:36.783-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

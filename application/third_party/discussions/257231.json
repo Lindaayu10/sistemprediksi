@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "611013",
+    "ThreadId": "257231",
+    "Html": "<p>Hi all,</p>\n<p>Just wondering if it is possible to return individual images when reading an XLS file?&nbsp; So in the same way as you can retrieve a specific cell value, can you retrieve a specific image?</p>\n<p>I know that my image names will always be \"Image1\" &amp; \"Image2\" within the XLS file.</p>\n<p>Many thanks for any help offered - I've been pulling my hair out trying to do this! :)</p>\n<p>PHPExcel 1.7.6<br />PHP 5.2.17<br />Linux Server</p>",
+    "PostedDate": "2011-05-11T08:47:05.39-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "612907",
+    "ThreadId": "257231",
+    "Html": "<p>If someone can help me with this I would be very grateful.&nbsp; Even if someone just lets me know that it is/isn't possible.</p>\r\n<p>Thank you</p>",
+    "PostedDate": "2011-05-15T01:58:12.1-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "613331",
+    "ThreadId": "257231",
+    "Html": "<p>Sorry to keep bumping this - please can anyone say if this is possible or not?&nbsp; Can you read images from an xls file and use it in PHP to save onto the server etc?</p>\r\n<p>Please please please can someone help...</p>",
+    "PostedDate": "2011-05-16T06:14:28.87-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "617750",
+    "ThreadId": "257231",
+    "Html": "<pre class=\"lang-php prettyprint\"><code><span class=\"pln\">$objPHPExcel</span><span class=\"pun\">-&gt;</span><span class=\"pln\">getActiveSheet</span><span class=\"pun\">()-&gt;</span><span class=\"pln\">getDrawingCollection</span><span class=\"pun\">()</span><span class=\"pln\">&nbsp;<br /></span></code></pre>\r\n<p>will return an ArrayObject of all the image objects in the active worksheet.</p>\r\n<p>These objects will be either PHPExcel_Worksheet_Drawing or PHPExcel_Worksheet_MemoryDrawing objects: you can identify which using <a rel=\"nofollow\" href=\"http://uk.php.net/manual/en/function.is-a.php\">is_a()</a>. You can then use the methods appropriate to that class (as described in the API) either to read the image data from file (for PHPExcel_Worksheet_Drawing objects) or directly from the PHPExcel_Worksheet_MemoryDrawing object itself. The getName() and getDescription() methods can be used to retrieve the relevant values fro the image object.</p>\r\n<p>Note that it's also possible to have image objects associated with print headers:</p>\r\n<pre class=\"lang-php prettyprint\"><code><span class=\"pln\">$objPHPExcel</span><span class=\"pun\">-&gt;</span><span class=\"pln\">getActiveSheet</span><span class=\"pun\">()-&gt;</span><span class=\"pln\">getHeaderFooter</span><span class=\"pun\">()-&gt;</span><span class=\"pln\">getImages</span><span class=\"pun\">()</span><span class=\"pln\">&nbsp;<br /></span></code></pre>\r\n<p>can be used to retrieve images from the header/footer. This is an array of PHPExcel_Worksheet_HeaderFooterDrawing objects. All the PHPExcel_Worksheet_Drawing methods can be used to extract the image file from these objects.</p>",
+    "PostedDate": "2011-05-24T16:40:46.147-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "620862",
+    "ThreadId": "257231",
+    "Html": "<p>Hi Mark,</p>\r\n<p>I was the one who asked this on StackOverflow too.&nbsp; Thank you very much for replying to me.</p>\r\n<p>A couple of related questions if you don't mind:</p>\r\n<ol>\r\n<li>What determines if an image will be a PHPExcel_Worksheet_Drawing object or a PHPExcel_Worksheet_MemoryDrawing object?&nbsp; Is it how to create it in Excel?</li>\r\n<li>Can you adjust the quality of the image returned from the Excel file?</li>\r\n</ol>\r\n<p>&nbsp;</p>\r\n<p>For anyone else, I have it working with the following code:</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>$objPHPExcel = PHPExcel_IOFactory::load(<span style=\"color: #a31515;\">\"MyExcelFile.xls\"</span>);\r\n\r\n<span style=\"color: blue;\">foreach</span> ($objPHPExcel-&gt;getSheetByName(<span style=\"color: #a31515;\">\"My Sheet\"</span>)-&gt;getDrawingCollection() <span style=\"color: blue;\">as</span> $drawing) {\r\n\t<span style=\"color: blue;\">if</span> ($drawing <span style=\"color: blue;\">instanceof</span> PHPExcel_Worksheet_MemoryDrawing) {\r\n\t\tob_start();\r\n\t\tcall_user_func(\r\n\t\t\t$drawing-&gt;getRenderingFunction(),\r\n\t\t\t$drawing-&gt;getImageResource()\r\n\t\t);\r\n\t\t$imageContents = ob_get_contents();\r\n\t\tob_end_clean();\r\n\t}\r\n}\r\n</pre>\r\n</div>\r\n<p>Then $imageContents will contain the image data that you can output or save as a file etc.</p>\r\n<p>Great library by the way!</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2011-05-31T09:11:14.917-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1085782",
+    "ThreadId": "257231",
+    "Html": "Hi ,\r<br />\n<br />\n  I ll be so happy if it is possible to read embedded object (example.zip ) like image  from excel using PHP .\r<br />\n<br />\nCan any one help me \r<br />\n<br />\n<br />\nThanks.<br />\n",
+    "PostedDate": "2013-08-28T06:51:17.11-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,90 @@
+[
+  {
+    "Id": "78356",
+    "ThreadId": "23405",
+    "Html": "\r\nHi,<br />I wish to use PHPExcel to convert XLSX files to CSV or some other easy to work with format? (styling, etc does not matter)<br />I also might need to convert rather large files (up to about 40 MB), but a 2MB XLSX file needs more than 200MB of memory.<br />Is there possibly a way to read an XLSX file line by line in order to keep the memory usage down?<br /><br />Thanks,<br />Andy<br />",
+    "PostedDate": "2008-03-05T06:29:55.963-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "78651",
+    "ThreadId": "23405",
+    "Html": "\r\nThere is a switch on the Excel2007 reader which does this:<br />$reader-&gt;setReadDataOnly(true);<br />",
+    "PostedDate": "2008-03-06T02:26:35.84-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "78807",
+    "ThreadId": "23405",
+    "Html": "\r\nThank you for the suggestion. By running that first I was able to load the 2 MB file, but I was still not able to load a 7.5 MB xlsx file.<br />I tried using some of the writers, such as html and csv, and found that csv would be best for me. I was able to convert all of the<br />xlsx files in the source code, but not my 2MB or 7.5 MB file. I was looking at the data structure for the cellCollection. It looked like there<br />is a lot of overhead when it comes to borders, margins, and fonts, etc. Would there be an easy way to disregard all of the styling, and<br />only load the values for each cell?<br />",
+    "PostedDate": "2008-03-06T11:48:39.85-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "78903",
+    "ThreadId": "23405",
+    "Html": "\r\nHave you tried the latest build (Source Code tab)? Been doing some improvements yesterday.<br />",
+    "PostedDate": "2008-03-06T23:10:40.63-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "78950",
+    "ThreadId": "23405",
+    "Html": "\r\nYes, I am using revision 10003.<br />Here is the code I am using, does this look right?<br /><br />include 'PHPExcel.php';<br />require 'PHPExcel/Reader/Excel2007.php';<br />include 'PHPExcel/Writer/CSV.php';<br /><br />$objPHPExcel = new PHPExcel();<br /><br />echo date('H:i:s') . \" Load from Excel2007 file\\n\";<br />$objReader = new PHPExcel<i>Reader</i>Excel2007;<br />$objReader-&gt;setReadDataOnly(true);<br />$objPHPExcel = $objReader-&gt;load(\"/tmp/andy/new.xlsx\");<br />$objWriter = new PHPExcel<i>Writer</i>CSV($objPHPExcel);<br />$objWriter-&gt;setSheetIndex(0);<br />$objWriter-&gt;save(\"/tmp/andy/test.csv\");<br /><br />Thanks,<br />Andy<br />",
+    "PostedDate": "2008-03-07T06:22:24.393-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "79308",
+    "ThreadId": "23405",
+    "Html": "\r\nLooks perfect!<br /><br />Would it help if I implemented a Excel reader option which only reads sheet X from a workbook?<br />",
+    "PostedDate": "2008-03-10T02:20:26.99-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "79487",
+    "ThreadId": "23405",
+    "Html": "\r\nI think it would be more helpful to have an option that would extract cell values only, and disregard any styling properties.<br />Most spreadsheets I've dealt with have only had 1 sheet with actual data, and the rest are blank.<br />",
+    "PostedDate": "2008-03-10T13:43:42.667-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "79627",
+    "ThreadId": "23405",
+    "Html": "\r\n$reader-&gt;setReadDataOnly(true); should do that.<br /><br />How many rows/columns are in the sheet?<br />",
+    "PostedDate": "2008-03-11T01:09:17.16-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "80048",
+    "ThreadId": "23405",
+    "Html": "\r\nWell the files I need to convert have a minimum of 5 columns, and probably up to 50,000 rows.<br />The test sheet I had contained 47,000 rows, and that was 2MB which was unable to load.<br />I was looking at a dump of the $objPHPExcel object, and it looks like it still stores a lot of extra arrays that aren't neccesary<br />",
+    "PostedDate": "2008-03-12T09:24:31.877-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "80238",
+    "ThreadId": "23405",
+    "Html": "\r\nWill try to figure this out next week.<br />",
+    "PostedDate": "2008-03-13T00:50:55.763-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "91079",
+    "ThreadId": "23405",
+    "Html": "\r\nI think this would solve my problem.  I have a large .xlsx with four large sheets and the file size is over 7mb and running into memory issues.  If I could read only sheet 1, I would be fine, but here is my concern : what if a sheet 1 has formulas pointing to other sheets?<br /><br /><div class=\"quote\" style=\"border: dotted .1em #aaa; border-left: none; border-right: none; font-style: italic; margin: 1em 0em 2.5em 3em;padding: .2em;\"><br />maartenba wrote:<br />Looks perfect!<br /><br />Would it help if I implemented a Excel reader option which only reads sheet X from a workbook?<br /><br /></div><br /><br />",
+    "PostedDate": "2008-05-07T15:28:14.817-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

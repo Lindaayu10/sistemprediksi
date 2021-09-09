@@ -1,0 +1,56 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hi everyone,\n\nI'm trying to identify / open this file with PhpExcel 1.7.7, php 5.3, ubuntu linux :\n\nhttp://www.chupitojs.com/test.xml\n\nIdentify() incorrectly returns \"CSV\". I tried forcing the excel readers, but they fail in opening it.\n\nHere's an excerpt, can you recognize the format?\n\n\n\n\n  \n    \n      \n        \n[...]\n  \n    \n      \n      \n      \n      \n        \n          \n        \n        \n          \n        \n        \n          \n        \n      \n      \n        \n          Data\n        \n        \n          Tipologia\n        \n        \n          Rooms\n        \n      \n      \n        \n          ven 07/09/12\n        \n        \n          San Biagio Classic Monastero\n        \n        \n          3\n        \n\nAny help is greatly appreciated.",
+    "LastUpdatedDate": "2013-02-21T19:01:39.427-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2012-10-03T13:05:41.63-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Unable to identify / open this file, opens normally in excel / libreoffice",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 18741
+  },
+  "FileAttachments": [
+    {
+      "FileId": 6626,
+      "FileName": "Generale---Tipo.xml",
+      "DownloadUrl": ".\\6626"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "\trequire_once($_BASE_PATH.'PHPExcel.php');\n\trequire_once($_BASE_PATH.'PHPExcel/IOFactory.php');\r\n\r\n\tclass MyReadFilter implements PHPExcel_Reader_IReadFilter {\n\t\tpublic function readCell($column, $row, $worksheetName = '') {\n\t\t\tif ((!$GLOBALS['num_rows'] || $row <$GLOBALS['num_rows']) && (!$GLOBALS['num_cols'] || $col<$GLOBALS['num_cols'])) return true;\n\t\t\telse return false;\n\t\t}\n\t}\r\n\r\n\t$filterSubset = new MyReadFilter();\r\n\r\n\t$reader_type = 'Excel2003XML';// PHPExcel_IOFactory::identify($name); returns \"CSV\"\n\t$log->debug($reader_type);\r\n\r\n\t$objReader = PHPExcel_IOFactory::createReader($reader_type);\r\n\r\n\tif ($reader_type != 'CSV') {\n\t\t$names = $objReader->listWorksheetNames($name); // <-- exception thrown here\n\t\t$objReader->setLoadSheetsOnly($names[0]);\n\t\t$objReader->setReadDataOnly(true);\n\t}\r\n\r\n\t$objReader->setReadFilter($filterSubset);\r\n\r\n\t// Inizio parte ad alto consumo di memoria\n\t$objPHPExcel = $objReader->load($name);\r\n\r\n\t$objPHPExcel->setActiveSheetIndex(0);\n\t$objWorksheet = $objPHPExcel->getActiveSheet();\n\t$rows = $objWorksheet->toArray();\n\t$objPHPExcel->disconnectWorksheets();\n\tunset($objPHPExcel);\n\tunset($objReader);\n\tgc_collect_cycles();\n\t// Fine parte consumo alto\n",
+      "PostedDate": "2012-10-03T13:19:28.907-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:01:39.427-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

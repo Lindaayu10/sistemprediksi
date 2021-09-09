@@ -1,0 +1,51 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I have code using PHPExcel that generates multiple Excel sheets and saves them to disk.\n\nWhen opening everything from the second file onwards using MS Excel 2010, I get the error \"Excel found unreadable content in FILENAME. Do you want to recover the contents of this workbook.\" The file is 'recovered' and works perfectly ok. Opening in OPen Office does not produce any errors.\n\nHere's a simplified version of the code.\n\n```\n<?php\n$filenames = array(\"filenames go here\");\n\n$sheet1 = PHPExcel_IOFactory::load($template1);\n$writer1 = new PHPExcel_Writer_Excel2007($sheet1);\n$writer1->save('somefilename.xlsx');\n//This file opens without problem\n$sheet1->disconnectWorksheets();\nunset($sheet1);\nunset($writer1);\n\n$i = 0;\nforeach($filenames as $file){\n    $template = \"template2.xlsx\";\n    $fileName = 'filename' . $i . ' .xlsx';\n    $spreadsheet = PHPExcel_IOFactory::load($template);\n    $objWriter = new PHPExcel_Writer_Excel2007($spreadsheet);\n    $objWriter->save($fileName);\n    $spreadsheet->disconnectWorksheets();\n    unset($spreadsheet);\n    //This file throws error when opened in Excel 2007+\n    $i++;\n }\n?>\n```\n\nI've checked the following things:\n\n    There's no obvious php error messages, whitespace or extraneous input that are to be corrupting the file.\n    The template file opens fine in Excel 2010.\n    I've tried using different PHPExcel writer methods, but they all produce the same problem.\n\nThe real code does a whole load of extra stuff, but I've checked that it is not responsible by commenting it out. The code above seems to be the only place where a problem could be introduced.\n\nAny suggestions gratefully received.\n\nThis is the error log produced by Excel:\n\n```\n<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"true\"?>\n-<recoveryLog xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\">\n     <logFileName>error049120_01.xml</logFileName>\n     <summary>Errors were detected in file 'C:\\Users\\USERNAME\\AppData\\Local\\Temp\\FILENAME.xlsx'</summary>\n     -<additionalInfo>\n           <info>Excel completed file level validation and repair. Some parts of this workbook may have been repaired or discarded.</info>\n     </additionalInfo>\n</recoveryLog>\n```\n\nAttached is one of the actual files output by PHPExcel which produces an error in Excel 2010.\n__\nUsing PHP 5.3 and PHPExcel 1.7.8 on Ubuntu 12.04__",
+    "LastUpdatedDate": "2013-03-05T13:53:45.553-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2013-03-03T19:46:52.25-08:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "PHPExcel creates 'unreadable content' error (started on Stackoverflow)",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 19422
+  },
+  "FileAttachments": [
+    {
+      "FileId": 6837,
+      "FileName": "4rp-checklist-v2-2013-03-03.1628.xlsx",
+      "DownloadUrl": ".\\6837"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "Ok ... I've basically tried this out with a different XLS files as the 'template' and it works, so I guess it's a matter of an individual XLSX file including something that causes problems when duplicated by PHPExcel (the original template file opens in Excel without any warnings).\r\n\r\nI'm not sure if that would count as a bug, but that's the solution I've found.",
+      "PostedDate": "2013-03-05T13:53:45.553-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

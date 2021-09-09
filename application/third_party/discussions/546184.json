@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "1248222",
+    "ThreadId": "546184",
+    "Html": "hi,all\r<br />\nmy template execel5 file have some complex contents, such as many merge cells, borders, fonts.\r<br />\ni want to copy from template file .\r<br />\ni use the call :<br />\n<pre><code>        $destAddr = &quot;A&quot; . $startLine . &quot;:F&quot; . $endLine;\n        $sheet-&gt;duplicateStyle ( $sheet-&gt;getStyle ( 'A1:F160' ), $destAddr );\n</code></pre>\n\nbut i found the merge cells not working, so i have to merge everything.\r<br />\n<br />\nhow to solve the problem?\r<br />\n<br />\nthanks a lot!<br />\n",
+    "PostedDate": "2014-05-21T19:07:46.697-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1248271",
+    "ThreadId": "546184",
+    "Html": "Merged cells isn't style related, it's structural, so duplicating a style won't have any affect on merged cells, that needs to be done manually<br />\n",
+    "PostedDate": "2014-05-22T00:42:35.527-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1248651",
+    "ThreadId": "546184",
+    "Html": "my temporary solution is to clone worksheet.<br />\n<pre><code>    $inputFileType = 'Excel5';\n    \n    $objReader = PHPExcel_IOFactory::createReader ( $inputFileType );   \n    $objPHPExcel = $objReader-&gt;load ( $tempfile );  \n    $objPHPExcel-&gt;getProperties ()-&gt;setCreator ( &quot;wss&quot; )-&gt;setLastModifiedBy ( &quot;wss&quot; )-&gt;setTitle ( &quot;Report Print File&quot; )-&gt;setSubject ( &quot;Report Print File&quot; )-&gt;setDescription ( &quot;Report Print File.&quot; )-&gt;setKeywords ( &quot;office 2003 php&quot; )-&gt;setCategory ( &quot;wss&quot; );\n    $objPHPExcel-&gt;setActiveSheetIndex ( 0 );\n    $sheetTemplate = $objPHPExcel-&gt;getActiveSheet ();\n    \n    // clone sheet\n    for($current = 1; $current &lt;= $total; $current ++) {\n        $sheetIndex = $current - 1;\n\n        if($current &gt; 1){\n            $sheet = clone $sheetTemplate;\n            $sheet-&gt;setTitle ( &quot;&quot;.$sheetIndex );\n            // A4\n            $sheet-&gt;getPageSetup ()-&gt;setOrientation ( PHPExcel_Worksheet_PageSetup::ORIENTATION_PORTRAIT );\n            $sheet-&gt;getPageSetup ()-&gt;setPaperSize ( PHPExcel_Worksheet_PageSetup::PAPERSIZE_A4 );\n            $sheet-&gt;getPageSetup ()-&gt;setHorizontalCentered ( true );\n            // add new sheet\n            $objPHPExcel-&gt;addSheet($sheet, $sheetIndex);\n        }else{\n            $sheetTemplate-&gt;setTitle ( &quot;&quot;.$sheetIndex );\n        }\n    }\n\n    $objWriter = PHPExcel_IOFactory::createWriter ( $objPHPExcel, 'Excel5' );\n    $objWriter-&gt;save ( $outputfile );\n    \n    if (file_exists ( $outputfile )) {\n        header ( 'Pragma: public' );\n        header ( 'Expires: 0' );\n        header ( 'Content-Encoding: none' );\n        header ( 'Cache-Control: must-revalidate, post-check=0, pre-check=0' );\n        header ( 'Cache-Control: public' );\n        header ( 'Content-Type: application/vnd.ms-excel; charset=utf-8' );\n        header ( 'Content-Disposition: attachment; filename=' . time () . pathinfo ( $outputfile, PATHINFO_BASENAME ) );\n        header ( 'Content-Transfer-Encoding: binary' );\n        header ( 'Content-Length: ' . filesize ( $outputfile ) );\n        readfile ( $outputfile );\n    } else {\n        echo '&lt;script&gt;alert(\\'export error, file not exists！\\')&lt;/script&gt;';\n    }</code></pre>\n\nany suggestions?<br />\n",
+    "PostedDate": "2014-05-22T17:04:28.977-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

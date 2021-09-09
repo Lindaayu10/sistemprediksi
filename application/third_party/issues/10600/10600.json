@@ -1,0 +1,70 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "All",
+      "DisplayName": "All"
+    },
+    "ClosedComment": "Fixed in SVN",
+    "ClosedDate": "2009-09-08T19:07:57.317-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Right now we are not really sanitizing data when one sets cell values via the basic methods setValue() and setValueExplicit(). What I am mean here is that we are allowing users to set cell values that are incompatible with datatype.\n \nThis has some negative consequences.\n \n1) It is possible to create corrupt xlsx files:\n \n$cell->setValueExplicit('hello', PHPExcel_Cell_DataType::TYPE_NUMERIC)\n \n2) Identical cell values in Excel can have multiple PHP type representations in PHPExcel core.\n \nExamples:\n \n$cell->setValueExplicit('5.2', PHPExcel_Cell_DataType::TYPE_NUMERIC); // string(\"5.2\")\n$cell->setValueExplicit(5.2, PHPExcel_Cell_DataType::TYPE_NUMERIC); float(5.2)\n \n$cell->setValueExplicit(5, PHPExcel_Cell_DataType::TYPE_NUMERIC); // int(5)\n$cell->setValueExplicit(5.0, PHPExcel_Cell_DataType::TYPE_NUMERIC); float(5.0)\n \nIn special cases this kind can give problems. For example, in German locale float(5.2) is different from string(\"5.2\") when converted to string:\n \nfloat(5.2) -> \"5,2\"\nstring(\"5.2\") -> \"5.2\"\n \n---------\n \nTo solve all of this, would it be possible to agree on something like this in PHPExcel core:\n \nPHPExcel_Cell_DataType::TYPE_STRING   --> PHP (string)\nPHPExcel_Cell_DataType::TYPE_NUMERIC  --> PHP (float)\nPHPExcel_Cell_DataType::TYPE_BOOL     --> PHP (bool)\nPHPExcel_Cell_DataType::TYPE_ERROR    --> PHP (string) [only $_errorCodes]\n \nThe rule would be\n \n1) setValueExplicit() casts value into matching PHP type. Examples\n \n$cell->setValueExplicit('hello', PHPExcel_Cell_DataType::TYPE_NUMERIC); // 'hello' casted to float(0)\n$cell->setValueExplicit('5.2', PHPExcel_Cell_DataType::TYPE_NUMERIC); // string('5.2') casted to float(5.2)\n \nThat way it is impossible to create corrupt files as a result setting incompatible value/datatype. Moreover, since we are assured that PHP type always matches Excel datatype in PHPExcel core it is easier to write code because there are less cases to deal with.\n \n2) It may seem weird to exclude PHP type (int), but since Excel only has one numeric datatype perhaps it is not so weird anyway. I can't see anything wrong?\n \nI would like to hear your opinions? (I haven't thought much about this other that I can see there is a problem.)",
+    "LastUpdatedDate": "2013-05-16T05:42:25.587-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-09-07T20:36:17.143-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Make PHP type match Excel datatype",
+    "Type": {
+      "Name": "Feature",
+      "Id": 1
+    },
+    "VoteCount": 1,
+    "Id": 10600
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "Seems like a good idea, should reduce problems whe nwriting files. I do not see much situations where this proposed approach can go wrong.",
+      "PostedDate": "2009-09-08T00:50:26.95-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-09-08T05:41:37.797-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Ok, I made the necessary changes in SVN. PHPExcel should be more robust now.",
+      "PostedDate": "2009-09-08T19:07:37.88-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-09-08T19:07:57.317-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:03:40.413-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:25.587-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

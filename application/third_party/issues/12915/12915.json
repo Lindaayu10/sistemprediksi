@@ -1,0 +1,39 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "PHPExcel is not changing the numbers.This is simply a generic issue with the way computer languages handle floating point numbers, take a look at http&#58;&#47;&#47;en.wikipedia.org&#47;wiki&#47;Floating_point&#35;Accuracy_problems and be aware that it affects almost every computer language on almost every computer platformIf this really is a concern &#40;and note that this only changes display rather than the internal storage of a number in PHP&#41; that can&#39;t be resolved by number format masking, then you can edit the Classes&#47;PHPExcel&#47;Calculation&#47;Function.php file, and at around lines 60-63 you&#39;ll find a block of code like&#58;&#36;savedPrecision &#61; ini_get&#40;&#39;precision&#39;&#41;&#59;if &#40;&#36;savedPrecision &#60; 16&#41; &#123;    ini_set&#40;&#39;precision&#39;,16&#41;&#59;&#125;Simply comment these line out",
+    "ClosedDate": "2010-04-30T14:04:10.153-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "First of all, I would like to say what a great tool this is.  It's saving me a lot of time.\n \nThis bug I discovered seems to be that PHPExcel changes certain float type numbers by itself.  It only happens with certain numbers and I don't have any idea why.\n \nCode below will demonstrate this error with numbers that begin with 99 and end with .82.  But I ran into more ranges of numbers than this.\n \n<?php\nerror_reporting(E_ALL);\n \nrequire_once('../Classes/PHPExcel.php');\nrequire_once '../Classes/PHPExcel/IOFactory.php';\n \n$objPHPExcel = new PHPExcel();\n$objPHPExcel->getActiveSheet()->setCellValue('A1', 99609.82);\n$objPHPExcel->getActiveSheet()->setCellValue('A2', 99000.82);\n$objPHPExcel->getActiveSheet()->setCellValue('A3', 990000.82);\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'HTML');\n$objWriter->save(str_replace('.php', '.htm', __FILE__));\n?>\n \nThis code will output:\n \n99609.82000000001\n99000.82000000001\n990000.8199999999\n \nThis happens on HTML, PDF, and CSV.  I believe this will show on Excel too if no cell formatting is set.\n \nI'm running this on PHP 5.3.0/Windows XP and PHPExcel 1.7.2.\n \nThank you for your help.",
+    "LastUpdatedDate": "2013-05-16T05:42:00.95-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2010-04-30T09:44:37.403-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "PHPExcel is changing certain float numbers - corrupted data",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 12915
+  },
+  "FileAttachments": [],
+  "Comments": []
+}

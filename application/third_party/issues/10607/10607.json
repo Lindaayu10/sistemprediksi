@@ -1,0 +1,81 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel",
+      "DisplayName": "PHPExcel"
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Consider these two formulas in Excel:\n \n=#N/A\n=\"#N/A\"\n \nThey look almost identical, but the result of the first one is an error type while the result of second one is a string which just happens to look like an error type.\n \nYet, when I try\n \nvar_dump($cell->getCalculatedValue());\n \nI get for both formulas:\n \nstring(4) \"#N/A\"\n \nwith no apparent option to get the datatype of the calculated value.\n \n-----------\nThe reason why I am asking about this is because we have work item 6857 where we discussed introducing a cell cache provider. If there is a minor design flaw in the cell model in PHPExcel, maybe we should get that fixed first?\n \nWhat we have now for the cell properties:\n \n$_value   <--- holds \"ordinary\" values or formula\n$_dataType  <---- holds datatype for ordinary value or 'f' if cell has a formula\n$_calculatedValue   <---- holds calculated value\n \nDo we really need do this?\n \n$_value  <---- holds ordinary value or calculated value\n$_dataType  <---- holds datatype for ordinary value or calculated value, never 'f'\n$_formula  <--- holds the formula\n \nNow, is there something simple I have misunderstood, or is there something to it?",
+    "LastUpdatedDate": "2013-02-21T19:03:40.243-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-09-08T21:24:11.893-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "How to get datatype for calculated value?",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 2,
+    "Id": 10607
+  },
+  "FileAttachments": [
+    {
+      "FileId": 3360,
+      "FileName": "read.xlsx",
+      "DownloadUrl": ".\\3360"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "I can modify the calculation engine to set the cell $_dataType (or a $_calculatedDataType) value, that's fairly straightforward. I already have the logic in the private _showTypeDetails() method to identify the result type (though I do currently differentiate between integer and float)",
+      "PostedDate": "2009-09-09T05:49:33.253-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Yes, if there was $_calculatedDataType together with method $cell->getCalculatedDataType(), then it would definitely solve the problem I addressed. On the other hand an extra cell property would probably raise memory usage again by some 10%.\r\n\r\nMy real question is, would the correct solution not be to store the calculated value in the $_value property. That means each time PHPExcel performs a calculation, then result should replace whatever is currently in $_value, and the $_dataType is updated to reflect the datatype of the *calculated* value - which in turn means abandoning the formula datatype 'f' in PHPExcel. The formula would be stored in a separate variable, $_formula.\r\n\r\nI think that's how it works in Excel, right? There is no concept such as a calculated value, only one slot <v>...</v>. And there is a separate slot for the formula <f>...</f> ?",
+      "PostedDate": "2009-09-09T06:44:18.967-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I don't know if you've seen it, but there's a fully documented API guide to Excel on MSDN at http://msdn.microsoft.com/en-us/library/bb149081.aspx\r\n\r\nWhen in memory, the range object (which is also used for individual cells) has both value and formula properties: value being used for either the result of a formula calculation, or an absolute value. If a formula, then the formula property holds the actual formula. A hasFormula property identifies whether the formula property contains a formula or just the cell value.\r\n",
+      "PostedDate": "2009-09-09T09:51:42.69-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": ">> http://msdn.microsoft.com/en-us/library/bb149081.aspx\r\n\r\nThank you for the link. I had not seen it before.\r\n\r\n>> ... value being used for either the result of a formula calculation, or an absolute value\r\n\r\nThat is pretty much how I thought Excel worked, and what I thought PHPExcel should reflect. Would that not mean that the approach I outlined is the preferred? I know this would mean breaking changes, but it can be reduced to a minimum by modifying the default and advanced value binders.",
+      "PostedDate": "2009-09-09T10:31:55.867-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": ">> Thank you for the link. I had not seen it before.\r\n>> \r\nI know I find it useful, along with the documents available at http://msdn.microsoft.com/en-us/library/cc313118.aspx\r\n\r\n>> >> ... value being used for either the result of a formula calculation, or an absolute value\r\n>> That is pretty much how I thought Excel worked, and what I thought PHPExcel should reflect. Would that \r\n>> not mean that the approach I outlined is the preferred? I know this would mean breaking changes, but it \r\n>> can be reduced to a minimum by modifying the default and advanced value binders.\r\n>> \r\nThe biggest drawback would be the change to getValue() to return the calculated value for a formula (or cell value for a non-formula), dropping getCalculatedValue(), and adding getFormula() to return the actual formula. Codewise, it's very straightforward and there's definite benefits... but for user code that works with the existing methods, it's a big change.... and not easy to deprecate gracefully over a period of time.\r\n\r\nA method to identify whether a cell contained a formula would become more important if we did make this change.\r\n\r\nI could modify the calculate() function to set the cell $_dataType based on the calculation result easily enough, and could take advantage of the $_dataType for referenced cells (though it would slow the parser slightly) to simplify areas of the calculation engine code.\r\n",
+      "PostedDate": "2009-09-09T12:51:07.78-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": ">> The biggest drawback would be the change to getValue()\r\n>> to return the calculated value for a formula\r\n\r\nExactly! We could solve this by updating the value binder to include an unbindValue() method for hooking into the getValue() method just like bindValue() currently hooks into the setValue() method.\r\n\r\nFor backward compatibility, the unbindValue() for the DefaultValueBinder.php could be modified so that getValue() would return the raw formula just like it does now.\r\n\r\nAt the same time, we could modify AdvancedValueBinder.php to return formatted string values. Example:\r\n\r\n$cell->getValue(); // return e.g. '2008-12-31' for a date cell with AdvancedValueBinder.php\r\n\r\nBy reading various posts in the discussion boards I believe users expect that getValue() returns the calculated value and not the raw formula. If such modified AdvancedValueBinder.php would become the default value binder one day, I think it would be great. Don't you think?\r\n",
+      "PostedDate": "2009-09-09T13:36:28.967-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:03:40.243-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

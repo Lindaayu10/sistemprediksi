@@ -1,0 +1,66 @@
+[
+  {
+    "Id": "1133844",
+    "ThreadId": "472591",
+    "Html": "hi, i'm new to programming and i'm trying my best. So far i could install PHPExcel and could create a .xls file with content and it's working fine.\r<br />\n<br />\nWhat i'm trying to do now is to put some content in a PDF file, with no success, this is the error when i open the file:\r<br />\n<br />\nFatal error: Uncaught exception 'PHPExcel_Writer_Exception' with message 'PDF Rendering library has not been defined.' in F:\\Development\\sv_big\\site\\application\\third_party\\PHPExcel\\Writer\\PDF.php on line &lt;i&gt;56&lt;/i&gt;&lt;/th&gt;&lt;/tr&gt;\r<br />\n<br />\nI use Codeigniter, so i copied PHPExcel folder into site/application/third_party/ folder and also copied the file PHPExcel.php in third_party.\r<br />\n<br />\nThen on site/application/libraries/    i included this file: <strong>pdf.php</strong>\r<br />\nand this is a snippet of what this file contains:<br />\n<pre><code>/** PHPExcel_IOFactory */\nrequire_once APPPATH.&quot;/third_party/PHPExcel/IOFactory.php&quot;; \n\n$rendererName = PHPExcel_Settings::PDF_RENDERER_TCPDF;\n\n$rendererLibrary = 'tcPDF5.9';\n\n$rendererLibraryPath = dirname(__FILE__).'/PHPExcel/Writer/PDF/' . $rendererLibrary;\n</code></pre>\n\nthe path where IOFactory.php is, is: site/application/third_party/PHPExcel/IOFactory.php\r<br />\n<br />\nI have the following path for the files i assume are the libraries:\r<br />\nsite/application/third_party/PHPExcel/Writer/PDF/\r<br />\nand inside PDF folder we have: Core.php, DomPDF.php, mPDF.php, tcPDF.php\r<br />\n<br />\nI don't really know where is the error, can anyone please help me?<br />\n",
+    "PostedDate": "2013-12-10T12:22:10.86-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1134179",
+    "ThreadId": "472591",
+    "Html": "Perhaps it has escaped me, but you do not write you have installed the library to make the conversion to pdf.\r<br />\nPHPExcel allows to use different libraries for conversion into pdf, but none is included in the archive. Therefore, you must download that you want to use and install it on your server at the location of your choice.\r<br />\nThen, you must configure PHPExcel for use by him setting his name and path where you installed it (see the sample 21pdf.php file).<br />\n",
+    "PostedDate": "2013-12-11T00:31:43.96-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1134204",
+    "ThreadId": "472591",
+    "Html": "The $rendererLibraryPath value needs to be the path to the actual tcPDF library, not to PHPExcel's wrapper file.... \r<br />\n<br />\nPHPExcel is capable of finding its own wrapper file, but has no idea where on your server you've installed the tcPDF library <br />\n",
+    "PostedDate": "2013-12-11T01:44:48.51-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1134504",
+    "ThreadId": "472591",
+    "Html": "thanks, i corrected it and it's working fine now :)<br />\n",
+    "PostedDate": "2013-12-11T12:10:06.687-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1138366",
+    "ThreadId": "472591",
+    "Html": "Hola.\r<br />\n<br />\nTengo un problema a la hora de ubicar correctamente las librerias.\r<br />\n<br />\nEste es el código en el que lo indico \r<br />\n<br />\n$rendererLibrary = 'mPDF5.4';\r<br />\n$rendererLibraryPath = dirname(<strong>FILE</strong>) . 'Classes/PHPExcel/Writer/PDF/' . $rendererLibrary;\r<br />\n<br />\nAl ejecutar la página recibo este mensaje..\r<br />\n<br />\n&quot;NOTICE: Please set the $rendererName and $rendererLibraryPath values at the top of this script as appropriate for your directory structure&quot;\r<br />\n<br />\nNo sé cual puede ser el problema\r<br />\n<br />\nGracias anticipadas.<br />\n",
+    "PostedDate": "2013-12-19T10:20:01.52-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1140377",
+    "ThreadId": "472591",
+    "Html": "Hello.\r<br />\n<br />\nPart of the problem is solved , now an empty pdf is generated , giving error trying to open normally.\r<br />\nOpening the file with a text editor......\r<br />\n<br />\nClass ' PHPExcel_Writer_PDF_mPDF ' not found in &lt;b&gt; / ForeApp / Classes / PHPExcel / Writer / pdf.php &lt; / b &gt; on line &lt;b&gt; 71 &lt; / b &gt; &lt;br /&gt;\r<br />\n<br />\nThis is my code\r<br />\n<br />\n....\r<br />\n$ rendererName = PHPExcel_Settings :: PDF_RENDERER_MPDF ;\r<br />\n$ rendererLibraryPath = dirname ( <strong>FILE</strong> ) . ' / Classes / PHPExcel / Writer / PDF ';\r<br />\n<br />\nif (! PHPExcel_Settings :: setPdfRenderer ($ rendererName , $ rendererLibraryPath ) )\r<br />\n{\r<br />\ndie ( $ rendererName . '- ' $ rendererLibraryPath '&lt; / br &gt;' . . .\r<br />\n' NOTICE : Please rendererName September and the $ $ rendererLibraryPath values' .\r<br />\n' &lt;br /&gt; ' .\r<br />\n'at the top of this script as Appropriate for your directory structure'\r<br />\n) ;\r<br />\n}\r<br />\n<br />\nheader (' Content- Type: application / pdf ');\r<br />\nheader (' Content- Disposition : attachment; filename = &quot; ' . . $ nombreFichero_PDF '&quot;') ;\r<br />\nheader (' Cache- Control: max -age = 0 ');\r<br />\n<br />\n$ objWriterPDF = PHPExcel_IOFactory :: CreateWriter ($ objPHPExcel , 'PDF' ) / / $ $ objWriter objPHPExcel\r<br />\n$ objWriterPDF - &gt; writeAllSheets ( ) ;\r<br />\n$ objWriterPDF - &gt; save ( 'php :/ / output ');\r<br />\nexit;\r<br />\n<br />\nThanks in advance .<br />\n",
+    "PostedDate": "2013-12-20T10:36:33.15-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1140826",
+    "ThreadId": "472591",
+    "Html": "This class is in the mPDF.php file in Classes\\PHPExcel\\Writer\\PDF.\r<br />\nThe $rendererLibraryPath seems to point in the same place.\r<br />\nYou wouldn't crush the PHPExcel file by the mPDF library?<br />\n",
+    "PostedDate": "2013-12-23T04:08:31.453-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1142358",
+    "ThreadId": "472591",
+    "Html": "hey maybe this post can help you.... this is how i made it&gt;\r<br />\n<br />\n<a href=\"http://stackoverflow.com/questions/20409494/how-to-configure-phpexcel-for-pdf\" rel=\"nofollow\">http://stackoverflow.com/questions/20409494/how-to-configure-phpexcel-for-pdf</a><br />\n",
+    "PostedDate": "2013-12-26T08:10:11.02-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

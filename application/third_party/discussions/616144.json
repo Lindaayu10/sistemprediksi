@@ -1,0 +1,10 @@
+[
+  {
+    "Id": "1398550",
+    "ThreadId": "616144",
+    "Html": "Hi all,<br />\n<br />\nI had an issue trying to generate a downloadable Excel2007 formatted file using PHPExcel 1.8.0.<br />\nThe download was offered correctly when I developed it on my home WAMP server, but when I transfered my project to my live (hosted) website, I only got an empty page and no download.<br />\n<br />\nThe final part of the script contains:<br />\n<br />\n$filename = &quot;Myfile.xlsx&quot;;<br />\nheader(&quot;Content-disposition: attachment; filename=\\&quot;&quot;.$filename.&quot;\\&quot;&quot;);<br />\nheader(&quot;Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet&quot;);<br />\nheader('Content-Transfer-Encoding: binary');<br />\nheader('Cache-Control: must-revalidate');<br />\nheader('Pragma: public');<br />\n<br />\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');<br />\n$objWriter-&gt;save('php://output');<br />\n <br />\nBy investigating the issue I found out the &quot;save('php://output');&quot; part didn't return a correct temp dir for the temporary file to be created. In my situation it doesn't have anything to do with &quot;write permissions&quot;, but with sys_get_temp_dir() not reurning the correct directory for temporary files.<br />\n<br />\nI have changed line 197 of &quot;PHPEcel/Writer/Excel2007&quot; from:<br />\n$pFilename = @tempnam(PHPExcel_Shared_File::sys_get_temp_dir(), 'phpxltmp');<br />\nto:<br />\n$pFilename = <a href=\"mailto:@tempnam(ini_get('session.save_path'),\" rel=\"nofollow\">@tempnam(ini_get('session.save_path'),</a> 'phpxltmp');<br />\n<br />\nMy issue is resolved now and maybe this helps others too! :)<br />\n",
+    "PostedDate": "2015-04-01T03:21:17.89-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

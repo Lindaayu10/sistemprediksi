@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "172666",
+    "ThreadId": "51484",
+    "Html": "Hello!<br>\r\n<br>\r\nIs there any examples on how to set data type on a range of cells?<br>\r\n<br>\r\nI suppose, this can be done using duplicateStyleArray() method, but I found no examples on it both in dev documentation and PHPExcel API. \r\n",
+    "PostedDate": "2009-03-27T01:35:47.057-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "172674",
+    "ThreadId": "51484",
+    "Html": "well, i tried something like this:<br>\r\n(umm.. is there any tags to paste a code?)<br>\r\n<br>\r\n&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;duplicateStyleArray(<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;array(<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;'alignment' &nbsp;&nbsp; &nbsp;=&gt; array(&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;'horizontal'&nbsp; =&gt; PHPExcel_Style_Alignment::HORIZONTAL_RIGHT ),<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;'numberformat'&nbsp; =&gt; array(&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;'formatcode'&nbsp; =&gt; PHPExcel_Style_NumberFormat::FORMAT_NUMBER )<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; ),<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;'B7:B'.($grouppedArrayLen+6)<br>\r\n&nbsp;&nbsp; &nbsp;);<br>\r\n<br>\r\nit executes without errors. horizontal alignment sets ok, but the format of cells is General. is it ok? may be cell's format overrides when i wrote something in it? but gettype() says that i write doubles..<br>\r\n<br>\r\n<br>\r\n--edited<br>\r\n&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;duplicateStyleArray(<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;array(<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;'alignment' &nbsp;&nbsp; &nbsp;=&gt; array(&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;'horizontal'&nbsp;&nbsp; =&gt; PHPExcel_Style_Alignment::HORIZONTAL_RIGHT),<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;'numberFormat'&nbsp; =&gt; array(&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;'formatCode'&nbsp; =&gt; PHPExcel_Style_NumberFormat::FORMAT_CURRENCY_USD)<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ),<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;'D7:D'.($grouppedArrayLen+6)<br>\r\n&nbsp;&nbsp; &nbsp;);<br>\r\n<br>\r\nand that code makes nothing as well. i suppose, i make something wrong, am i? <br>\r\n<br>\r\n<br>\r\n<br>\r\n<br>\r\n--edited x2<br>\r\n<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; $value = $grouppedArray_val_val['t_volume'];<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; echo gettype($value);<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;getCell(&quot;B$ind&quot;)-&gt;setValueExplicit($value, PHPExcel_Cell_DataType::TYPE_NUMERIC);<br>\r\n<br>\r\nand that code makes the same. $value saves as 'General' though gettype() returns 'double'.<br>\r\n",
+    "PostedDate": "2009-03-27T02:01:58.847-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "173329",
+    "ThreadId": "51484",
+    "Html": "When using a style array, you need to use array index <code>'code'</code> rather that <code>'formatcode'</code>. Check also &quot;Appendix A&quot; in the &quot;PHPExcel Developer Documentation&quot;.<br>\r\n<br>\r\n",
+    "PostedDate": "2009-03-29T22:23:34.703-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "173350",
+    "ThreadId": "51484",
+    "Html": "it's funny, but &quot;Appendix A&quot; was the only place, that i didn't check looking for some manuals/examples. that's what i really need.<br>\r\n<br>\r\n--edited<br>\r\nwell, 'code' instead of 'formatcode' and '#,##0.000' as NumberFormat helps me.<br>\r\n<br>\r\nThanks.<br>\r\n",
+    "PostedDate": "2009-03-30T00:09:05.91-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

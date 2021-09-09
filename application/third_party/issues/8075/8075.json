@@ -1,0 +1,131 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "All",
+      "DisplayName": "All"
+    },
+    "ClosedComment": "Erik, agree with changes. Issue is fixed.",
+    "ClosedDate": "2008-11-28T02:04:25.07-08:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I've modified HashTables and Styles so that instead of generating a Style's HashCode all the time (which is fairly expensive) just to query the HashTable, each Style knows its index in the HashTable.\n \nI've also modified the Excel2007 worksheet so that it doesn't loop over every cell in a table to find its row and then check if its the same as the current row (the worst time of this was $total_rows * $total_cells!). It instead indexes each cell by its row and then does a quick lookup instead.\n \nFinally, Excel5 now goes over each Style only once instead of each recreating each Style on every cell.\n \nAll these patches combined make PHPExcel very fast (my test file went from 40 seconds to only 5 seconds).\n \nAgain, looking for any review(s). Thanks.",
+    "LastUpdatedDate": "2013-05-16T05:43:05.463-07:00",
+    "PlannedForRelease": "PHPExcel 1.6.5 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Medium",
+      "Severity": 100,
+      "Id": 2
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2008-11-13T16:18:13.697-08:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Optimise Style Hashing",
+    "Type": {
+      "Name": "Task",
+      "Id": 2
+    },
+    "VoteCount": 1,
+    "Id": 8075
+  },
+  "FileAttachments": [
+    {
+      "FileId": 2271,
+      "FileName": "PHPExcel_Hash_Optimise.patch",
+      "DownloadUrl": ".\\2271"
+    },
+    {
+      "FileId": 2273,
+      "FileName": "PHPExcel_Hash_Optimise_HTML.patch",
+      "DownloadUrl": ".\\2273"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "Just reworked some loops in the HTML writer. It takes advantage of this style indexing. My test file's export time has been reduced from ~104 seconds to ~19 seconds.\r\n\r\nLooking for review on the attached patch.",
+      "PostedDate": "2008-11-13T20:07:52.993-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2008-11-13T20:07:53.62-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I've not looked at the code implementation, or tested the performance; but the method makes perfect sense to improve performance. There's a slight overhead in checking the hashtable if the style isn't already stored there, plus the memory overhead in storing the hashtable; but most worksheets use only a few variants of style repeated for a large number of cells, so the benefits are clear.",
+      "PostedDate": "2008-11-16T13:12:46.817-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Patch under investigation.",
+      "PostedDate": "2008-11-17T11:39:06.847-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2008-11-17T12:13:51.787-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2008-11-25T03:30:12.32-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2008-11-25T03:31:03.947-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Fixed in SVN\r\n\r\n** Closed by maartenba 11/25/2008 3:31 AM",
+      "PostedDate": "2008-11-25T08:08:13.013-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Sorry for re-opening, but for some reason I'm now getting this fatal error with Excel5 writer?\r\n\r\nFatal error: Can't use method return value in write context in /var/www/localhost/htdocs/test/PHPExcel/Classes/PHPExcel/Writer/Excel5.php on line 122",
+      "PostedDate": "2008-11-25T08:08:13.497-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2008-11-26T01:27:41.093-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Fixed in SVN\r\n\r\n** Closed by maartenba 11/26/2008 1:27 AM",
+      "PostedDate": "2008-11-27T13:24:54.793-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I have modified Excel5 writer a bit (revision 647) because there was a problem if one had code dumping spreadsheets in multiple file formats like below.\r\n\r\n$writer = new PHPExcel_Writer_Excel2007($excel);\r\n$writer->save('write.xlsx');\r\n\r\n$writer = new PHPExcel_Writer_Excel5($excel);\r\n$writer->save('write.xls');\r\n\r\nAfter saving in Excel2007 format, styles would be indexed when the style hash table was built. When saving for the second time in Excel5 format, styles were already indexed, and $formats array would not build. The result was that xls file would be corrupt and have no styles.\r\n\r\nThis was solved by letting Excel5 writer have its own hash table, just like Excel2007 writer and HTML writer.\r\n\r\nIf you agree with these changes, please close this work item again.",
+      "PostedDate": "2008-11-27T13:24:55.4-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2008-11-28T02:03:57.553-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2008-11-28T02:04:25.07-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:04:35.267-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:43:05.463-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

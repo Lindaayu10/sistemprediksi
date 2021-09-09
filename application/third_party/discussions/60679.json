@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "205533",
+    "ThreadId": "60679",
+    "Html": "<p>I have a file with tabs as the&nbsp;separator. When I try the first simple example at&nbsp;<a href=\"http://openxmldeveloper.org/articles/4606.aspx\">http://openxmldeveloper.org/articles/4606.aspx</a>&nbsp;on the file, it saves it fine as an Excel file but the tabs have been changed to a square with a question mark inside of it.</p>\r\n<p>Do I need to do something to handle this case?</p>\r\n<p>I tried \\t and \\\\t with&nbsp;setDelimiter, hasn't helped.</p>",
+    "PostedDate": "2009-06-25T09:57:52.133-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "206107",
+    "ThreadId": "60679",
+    "Html": "<p>You mean you tried this?<br> <br> <span style=\"font-family:Courier New\">$objReader-&gt;setDelimiter(&quot;\\t&quot;);</span><br> <br> It should be working. Can you post a full example?</p>",
+    "PostedDate": "2009-06-26T16:29:48.25-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "206634",
+    "ThreadId": "60679",
+    "Html": "<p>\r\n<p>&lt;?php</p>\r\n<p>/** PHPExcel_IOFactory */</p>\r\n<p>include 'PHPExcel/IOFactory.php';</p>\r\n<p>&nbsp;</p>\r\n<p>// set headers to redirect output to client browser as a file download</p>\r\n<p>header('Content-Type: application/vnd.openXMLformats-officedocument.spreadsheetml.sheet');</p>\r\n<p>header('Content-Disposition: attachment;filename=&quot;myfile.xlsx&quot;');</p>\r\n<p>header('Cache-Control: max-age=0');</p>\r\n<p>&nbsp;</p>\r\n<p>//-----Create a reader, set some parameters and read in the file-----</p>\r\n<p>$objReader = PHPExcel_IOFactory::createReader('CSV');</p>\r\n<p>$objReader-&gt;setDelimiter('\\t');</p>\r\n<p>$objReader-&gt;setEnclosure('');</p>\r\n<p>$objReader-&gt;setLineEnding(&quot;\\r\\n&quot;);</p>\r\n<p>$objReader-&gt;setSheetIndex(0);</p>\r\n<p>$objPHPExcel = $objReader-&gt;load('/home/user/public_html/tab_delimit.txt');</p>\r\n<p>&nbsp;</p>\r\n<p>//-----Create a Writer and output the file to the browser-----</p>\r\n<p>$objWriter2007 = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');</p>\r\n<p>$objWriter2007-&gt;save('php://output'); &nbsp;//push out to the client browser</p>\r\n<p>?&gt;</p>\r\n<div></div>\r\n<div>The tabs end up looking like this (the square chars):&nbsp;http://i39.tinypic.com/2zfikqt.png</div>\r\n</p>",
+    "PostedDate": "2009-06-29T08:24:31.7-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "206862",
+    "ThreadId": "60679",
+    "Html": "<p>Ouchh... You will need this:<br> <br> <span style=\"font-family:Courier New\">$objReader-&gt;setDelimiter(<span style=\"background-color:#ffff00;font-family:Courier New\">&quot;\\t&quot;</span>);</span><br> <br> instead of this:<br> <br> <span style=\"font-family:Courier New\">$objReader-&gt;setDelimiter(<span style=\"background-color:#ffff00;font-family:Courier New\">'\\t'</span>);</span></p>",
+    "PostedDate": "2009-06-29T19:18:27.717-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "207100",
+    "ThreadId": "60679",
+    "Html": "<p>Okay, I tried that. Opening the Excel gives me:</p>\r\n<p><em>Excel cannot open the file 'myfile.xlsx' because the file format or file extension is not valid. Verify that the file has not been corrupted and that the file extension matches the format of the file.</em></p>\r\n<p>So using single quotes gives me a valid Excel file that can be opened, but has a broken delimiter. Using double quotes won't even let me open the file.</p>",
+    "PostedDate": "2009-06-30T08:58:37.153-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "207275",
+    "ThreadId": "60679",
+    "Html": "<p>I'm afraid I would have to see the file because I cannot reconstruct the error. Can you send me a sample CSV file? (erik at phpexcel dot net)</p>",
+    "PostedDate": "2009-06-30T15:15:22.927-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

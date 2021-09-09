@@ -1,0 +1,84 @@
+<?php 
+require_once ('PHPExcel.php');
+//$rendererName = PHPExcel_Settings::PDF_RENDERER_MPDF;
+//$rendererLibraryPath = 'PHPExcel/MPDF54';
+//if (!PHPExcel_Settings::setPdfRenderer($rendererName,$rendererLibraryPath)) 
+$phpexcel = new PHPExcel();
+
+/* --------------------------------------*/
+/* Customer master table details */
+
+$sheet1 = $phpexcel->getActiveSheet();
+$sheet1->setTitle('Customer Details');
+$sheet1->mergeCells('A1:T1');
+$sheet1->setCellValue('A1','Customer Details');
+
+$sheet1->setCellValue('A2','Customer Code');
+$sheet1->setCellValue('B2','Customer Name');
+$sheet1->setCellValue('C2','Address Line1');
+$sheet1->setCellValue('D2','Address Line2');
+$sheet1->setCellValue('E2','Address Line3');
+$sheet1->setCellValue('F2','Phone Number');
+$sheet1->setCellValue('G2','Email');
+$sheet1->setCellValue('H2','Fax');
+$sheet1->setCellValue('I2','TIN Number');
+$sheet1->setCellValue('J2','Customer Number');
+$sheet1->setCellValue('K2','PAN Number');
+$sheet1->setCellValue('L2','C.E.Reg Number');
+$sheet1->setCellValue('M2','ECC Number');
+$sheet1->setCellValue('N2','Range');
+$sheet1->setCellValue('O2','Division');
+$sheet1->setCellValue('P2','Commission');
+$sheet1->setCellValue('Q2','Excise Certificate');
+$sheet1->setCellValue('R2','Pay Day');
+$sheet1->setCellValue('S2','SubContract Type');
+$sheet1->setCellValue('T2','TDS Flag');
+$rowcount = 3;
+//echo "<pre>";print_r($this->cusdetails[3]['Type']);die;
+	foreach ($this->cusdetails as $row)
+	{
+		$sheet1->setCellValue("A$rowcount",$row['CustomerCode']);
+		$sheet1->setCellValue("B$rowcount",$row['CustomerName']);
+		$sheet1->setCellValue("C$rowcount",$row['CustomerBillAddress1']);
+		$sheet1->setCellValue("D$rowcount",$row['CustomerBillAddress2']);
+		$sheet1->setCellValue("E$rowcount",$row['CustomerBillAddress3']);
+		$sheet1->setCellValue("F$rowcount",$row['CustomerPhone']);
+		$sheet1->setCellValue("G$rowcount",$row['CustomerEmail']);
+		$sheet1->setCellValue("H$rowcount",$row['CustomerFax']);
+		$sheet1->setCellValue("I$rowcount",$row['CustomerTinNo']);
+		$sheet1->setCellValue("J$rowcount",$row['CustomerNo']);
+		$sheet1->setCellValue("K$rowcount",$row['CustomerPanNo']);
+		$sheet1->setCellValue("L$rowcount",$row['CustomerCeregNo']);
+		$sheet1->setCellValue("M$rowcount",$row['CustomerEccNo']);
+		$sheet1->setCellValue("N$rowcount",$row['CustomerTaxRange']);
+		$sheet1->setCellValue("O$rowcount",$row['CustomerDivison']);
+		$sheet1->setCellValue("P$rowcount",$row['CustomerCommission']);
+		$sheet1->setCellValue("Q$rowcount",$row['CustomerExciseCertificate']);
+		$sheet1->setCellValue("R$rowcount",$row['CustomerPayDay']);
+		$sheet1->setCellValue("S$rowcount",($row['CustomerType']==0)?'No':'Yes');
+		$sheet1->setCellValue("T$rowcount",($row['CustomerTdsFlag']==0)?'No':'Yes');
+		$rowcount++;
+	}
+
+/*----------------------------------------------------------------*/
+	if($this->type == excel)
+	{
+	$objWriter = PHPExcel_IOFactory::createWriter($phpexcel, "Excel5");
+	$objWriter->save("php://output");
+	header("Content-Type: application/vnd.ms-excel");
+	header("Content-Disposition: attachment; filename=\"CustomerMaster List.xls\"");
+	header("Cache-Control: max-age=0");
+	exit;
+	}
+	elseif($this->type == pdf)
+	{	
+	$objWriter = PHPExcel_IOFactory::createWriter($phpexcel, "PDF");
+	$objWriter->save("php://output");
+	$objWriter->writeAllSheets();
+	header("Content-Type: application/pdf");
+	header("Content-Disposition: attachment; filename=\"CustomerMaster List.pdf\"");
+	header("Cache-Control: max-age=0");
+	exit;
+	}
+
+?>

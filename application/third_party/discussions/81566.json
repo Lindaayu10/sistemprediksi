@@ -1,0 +1,146 @@
+[
+  {
+    "Id": "280026",
+    "ThreadId": "81566",
+    "Html": "<p>We have the following Problem:</p>\r\n<p>We generte a big Excel from a Database in a loop with setCellValueByColumnAndRow:<br>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow($col, $row, $val);</p>\r\n<p>If we have a string-value that starts with a single charachter (e.g. &quot;A better tomorrow&quot;) then the cell is formated as date, not as String, and the value is the current date.<br>We can reproduce this with every single character. When the string-value start with 2 characters (e.g. &quot;Aa better tomorrow&quot;) than it works.</p>\r\n<p><span><span style=\"background-color:#ffffff\" title=\"Wir sind für jeden Hinweis dankbar\">We cant use </span></span><span>&quot;setValue<span>Explicit&quot; to declare the data-type, because of the DB-Loop.</span></span></p>\r\n<p><span id=\"result_box\"><span style=\"background-color:#ffffff\" title=\"Wir sind für jeden Hinweis dankbar\">We are grateful for any information or hint. Is this a know Problem?</span></span></p>",
+    "PostedDate": "2010-01-21T06:06:45.793-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "280031",
+    "ThreadId": "81566",
+    "Html": "<p>I can verify the bug. Work item created:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=11576\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=11576</a></p>",
+    "PostedDate": "2010-01-21T06:31:21.69-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "280594",
+    "ThreadId": "81566",
+    "Html": "<p>We have still the same problem after installing the patch.</p>\r\n<p>I leave a comment in&nbsp; the issue tracker...</p>",
+    "PostedDate": "2010-01-22T07:40:42.64-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "280614",
+    "ThreadId": "81566",
+    "Html": "<p>Here is my test script.<br> <br></p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre><span style=\"color:blue\">require_once</span> <span style=\"color:#a31515\">'PHPExcel/Cell/AdvancedValueBinder.php'</span>;<br>PHPExcel_Cell::setValueBinder( <span style=\"color:blue\">new</span> PHPExcel_Cell_AdvancedValueBinder() );<br><br>$excel = <span style=\"color:blue\">new</span> PHPExcel();<br><br>$worksheet = $excel-&gt;getActiveSheet();<br>$worksheet-&gt;getCell(<span style=\"color:#a31515\">'A1'</span>)-&gt;setValue(<span style=\"color:#a31515\">'A better tommorrow'</span>);<br><br>$writer = PHPExcel_IOFactory::createWriter($excel, <span style=\"color:#a31515\">'Excel2007'</span>);<br>$writer-&gt;save(<span style=\"color:#a31515\">'write.xlsx'</span>);<br></pre>\r\n</div>\r\n<p><br> <br> With PHPExcel 1.7.2 there is the date bug<br> <br> <a href=\"http://img714.imageshack.us/img714/1567/ss20100122165651.png\"><img src=\"http://img714.imageshack.us/img714/1567/ss20100122165651.th.png\" border=0 alt=\"\"></a> <br><br> With latest source code, after the above fix, it looks ok<br> <br> <a href=\"http://img714.imageshack.us/img714/1522/ss20100122165718.png\"><img src=\"http://img714.imageshack.us/img714/1522/ss20100122165718.th.png\" border=0 alt=\"\"></a> <br><br>I assumed that the bug was happening with <span style=\"font-family:Courier New\">AdvancedValueBinder.php</span>. Can you test the above script?</p>",
+    "PostedDate": "2010-01-22T08:09:34.01-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "280635",
+    "ThreadId": "81566",
+    "Html": "<p>It seems that your script works. But maybe the Problem is that you fill the Cell with &quot;setValue&quot;</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$worksheet-&gt;getCell(<span style=\"color:#A31515\">'A1'</span>)-&gt;setValue(<span style=\"color:#A31515\">'A better tommorrow'</span>);<br></pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n<p>And we use for the DB-Loop &quot;setCellValueByColumnAndRow&quot;:</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow($col, $row, $val);<br></pre>\r\n</div>\r\n<p>Here is our script, i just removed the DB-Query...</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre><span style=\"color:Blue\">require_once</span> $_SERVER[<span style=\"color:#A31515\">'DOCUMENT_ROOT'</span>].<span style=\"color:#A31515\">'/../phpinc/classes/PHPExcel/PHPExcel/Cell/AdvancedValueBinder.php'</span>;<br><span style=\"color:Green\">/** PHPExcel_IOFactory */</span><br><span style=\"color:Blue\">require_once</span> $_SERVER[<span style=\"color:#A31515\">'DOCUMENT_ROOT'</span>].<span style=\"color:#A31515\">'/../phpinc/classes/PHPExcel/PHPExcel/IOFactory.php'</span>;<br><br><span style=\"color:Green\">##set headers to redirect output to client browser as a file download</span><br>header(<span style=\"color:#A31515\">'Content-Type: application/vnd.openXMLformats-officedocument.spreadsheetml.sheet'</span>);<br>header(<span style=\"color:#A31515\">'Content-Disposition: attachment;filename=&quot;test.xlsx&quot;'</span>);<br>header(<span style=\"color:#A31515\">'Cache-Control: max-age=0'</span>);<br><br><span style=\"color:Green\">##Excel Object</span><br><span style=\"color:Green\">//Set value binder</span><br>PHPExcel_Cell::setValueBinder( <span style=\"color:Blue\">new</span> PHPExcel_Cell_AdvancedValueBinder() );<br><br>$objPHPExcel = <span style=\"color:Blue\">new</span> PHPExcel();<br><br><span style=\"color:Green\">##Set properties</span><br>$objPHPExcel-&gt;getProperties()-&gt;setCreator(<span style=\"color:#A31515\">&quot;Test&quot;</span>)<br>\t\t\t\t\t\t\t -&gt;setTitle(<span style=\"color:#A31515\">&quot;Test&quot;</span>)<br>\t\t\t\t\t\t\t -&gt;setSubject(<span style=\"color:#A31515\">&quot;Test&quot;</span>)<br>\t\t\t\t\t\t\t -&gt;setDescription(<span style=\"color:#A31515\">&quot;Test&quot;</span>)<br>\t\t\t\t\t\t\t -&gt;setKeywords(<span style=\"color:#A31515\">&quot;Test&quot;</span>);<br><br><span style=\"color:Green\">//get DB Data (here the data as array)</span><br><span style=\"color:Green\">//eg. $output_data[1]['Real Name'] = 'A better tomorrow';</span><br><br><br><span style=\"color:Green\">//set excel-data</span><br><span style=\"color:Blue\">foreach</span>($output_data <span style=\"color:Blue\">as</span> $key=&gt;$val) {<br>\t$col_count = 0;<br>\t<span style=\"color:Green\">//set key+1 for first row</span><br>\t$key++;<br>\t<br>\t<span style=\"color:Blue\">foreach</span>($val <span style=\"color:Blue\">as</span> $key2=&gt;$val2) {<br>\t\t<span style=\"color:Green\">//loop data</span><br>\t\t$val2 = trim($val2);<br>\t\t<span style=\"color:Blue\">if</span>(!<span style=\"color:Blue\">empty</span>($val2)) {<br>\t\t\t$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow($col_count, $key, $val2);<br>\t\t}<br>\t\t$col_count++;<br>\t}\t\t<br>}<br><br><span style=\"color:Green\">//Head-Description row</span><br>$objPHPExcel-&gt;getActiveSheet()-&gt;insertNewRowBefore(1, 1);<br>$col_count2 = 0;<br><span style=\"color:Blue\">foreach</span>($output_data[0] <span style=\"color:Blue\">as</span> $key=&gt;$val) {<br>\t$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow($col_count2, 1, $key);<br>\t$col_count2++;<br>}<br><br><span style=\"color:Green\">##Put an auto filter on the data</span><br>$objPHPExcel-&gt;getActiveSheet()-&gt;setAutoFilter(<span style=\"color:#A31515\">'A1:'</span> . $objPHPExcel-&gt;getActiveSheet()-&gt;getHighestColumn() . $objPHPExcel-&gt;getActiveSheet()-&gt;getHighestRow() );<br><br><span style=\"color:Green\">##Header</span><br>$objPHPExcel-&gt;getActiveSheet()-&gt;insertNewRowBefore(1, 2);<span style=\"color:Green\">//Some empty rows for space</span><br>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(<span style=\"color:#A31515\">'A1'</span>, <span style=\"color:#A31515\">&quot;Headline&quot;</span>);<br>$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(<span style=\"color:#A31515\">'A1'</span>)-&gt;getFont()-&gt;getColor()-&gt;setRGB(<span style=\"color:#A31515\">'A2007A'</span>);<br>$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(<span style=\"color:#A31515\">'A1'</span>)-&gt;getFont()-&gt;setSize(18);<br><br><span style=\"color:Green\">##Printing</span><br><span style=\"color:Green\">//Orientation</span><br>$objPHPExcel-&gt;getActiveSheet()-&gt;getPageSetup()-&gt;setOrientation(PHPExcel_Worksheet_PageSetup::ORIENTATION_LANDSCAPE);<br><br><span style=\"color:Green\">##Set width of Cells</span><br>$highestColumn = $objPHPExcel-&gt;getActiveSheet()-&gt;getHighestColumn(); <span style=\"color:Green\">//e.g., 'G'</span><br>$highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn); <span style=\"color:Green\">//e.g., 6</span><br><span style=\"color:Blue\">for</span>($column =1; $column &lt; $highestColumnIndex; $column++) <span style=\"color:Green\">//start from 1 as columns are 0 indexed, but we don&rsquo;t want to change the first row which we have already set explicitly</span><br>{<br>\t$objPHPExcel-&gt;getActiveSheet()-&gt;getColumnDimension(PHPExcel_Cell::stringFromColumnIndex($column))-&gt;setAutoSize(true);<br>}<br><br><span style=\"color:Green\">//bold headline</span><br>$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(<span style=\"color:#A31515\">'A3:'</span> . $highestColumn.<span style=\"color:#A31515\">'3'</span>)-&gt;getFont()-&gt;setBold(true);<br><br><span style=\"color:Green\">##set to top -&gt; all fields</span><br>$objPHPExcel-&gt;getDefaultStyle()-&gt;getAlignment()-&gt;setVertical(PHPExcel_Style_Alignment::VERTICAL_TOP);<br><span style=\"color:Green\">##linebreak -&gt; all fields</span><br>$objPHPExcel-&gt;getDefaultStyle()-&gt;getAlignment()-&gt;setWrapText(true);<br><br><span style=\"color:Green\">##Rename sheet</span><br>$objPHPExcel-&gt;getActiveSheet()-&gt;setTitle(<span style=\"color:#A31515\">'Test Excel'</span>);<br><br><span style=\"color:Green\">##Set active sheet index to the first sheet, so Excel opens this as the first sheet</span><br>$objPHPExcel-&gt;setActiveSheetIndex(0);<br><br><span style=\"color:Green\">//-----Create a Writer and output the file to the browser-----</span><br>$objWriter2007 = PHPExcel_IOFactory::createWriter($objPHPExcel, <span style=\"color:#A31515\">'Excel2007'</span>);<br>$objWriter2007-&gt;save(<span style=\"color:#A31515\">'php://output'</span>);  <span style=\"color:Green\">//push out to the client browser</span><br></pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-01-22T09:05:29.903-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "280646",
+    "ThreadId": "81566",
+    "Html": "<p>Hmm.. I tried with setCellValueByColumnAndRow(). No difference.</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre><span style=\"color:Blue\">require_once</span> <span style=\"color:#A31515\">'PHPExcel/Cell/AdvancedValueBinder.php'</span>;\r\nPHPExcel_Cell::setValueBinder( <span style=\"color:Blue\">new</span> PHPExcel_Cell_AdvancedValueBinder() );\r\n\r\n$excel = <span style=\"color:Blue\">new</span> PHPExcel();\r\n\r\n$worksheet = $excel-&gt;getActiveSheet();\r\n$worksheet-&gt;setCellValueByColumnAndRow(0, 1, <span style=\"color:#A31515\">'A better tommorrow'</span>);\r\n\r\n$writer = PHPExcel_IOFactory::createWriter($excel, <span style=\"color:#A31515\">'Excel2007'</span>);\r\n$writer-&gt;save(<span style=\"color:#A31515\">'write.xlsx'</span>);\r\n</pre>\r\n</div>\r\n<p>I can't see how the bug can still occur. Is there a chance that you are somehow still running the old version?</p>",
+    "PostedDate": "2010-01-22T09:38:12.4-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "280661",
+    "ThreadId": "81566",
+    "Html": "<p>We installed the current Version 1.7.2</p>\r\n<p>I will make some further Tests at the weekend and let u know.</p>\r\n<p>And thx for your great support! Hope we find the Problem...</p>",
+    "PostedDate": "2010-01-22T09:58:00.18-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "283321",
+    "ThreadId": "81566",
+    "Html": "<p>Hi koyama,</p>\r\n<p>sorry for my late reply, but we tested your snippet with 1.7.2 and your patch and still the same problem:<br>Just the current Date in the Field, no matter if we save the excel as file or output it directly to the browser.</p>\r\n<p>Can't understand that it is working in your case, but not in ours. Here is our Script:</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre><span style=\"color:Blue\">require_once</span> $_SERVER[<span style=\"color:#A31515\">'DOCUMENT_ROOT'</span>].<span style=\"color:#A31515\">'/../phpinc/classes/PHPExcel/PHPExcel/Cell/AdvancedValueBinder.php'</span>;<br><span style=\"color:Green\">/** PHPExcel_IOFactory */</span><br><span style=\"color:Blue\">require_once</span> $_SERVER[<span style=\"color:#A31515\">'DOCUMENT_ROOT'</span>].<span style=\"color:#A31515\">'/../phpinc/classes/PHPExcel/PHPExcel/IOFactory.php'</span>;<br><br><span style=\"color:Green\">##set headers to redirect output to client browser as a file download</span><br>header(<span style=\"color:#A31515\">'Content-Type: application/vnd.openXMLformats-officedocument.spreadsheetml.sheet'</span>);<br>header(<span style=\"color:#A31515\">'Content-Disposition: attachment;filename=&quot;test.xlsx&quot;'</span>);<br>header(<span style=\"color:#A31515\">'Cache-Control: max-age=0'</span>);<br><br>PHPExcel_Cell::setValueBinder( <span style=\"color:Blue\">new</span> PHPExcel_Cell_AdvancedValueBinder() );<br><br>$excel = <span style=\"color:Blue\">new</span> PHPExcel();<br><br>$worksheet = $excel-&gt;getActiveSheet();<br>$worksheet-&gt;setCellValueByColumnAndRow(0, 1, <span style=\"color:#A31515\">'A better tommorrow'</span>);<br><br>$writer = PHPExcel_IOFactory::createWriter($excel, <span style=\"color:#A31515\">'Excel2007'</span>);<br>$writer-&gt;save(<span style=\"color:#A31515\">'php://output'</span>);  <span style=\"color:Green\">//push out to the client browser</span><br></pre>\r\n</div>\r\n<p>Can u please check it again?</p>\r\n<p>EDIT:<br>It looks like the function &quot;stringToExcel&quot; isnt called. I made an output (send a mail) in this Function, but nothing happens.</p>\r\n<p>Are u shure the function is called? I think the problem must be in another place...</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-01-29T06:07:09.687-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "283750",
+    "ThreadId": "81566",
+    "Html": "<p>I realize now what the problem is. Since PHPExcel 1.7.2 some changes were made in AdvancedValueBinder.php:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=11483\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=11483</a></p>\r\n<p>I was testing with AdvancedValueBinder.php from latest source code.</p>\r\n<p>Please download latest source code where things should be working:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/SourceControl/list/changesets\">http://phpexcel.codeplex.com/SourceControl/list/changesets</a></p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-01-30T13:52:37.48-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "284189",
+    "ThreadId": "81566",
+    "Html": "<p>Ok, with the Version from SVN it seems to work... THX!</p>\r\n<p>The only thing is that i have to include the file &quot;PHPExcel.php&quot; before &quot;/PHPExcel/Cell/AdvancedValueBinder.php&quot;.<br>This wasn't necessary in the last Version, the offical 1.7.2 Build.</p>",
+    "PostedDate": "2010-02-01T03:10:56.073-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "284198",
+    "ThreadId": "81566",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>muck wrote:</strong><br>\r\n<p>Ok, with the Version from SVN it seems to work... THX!</p>\r\n<p>The only thing is that i have to include the file &quot;PHPExcel.php&quot; before &quot;/PHPExcel/Cell/AdvancedValueBinder.php&quot;.<br>This wasn't necessary in the last Version, the offical 1.7.2 Build.</p>\r\n</blockquote>\r\n<p>&nbsp;I think I can be blamed for that problem.</p>\r\n<p>One of the changes implemented in SVN is a &quot;lazy loader&quot;, so that classes are only required when they're actually needed, and user scripts only need to include/require a single PHPExcel file and everything else will just be pulled in as needed (no further includes necessary). The benefits of this are reduced memory overhead (anything between .5MB and 2.5MB), and a performance increase (about 10%) in loading or saving&nbsp;workbooks as well (require_once is an expensive function call).</p>\r\n<p>I've only configured a handful of files as &quot;entry points&quot; that automatically initialise the &quot;lazy loader&quot; (PHPExcel.php itself, the IO Factory and each individual reader, and the calculation engine). If user scripts include any of these files, there is no need to include any other file such as the AdvancedValueBinder; and I still need to document this change.</p>\r\n<p>I probably need to check the directory paths in the &quot;entry points&quot; as well, I've noticed a couple of places where they're not set up correctly for the &quot;lazy loader&quot;.</p>",
+    "PostedDate": "2010-02-01T03:38:12.737-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "499197",
+    "ThreadId": "81566",
+    "Html": "<p>Thanks! I tried to experiment with some of the code within this thread but the code '<a id=\"ctl00_ctl00_MasterContent_Content_PostRepeater_ctl06_UserNameLink\" href=\"http://www.codeplex.com/site/users/view/koyama\">koyama</a>' and it worked :)</p>\r\n<blockquote style=\"border:0.1em solid #cccccc;font-style:italic;margin:0.25em 1em 0pt;padding:0pt 0.25em\"><strong>muck wrote:</strong><br>\r\n<p>Ok, with the Version from SVN it seems to work... THX!</p>\r\n<p>The only thing is that i have to include the file &quot;PHPExcel.php&quot; before &quot;/PHPExcel/Cell/AdvancedValueBinder.php&quot;.<br>This wasn't necessary in the last Version, the offical 1.7.2 Build.</p>\r\n</blockquote>\r\n<p>This fixed the issue:</p>\r\n<p><strong>Fatal error</strong>:  Class 'PHPExcel_Cell_DefaultValueBinder' not found in <strong>..\\PHPExcel\\Cell\\AdvancedValueBinder.php</strong> on line <strong>36</strong></p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-09-27T15:51:36.597-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "499668",
+    "ThreadId": "81566",
+    "Html": "<p>I've added the entry points to load the &quot;lazy loader&quot; to the DefaultValueBinder and AdvancedValueBinder</p>",
+    "PostedDate": "2010-09-28T15:14:55.223-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "551275",
+    "ThreadId": "81566",
+    "Html": "\r\n<p>Sorry to re-open this one but I have a similar bug in 1.7.5.</p>\r\n<p>I'm not sure if the test-case that was fixed was based on particular characters but in our sample sheets the string 'T-Mobile' (single character with a hyphen) is being transformed into a date (2011-01-18) when using&nbsp;PHPExcel_Cell::setValueBinder(new\r\n PHPExcel_Cell_AdvancedValueBinder()).</p>\r\n<p>Same issue?</p>\r\n",
+    "PostedDate": "2011-01-18T07:23:33.82-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "551346",
+    "ThreadId": "81566",
+    "Html": "\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<strong>seuj wrote:</strong><br>\r\n<p>Sorry to re-open this one but I have a similar bug in 1.7.5.</p>\r\n<p>I'm not sure if the test-case that was fixed was based on particular characters but in our sample sheets the string 'T-Mobile' (single character with a hyphen) is being transformed into a date (2011-01-18) when using&nbsp;PHPExcel_Cell::setValueBinder(new\r\n PHPExcel_Cell_AdvancedValueBinder()).</p>\r\n<p>Same issue?</p>\r\n</blockquote>\r\n<p>&nbsp;I need to double check this. I thought that I'd fixed it recently (since the 1.7.5 release), but can't find a reference here on the discussion board, or on the issue list.</p>\r\n",
+    "PostedDate": "2011-01-18T09:16:23.173-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "551351",
+    "ThreadId": "81566",
+    "Html": "\r\n<p>Many thanks Mark - let me know if I need to pull SVN to test.</p>\r\n",
+    "PostedDate": "2011-01-18T09:31:13.127-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "555859",
+    "ThreadId": "81566",
+    "Html": "\r\n<p>Anything I can do to help this issue along Mark? I have test files if needed. Many thanks.</p>\r\n",
+    "PostedDate": "2011-01-26T12:46:57.533-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "557314",
+    "ThreadId": "81566",
+    "Html": "\r\n<p>@seuj</p>\r\n<p>I can recreate the issue... that's not a problem.</p>\r\n<p>What I'm trying to do is come up with a regexp (or at least a rule that I can implement) to filter out strings that cannot possibly be considered dates from those that are potential dates before calling the DATEVALUE() function.</p>\r\n<p>I have to come up with something that will allow variants such as '29-Jan-2011', '2011/01/29', '02-29-11', 'Jan 2011', 'Jan-2011', 'Jan 29', etc. while rejecting values such as 'T-Mobile' and '50-cent'.</p>\r\n<p>I have a basic solution, but one that will reject a lot of perfectly valid dates/times... I still need to refine&nbsp;it so that I get fewer false negatives while still avoiding any false positives.</p>\r\n<p>I'm targetting the next release (1.7.6) for about 2 weeks time. If I haven't come up with anything better by then, I'll go with my current filter &quot;as is&quot;.</p>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2011-01-29T07:07:36.287-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

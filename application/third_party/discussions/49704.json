@@ -1,0 +1,106 @@
+[
+  {
+    "Id": "166376",
+    "ThreadId": "49704",
+    "Html": "I use PHPExcel with CodeIgniter .<br>\r\nLook at the following code:<br>\r\n&lt;?<br>\r\n        .............................<br>\r\n        header('Pragma: public');<br>\r\n        header('Expires: 0');<br>\r\n        header('Cache-Control: must-revalidate, post-check=0, pre-check=0');<br>\r\n        header('Content-Type: application/force-download');<br>\r\n        header('Content-Type: application/octet-stream');<br>\r\n        header('Content-Type: application/download');<br>\r\n        header(&quot;Content-Disposition: attachment;filename={$filename}&quot;);<br>\r\n        header('Content-Transfer-Encoding: binary');<br>\r\n<br>\r\n        // output the file<br>\r\n        $objWriter = PHPExcel_IOFactory::createWriter($this-&gt;excel-&gt;workbook,'Excel5');<br>\r\n        <br>\r\n        #$objWriter-&gt;save('test.xls');<br>\r\n        $objWriter-&gt;save('php://output');<br>\r\n        exit;<br>\r\n?&gt;<br>\r\nwhen I use &quot;$objWriter-&gt;save('test.xls');&quot; the .xls file can save in the root document success.<br>\r\nbut when I use &quot;$objWriter-&gt;save('php://output');&quot; I can only see the garbled.<br>\r\n<br>\r\nWho can tell me why it happened ?????????????????<br>\r\n",
+    "PostedDate": "2009-03-10T00:39:46.927-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "166519",
+    "ThreadId": "49704",
+    "Html": "If your <code>test.xls</code> file open fine, then the reason is most likely your HTTP headers.<br>\r\n<br>\r\n1. By the way, we have updated the recommendation to use this for output by Excel5 writer:<br>\r\n<br>\r\n<code>\r\nheader('Content-Type: application/vnd.ms-excel');<br>\r\nheader('Content-Disposition: attachment;filename=&quot;'.$filename.'.xls&quot;');<br>\r\nheader('Cache-Control: max-age=0');<br>\r\n</code>\r\n<br>\r\n2. The above is not likely to solve your problem. It could be your CodeIgniter that is altering the headers, but I'm not sure. Check your HTTP response headers by downloading the Live HTTP Headers add-on for Firefox.<br>\r\n<a href=\"https://addons.mozilla.org/en-US/firefox/addon/3829\">https://addons.mozilla.org/en-US/firefox/addon/3829</a><br>\r\n<br>\r\nSee if there is something strange, like a different Content-Type than application/vnd.ms-excel<br>\r\n<br>\r\n",
+    "PostedDate": "2009-03-10T10:27:20.42-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "166679",
+    "ThreadId": "49704",
+    "Html": "My <span>browser </span>is IE Explorer 8.0.  Maybe it cause by the  encoding. because my windows encoding by GB2312 but the web page header encoding by UTF8. \r\n",
+    "PostedDate": "2009-03-10T18:07:18.177-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "167005",
+    "ThreadId": "49704",
+    "Html": "With the above code you are supposed to get a download dialog that prompts you to save or open the Excel file. Please provide us with a full dump of the HTTP response headers using the Live HTTP Headers add-on?<br>\r\n<br>\r\n",
+    "PostedDate": "2009-03-11T11:19:52.8-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "175281",
+    "ThreadId": "49704",
+    "Html": "I will gladly continue the thread. <br>\r\n<br>\r\nWe're experiencing the same problem (except we don't use CodeIgniter - just PHP on linux with Apache). When we save it to the filesystem (on Linux), the excel file opens (in Windows) without a problem. We've upgraded the code to version 1.6.6 in an attempt to get this resolved - without success. In PHP we are using:<br>\r\n<br>\r\n<hr>\r\n$head_filename = &quot;Content-Disposition: attachment;filename=\\&quot;&quot; . $the_file_name . &quot;\\&quot;&quot;;<br>\r\nheader('Content-Type: application/vnd.ms-excel');<br>\r\nheader($head_filename);<br>\r\nheader('Cache-Control: max-age=0');<br>\r\n<hr>\r\n<br>\r\nWhen the file is opened (with Notepad++), it contains three blank lines and the following:<br>\r\n<br>\r\n<strong>bool(false)</strong><br>\r\n<br>\r\nYet if I comment out the header lines and replace it with:<br>\r\n<br>\r\n<strong>$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');<br>\r\n$objWriter-&gt;save($the_file_name);</strong><br>\r\n<br>\r\nThen the file opens fine in Excel. <br>\r\n<br>\r\nUsing Live HTTP Headers, this is what happens when I click the link to generate the file:<br>\r\n<hr>\r\nhttp://---URL-REMOVED<br>\r\n<br>\r\nGET /--PATH-URL-REMOVED HTTP/1.1<br>\r\nHost: --IP-REMOVED<br>\r\nUser-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.0.8) Gecko/2009032609 Firefox/3.0.8 (.NET CLR 3.5.30729)<br>\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8<br>\r\nAccept-Language: en-us,en;q=0.5<br>\r\nAccept-Encoding: gzip,deflate<br>\r\nAccept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7<br>\r\nKeep-Alive: 300<br>\r\nConnection: keep-alive<br>\r\nReferer: http://---URL-REMOVED<br>\r\n<br>\r\nHTTP/1.x 200 OK<br>\r\nDate: Fri, 03 Apr 2009 14:19:49 GMT<br>\r\nServer: Apache/2.2.4 (Unix) mod_ssl/2.2.4 OpenSSL/0.9.8e DAV/2 PHP/5.2.9<br>\r\nX-Powered-By: PHP/5.2.9<br>\r\ncontent-disposition: attachment;filename=&quot;BusinessValidation.xls&quot;<br>\r\nCache-Control: max-age=0<br>\r\nKeep-Alive: timeout=5, max=100<br>\r\nConnection: Keep-Alive<br>\r\nContent-Length: 7695<br>\r\nContent-Type: application/vnd.ms-excel<br>\r\n----------------------------------------------------------<br>\r\n<hr>\r\n<br>\r\nBTW: This is the last lines in my code - no php ending, no blank lines, just this:<br>\r\n<hr>\r\n$objWriter = PHPExcel_IOFactory :: createWriter($objPHPExcel, 'Excel5');<br>\r\n$objWriter-&gt;save('php://output');<br>\r\n<hr>\r\n<br>\r\nAny ideas?<br>\r\n<br>\r\nThanks for your time!<br>\r\n",
+    "PostedDate": "2009-04-03T07:22:52.657-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "175292",
+    "ThreadId": "49704",
+    "Html": "@gniknalu: This looks strange, I can't spot the error except that I'm wondering where bool(false) comes from. Your HTTP headers look ok. Does that mean you get the download dialog ok, but after you download the file it contains just some blank lines plus the text &quot;bool(false)&quot; ?<br>\r\n<br>\r\nI would try to find out where that bool(false) comes from. It looks like you may have some var_dump() statement somewhere which should be removed? There must not be any echo statements or the like when you output Excel file for download.<br>\r\n<br>\r\n",
+    "PostedDate": "2009-04-03T07:51:01.97-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "175312",
+    "ThreadId": "49704",
+    "Html": "Sorry - the var_dump() was there during debugging. That took care of the bool(false) line. . .<br>\r\n<br>\r\nThe file, when the three blank lines and the bool(false) are removed, opens fine in excel and looks as expected. <br>\r\n<br>\r\nOur script presents the user with a link that, when clicked, immediately presents the download dialog box (the HTTP headers you've reviewed). As a work-around, we've been saving the file to the local file system, emailing the file and then unlinking it.<br>\r\n<br>\r\nThe code that generates the excel file has been reviewed ad nauseam - no echo or print statements or anything else that would output.&nbsp; In fact, after removing the var_dump line, I removed all comments and blank lines from the code to see if it had any impact - it had none. . . . . .<br>\r\n",
+    "PostedDate": "2009-04-03T08:31:57.333-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "175320",
+    "ThreadId": "49704",
+    "Html": "Ok, I understand. I thought that the file contained nothing but the three blank lines + bool(false). I see this is not the case since you are saying that the Excel file is fine when the blank lines are deleted.<br>\r\n<br>\r\nYou need to find out where those blank lines are coming from. This kind usually comes from blank lines before the opening &lt;?php or blank lines after the closing ?&gt; in your script. Remove them and it will fix the problem.<br>\r\n<br>\r\nIt is also a good idea to omit the optional closing ?&gt; whenever possible. At least you will then not have to worry about blank lines after the closing ?&gt;.<br>\r\n<br>\r\n",
+    "PostedDate": "2009-04-03T08:49:56.8-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "175494",
+    "ThreadId": "49704",
+    "Html": "I'll keep looking.<br>\r\n<br>\r\nAs mentioned previously:<br>\r\n<br>\r\n<em>BTW: This is the last lines in my code - no php ending, no blank lines, just this:<br>\r\n$objWriter = PHPExcel_IOFactory :: createWriter($objPHPExcel, 'Excel5');<br>\r\n$objWriter-&gt;save('php://output');</em><br>\r\n<br>\r\nThanks for the fast responses!<br>\r\n",
+    "PostedDate": "2009-04-03T14:39:54.59-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "175497",
+    "ThreadId": "49704",
+    "Html": "Keep looking. Remember to check all included files too. The way I usually do this is to put <code>ob_start()</code> at the very beginning of my script and then check the output buffer at various points to track at what point the blank lines are inserted. The following example shows the technique:<br>\r\n<br>\r\n<code>\r\n&lt;?php<br>\r\nob_start();<br>\r\n<br>\r\necho 'hello';<br>\r\nvar_dump(ob_get_contents()); // string(5) &quot;hello&quot;<br>\r\necho 'abc';<br>\r\n?&gt;<br>\r\n</code><br>\r\n",
+    "PostedDate": "2009-04-03T14:55:35.027-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "176116",
+    "ThreadId": "49704",
+    "Html": "<em>&lt;?php<br>\r\n</em><blockquote><em>/** PHPExcel */<br>\r\ninclude 'PHPExcel.php';<br>\r\n<br>\r\n/** PHPExcel_IOFactory */<br>\r\ninclude 'PHPExcel/IOFactory.php';<br>\r\n<br>\r\n// Create new PHPExcel object<br>\r\n$objPHPExcel = new PHPExcel();<br>\r\n<br>\r\n<br>\r\n// Set properties<br>\r\n$objPHPExcel-&gt;getProperties()-&gt;setCreator(&quot;MIS&quot;);<br>\r\n$objPHPExcel-&gt;getProperties()-&gt;setLastModifiedBy(&quot;MIS&quot;);<br>\r\n$objPHPExcel-&gt;getProperties()-&gt;setTitle(&quot;MIS&quot;);<br>\r\n$objPHPExcel-&gt;getProperties()-&gt;setSubject(&quot;Attendance&quot;);<br>\r\n$objPHPExcel-&gt;getProperties()-&gt;setDescription(&quot;Information File&quot;);<br>\r\n<br>\r\n<br>\r\n// Add Data<br>\r\n$objPHPExcel-&gt;setActiveSheetIndex(0);<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue('A1', 'Academic Year');<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue('B1', 'Semester');<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue('C1', 'Faculty');<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue('D1', 'Department');<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue('E1', 'Course');<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue('F1', 'Register no.');<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue('G1', 'Name');<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue('H1', 'Attendance Percentage');<br>\r\n<br>\r\n<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setTitle('Attendance');<br>\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');<br>\r\n<br>\r\nheader('Pragma: public');<br>\r\nheader('Expires: 0');<br>\r\nheader('Cache-Control: must-revalidate, post-check=0, pre-check=0');<br>\r\nheader('Content-Type: application/force-download');<br>\r\nheader('Content-Type: application/octet-stream');<br>\r\nheader('Content-Type: application/download');<br>\r\nheader(&quot;Content-Disposition: attachment;filename=attendance.xlsx&quot;);<br>\r\nheader('Content-Transfer-Encoding: binary');<br>\r\n<br>\r\n<strong>$objWriter-&gt;save('php://output');</strong><br>\r\n</em></blockquote><em>?&gt;<br>\r\n<br>\r\n<br>\r\n<br>\r\n</em><strong>I want to use force downloading when client browses this page. When I use this code it is working fine only in &quot;Microsoft Windows&quot; runing PC's client browsers. When I try in Linux OS running PC as Client machine it is not working. How can I solve this problem? (Note that my Server OS is Linux)</strong>.\r\n",
+    "PostedDate": "2009-04-06T07:00:00.717-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "176629",
+    "ThreadId": "49704",
+    "Html": "A code review fixed my problems. One of the scripts calls a script (that calls a script - you know the routine). That script (and it's friends) had three extra lines after the closing tag. So I'm good!<br>\r\n",
+    "PostedDate": "2009-04-07T07:34:58.533-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "177041",
+    "ThreadId": "49704",
+    "Html": "@samudaya: Can you instead try to use the headers as shown in the latest documentation? What is happening on your Linux OS client machine, you don't get a download dialog?<br>\r\n<br>\r\n",
+    "PostedDate": "2009-04-08T01:53:51.763-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

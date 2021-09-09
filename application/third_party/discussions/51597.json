@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "173056",
+    "ThreadId": "51597",
+    "Html": "<div><div>Hi,</div><div><br></div><div>I've got a bit strange problem.. In our system we are using PHPExcel to export data tables. At the time we were building it on our DEV server everything worked fine (well, actually, sometimes we were getting &quot;unreadable content&quot; errors, but that was very rare cases). Now we moved to our real server and here started the headaches.. Almost everytime MS Office fails to open a PHPExcel saved file (it saves the same file successfully something like 1 out of 10 times). </div><div><br></div><div>I'm just a programmer, not much of a tech guy, so could you possibly tell me what can be causing this? If it helps, I generated good and bad saved files using the code from examples. You can find them here - http://webideja.lt/phpexcel/</div><div><br></div><div>Some info about our server:</div><div>PHP Version 5.2.4-2ubuntu5.5</div><div>Apache 2.0</div><div><div>Zip version<span style=\"white-space:pre\">\t</span>2.0.0</div><div>Libzip version<span style=\"white-space:pre\">\t</span>0.7.1</div><div><br></div><div>Let me know if you need anything else. Thanks in advance!</div></div></div>",
+    "PostedDate": "2009-03-28T05:10:48.22-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "173314",
+    "ThreadId": "51597",
+    "Html": "Can you check with phpinfo() if you have a setting for mbstring.func_overload other than 0.<br>\r\n<br>\r\nExample, phpinfo() screen shot:<br>\r\n<a href=\"http://img17.imageshack.us/img17/3249/mbstring.png\">http://img17.imageshack.us/img17/3249/mbstring.png</a><br>\r\n<br>\r\n",
+    "PostedDate": "2009-03-29T20:36:47.96-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "173322",
+    "ThreadId": "51597",
+    "Html": "No, it's zero. Actually, all mb_string values are the same as in your screenshot.",
+    "PostedDate": "2009-03-29T21:39:46.1-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "173324",
+    "ThreadId": "51597",
+    "Html": "Hmm... This is strange as it really looked like this was the cause.<br>\r\n<br>\r\nTo help finding the bug, can I ask you to try the following:<br>\r\n<br>\r\nIn the file called <code>'Classes/PHPExcel/Writer/Excel5/Workbook.php'</code>, there is a function called <code>_storeBoundsheet</code>. Insert the following line to check the value of the <code>$offset</code> variable:<br>\r\n<br>\r\n<code>\r\nfunction _storeBoundsheet($sheetname,$offset)<br>\r\n{<br>\r\nvar_dump($offset);&nbsp; // insert this line here at the beginning<br>\r\n...<br>\r\n}<br>\r\n</code>\r\n<br>\r\nTry on both servers and post back the results you see on the screen when you run the script.<br>\r\n<br>\r\n",
+    "PostedDate": "2009-03-29T22:04:05.273-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "173341",
+    "ThreadId": "51597",
+    "Html": "On DEV server $offset value with the example code is 869 and stays constant. However, on our real server it most often evaluates to 744 (when I run the code many times, sometimes I get 869 value and the file opens).<br>\r\n",
+    "PostedDate": "2009-03-29T23:23:22.447-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "173433",
+    "ThreadId": "51597",
+    "Html": "I did some tests with your script, and I found out that those values 744 and 869 are exactly what one would get with and without mbstring function overloading.<br>\r\n<br>\r\nCan you try to run this simple test script. Copy the following snippet and make sure you save it as UTF-8.<br>\r\n<br>\r\n<code>\r\n&lt;?php<br>\r\necho strlen('æ');<br>\r\n?&gt;<br>\r\n</code>\r\n<br>\r\nOn your test server, this should give you 2, since <code>'æ'</code> takes 2 bytes in UTF-8. On your DEV server you may get 1, and rarely 2. Can you verify this?<br>\r\n<br>\r\nI have not looked carefully at this, but others have reported weirdness about mbstring function overloading randomly turning on. E.g.<br>\r\n<a href=\"http://bonsai.php.net/bug.php?id=40441\">http://bonsai.php.net/bug.php?id=40441</a><br>\r\n<br>\r\nSome bug fixes in PHP have been carried out for similar reports so it may be worth trying to do an upgrade.<br>\r\n<br>\r\n",
+    "PostedDate": "2009-03-30T05:36:21.693-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

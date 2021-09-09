@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "230250",
+    "ThreadId": "67760",
+    "Html": "<p>Hello</p>\r\n<p>I get a corrupted file when&nbsp;I simply open an xlsx file and save it :</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>set_include_path(get_include_path() . PATH_SEPARATOR . <span style=\"color:#A31515\">'Classes/'</span>);\r\n\r\n<span style=\"color:Green\">// Class requirements</span>\r\n<span style=\"color:Blue\">require_once</span>(<span style=\"color:#A31515\">'PHPExcel.php'</span>);\r\n<span style=\"color:Blue\">require_once</span>(<span style=\"color:#A31515\">'PHPExcel/Reader/Excel2007.php'</span>);\r\n<span style=\"color:Blue\">require_once</span>(<span style=\"color:#A31515\">'PHPExcel/Writer/Excel2007.php'</span>);\r\n\r\n$file_name = <span style=\"color:#A31515\">'test_xls.xlsx'</span>;\r\n\r\n$objReader = <span style=\"color:Blue\">new</span> PHPExcel_Reader_Excel2007();\r\n$objPHPExcel = $objReader-&gt;load($file_name);\r\n$objWriter = <span style=\"color:Blue\">new</span> PHPExcel_Writer_Excel2007($objPHPExcel, <span style=\"color:#A31515\">&quot;Excel2007&quot;</span>);\r\n$objWriter-&gt;save($file_name);\r\n\r\n</pre>\r\n</div>\r\n<p>The second time I run the script, &quot;$objPHPExcel = $objReader-&gt;load($file_name); &quot; throw an error :&nbsp;</p>\r\n<p><strong>Warning</strong>:  ZipArchive::getFromName() [<a href=\"http://localhost/_opensource/_silex/_repository_open_source/trunk/silex_server/cgi/scripts/ziparchive.getfromname\">ziparchive.getfromname</a>]: Invalid or unitialized Zip object in <strong>D:\\_opensource\\_silex\\_repository_open_source\\trunk\\silex_server\\cgi\\scripts\\Classes\\PHPExcel\\Reader\\Excel2007.php</strong> on line <strong>327</strong><br> <br> <strong>Warning</strong>:  Invalid argument supplied for foreach() in <strong>D:\\_opensource\\_silex\\_repository_open_source\\trunk\\silex_server\\cgi\\scripts\\Classes\\PHPExcel\\Reader\\Excel2007.php</strong> on line <strong>328</strong></p>\r\n<p>-------------------------------------</p>\r\n<p>NB : we (the silex team) are using phpExcel for a client again :-) I even made a first draft of a phpExcel component for Silex. It is available from Silex managers. Thank you for your work!</p>\r\n<p>And do not hesitate to contact us ( http://silexlabs.com )</p>",
+    "PostedDate": "2009-09-02T08:45:30.647-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "230265",
+    "ThreadId": "67760",
+    "Html": "<p>I don't think we have seen this bug before. Is the xlsx file you are reading available somewhere so we can test? Or you can send me the xlsx file: erik at phpexcel dot net</p>",
+    "PostedDate": "2009-09-02T09:01:48.52-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "230308",
+    "ThreadId": "67760",
+    "Html": "<p>great thank you</p>\r\n<p>here is the excel file before writing: <a href=\"http://hoyau.info/transfert/before-test_xls.xlsx\">http://hoyau.info/transfert/before-test_xls.xlsx</a></p>\r\n<p>here is the excel file after writing (corrupted): <a href=\"http://hoyau.info/transfert/after-test_xls.xlsx\">http://hoyau.info/transfert/after-test_xls.xlsx</a></p>\r\n<p>Thank you very much erik</p>",
+    "PostedDate": "2009-09-02T10:32:14.797-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "230333",
+    "ThreadId": "67760",
+    "Html": "<p>Hmm... Sorry, but could you please explain again with which file the bug occurs.</p>\r\n<p>before-test_xls.xlsx opens fine in MS Office Excel 2007</p>\r\n<p>after-test_xls.xlsx is corrupt when I try to open in MS Office Excel 2007</p>\r\n<p>But both files look like they have been saved from Excel ? How should I understand the bug?</p>",
+    "PostedDate": "2009-09-02T11:14:00.497-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "230335",
+    "ThreadId": "67760",
+    "Html": "<p>before-test_xls.xlsx is a file which i made with ms office</p>\r\n<p>my script (see top of page) open it fine and save it without any modifications</p>\r\n<p>the saved file is after-test_xls.xlsx</p>\r\n<p>&nbsp;</p>\r\n<p>and yes it is corrupted... i do not understand why :-(</p>",
+    "PostedDate": "2009-09-02T11:17:54.343-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "230343",
+    "ThreadId": "67760",
+    "Html": "<p>Strange. I have run this simple plain read/write script:</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$objReader = <span style=\"color:Blue\">new</span> PHPExcel_Reader_Excel2007();<br>$objPHPExcel = $objReader-&gt;load(<span style=\"color:#A31515\">'before-test_xls.xlsx'</span>);<br>$objWriter = <span style=\"color:Blue\">new</span> PHPExcel_Writer_Excel2007($objPHPExcel, <span style=\"color:#A31515\">&quot;Excel2007&quot;</span>);<br>$objWriter-&gt;save(<span style=\"color:#A31515\">'write.xlsx'</span>);<br></pre>\r\n</div>\r\n<p>Generated file is here: <a href=\"http://koyama.dk/demos/PHPExcel/67760/write.xlsx\">http://koyama.dk/demos/PHPExcel/67760/write.xlsx</a></p>\r\n<p>File seems ok? Do you think it could be a problem with the zip extension on your server? Are you running PHP 5.2.8 on Windows? We know there is a problem with the zip extension bundled in that version of PHP?</p>",
+    "PostedDate": "2009-09-02T11:34:55.497-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "230752",
+    "ThreadId": "67760",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\">\r\n<p>Do you think it could be a problem with the zip extension on your server? Are you running PHP 5.2.8 on Windows? We know there is a problem with the zip extension bundled in that version of PHP?</p>\r\n</blockquote>\r\n<p>YES! that was it</p>\r\n<p>I tried online, on my shared hosting and it worked!</p>\r\n<p>too bad this thing with the zip extension</p>\r\n<p>thank you very much <a id=\"ctl00_ctl00_MasterContent_Content_PostRepeater_ctl10_UserNameLink\" style=\"text-decoration:underline;color:#ce8b10\" href=\"http://www.codeplex.com/site/users/view/koyama\">koyama</a>&nbsp;:-)</p>",
+    "PostedDate": "2009-09-03T09:54:39.447-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

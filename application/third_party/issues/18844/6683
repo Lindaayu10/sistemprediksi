@@ -1,0 +1,26 @@
+<?php
+
+require_once "PHPExcel.php";
+$File2Read = "TestCacheMethod.xls";
+$SheetName="Cities";
+
+$inputFileType = PHPExcel_IOFactory::identify($File2Read);
+$cacheMethod = PHPExcel_CachedObjectStorageFactory:: cache_in_memory_gzip; // KO
+//$cacheMethod = PHPExcel_CachedObjectStorageFactory:: cache_in_memory; // OK
+$cacheSettings = array( ' memoryCacheSize ' => '64MB');
+PHPExcel_Settings::setCacheStorageMethod($cacheMethod, $cacheSettings);
+
+$inputFileType = PHPExcel_IOFactory::identify($File2Read);
+
+$objReader = PHPExcel_IOFactory::createReader($inputFileType);
+$objReader->setLoadSheetsOnly($SheetName);
+$objReader->setReadDataOnly(true);
+$objPHPExcel = $objReader->load($File2Read);
+$worksheetNames = $objReader->listWorksheetNames($File2Read);
+$objWorksheet = $objPHPExcel->setActiveSheetIndexByName($SheetName);
+$FullSheet = $objWorksheet->toArray(null,true,false,false);
+echo "<pre>";
+print_r($FullSheet);
+echo "</pre>";
+
+?>

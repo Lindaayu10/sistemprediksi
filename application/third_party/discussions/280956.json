@@ -1,0 +1,98 @@
+[
+  {
+    "Id": "703829",
+    "ThreadId": "280956",
+    "Html": "\r\n<p>Hi all,</p>\r\n<p>I've read a ton of documentation and topics, but I'm still unable to deal with my huge files (we are talking multiple workbook with twenty-something sheets, 15.000 rows x 50 columns each).</p>\r\n<p>I already tried both PHPExcel_Settings::setCacheStorageMethod(PHPExcel_CachedObjectStorageFactory::cache_to_discISAM) and ini_set('memory_limit', '3096M'); but it still isn't enough), and reading just a sheet per time is not really faseable, since I need\r\n to merge multiple of them.</p>\r\n<p>&nbsp;</p>\r\n<p>Let's start easy: I need to delete a specific (by name, not by index) sheet: how can I do that without loading the whole workbook first?</p>\r\n<p>Then: I need to merge some of these sheets and write the merge back, without loosing the other sheets: how to?</p>\r\n<p>&nbsp;</p>\r\n<p>I've already tried to read one line per time, but without a stream writer...</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks!</p>\r\n",
+    "PostedDate": "2011-11-27T04:23:53.453-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "705004",
+    "ThreadId": "280956",
+    "Html": "<p>Hi Zane,</p>\n<p>you wrote you need to delete a specific worksheet...<br /> ...why not only load the worksheets you need with objReader-&gt;setLoadSheetsOnly(...) ? Did you try that?</p>\n<p>And...do you need to read all 50 columns? - If not, load and the read only the columns you need using a filter and getCellByColumnAndRow(2, 23).<br /> To get all the columns of each worksheet each in an array, take a look at this thread: http://phpexcel.codeplex.com/discussions/259971</p>\n<p>Unfortunately these are all the hints I may give you, also still experimenting with large files :-)</p>\n<p>Yours Henri Schom&auml;cker</p>",
+    "PostedDate": "2011-11-29T14:43:17.51-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "706885",
+    "ThreadId": "280956",
+    "Html": "<p>I am also having problems with a large Excel 2007 file.&nbsp; The file has over 200,000 rows, and I get an error while loading it:</p>\r\n<p><strong>\"Error loading file: Invalid cell coordinate A100000\"</strong></p>\r\n<p>It didn't even get halfway to the bottom.&nbsp; What can I do?&nbsp; BTW, the file is narrow, with only 6 columns.</p>\r\n<p>Thanks,</p>\r\n<p>Mike</p>",
+    "PostedDate": "2011-12-03T04:43:14.287-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "708183",
+    "ThreadId": "280956",
+    "Html": "<p>BTW, when I split the sheet into multiple tabs, it was able to load the spreadsheet.&nbsp; I just shouldn't have to do that.</p>\r\n<p>Can anyone point me to where it physically loads the file into memory?&nbsp; I can't find it in the \"load()\" function itself.</p>\r\n<p>Thanks.&nbsp;</p>",
+    "PostedDate": "2011-12-06T08:13:49.467-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "708247",
+    "ThreadId": "280956",
+    "Html": "<blockquote style=\"padding-bottom: 0px; font-style: italic; margin: 0.25em 1em 0px; padding-left: 0.25em; padding-right: 0.25em; padding-top: 0px; border: #ccc 0.1em solid;\"><strong>psyclo wrote:</strong><br />\r\n<p>Can anyone point me to where it physically loads the file into memory?&nbsp; I can't find it in the \"load()\" function itself.</p>\r\n</blockquote>\r\n<p>An Excel 2007 file is a zipped archive that contains a whole series of individual XML files. The load() method extracts each file from the ziparchive in turn, calling the _getFromZipArchive() for each constituent file that it needs. All the processing of the files is handled from within _load().... it is one large method (and not particularly good OO coding). SImpleXML is used for parsing these files: someday, I'll rewrite to use the XMLReader which will be more memory efficient for the load.</p>",
+    "PostedDate": "2011-12-06T09:49:20.7-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "708361",
+    "ThreadId": "280956",
+    "Html": "<p>Mark,</p>\r\n<p>Thanks for responding so quickly.&nbsp; I appreciate that a bunch.</p>\r\n<p>Is there anything I can do right now to get PHPExcel to load a single sheet with more than 200,000 rows?</p>\r\n<p>I looked for the _load() function but couldn't find it in the PHPExcel directory structure.&nbsp; I did find the public load(), but nothing else.</p>\r\n<p>Thanks again,</p>\r\n<p>Mike</p>",
+    "PostedDate": "2011-12-06T12:20:01.15-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "708450",
+    "ThreadId": "280956",
+    "Html": "<blockquote style=\"padding-bottom: 0px; font-style: italic; margin: 0.25em 1em 0px; padding-left: 0.25em; padding-right: 0.25em; padding-top: 0px; border: #ccc 0.1em solid;\"><strong>psyclo wrote:</strong><br />\r\n<p>Is there anything I can do right now to get PHPExcel to load a single sheet with more than 200,000 rows?</p>\r\n<p>I looked for the _load() function but couldn't find it in the PHPExcel directory structure.&nbsp; I did find the public load(), but nothing else.</p>\r\n</blockquote>\r\n<p>The load() method for an Excel 2007&nbsp;workbook is in the Classes/PHPExcel/Reader/Excel2007.php file.</p>\r\n<blockquote style=\"padding-bottom: 0px; font-style: italic; margin: 0.25em 1em 0px; padding-left: 0.25em; padding-right: 0.25em; padding-top: 0px; border: #ccc 0.1em solid;\"><strong>psyclo wrote:</strong><br />\r\n<p>Is there anything I can do right now to get PHPExcel to load a single sheet with more than 200,000 rows?</p>\r\n<p>I looked for the _load() function but couldn't find it in the PHPExcel directory structure. I did find the public load(), but nothing else.</p>\r\n</blockquote>\r\n<p>&nbsp;One option is to use cell caching, which reduces the memory usage but at a cost in speed. There's a section in the documentation that describes the cache methods available - <a href=\"http://phpexcel.codeplex.com/discussions/234150\">this thread </a>gives some indication of the relative benefits/costs of the different caching methods. And <a href=\"http://phpexcel.codeplex.com/discussions/242712?ProjectName=phpexcel\">this thread </a>describes some of the other techniques available to reduce memory usage.</p>",
+    "PostedDate": "2011-12-06T14:32:54.54-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "708813",
+    "ThreadId": "280956",
+    "Html": "<p>Mark,</p>\r\n<p>Thanks again for your help.</p>\r\n<p>The problem is not about caching, and does not appear to be a memory problem, since I'm able to load the entire spreadsheet when I split up the rows into multiple tabs.&nbsp; The maximum of 100,000 rows per tab appears to be an artificial constraint, and I can't find anyplace in the code where it sets that limit.&nbsp; OK, so I found the public load() function in the Excel2007.php file, and I see on line 530 where it loads the sheet from the file using _getFromZipArchive().&nbsp; I'm not sure I understand what ZipArchive is, or where getFromName() is defined to be used on line 274.</p>\r\n<p>Thanks.</p>\r\n<p>Mike</p>",
+    "PostedDate": "2011-12-07T07:07:09.847-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "708828",
+    "ThreadId": "280956",
+    "Html": "<p>It is not a limit of PHPExcel, I've already created sheets bigger than that. However, writing excel files in excess of 100K rows, takes a lot of cpu and memory (i've seen peaks of 24GB allocated). Are you sure there's no error, that's just not being reported? On the other hand, I haven't tried to read files that big.</p>\r\n<p>&nbsp;</p>\r\n<p>Tip: when looking at the code, use a decent IDE; that way you can just click a function to find its definition.</p>",
+    "PostedDate": "2011-12-07T07:16:13.157-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "708967",
+    "ThreadId": "280956",
+    "Html": "<p>As I've said a few times, this is about loading/reading an existing Excel spreadsheet, not writing anything.&nbsp; The error I'm getting is not about running out of memory.&nbsp; I've seen that one and this isn't it.&nbsp; I'm getting an error during the load about <strong>\"Invalid cell coordinate A100000\"</strong>which indicates to me that the load is stopping at row 99,999 for some reason.<strong><br /></strong></p>",
+    "PostedDate": "2011-12-07T12:09:58.06-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "708978",
+    "ThreadId": "280956",
+    "Html": "<p>I found this entry on this site, but I don't know if it has any relevance to your issue directly.</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/workitem/15029\">http://phpexcel.codeplex.com/workitem/15029</a></p>\r\n<p>- Christopher Mullins</p>",
+    "PostedDate": "2011-12-07T12:25:46.407-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "709023",
+    "ThreadId": "280956",
+    "Html": "<p>schir, That was close, but the referenced line of code has already been fixed in my version of PHPExcel, so it isn't limited to 5 digits.&nbsp; I can't find any references to \"[1-5]\" in the code.&nbsp; &lt;sigh&gt;</p>\r\n<p>Thanks anyway.</p>\r\n<p>Mike</p>",
+    "PostedDate": "2011-12-07T13:50:10.783-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

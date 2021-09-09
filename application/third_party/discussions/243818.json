@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "557401",
+    "ThreadId": "243818",
+    "Html": "\r\n<p>Hello,</p>\r\n<p>I've got a problem with the alignment of cells. When I try to read an xls file the returned alignment of a cell is always 'general'.</p>\r\n<p>Here's the code I use:</p>\r\n<p></p>\r\n<pre>$align = $style-&gt;getAlignment()-&gt;getHorizontal();\r\necho $align.&quot;&lt;br /&gt;&quot;;\r\nif($align == &quot;general&quot;)\r\n{\r\n\tif((string)(floatval($text)) === $text)\r\n\t\t$align = &quot;right&quot;;\r\n\telse\r\n\t\t$align = &quot;left&quot;;\r\n}</pre>\r\n<p></p>\r\n<p>With the echo command I read the returned value. First I thougt, general would be the default value, but it's always returned.</p>\r\n<p>&nbsp;</p>\r\n<p>Does anyone know, how I can solve this problem?</p>\r\n<p>&nbsp;</p>\r\n<p>Thank you in advance!</p>\r\n",
+    "PostedDate": "2011-01-29T13:42:02.87-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "557407",
+    "ThreadId": "243818",
+    "Html": "\r\n<p>An alignment of &quot;general&quot; means that Excel chooses the alignment to use for that cell based on the datatype when it displays the cell: numbers are then displayed right justified, strings displayed left justified, and booleans in the centre of the cell, etc.\r\n Most cells in any Excel workbook will be &quot;general&quot; aligned, unless you have specifically set an alignment.</p>\r\n",
+    "PostedDate": "2011-01-29T14:10:12.67-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "557632",
+    "ThreadId": "243818",
+    "Html": "\r\n<p>But why it does MS Excel correctly and PHPExcel not? I've uploaded an example file:</p>\r\n<p><a href=\"http://docs.sxnet.eu/read.php\">http://docs.sxnet.eu/read.php</a></p>\r\n<p>And see the original file in Excel:</p>\r\n<p><a href=\"http://docs.sxnet.eu/test.xls\">http://docs.sxnet.eu/test.xls</a></p>\r\n",
+    "PostedDate": "2011-01-30T09:00:40.813-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "557640",
+    "ThreadId": "243818",
+    "Html": "\r\n<p>Put simplistically, MS Excel comprises two components: the MS Excel Engine, and the MS Excel User Interface (UI). The MS Excel Engine holds the formatting information as &quot;general&quot;... when you're viewing&nbsp;the&nbsp;spreadsheet through the MS Excel UI,\r\n the MS Excel UI asks the MS Excel Engine what alignment it should use to display each cell. If the MS Excel Engine tells the MS Excel UI that this cell alignment is &quot;left&quot; or &quot;right&quot; or &quot;center&quot; or &quot;justified&quot;, then it is telling the MS Excel UI specifically\r\n to use that value.&nbsp;However, if the MS Excel Engine tells the MS Excel UI that this cell alignment is &quot;general&quot;, then it is telling&nbsp;the MS Excel UI that it (the UI) should choose the aliggnment, and the MS Excel UI then interprets that in different\r\n ways, depending on the data type.</p>\r\n<p>PHPExcel is not wrong, nor is it doing anything different to the MS Excel engine.</p>\r\n<p>PHPExcel represents the <strong>MS Excel Engine</strong>, and it is your code that is the UI. So if PHPExcel tells you that the alignment is &quot;right&quot;, it is instructing your code specifically to align that cell to the right&quot;. But for most cells, PHPExcel\r\n holds the alignment as &quot;general&quot; in exactly the same way as the MS Excel Engine. When your script (acting as the MS Excel UI) asks the Engine (PHPExcel) for a cell alignment, PHPExcel tells you that it is &quot;general&quot; in exactly the same way that the MS Excel\r\n Engine, and it is up to your UI code to interpret that as you want to, perhaps in the same way as the MS Excel UI (based on data type), but you could do whatever you wanted with it.</p>\r\n<p>Looking at your worksheet, using the following code:</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>$sheet = $objPHPExcel-&gt;getActiveSheet();\r\n$row = $sheet-&gt;getHighestRow();\r\n$col = $sheet-&gt;getHighestColumn();\r\n$col&#43;&#43;;\r\n<span style=\"color:blue\">for</span>($r = 1; $r &lt;= $row; &#43;&#43;$r) {\r\n <span style=\"color:blue\">for</span>($c = <span style=\"color:#a31515\">'A'</span>; $c != $col; &#43;&#43;$c) {\r\n  $hAlign = $objPHPExcel-&gt;getActiveSheet()-&gt;getStyle($c.$r)-&gt;getAlignment()-&gt;getHorizontal();\r\n  <span style=\"color:blue\">echo</span> $c.$r,<span style=\"color:#a31515\">' =&gt; '</span>,$hAlign,<span style=\"color:#a31515\">'&lt;br /&gt;'</span>;\r\n }\r\n}\r\n</pre>\r\n</div>\r\n<p>I get the following result:</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>A1 =&gt; right\r\nB1 =&gt; right\r\nC1 =&gt; right\r\nA2 =&gt; right\r\nB2 =&gt; right\r\nC2 =&gt; right\r\nA3 =&gt; right\r\nB3 =&gt; right\r\nC3 =&gt; right\r\nA4 =&gt; right\r\nB4 =&gt; right\r\nC4 =&gt; right\r\nA5 =&gt; right\r\nB5 =&gt; right\r\nC5 =&gt; right\r\nA6 =&gt; right\r\nB6 =&gt; right\r\nC6 =&gt; right\r\nA7 =&gt; right\r\nB7 =&gt; right\r\nC7 =&gt; right\r\nA8 =&gt; right\r\nB8 =&gt; right\r\nC8 =&gt; right\r\nA9 =&gt; right\r\nB9 =&gt; right\r\nC9 =&gt; right\r\nA10 =&gt; right\r\nB10 =&gt; right\r\nC10 =&gt; right\r\n</pre>\r\n</div>\r\n<p>which is exactly what I'd expect to see, because you've explicitly set all those cells to be right-aligned... and not a mention of general anywhere.</p>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2011-01-30T09:39:46.74-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "557673",
+    "ThreadId": "243818",
+    "Html": "\r\n<p>Ok, thank you. Your answer helped me. Your posted code didn't solve the problem, but I found it. At the beginning of my document I used:</p>\r\n<p>$objReader-&gt;setReadDataOnly(true);</p>\r\n<p>&nbsp;</p>\r\n<p>I thougt this command sets something like a read-only flag, but it seems like it is for reading just the contents of cells or something.</p>\r\n<p>When I remove the line it works.</p>\r\n<p>&nbsp;</p>\r\n<p>Thank you for your hint!</p>\r\n<p>&nbsp;</p>\r\n<p>//edit:</p>\r\n<p>OK, but when I save the file by PHPExcel the columns are not counted by</p>\r\n<p>$columns = $sheet-&gt;getHighestColumn();</p>\r\n<p>This always returns the value 1. When I read a file saved by Excel, everything's ok.</p>\r\n<p>(only when I remove the&nbsp;$objReader-&gt;setReadDataOnly(true);)</p>\r\n<p>&nbsp;</p>\r\n<p>Check this one:</p>\r\n<p><a href=\"http://docs.sxnet.eu/saves/xls/test.xls\">http://docs.sxnet.eu/saves/xls/test.xls</a></p>\r\n",
+    "PostedDate": "2011-01-30T10:53:39.417-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "557688",
+    "ThreadId": "243818",
+    "Html": "\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<strong>nelf wrote:</strong><br>\r\n<p>$objReader-&gt;setReadDataOnly(true);</p>\r\n<p>I thougt this command sets something like a read-only flag, but it seems like it is for reading just the contents of cells or something.</p>\r\n</blockquote>\r\n<p>&nbsp;setReadDataOnly(true) means read only the <strong>Data </strong>from a workbook, ignoring any formatting information.</p>\r\n<p>&nbsp;</p>\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<strong>nelf wrote:</strong><br>\r\n<p>OK, but when I save the file by PHPExcel the columns are not counted by</p>\r\n<p>$columns = $sheet-&gt;getHighestColumn();</p>\r\n<p>This always returns the value 1. When I read a file saved by Excel, everything's ok.</p>\r\n</blockquote>\r\n<p>Again, I don't understand your problem. I've run the following code against your workbook:</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>$sheet = $objPHPExcel-&gt;getActiveSheet();\r\n$row = $sheet-&gt;getHighestRow();\r\n$col = $sheet-&gt;getHighestColumn();\r\n<span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'Highest Row is '</span>,$row,<span style=\"color:#a31515\">'&lt;br /&gt;'</span>;\r\n<span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'Highest Column is '</span>,$col,<span style=\"color:#a31515\">'&lt;br /&gt;'</span>;\r\n</pre>\r\n</div>\r\n<p>and it gives:</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>Highest Row is 10\r\nHighest Column is IU\r\n</pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2011-01-30T11:28:48.693-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "558027",
+    "ThreadId": "243818",
+    "Html": "\r\n<p>Ok, thank you.</p>\r\n<p>I had an issue with getting the correct letter from a number - that was the problem.</p>\r\n<p>Now everything works!</p>\r\n",
+    "PostedDate": "2011-01-31T04:58:34.697-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

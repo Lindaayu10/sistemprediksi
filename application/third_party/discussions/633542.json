@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "1418576",
+    "ThreadId": "633542",
+    "Html": "Hello everyone,\r<br />\n<br />\nyesterday I downloaded PHPExcel for the first time and made the first steps.\r<br />\nI have a Database with persons in it. Every Person has a name, class and code. I want to print this data into a .xlsx file. \r<br />\n<br />\nPretty much everything works fine, but somehow the data in a few columns floats to the right side.\r<br />\n(I'm using LibreOffice to open the file)\r<br />\n<br />\n<img src=\"http://img4host.net/upload/26192637553d1fcd6f5bc.png\" alt=\"Image\" />\r<br />\n<br />\nThis is my code:<br />\n<pre><code>&lt;?\n//..\n// Fetching data from Database and storing it in variable &quot;raw&quot;\n// Then continue to create the document\n\nheader('Content-type: application/vnd.ms-excel');\nheader('Content-Disposition: attachment; filename=&quot;codes_' . $pid . '.xlsx&quot;');\nheader('Pragma: no-cache');\n\ninclude '../PHPExcel/Classes/PHPExcel.php';\ninclude '../PHPExcel/Classes/PHPExcel/Writer/Excel2007.php';\n\n$excel = new PHPExcel();\n\n\n\n$excel-&gt;setActiveSheetIndex(0);\n$excel-&gt;getActiveSheet()-&gt;getColumnDimension('A')-&gt;setWidth(50);\n$excel-&gt;getActiveSheet()-&gt;getColumnDimension('B')-&gt;setWidth(20);\n$excel-&gt;getActiveSheet()-&gt;getColumnDimension('C')-&gt;setWidth(20);\n$col = 1;\n$class = $raw[0][1].$raw[0][2];\n\nforeach ($raw as $val) {\n    \n    if($val[1].$val[2] != $class)\n    {\n        $class = $val[1].$val[2];\n        $col = $col + 3;\n    }\n    \n    $excel-&gt;getActiveSheet()-&gt;SetCellValue('A'.strval($col), $val[0]);\n    $excel-&gt;getActiveSheet()-&gt;SetCellValue('B'.strval($col), $val[1].$val[2]);\n    $excel-&gt;getActiveSheet()-&gt;SetCellValue('C'.strval($col), $val[3]);\n    \n    $col++;\n}\n\n$objWriter = new PHPExcel_Writer_Excel2007($excel);\n$objWriter-&gt;save(&quot;php://output&quot;);\n?&gt;</code></pre>\n\nI hope someone can help me.\r<br />\n<br />\nThank you very much!<br />\n",
+    "PostedDate": "2015-04-26T10:30:48.86-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1418993",
+    "ThreadId": "633542",
+    "Html": "Hi there,\r<br />\n<br />\nExcel and LibreOffice's Calc both apply cell alignment based on a cell's value if there is no cell style applied on that specific cell. In your case C1 is right-aligned because it contains a number whereas most other cells like C5 contain strings and are thus left-aligned. If you are going for left-aligned cell content, the easiest solution would be to prepend a single quote to the cell value which will cause Excel/Calc to see a string even if the cell contains a number (example: 1234 would become '1234).\r<br />\n<br />\nAnother way would be to add alignment programmatically:<br />\n<pre><code>$phpExcel-&gt;getActiveSheet()\n    -&gt;getStyle( $phpExcel-&gt;getActiveSheet()-&gt;calculateWorksheetDimension() )\n    -&gt;getAlignment()\n    -&gt;setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);  </code></pre>\n\n(based on Mark's answer here: <a href=\"http://stackoverflow.com/questions/12614864/phpexcel-how-to-apply-alignment-for-the-whole-document-created-from-mysql-table\" rel=\"nofollow\">http://stackoverflow.com/questions/12614864/phpexcel-how-to-apply-alignment-for-the-whole-document-created-from-mysql-table</a> )\r<br />\n<br />\nRegards,\r<br />\n<br />\nSascha<br />\n",
+    "PostedDate": "2015-04-27T07:02:20.707-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

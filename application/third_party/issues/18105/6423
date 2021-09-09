@@ -1,0 +1,17 @@
+--- Classes/PHPExcel/Reader/Excel2007.php	2012-05-19 13:53:14.000000000 +0100
++++ Classes/PHPExcel/Reader/Excel2007.php	2012-05-22 11:45:40.322048482 +0100
+@@ -1097,7 +1097,13 @@
+ 							}
+ 
+ 							if ($xmlSheet && $xmlSheet->autoFilter && !$this->_readDataOnly) {
+-								$docSheet->setAutoFilter((string) $xmlSheet->autoFilter["ref"]);
++                                $autoFilterRange = (string) $xmlSheet->autoFilter["ref"];
++                                if ($autoFilterRange) {
++                                    if (strpos($autoFilterRange, ':') === false) {
++                                        $autoFilterRange = "${autoFilterRange}:${autoFilterRange}";
++                                    }
++    								$docSheet->setAutoFilter($autoFilterRange);
++                                }
+ 							}
+ 
+ 							if ($xmlSheet && $xmlSheet->mergeCells && $xmlSheet->mergeCells->mergeCell && !$this->_readDataOnly) {

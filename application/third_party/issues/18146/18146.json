@@ -1,0 +1,90 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "PHPExcel Release 1.7.8",
+    "ClosedDate": "2012-10-12T13:31:54.073-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hi\n \nI'm reading an Excel2007 spreadsheet that has a chart, and then I'm modifying content, then writing the changes out.\n \nAt a certain point when writing the chart data, an invalid foreach() warning is generated.  This error is happening at PHPExcel/Writer/Excel2007/Chart.php, on line 956 [foreach($plotSeriesValues->getDataValues() as $plotSeriesKey => $plotSeriesValue) {].\n \nThe thing that is causing the issue is that when processing the chart, the PHPExcel_Chart_DataSeriesValues->_dataValues value is a string reading 'FrontPage'!$I$67:$J$67, rather than an expected array.  It would appear that for some of the series, this value is an array, but that only appears to be happening for the labels of the chart.\n \nThe value of the PHPExcel_Chart_DataSeriesValues is :\n \nPHPExcel_Chart_DataSeriesValues Object\n(\n    [_dataType:PHPExcel_Chart_DataSeriesValues:private] => Number\n    [_dataSource:PHPExcel_Chart_DataSeriesValues:private] => 'Front Page'!$I$67:$J$67\n    [_formatCode:PHPExcel_Chart_DataSeriesValues:private] => 0.000\n    [_marker:PHPExcel_Chart_DataSeriesValues:private] => \n    [_pointCount:PHPExcel_Chart_DataSeriesValues:private] => 2\n    [_dataValues:PHPExcel_Chart_DataSeriesValues:private] => 'Front Page'!$I$67:$J$67\n)\n \nIt may be something to do with reading, rather than writing, so I'll investigate that, and report back with my findings.\n \nRegards\nReuben Helms",
+    "LastUpdatedDate": "2013-05-16T05:41:33.913-07:00",
+    "PlannedForRelease": "PHPExcel 1.7.8 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2012-05-28T21:21:26.6-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Writing Excel2007 charts that have been read via Excel2007",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 4,
+    "Id": 18146
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "It looks like when PHPExcel_Chart_DataSeriesValues->refresh() is called, and a _dataSource is defined, then the _dataValues are replaced with the _dataSource, instead of an actual calculation being made to determine the values as defined by the _dataSource.",
+      "PostedDate": "2012-05-28T22:55:56.83-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I got to a certain point with working this out, but gave up when I ran into an issue with a drawing not working once the chart data appeared to be correct.  My overall workaround has been to insert a drawing, which is a render of a JPGraph.\r\n\r\nIn the meantime, the following code seems to return the actual values of a PHPExcel_Chart_DataSeriesValues object, instead of just the datasource string.\r\n\r\npublic function refresh(PHPExcel_Worksheet $worksheet) {\r\n        if ($this->_dataSource !== NULL) {\r\n\r\n        \t$pRange = $this->_dataSource;\r\n        \tif (strpos ($pRange, '!') !== false) {\r\n        \t    $worksheetReference = PHPExcel_Worksheet::extractSheetTitle($pRange, true);\r\n        \t    $pSheet = $worksheet->getParent()->getSheetByName($worksheetReference[0]);\r\n        \t    $pRange = $worksheetReference[1];\r\n        \t}\r\n        \t         \t\r\n        \t$rangeRefs = PHPExcel_Cell::extractAllCellReferencesInRange($pRange);\r\n        \t$this->_dataValues = array();\r\n        \tforeach ($rangeRefs as $ref) {\r\n        \t    $value = $worksheet->getCell($ref)->getValue();\r\n        \t    $this->_dataValues[] = $worksheet->getCell($ref)->getCalculatedValue();\r\n        \t}\r\n\t\t\t\r\n\t}\r\n}\r\n\r\nI'm still fairly interested in having Charts being able to be imported, then exported, since it increases the utility of having an Excel template.",
+      "PostedDate": "2012-05-29T21:49:28.96-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-05-30T02:35:18.443-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-06-03T23:33:36.08-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-06-16T08:47:24.617-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Resolved in latest develop branch in github",
+      "PostedDate": "2012-08-06T03:39:07.05-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-08-06T03:39:42.28-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-10-12T13:31:54.073-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:01:54.9-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:41:33.913-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

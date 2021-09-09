@@ -1,0 +1,98 @@
+[
+  {
+    "Id": "115620",
+    "ThreadId": "34822",
+    "Html": "Hello everyone,<br>\r\n<br>\r\nI would like to put some values from a MySQL database into a Excel template file and then save this file. Here is the Excel 2007 template, I am using: <a title=\"This is my Excel 2007 template\" href=\"http://www.sendspace.com/file/mozg3f\">http://www.sendspace.com/file/mozg3f</a>.<br>\r\nI set up the php.ini file to 600s (max_execution_time). The server is working on it and stops after about 90s and send me an empty file.<br>\r\n<br>\r\nDo you know where it can come from?<br>\r\n<br>\r\nThanks <br>\r\nLudo<br>\r\n<br>\r\nPS: IMPORTANT -&gt; When there is less checks (from U55 to AF217), there is no problem. The file is correctly generated. Here can you found an example of this file: <a title=\"Example of the result\" href=\"http://www.sendspace.com/file/zd5zy0\">http://www.sendspace.com/file/zd5zy0</a><br>\r\n",
+    "PostedDate": "2008-09-03T05:21:43.143-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "115626",
+    "ThreadId": "34822",
+    "Html": "Not sure... Could it be a memory limit problem?<br>\r\nAre you getting any warnings / errors with <code>error_reporting(E_ALL) ?</code><br>\r\n",
+    "PostedDate": "2008-09-03T05:35:04.283-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "115630",
+    "ThreadId": "34822",
+    "Html": "Yes, I wrote at the beginning of my PHP file <code>error_reporting(E_ALL)</code>. No problem at all...<br>\r\nWhen I save the file instead of opening it, the file's weight is 8kb.<br>\r\n",
+    "PostedDate": "2008-09-03T05:45:47.083-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "115634",
+    "ThreadId": "34822",
+    "Html": "Hi,<br>\r\n<br>\r\nI set up the php.ini file like that:<br>\r\n<br>\r\nmax_execution_time = 600&nbsp;&nbsp;&nbsp;&nbsp; ; Maximum execution time of each script, in seconds<br>\r\nmax_input_time = 600&nbsp;&nbsp; &nbsp;; Maximum amount of time each script may spend parsing request data<br>\r\nmemory_limit = 128M&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; Maximum amount of memory a script may consume (16MB)<br>\r\n<br>\r\n",
+    "PostedDate": "2008-09-03T06:10:52.28-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "115640",
+    "ThreadId": "34822",
+    "Html": "Hmm... I have no ideas, but here's what I would try.<br>\r\n<br>\r\nWith the scripts that are working, try to use <code>memory_get_peak_usage</code> at the end of the script to see how close you are to the limit. (Like in 05featuredemo.php). I think even generating small files may consume large amounts of memory.<br>\r\n<br>\r\n<code>\r\n// Echo memory peak usage<br>\r\necho date('H:i:s') . &quot; Peak memory usage: &quot; . (memory_get_peak_usage(true) / 1024 / 1024) . &quot; MB\\r\\n&quot;;<br>\r\n</code>\r\n<br>\r\nDouble-check with <code>phpinfo()</code> that php.ini settings really are in place?<br>\r\n<br>\r\nTry to create a simple, large xlsx spreadsheet directly from script without reading from MySQL, but simply inserting e.g. a couple of thousand rows with dummy text and see if you run into similar problems. This would rule out that there is some subtle MySQL setting preventing the script from working.\r\n",
+    "PostedDate": "2008-09-03T06:26:47.973-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "115642",
+    "ThreadId": "34822",
+    "Html": "I just make another test. The problem appears when saving. Here is my test php script: <a title=\"php script file\" href=\"http://www.sendspace.com/file/5bfp9t\">http://www.sendspace.com/file/5bfp9t</a><br>\r\n<br>\r\n15:27:21start loading<br>\r\n15:27:35file loaded<br>\r\n15:27:35do not write (test)<br>\r\n<br>\r\nAfter about 90s,&nbsp; 8kb are saved in the folder.<br>\r\nIs it possible that when there is too many things to write, the class just give up?<br>\r\n<br>\r\n<br>\r\nCan you try to reproduce the situation on your side? Thank you very much!<br>\r\nLudo\r\n",
+    "PostedDate": "2008-09-03T06:33:43.9-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "115645",
+    "ThreadId": "34822",
+    "Html": "I used what you just wrote, here are the results:<br>\r\n<br>\r\n<br>\r\n15:36:17start loading<br>\r\n15:36:17 Peak memory usage: 6.25 MB <br>\r\n15:36:31file\r\nloaded<br>\r\n15:36:31 Peak memory usage: 52.75 MB<br>\r\n15:36:31do not write\r\n(test)<br>\r\n15:36:31 Peak memory usage: 52.75 MB<br>\r\n<br>\r\nEdit:<br>\r\n1) I confirm that I modified the right php.ini file. <br>\r\n2) I commented all my PHP script concerning the MySQL and tried it again. Same result.<br>\r\n3) I create a new file as you said, with a lot of lines and data written in it. Same result.<br>\r\n4) I edited the template and delete some checks from it, it is saving without any problems... Does the Excel Writer have any limitation?<br>\r\n",
+    "PostedDate": "2008-09-03T06:39:17.757-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "115688",
+    "ThreadId": "34822",
+    "Html": "When I launched the 06largescale.php file, everything went well!<br>\r\n<br>\r\nBut when I tried to load my template and use the same code as the test file 06largescale.php, here is what I got:<br>\r\n<br>\r\n16:52:17 Create new PHPExcel object 16:52:17 Set properties 16:52:17 Add data\r\n16:52:17 Hide &quot;Phone&quot; and &quot;fax&quot; column 16:52:17 Set outline levels 16:52:17\r\nFreeze panes 16:52:17 Rows to repeat at top 16:52:19 Write to Excel2007 format\r\n<br>\r\n<strong>Fatal error</strong>: Allowed memory size of 134217728 bytes exhausted (tried\r\nto allocate 19392 bytes) in\r\n<strong>C:\\xampp\\htdocs\\LMS1\\strategic_database\\Classes\\PHPExcel\\Calculation\\FormulaParser.php</strong>\r\non line <strong>112<br>\r\n<br>\r\n</strong>The second time, I tried I got that:<strong><br>\r\n</strong>17:13:39 load template 17:13:50 Set properties 17:13:50 Add data 17:13:50 Hide\r\n&quot;Phone&quot; and &quot;fax&quot; column 17:13:50 Set outline levels 17:13:50 Freeze panes\r\n17:13:50 Rows to repeat at top 17:13:52 Write to Excel2007 format <br>\r\n<br>\r\n<br>\r\nThe file written in the specified folder is not readable (only 57kb instead of 162kb normally).<br>\r\n",
+    "PostedDate": "2008-09-03T08:17:06.393-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "115792",
+    "ThreadId": "34822",
+    "Html": "Ok, I did some testing and confirmed the issue. It really looks like you need to increase the memory_limit.<br>\r\n<br>\r\nI tried to do a plain read/write of the template and 128M was just barely enough. 96 MB did not suffice. It sound likely that 128M is not enough if you are adding data. Not sure why no warning messages are seen. Try to raise the memory_limit to e.g. 256M. I think it will work.<br>\r\n",
+    "PostedDate": "2008-09-03T12:54:01.463-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "115807",
+    "ThreadId": "34822",
+    "Html": "Yes, I wanted to try that too! Amazing, don't you think? Also, it is taking a long time, just to save the file.<br>\r\nAbout 10-15s, to read the content of the template.<br>\r\n5-10s to write something in the Excel template<br>\r\nand then about 1min to save the file! Did you have any idea how to reduce this time?<br>\r\n<br>\r\nThanks a lot for all the testing you did too! That was great from you!<br>\r\n",
+    "PostedDate": "2008-09-03T13:35:18.853-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "115813",
+    "ThreadId": "34822",
+    "Html": "Yes, it is taking a long time and eats lot of memory. I am crossing my fingers that the developers working on the Excel2007 writer find a solution for this.<br>\r\n<a href=\"http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=6857\">Improving performance and memory on data dumps</a><br>\r\nIf it gets solved I think it will be a major breakthrough for PHPExcel.<br>\r\n",
+    "PostedDate": "2008-09-03T13:46:41.817-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "115994",
+    "ThreadId": "34822",
+    "Html": "I change now the memory limit to 512MB! :) And of course now it is working! Still very long to generate the file -&gt; about 2min!<br>\r\nThank you very much concerning this issue!<br>\r\n<br>\r\nPS: I will open another thread for an other issue I am currently struggling with... conditional formating! <br>\r\n",
+    "PostedDate": "2008-09-04T06:03:38.007-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

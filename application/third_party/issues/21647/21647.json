@@ -1,0 +1,80 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": "2015-01-08T00:12:20.017-08:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hi,\nI have a CSV file to load and import information into a database. This is file content:\n\nupdate;{32048D99-37FA-4978-89DB-A5D2F3A9F52E};;VICTORY BARRITAS CHOCOLATE EXPOSITOR 12 UDS;;;__157310.0__;;;1;;IVAR;Default;9.5;{ABDAC689-2BA8-437D-8ADE-BAD56D8ECE66};{EC27332C-1D26-4711-A67E-623480A4BA40};{309892F1-CC5B-4433-B578-AD3013B9643C};Color;;Talla;;Marca;;Area;;CodArancelario;;PesoBruto;0;PesoNeto;0;Tara;0;Volumen;0;NacionOrigen;0;Temporada;;Seccion;;Proyecto;;Departamento;\n\nThe problem is that the value \"157310.0\" when I get the cell value the result is: \"157310\", the .0 dissapear.\nThis is the code to read the csv (is a generic code for xls, xls, csv.. it's not only for this csv format):\n\n```\n$objReader = PHPExcel_IOFactory::createReaderForFile($file);\nif(get_class($objReader) != \"PHPExcel_Reader_CSV\") $objReader->setReadDataOnly(true);\nelse {\n\t$objReader->setDelimiter(\";\");\n\t$objReader->setInputEncoding('ISO-8859-1');\n}\n$objPHPExcel = $objReader->load($file);\n$objWorksheet = $objPHPExcel->getActiveSheet();\n\n$highestRow = $objWorksheet->getHighestRow(); // e.g. 10\n$highestColumn = $objWorksheet->getHighestDataColumn(); // e.g 'F'\n$highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn); // e.g. 5\n\n$lines = array();\nfor ($row = 1; $row <= $highestRow; ++$row):\n\t$line = array();\n\tfor( $col = 0; $col < $highestColumnIndex; $col++ ):\n\t\tif (PHPExcel_Shared_Date::isDateTime($objWorksheet->getCellByColumnAndRow($col, $row)))\n\t\t\t$line[$col - 1] = trim($objWorksheet->getCellByColumnAndRow($col, $row)->getFormattedValue());\n\t\telse\n                \t$line[$col - 1] = trim($objWorksheet->getCellByColumnAndRow($col, $row)->getValue());\n\tendfor; // column\n\t$lines[] = $line;\nendfor; // row\n```\n\nI try with getFormattedValue() or use toArray() but this has not worked.\nAny help? Thanks!!!!\n\nP.S. Sorry for my bad english.",
+    "LastUpdatedDate": "2015-01-08T00:12:20.017-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2015-01-07T08:06:22.81-08:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Reader CSV problem with strings finished at \".0\"",
+    "Type": {
+      "Name": "Unassigned",
+      "Id": 5
+    },
+    "VoteCount": 1,
+    "Id": 21647
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "A CSV file by its nature has no formatting, so `getFormattedValue()` has no meaning unless you applied any custom or advanced value binder that would apply formatting before loading the file.... and even if a CSV file could hold formatted data, you're explicitly telling the reader to ignore any formatting by your use of `$objReader->setReadDataOnly(true);`\r\n\r\nNote that using `PHPExcel_Shared_Date::isDateTime()` is also meaningless if you've explicitly told PHPExcel to load only data, and you're using the default value binder.\r\n\r\nHowever, the data read from the csv should be a float, - you can check this using a var_dump() of the actual value read from the cell (__before__ you trim it, which will force it to be cast as a string).... in fact it's probably casting the value to a string via `trim` that is causing you to lose the zeroes after the decimal",
+      "PostedDate": "2015-01-07T08:53:42.873-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2015-01-07T08:55:22.453-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Without trim() the value of the cell remains \"157310\" and not \"157310.0\", the var_dump of the content of the cell returns __float(157310)__ I try with setReadDataOnly(true) and setReadDataOnly(false) without trim, and nothing happens, is the same result. getFormattedValue() is only for the cells of an xls or xlsx file (is a generic script for differents files).\r\n\r\nWhat would be the solution?\r\n\r\nThanks!!",
+      "PostedDate": "2015-01-07T23:21:04.713-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "CSV Reader has no problem with values ending in .0, but user's own script is casting to string with trim() causing loss of spurious decimal zeroes\n\n** Closed by MarkBaker 07/01/2015 8:55",
+      "PostedDate": "2015-01-07T23:22:56.237-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2015-01-07T23:22:56.47-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Without trim() the value of the cell remains \"157310\" and not \"157310.0\", the var_dump of the content of the cell returns float(157310) I try with setReadDataOnly(true) and setReadDataOnly(false) without trim, and nothing happens, is the same result. getFormattedValue() is only for the cells of an xls or xlsx file (is a generic script for differents files).\r\n\r\nWhat would be the solution?\r\n\r\nThanks!!",
+      "PostedDate": "2015-01-07T23:23:20.213-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "The solution doesn't have anything to do with changing anything in PHPExcel, or any of the settings with PHPExcel..... the solution is to stop casting the raw cell data to a string, checking its datatype and processing accordingly.\r\n\r\nLook at how you display the values.... PHP provides functions like sprint() and number_format() that allow you to convert a float to a string in a specified manner, e.g. with decimal places.",
+      "PostedDate": "2015-01-08T00:12:09.677-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2015-01-08T00:12:20.017-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

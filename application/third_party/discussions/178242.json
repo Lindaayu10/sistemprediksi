@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "386503",
+    "ThreadId": "178242",
+    "Html": "<p>Hello, thank you for this great library. I am trying to use PHPExcel on existing file: input some data into it and then get calculated values from other cells which will be calculated according to the data entered earlier. The calculated values differ from actual excel if I enter them manually. The result cells seem to give the values that are in the excel file itself before the input - so its like no calc is being done..</p>\r\n<p>The error seem to be in the cells that depend on other calculations which include <strong>vlookup</strong>. This is a bit complicated excel file so here is a link to download both excel file and php script.</p>\r\n<p><a href=\"http://www.dima.org.il/1/php-excel.rar\">http://www.dima.org.il/1/php-excel.rar</a></p>\r\n<p>There also is the original file before convert to excel5 and 2007.</p>\r\n<hr>\r\n<p><strong><span style=\"text-decoration:underline\">How it works:</span></strong></p>\r\n<p>&nbsp;</p>\r\n<p>Cells F to T 10 are the result which is: TRUE or FALSE.</p>\r\n<p>Inputting values into cells:&nbsp; B7, B8, C7, D7, D8, H to N 7.&nbsp; Also F2 the input is &quot;yes&quot;.</p>\r\n<p>Now the calculation on line 10 is made on values on line 14, so the script loops the lines 15-115 putting each line in line 14, and read True/False values from line 10 each time.</p>\r\n<p>To get all true on at least a few lines the input should be:</p>\r\n<p>C7 - 5, D7 - 0.001, D8 - 0.0001, H7 - 1.064, F2 - yes.</p>\r\n<p>&nbsp;</p>\r\n<hr>\r\n<p>&nbsp;</p>\r\n<p>The script originally is in 2003 format (I think), to make phpexcel work on it I converted it to Excel5 and calculations didn't work as I stated before, so I converted it to 2007 and got whole bunch of errors like:</p>\r\n<p><strong>Warning</strong>:  strtolower() expects parameter 1 to be string, array given in <strong>F:\\xampp\\htdocs\\xls\\PHPExcel_1.7.2\\Classes\\PHPExcel\\Calculation\\Functions.php</strong> on line <strong>11178 <br></strong></p>\r\n<p>which are from function that takes care of &quot;VLOOKUP&quot;.</p>\r\n<p>-----------------</p>\r\n<p>Sorry for the long post but I didn't know how else to explain it :)</p>\r\n<p>Thanks for your help.</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-02-24T20:04:31.827-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "406859",
+    "ThreadId": "178242",
+    "Html": "<p>I'll take a look at it over the weekend, in between rugby games.</p>",
+    "PostedDate": "2010-02-25T14:35:46.027-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "408379",
+    "ThreadId": "178242",
+    "Html": "<p>For a quick fix (for the 1.7.2 release):</p>\r\n<p>insert the three lines:</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$lookup_value = self::flattenSingleValue($lookup_value);\r\n$index_number = self::flattenSingleValue($index_number);\r\n$not_exact_match = self::flattenSingleValue($not_exact_match);\r\n</pre>\r\n</div>\r\n<p><br>immediately after line 11152 (which should read)</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre><span style=\"color:Blue\">public</span> <span style=\"color:Blue\">static</span> <span style=\"color:Blue\">function</span> VLOOKUP($lookup_value, $lookup_array, $index_number, $not_exact_match=true) {\r\n</pre>\r\n</div>\r\n<p>I'll fix the SVN code in time for tomorrow's daily download</p>",
+    "PostedDate": "2010-02-26T05:32:06.343-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "412415",
+    "ThreadId": "178242",
+    "Html": "<p>Thank you so much!! This is working fine now on 2007 version, I guess the excel 5 is not something to work with on such projects..</p>",
+    "PostedDate": "2010-02-28T04:48:33.253-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "412489",
+    "ThreadId": "178242",
+    "Html": "<p>There is one more issue I've got with this:</p>\r\n<p>I am using this command:</p>\r\n<pre><div style=\"color:Black;background-color:White\"><pre>$objCalc = PHPExcel_Calculation::getInstance()-&gt;setCalculationCacheEnabled(false);\r\n</pre>\r\nbut it take too long to finish the script since I presume there is no cache. I put in htaccess:</div>\r\n<pre><div style=\"color:Black;background-color:White\"><pre>php_value max_execution_time 200\r\n</pre>\r\nAnd still the script does not finish.. Now using the</div>\r\n</pre>\r\n<pre><div style=\"color:Black;background-color:White\"><pre>$objCalc = PHPExcel_Calculation::getInstance();\r\n\r\nProduces wrong results.. Any suggestions?</pre>\r\n</div>\r\n</pre>\r\n</pre>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-02-28T12:44:38.1-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "420065",
+    "ThreadId": "178242",
+    "Html": "<p>Did you get this fixed? Both your scripts seem to work fine?</p>",
+    "PostedDate": "2010-03-18T18:34:04.927-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

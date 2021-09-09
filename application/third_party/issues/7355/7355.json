@@ -1,0 +1,80 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "No issue, by design.",
+    "ClosedDate": "2008-08-20T23:07:56.81-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I would expect that setValue() wouldn't mind whether you supply string or number.\n \nBut you get different results:\n \n$PHPExcel = new PHPExcel();\n$ws = $PHPExcel->getActiveSheet();\n \n$ws->getCell('A1')->setValue('1219218499'); // not working\n$ws->getCell('A1')->setValue(1219218499); // but this works\n \n$ws->getStyle('A1')->applyFromArray(array(\n\t'numberformat' => array(\n\t\t'code' => 'd-mmm-yy',\n\t),\n));\n$writer = new PHPExcel_Writer_Excel2007($PHPExcel);\n$writer->save('2007.xlsx');\n \nEnvironment: PHPExcel latest source (1.6.2+)",
+    "LastUpdatedDate": "2013-05-16T05:43:25.407-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2008-08-20T02:10:48.29-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "setValue(<string>) not working together with date number format",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 7355
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "Does this also occur with other date format codes?\r\n\r\nMaarten Todo: check in writer for date/time format",
+      "PostedDate": "2008-08-20T04:50:17.51-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "When writing cell values to Excel, and the cell uses a date formatting type, the value written to the Excel worksheet must be a valid Excel date value.\r\nHowever the value in the cell may \r\n\r\n[code]\r\nif (($numberFormat != 'General') && (PHPExcel_Shared_Date::isDateTimeFormatCode($numberFormat))) {\r\n\tif (is_string($token)) {\r\n\t\t//\tError string\r\n\t\treturn $this->writeString($row, $col, $token, $format);\r\n\t} elseif (!is_float($token)) {\r\n\t\t//\tPHP serialized date/time or date/time object\r\n\t\treturn $this->writeNumber($row, $col, PHPExcel_Shared_Date::PHPToExcel($token), format);\r\n\t} else {\r\n\t\t//\tExcel serialized date/time\r\n\t\treturn $this->writeNumber($row, $col, $token, $format);\r\n\t}\r\n[/code]\r\n\r\nThere's similar code in the Excel5 writer as well.\r\n\r\nThe logic attempts to determine whether you've given it an Excel date value (if it's a float point number) or PHP date value (an integer numeric). It assumes that any string value will be an error code such as '#N/A' or a function that returns a date value, and which needs to be written as the function (e.g. '=DATE(A1,A2,A3)); so writes it as that string value.\r\n",
+      "PostedDate": "2008-08-20T06:35:11.04-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Thank you for the explanation. I now understand better.\r\n\r\nI ran into this issue because I was having trouble with Excel5 reader and dates. But I had misunderstood how PHPExcel stores dates. PHPExcel stores dates in unixtime (seconds elapsed since 1970), but Excel (by default) counts days elapsed since 1900. This needs to be dealt with in the Excel5 reader by converting numbers based on number format on the condition that PHPExcel_Shared_Date::isDateTimeFormatCode($numberFormat. I will look into this.\r\n\r\nI think this issue no longer will affect what I'm looking at. Thank you.",
+      "PostedDate": "2008-08-20T17:09:59.463-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Update: Ugh... I ran into the floating point problem too:\r\n\r\n$ws->getCell('A1')->setValue(1219218499.0); // not working\r\n$ws->getCell('A1')->setValue(1219218499); // but this works\r\n$ws->getStyle('A1')->applyFromArray(array(\r\n'numberformat' => array(\r\n'code' => 'd-mmm-yy',\r\n),\r\n));\r\n\r\nI'll find workaround for my problem, but the above seems unexpected.",
+      "PostedDate": "2008-08-20T20:36:28.387-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Floating point number == Excel date\r\nNon-floating point = PHP date",
+      "PostedDate": "2008-08-20T23:07:41.5-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2008-08-20T23:07:56.81-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:05:01.26-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:43:25.407-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

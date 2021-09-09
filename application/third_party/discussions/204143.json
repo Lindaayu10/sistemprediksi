@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "415322",
+    "ThreadId": "204143",
+    "Html": "<pre>require_once <span style=\"color:#a31515\">'./Classes/PHPExcel/IOFactory.php'</span>;<br>    <br>$objReader = PHPExcel_IOFactory::createReaderForFile(<span style=\"color:#a31515\">&quot;sumatorio.xlsx&quot;</span>);<br>$objReader-&gt;setReadDataOnly(<span style=\"color:Blue\">true</span>);<br>$objPHPExcel = $objReader-&gt;<span style=\"color:Blue\">load</span>(<span style=\"color:#a31515\">&quot;sumatorio.xlsx&quot;</span>);<br>$objWorksheet = $objPHPExcel-&gt;getActiveSheet();    <br>echo $objWorksheet-&gt;getCell(<span style=\"color:#a31515\">'sumatorio1'</span>)-&gt;getValue().<span style=\"color:#a31515\">&quot;&lt;br /&gt;&quot;</span>;<br>echo $objWorksheet-&gt;getCell(<span style=\"color:#a31515\">'total'</span>)-&gt;getCalculatedValue();<br><br>Error:<br><strong>Fatal error</strong>: Uncaught exception 'Exception' with message 'Column string index can not be longer than 3 characters.' in<br>&nbsp;Z:\\home\\prueba\\www\\Classes\\PHPExcel\\Cell.php:640 Stack trace: #0 Z:\\home\\prueba\\www\\Classes\\PHPExcel\\Worksheet.php(996):<br>&nbsp;PHPExcel_Cell::columnIndexFromString('SUMATORIO') #1 Z:\\home\\prueba\\www\\index.php(10): PHPExcel_Worksheet-&gt;getCell('sumatorio1')<br>&nbsp;#2 {main} thrown in <strong>Z:\\home\\prueba\\www\\Classes\\PHPExcel\\Cell.php</strong> on line <strong>640</strong></pre>",
+    "PostedDate": "2010-03-07T23:40:40.667-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "416089",
+    "ThreadId": "204143",
+    "Html": "<p>getCell will work as long as the name isn't a sequence of letters followed by a sequence of digits, otherwise it's interpreted as a cell reference like IV256; a name like SUMATORIO will work, but SUMATORIO1 won't.</p>\r\n<p>The logic doesn't test that the name is too long to be a cell reference. I'll make a change to the test for named ranges so that it will work correctly for names that do follow this pattern where the letter sequence is too long to be a cell reference.</p>",
+    "PostedDate": "2010-03-09T12:49:13.113-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "416090",
+    "ThreadId": "204143",
+    "Html": "This discussion has been copied to a work item. Click <a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=12048\">here</a> to go to the work item and continue the discussion.",
+    "PostedDate": "2010-03-09T12:50:02.753-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "416104",
+    "ThreadId": "204143",
+    "Html": "<p>As a quick fix, you can change line&nbsp;64 in /Classes/PHPExcel/Calculation.php that reads</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre><span style=\"color:Blue\">const</span> CALCULATION_REGEXP_CELLREF = <span style=\"color:#A31515\">'(((\\w*)|(\\'[^\\']*\\')|(\\&quot;[^\\&quot;]*\\&quot;))!)?\\$?([a-z]+)\\$?(\\d+)'</span>;\r\n</pre>\r\n</div>\r\n<p>to</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre><span style=\"color:Blue\">const</span> CALCULATION_REGEXP_CELLREF = <span style=\"color:#A31515\">'(((\\w*)|(\\'[^\\']*\\')|(\\&quot;[^\\&quot;]*\\&quot;))!)?\\$?([a-z]{1,3})\\$?(\\d+)'</span>;\r\n</pre>\r\n</div>",
+    "PostedDate": "2010-03-09T13:41:54.287-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "418601",
+    "ThreadId": "204143",
+    "Html": "<p><span id=\"result_box\"><span style=\"background-color:#ffffff\" title=\"большое спасибо, все работает\">Thank you very much!!! everything works.</span></span></p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-03-16T02:27:07.78-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

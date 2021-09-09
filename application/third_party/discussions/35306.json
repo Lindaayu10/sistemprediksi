@@ -1,0 +1,82 @@
+[
+  {
+    "Id": "117359",
+    "ThreadId": "35306",
+    "Html": "This feature works if you use the method:<br>\r\n<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('B2')-&gt;getNumberFormat()-&gt;setFormatCode('String');<br>\r\n<br>\r\nHowever, when you initially open up the excel file, you'll receive an error but as soon as you save it in excel, it works fine from there on.&nbsp; Could anyone tell me how to get around the error.&nbsp; I've read the recent posts and the setFormatCode('0000'); will not work for me because the strings can be any number of length.&nbsp; I need it to truly function as if you opened up an excel file and formatted a cell using the following:<br>\r\n<br>\r\nright-click on a cell--&gt;format cells--&gt;number tab--&gt;Text--&gt;hit OK.&nbsp; This process truly formats a cell to allow any type of string to be typed in it and does not allow any auto-formatting after you hit enter.&nbsp; In addition, the green triangle also appears in the upper-left hand corner.&nbsp; The method I described above allows it to work but gives me an error initially.&nbsp; Could anyone help me with this one.&nbsp; Thanks in advance.<br>\r\n",
+    "PostedDate": "2008-09-09T14:17:45.967-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "117374",
+    "ThreadId": "35306",
+    "Html": "The reason why you are getting the error is because there is no number format code labeled <code>String</code>.<br>\r\n<br>\r\nWhat you want is the &quot;Text&quot; number format from the menu in MS Office Excel:<br>\r\n<br>\r\n<code>\r\n$worksheet-&gt;getCell('A1')-&gt;setValue(200);<br>\r\n$worksheet-&gt;getStyle('A1')-&gt;getNumberFormat()-&gt;setFormatCode('@');<br>\r\n</code>\r\n<br>\r\nQuick introduction to number format codes:<br>\r\n<a href=\"http://www.ozgrid.com/Excel/CustomFormats.htm\">http://www.ozgrid.com/Excel/CustomFormats.htm</a><code><code></code></code>\r\n",
+    "PostedDate": "2008-09-09T15:07:04.073-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "117383",
+    "ThreadId": "35306",
+    "Html": "Sorry, I misread your post. I guess you still need the leading zeros. The above will not work.<br>\r\n<br>\r\nIt turns out that in MS Office Excel 2007 (and probably earlier versions too) whenever you first set number format to be &quot;Text&quot; and then enter a value such as '0200' then MS Office Excel will automatically change data type to 'String' for the cell in order to show the leading zeros. I was not aware of that. PHPExcel does not mimic this special behavior.<br>\r\n<br>\r\nTo get the same result in PHPExcel, you will have to explicitly set the data type for the cell.<br>\r\n<br>\r\n<code>\r\n$ws-&gt;getStyle('A1')-&gt;getNumberFormat()-&gt;setFormatCode('@');<br>\r\n$ws-&gt;getCell('A1')-&gt;setValueExplicit('0200', PHPExcel_Cell_DataType::TYPE_STRING);<br>\r\n</code>\r\n<br>\r\nNote that rendering will be the same in MS Office Excel even if you leave out the format code above.<br>\r\n<br>\r\nHowever, string data type may not be the right approach.<br>\r\n<br>\r\nConsider this solutions too which uses ordinary numerical data type.<br>\r\n<br>\r\n<code>\r\n$ws-&gt;getCell('B1')-&gt;setValue(200);<br>\r\n$ws-&gt;getStyle('B1')-&gt;getNumberFormat()-&gt;setFormatCode('0000');<br>\r\n$ws-&gt;getStyle('B1')-&gt;getAlignment()-&gt;setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);\r\n</code>\r\n",
+    "PostedDate": "2008-09-09T15:38:28.27-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "117546",
+    "ThreadId": "35306",
+    "Html": "Thanks for your response koyama.&nbsp; I would really like to achieve what I'm trying to get at by setting the formatnumber to 'String' programmatically.&nbsp; I read somewhere that if you take the excel file and save it as an xml file and view the xml, you can see the formatting placed around the data.&nbsp; As I noted in my first post, I did that for the one which I set the formatnumber to 'String' and then again for the xls file after I re-open it up and resave it as an xml file which works fine after opening it the first time with an error.&nbsp; Then I compared the two xml files and there's very little difference except for a small section at the very end.&nbsp; I'm wondering if there's anyway I can get past this because I would like to try and avoid work-arounds because it's not going to truly fix my problem.&nbsp; Any other suggestion would be awesome.&nbsp; Thanks for your help so far.<br>\r\n",
+    "PostedDate": "2008-09-10T06:57:20.887-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "117566",
+    "ThreadId": "35306",
+    "Html": "I may still be a bit confused what you are trying to achieve.<br>\r\n<br>\r\n<strong>\r\n1.</strong><br>\r\nWhere did you get the idea to apply <code>setFormatCode('String')</code>, because in fact this is not a valid format code. Therefore you are getting broken <code>xlsx</code> files.<br>\r\n<br>\r\n<strong>\r\n2.</strong><br>\r\nFrom what I have read so far the correct approach for you is to do like this:<br>\r\n<code>\r\n$ws-&gt;getCell('A1')-&gt;setValueExplicit('0200', PHPExcel_Cell_DataType::TYPE_STRING);<br>\r\n</code>\r\n<br>\r\nDo not set any number format code.<br>\r\n<br>\r\nCan you please try out the above and explain how the resulting xlsx file differs from what you want.\r\n",
+    "PostedDate": "2008-09-10T07:49:25.677-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "117961",
+    "ThreadId": "35306",
+    "Html": "I'm sorry if I'm still confusing you koyama.&nbsp; I appreciate all your\r\nhelp so far.&nbsp; I tried what you indicated above and it seems like it\r\nstill treats the value &quot;0200&quot; as a numeric value and so the string is\r\nconverted to 200 in the cell and the &quot;0&quot; is dropped from the front of\r\nit.&nbsp; <br>\r\n<br>\r\nThe reason I tried &quot;String&quot; was because if you save the file as an xml\r\nfile after you've formatted the cell to &quot;text&quot; and then type in &quot;0200&quot;,\r\nthe &quot;0&quot; is retained then if you open up the xml file, the formatting\r\nindicated for the cell is of type &quot;String&quot;.&nbsp; In other words, the code I\r\nprovided in my first post, I tried using &quot;String&quot; and it worked but on\r\ninitial open of the file, it displayed an error but if you save it and\r\nreopen it again, the error is gone but most importantly, the text\r\nformat is kept in place where the green triangle is displayed in the\r\nupper-left hand corner of the cell.<br>\r\n<br>\r\nI guess I really hoping to achieve this programmatically because I\r\ndon't want to figure a work around for it.&nbsp; The reason being is that\r\nthe data is consisted of global zip codes and so there's really no way\r\nof determining the length or a standard mask to test for.&nbsp; A good\r\nexample of this is the zip code &quot;02583&quot;.&nbsp; If the format I'm talking\r\nabout was possible, it would keep the zero in the front.&nbsp; Please let me\r\nknow if there's any other way of setting the text format I'm referring\r\nto.&nbsp; Thank you.<br>\r\n<br>\r\nHere's my code<br>\r\n<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;setActiveSheetIndex(0);<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; // get worksheet instance<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $ws = $objPHPExcel-&gt;getActiveSheet();&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $ws-&gt;getCell('B2')-&gt;setValueExplicit('00200', PHPExcel_Cell_DataType::TYPE_STRING);<br>\r\n<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; echo date('H:i:s') . &quot; Write to Excel5 format\\n&quot;;<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');<br>\r\n<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $objWriter-&gt;setTempDir($saveDir);<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; // Save file to specified directory<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $objWriter-&gt;save($saveDir . &quot;/excelfile.xls&quot;);<br>\r\n<br>\r\n",
+    "PostedDate": "2008-09-11T14:10:41.14-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "118131",
+    "ThreadId": "35306",
+    "Html": "koyoma,<br>\r\n<br>\r\nI was able to achieve the display of the green triangle in the upper-left hand corner simply by placing a space after the set value which allowed me to keep the leading zeros.&nbsp; Let me know in the future if there's a more logical way of doing this.&nbsp; Thank you.<br>\r\n",
+    "PostedDate": "2008-09-12T07:31:31.577-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "118380",
+    "ThreadId": "35306",
+    "Html": "I suddenly notice that you are using Excel5 writer and not Excel2007 writer which I was testing the scripts with. Indeed there seems to be a bug in Excel5 writer not recognizing data type. A work item has been created:<br>\r\n<a href=\"http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=7587\">http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=7587</a><br>\r\nOnce this is resolved you will be able to solve the problem the correct way like I showed you.<br>\r\n<br>\r\nI now understand where you got the idea to use <code>String</code> keyword. But please note that this piece of information refers to the cell data type and not the number format. And changing the data type to <code>String</code> is exactly what my suggestion is about. Thank you for your report.<br>\r\n",
+    "PostedDate": "2008-09-13T17:03:21.457-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "135134",
+    "ThreadId": "35306",
+    "Html": "This is what I did to solve this problem and it seems to work. It retains the leading zeroes of data and changes the column to a text type<br>\r\n<br>\r\n$excel-&gt;getActiveSheet()-&gt;getStyle(chr($col).$row)-&gt;getNumberFormat()-&gt;setFormatCode('@');<br>\r\n$cellBadgeNo = ($col).$row;<br>\r\n<br>\r\n// skip and write other columns, then get back to writing numbers to string<br>\r\n<br>\r\n$excel-&gt;getActiveSheet()-&gt;setCellValue($cellBadgeNo, $rec[&quot;EmpBadge&quot;].&quot; &quot;);<br>\r\n$excel-&gt;getActiveSheet()-&gt;setCellValue($cellBadgeNo, &quot;=MID($cellBadgeNo, 1, LEN($cellBadgeNo)-1)&quot;);<br>\r\n<br>\r\n",
+    "PostedDate": "2008-11-25T07:36:53.387-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "161005",
+    "ThreadId": "35306",
+    "Html": "i want the same thing i.e. want to apply &quot;Text&quot; format rather than &quot;General&quot; format<br>\r\nnot for any single cell but for whole sheet<br>\r\nif i apply it cell by cell the page dies out of timeout<br>\r\nany thing possible here?<br>\r\n<br>\r\nthanks,<br>\r\nSam\r\n",
+    "PostedDate": "2009-02-23T09:13:56.02-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

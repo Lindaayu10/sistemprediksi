@@ -1,0 +1,171 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel_Writer_Excel5",
+      "DisplayName": "PHPExcel_Writer_Excel5"
+    },
+    "ClosedComment": "",
+    "ClosedDate": "2009-09-29T23:26:45.053-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hiya, if you create an excel file in ms excel 2003, set a bunch of styles on various cells (see attached example) then run:\n \n<?php\n        require_once 'PHPExcel/IOFactory.php';\n        \n        $reader = PHPExcel_IOFactory::createReader('Excel5');\n        $xls = $reader->load('/tmp/example_template.xls');\n \n        $writer = PHPExcel_IOFactory::createWriter($xls, 'Excel5');\n        $writer->save('/tmp/example_out.xls');\n?>\nWhen opening in excel you find the output is \"corrupt\".. Excel reads all the data but drops all the styles after displaying the error message.\n \nI'm developing in PHP 5.2.4 -2 using Ubuntu server 8.04\n \nThe file saves fine in Excel2007 format, but I really need Excel5 format.",
+    "LastUpdatedDate": "2013-05-16T05:42:38.12-07:00",
+    "PlannedForRelease": "PHPExcel 1.7.1 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "High",
+      "Severity": 150,
+      "Id": 3
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-05-28T16:07:11.03-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Windows 7 says corrupt file by PHPExcel_Writer_Excel5 when opening in Excel",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 10059
+  },
+  "FileAttachments": [
+    {
+      "FileId": 3110,
+      "FileName": "example_template.xls",
+      "DownloadUrl": ".\\3110"
+    },
+    {
+      "FileId": 3127,
+      "FileName": "40000002_failed_20090603150959.xls",
+      "DownloadUrl": ".\\3127"
+    },
+    {
+      "FileId": 3181,
+      "FileName": "sample_problem.xls",
+      "DownloadUrl": ".\\3181"
+    },
+    {
+      "FileId": 3411,
+      "FileName": "40000002_failed_20090603150959-edited.xls",
+      "DownloadUrl": ".\\3411"
+    },
+    {
+      "FileId": 3412,
+      "FileName": "wi-10059.patch",
+      "DownloadUrl": ".\\3412"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "Can you attach an example of a corrupt xls file (example_out.xls) ? I couldn't reproduce the error...",
+      "PostedDate": "2009-05-28T19:49:15.773-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Found the problem, it appears corrupt in Excel 2003 SP0 (aka no service packs installed).. I had installed Windows 7 days earlier and not done service packs yet, then tried to reproduce the error on another computer and it worked fine.. go figure.\r\n\r\nSo, I'm not sure if it is technically a \"bug\", but would be nice if it could be fixed :)",
+      "PostedDate": "2009-06-02T20:28:01.38-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "It should not open as corrupt in MS Office Excel with SP3. Then it will probably also open as corrupt in MS Excel Office 2007.\r\n1. Can you try with latest source code?\r\n2. Can you attach example_out.xls so we can inspect the defect file?",
+      "PostedDate": "2009-06-02T22:21:53.417-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Sorry, let me explain a bit better.\r\n\r\nExcel 2003 with no service pack = Loads data with errors, all formatting dropped.\r\nExcel 2003 + SP3 = Loads perfect\r\nExcel 2007 = Loads perfect\r\nHaven't tested with Excel 2000 or earlier.\r\n\r\nSee attached file.\r\n\r\nExcel 2003 (no service pack) reports:\r\n\r\nMicrosoft Office Excel File Repair Log\r\n\r\nErrors were detected in file '40000002_failed_20090603150959.xls'\r\nThe following is a list of repairs:\r\n\r\nDamage to the file was so extensive that repairs were not possible. Excel attempted to recover your formulas and values, but some data may have been lost or corrupted.\r\n\r\nAttached file has had a little more then the code described above, but the error is consistent.\r\n\r\nExact same process to populate data works perfect when..\r\n1. Starting with blank file (instead of load > add data > save)\r\n2. Starting with a template with little or no styling on it (ie plain text, or very minor style)\r\n3. Saving in Excel2007 format\r\n",
+      "PostedDate": "2009-06-02T23:21:05.757-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-06-02T23:21:09.65-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "This is strange, I just tried to open 40000002_failed_20090603150959.xls with MS Office Excel 2003 (no service pack), and it opened fine with no error. Must try on some other machine later.\r\n\r\nIt would be great if someone else can verify this, or you can try to open it in MS Office Excel 2003 (no service pack) on some other machine and see what happens?\r\n",
+      "PostedDate": "2009-06-03T00:05:28.303-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Hmm.. Maybe it's my Windows 7.. odd as it would be, maybe a shared dll causing problems.\r\n\r\nI'm Excel 2003 (11.5612.5606), Windows 7 Ultimate build 7100.. Might just go back to good old XP.. sick of Windows 7 anyway, but thats another story.\r\n\r\nThanks.",
+      "PostedDate": "2009-06-03T00:09:04.99-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Ok, will close this issue assuming it is a defect in the Windows 7 build.",
+      "PostedDate": "2009-06-04T00:23:46.91-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-06-04T00:24:08.973-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Hi Koyama-san,\r\n\r\nI've having an exact same problem as this one reported. The strange thing is the problem only happens on my customer's Excel 2003 Basic Edition (SP3) running on XP. My problematic spreadsheet looks very similar to \"40000002_failed_20090603150959.xls\" and it doesn't contain any complex stuff. All it does is to populate value with some styles (bod, font size, draw an underline etc). Spreadsheet opens fine on other computers which has 2003 Pro Ed or 2007. Recently we found an interesting fact which might be related to this problem is that in the attached xls file, if I add one more column before column 'P' (hence old col 'P' becomes 'Q') This \"Damage to the file...\" error causes all format (font size, bold etc) disappear after repair. (Before adding column, even this error arises, format was kept after auto-repair) Can you please take a look this issue again when you get a chance? (using 1.6.7 btw)",
+      "PostedDate": "2009-07-07T21:03:50.687-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-07-07T21:03:56.2-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Not an issue\r\n\r\n\n\n** Closed by koyama 6/4/2009 12:24 AM",
+      "PostedDate": "2009-07-08T02:55:09.89-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "@odin: The problem is occuring with \"sample_problem.xls\" ?\r\n\r\nI will see if can find an Excel 2003 Basic edition and open the file. Last time I didn't try with Basic edition, I think.\r\n\r\nIn the meantime, can you try with latest source code? Some changes have been made in the OLE container that could affect this. (just a wild guess)",
+      "PostedDate": "2009-07-08T02:55:10.623-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "There is a similar report of the Windows 7 problem by coolbloke1324 in this thread:\r\nhttp://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=63779\r\n\r\nThe problem seems to be with PEAR::OLE. According to \"OpenOffice.org's Documentation of the Microsoft Compound Document File Format\" section 4.1, the \"Compound Document Header Contents\" contains at offset 64 (0x40) the total number of sectors used for the short-sector allocation table, but PEAR::OLE always writes 1.\r\n\r\nThe attached file \"40000002_failed_20090603150959.xls\" is indeed corrupt when opened in MS Office Excel in Windows 7. After modifying the file in a HEX editor so it contains the correct number of sectors used for the short-sector allocation table, the file starts to open without errors in Windows 7.\r\n\r\nTry with \"40000002_failed_20090603150959-edited.xls\"",
+      "PostedDate": "2009-09-29T15:50:40.997-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-09-29T15:50:45.96-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Modifying PHPExcel/Shared/OLE/OLE_Root.php. See wi-10059.patch\r\n\r\nRelated issue:\r\nMS Outlook corrupts files generated by PHPExcel_Writer_Excel5\r\nhttp://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=8320\r\n\r\n(In that issue it was offset 60 there was a problem, this time it is at offset 64)",
+      "PostedDate": "2009-09-29T16:13:00.113-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-09-29T16:13:01.9-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-09-29T16:13:43.06-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-09-29T23:26:45.053-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:03:58.58-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:38.12-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

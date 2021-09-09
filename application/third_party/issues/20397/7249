@@ -1,0 +1,31 @@
+<?php
+error_reporting(E_ALL);
+date_default_timezone_set('Europe/Amsterdam');
+
+require_once "../PHPExcel/Classes/PHPExcel/IOFactory.php";
+
+$objPHPExcel = PHPExcel_IOFactory::load("phpexcel-bug.xlsx");
+
+try {
+	$objPHPExcel->setActiveSheetIndexByName('bug');
+	$worksheet = $objPHPExcel->getActiveSheet();
+}
+catch(Exception $exception) {
+}
+
+showValue($worksheet, 'B10');
+showValue($worksheet, 'C10');
+showValue($worksheet, 'E10');
+showValue($worksheet, 'F10');
+showValue($worksheet, 'G10');
+showValue($worksheet, 'H10');
+showValue($worksheet, 'I10');
+showValue($worksheet, 'K10');
+
+function showValue($worksheet, $cell) {
+	$v = $worksheet->getCell($cell)->getValue();
+	$cv = $worksheet->getCell($cell)->getCalculatedValue();
+	$ocv = $worksheet->getCell($cell)->getOldCalculatedValue();
+	$r = (($cv - $ocv)<0.001) ? "OK" : "ERROR";
+	printf("%s  %20s  %10.3f  %10.3f  %10s\n", $cell, $v, $cv, $ocv, $r);
+}

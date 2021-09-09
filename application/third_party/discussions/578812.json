@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "1346788",
+    "ThreadId": "578812",
+    "Html": "At the moment the excel workbook I am generating via PHPExcel takes about 30 seconds. I found that if I remove the coloring steps in the row iterators that the generation is down to 10 seconds.\r<br />\n<br />\nI would really prefer to keep the color, but I'm wondering how to do so efficiently. Would using conditional formatting be faster than applying fill color? I am worried it would be about the same.<br />\n",
+    "PostedDate": "2015-01-28T08:07:22.917-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1346803",
+    "ThreadId": "578812",
+    "Html": "Conditional formatting is slower than standard styling, and can only be applied to individual cells, so it's slower and more memory hungry; and if you wouldn't use conditional styling for cells in MS Excel, then don't use it in PHPExcel. Only use it if the style to be applied is dependent on the data contained in that cell (e.g. negative numbers in red, positive in green, zeroes in black, etc).\r<br />\n<br />\nWherever possible, apply styling to whole ranges of cells in one go rather than to individual cells, so if you were applying the same style to cells <code>A1</code>, <code>A2</code>, <code>A3</code>, <code>A4</code>... <code>An</code>, then change your code to apply that style to the range <code>A1:An</code>.\r<br />\n<br />\nIf you're applying several style elements to a cell or range of cells, then applyFromArray() is more efficient than applying each style element individually<br />\n",
+    "PostedDate": "2015-01-28T08:35:48.347-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1347191",
+    "ThreadId": "578812",
+    "Html": "Thank you for your response.\r<br />\n<br />\nFor some of the sheets I basically need to alternate row color. So it sounds like conditional formatting will be the way to go once the data is written and I can select the range of cells I wish to color.\r<br />\n<br />\nFor one of the sheets however, I need to color the row only if one column's value (on said row) is less than or greater than the value in another column (still same row). Should I still use PHP to evaluate this and fill color case by case, row by row? Or is there a tricky formula that would make conditional formatting viable in this scenario?\r<br />\n<br />\nThanks<br />\n",
+    "PostedDate": "2015-01-29T09:08:07.353-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1347198",
+    "ThreadId": "578812",
+    "Html": "Standard formatting would be better for your alternating rows, because you can set the range for each style as <code>A1:Z1</code>, <code>A2:Z2</code>, <code>A3:Z3</code>, etc, so at least you're setting several cell styles each time\r<br />\n<br />\nConditional formatting is more appropriate for your second case, where the style is dependent on the value of one of the cells in the row<br />\n",
+    "PostedDate": "2015-01-29T09:23:43.52-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

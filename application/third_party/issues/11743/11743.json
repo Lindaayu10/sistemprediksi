@@ -1,0 +1,71 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel_Writer_HTML",
+      "DisplayName": "PHPExcel_Writer_HTML"
+    },
+    "ClosedComment": "",
+    "ClosedDate": "2010-05-11T00:59:12.027-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "There is a bug in PHPExcel_Writer_HTML::_calculateSpans()\n \nIt occurs in the part of the code marked with these comments:\n// Identify which rows should be omitted in HTML. These are the rows where all the cells\n//   participate in a merge and the where base cells are somewhere above.\n \nBasically it will ommit the row if (count($this->_isSpannedCell[$sheetIndex][$rowIndex]) == $countColumns)\nThe problem is that $countColumns is based on the highest column that *contains data* in the worksheet. However, it's possible that a merge range can include higher columns that don't contain data. So a row could be ommitted that actually shouldn't be.\n \nSee the attached xls file for an example. If you were to build and output this worksheet with PHPExcel, the first row (the heading) will be *ommitted* when you output to HTML. This is because the merge covers 3 columns but $countColumns only equals 2 as there is no 'data' in the third column.",
+    "LastUpdatedDate": "2017-11-27T22:26:10.037-08:00",
+    "PlannedForRelease": "PHPExcel 1.7.3 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2010-02-09T18:26:02.027-08:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Bug in HTML writer can result in missing rows in output",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 11743
+  },
+  "FileAttachments": [
+    {
+      "FileId": 3855,
+      "FileName": "example.xls",
+      "DownloadUrl": ".\\3855"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "Your observations are correct!\r\n\r\nActually, I would say this is a problem with the mergeCells() method. It should force cells to be created in the entire range that is merged (like Excel does). Currently PHPExcel doesn't, but will fix this.\r\n\r\nThat way $countColumns will be 3 in your example, instead of 2.\r\n\r\nFixed in SVN tomorrow:\r\nhttp://phpexcel.codeplex.com/SourceControl/list/changesets",
+      "PostedDate": "2010-02-11T16:58:51.013-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-05-11T00:59:12.027-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:03:13.287-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:08.07-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2017-11-27T22:26:10.037-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

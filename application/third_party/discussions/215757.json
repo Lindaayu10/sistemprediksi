@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "454534",
+    "ThreadId": "215757",
+    "Html": "<p>I have the following code, which works perfect:</p>\r\n<p>$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('A1:U1')-&gt;getFont()-&gt;setBold(true);</p>\r\n<p>which works like a charm (sets the font to bold for all values in row 1 of columns A through U. However, this code:</p>\r\n<p>$objPHPExcel-&gt;getActiveSheet()-&gt;getColumnDimension('A:U')-&gt;setAutoSize(true);</p>\r\n<p>does not autosize columns A through U, only A. In order to achieve this I need to do the following:</p>\r\n<p>for ($col = 'A'; $col != 'V'; $col++) {</p>\r\n<p>$objPHPExcel-&gt;getActiveSheet()-&gt;getColumnDimension($col)-&gt;setAutoSize(true);</p>\r\n<p>OR, I need to specify the setAutoSize(true) for each column.</p>\r\n<p>&nbsp;</p>\r\n<p>Am I missing something here or is this by design? Why would a range work for one feature but not another?</p>",
+    "PostedDate": "2010-06-11T11:01:20.687-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "460183",
+    "ThreadId": "215757",
+    "Html": "<p>I reviewed the source code and indeed it seems that you cannot set the autosize on a range of columns.</p>\r\n<p>However, you can apply one of the following workaround:</p>\r\n<br>\r\n<p>1. Change the default autosize to &quot;true&quot;(in Worksheet\\ColumnDimension.php) as this is set to false in the constructor</p>\r\n<p>2. Apply the autosize to a range of columns by providing the columns number. For your case, to set the autosize for A:U you could do something like:</p>\r\n<p><i>for($i=1;$i&lt;=21;$i++)</i></p>\r\n<p><i>getColumnDimensionByColumn($i)-&gt;setAutoSize(true);</i></p>\r\n<br>\r\n<p>Hope it works. </p>\r\n<p>Cheers</p>\r\n\r\n",
+    "PostedDate": "2010-06-26T02:59:47.07-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,45 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hello Team,\n\nIn my PHP application I have export to excel functionality. After browsing some time I found PHPExcel library to implement this functionality. But i'm facing problem in setting the column headers and values dynamically.\nBellow is my sample code.\n\n```\nelse if (isset($_REQUEST['export']) && $_REQUEST['export'] == 'excel')\n{   \n    \n    \n    $objPHPExcel->getProperties()->setCreator(\"Maarten Balliauw\")\n            ->setLastModifiedBy(\"Maarten Balliauw\")\n            ->setTitle(\"Office 2007 XLSX Test Document\")\n            ->setSubject(\"Office 2007 XLSX Test Document\")\n            ->setDescription(\"Test document for Office 2007 XLSX, generated using PHP classes.\")\n            ->setKeywords(\"office 2007 openxml php\")\n            ->setCategory(\"Test result file\");\n\t//$gridData = array_shift($_SESSION['data']);\n\t//echo '<pre>';print_r($_SESSION['data']);\n\t\n    foreach ($_SESSION['data'] as $key=>$arr){\n\t\t//$index = 0;\n\t\t$mainData = array_slice($arr, 1);\n\t\t//echo '<pre>';print_r($mainData);\n\t\t$col = 0;\n\t\t$row = 1;\t\t\n\t\t\tforeach ($mainData as $col => $val)\n\t        { \n\t\t\t  //echo $key.' col: '.$col. ' value: '.$val ;echo '<br>';\n\t\t\t   $objPHPExcel->setActiveSheetIndex(0)\n\t\t\t\t\t\t  ->setCellValueByColumnAndRow($col, $key, $val);\n\t\t\t\t\t\t // ->setCellValue($key, $val);\n\t\t\t   //$objPHPExcel->getActiveSheet()->getStyleByColumnAndRow($col, $row)->getAlignment()->setWrapText(true);\n\t\t\t   $col++;\n\t\t   }\t\n\t\t   \n\t\t   $row++;\n    }\n\t\n    // Add some data\n    /*$objPHPExcel->setActiveSheetIndex(0)\n            ->setCellValue('A1', 'Hello')\n            ->setCellValue('B2', 'world!')\n            ->setCellValue('C1', 'Hello')\n            ->setCellValue('D2', 'world!');*/\n    // Rename worksheet\n    $objPHPExcel->getActiveSheet()->setTitle('Employee_MaintenanceSearch');\n\n\n    // Set active sheet index to the first sheet, so Excel opens this as the first sheet\n    $objPHPExcel->setActiveSheetIndex(0);\n\n    ob_clean();\n    // Redirect output to a client�s web browser (Excel5)\n    header('Content-Type: application/vnd.ms-excel');\n    header('Content-Disposition: attachment;filename=\"Employee_MaintenanceSearch.xls\"');\n    header('Cache-Control: max-age=0');\n    // If you're serving to IE 9, then the following may be needed\n    header('Cache-Control: max-age=1');\n\n    // If you're serving to IE over SSL, then the following may be needed\n    header('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Date in the past\n    header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT'); // always modified\n    header('Cache-Control: cache, must-revalidate'); // HTTP/1.1\n    header('Pragma: public'); // HTTP/1.0\t\n    $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');\n    $objWriter->save('php://output');\n    exit;\n    \n}\n```\n\nIn above code $mainData variable contains array values like\n\nArray\n(\n    [employeeID] => 22214\n    [firstName] => XXXX\n    [lastName] => XXX\n    [locDescription] => Hyderabad\n    [payLocDesc] => Contractors\n    [avayaID] =>  \n    [multiplePositionsDesc] =>  Database Application Programmer; Data Processor\n    [supName] =>XXXXXXXXXXX\n    [productionDate] => 04/01/2010\n    [phone] =>  \n    [empStatus] => PRODUCTION\n    [email] => ShXXX@XXXX.com\n)\nArray\n(\n    [employeeID] => 18466\n    [firstName] => XXXXXXXX\n    [lastName] =>XXXX\n    [locDescription] => Hyderabad\n    [payLocDesc] => Hyderabad\n    [avayaID] =>  \n    [multiplePositionsDesc] =>  Database Application Programmer; Data Processor\n    [supName] => XXXXXXXXXXX\n    [productionDate] => 01/01/2009\n    [phone] =>  \n    [empStatus] => PRODUCTION\n    [email] => sivaXXXXXX@XXXXXX.com\n)\n\nThe  Key values from above array  are Cell headers. \nplz help me in solving the above problem.\n\nThanks in advance,\n\nRegards,\nBharath G",
+    "LastUpdatedDate": "2014-08-31T11:39:47.177-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2014-01-03T09:41:46.313-08:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "How to set column headers dynamically?",
+    "Type": {
+      "Name": "Unassigned",
+      "Id": 5
+    },
+    "VoteCount": 1,
+    "Id": 20590
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "\n$this->excel->getActiveSheet()->setCellValue('A1', 'ID');\n$this->excel->getActiveSheet()->getStyle('A1')->getFont()->setBold(true);\n$this->excel->getActiveSheet()->setCellValue('B1', 'Name');\n$this->excel->getActiveSheet()->getStyle('B1')->getFont()->setBold(true);\r\n\r\n\n$baseRow = 2;\nforeach ($data['something'] as $key => $value) {\n    $row=$baseRow +$key;\n    $this->excel->getActiveSheet()->setCellValue('A' . $row, \"$value->color_id\");\n    $this->excel->getActiveSheet()->setCellValue('B' . $row, \"$value->color_name\");\n}",
+      "PostedDate": "2014-08-31T11:39:47.177-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

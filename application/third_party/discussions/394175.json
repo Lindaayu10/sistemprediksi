@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "907691",
+    "ThreadId": "394175",
+    "Html": "\r\n<p>Hello,<br>\r\nI use PHPExcel 1.7.6. I currently encounter a problem with a formula.<br>\r\nThe formula in question:</p>\r\n<p>$formula = '=IF(ISNA(VLOOKUP(F:F,References!$A$1:$B$4,2,FALSE)),&quot;&quot;,VLOOKUP(F:F,References!$A$1:$B$4,2,FALSE))';</p>\r\n<p>I write in English in my PHP code for the locale defaults to 'en_us'. When I open my Excel file (in French), the formula is correctly written in French and it works.<br>\r\nMy problem is when I try to read the generated Excel file via the command:</p>\r\n<p>$this-&gt;objPHPExcelSheet-&gt;getCellByColumnAndRow($column, $row)-&gt;getCalculatedValue();</p>\r\n<p>I get the value &quot;#REF!&quot;. It can not calculate the formula, because there is a reference problem. In fact, my formula uses another spreadsheet called &quot;References&quot;.<br>\r\nCan you help me?</p>\r\n<p><br>\r\nThank you very much.</p>\r\n",
+    "PostedDate": "2012-09-03T03:02:26.283-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "907699",
+    "ThreadId": "394175",
+    "Html": "<p>Technically this is correct behaviour, because PHPExcel cannot calculate a formula that references data that it is unable to access.</p>\r\n<p>A possible solution for this was included in the 1.7.7 release, where (if it encountered an external reference in a formula) it would fall back to the last calculated value from when the file was accessed in MS Excel itself. This is not a guaranteed solution, as it is possible to disable autocalculation in MS Excel, or if the external spreadsheet had subsequently been updated) but it is a best possible solution for this issue.</p>",
+    "PostedDate": "2012-09-03T03:25:56.503-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "907701",
+    "ThreadId": "394175",
+    "Html": "<p>Thank you for your quick response! So if I understand correctly, PHPExcel is unable to access cells from another spreadsheet in a formula?</p>",
+    "PostedDate": "2012-09-03T03:33:38.827-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "907727",
+    "ThreadId": "394175",
+    "Html": "<p>That isn't quite what I said, but I also misread your question. I thought you were trying to reference data in another workbook, not another worksheet.</p>\r\n<p>You're referencing another worksheet within the same workbook: that should work correctly. If it isn't doing so, then you can enable formula debugging to identify where it is failing.</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>PHPExcel_Calculation::getInstance()-&gt;writeDebugLog = true;\r\n$result = $this-&gt;objPHPExcelSheet-&gt;getCellByColumnAndRow($column, $row)-&gt;getCalculatedValue();\r\nvar_dump(PHPExcel_Calculation::getInstance()-&gt;debugLog);\r\n</pre>\r\n</div>\r\n<p>This will generate a log showing each step of the calculation</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2012-09-03T04:48:23.207-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "907750",
+    "ThreadId": "394175",
+    "Html": "<p>Thank you very much!it helped me to find my mistake.</p>\r\n<p>The problem was not a reference to another spreadsheet in the same workbook. The problem here was the range \"F: F\". In my debug log, I recovered each time the value of the cell \"F1\" and not the \"F\" value of the current line. After a few corrections from right to left in my code, it works very well.</p>\r\n<p>Thank you!</p>",
+    "PostedDate": "2012-09-03T05:41:49.267-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

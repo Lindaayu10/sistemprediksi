@@ -1,0 +1,39 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "This was fixed a couple of months ago in the develop branch on github",
+    "ClosedDate": "2013-09-27T00:09:22.623-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I have an example xlsx file written with writer/Excel2007.\nWith 1.7.8, style.xml has a cellXfs count of 6.\nThe same spreadsheet written with 1.7.9 has a style.xml where cellXfs count is 111. \n\nIn my example the cellXfs count went from 6 to 111, with many many duplicates. \nFor a large spreadsheet this leads to considerable bloat in the xlsx file.\n\nThe problem is in classes/PHPExcel/Style.php  at line 406\n\n    if ($workbook->cellXfExists($newStyle)) {  \n\nFunction cellXfExists never returns true.\nso all styles are added to the collection as if they were unique.\n\nAs a test, I restored line 406 to its 1.7.8 logic:\n\n    if ($existingStyle = $workbook->getCellXfByHashCode($newStyle->getHashCode())) { \n                       \nthat fixed the problem.",
+    "LastUpdatedDate": "2013-09-27T00:09:22.623-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2013-09-25T17:07:09.83-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "many duplicates in styles.xml in 1.7.9",
+    "Type": {
+      "Name": "Unassigned",
+      "Id": 5
+    },
+    "VoteCount": 1,
+    "Id": 20237
+  },
+  "FileAttachments": [],
+  "Comments": []
+}

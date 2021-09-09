@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "899651",
+    "ThreadId": "391760",
+    "Html": "\r\n<p>Hello,</p>\r\n<p>I'll using following code (modified for my data/database) from your webpage <a title=\"Dynamic Database Example\" href=\"http://phpexcel.codeplex.com/workitem/17275\" target=\"_blank\">\r\nhttp://phpexcel.codeplex.com/workitem/17275</a> but with this code I'll get following error message:</p>\r\n<p><span style=\"color:#ff0000\">Notice: Undefined variable: db in Z:\\xampp\\htdocs\\labelmanagementDB\\Test_Excel1.php on line 13</span><br>\r\n<span style=\"color:#ff0000\">Fatal error: Call to a member function query() on a non-object in Z:\\xampp\\htdocs\\labelmanagementDB\\Test_Excel1.php on line 13</span></p>\r\n<p><br>\r\n<span style=\"color:#000000\"><strong><span style=\"text-decoration:underline\">Please help me to solve the problem...</span></strong><br>\r\n</span></p>\r\n<p><span style=\"color:#ff0000\"><span style=\"color:#000000\">Below my modified code:</span></span></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>&lt;!--Connection to the Database--&gt;\r\n&lt;?php <span style=\"color:blue\">require_once</span>(<span style=\"color:#a31515\">'Connections/Connection.php'</span>); ?&gt;\r\n\r\n&lt;?php\r\n<span style=\"color:green\">/** PHPExcel */</span>\r\n<span style=\"color:blue\">require_once</span> <span style=\"color:#a31515\">'Classes/PHPExcel.php'</span>;\r\n\r\n<span style=\"color:green\">// Create new PHPExcel object</span>\r\n$objPHPExcel = <span style=\"color:blue\">new</span> PHPExcel();\r\n\r\n<span style=\"color:green\">// Database with existing object</span>\r\n$sql = <span style=\"color:#a31515\">&quot;SELECT * FROM `tbltechnical` ORDER BY `ID` ASC&quot;</span>;\r\n$res = $db-&gt;query($sql);\r\n\r\n<span style=\"color:green\">// First Row (Names)</span>\r\n$objPHPExcel-&gt;setActiveSheetIndex(0);\r\n<span style=\"color:blue\">foreach</span> ($res-&gt;getColumnNames() <span style=\"color:blue\">as</span> $coluna=&gt;$num) {\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow ($num,1,$coluna);\r\n}\r\n\r\n<span style=\"color:green\">// Other Rows (Data)</span>\r\n$i = 2;\r\n<span style=\"color:blue\">while</span> ($row = $res-&gt;fetchrow()) {\r\n<span style=\"color:blue\">foreach</span> ($row <span style=\"color:blue\">as</span> $col=&gt;$dado) $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow ($col,$i,$dado);\r\n$i&#43;&#43;;\r\n}\r\n\r\n<span style=\"color:green\">// Redirect output to a client&rsquo;s web browser (Excel5)</span>\r\nheader(<span style=\"color:#a31515\">'Content-Type: application/vnd.ms-excel'</span>);\r\nheader(<span style=\"color:#a31515\">'Content-Disposition: attachment;filename=&quot;table.xls&quot;'</span>);\r\nheader(<span style=\"color:#a31515\">'Cache-Control: max-age=0'</span>);\r\n\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, <span style=\"color:#a31515\">'Excel5'</span>);\r\n$objWriter-&gt;save(<span style=\"color:#a31515\">'php://output'</span>);\r\n<span style=\"color:blue\">exit</span>;\r\n?&gt;\r\n</pre>\r\n</div>\r\n",
+    "PostedDate": "2012-08-15T11:33:15.613-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "899714",
+    "ThreadId": "391760",
+    "Html": "<p>Nothing to do with PHPExcel, but it looks as though your database connection is failing so $db is undefined</p>",
+    "PostedDate": "2012-08-15T16:17:31.257-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

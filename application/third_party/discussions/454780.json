@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "1085830",
+    "ThreadId": "454780",
+    "Html": "HI there. \r<br />\n<br />\nIs there a way to setup our graph so it will look like this .. <a href=\"http://www.epicstan.com/graf.jpg\" rel=\"nofollow\">http://www.epicstan.com/graf.jpg</a> ?\r<br />\n<br />\nWe can't find out how to get rid of the number around our graph. \r<br />\n<br />\nHere is the file that is generated <a href=\"http://www.epicstan.com/export.xlsx\" rel=\"nofollow\">http://www.epicstan.com/export.xlsx</a> and on sheet 2 we need to change that graph look. \r<br />\n<br />\nHere is the code .. <br />\n<pre><code>&lt;?php\n/* part of generater code */\n/* charts */\n$dataSeriesValues = array(  \n    new \\PHPExcel_Chart_DataSeriesValues('Number', 'sheet2!$I$'.(($i*5)+3).':$I$'.(($i*5)+5), NULL, 6),\n);\n\n//  Build the dataseries\n$series = new \\PHPExcel_Chart_DataSeries(\n\\PHPExcel_Chart_DataSeries::TYPE_BARCHART_3D, // plotType\n    NULL,\n    range(0, count($dataSeriesValues)-1),\n    NULL,\n    NULL,\n    $dataSeriesValues\n);\n\n$series-&gt;setPlotDirection(\\PHPExcel_Chart_DataSeries::DIRECTION_BAR);\n\n$layout = new \\PHPExcel_Chart_Layout();\n$layout-&gt;setManual3dAlign(true);\n$layout-&gt;setXRotation(10);\n$layout-&gt;setYRotation(20);\n$layout-&gt;setRightAngleAxes(1);\n$layout-&gt;setShowVal(true);\n\n$plotarea = new \\PHPExcel_Chart_PlotArea($layout, array($series));\n\n\n$chart = new \\PHPExcel_Chart(\n    'chart1',\n    NULL,\n    NULL,\n    $plotarea,\n    true,\n    0,\n    NULL,\n    NULL\n);\n\n$chart-&gt;setTopLeftPosition('I'.(($i*5)+2));\n$chart-&gt;setBottomRightPosition('J'.(($i*5)+8));\n\n$excel-&gt;getActiveSheet()-&gt;addChart($chart);\n\n$excel-&gt;setActiveSheetIndex(0);\n\n\n$objWriter = new \\PHPExcel_Writer_Excel2007($excel);\n$objWriter-&gt;setIncludeCharts(TRUE);\n$file = DOWNLOAD_DIR . 'export.xlsx';\n$objWriter-&gt;save($file);</code></pre>\n\nThank you. <br />\n",
+    "PostedDate": "2013-08-28T09:10:32.367-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1085908",
+    "ThreadId": "454780",
+    "Html": "Change your arguments for the dataseries constructor to set an empty series of string plotCategories:<br />\n<div style=\"color:Black;background-color:White;\"><pre>\r\n<span style=\"color:Green;\">//  Build the dataseries</span>\n$series = <span style=\"color:Blue;\">new</span> \\PHPExcel_Chart_DataSeries(\n    \\PHPExcel_Chart_DataSeries::TYPE_BARCHART_3D, <span style=\"color:Green;\">// plotType</span>\n    NULL,\n    range(0, count($dataSeriesValues)-1),\n    NULL,\n    <span style=\"color:Blue;\">new</span> \\PHPExcel_Chart_DataSeriesValues(<span style=\"color:#A31515;\">&#39;String&#39;</span>, NULL, NULL, count($dataSeriesValues)),\n    $dataSeriesValues\n);\r\n</pre></div>",
+    "PostedDate": "2013-08-28T12:30:39.557-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1085927",
+    "ThreadId": "454780",
+    "Html": "Hi Mark. Thank you for your code, but there is no change in our chart. Any other suggestions? Thank you<br />\n",
+    "PostedDate": "2013-08-28T13:15:12.317-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

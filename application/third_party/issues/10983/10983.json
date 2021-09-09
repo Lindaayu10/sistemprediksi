@@ -1,0 +1,76 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel_Writer_HTML",
+      "DisplayName": "PHPExcel_Writer_HTML"
+    },
+    "ClosedComment": "",
+    "ClosedDate": "2009-12-01T06:48:21.237-08:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "(1)\nIn PHPExcel_Writer_HTML there is an unnecessary call to $worksheet->getCellCollection() which potentially triggers an expensive sort.\n \n(2)\nPHPExcel_Worksheet::calculateColumnWidths() always triggers a sort of the cell collection which is not necessary.\n \nFixing (1)+(2) should slightly speed up HTML and PDF writers.\n \nTest:\n----\n$tstartRead = microtime(true);\n \n$excel = new PHPExcel();\n$worksheet = $excel->getActiveSheet();\n \n// fill sheet with some random data\nfor ($i = 1; $i < 10000; ++$i) {\n\t$c = mt_rand(0,255);\n\t$r = mt_rand(1,1000);\n\t\n\t$v = PHPExcel_Cell::stringFromColumnIndex($c) . $r;\n\t\n\t$worksheet->getCellByColumnAndRow($c, $r)\n\t\t->setValueExplicit($v, 's');\n}\n \n$tendRead = microtime(true);\n$tstartWrite = microtime(true);\n \n$writer = PHPExcel_IOFactory::createWriter($excel, 'HTML');\n$writer->save('write.html');\n \n$tendWrite = microtime(true);\n \necho 'read took: ' . ($tendRead - $tstartRead) . ' seconds<br>';\necho 'write took: ' . ($tendWrite - $tstartWrite) . ' seconds<br>';\necho 'Peak memory usage: ' . (number_format(memory_get_peak_usage(true))) . \" B\\r\\n\";\n \nResult (with change set 29471):\n----\nread took: 1.233532905578613 seconds\nwrite took: 72.71862506866455 seconds\nPeak memory usage: 31,457,280 B \n \nResult (after fixing (1)+(2))\n----\nread took: 1.213385820388794 seconds\nwrite took: 61.60292506217957 seconds\nPeak memory usage: 30,408,704 B",
+    "LastUpdatedDate": "2013-05-16T05:42:15.44-07:00",
+    "PlannedForRelease": "PHPExcel 1.7.2 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-11-21T03:03:49.11-08:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Remove unnecessary cell sorting to improve speed by approx. 18% in HTML and PDF writers",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 10983
+  },
+  "FileAttachments": [
+    {
+      "FileId": 3557,
+      "FileName": "wi-10983.patch",
+      "DownloadUrl": ".\\3557"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "Fixed in SVN with patch wi-10983.patch",
+      "PostedDate": "2009-11-21T03:07:49.527-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-11-21T03:07:51.04-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-11-21T03:08:06.42-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-12-01T06:48:21.237-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:03:25.737-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:15.44-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "681467",
+    "ThreadId": "275151",
+    "Html": "\r\n<p>It seems that whenever I try to create a PHPExcel file with more than a few thousand rows, the PHPExcel object seems to exponentially use more resources and becomes slower and slower.</p>\r\n<p>As such, reports that end up being large (the breaking point on my system seems to be around 5000 rows), the report might either time out or take forever to generate.</p>\r\n<p>I'm creating Excel files by creating cells, setting formatting, etc., but I can't find a simpler way of doing this. Plus,l with PHPExcel's methodology of using many nested objects, it seems that I cannot find a workaround other than not using PHPExcel.</p>\r\n<p>I know the old PEAR Spreadsheet Writer can handle exports of 50,000 or more rows without much of a problem, and doesn't at all use as much memory as PHPExcel.</p>\r\n<p>What's the best way of using PHPExcel to export very large reports?</p>\r\n",
+    "PostedDate": "2011-10-07T12:56:08.34-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "681897",
+    "ThreadId": "275151",
+    "Html": "<p>Hi,</p>\n<p>&nbsp;</p>\n<p>much has already been said about performance (cpu/mem) issues of PHPExcel. The fact of the matter is, that due to the architecture of PHPExcel en the nature of PHP, al ot of resources are needed. PHPExcel build an in memory representation of the entire spreadsheet  (including all worksheets, data, formatting, etc). This structure is then copied to the output writer of choice (for instance excel 2007). This then builds the actual excel structure. Because of crappy typing of PHP, combined with a lot of overhead of objects,  and not being able to stream, this will take up a lot of memory, and thus also cpu cycles to process.</p>\n<p>&nbsp;</p>\n<p>Having said that, on my current setup (optimised code, powerful hardware, tweaked config, etc), I'm able to build formatted spreadsheets with up to 200K rows and save them as excel 2007 files succesfully. So it is definately possible, however, I do have  to say that it may take up a long time for the process to be finished. Still beats doing it by hand though :)</p>\n<p>&nbsp;</p>\n<p>But to answer your question, make sure you have lots and lots of memory, and fast disk access. Furthermore do formatting by arrays, see this forum for more tips. For instance, cell caching may lower memory requirements at the expense of some extra cpu cycles.</p>",
+    "PostedDate": "2011-10-09T15:06:53.567-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

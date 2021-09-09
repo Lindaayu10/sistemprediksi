@@ -1,0 +1,71 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": "2009-09-02T22:45:53.253-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hello!\n \nupdateFormulaReferences from 1.7.0 is buggy.\n \nThe problem happens in following code:\n \n$formulaBlocks[$formulaBlockKey] = preg_replace($cellTokens,$newCellTokens,$formulaBlock);\n \nIn my case, shared formula read from XML file looks like this:\n \nIF( OR( C11 = \"u\", C11 = \"Uo\", C11 = \"Usz\", C11 = \"CH\", C11 = \"Op\", C11 = \"NN\", C11 = \"NU\" ), 8, IF( OR( ISNUMBER( C11 ), C11 = \"\" ), C11, \"wrong symbol\" ) )\n \nThen, the replacements occur in next cells: C11 -> D11, C11 -> E11. Below an example output for C11 -> AB11 (first line = $formulaBlock, second = $formulaBlocks[$formulaBlockKey] and so on):\n \n =IF( OR( C11 =\n=IF( OR( AB11 =\n, C11 =\n, AB11 =\n, C11 =\n, AB11 =\n, C11 =\n, AB11 =\n, C11 =\n, AB11 =\n, C11 =\n, AB11 =\n, C11 =\n, AB11 =\n), 8, IF( OR( ISNUMBER( C11 ), C11 =\n), 8, IF( OR( ISNUMBER( AB11 ), AB11 =\n), C11,\n), AB11,\n) )\n) )\n \nEverything works correctly, until C11 -> AC11 replacement is made:\n \n=IF( OR( C11 =\n=IF( OR( AAAAAAAAAAC11 =\n, C11 =\n, AAAAAAAAAAC11 =\n, C11 =\n, AAAAAAAAAAC11 =\n, C11 =\n, AAAAAAAAAAC11 =\n, C11 =\n, AAAAAAAAAAC11 =\n, C11 =\n, AAAAAAAAAAC11 =\n, C11 =\n, AAAAAAAAAAC11 =\n), 8, IF( OR( ISNUMBER( C11 ), C11 =\n), 8, IF( OR( ISNUMBER( AAAAAAAAAAC11 ), AAAAAAAAAAC11 =\n), C11,\n), AAAAAAAAAAC11,\n) )\n) )\n \nIt happens, because $cellTokens and $newCellTokens look like this:\n \narray(\n[0] =>\narray(\n... 10 elements ... )\n \n[0] =>\n'/C11/'\n...\n[1] =>\n'/C11/'\n...\n[2] =>\n'/C11/'\n...\n[3] =>\n'/C11/'\n...\n[4] =>\n'/C11/'\n...\n[5] =>\n'/C11/'\n...\n[6] =>\n'/C11/'\n...\n[7] =>\n'/C11/'\n...\n[8] =>\n'/C11/'\n...\n[9] =>\n'/C11/'\n...\n)\n[1] =>\narray(\n... 10 elements ... )\n \n[0] =>\n'AC11'\n...\n[1] =>\n'AC11'\n...\n[2] =>\n'AC11'\n...\n[3] =>\n'AC11'\n...\n[4] =>\n'AC11'\n...\n[5] =>\n'AC11'\n...\n[6] =>\n'AC11'\n...\n[7] =>\n'AC11'\n...\n[8] =>\n'AC11'\n...\n[9] =>\n'AC11'\n...\n)\n)\n \nSo, after the first replacement C11 becomes AC11, after the second one AC11 is matched, and becomes AAC11, then AAC11 becomes AAAC11 and so on...\n \nThe XLSX file demonstrating the problem is attached.",
+    "LastUpdatedDate": "2013-05-16T05:42:30.99-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-08-14T06:03:36.387-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "updateFormulaReferences is buggy",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 10452
+  },
+  "FileAttachments": [
+    {
+      "FileId": 3266,
+      "FileName": "updateFormulaReferences_bug.xlsx",
+      "DownloadUrl": ".\\3266"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "Will take a look at this. Thanks for pointing it out",
+      "PostedDate": "2009-08-19T10:04:41.123-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-08-20T02:07:17.18-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-09-02T22:45:53.253-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:03:47.32-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:30.99-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

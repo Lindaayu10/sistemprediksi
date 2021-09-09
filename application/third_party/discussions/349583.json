@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "813913",
+    "ThreadId": "349583",
+    "Html": "\r\n<p>Hi guys and gals,</p>\r\n<p>As probably most of us know, save method is taking up too much exec time. The thing is that I don't want any memory saving by caching and what not, I want to get best speed possible even if script needs to allocate 2gb of memory to be executed.</p>\r\n<p>What are my options?</p>\r\n",
+    "PostedDate": "2012-03-22T01:38:17.633-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "814551",
+    "ThreadId": "349583",
+    "Html": "<p>Hi,</p>\r\n<p>It is not easy to answer this question. There are many things should be done to get performance gain.</p>\r\n<p>Yes, to get more speed you should go away from data caching, increase amount of memory that could be used by PHP</p>\r\n<p>like ini_set(\"memory_limit\",\"256M\"); or directly in php.ini</p>\r\n<p>Also, you can try to use different PHP accelerators like APC, eAccelerator, etc.</p>\r\n<p>But the most important thing you should do is to measure your code execution time part by part. Probably you will see that save time does not take so much time than smth else.</p>\r\n<p>In my project I did not get any performance gain using \"fromArray\" but in your case it might help.</p>\r\n<p>You can also check your data to avoid creating of empty cells.</p>\r\n<p>I think it is not an option but I see that my project is working faster on PHP5.2 than on PHP5.3.10. (have not tried on PHP5.4 yet)</p>",
+    "PostedDate": "2012-03-23T03:44:00.643-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "814569",
+    "ThreadId": "349583",
+    "Html": "<p>I already set up my memory limit to 512M which should be enough. I measured my memory usage peak for this script and it is around 90M.<br />Worksheets that I've been exporting had 12614 cells. All cells are populated always.</p>\r\n<p>I've turned on xdebug profiler and got cachegrind file for that generator script. 12614 calls to setCellValue takes about 8 secs to execute. Save method also takes about 8 secs to execute. As you said, that method itself is actually calling others which builds up the exec time. Save calls Close, for each worksheet, so 4 calls which are taking something like 5.5s to execute. All of those methods make a call to getCell method for each cell plus Save method also have call to garbageCollector which also calls getCell. So in fact we have getCell and setValue which are taking all that time to execute, they aren't end of the line I know.</p>\r\n<p>I am not sure what each method is doing exactly but I see that there is call to notifyCacheController which is taking almost 2s to execute and I am not sure how this works since I didn't set any method for caching. Plus there is some method setXfIndex which is caled 25k times (cell number*2) and its taking about 1.5s to execute.<br />I have tried to use fromArray method but with no success. It works but execution time is the same as with regular method of cell populating.</p>\r\n<p>Changing the version of PHP isn't an option there.</p>",
+    "PostedDate": "2012-03-23T04:10:11.417-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

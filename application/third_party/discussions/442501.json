@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "1039180",
+    "ThreadId": "442501",
+    "Html": "Mark,<br />\n<br />\n  I'm back again testing PHPExcel 1.7.8 for a new project I'm working on and found an odd thing with the IOFactory::identify and IOFactory::createReaderForFile methods. They will not recognize a csv file. They both use the following code:<br />\n<pre><code>$pathinfo = pathinfo($pFilename);\n\n$extensionType = NULL;\nif (isset($pathinfo['extension'])) {\n  switch (strtolower($pathinfo['extension'])) {\n    case 'xlsx':      //  Excel (OfficeOpenXML) Spreadsheet\n    case 'xlsm':      //  Excel (OfficeOpenXML) Macro Spreadsheet (macros will be discarded)\n    case 'xltx':      //  Excel (OfficeOpenXML) Template\n    case 'xltm':      //  Excel (OfficeOpenXML) Macro Template (macros will be discarded)\n      $extensionType = 'Excel2007';\n      break;\n    case 'xls':        //  Excel (BIFF) Spreadsheet\n    case 'xlt':        //  Excel (BIFF) Template\n      $extensionType = 'Excel5';\n      break;\n    case 'ods':        //  Open/Libre Offic Calc\n    case 'ots':        //  Open/Libre Offic Calc Template\n      $extensionType = 'OOCalc';\n      break;\n    case 'slk':\n      $extensionType = 'SYLK';\n      break;\n    case 'xml':        //  Excel 2003 SpreadSheetML\n      $extensionType = 'Excel2003XML';\n      break;\n    case 'gnumeric':\n      $extensionType = 'Gnumeric';\n      break;\n    case 'htm':\n    case 'html':\n      $extensionType = 'HTML';\n      break;\n    case 'csv':\n      // Do nothing\n      // We must not try to use CSV reader since it loads\n      // all files including Excel files etc.\n      break;\n    default:\n      break;\n}</code></pre>\n\nThis makes the identification of files pretty much useless to me.<br />\nShouldn't the createReader('CSV') routine throw an exception if the file isn't a valid CSV file?<br />\n<br />\nAnyway, the interesting thing about my tests is that one file with a csv extension fails with an 'unknown file format' error (which is expected with this code), but another file with a csv extension fails because the file was identified as an HTML file (which it isn't) and threw an exception trying to access the listWorksheetInfo method (which does not exist in the HTML reader). Any idea why my one file might be identified as an HTML file when the extension is 'csv'?<br />\n<ul>\n<li>Christopher Mullins</li>\n</ul>\n",
+    "PostedDate": "2013-05-03T13:29:19.013-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1040005",
+    "ThreadId": "442501",
+    "Html": "It's probably the next part of the identification code.... if the file &quot;signature&quot; matches the extension (csv excluded) then that will be the recognised filetype, otherwise the IOFactory loops through each supported type in turn trying to identify a signature that it recognises, which determines the file reader that will be used irrespective of the file extension. The fallback is to treat any file that hasn't been unidentified during this test loop as a CSV: the CSV Reader will try to process an file as a CSV because there currently isn't any checking in the canRead method for a CSV file.\r<br />\n<br />\nAs for a csv being recognised as an HTML file, that's probably because the HTML signature check is too simplistic. I probably need to tighten it up and use dom as part of that canRead test; though it still needs to allow for badly formed or partial html being recognised correctly<br />\n",
+    "PostedDate": "2013-05-06T11:15:37.483-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1040172",
+    "ThreadId": "442501",
+    "Html": "Mark,<br />\n<br />\nI've made some customization to my code that allows it to identify both HTML files and CSV files. <br />\n<br />\nCSV identification uses two underlying rules:<br />\n<ul>\n<li>No blank rows. If blank rows are detected then file is an invalid CSV file.</li>\n<li>\nA majority of the rows must have the same number of fields otherwise file is an invalid CSV file.<br />\n</li>\n</ul>\nWould you be interested in adding these modifications into the existing code?<br />\n<br />\nIf so, I can paste the the changes here. They are actually relatively minor changes.<br />\n<br />\nFiles modified:<br />\n<ul>\n<li>IOFactory.php - Added ability to pass options to identify and createReaderForFile methods.</li>\n<li>HTML.php - Added code to canRead method to more accurately test for a valid HTML file in reader.</li>\n<li>\nCSV.php - Added code to canRead method to test for a valid CSV file in reader.<br />\n</li>\n</ul>\nThe reader modifications add some overhead and time, but only when testing for a valid file so hopefully it is not too onerous.<br />\n<br />\nLet me know if you need me to paste those changes.<br />\n<br />\n-- Addendum: I've just been looking over your changes to the canRead methods in the repository. Looks cleaner and more modular for flexibility. I'll just keep my custom code in place until the next PHPExcel version comes out with these fixes. I'll still have to add my code for the csvReader::_isValidFormat() method in order to trim down on invalid CSV files.<br />\n<br />\nChristopher Mullins<br />\n",
+    "PostedDate": "2013-05-06T18:09:03.23-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

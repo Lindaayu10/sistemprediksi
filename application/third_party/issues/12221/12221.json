@@ -1,0 +1,70 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel_Reader_Excel5",
+      "DisplayName": "PHPExcel_Reader_Excel5"
+    },
+    "ClosedComment": "Fixed in SVN.",
+    "ClosedDate": "2010-05-11T00:52:06.76-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I'm using PHPExcel @version 1.7.2 with PHP Version 5.2.9 on Windows NT 5.1 build 2600.\n \nSince I'm dealing with huge files, I've created a custom readfilter to exclude all but one worksheet and a range of rows.  When I call reader->load(), I get the following error:\n \n      Notice (8): Undefined property: PHPExcel_Reader_Excel5::$_baseCell [CORE\\vendors\\PHPExcel\\Classes\\PHPExcel\\Reader\\Excel5.php, line 3197]\n \nHere's the stack:\n \n       Code | Context\n \n       $length\t=\t25\n       $recordData\t=\t\"\"\n       $cellRange\t=\t\"J6:J12\"\n        $no\t=\t7\n        $formula\t=\t\"\"\n \n        // at this point we only store the shared formula for later use\n \n        $this->_sharedFormulas[$this->_baseCell] = $formula;\n \n        PHPExcel_Reader_Excel5::_readSharedFmla() - CORE\\vendors\\PHPExcel\\Classes\\PHPExcel\\Reader\\Excel5.php, line 3197\n        PHPExcel_Reader_Excel5::load() - CORE\\vendors\\PHPExcel\\Classes\\PHPExcel\\Reader\\Excel5.php, line 752\n \nThe problem seems to be that one of the cells uses a formula with a range (\"J6:J12\") which get their values from other formulas, and I've excluded all of those cells.  In fact, even if I make my readfilter always return false, it's still trying to evaluate some cells because I still get the error.  \n \nHere's my code calling the $reader->load():\n \n            $reader = PHPExcel_IOFactory::createReaderForFile($samplePath);\n            $reader->setReadDataOnly(true);\n            $reader->setReadFilter(new PHPExcel_Reader_CustomReadFilter(\"SecondSheet\", 1));\n \n            $sampleFile = $reader->load($samplePath);\n            return $sampleFile;\n \nHere's the custom readfilter:\n \n<?php\n/** PHPExcel root directory */\nif (!defined('PHPEXCEL_ROOT')) {\n/**\n * @ignore\n */\n    define('PHPEXCEL_ROOT', dirname(__FILE__) . '/../../');\n}\n \n/** PHPExcel_Reader_IReadFilter */\nrequire_once PHPEXCEL_ROOT . 'PHPExcel/Reader/IReadFilter.php';\n \nclass PHPExcel_Reader_CustomReadFilter implements PHPExcel_Reader_IReadFilter {\n \n    public $wsName;\n    public $startingRow;\n    public $rowCount;\n \n    public function __construct($pWsName, $pStartingRow, $pRowCount = 50) {\n        $this->wsName = $pWsName;\n        $this->startingRow = $pStartingRow;\n        $this->rowCount = $pRowCount;\n    }\n \n    public function readCell($column, $row, $worksheetName = '') {\n        if ($row >= $this->startingRow\n            && $row < $this->startingRow + $this->rowCount\n            && $worksheetName == $this->wsName\n        ) {\n            return true;\n        } else {\n            return false;\n        }\n    }\n}\n \n \nI can't upload the spreadsheet because it has sensitive data in it, but even if I make the readfilter always return false, I still get the error.  Is this a  bug, or am I doing something wrong?\n \nThanks in advance!",
+    "LastUpdatedDate": "2013-05-16T05:42:04.82-07:00",
+    "PlannedForRelease": "PHPExcel 1.7.3 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2010-03-23T06:04:01.937-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Custom readfilter error when cell formulas reference excluded cells",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 12221
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "I can verify the bug. It had to do with shared formulas.\r\n\r\nShould be fixed in tomorrows source code:\r\nhttp://phpexcel.codeplex.com/SourceControl/list/changesets",
+      "PostedDate": "2010-03-24T20:41:43.417-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Awesome!  I'll try and give it a shot tonight.",
+      "PostedDate": "2010-03-25T08:41:24.28-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "The fix worked like a dream.  Great job on the quick response too!!!",
+      "PostedDate": "2010-03-25T17:46:55.59-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-05-11T00:52:06.76-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:03:07.1-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:04.82-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

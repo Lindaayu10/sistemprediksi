@@ -1,0 +1,162 @@
+[
+  {
+    "Id": "182665",
+    "ThreadId": "54215",
+    "Html": "Hello. Very strange situation is happened to me. Generating Excel2007/5 or PDF files ends with 'out of memory' reason. Logs are below. It seems that script can't allocate more then 10MB. It works on my local computer but it got these errors on hosting. <br>\r\n<br>\r\n<strong>Fatal error</strong>:  Out of memory (allocated 9961472) (tried to allocate 196608 bytes) in <strong>/www/htdocs/lib/PHPExcel/Style/Border.php</strong> on line <strong>96</strong><br>\r\n<strong>Fatal error</strong>:  Out of memory (allocated 9961472) (tried to allocate 69 bytes) in <strong>/www/htdocs/lib/PHPExcel/Style/Borders.php</strong> on line <strong>420</strong><br>\r\n<strong>Fatal error</strong>:  Out of memory (allocated 10223616) (tried to allocate 12 bytes) in <strong>/www/htdocs/lib/PHPExcel/Cell.php</strong> on line <strong>448</strong><br>\r\n<br>\r\nI have some limits on hosting. one of them is memory usage. it is set to 32MB. As I see - limit is set to 32 M, but script breaks, allocating about 10M of mem. <br>\r\n<br>\r\n<pre>echo ini_get('memory_limit').&quot;; &quot;; returns '-1'. I used ini_set('memory_limit', '25M'); also and it gives no results. <br>\r\np.s. lines like &quot;zend_mm_heap corrupted&quot; appears in apache error log file .<br>\r\n<br>\r\nResource limits for class sub-user:\r\n  cputime                20 secs\r\n  filesize         infinity kB\r\n  datasize            32768 kB\r\n  stacksize            8192 kB\r\n  coredumpsize            0 kB\r\n  memoryuse           32768 kB\r\n  memorylocked         8192 kB\r\n  maxprocesses           16\r\n  openfiles              24\r\n  sbsize           infinity bytes\r\n  vmemoryuse          32768 kB</pre>\r\n<br>\r\nCan you advice me something?<br>\r\n",
+    "PostedDate": "2009-04-23T00:53:09.2-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "183432",
+    "ThreadId": "54215",
+    "Html": "How much memory does your script use on your local server? Not sure what is the problem with that host, but even 32M might not suffice.<br>\r\n<br>\r\nAnyway, will try to commit memory patch, hopefully over the next couple of days. Let's see if it helps.<br>\r\n<br>\r\n",
+    "PostedDate": "2009-04-24T15:15:00.523-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "183942",
+    "ThreadId": "54215",
+    "Html": "you are right, 32M in different situations may not be enough.<br>\r\nOn hosting I have limits 32M and 128M on two accounts. <br>\r\n<br>\r\nI run script that collects data from mysql and generates reports in excel2007, excel5 or pdf (it depends on user's preferences). <br>\r\nin web form i choose 3 tables and set range of reports from 07/2008 to\r\n02/2009 (as example). Excel2007 file generates successfully.Peak memory usage: 9.25 MB. <br>\r\nthen i change range to: 06/2008-02/2009 and it returns:  <br>\r\n<strong>Fatal error</strong>: Uncaught exception 'Exception' with message 'Could\r\nnot close zip file\r\n/...lib/phpxlLEUi52.' in\r\n/...lib/PHPExcel/Writer/Excel2007.php:401\r\nStack\r\ntrace:\r\n#0 /...lib/common.lib.php(4144):\r\nPHPExcel_Writer_Excel2007-&gt;save('php://output')\r\n#1 /...lib/ajax_chain.php(392):\r\nsite-&gt;getExcelSheetByParams('...', Array, '06/2008', '02/2009',\r\n'excel2007')\r\n#2 {main} thrown in <strong>/...lib/PHPExcel/Writer/Excel2007.php</strong> on line <strong>401</strong><br>\r\n<br>\r\nchanging range to 11/2007-02/2009 (for example) it returns:<br>\r\n<strong>Fatal error</strong>:  Out of memory (allocated 10223616) (tried to allocate 77 bytes) in <strong>/...lib/PHPExcel/Calculation.php</strong> on line <strong>202</strong><br>\r\n<br>\r\nalthough I tested it on my laptop and it results: Peak memory usage: 109.5 MB on the same conditions. and it's very strange. scripts are identical but memory usage in peak is different in almost 10 times. <br>\r\n<br>\r\nI compare sizes of generated xl\\worksheets\\sheet1.xml files (to be sure that sizes are almost same). <br>\r\n07/2008-02/2009 version was 13 348 bytes length, 11/2007-02/2009 was 17 443 bytes length. <br>\r\n<br>\r\n<br>\r\nanyway, according to my hosting, I decided to make some tests on it. I run script that adds 100 bytes to an empty variable in cycle for 30 thousand times:<br>\r\n<pre>&lt;?php\r\n<span>&gt; </span>echo ini_get('memory_limit').&quot;; &quot;;\r\n<span>&gt; </span>ini_set('memory_limit', '30M');\r\n<span>&gt; </span>echo ini_get('memory_limit').&quot;&lt;br&gt;&quot;;\r\n<span>&gt; </span>\r\n<span>&gt; </span>$a=&quot;0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789&quot;;\r\n<span>&gt; </span>   \r\n<span>&gt; </span>// 100 bytes\r\n<span>&gt; </span>$b=&quot;&quot;;\r\n<span>&gt; </span>for ($i=0; $i&lt;40000; $i++)\r\n<span>&gt; </span>  $b .= $a;\r\n<span>&gt; </span>\r\n<span>&gt; </span>echo (strlen($b)/1024) . &quot; KB&quot;;\r\n<span>&gt; </span>echo &quot;&lt;br&gt;Peak memory usage: &quot; . (memory_get_peak_usage(true) / 1024 ) . \r\n<span>&gt; </span>&quot; KB&quot;;\r\n<span>&gt; </span>?&gt;</pre>\r\nresults:<br>\r\n<pre>&gt; -1; 30M\r\n<span>&gt; </span>2929.6875 KB\r\n<span>&gt; </span>Peak memory usage: 3328 KB</pre>\r\n<br>\r\n<br>\r\nI added 10k elements more:<span>&nbsp; </span>for ($i=0; $i&lt;40000; $i++)\r\n<br>\r\n<pre>&gt; -1; 30M\r\n<span>&gt; </span><strong><span>*</span>Fatal error<span>*</span></strong>: Out of memory (allocated 4194304) (tried to allocate \r\n<span>&gt; </span>3932201 bytes) in \r\n<span>&gt; </span>*/...test/memory.php* on line *9*</pre>\r\nand on my laptop last test gives expected result:<br>\r\n128M; 30M<br>\r\n3906.25 KB<br>\r\nPeak memory usage: 4352 KB<br>\r\n<br>\r\n<br>\r\nwhat can be wrong? why having limit of 32MB test-script results out of memory error?<br>\r\n<br>\r\n<br>\r\n",
+    "PostedDate": "2009-04-26T23:52:22.073-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "184068",
+    "ThreadId": "54215",
+    "Html": "You could be hitting an Apache memory limit rather than a PHP memory limit. I think what you see for <code>memory_limit</code> using <code>phpinfo()</code> or <code>ini_get('memory_limit')</code> is not reliable. I have seen similar things on some shared hosts too.<br>\r\n<br>\r\nFound a discussion giving some insight:<br>\r\n<a href=\"http://drupal.org/node/371789\">http://drupal.org/node/371789</a><br>\r\n<br>\r\n",
+    "PostedDate": "2009-04-27T06:28:13.767-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "189590",
+    "ThreadId": "54215",
+    "Html": "<p>I run some tests under 1.6.7 version with same input data.</p>\r\n<p>here are results of memory_get_peak_usage():</p>\r\n<p>1.6.7<br>PDF - 38.75M<br>XLS - 30.75M<br>XLSx- 30.25M</p>\r\n<p>1.6.6<br>PDF - 45.50M<br> XLS - 30.25M<br> XLSx- 29.75M</p>\r\n<p>&nbsp;</p>\r\n<p>It looks like mem usage is similar in 1.6.6 and 1.6.7 versions (except pdf)</p>\r\n<p>koyama, is there any success with memory patch?</p>",
+    "PostedDate": "2009-05-12T22:28:57.427-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "189693",
+    "ThreadId": "54215",
+    "Html": "<blockquote>\r\n<p><em>It looks like mem usage is similar in 1.6.6 and 1.6.7 versions (except pdf)</em></p>\r\n<p><em>koyama, is there any success with memory patch?</em></p>\r\n</blockquote>\r\n<p>Correct, PHPExcel 1.6.6 and 1.6.7 are similar. But, if you use the latest source code you should see improvements if you are using styles.</p>\r\n<p><a href=\"../SourceControl/ListDownloadableCommits.aspx\">http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx</a></p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-05-13T04:54:12.45-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "189701",
+    "ThreadId": "54215",
+    "Html": "<p>do you mean improvements using styles with memory or with visual things?</p>",
+    "PostedDate": "2009-05-13T05:14:49.44-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "189709",
+    "ThreadId": "54215",
+    "Html": "<blockquote><em>do you mean improvements using styles with memory or with visual things?</em><br></blockquote>\r\n<p>I mean improvements with memory and speed. Some tests show that peak memory usage typically drops from 100 MB to 20 MB, execution time from 60 seconds to 5 seconds. Depending on how big workbook you have and how many cells that are styled.<br> <br> There is some overhead of some 8 MB just for the classes to load, this stays the same, however.</p>",
+    "PostedDate": "2009-05-13T05:27:45.597-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "190147",
+    "ThreadId": "54215",
+    "Html": "<p>can you provide me with direct link on that patch? or probably it will be better to download the whole source code?</p>",
+    "PostedDate": "2009-05-14T03:34:21.33-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "190216",
+    "ThreadId": "54215",
+    "Html": "<p>Yes, best thing is to download the latest source code. Many classes are affected.<br> <a href=\"../SourceControl/ListDownloadableCommits.aspx\">http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx</a></p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-05-14T06:46:20.147-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "190647",
+    "ThreadId": "54215",
+    "Html": "<p>ok, thanks. I'll try to check it on this weekend.</p>",
+    "PostedDate": "2009-05-15T03:41:30.46-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "191751",
+    "ThreadId": "54215",
+    "Html": "<p>Well, I used 27561 build. source contains about 600 cells.</p>\r\n<p>here are results of test (i think, it can be useful for somebody):</p>\r\n<p>VERSION&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; FILE_TYPE&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MEM_PEAK&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; EXECUTION_TIME</p>\r\n<p>1.6.7&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; EXCEL2007&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 16,5 Mb&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2,4 sec<br>1.6.7&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; EXCEL2003&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 16,5 Mb&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 1,8 sec<br> 1.6.7&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; PDF &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 31,75 Mb&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 5,8 sec</p>\r\n<p>27561&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; EXCEL2007&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 12,25 Mb&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2,9 sec<br>27561&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; EXCEL2003&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 12,75 Mb&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2,8 sec<br>27561&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; PDF &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 26,5&nbsp; Mb&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 7,4 sec</p>\r\n<p>&nbsp;</p>\r\n<p>memory usage dropped, but execution time isn`t. koyama, what can be wrong?</p>",
+    "PostedDate": "2009-05-18T22:55:42.59-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "191755",
+    "ThreadId": "54215",
+    "Html": "<p>How much styling do you have? And what method have you used for styling? The fast way of styling cells in the forthcoming PHPExcel 1.7.0 will be like this:</p>\r\n<p style=\"font-family:Courier New\">$objWorksheet-&gt;getStyle('A1:F43')-&gt;applyFromArray($styleArray);</p>\r\n<p>or equivalently like this:</p>\r\n<p style=\"font-family:Courier New\">$objWorksheet-&gt;duplicateStyleArray($styleArray, 'A1:F43');</p>\r\n<p>rather than looping through the cells one by one and styling them individually. Perhaps that is why you are not seeing any gain in speed?</p>",
+    "PostedDate": "2009-05-18T23:10:58.867-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "191784",
+    "ThreadId": "54215",
+    "Html": "<p>I'm also having the same problem with out of memory.</p>\r\n<p>For styling I use</p>\r\n<p>$sharedStyle = new PHPExcel_Style();</p>\r\n<p>$sharedStyle-&gt;applyFromArray(<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; array('alignment'=&gt;array(<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; 'vertical'=&gt;PHPExcel_Style_Alignment::VERTICAL_CENTER,<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; 'wrap'=&gt;true)));</p>\r\n<p>$objPHPExcel-&gt;getActiveSheet()-&gt;setSharedStyle($sharedStyle, 'A2:L100');</p>\r\n<p>Is this okay or should I use the solution koyama recommends?</p>",
+    "PostedDate": "2009-05-19T01:04:04.943-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "191788",
+    "ThreadId": "54215",
+    "Html": "<p>sjansen4, do like this:<br> <br> <span style=\"font-family:Courier New\">$s = array(</span><br style=\"font-family:Courier New\"> <span style=\"font-family:Courier New\">&nbsp;&nbsp;&nbsp; 'alignment' =&gt; array(</span><br style=\"font-family:Courier New\"> <span style=\"font-family:Courier New\">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; 'vertical' =&gt; PHPExcel_Style_Alignment::VERTICAL_CENTER,</span><br style=\"font-family:Courier New\"> <span style=\"font-family:Courier New\">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; 'wrap' =&gt; true,</span><br style=\"font-family:Courier New\"> <span style=\"font-family:Courier New\">&nbsp;&nbsp;&nbsp; ),</span><br style=\"font-family:Courier New\"> <span style=\"font-family:Courier New\">);</span><br style=\"font-family:Courier New\"> <span style=\"font-family:Courier New\">$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('A2:L100')-&gt;applyFromArray($s);</span><br> <br> This is the preferred technique for styling. But you will need to use latest source code:<br> <a href=\"../SourceControl/ListDownloadableCommits.aspx\">http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx</a></p>\r\n<p><strong>EDIT</strong>: fixed typo in variable name.</p>",
+    "PostedDate": "2009-05-19T01:13:31.033-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "191802",
+    "ThreadId": "54215",
+    "Html": "<p>Okay, I'll do it like you recommend. Thanks for the reply</p>",
+    "PostedDate": "2009-05-19T01:47:19.847-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "194706",
+    "ThreadId": "54215",
+    "Html": "<p>There are some tables per sheet. The following executes for every table.<br>There are many conditions and different duplicateStyleArray() methods, but these are just as example what is used.<br>A1:F43 is used as example</p>\r\n<p>&nbsp;</p>\r\n<p>foreach ($currentTableFirstRow as $dbField =&gt; $dbFieldHeader)<br>{<br>&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;duplicateStyleArray(<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; array('alignment'&nbsp;&nbsp;&nbsp; &nbsp;=&gt; array('indent'&nbsp; =&gt; 1,&nbsp; 'horizontal'&nbsp; =&gt; &nbsp;&nbsp;&nbsp; PHPExcel_Style_Alignment::HORIZONTAL_RIGHT),<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; 'font'&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;=&gt; array('bold' &nbsp;&nbsp;&nbsp; =&gt; true),<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; 'numberformat' =&gt; array('code'&nbsp;&nbsp;&nbsp; =&gt; '#,##0.000') &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; )<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; ,&nbsp;&nbsp;&nbsp; &quot;A1:F43&quot;<br>&nbsp;&nbsp;&nbsp; );<br>}<br></p>\r\n<p>This executes for every sheet. There is currently one sheet per workbook (file)</p>\r\n<p><br>foreach ($tableProperties['width'] as $param =&gt; $value)<br>&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;getColumnDimension($param)-&gt;setWidth(($value+0.83));&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; //+0.83 == offset<br><br>for ($a=x; $a&lt;=y; $a++)<br>&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;getRowDimension($a+$prevRowsCount)-&gt;setRowHeight($tableProperties['height']+0.08);&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; //+0.08 == offset<br><br><br>$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle($cb1)-&gt;applyFromArray(<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; array('font'&nbsp;&nbsp;&nbsp; =&gt; array(<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; 'bold'&nbsp;&nbsp;&nbsp; =&gt; true,<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; 'name'&nbsp; =&gt; 'Tahoma',<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; 'size'&nbsp; =&gt;&nbsp; 10,<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; 'color' =&gt; array('argb' =&gt; PHPExcel_Style_Color::COLOR_WHITE )<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; ),<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; 'alignment' =&gt; array(<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; 'horizontal' =&gt; PHPExcel_Style_Alignment::HORIZONTAL_CENTER,<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; 'vertical'&nbsp;&nbsp; =&gt; PHPExcel_Style_Alignment::VERTICAL_CENTER,<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; 'indent'&nbsp;&nbsp;&nbsp; &nbsp;=&gt; 1,<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; 'wrap'&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;=&gt; true<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; ),<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; 'fill'&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; =&gt; array(<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; 'type'&nbsp; =&gt; PHPExcel_Style_Fill::FILL_SOLID,<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; 'startcolor' =&gt; array('argb' =&gt; $fillColor)<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; ) )<br>);<br><br><br>$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle($cb2)-&gt;getFont()-&gt;setBold(true);<br>$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle($cb2)-&gt;getAlignment()-&gt;setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);<br><br>$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(&quot;A1&quot;)-&gt;getBorders()-&gt;getLeft()-&gt;setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);<br>$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(&quot;A1&quot;)-&gt;getBorders()-&gt;getLeft()-&gt;getColor()-&gt;setARGB('00333399');<br><br><br>$borderStyle = PHPExcel_Style_Border::BORDER_HAIR;<br>$objPHPExcel-&gt;getActiveSheet()-&gt;duplicateStyleArray(<br>&nbsp;&nbsp;&nbsp; array(<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; 'borders' =&gt; array(<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; 'top'&nbsp;&nbsp;&nbsp;&nbsp; =&gt; array('style' =&gt; $borderStyle, &nbsp;&nbsp;&nbsp; 'color' =&gt; array('argb' =&gt; '00808080' )),<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; 'right'&nbsp;&nbsp; =&gt; array('style' =&gt; $borderStyle, &nbsp;&nbsp;&nbsp; 'color' =&gt; array('argb' =&gt; '00808080' )),<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; 'bottom'&nbsp; =&gt; array('style' =&gt; $borderStyle, &nbsp;&nbsp;&nbsp; 'color' =&gt; array('argb' =&gt; '00808080' )),<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; 'left'&nbsp;&nbsp;&nbsp; =&gt; array('style' =&gt; $borderStyle, &nbsp;&nbsp;&nbsp; 'color' =&gt; array('argb' =&gt; '00808080' ))<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; )<br>&nbsp;&nbsp;&nbsp; ),&nbsp;&nbsp;&nbsp; &quot;A1:F43&quot;<br>);</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>--editedwtf? I can't set style properties to code that I pasted :-(</p>\r\n<p>&nbsp;</p>\r\n<p>--edited x2<br>highlighted source code: http://pastebin.com/f527c6e</p>",
+    "PostedDate": "2009-05-27T02:45:54.94-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "195041",
+    "ThreadId": "54215",
+    "Html": "<p>Your script looks good. You are using the fast <span style=\"font-family:Courier New\">duplicateStyleArray()</span> method. So I don't think you can optimize styling much more.<br> <br> It is possible you can cut down execution time if you use <span style=\"font-family:Courier New\">setValueExplicit()</span> rather than <span style=\"font-family:Courier New\">setValue()</span>. This can typically cut down execution time by 30%. I suggest trying that if you are not already doing so. Meanwhile we must try to improve the classes further. There are still places where we can optimize.</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-05-27T21:19:27.48-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "195747",
+    "ThreadId": "54215",
+    "Html": "<p>Is your workbook performing any calculations, particularly formulae that reference cells across worksheets? I've noticed that this is particularly memory intensive</p>",
+    "PostedDate": "2009-05-29T09:36:01.1-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "206465",
+    "ThreadId": "54215",
+    "Html": "<p>sorry for long response.</p>\r\n<p>there are some calculations performing in the workbook. but they don't reference cells across the worksheets. they're are reference cells only across one worksheet. see example:</p>\r\n<p>C1 = B1/B10;<br>C2 = B2/B10;<br>C3 = B3/B10;<br>...</p>\r\n<p>I commented the line in the code that performs such calculations. and I got:</p>\r\n<p>peak memory usage dropped down to 11 Mbytes (it was 11,25 Mb with performing that calculations); <br>execution time dropped down to 2,6 seconds&nbsp; (against 2,7 seconds with performing that calculations).</p>\r\n<p>Anyway that execution time is acceptable.</p>\r\n<p>Thanks for the great script!</p>",
+    "PostedDate": "2009-06-28T22:50:46.45-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

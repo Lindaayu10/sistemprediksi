@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "443723",
+    "ThreadId": "212875",
+    "Html": "<p>I have gone through the last 10 pages of the discussion, and through the documentation - but have not found any solid answers.</p>\r\n<p>I have a number of XLS,XLXS files we get on a weekly basis - basically with columns of&nbsp;product name, price, description, brand etc</p>\r\n<p>I need to only extract the model and price rows, and import them into my SQL database. They are a number of Sheets per file, all with different amount of rows.</p>\r\n<p>Is it not possible to extract informaiton and store them in variables? EG, Take all rows from column A and column F&nbsp;in a loop and use and mysql insert&nbsp;to enter the&nbsp;rows into a table in the database?</p>\r\n<p>So basically, what I am battling with is to get the informaiton into variables that I can work with - it seems my only options are to save as HTML/PDF/EXEL etc.....</p>\r\n<p>Is this possible?</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-05-17T04:41:00.79-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "444996",
+    "ThreadId": "212875",
+    "Html": "<p>Depending on the size of the files, yes, you can do this.</p>\r\n<p>After creating the PHPExcel object and loading the file into it, you can iterate over it kind of like this:</p>\r\n<p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>$objWorksheet = $objPHPExcel-&gt;getActiveSheet();\r\n\r\n<span style=\"color:blue\">foreach</span> ($objWorksheet-&gt;getRowIterator() <span style=\"color:blue\">as</span> $row) {\r\n  $cellIterator = $row-&gt;getCellIterator();\r\n  $cellIterator-&gt;setIterateOnlyExistingCells(false);\r\n  $values = <span style=\"color:blue\">array</span>();\r\n  <span style=\"color:blue\">foreach</span> ($cellIterator <span style=\"color:blue\">as</span> $cell) \r\n  {\r\n    array_push($values, $cell-&gt;getValue());\r\n  }\r\n  <span style=\"color:green\">// build the insert statement from the values in the cells.</span>\r\n  <span style=\"color:green\">// remember to skip the header line(s) if your files have them.</span>\r\n  $sql = <span style=\"color:#a31515\">&quot;INSERT INTO TABLE VALUES (&quot;</span>.implode(<span style=\"color:#a31515\">','</span>, $values).<span style=\"color:#a31515\">&quot;)&quot;</span>;\r\n  <span style=\"color:green\">// insert into the DB here, I am just echoing it out to screen</span>\r\n  <span style=\"color:blue\">echo</span> $sql;\r\n}\r\n\r\n</pre>\r\n</div>\r\n</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-05-19T09:55:41.937-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "445008",
+    "ThreadId": "212875",
+    "Html": "<p>Here is an updated version of the foreach that will handle your data correctly:</p>\r\n<p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>  <span style=\"color:blue\">foreach</span> ($cellIterator <span style=\"color:blue\">as</span> $cell) \r\n  {\r\n    $cellval = $cell-&gt;getValue();\r\n    <span style=\"color:blue\">if</span> (is_numeric($cellval)) {\r\n      array_push($values, $cellval);\r\n    } <span style=\"color:blue\">else</span> {\r\n      array_push($values, <span style=\"color:#a31515\">'&quot;'</span>.$cellval.<span style=\"color:#a31515\">'&quot;'</span>);\r\n    }\r\n  }\r\n\r\n</pre>\r\n</div>\r\nThis way, it encloses the strings with double quotes.</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-05-19T10:19:43.1-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "447294",
+    "ThreadId": "212875",
+    "Html": "<p>I have a question about inputting the data into the db in the right format. Specifically I'm trying to input date columns from an .xls into a MySQL DB. How can I tell if a column is formatted as a Date?</p>",
+    "PostedDate": "2010-05-25T13:33:34.837-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

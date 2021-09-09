@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "146496",
+    "ThreadId": "44046",
+    "Html": "I have a script that extracts the data out of excel files and places it into a database.&nbsp; Everything was working just fine until I tried to import a particular excel file.&nbsp; All the dates were way off.&nbsp; Every other excel file I had tested with this script worked without issue.&nbsp; To debug I decided to use the HTML writer, I figured it know how to handle the excel dates and maybe I made an error.&nbsp; To my surprise, all the dates were off by one day in the HTML, 12-31-72 instead of 1-1-1973.&nbsp; I pulled in a file which worked in my script, and the dates were displayed as an integer.&nbsp; I can't figure out what has gone wrong, any ideas?<br>\r\n",
+    "PostedDate": "2009-01-12T16:47:33.613-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "146502",
+    "ThreadId": "44046",
+    "Html": "Mark has noted similar weirdness here:<br>\r\n<a href=\"http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=8483\">http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=8483</a><br>\r\n<br>\r\nYour observation would fit with Mark's if<br>\r\n1. Excel file is of format xlsx<br>\r\n2. Your Excel file was created on Mac (which uses 1904 date mode)<br>\r\n3. You are viewing the Excel file in Excel 2003 together with Office 2007 compatibility pack<br>\r\n<br>\r\nCan you confirm this? Also try to open your Excel file in MS Office 2007 if you have the chance and compare date.<br>\r\n<br>\r\nThis weirdness needs to be clarified. <br>\r\n<br>\r\n<br>\r\n",
+    "PostedDate": "2009-01-12T17:00:13.99-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "146656",
+    "ThreadId": "44046",
+    "Html": "<p>As Erik has indicated, I've noticed some oddities (resulting in a single day discrepancy) with writing workbooks when the Mac 1904 calendar is set.</p>\r\n<p>I've not yet done any testing with the reader, mainly because I don't have access to a copy of Excel on a genuine Mac; and while I can create workbooks in Windows Excel with the calendar set to Mac 1904, I'm not sure that I fully trust doing that.</p>\r\n<p>It is an issue that I'm actively investigating at the moment.</p>\r\n",
+    "PostedDate": "2009-01-13T05:25:34.06-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "146710",
+    "ThreadId": "44046",
+    "Html": "The file was originally created in excel 2000, on Windows XP.&nbsp; One of our clients imported some data into it.&nbsp; I am not sure how he entered the data, because the dates were stored as strings, not integers.&nbsp; The data was copied to our new import file, the sales person insists on sending the old import file format, but that's a whole different issue.&nbsp; This new file was created in excel 2007, the data copied, and saved as an .xlsx.&nbsp; After the data was in the new file, we noticed the dates.&nbsp; I had to double click on each cell and hit enter to change them to excel dates from the string.&nbsp; I don't think it was ever touched by a Mac, as the dates are not off by four years only one day and the &quot;use 1904 date system&quot; was never checked.&nbsp; I do have access to a Mac, at home, with office 2008 on it.&nbsp; I would be happy to create some excel files for testing.<br>\r\n<br>\r\nHere is some more info about the issue, for most of the excel files this code works:<br>\r\ndate_format(date_create('@'.PHPExcel_Shared_Date::ExcelToPHP($temp)), 'm/d/Y')<br>\r\n<br>\r\nWhere $temp is the value of the cell, for dates its an integer.&nbsp; However with this file, the dates outputted were all wrong, this is actually what lead me to use the HTML writer.&nbsp; I figured it knew how to handle the date fields better then I did. But it turns out that I could use this code instead and get the correct dates:<br>\r\ndate_format(date_create('@'.$temp), 'm/d/Y')<br>\r\n<br>\r\nWith the first line of code the excel date of 1/1/1973 comes out as 1/24/2026<br>\r\nWhere as the other line, the excel date of 1/1/1973 comes out as 1/1/1973<br>\r\n<br>\r\nOn the exact same file the HTML writer still outputs 12-31-72, I just double checked it.<br>\r\n<br>\r\n<br>\r\n<br>\r\n",
+    "PostedDate": "2009-01-13T08:32:57.36-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "146755",
+    "ThreadId": "44046",
+    "Html": "Would it be possible to send me a copy of the file, or attach it to the related work item (stripping out any sensitive data)<br>\r\n<br>\r\nAnd any Mac-created Workbooks using date functions that you're happy to donate will be gratefully received\r\n",
+    "PostedDate": "2009-01-13T10:35:47.263-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "146758",
+    "ThreadId": "44046",
+    "Html": "<div>\r\n<p><span style=\"font-size:11pt;font-family:'calibri','sans-serif';color:rgb(31, 73, 125)\">Attached is the file, I changed the sensitive data.</span></p>\r\n<p><span style=\"font-size:11pt;font-family:'calibri','sans-serif';color:rgb(31, 73, 125)\"> </span></p>\r\n<p><span style=\"font-size:11pt;font-family:'calibri','sans-serif';color:rgb(31, 73, 125)\">James</span></p>\r\n<p><span style=\"font-size:11pt;font-family:'calibri','sans-serif';color:rgb(31, 73, 125)\"> </span></p>\r\n<br>\r\n</div>\r\n",
+    "PostedDate": "2009-01-13T10:42:36.973-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "146762",
+    "ThreadId": "44046",
+    "Html": "I don't know if the attachment survived or not, if not where should I send it?<br>\r\n<br>\r\nAs for the Mac Excel dates, if you had a list, or a PC created excel with what you want, I can build it.&nbsp; I don't do much with excel, so I don't really know what it can do with dates, other then give me problems. If all you need are a few dates typed in, I can do that too.<br>\r\n",
+    "PostedDate": "2009-01-13T10:54:37.08-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

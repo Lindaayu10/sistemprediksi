@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "496923",
+    "ThreadId": "228132",
+    "Html": "<p>Hi there,</p>\r\n<p>I've started to use PHPExcel and so far it rocks. Problem: I need to insert an IF-formula. A simple sum ('=A1+A2+A3') works like a charm, but the if-statement fails for some reason. Code:</p>\r\n<p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>&lt;?php\r\n\r\n<span style=\"color:green\">/** Error reporting */</span>\r\nerror_reporting(E_ALL);\r\n<span style=\"color:blue\">require_once</span> <span style=\"color:#a31515\">'./Classes/PHPExcel.php'</span>;\r\n\r\n$objPHPExcel = <span style=\"color:blue\">new</span> PHPExcel();\r\n$objPHPExcel-&gt;setActiveSheetIndex(0)\r\n\t\t\t-&gt;setCellValue(<span style=\"color:#a31515\">'A1'</span>, 5)\r\n\t\t\t-&gt;setCellValue(<span style=\"color:#a31515\">'B1'</span>, <span style=\"color:#a31515\">'=if(A1=&quot;&quot;;&quot;empty&quot;;&quot;full&quot;)'</span>);\r\n\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, <span style=\"color:#a31515\">'Excel2007'</span>);\r\n$objWriter-&gt;save(<span style=\"color:#a31515\">'output.xlsx'</span>);\r\n</pre>\r\n</div>\r\n</p>\r\n<p>This results in the following error:</p>\r\n<p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>PHP Fatal error:  Uncaught <span style=\"color:blue\">exception</span> <span style=\"color:#a31515\">'Exception'</span> with message <span style=\"color:#a31515\">'Worksheet!B1 -&gt; Formula Error: An unexpected error occured'</span> in /<span style=\"color:blue\">var</span>/www/excel/Classes/PHPExcel/Cell.php:272\r\nStack trace:\r\n<span style=\"color:green\">#0 /var/www/excel/Classes/PHPExcel/Writer/Excel2007/Worksheet.php(969): PHPExcel_Cell-&gt;getCalculatedValue()</span>\r\n<span style=\"color:green\">#1 /var/www/excel/Classes/PHPExcel/Writer/Excel2007/Worksheet.php(910): PHPExcel_Writer_Excel2007_Worksheet-&gt;_writeCell(Object(PHPExcel_Shared_XMLWriter), Object(PHPExcel_Worksheet), 'B1', Array, Array)</span>\r\n<span style=\"color:green\">#2 /var/www/excel/Classes/PHPExcel/Writer/Excel2007/Worksheet.php(82): PHPExcel_Writer_Excel2007_Worksheet-&gt;_writeSheetData(Object(PHPExcel_Shared_XMLWriter), Object(PHPExcel_Worksheet), Array)</span>\r\n<span style=\"color:green\">#3 /var/www/excel/Classes/PHPExcel/Writer/Excel2007.php(260): PHPExcel_Writer_Excel2007_Worksheet-&gt;writeWorksheet(Object(PHPExcel_Worksheet), Array)</span>\r\n<span style=\"color:green\">#4 /var/www/excel/formularTest.php(13): PHPExcel_Writer_Excel2007-&gt;save('output.xlsx')</span>\r\n<span style=\"color:green\">#5 {main}</span>\r\n  thrown in /<span style=\"color:blue\">var</span>/www/excel/Classes/PHPExcel/Cell.php on line 272\r\n\r\n</pre>\r\n</div>\r\n</p>\r\n<p>Same happens when I set the CellValue to formula explicitly:</p>\r\n<p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre><span style=\"color:green\">//[...]</span>\r\n-&gt;setCellValueExplicit(<span style=\"color:#a31515\">'B1'</span>, <span style=\"color:#a31515\">'=IF(A1=&quot;&quot;;&quot;empty&quot;;&quot;full&quot;)'</span>, PHPExcel_Cell_DataType::TYPE_FORMULA);\r\n</pre>\r\n</div>\r\nAny ideas why?</p>",
+    "PostedDate": "2010-09-22T03:53:50.917-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "496929",
+    "ThreadId": "228132",
+    "Html": "<p>Unless you've enabled locale-specific settings using PHPExcel_Settings::setLocale($locale) then the default argument separator for functions is&nbsp;the American/English comma&nbsp;(,) rather than a semi-colon (;)</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>$objPHPExcel-&gt;setActiveSheetIndex(0)\r\n            -&gt;setCellValue(<span style=\"color:#a31515\">'A1'</span>, 5)\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -&gt;setCellValue(<span style=\"color:#a31515\">'B1'</span>, <span style=\"color:#a31515\">'=if(A1=&quot;&quot;, &quot;empty&quot;, &quot;full&quot;)'</span>);\r\n</pre>\r\n</div>",
+    "PostedDate": "2010-09-22T04:11:46.983-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "497020",
+    "ThreadId": "228132",
+    "Html": "<p>Hi Mark,</p>\r\n<p>that explains it - thanks a lot.</p>",
+    "PostedDate": "2010-09-22T07:46:20.76-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "503232",
+    "ThreadId": "228132",
+    "Html": "<p>Can you explain me how to do that? because im having the same problem, i was going to open a post about this...</p>\r\n<p>&nbsp;</p>\r\n<p>I have a template that have this type of formulas, but when i run the script, the columns that have this formulas didnt bring anything. even the columm came without the formula.</p>",
+    "PostedDate": "2010-10-06T14:27:19.653-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "503250",
+    "ThreadId": "228132",
+    "Html": "<p>@joanmvf</p>\r\n<p>I try to help where I can, but I really need something more specific to work with. What is your formula? What does PHPExcel return if you do a getValue() on the cell containing the&nbsp;formula? If you enable formula logging using PHPExcel_Calculation::getInstance()-&gt;writeDebugLog = true; then do a getCalculatedValue() on the cell, what does a PHPExcel_Calculation::getInstance()-&gt;debugLog return?</p>",
+    "PostedDate": "2010-10-06T14:58:51.907-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "503687",
+    "ThreadId": "228132",
+    "Html": "<p>this is my formula that i have in my template....</p>\r\n<p>=IF(I12+P12+S12=0,&quot;&quot;,I12+P12+S12)</p>\r\n<p>When i run my script the columm where i have this formula appear on white...</p>\r\n<p>Im gonna give you more information in a while.</p>",
+    "PostedDate": "2010-10-07T07:59:54.903-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "505622",
+    "ThreadId": "228132",
+    "Html": "<p>There should be no problems with a simple formula such as that.</p>\r\n<p>Can you please try running the following:</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>$sheet = $objPHPExcel-&gt;getActiveSheet();\r\nPHPExcel_Calculation::getInstance()-&gt;writeDebugLog = true;\r\n\r\n$formulaValue = $sheet-&gt;getCell($cellID)-&gt;getValue();\r\n<span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;b&gt;'</span>.$cellID.<span style=\"color:#a31515\">' Value is &lt;/b&gt;'</span>.$formulaValue.<span style=\"color:#a31515\">&quot;&lt;br /&gt;\\n&quot;</span>;\r\n<span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;b&gt;Parser Stack :-&lt;/b&gt;&lt;pre&gt;'</span>;\r\n$tokens = PHPExcel_Calculation::getInstance()-&gt;parseFormula($formulaValue,$sheet-&gt;getCell($cellID));\r\nprint_r($tokens);\r\n<span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;/pre&gt;'</span>;\r\n\r\n<span style=\"color:blue\">try</span> {\r\n   $cellValue = $sheet-&gt;getCell($cellID)-&gt;getCalculatedValue();\r\n   <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;b&gt;'</span>.$cellID.<span style=\"color:#a31515\">' Calculated Value is &lt;/b&gt;'</span>.$cellValue.<span style=\"color:#a31515\">&quot;&lt;br /&gt;\\n&quot;</span>;\r\n   <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;h3&gt;Evaluation Log:&lt;/h3&gt;&lt;pre&gt;'</span>;\r\n   print_r(PHPExcel_Calculation::getInstance()-&gt;debugLog);\r\n   <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;/pre&gt;'</span>;\r\n} <span style=\"color:blue\">catch</span> (Exception $e) {\r\n   <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">&quot;CALCULATION ENGINE ERROR: &quot;</span>.$e-&gt;getMessage().<span style=\"color:#a31515\">&quot;&lt;br /&gt;\\n&quot;</span>;\r\n   <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;h3&gt;Evaluation Log:&lt;/h3&gt;&lt;pre&gt;'</span>;\r\n   print_r(PHPExcel_Calculation::getInstance()-&gt;debugLog);\r\n   <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;/pre&gt;'</span>;\r\n}\r\n</pre>\r\n</div>\r\n<p>Where $cellID is the reference of the cell containing your formula. This gives a detailed log of how PHPExcel is trying to evaluate the formula.</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-10-11T14:08:00.467-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

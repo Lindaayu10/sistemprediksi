@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "164484",
+    "ThreadId": "49214",
+    "Html": "I found <a href=\"http://www.codeplex.com/PHPExcel/Thread/View.aspx?ThreadId=33773\">http://www.codeplex.com/PHPExcel/Thread/View.aspx?ThreadId=33773 </a>but my problem seems a little different.  I have a simple excel worksheet that inserts 10 numbers into the worksheet and a preexisting =SUM(B3:B12) is on the worksheet which calculates the numbers that were inserted.  The 10 numbers existed before and were updated to new values.<div>In windows the sum is calculated correctly.  In linux, the value returns as 0.  Sums that sum existing data that was not inserted into the updated workbook to return correctly.  Any ideas?  </div><div>Excel2007 reader and writter.</div>",
+    "PostedDate": "2009-03-04T12:07:06.043-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "164592",
+    "ThreadId": "49214",
+    "Html": "Sounds strange that you are getting different result on Windows/Linux. Do you have some code? Maybe we can better understand?<br>\r\n<br>\r\n",
+    "PostedDate": "2009-03-04T16:02:03.22-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "164688",
+    "ThreadId": "49214",
+    "Html": "It shouldn't make a difference what platform you're working on, but watch out for calculation caching if you're calculating a value, modifying data, then recalculating<br>\r\n<br>\r\nUse PHPExcel_Calculation::getInstance()-&gt;setCalculationCacheEnabled(False) to turn off calculation caching<br>\r\n",
+    "PostedDate": "2009-03-05T00:51:44.127-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "165031",
+    "ThreadId": "49214",
+    "Html": "Another point to watch out for is the PHP datatype of the values that are being summed.<br>\r\nFollowing Excel rules, string data (even when it holds a numeric value) is not included in the SUM calculation, so:<br>\r\nSUM('1','1','2','3','5','8')<br>\r\nwill return 0<br>\r\nwhile<br>\r\nSUM(1,1,2,3,5,8)<br>\r\nwill return 20<br>\r\n",
+    "PostedDate": "2009-03-05T12:50:38.233-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "165039",
+    "ThreadId": "49214",
+    "Html": "Your last comment has fixed the problem.  I was inserting all data into the worksheet with &quot;&quot; . $value.  I removed the &quot;&quot; in front and it now works on both linux and windows.  I originally put the &quot;&quot; in front because if I remember right, 0's were displaying as blank.  I checked in both windows and linux and 0's are inserted correctly and sums are now correct too.<div>Thanks.</div>",
+    "PostedDate": "2009-03-05T13:26:07.977-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

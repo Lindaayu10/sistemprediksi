@@ -1,0 +1,50 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "This isn't an issue with PHPExcel itself",
+    "ClosedDate": "2014-01-31T06:41:07.08-08:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "hello,\ni am using phpexcel to export data from database to an excel file. I used 30template to create a file based on a template and then in the end i saved it $objWriter->save('php://output'); and when i find it and open it it looks good with the styled template. But when i change my code to send it to the web browser for the user to download it , i open it and the data are corrapted and all the styel of the template is gone. \nCan you help me?\nhere is my php code\n\n```\n<?php\n/**\n * PHPExcel\n *\n * Copyright (C) 2006 - 2013 PHPExcel\n *\n * This library is free software; you can redistribute it and/or\n * modify it under the terms of the GNU Lesser General Public\n * License as published by the Free Software Foundation; either\n * version 2.1 of the License, or (at your option) any later version.\n *\n * This library is distributed in the hope that it will be useful,\n * but WITHOUT ANY WARRANTY; without even the implied warranty of\n * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU\n * Lesser General Public License for more details.\n *\n * You should have received a copy of the GNU Lesser General Public\n * License along with this library; if not, write to the Free Software\n * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA\n *\n * @category   PHPExcel\n * @package    PHPExcel\n * @copyright  Copyright (c) 2006 - 2013 PHPExcel (http://www.codeplex.com/PHPExcel)\n * @license    http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt\tLGPL\n * @version    1.7.9, 2013-06-02\n */\n\ninclude('connect.php');\n\n/** Error reporting */\nerror_reporting(E_ALL);\nini_set('display_errors', TRUE);\nini_set('display_startup_errors', TRUE);\nini_set(\"memory_limit\",\"512M\"); + ini_set('max_execution_time', 300);\ndefine('EOL',(PHP_SAPI == 'cli') ? PHP_EOL : '<br />');\ndate_default_timezone_set('Europe/Athens');\n\n$stringDate=date('d-m-Y H_i_s');\n$filename=\"Deigmata_\".$stringDate.\".xls\";\nheader(\"Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet\");\nheader(\"Content-Disposition: attachment;filename=\\\"\".$filename.\"\\\"\");\nheader(\"Cache-Control: max-age=0\");\n\n\nif (PHP_SAPI == 'cli')\n\tdie('This example should only be run from a Web Browser');\n\n/** Include PHPExcel */\nrequire_once 'Classes/PHPExcel.php';\n\n\n// Create new PHPExcel object\n$objPHPExcel = new PHPExcel();\n/** PHPExcel_IOFactory */\nrequire_once 'Classes/PHPExcel/IOFactory.php';\n\n$objReader = PHPExcel_IOFactory::createReader('Excel5');\n$objPHPExcel = $objReader->load(\"templates/template.xls\");\n\n\n\ninclude('connect.php');\n $insert_rows='';\n $sql = \"SELECT deigmata.id, deigmata.code, deigmata.samplingDate, deigmata.productionDate, CONCAT_WS('-', varieties.variety, varieties2.variety2) AS variety , oil_type.type, deigmata.producer, properties.property, deigmata.time, deigmata.storage_unit, deigmata.olive_characteristics, deigmata.climatic_conditions, deigmata.temperature, deigmata.temperature2, deigmata.mollification_time, deigmata.mollification_minutes, deigmata.system, deigmata.storage, deigmata.initialQuantity, deigmata.totalProductionQty, deigmata.sampleQty, deigmata.chemical, deigmata.organoliptic, deigmata.d13c, deigmata.d180, deigmata.k232, deigmata.k268, deigmata.dk\nFROM deigmata\nLEFT JOIN oil_type ON deigmata.type = oil_type.id\nLEFT JOIN properties ON deigmata.property = properties.id\nLEFT JOIN varieties ON deigmata.variety = varieties.id\nLEFT JOIN varieties2 ON deigmata.variety2 = varieties2.id\";\n $result = mysql_query($sql);\n \n $letterArray = array( \"A\",\"B\",\"C\",\"D\",\"E\",\"F\",\"G\",\"H\",\"I\",\"J\",\"K\",\"L\",\"M\",\"N\",\"O\",\"P\",\"Q\",\"R\",\"S\",\"T\",\"U\",\"V\",\"W\",\"X\",\"Y\",\"Z\",\"AA\",\"AB\");\n \t\t\t   \n$k=5; //from which row to start\n\n$objPHPExcel->getActiveSheet()->setCellValue('B1', date('d-m-Y H:i:s'));\n\nwhile($row =  mysql_fetch_array($result)){\n\tfor ($i = 1; $i <=mysql_num_fields($result); $i++) {\n   \t$objPHPExcel->getActiveSheet()->setCellValue( $letterArray[$i-1] . \n\t($k), mysql_real_escape_string(htmlspecialchars($row[$i-1]))) ;\n}\n $k++;\n}\n\n$msg=date('d-m-Y H:i:s').\" : \". \"Δημιουργήθηκε το αρχείο \".$filename;\n\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');\nob_start();\nob_end_clean();\n\n\n//i replased the $objWriter->save(str_replace('.php', '.xls',$filename)); which saves file correcty to the server with the $objWriter->save('php://output'); \n$objWriter->save('php://output'); \nexit;?>\n```",
+    "LastUpdatedDate": "2014-01-31T06:41:07.08-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2014-01-31T05:46:38.397-08:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "excel file saved to server ok, not ok when save('php://output')",
+    "Type": {
+      "Name": "Unassigned",
+      "Id": 5
+    },
+    "VoteCount": 1,
+    "Id": 20691
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "Besides the mismatch between headers for an OfficeOpenXML (.xlsx) format file and the fact that you're creating a BIFF (.xls) format file?\r\n\r\nOpen the file in a text editor, and look for leading/trailing whitespace characters, a BOM header, or any obvious plaintext error messages that appear in the file.",
+      "PostedDate": "2014-01-31T06:40:42.167-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2014-01-31T06:41:07.08-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

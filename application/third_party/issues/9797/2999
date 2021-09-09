@@ -1,0 +1,83 @@
+Index: HTML.php
+===================================================================
+--- HTML.php	(revision 919)
++++ HTML.php	(working copy)
+@@ -162,15 +162,17 @@
+ 
+ 	/**
+ 	 * Map HAlign
++	 *
++	 * @return string|false
+ 	 */
+ 	private function _mapHAlign($hAlign) {
+ 		switch ($hAlign) {
+-			case PHPExcel_Style_Alignment::HORIZONTAL_GENERAL:
++			case PHPExcel_Style_Alignment::HORIZONTAL_GENERAL: return false;
+ 			case PHPExcel_Style_Alignment::HORIZONTAL_LEFT: return 'left';
+ 			case PHPExcel_Style_Alignment::HORIZONTAL_RIGHT: return 'right';
+ 			case PHPExcel_Style_Alignment::HORIZONTAL_CENTER: return 'center';
+ 			case PHPExcel_Style_Alignment::HORIZONTAL_JUSTIFY: return 'justify';
+-			default: return ' baseline';
++			default: return false;
+ 		}
+ 	}
+ 
+@@ -502,6 +504,24 @@
+ 				}
+ 			}
+ 
++			// .b {}
++			$css['.b'] = 'text-align: center; '; // BOOL
++
++			// .e {}
++			$css['.e'] = 'text-align: center; '; // ERROR
++
++			// .f {}
++			$css['.f'] = 'text-align: right; '; // FORMULA
++
++			// .inlineStr {}
++			$css['.inlineStr'] = 'text-align: left; '; // INLINE
++
++			// .n {}
++			$css['.n'] = 'text-align: right; '; // NUMERIC
++
++			// .s {}
++			$css['.s'] = 'text-align: left; '; // STRING
++
+ 			// Calculate cell style hashes
+ 			$cellStyleHashes = new PHPExcel_HashTable();
+ 			$aStyles = $sheet->getStyles();
+@@ -555,7 +575,9 @@
+ 
+ 		// Create CSS
+ 		$css .= 'vertical-align: ' 	. $this->_mapVAlign($pStyle->getVertical()) . '; ';
+-		$css .= 'text-align: ' 		. $this->_mapHAlign($pStyle->getHorizontal()) . '; ';
++		if ($textAlign = $this->_mapHAlign($pStyle->getHorizontal())) {
++			$css .= 'text-align: ' 		. $textAlign . '; ';
++		}
+ 
+ 		// Return
+ 		return $css;
+@@ -815,8 +837,21 @@
+ 					if (array_key_exists($cell->getCoordinate(), $pSheet->getStyles())) {
+ 						if (!$this->_useInlineCss) {
+ 							$cssClass .= ' style' . $pSheet->getStyle($cell->getCoordinate())->getHashIndex();
++							$cssClass .= ' ' . $cell->getDataType();
+ 						} else {
+-							$cssClass .= isset($this->_cssStyles['style' . $pSheet->getStyle($cell->getCoordinate())->getHashIndex()]) ? $this->_cssStyles['style' . $pSheet->getStyle($cell->getCoordinate())->getHashIndex()] : '';
++							$cssClass .= isset($this->_cssStyles['style' . $pSheet->getStyle($cell->getCoordinate())->getHashIndex()]) ?
++								$this->_cssStyles['style' . $pSheet->getStyle($cell->getCoordinate())->getHashIndex()] : '';
++							
++							// General horizontal alignment: Actual horizontal alignment depends on dataType
++							if ($pSheet->getStyle($cell->getCoordinate())->getAlignment()->getHorizontal() == PHPExcel_Style_Alignment::HORIZONTAL_GENERAL
++								&& isset($this->_cssStyles['.' . $cell->getDataType()]))
++							{
++								if (preg_match('/text-align: [^;]*;/', $cssClass)) {
++									$cssClass = preg_replace('/text-align: [^;]*;/', $this->_cssStyles['.' . $cell->getDataType()], $cssClass);
++								} else {
++									$cssClass .= $this->_cssStyles['.' . $cell->getDataType()];
++								}
++							}
+ 						}
+ 					}
+ 				} else {

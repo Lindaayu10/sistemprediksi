@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "592329",
+    "ThreadId": "252655",
+    "Html": "\r\n<p>I get this error when trying to load one my xls files:</p>\r\n<p>&nbsp;</p>\r\n<p><strong>Fatal error</strong>: Uncaught exception 'Exception' with message 'Invalid cell coordinate AAAA20</p>\r\n<p>&nbsp;</p>\r\n<p>Im using this code:</p>\r\n<p>&nbsp;</p>\r\n<p></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>&lt;?php\r\n<span style=\"color:blue\">echo</span> date(<span style=\"color:#a31515\">'H:i:s'</span>) . <span style=\"color:#a31515\">&quot; Write to CSV format\\n&quot;</span>;\r\n<span style=\"color:green\">//$objPHPExcel = new PHPExcel();</span>\r\n\r\n$objPHPExcel = PHPExcel_IOFactory::load(<span style=\"color:#a31515\">&quot;xls/xls1.xls&quot;</span>);\r\n$objPHPExcel-&gt;setActiveSheetIndex(0); \r\n\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, <span style=\"color:#a31515\">'CSV'</span>)\r\n    -&gt;setDelimiter(<span style=\"color:#a31515\">'|'</span>)\r\n    -&gt;setEnclosure(<span style=\"color:#a31515\">''</span>)\r\n    -&gt;setLineEnding(<span style=\"color:#a31515\">&quot;\\r\\n&quot;</span>)\r\n    -&gt;setSheetIndex(0)\r\n    -&gt;save(<span style=\"color:#a31515\">'xls/write.csv'</span>);\r\n?&gt;\r\n<br><br>this only happens with one file, but ofcourse its the file I need. I have to retreive this with a little fgets to fetch it from a remote server everyday,<br>&nbsp;then I need to convert it to CSV to place in a DB.<br><br>I have tried sample files and they work as expected.<br></pre>\r\n</div>\r\n<p></p>\r\n",
+    "PostedDate": "2011-04-05T12:58:10.66-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "592854",
+    "ThreadId": "252655",
+    "Html": "<p>just FYI. I can open it in Excel and any excel viewer without issue.</p>",
+    "PostedDate": "2011-04-06T08:35:20.947-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "593793",
+    "ThreadId": "252655",
+    "Html": "<p>Is this really an&nbsp;Excel BIFF file, or simply a file with a .xls extension?</p>\r\n<p>&nbsp;</p>\r\n<p>Can you try either:</p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre><span style=\"color: blue;\">echo</span> PHPExcel_IOFactory::identify(<span style=\"color: #a31515;\">\"xls/xls1.xls\"</span>);\r\n</pre>\r\n</div>\r\n<p>to see which reader PHPExcel is using to try and read this file;</p>\r\n<p>&nbsp;</p>\r\n<p>or open the file in a normal text editor to see what it looks like.</p>",
+    "PostedDate": "2011-04-07T14:25:04.697-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "593812",
+    "ThreadId": "252655",
+    "Html": "<p>I figured out last night that the file was actually an HTML file with an xls extension. I got my hands on a smaller \"xls\" file and got it to work with PHPExcel but it had html markup in my CSV file..</p>\r\n<p>So I did a little reasearch on the forum here and found out that my file might be a fake.. and what do ya know? it sure was.. Thanks for your reply, I was able to import it into open office and export it the records I needed.</p>\r\n<p>From now on, I have a HTML 2 CSV converter using php since I only need daily records on cron from the xls in the future. PHPExcel SURELY helps with some other data I fetch on crons that does use real XLS files.</p>",
+    "PostedDate": "2011-04-07T14:55:08.28-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "593821",
+    "ThreadId": "252655",
+    "Html": "<p>I've done some initial work on an HTML Reader for PHPExcel, because \"fake\" xls files like this are quite a common occurrence... and typically the content is either CSV or HTML.</p>\r\n<p>PHPExcel can already detect a csv file using the PHPExcel_IOFactory::load() and PHPExcel_IOFactory::identify() methods, but it can't recognise HTML, and then will simply default to assuming the file is a CSV.</p>\r\n<p>Unfortunately, the HTML Reader is still very \"experimental\", and has real problems with rich text elements, &lt;br /&gt; tags, and badly nested elements. I've been using PHP's DOM parser, and while this is generally very forgiving with badly formed markup, but seems to be creating some of the problems in this case. My current thinking is to scrap what I've done so far, and start again from scratch using some of the methods from within the PDF writer library that parse both HTML and style. In theory, if I can get that working, I can also provide an HTML to Rich Text Run convertor, which is an oft-requested feature in PHPExcel.</p>",
+    "PostedDate": "2011-04-07T15:17:45.657-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

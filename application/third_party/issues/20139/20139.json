@@ -1,0 +1,66 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I write this code in a mac(Unix system)with xampp(php5.4.16), and run the code, it will be ok, but when I run this code in window, the border line will disappear.I search Internet , but find no answer, please check this problem.\nhere is the code I write(The version if the PHPExcel is the lasted):\n\n\n<?php\nrequire_once \"PHPExcel.php\";\n//include PHPExcel library\nrequire_once './PHPExcel/IOFactory.php';\n/** PHPExcel_Writer_Excel2007 */\nrequire_once './PHPExcel/Writer/Excel2007.php';\n\n$excel = new PHPExcel();\n\n$excel->getProperties()\n->setCreator(\"zzy\")\n->setLastModifiedBy(\"Administrative institutions budget funds management system\")\n->setTitle(\"Administrative institutions budget funds management system\")\n->setSubject(\"Administrative institutions budget funds management system\")\n->setDescription(\"targetmanajor statistic list\")\n->setKeywords(\"office 2007 openxml php\")\n->setCategory(\"Administrative institutions budget funds management system\");\n\n$sheet = $excel->getActiveSheet();\n$sheet->mergeCells(\"B2:C5\");\n$sheet->setCellValue(\"B2\", \"Test\");\n//echo $sheet->getSelectedCells();\n\n$style = $sheet->getStyle(\"B2\");\n$border = $style->getBorders();\n$border->getRight()->setBorderStyle(true);\n$border->getBottom()->setBorderStyle(true);\n$border->getTop()->setBorderStyle(true);\n$border->getLeft()->setBorderStyle(true);\n\n\n$excel->setActiveSheetIndex(0);\n$objWriter = PHPExcel_IOFactory::createWriter($excel, 'Excel2007');\nheader(\"Content-Type: application/force-download\");   \nheader(\"Content-Type: application/octet-stream\");   \nheader(\"Content-Transfer-Encoding: binary\"); \nheader(\"Content-Disposition: attachment;filename=test.xlsx\");\nheader('Cache-Control: max-age=0');\n$objWriter->save('php://output');",
+    "LastUpdatedDate": "2013-08-27T22:50:26.657-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2013-08-23T01:27:25.06-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "after merge the cell, then set the border of cell, the border will disappear",
+    "Type": {
+      "Name": "Unassigned",
+      "Id": 5
+    },
+    "VoteCount": 1,
+    "Id": 20139
+  },
+  "FileAttachments": [
+    {
+      "FileId": 7126,
+      "FileName": "test.php",
+      "DownloadUrl": ".\\7126"
+    },
+    {
+      "FileId": 7140,
+      "FileName": "test.zip",
+      "DownloadUrl": ".\\7140"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "This happens because you only apply the style to the top-left cell and not the other cells that constitute the larger, merged cell.\r\n\r\nChange\n```\n$style = $sheet->getStyle(\"B2\")\r\n\r\n```\nto\r\n\r\n```\n$style = $sheet->getStyle(\"B2:C5\")\n```\r\n\r\nand it should work.",
+      "PostedDate": "2013-08-26T00:33:13.697-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-08-27T22:50:24.067-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Thank you for your answer. But It still do not work. I upload the full project. Please try it again.",
+      "PostedDate": "2013-08-27T22:50:26.657-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

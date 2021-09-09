@@ -1,0 +1,80 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "Calculation_Engine",
+      "DisplayName": "Calculation_Engine"
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hi,\nExcuse my English, I'm French.\nThank you for the great work you do into coding and maintening this fabulous API !\n \nI have a problem, and I don't succeed in resolving it.\n \nI would like to calculate a value for a cell, which formula is referecing value from an other cell which is located into another worksheet from my excel file.\n \nI tried to comment at best my code, in order you to understand it :\n \n<?php \n\terror_reporting(E_ALL);\n\tinclude 'PHPExcel/Classes/PHPExcel.php'; //Including library\n\tinclude 'PHPExcel/Classes/PHPExcel/Reader/Excel5.php'; //reading Library\n\t\n\t\n\t$files = 'myfile.xls' ; //define file, it contains 9 sheets\n\t\n\t$excel_reader = new PHPExcel_Reader_Excel5() ; //New reading object\n\t$excel_reader->setReadDataOnly(true) ; //true or false, same result\n\t\n\t$sheets = array(1 => 'Sommaire', 2 => 'Serveurs', 3 => 'Applis') ; //referecing 3 sheets\n\t//the sheet where are located the formula causing errors is \"Serveur\", where there are formulas pointing to sheet \"Sommaire\", \"Applis\" is here for other test, and won't be used here\n\t\n\t$excel_reader->setLoadSheetsOnly($sheets) ;\n\t\n\t$classeur = $excel_reader->load($files) ; //loading file\n\t\n\t$feuille = $classeur->getSheetByName($sheets[2]); //Choosing the sheet by name (\"Serveur\")\n\t$feuille->getDefaultColumnDimension()->setWidth(12); //with or without, doesn't work\n\t\n\t//<==========================================================================================>\n\t//<==========================================================================================>\n\t//In my excel file, the V3 cell data is \"01J / 11Z\", and is calculated by this formula :\n\t\t//french : =RECHERCHEV(STXT(U3;1;8);Sommaire!$B$32:$C$54;2;FAUX)\n\t\t//english : =VLOOKUP(MID(U3,1,8),Sommaire!$B$32:$C$54,2,FALSE)\n\t//as we can see, it has some reference to data which are located into the sheet \"Sommaire\"\n\t//<==========================================================================================>\n\t//<==========================================================================================>\n\t\n\techo $feuille->getCell('V3')->getValue(); //with this, result is :\n\t//=VLOOKUP(MID(U3,1,8),Sommaire!$B$32:$C$54,2,FALSE)\n\t\n\techo $feuille->getCell('V3')->getCalculatedValue(); //and with this, result is :\n\t//Fatal error: Call to a member function cellExists() on a non-object in <path>\\Classes\\PHPExcel\\Calculation.php on line 3209\n?>\n \nI'm sorry but I can't join my excel file to this post, because it contains critical and personnal data.\nI never succeed in calculating my cell value, I obtain the formula herself, or this wonderful error :)\n \nHow can I resolve this ?\n \nI thank you very much for your answers.",
+    "LastUpdatedDate": "2013-02-21T19:02:26.83-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2011-04-04T08:01:24.083-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "getCalculatedValue, formula refers to other sheet",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 3,
+    "Id": 15646
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "I also have this problem....\r\n\r\nif ($pCellParent->getParent()->getSheetByName($matches[2])->cellExists($cellRef)) {\r\n\r\nCell value is...\r\n=VLOOKUP(I7774,'C:\\Documents and Settings\\ssomkhane\\Local Settings\\Temporary Internet Files\\OLKDD\\[IP601 Obsolete update 01 13 2009_JT (2).xls]IP601 E&O'!$C$3:$G$24,5,0)\r\n\r\nWhat to do?",
+      "PostedDate": "2011-05-05T15:20:55.29-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I did this starting on line 3207 in the Calculation.php\r\n\r\n\r\n\t\t\t\t\t\t\t$this->_writeDebug('Evaluating Cell '.$cellRef.' in worksheet '.$matches[2]);\r\n\t\t\t\t\t\t\tif (!is_null($pCellParent)) {\r\n\t\t\t\t\t\t\t\t$cellValue = null;\r\n\t\t\t\t\t\t\t\t$parentxyz = $pCellParent->getParent();\r\n\t\t\t\t\t\t\t\tif($parentxyz){\r\n\t\t\t\t\t\t\t\t\t$sheetxyz = $parentxyz->getSheetByName($matches[2]);\r\n\t\t\t\t\t\t\t\t\tif($sheetxyz){\r\n\t\t\t\t\t\t\t\t\t\tif ($sheetxyz->cellExists($cellRef)) {\r\n\t\t\t\t\t\t\t\t\t\t\t$cellValue = $this->extractCellRange($cellRef, $pCellParent->getParent()->getSheetByName($matches[2]), false);\r\n\t\t\t\t\t\t\t\t\t\t\t$pCell->attach($pCellParent);\r\n\t\t\t\t\t\t\t\t\t\t} else {\r\n\t\t\t\t\t\t\t\t\t\t\treturn $this->_raiseFormulaError('Unable to access Parent worksheet cell');\r\n\t\t\t\t\t\t\t\t\t\t}\r\n\t\t\t\t\t\t\t\t\t} else {\r\n\t\t\t\t\t\t\t\t\t\treturn $this->_raiseFormulaError('Unable to access Parent worksheet');\r\n\t\t\t\t\t\t\t\t\t}\r\n\t\t\t\t\t\t\t\t} else {\r\n\t\t\t\t\t\t\t\t\treturn $this->_raiseFormulaError('Unable to access Parent document');\r\n\t\t\t\t\t\t\t\t}\r\n\t\t\t\t\t\t\t} else {\r\n\t\t\t\t\t\t\t\treturn $this->_raiseFormulaError('Unable to access Cell Reference');\r\n\t\t\t\t\t\t\t}",
+      "PostedDate": "2011-05-05T15:23:02.677-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2011-05-05T15:30:56.177-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "this will at least prevent a fatal error and report back the problem if the sheet is not accessible.",
+      "PostedDate": "2011-05-05T15:36:56.44-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "@Artistan - this isn't simply a reference to another worksheet: it's a reference to a worksheet in a totally different Excel file; which is a feature that we have no plans for supporting. On the TODO list, it falls somewhere between support for user-defined functions and a reader/writer for Visicalc.",
+      "PostedDate": "2011-05-06T14:06:13.013-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2011-06-30T20:18:45.373-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I also got the error message: Fatal error: Call to a member function cellExists() on a non-object in /home/kanclers/test/system/PHPExcel/Classes/PHPExcel/Calculation.php on line 3209\r\nAfter some investigation I found that the reason is that a Cell is refering to a sheet that is not loaded from the file, because i load the excel file with only some of the sheets ($objReader->setLoadSheetsOnly($sheetnames);).\r\n\r\nMy question is - how can i prevent the fatal error? What is the easiest way to detect that some cell has a reference to a sheet outside the loaded sheets BEFORE i try to read that particular cell value.",
+      "PostedDate": "2011-06-30T20:30:42.14-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:02:26.83-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

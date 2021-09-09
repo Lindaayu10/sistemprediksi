@@ -1,0 +1,82 @@
+[
+  {
+    "Id": "1198731",
+    "ThreadId": "527237",
+    "Html": "I am generating one report but it is showing error message with values like 23,222 or values with % symbol.It is showing error as numbers stored as text.Manually i am converting there values to Number.I need a solution for this.\r<br />\n<br />\nMy code is :-<br />\n<pre><code>    include_once(&quot;system/application/libraries/PHP_Excel/PHPExcel.php&quot;);\n    $excel = new PHPExcel(); // Create the object\n    $rowval = explode(&quot;\\n&quot;,$data); // Splitting the data to get the rows\n    $rowcount = count($rowval); // Getting the count of rows\n    $colcount = count($fields); // Getting the field/column count\n\n    // Write the heading value to the xl sheet start\n    for($col = 0; $col &lt; $colcount; $col++){\n        $excel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow($col, 1, $fields[$col]);\n    }\n\n    // style array for the heading\n    $styleArray = array(\n                        'font' =&gt; array(\n                        'bold' =&gt; true,\n                        )\n                ); // style array for the heading\n\n    // applying style for the heading to the entire first row\n    $excel-&gt;getActiveSheet()-&gt;getStyle('A1:XFD1')-&gt;applyFromArray($styleArray);\n\n    // Write the values to the xl sheet\n    for($i = 0; $i &lt; $rowcount; $i++){\n        $cellval = explode(&quot;\\t&quot;, $rowval[$i]);\n        $colcount = count($cellval);\n        for($j = 0; $j &lt; $colcount; $j++){\n            if(!empty($cellval[$j])){\n\n                $excel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow($j, ($i+2), $cellval[$j]);\n            }\n        }\n    }\n\n    $objWriter = PHPExcel_IOFactory::createWriter($excel, 'Excel2007'); \n</code></pre>\n\nThanks\r<br />\nHarsh<br />\n",
+    "PostedDate": "2014-01-26T23:45:26.377-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1198905",
+    "ThreadId": "527237",
+    "Html": "It is the $cellVal variable that contains values with the separator of thousands or percentages?\r<br />\nIn this case, it must detect these features to 'clean' the value and apply the appropriate format.<br />\n",
+    "PostedDate": "2014-01-27T03:03:05.523-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1199570",
+    "ThreadId": "527237",
+    "Html": "Yes  $cellVal variable that contains values with separator or percentages.\r<br />\n<br />\nWhich  appropriate format you are talking about?<br />\n",
+    "PostedDate": "2014-01-28T00:31:09.78-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1199795",
+    "ThreadId": "527237",
+    "Html": "I'm talking about number formats that Excel must apply and therefore define with PHPExcel.\r<br />\n$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('A1')-&gt;getNumberFormat()-&gt;setFormatCode (PHPExcel_Style_NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1).\r<br />\nAt the same time, your value (defined with setCellValue or equivalent) no longer have to contain commas.\r<br />\nI used a predefined format but you can also pass a string containing a custom format to the method.<br />\n",
+    "PostedDate": "2014-01-28T05:14:36.697-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1200272",
+    "ThreadId": "527237",
+    "Html": "I have included  AdvancedValueBinder.php \r<br />\nPHPExcel_Cell::setValueBinder( new PHPExcel_Cell_AdvancedValueBinder() ); in my code and it is working fine for all  :) \r<br />\nexcept number format like 23,222.\r<br />\n<br />\nI have included below code in AdvancedValueBinder.php .But still it is showing error ico with salary.\r<br />\n<br />\n// Style logic - Numbers<br />\n<pre><code>    if ($dataType === PHPExcel_Cell_DataType::TYPE_NUMERIC) {\n        // Leading zeroes?\n        if (preg_match('/^\\d+,\\d+$/', $value)) {\n            // Convert value to string\n            $cell-&gt;setValueExplicit( $value, PHPExcel_Cell_DataType::TYPE_STRING);\n\n            // Set style\n            $cell-&gt;getParent()-&gt;getStyle( $cell-&gt;getCoordinate() )-&gt;getNumberFormat()-&gt;setFormatCode( PHPExcel_Style_NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1 );\n\n            return true;\n        }\n    } \n</code></pre>\n\nPlease look into it<br />\n",
+    "PostedDate": "2014-01-28T21:49:52.83-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1200349",
+    "ThreadId": "527237",
+    "Html": "'23,222' is not numeric but string, so it does not cross the first test.\r<br />\nThen why force it in text (in addition, the style will not serve much)? If it is a number with thousand separators, removes separators to a real number and applies the style. You can see a very close implementation of your need in the 'check for currency' of the advancedBinder.<br />\n",
+    "PostedDate": "2014-01-29T01:59:56.8-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1200759",
+    "ThreadId": "527237",
+    "Html": "Working fine:)..thanks\r<br />\n<br />\nBut if i used PHPExcel_Style_NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1 then for large values like 1234567899.66 it is showning ######### in excel sheet.Need to drage the Cell.is there any solution for this?<br />\n",
+    "PostedDate": "2014-01-29T22:21:40.767-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1200903",
+    "ThreadId": "527237",
+    "Html": "To correct the problem of width, two solutions:\r<br />\n-Manually set the size of the column:<br />\n<pre><code>$objPHPExcel-&gt;getActiveSheet()-&gt;getColumnDimension('D')-&gt;setWidth(12);</code></pre>\n\n-Ask PHPExcel to determine the size:<br />\n<pre><code>$objPHPExcel-&gt;getActiveSheet()-&gt;getColumnDimension ('B')-&gt;setAutoSize(true);</code></pre>\n\nBy setWidth, unity is peculiar. See Chapter 4.6.28 documentation that explains how.\r<br />\nsetAutoSize is of course easier to use, but the method make sure to take into consideration a certain number of cases, it is quite heavy, the save method execution time can significantly increase.<br />\n",
+    "PostedDate": "2014-01-30T04:31:07.217-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1201257",
+    "ThreadId": "527237",
+    "Html": "Thanks..It is working fine :)<br />\n",
+    "PostedDate": "2014-01-31T03:22:56.373-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1239148",
+    "ThreadId": "527237",
+    "Html": "<strong>harshshahi wrote:</strong><br />\n<blockquote>\nI have included  AdvancedValueBinder.php <br />\nPHPExcel_Cell::setValueBinder( new PHPExcel_Cell_AdvancedValueBinder() ); in my code and it is working fine for all  :) <br />\nexcept number format like 23,222.<br />\n<br />\nI have included below code in AdvancedValueBinder.php .But still it is showing error ico with salary.<br />\n<br />\n// Style logic - Numbers<br />\n<pre><code>    if ($dataType === PHPExcel_Cell_DataType::TYPE_NUMERIC) {\n        // Leading zeroes?\n        if (preg_match('/^\\d+,\\d+$/', $value)) {\n            // Convert value to string\n            $cell-&gt;setValueExplicit( $value, PHPExcel_Cell_DataType::TYPE_STRING);\n\n            // Set style\n            $cell-&gt;getParent()-&gt;getStyle( $cell-&gt;getCoordinate() )-&gt;getNumberFormat()-&gt;setFormatCode( PHPExcel_Style_NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1 );\n\n            return true;\n        }\n    } \n</code></pre>\n\nPlease look into it<br />\n</blockquote>\nThank you! I was running out of ideas, I have an array of usernames, many of which include a leading zero, and I could find no way to make it work, your tip of using setValueExplicit with the TYPE_STRING works!\r<br />\n<br />\nThis however does not, I think it is a bug, since the style is showing correctly in Excel (Text), but the leading zero is gone:\r<br />\n$objPHPExcel-&gt;setActiveSheetIndex(0)-&gt;getDefaultStyle()-&gt;getNumberFormat()-&gt;setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_TEXT);\r<br />\n$objPHPExcel-&gt;setActiveSheetIndex(0)-&gt;fromArray($Users);\r<br />\n<br />\nI also tried using like: $objPHPExcel-&gt;setActiveSheetIndex(0)-&gt;setCellValue('A1', '0123Hello'); in combination with the FORMAT_TEXT above - the 0 is gone...<br />\n",
+    "PostedDate": "2014-04-29T00:53:59.19-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,156 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel",
+      "DisplayName": "PHPExcel"
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "From thread (alextercete):\nhttp://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=63598\n------\nI was having the same problem as dhrubasearch and I decided to take a look inside the code for the PHPExcel_Shared_Font class. I found that both methods (the one in the stable release, 1.6.7, and the one from SVN) where not taking into consideration the font face or weight (see below, for references porpouses). I googled a little bit and I seem to have found a possible solution to this.\n \n1.6.7:\n \n$columnWidth = ((strlen($columnText) * $fontSize + 5) / $fontSize * 256 ) / 256; \n \n \nSVN:\n \n$columnWidth = 1.025 * strlen($columnText) + 0.584;\n \nThe possible solution (inspired by http://www.simplemachines.org/community/index.php?topic=122913.0):\n \npublic static function calculateColumnWidth($fontSize = 9, $fontSizeInPixels = false, $columnText = '', $rotation = 0) {\n    // If it is rich text, use rich text...\n    if ($columnText instanceof PHPExcel_RichText) {\n        $columnText = $columnText->getPlainText();\n    }\n\t\t\n    // Only measure the part before the first newline character\n    if (strpos($columnText, \"\\r\") !== false) {\n        $columnText = substr($columnText, 0, strpos($columnText, \"\\r\"));\n    }\n    if (strpos($columnText, \"\\n\") !== false) {\n        $columnText = substr($columnText, 0, strpos($columnText, \"\\n\"));\n    }\n\t\t\n    // XXX: Modifications made below\n    //\n    //\t-> Line modified\n    //\n    // Calculate column width\n    // values 1.025 and 0.584 found via interpolation by inspecting real Excel files with\n    // Calibri font. May need further adjustment\n    #$columnWidth = 1.025 * strlen($columnText) + 0.584; // Excel adds some padding\n    $columnWidth = PHPExcel_Shared_Font::getTextWidth($columnText, $fontSize);\n \n    if (!$fontSizeInPixels) {\n        // Translate points size to pixel size\n        $fontSize = PHPExcel_Shared_Font::fontSizeToPixels($fontSize);\n    }\n \n    // Calculate approximate rotated column width\n    if ($rotation !== 0) {\n        if ($rotation == -165) {\n            // stacked text\n            $columnWidth = 4; // approximation\n        } else {\n\t    // rotated text\n            $columnWidth = $columnWidth * cos(deg2rad($rotation)) + $fontSize * abs(sin(deg2rad($rotation))) / 5; // approximation\n        }\n    }\n \n    // Return\n    return round($columnWidth, 6);\n}\n \n \n/**\n * XXX: Modifications made below\n *\t\n *    -> Function created\n *\n * Get text width, given the font size and the .ttf file \n * \n * @param   string     $text\t\tText whose width will be returned\n * @param   int         $fontSize\tFont size (in points)\n * @param   string     $fontPath\tPath to the font used for calculations\n */\nprivate static function getTextWidth($text, $fontSize = 10, $fontPath = 'C:/Windows/Fonts/Arial.ttf')\n{\n    $bbox = imagettfbbox($fontSize, 0, $fontPath, $text);\n \n    $xcorr = 0 - $bbox[6]; //northwest X\n    $ycorr = 0 - $bbox[7]; //northwest Y\n\t\t\n    $textWidth = $bbox[2] + $xcorr;\n \n    return $textWidth * (14 / 100) + 2; // convertion plus empiric padding\n}\n \nOff course that there are a lot of improvements to make on this, such as allowing a better (more automatic) selection of the $fontPath and considering bold fonts (that normally have a larger width). For now, this code is working pretty well! What do you guys think about this?",
+    "LastUpdatedDate": "2013-02-21T19:03:48.487-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-07-30T14:05:22.673-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "setAutosize() column with better accuracy",
+    "Type": {
+      "Name": "Feature",
+      "Id": 1
+    },
+    "VoteCount": 2,
+    "Id": 10375
+  },
+  "FileAttachments": [
+    {
+      "FileId": 3236,
+      "FileName": "patch.zip",
+      "DownloadUrl": ".\\3236"
+    },
+    {
+      "FileId": 3334,
+      "FileName": "patch-2.zip",
+      "DownloadUrl": ".\\3334"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "Feel free to commit BUT keep in mind that $fontPath may not exist. In that case, we'll have to fallback to the current SVN version.",
+      "PostedDate": "2009-07-30T23:46:13.343-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Please don't commit anything yet. I'm working on a much more generic and clearer solution, which envolves considering different font paths (and checking for their existence), treating bold and italic fonts, and calculating width of rotated text using the imagettfbbox function.\r\n\r\nI'm thinking about setting a default font (helvetica, available inside a 'Fonts' folder: PHPExcel/Shared/Fonts/) to be used as base for calculations if font paths or font names cannot be resolved. I'll soon come back with results on this. Unfortunately I don't have Excel 2007, so I would need somebody to test the Excel2007 writer for me.",
+      "PostedDate": "2009-07-31T12:15:50.12-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Ok, perfect! Note that we also have fonts inside of the /Shared/PDF/fonts folder, which you may use to determine character widths and stuff like that.",
+      "PostedDate": "2009-08-02T22:46:36.347-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Here it is guys (see the attached file)! There's still some work to do, but this is definitely an improvement of the current method. Here's an overview of what I've done:\r\n\r\n    * Created a method that calculates text width in pixels and converts to Excel's (wierd, by the way) column dimension unit (characters);\r\n    * Since the above mentioned method needs the font path of a TrueType font to work properly, I've created a way to translate font names to their location (\"Arial\" to \"C:\\Windows\\Fonts\\arial.ttf\"). I've covered most Windows XP default fonts and, if the font cannot be converted, it uses the default font (available inside a \"fonts\" directory) : Liberation Sans (GPL, https://fedorahosted.org/liberation-fonts/);\r\n    * I had to change the method signature for \"PHPExcel_Shared_Font::calculateColumnWidth\", but I did so by adding defaulted-value parameters, which have no influence in other possible calls. I don't know if there's any other call to this, but I only changed the one in the \"Worksheet.php\" file (see inside the attachment, line 568). I think this could be optimized, but since I don't know much about the hole PHPExcel architecture, I tried to stay inside the \"Shared/Font.php\" file.\r\n    * I'm now dealing with rotation using the imagettfbbox method also. I have not tested it yet, but I know it won't work properly, as described in http://ruquay.com/sandbox/imagettf/. This is another thing I have to fix.\r\n\r\nFor now that's it. I've decided to share this with you even though it's not all finished, so I could get some feedback from you guys. Can some of you test this, please? ",
+      "PostedDate": "2009-08-03T15:46:09.717-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-08-03T15:46:12.777-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "This is good news! I only took a quick glance, but it already looks promising. I am hoping to look into this tomorrow.",
+      "PostedDate": "2009-08-03T16:25:49.387-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Hey koyama, have you checked the patch already? If so, what did you think about it?",
+      "PostedDate": "2009-08-14T13:44:29.62-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Hi alextercete,\r\nSorry, I was interrupted by some other work items. I will pick up this one again. There have been many questions about autoSize precision in the past, so I think this is an important work item.",
+      "PostedDate": "2009-08-15T19:37:42.67-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "alextercete, just want to let you know that I have run some tests with your patches and they really look promising! I will try to come up with some proposal by the end of this week how this can be integrated. Again, thank you for your work.",
+      "PostedDate": "2009-08-19T18:36:29.08-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "You're welcome! Let me know if I can do anything to help. I'm looking forward for other news on this! :)",
+      "PostedDate": "2009-08-19T19:33:46.693-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I think we are getting closer now! alextercete, can you take a quick look at revised patch-2.zip ?\r\n\r\nI have done my very best to allow for a smooth transition from the old method to your new improved method.\r\n\r\nMost is the same as in patch.zip, but changes are roughly:\r\n\r\n1)\r\nAllow user to switch manually between the autosize method (our new GD method, or the old one based on simple character count).\r\n\r\nExample how to invoke the new method:\r\n\r\nPHPExcel_Shared_Font::setAutoSizeMethod(PHPExcel_Shared_Font::AUTOSIZE_METHOD_EXACT);\r\nPHPExcel_Shared_Font::setTrueTypeFontPath('C:/WINDOWS/Fonts/');\r\n\r\nExample how to invoke the old method (also the default behavior):\r\n\r\nPHPExcel_Shared_Font::setAutoSizeMethod(PHPExcel_Shared_Font::AUTOSIZE_METHOD_APPROX);\r\n\r\nDo you agree that this is a good idea?\r\n\r\n2)\r\nImproved a bit on some of the functions to convert from pixels to Excel column width.\r\n\r\n3)\r\nNote: I have not yet included the Liberation font as a fallback in patch-2.zip. I figure that when we give users the chance to test the new autosize method we might have a better chance to evaluate feedback with the Liberation font not present. Do you agree on this?\r\n\r\n4)\r\nMaarten, do you have comments about the approach?",
+      "PostedDate": "2009-08-30T20:27:37.86-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-08-30T20:27:40.65-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-08-30T20:32:39.07-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Hey koyama! The changes you've made are looking very good! I haven't had a chance to test them yet (I'll do that as soon as I get to work), but here are my overall comments:\r\n\r\n1)\r\nI think it's a good idea to change the AutoSize method manually, but we probably need to think about the Font path issue. Setting this by hand will make ones application less portable. Should we leave this decision making to the user? For example:\r\n\r\nPHPExcel_Shared_Font::setTrueTypeFontPath($windows ? 'C:/WINDOWS/Fonts/' : '~/.fonts');\r\n\r\nA possible solution is to allow user to ADD instead of SET font paths. This way we could try different font paths before throwing an exception to the user. If I'm not mistaken, GD library works like this.\r\n\r\n2)\r\nI think there might be a better method for doing this (less empirical), similar to what I've tried in the first place. Please refer to this:\r\n\r\n    http://support.microsoft.com/kb/214123\r\n\r\nIt's saying that the column width is determined based on the default font \"average\" width. So if you set a column width to 10 and type (in the default font) \"1234567890\" it should fit perfectly. That said, we must know how many zeros (\"0\"s) the text is equivalent to. By that, when we say the text width is the same as 5.5 ZEROS, we are saying that it's the same as 5.5 CHARACTERS.\r\n\r\nThis method is better than your approach because it considers the font name, size and weight. It's worth  noticing that excel has a somewhat poor way of rendering the column width on the screen, related to what we see when we print the file to PDF, for example. So maybe we should choose if we are going to make things look good in screen or in paper.\r\n\r\n3)\r\nGood idea. Let's make things more transparent and less complicated.\r\n\r\n\r\nI'm going to test you code and will come back with results!",
+      "PostedDate": "2009-08-31T06:42:13.87-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Glad that we are agreeing!\r\n\r\n1)\r\nI see exactly what you mean about portability, that one should be able to transfer ones files from Windows to Linux and things should still be working. But I think we leave responsibility to the user. Like your example shows user can do stuff like\r\nif (file_exists('C:/WINDOWS/Fonts')) {\r\n\t$path = 'C:/WINDOWS/Fonts';\r\n} else if (...) {\r\n\t...\r\n}\r\nPersonally, I would probably bundle the necessary true type font files with my script files instead of pulling them from the system so I was sure that they were always available no matter which web hosting service I move the files to.\r\n\r\n2)\r\nYes, column width is a big problem in itself. I am aware of that article you linked to which clarifies some things, but does not reveal everything. Not sure if you are aware that there are 3 measures for column width in play. I tried to flesh things out in this thread:\r\nhttp://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=43265\r\n\r\nAs I see it, it is nowhere specified how much left and right padding MS Office Excel adds. Indeed very tricky!\r\n\r\n3)\r\nOk :-)\r\n\r\n4)\r\nThere is plenty of opportunity for fine-tuning :) Some things to think about in the future:\r\n\r\n* If user uses some special font with some special true type font file, he should probably be able to specify the true type font file name without having to modify the class files. Provide some kind of handle?\r\n\r\n* Text rotation / stacked text implementation with the new GD method. Can probably be done.\r\n\r\n* Unicode support. This is complicated by glyph substitution. For example if one has some mixed English and Japanese text set in Calibri, then Excel will automatically glyph substitute Japanese glyphs that are not available in Calibri. This gives autosize complications.\r\n\r\n* UTF-8. I have not checked how this is handles by the new autosize?\r\n\r\n5)\r\nOnce we agree that the implementation is just nearly ok, I suggest we quickly include it in the source code so users can start testing. The special quirks mentioned above can then be solved gradually in separate work items. What do you say?",
+      "PostedDate": "2009-08-31T07:56:26.473-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "alex, this is just to let you know that I am committing patch-2 to SVN as is. That makes it easier for us all to test and it cannot hurt anyone even if it is not yet finished since one currently has to invoke the new method manually. There is a full month for next release so we have time to test! Thank you very much for your contributions so far.",
+      "PostedDate": "2009-09-07T14:27:47.137-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "koyama, sorry for not responding to your previous comment. I was a little bit busy this week and haven't had the time to test your modifications. However, I did look at the code and I agree to committing this second patch for testing. Feel free to contact me and let me know what I can do to help with further enhancements.",
+      "PostedDate": "2009-09-07T15:43:09.053-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-10-13T09:50:31.573-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "If filter is added to a cell, this should be taken into account while autosizing it.",
+      "PostedDate": "2011-07-21T15:31:41.37-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "the same problem in 2.1\r\nbut this patch-2\r\ncan't replace for 2.1",
+      "PostedDate": "2012-07-25T21:23:40.8-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:03:48.487-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

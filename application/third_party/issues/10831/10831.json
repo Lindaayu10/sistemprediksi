@@ -1,0 +1,96 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel_Reader_CSV",
+      "DisplayName": "PHPExcel_Reader_CSV"
+    },
+    "ClosedComment": "",
+    "ClosedDate": "2009-11-03T19:04:21.917-08:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I would like to be able to load CSV files that already have the UTF-8 BOM in them. You could simply delete the BOM on the first cell when loading. Currently, the first cell shows up with double-quotes around it since the BOM is not trimmed.",
+    "LastUpdatedDate": "2013-05-16T05:42:20.533-07:00",
+    "PlannedForRelease": "PHPExcel 1.7.1 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-10-25T17:47:09.71-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Support Reading CSV with Byte Order Mark (BOM)",
+    "Type": {
+      "Name": "Feature",
+      "Id": 1
+    },
+    "VoteCount": 1,
+    "Id": 10831
+  },
+  "FileAttachments": [
+    {
+      "FileId": 3468,
+      "FileName": "CSV.php",
+      "DownloadUrl": ".\\3468"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "I have attached my implementation using fseek() to skip the first 3 bytes. Here are diffs:\r\n\r\nIndex: Classes/PHPExcel/Reader/CSV.php\r\n===================================================================\r\n--- Classes/PHPExcel/Reader/CSV.php   (revision 1356)\r\n+++ thirdparty/PHPExcel-1.7.0/Classes/PHPExcel/Reader/CSV.php   (working copy)\r\n@@ -95,6 +95,13 @@\r\n        private $_readFilter = null;\r\n \r\n        /**\r\n+        * Whether to skip BOM (for UTF8).\r\n+        *\r\n+        * @var boolean\r\n+        */\r\n+       private $_hasBOM = false;\r\n+\r\n+       /**\r\n         * Create a new PHPExcel_Reader_CSV\r\n         */\r\n        public function __construct() {\r\n@@ -181,6 +188,11 @@\r\n                        throw new Exception(\"Could not open file $pFilename for reading.\");\r\n                }\r\n \r\n+               // Skip BOM\r\n+               if($this->_hasBOM) {\r\n+                       fseek($fileHandle, 3);\r\n+               }\r\n+\r\n                // Loop trough file\r\n                $currentRow = 0;\r\n                $rowData = array();\r\n@@ -291,4 +303,15 @@\r\n                $this->_sheetIndex = $pValue;\r\n                return $this;\r\n        }\r\n+\r\n+       /**\r\n+        * Set whether BOM should be skipped\r\n+        *\r\n+        * @param       boolean $pValue         Skip UTF-8 byte-order mark? Defaults to false\r\n+        * @return PHPExcel_Reader_CSV\r\n+        */\r\n+       public function setHasBOM($pValue = false) {\r\n+               $this->_hasBOM = $pValue;\r\n+               return $this;\r\n+       }\r\n }",
+      "PostedDate": "2009-10-25T18:29:11.71-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-10-25T18:29:14.283-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Agreed, there should be a mechanism in PHPExcel_Reader_CSV so that BOM can be skipped. Thank you very much for your patch.\r\n\r\nBut what about if we handled this automatically as follows:\r\n\r\nIndex: Classes/PHPExcel/Reader/CSV.php\r\n===================================================================\r\n--- Classes/PHPExcel/Reader/CSV.php\t(revision 1203)\r\n+++ Classes/PHPExcel/Reader/CSV.php\t(working copy)\r\n@@ -233,6 +233,17 @@\r\n \t\t\tthrow new Exception(\"Could not open file $pFilename for reading.\");\r\n \t\t}\r\n \r\n+\t\t// Skip BOM, if any\r\n+\t\tswitch ($this->_inputEncoding) {\r\n+\t\t\tcase 'UTF-8':\r\n+\t\t\t\tfgets($fileHandle, 4) == \"\\xEF\\xBB\\xBF\" ?\r\n+\t\t\t\t\tfseek($fileHandle, 3) : fseek($fileHandle, 0);\r\n+\t\t\t\tbreak;\r\n+\r\n+\t\t\tdefault:\r\n+\t\t\t\tbreak;\r\n+\t\t}\r\n+\r\n \t\t// Loop through file\r\n \t\t$currentRow = 0;\r\n \t\t$rowData = array();\r\n\r\n\r\nThat way one does not have to worry whether BOM is present or not. All one has to do is the set the input encoding:\r\n\r\n$reader->setInputEncoding('UTF-8');\r\n\r\nAnd since UTF-8 is the default, it would amount to doing nothing in your case.",
+      "PostedDate": "2009-10-25T21:13:05.56-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I think your implementation makes more sense - especially if you are processing CSVs generated from another system and are not sure if they have the BOM or not. The overhead to check is very minimal.",
+      "PostedDate": "2009-10-26T05:19:06.237-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-10-26T15:24:04.567-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "@smartinec: Thanks for your feedback! In that case we will check this into SVN for tomorrows source code release.",
+      "PostedDate": "2009-10-26T16:42:14.427-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-10-28T16:50:32.157-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-11-03T19:04:21.917-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:03:32.187-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:20.533-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

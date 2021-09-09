@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "1097587",
+    "ThreadId": "458707",
+    "Html": "I am new to working with PHPExcel, but I have gotten to the point where I can create spreadsheets fresh and from CSV files. The issue that I am running into though is that I am trying to create rather large reports as Excel files that can be downloaded. The CSV data for these files, without the required formatting and formulas, can be over 50MB. Is there a way to create spreadsheets in the filesystem instead of in memory?<br />\n",
+    "PostedDate": "2013-09-22T07:06:59.303-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1097962",
+    "ThreadId": "458707",
+    "Html": "You can minimize the need of memory for PHPExcel using different cache methods it offers.\r<br />\nSee section 4.2.1 of the documentation for the implementation, see this topic: <a href=\"https://phpexcel.codeplex.com/discussions/234150?ProjectName=phpexcel\" rel=\"nofollow\">https://phpexcel.codeplex.com/discussions/234150?ProjectName=phpexcel</a> to get an idea of earnings according to the methods.<br />\n",
+    "PostedDate": "2013-09-23T03:49:39.417-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1098030",
+    "ThreadId": "458707",
+    "Html": "I tried doing this with the following code:<br />\n<pre><code>    // Initialize caching\n    $cacheMethod = \\PHPExcel_CachedObjectStorageFactory::cache_to_phpTemp;\n    $cacheSettings = array('memoryCacheSize' =&gt; '32MB');\n    \\PHPExcel_Settings::setCacheStorageMethod($cacheMethod, $cacheSettings);\n\n    // Create the object\n    $this-&gt;objPHPExcel = new \\PHPExcel();\n    $this-&gt;objPHPExcel-&gt;getProperties()-&gt;setCreator(&quot;VIP&quot;);\n    $this-&gt;objPHPExcel-&gt;setActiveSheetIndex(0);\n    $this-&gt;sheet = $this-&gt;objPHPExcel-&gt;getActiveSheet();\n</code></pre>\n\nHowever, the script still runs out of memory when it reaches the 50mb max execution limit that I have set. Am I implementing the caching incorrectly?\r<br />\n<br />\nThe data in question can be output as CSV with no problem, so it seems to be the Excel methods that are using the memory.<br />\n",
+    "PostedDate": "2013-09-23T07:11:03.52-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1098063",
+    "ThreadId": "458707",
+    "Html": "It seems correct, however, I would not define the memoryCacheSize with this high value: this value represents what php is allowed to store in memory before going to disk.\r<br />\nNote that the method using SQLite3 obtain the largest gain, if your configuration permits, did a test with it.\r<br />\n<br />\nTry you estimate the need for memory, basic, rule Mark is about 1 K per cell, 30% more on x 64<br />\n",
+    "PostedDate": "2013-09-23T08:25:21.847-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1098067",
+    "ThreadId": "458707",
+    "Html": "Ok. I have 156000 rows of data that I am trying to write. I reduced the memoryCacheSize to 1MB, and still have the same issue. Execution gets to about 4600 rows and dies. This is the row by row function that writes, in case I should be doing something else to work with the cache or something:<br />\n<pre><code>public function processRow($row)\n{\n    parent::processRow($row);\n\n    echo 'Parsing row '.$this-&gt;line_count.' - '.memory_get_usage(false).' of '.memory_get_usage(true).&quot;&lt;br /&gt;\\n&quot;; //TODO: Delete\n\n    $columnNumber = 0;\n    $vals = array();\n\n    foreach ($this-&gt;columns as $column) {\n        $val = rand(0, 500);\n        $vals[] = $val;\n        $format = \\PHPExcel_Cell_DataType::TYPE_NUMERIC;\n        $this-&gt;sheet-&gt;setCellValueExplicitByColumnAndRow($columnNumber, $this-&gt;line_count, $val, $format);\n        $columnNumber++;\n    }\n}\n</code></pre>\n\nJust to rule out data issues, I'm just making random integers for each column value.<br />\n",
+    "PostedDate": "2013-09-23T08:44:38.91-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1098109",
+    "ThreadId": "458707",
+    "Html": "To provide more information, I ran this with caching on and caching off.\r<br />\n<br />\nWith caching on:\r<br />\nParsing row 4653 - 52,188,488 of 52,428,800\r<br />\n<br />\nFatal error: Allowed memory size of 52428800 bytes exhausted (tried to allocate 345 bytes) in \\vendor\\PHPExcel\\PHPExcel\\CachedObjectStorage\\PHPTemp.php on line 65\r<br />\n<br />\nWith caching off:\r<br />\nParsing row 4213 - 48,774,432 of 49,807,360\r<br />\n<br />\nFatal error: Allowed memory size of 52428800 bytes exhausted (tried to allocate 8388608 bytes) in \\vendor\\PHPExcel\\PHPExcel\\Worksheet.php on line 1123\r<br />\n<br />\nThere is only a small difference in how far the processing goes. What exactly is being cached, and why is so much put in memory?<br />\n",
+    "PostedDate": "2013-09-23T10:13:52.85-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1098379",
+    "ThreadId": "458707",
+    "Html": "For most of the methods, PHPExcel keeps in memory an index to locate cells. In your case the index is larger than the data.\r<br />\nOn the other hand, if you use SQLite3 as cache method, you'll see a major fall.\r<br />\nSmall test with a workbook that contains a worksheet with 100,000 cells:\r<br />\nIn memory: 37.25 MB\r<br />\nphpTemp: 35MB\r<br />\nSQLite3: 1.75 MB\r<br />\nThis is to keep the data in memory.\r<br />\nTake into account the additional memory required when writing workbook (between 19 and 24 MB for my test).<br />\n",
+    "PostedDate": "2013-09-24T00:22:31.437-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

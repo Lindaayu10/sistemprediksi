@@ -1,0 +1,74 @@
+[
+  {
+    "Id": "164207",
+    "ThreadId": "49149",
+    "Html": "09:50:54 Create new PHPExcel object\r\n09:50:54 Set properties\r\n09:50:54 Add some data\r\n09:50:54 Rename sheet\r\n09:50:54 Write to Excel2007 format\r\n<br>\r\n<strong>Warning</strong>:  file_exists() [<a href=\"http://www.hhartbree.be/schooladministratie/PHPExcel/Tests/function.file-exists\">function.file-exists</a>]:\r\nopen_basedir restriction in effect.\r\nFile(/PHPExcel/Writer/Excel2007.php) is not within the allowed path(s):\r\n(/var/www/vhosts/domein.be/httpdocs:/tmp) in <strong>/var/www/vhosts/domein.be/httpdocs/schooladministratie/PHPExcel/Classes/PHPExcel/IOFactory.php</strong> on line <strong>170</strong><br>\r\n<br>\r\n<strong>Fatal error</strong>: Uncaught exception 'Exception' with message 'Could\r\nnot close zip file\r\n/var/www/vhosts/domein.be/httpdocs/administratie/PHPExcel/Tests/01simple.xlsx.'\r\nin\r\n/var/www/vhosts/domein.be/httpdocs/administratie/PHPExcel/Classes/PHPExcel/Writer/Excel2007.php:401\r\nStack\r\ntrace:\r\n#0\r\n/var/www/vhosts/domein.be/httpdocs/administratie/PHPExcel/Tests/01simple.php(75):\r\nPHPExcel_Writer_Excel2007-&gt;save('/var/www/vhosts...')\r\n#1 {main} thrown in <strong>/var/www/vhosts/domein.be/httpdocs/administratie/PHPExcel/Classes/PHPExcel/Writer/Excel2007.php</strong> on line <strong>401</strong><br>\r\n<br>\r\nCan anyone fix this please??<br>\r\n<br>\r\nThankx in advance!<br>\r\n",
+    "PostedDate": "2009-03-04T01:10:49.83-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "164210",
+    "ThreadId": "49149",
+    "Html": "From the error message it looks like there is a problem with your include path. Make sure that your include path does not include the root '/'.<br>\r\n<br>\r\nAlternatively, disable the open_basedir in your php.ini, but it is better to fix the include path.<br>\r\n<br>\r\n",
+    "PostedDate": "2009-03-04T01:25:00.93-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "164231",
+    "ThreadId": "49149",
+    "Html": "Where can I do that?<br>\r\n<br>\r\nIn 01simple.php:<br>\r\n<br>\r\n/** Include path **/<br>\r\nset_include_path(get_include_path() . PATH_SEPARATOR . '../Classes/');<br>\r\n<br>\r\nDo I have to change these line?<br>\r\n<br>\r\nThankx for the fast reply! <br>\r\n<br>\r\n<br>\r\n\r\n",
+    "PostedDate": "2009-03-04T02:35:34.38-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "164237",
+    "ThreadId": "49149",
+    "Html": "What is your current include path?<br>\r\n<br>\r\n<code>var_dump(get_include_path());<br>\r\n</code>\r\n<br>\r\n",
+    "PostedDate": "2009-03-04T02:44:32.647-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "164681",
+    "ThreadId": "49149",
+    "Html": "This is what I get: string(14) &quot;.::../Classes/&quot;<br>\r\n<br>\r\nWhen I use this code:<br>\r\n<br>\r\n/** Include path **/<br>\r\nset_include_path(get_include_path() . PATH_SEPARATOR . '../Classes/');<br>\r\nvar_dump(get_include_path()); \r\n",
+    "PostedDate": "2009-03-05T00:27:19.643-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "165103",
+    "ThreadId": "49149",
+    "Html": "Yeah, your include path looks a bit weird; there are two adjacent path separators. Can you try this instead:<br>\r\n<br>\r\n<code>set_include_path('.' . PATH_SEPARATOR . '../Classes');<br>\r\n</code>\r\n<br>\r\nEdit: Removed trailing slash after Classes.<br>\r\n<br>\r\n",
+    "PostedDate": "2009-03-05T16:18:56.773-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "166086",
+    "ThreadId": "49149",
+    "Html": "My include path is now: string(12) &quot;.:../Classes&quot;\r\n<br>\r\nThat's 1 &quot;:&quot; less.<br>\r\n<br>\r\nBut now I get the same:<br>\r\n<br>\r\n15:35:14 Create new PHPExcel object\r\n15:35:14 Set properties\r\n15:35:14 Add some data\r\n15:35:14 Rename sheet\r\n15:35:14 Write to Excel2007 format\r\n<br>\r\n<strong>Fatal error</strong>: Uncaught exception 'Exception' with message 'Could\r\nnot close zip file\r\n/var/www/vhosts/domein.be/httpdocs/administratie/PHPExcel/Tests/01simple.xlsx.'\r\nin\r\n/var/www/vhosts/domein.be/httpdocs/administratie/PHPExcel/Classes/PHPExcel/Writer/Excel2007.php:401\r\nStack\r\ntrace:\r\n#0\r\n/var/www/vhosts/domein.be/httpdocs/administratie/PHPExcel/Tests/01simple.php(76):\r\nPHPExcel_Writer_Excel2007-&gt;save('/var/www/vhosts...')\r\n#1 {main} thrown in <strong>/var/www/vhosts/domein.be/httpdocs/administratie/PHPExcel/Classes/PHPExcel/Writer/Excel2007.php</strong> on line <strong>401</strong><br>\r\n<br>\r\n:-s <br>\r\nThx in advance!<br>\r\n",
+    "PostedDate": "2009-03-09T07:36:26.767-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "166101",
+    "ThreadId": "49149",
+    "Html": "Likely to be a permission problem:<br>\r\n<a href=\"http://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=47209\">http://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=47209</a><br>\r\n<br>\r\n",
+    "PostedDate": "2009-03-09T08:10:10.933-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "166387",
+    "ThreadId": "49149",
+    "Html": "That's it!!<br>\r\n<br>\r\nThank you very much! The folder wasn't set to 777.<br>\r\n",
+    "PostedDate": "2009-03-10T01:48:44.793-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

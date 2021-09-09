@@ -1,0 +1,45 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "There are a couple of issues with named ranges.  When extracting cells from a formula, it is breaking down a named range in error.  See Test case.\n \n    function testParseRange()\n    {\n        $formulaBlock = \"=C85/ORB_V1_sh2_130218062032188\";\n        $expression\t\t= '((\\w*|\\'[^!]*\\')!)?(?<![:a-z\\$])(\\$?[a-z]{1,3}\\$?\\d+)(?=[^:!\\d\\'])';\n\n        $matchCount = preg_match_all('/'.$expression.'/i', ' '.$formulaBlock.' ', $matches, 2);\n        print_r($matches);\n        $this->assertEquals($matchCount,1);\n    }\n \n\tYou will see that the above test case fails and has returned cells V1 and sh2 as cells in error.  These values were obtained from the named range ORB_V1_sh2_130218062032188\n\nThe following resolved this for me.\nFixed: ReferenceHelper.REFHELPER_REGEXP_CELLREF ='((\\w*|\\'[^!]*\\')!)?(?<![:a-z\\$])(\\$?[a-z]{1,3}\\$?\\d+)(?=[^:!\\d\\'_])';\n\n\tOnce that is resolved, the second problem with named ranges is that when a named range is considered  \"global\", the named range is truncated and returns a invalid range.  I have attached the LargeNamedRangeTest.xlsx and created a test case which currently returns a invalid range of A1,Sheet1.  The expected in this case might be a1, a2... instead of including the sheet.\n\n public function testGetNamedRange()\n    {\n        $objReader = new RBPHPExcel_Reader_Excel2007 ( );\n        $workbook = new RBPHPExcel ( );\n        $objReader->setReadDataOnly ( true );\n\n        try {\n            $workbook = @$objReader->load ( \"templates\\\\LargeNamedRangeTest.xlsx\" );\n        } catch ( Exception $e ) {\n\n            echo $e->getTraceAsString();\n            echo $e->getMessage();\n            return false;\n        }\n\n        $namedRange = $workbook->getNamedRange(\"ORB_V1_sh1_140327082416769\");\n        $expectedNameRangeValue = \"Sheet1!A1,Sheet1!A2,Sheet1!A3,Sheet1!A4,Sheet1!A5,Sheet1!A6,Sheet1!A7,Sheet1!A8,Sheet1!A9,Sheet1!A10,Sheet1!A11,Sheet1!A12,Sheet1!A13,Sheet1!A14,Sheet1!A15,Sheet1!A16,Sheet1!A17,Sheet1!A18,Sheet1!A19,Sheet1!A20,Sheet1!A21,Sheet1!A22,Sheet1!A23,Sheet1!A24,Sheet1!A25,Sheet1!A26,Sheet1!A27,Sheet1!A28,Sheet1!A29,Sheet1!A30,Sheet1!A31,Sheet1!A32,Sheet1!A33,Sheet1!A34,Sheet1!A35,Sheet1!A36,Sheet1!A37,Sheet1!A38,Sheet1!A39,Sheet1!A40,Sheet1!A41,Sheet1!A42,Sheet1!A43,Sheet1!A44,Sheet1!A45,Sheet1!A46,Sheet1!A47,Sheet1!A48,Sheet1!A49,Sheet1!A50,Sheet1!A51,Sheet1!A52,Sheet1!A53,Sheet1!A54,Sheet1!A55,Sheet1!A56,Sheet1!A57,Sheet1!A58,Sheet1!A59,Sheet1!A60,Sheet1!A61,Sheet1!A62,Sheet1!A63,Sheet1!A64,Sheet1!A65,Sheet1!A66,Sheet1!A67,Sheet1!A68,Sheet1!A69,Sheet1!A70,Sheet1!A71,Sheet1!A72,Sheet1!A73,Sheet1!A74,Sheet1!A75,Sheet1!A76,Sheet1!A77,Sheet1!A78,Sheet1!A79,Sheet1!A80,Sheet1!A81,Sheet1!A82,Sheet1!A83,Sheet1!A84,Sheet1!A85,Sheet1!A86,Sheet1!A87,Sheet1!A88,Sheet1!A89,Sheet1!A90,Sheet1!A91,Sheet1!A92,Sheet1!A93,Sheet1!A94,Sheet1!A95,Sheet1!A96,Sheet1!A97,Sheet1!A98,Sheet1!A99,Sheet1!A100,Sheet1!A101,Sheet1!A102,Sheet1!A103,Sheet1!A104,Sheet1!A105,Sheet1!A106,Sheet1!A107,Sheet1!A108,Sheet1!A109,Sheet1!A110,Sheet1!A111,Sheet1!A112,Sheet1!A113,Sheet1!A114,Sheet1!A115,Sheet1!A116,Sheet1!A117,Sheet1!A118,Sheet1!A119,Sheet1!A120,Sheet1!A121\";\n        $this->assertEquals($expectedNameRangeValue, $namedRange->getRange());\n    }\n\nPHPUnit_Framework_ExpectationFailedException : Failed asserting that two strings are equal.\nExpected :Sheet1!A1,Sheet1!A2,Sheet1!A3,Sheet1!A4,Sheet1!A5,Sheet1!A6,Sheet1!A7,Sheet1!A8,Sheet1!A9,Sheet1!A10,Sheet1!A11,Sheet1!A12,Sheet1!A13,Sheet1!A14,Sheet1!A15,Sheet1!A16,Sheet1!A17,Sheet1!A18,Sheet1!A19,Sheet1!A20,Sheet1!A21,Sheet1!A22,Sheet1!A23,Sheet1!A24,Sheet1!A25,Sheet1!A26,Sheet1!A27,Sheet1!A28,Sheet1!A29,Sheet1!A30,Sheet1!A31,Sheet1!A32,Sheet1!A33,Sheet1!A34,Sheet1!A35,Sheet1!A36,Sheet1!A37,Sheet1!A38,Sheet1!A39,Sheet1!A40,Sheet1!A41,Sheet1!A42,Sheet1!A43,Sheet1!A44,Sheet1!A45,Sheet1!A46,Sheet1!A47,Sheet1!A48,Sheet1!A49,Sheet1!A50,Sheet1!A51,Sheet1!A52,Sheet1!A53,Sheet1!A54,Sheet1!A55,Sheet1!A56,Sheet1!A57,Sheet1!A58,Sheet1!A59,Sheet1!A60,Sheet1!A61,Sheet1!A62,Sheet1!A63,Sheet1!A64,Sheet1!A65,Sheet1!A66,Sheet1!A67,Sheet1!A68,Sheet1!A69,Sheet1!A70,Sheet1!A71,Sheet1!A72,Sheet1!A73,Sheet1!A74,Sheet1!A75,Sheet1!A76,Sheet1!A77,Sheet1!A78,Sheet1!A79,Sheet1!A80,Sheet1!A81,Sheet1!A82,Sheet1!A83,Sheet1!A84,Sheet1!A85,Sheet1!A86,Sheet1!A87,Sheet1!A88,Sheet1!A89,Sheet1!A90,Sheet1!A91,Sheet1!A92,Sheet1!A93,Sheet1!A94,Sheet1!A95,Sheet1!A96,Sheet1!A97,Sheet1!A98,Sheet1!A99,Sheet1!A100,Sheet1!A101,Sheet1!A102,Sheet1!A103,Sheet1!A104,Sheet1!A105,Sheet1!A106,Sheet1!A107,Sheet1!A108,Sheet1!A109,Sheet1!A110,Sheet1!A111,Sheet1!A112,Sheet1!A113,Sheet1!A114,Sheet1!A115,Sheet1!A116,Sheet1!A117,Sheet1!A118,Sheet1!A119,Sheet1!A120,Sheet1!A121\nActual   :A1,Sheet1",
+    "LastUpdatedDate": "2014-03-27T10:57:43.82-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2014-03-27T10:54:46.82-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Global named ranges are truncated",
+    "Type": {
+      "Name": "Unassigned",
+      "Id": 5
+    },
+    "VoteCount": 1,
+    "Id": 20863
+  },
+  "FileAttachments": [
+    {
+      "FileId": 7433,
+      "FileName": "LargeNamedRangeTest.xlsx",
+      "DownloadUrl": ".\\7433"
+    }
+  ],
+  "Comments": []
+}

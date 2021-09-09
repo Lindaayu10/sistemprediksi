@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "533751",
+    "ThreadId": "237829",
+    "Html": "\r\n<p>I have only been working with this version 1.7.4 for a short time and I find extremely useful, however there is 1 thing that I cannot seem to manage.&nbsp; When creating an excel or pdf file for the user to download, I want to ALSO store a copy on the server.&nbsp;\r\n I have tried a number of things in the final few lines of the code (below), but cannot get it to work.&nbsp; Is there anyone or any way to do this?&nbsp; Thanks!</p>\r\n<p>// Rename sheet<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setTitle('Export Sheet');<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; // Set active sheet index to the first sheet, so Excel opens this as the first sheet<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;setActiveSheetIndex(0);<br>\r\n&nbsp; <br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; // Redirect output to a client's web browser (Excel2007)&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;\r\n<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; header('Content-Disposition: attachment;filename=&quot;'.$Temp_Export_File_Name.'&quot;');<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; header('Cache-Control: max-age=0');<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $objWriter-&gt;save('php://output');<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; exit;</p>\r\n",
+    "PostedDate": "2010-12-09T21:44:01.25-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "534202",
+    "ThreadId": "237829",
+    "Html": "\r\n<p>Instead of</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>$objWriter-&gt;save(<span style=\"color:#a31515\">'php://output'</span>);\r\n</pre>\r\n</div>\r\n<p>which outputs directly to the PHP output stream</p>\r\n<p>use</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>$objWriter-&gt;save(<span style=\"color:#a31515\">'./saveFile.xlsx'</span>);\r\nreadfile(<span style=\"color:#a31515\">'./saveFile.xlsx'</span>);\r\n</pre>\r\n</div>\r\n<p>which saves the&nbsp;Excel2007 document&nbsp;to a file on the server, then spools the content of that file to the PHP output stream</p>\r\n",
+    "PostedDate": "2010-12-10T15:45:29.667-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "534310",
+    "ThreadId": "237829",
+    "Html": "MarkBaker, Thank you! That was exactly what I was looking for. I knew the readfile would come into it, but just didn't know what I was missing. Again, thank you.",
+    "PostedDate": "2010-12-11T02:20:28.67-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

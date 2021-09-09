@@ -1,0 +1,76 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "Calculation_Engine",
+      "DisplayName": "Calculation_Engine"
+    },
+    "ClosedComment": "",
+    "ClosedDate": "2009-12-01T06:48:31.487-08:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Cell A1 contains formula:\n \n=B1 B1\n \nThere are a bunch of warning messages from the calculation engine when we try to get the calculated value\n \nTest:\n----\n$excel = PHPExcel_IOFactory::load('read.xls');\n$worksheet = $excel->getActiveSheet();\n \nvar_dump($worksheet->getCell('A1')->getValue());\nvar_dump($worksheet->getCell('A1')->getCalculatedValue());\n \nExpected result:\n----\nstring(6) \"=B1 B1\"\nint(7)\n \nActual result:\n----\nstring(6) \"=B1 B1\"\nWarning: array_intersect_key() [function.array-intersect-key]: Argument #1 is not an array in C:\\xampp\\htdocs\\_phpexcel\\PHPExcel\\Classes\\PHPExcel\\Calculation.php on line 2654\n \nWarning: array_keys() [function.array-keys]: The first argument should be an array in C:\\xampp\\htdocs\\_phpexcel\\PHPExcel\\Classes\\PHPExcel\\Calculation.php on line 2656\n \nWarning: Invalid argument supplied for foreach() in C:\\xampp\\htdocs\\_phpexcel\\PHPExcel\\Classes\\PHPExcel\\Calculation.php on line 2656\n \nWarning: min() [function.min]: Array must contain at least one element in C:\\xampp\\htdocs\\_phpexcel\\PHPExcel\\Classes\\PHPExcel\\Calculation.php on line 2663\n \nWarning: min() [function.min]: Array must contain at least one element in C:\\xampp\\htdocs\\_phpexcel\\PHPExcel\\Classes\\PHPExcel\\Calculation.php on line 2663\n \nWarning: max() [function.max]: Array must contain at least one element in C:\\xampp\\htdocs\\_phpexcel\\PHPExcel\\Classes\\PHPExcel\\Calculation.php on line 2663\n \nWarning: max() [function.max]: Array must contain at least one element in C:\\xampp\\htdocs\\_phpexcel\\PHPExcel\\Classes\\PHPExcel\\Calculation.php on line 2663\nstring(7) \"#VALUE!\" \n \nEnvironment:\n----\nPHPExcel 1.7.1 and latest source code",
+    "LastUpdatedDate": "2013-05-16T05:42:15.997-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-11-18T22:58:35.78-08:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Warning messages with intersection operator involving single cell",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 10962
+  },
+  "FileAttachments": [
+    {
+      "FileId": 3550,
+      "FileName": "read.xls",
+      "DownloadUrl": ".\\3550"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "I understand that the intersection operator is tricky although the calculation engine did start to support the intersection operator since work item 10632\r\nhttp://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10632\r\n\r\nTherefore, to start with, I am just trying to get rid of the warning messages.",
+      "PostedDate": "2009-11-18T23:13:17.5-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Easy to fix, but comes with about a 10% performance overhead in the calculation engine. I'll not post any code changes until I've cut that overhead down.",
+      "PostedDate": "2009-11-19T13:50:35.523-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Reduced the performance overhead. It's not quite as fast as previously because all cells (not just cell ranges) are now being handled as an array, but I took advantage of the change to implement correct handling of boolean values in certain functions when passes in as direct values, cell values, and matrix values - Excel has this weird tendency to handle them differently depending on the source.\r\nI can probably tweak the performance more in time, and simplify some of the calc engine code - but I'll get the bugfix in now, and refine the code over time.",
+      "PostedDate": "2009-11-20T16:33:49.72-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-12-01T06:48:31.487-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:03:26.457-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:15.997-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

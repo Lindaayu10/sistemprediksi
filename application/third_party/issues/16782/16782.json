@@ -1,0 +1,55 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I sometimes get a 500 Internal Server Error, when parsing larger Excel2007 (.xlsx) files. It is a very weird bug because if I re-save the file in Excel sometimes the error goes away.\nI have been trying everything, from reconfiguring PHP, Apache, FastCGI, everything one can think of, but no luck. Until I finally came across a file that produced the error every time I tried to parse it, so I could locate where the goddamn bug is :).\nAnd I found it - the problem is when I set $objReader->setReadDataOnly(true);\nAs soon as I commented out this row everything worked fine. And if I uncommented it again, the problem repeated.\n \nI tried it on several different PHP-Apache-CentOS versions and I can say, the bug is not PHP-version-dependable.\n \nI hope you can reproduce the bug or have any idea why it happens. I saved the problematic file for debugging but can not upload it here, because it contains some personal information. I can send it to someone directly, along with my PHP function, if you need it.",
+    "LastUpdatedDate": "2013-02-21T19:02:12.26-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2011-10-22T15:45:11.003-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "PHPExcel - Large xlsx file - 500 Internal Server Error - bug",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 16782
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "This is most likely to be a memory issue... setting setReadDataOnly(true) requires less memory to hold the workbook.\r\n\r\nTry using cell cacheing",
+      "PostedDate": "2011-10-25T12:23:42.933-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Yes I know, but its interesting that everything works fine when I disable setReadDataOnly, so now my script uses more memory bit it works fine.\r\n\r\nAbout cell cacheing, I have been having problems setting it up. I did everything it said in tutorials and documentation but I just can not get it to work :(\r\n\r\nI tried adding this lines in all segments of the code (above, below $objReader->load() but it is ignored everytime.\r\n$cacheMethod = PHPExcel_CachedObjectStorageFactory::cache_in_memory;\r\nPHPExcel_Settings::setCacheStorageMethod($cacheMethod);\r\nOther methods also do not work. Do you have any advice for me? I have tried many tutorials and read documentation about this but nothing seems to work, my script uses the same amount of memory every time.\r\n\r\nThank you.",
+      "PostedDate": "2011-10-25T13:10:32.47-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:02:12.26-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

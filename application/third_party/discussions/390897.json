@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "897648",
+    "ThreadId": "390897",
+    "Html": "\r\n<p>My project work fine</p>\r\n<p>Now i want take from my xls file only the column A and D, every one row</p>\r\n<p>this is the class :</p>\r\n<p></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><span style=\"color:blue\">class</span> MyReadFilter <span style=\"color:blue\">implements</span> PHPExcel_Reader_IReadFilter\r\n{\r\n\t<span style=\"color:blue\">private</span> $_startRow = 0;\r\n\r\n\t<span style=\"color:blue\">private</span> $_endRow = 0;\r\n\r\n\t<span style=\"color:blue\">private</span> $_columns = <span style=\"color:blue\">array</span>();\r\n\r\n\t<span style=\"color:blue\">public</span> <span style=\"color:blue\">function</span> __construct($startRow, $endRow, $columns) {\r\n\t\t$this-&gt;_startRow\t= $startRow;\r\n\t\t$this-&gt;_endRow\t\t= $endRow;\r\n\t\t$this-&gt;_columns\t\t= $columns;\r\n\t}\r\n\r\n\t<span style=\"color:blue\">public</span> <span style=\"color:blue\">function</span> readCell($column, $row, $worksheetName = <span style=\"color:#a31515\">''</span>) {\r\n\t\t<span style=\"color:blue\">if</span> ($row &gt;= $this-&gt;_startRow &amp;&amp; $row &lt;= $this-&gt;_endRow) {\r\n\t\t\t<span style=\"color:blue\">if</span> (in_array($column,$this-&gt;_columns)) {\r\n\t\t\t\t<span style=\"color:blue\">return</span> true;\r\n\t\t\t}\r\n\t\t}\r\n\t\t<span style=\"color:blue\">return</span> false;\r\n\t}\r\n}\r\n\r\n$filterSubset = <span style=\"color:blue\">new</span> MyReadFilter(0,0,range(<span style=\"color:#a31515\">'A'</span>,<span style=\"color:#a31515\">'D'</span>));\r\n\r\n\r\n<span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'Loading file '</span>,pathinfo($inputFileName,PATHINFO_BASENAME),<span style=\"color:#a31515\">' using IOFactory with a defined reader type of '</span>,$inputFileType,<span style=\"color:#a31515\">'&lt;br /&gt;'</span>;\r\n$objReader = PHPExcel_IOFactory::createReader($inputFileType);\r\n<span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'Loading Sheet &quot;'</span>,$sheetname,<span style=\"color:#a31515\">'&quot; only&lt;br /&gt;'</span>;\r\n$objReader-&gt;setLoadSheetsOnly($sheetname);\r\n<span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'Loading Sheet using configurable filter&lt;br /&gt;'</span>;\r\n$objReader-&gt;setReadFilter($filterSubset);\r\n$objPHPExcel = $objReader-&gt;load($inputFileName);\r\n\r\n</pre>\r\n<pre>but don't work</pre>\r\n<pre>i have one row null</pre>\r\n</div>\r\n<p></p>\r\n",
+    "PostedDate": "2012-08-09T09:42:59.587-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "897653",
+    "ThreadId": "390897",
+    "Html": "<p>In Excel, row numbers start at 1</p>",
+    "PostedDate": "2012-08-09T09:58:21.433-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "897656",
+    "ThreadId": "390897",
+    "Html": "<p>ok thanks</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>$filterSubset = <span style=\"color: blue;\">new</span> MyReadFilter(1,10,range(<span style=\"color: #a31515;\">'A'</span>,<span style=\"color: #a31515;\">'D'</span>));\r\n</pre>\r\n<pre>but i want all the row and only column A and column D.</pre>\r\n</div>\r\n</p>",
+    "PostedDate": "2012-08-09T10:07:15.993-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "897770",
+    "ThreadId": "390897",
+    "Html": "<p>If you want all rows, then you only test the column</p>\r\n<p><span style=\"color: blue;\">\r\n<div style=\"color: black; background-color: white;\">\r\n<pre><span style=\"color: blue;\">public</span> <span style=\"color: blue;\">function</span> readCell($column, $row, $worksheetName = <span style=\"color: #a31515;\">''</span>) {\r\n    <span style=\"color: blue;\">if</span> (in_array($column,$this-&gt;_columns)) {\r\n        <span style=\"color: blue;\">return</span> true;\r\n    }\r\n    <span style=\"color: blue;\">return</span> false;\r\n}\r\n</pre>\r\n</div>\r\n</span></p>",
+    "PostedDate": "2012-08-09T13:34:39.173-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "897899",
+    "ThreadId": "390897",
+    "Html": "<p>I made changes:</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre><span style=\"color: blue;\">class</span> MyReadFilter <span style=\"color: blue;\">implements</span> PHPExcel_Reader_IReadFilter\r\n{\r\n\t<span style=\"color: blue;\">private</span> $_columns = <span style=\"color: blue;\">array</span>();\r\n\t<span style=\"color: blue;\">public</span> <span style=\"color: blue;\">function</span> __construct($startRow, $endRow, $columns) {\r\n\t\r\n\t\t$this-&gt;_columns\t\t= $columns;\r\n\t}\r\n<span style=\"color: blue;\">public</span> <span style=\"color: blue;\">function</span> readCell($column, $row, $worksheetName = <span style=\"color: #a31515;\">''</span>) {\r\n    <span style=\"color: blue;\">if</span> (in_array($column,$this-&gt;_columns)) {\r\n        <span style=\"color: blue;\">return</span> true;\r\n    }\r\n    <span style=\"color: blue;\">return</span> false;\r\n\r\n\t}\r\n}\r\n\r\n$filterSubset = <span style=\"color: blue;\">new</span> MyReadFilter(range(<span style=\"color: #a31515;\">'A'</span>,<span style=\"color: #a31515;\">'D'</span>));\r\n</pre>\r\n</div>\r\n</p>\r\n<p>but the result is:</p>\r\n<p>\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"</p>\r\n<p>thanks</p>",
+    "PostedDate": "2012-08-09T23:37:00.063-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "897900",
+    "ThreadId": "390897",
+    "Html": "\r\n<p>Columns B and C still exist in the loaded worksheet, they're just empty.... PHPExcel doesn't &quot;shuffle&quot; unread columns so that they are consecutive so cell D1 is still cell D1, likewise unread rows will also still exist but contain only empty cells. This\r\n technique is for memory saving, not for compacting data.</p>\r\n<p>Your constructor for the read filter, and the statement that instantiates it don't match.</p>\r\n<p>I don't know what you expect to see... your &quot;result&quot; is meaningless unless you know what the original sheet contained.</p>\r\n",
+    "PostedDate": "2012-08-09T23:44:09.277-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "897913",
+    "ThreadId": "390897",
+    "Html": "<p>ok i change</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre><span style=\"color: blue;\">class</span> MyReadFilter <span style=\"color: blue;\">implements</span> PHPExcel_Reader_IReadFilter\r\n{\r\n\t<span style=\"color: blue;\">private</span> $_columns = <span style=\"color: blue;\">array</span>();\r\n\t<span style=\"color: blue;\">public</span> <span style=\"color: blue;\">function</span> __construct( $columns) {\r\n\t\r\n\t\t$this-&gt;_columns\t\t= $columns;\r\n\t}\r\n<span style=\"color: blue;\">public</span> <span style=\"color: blue;\">function</span> readCell($column, $row, $worksheetName = <span style=\"color: #a31515;\">''</span>) {\r\n    <span style=\"color: blue;\">if</span> (in_array($column,$this-&gt;_columns)) {\r\n        <span style=\"color: blue;\">return</span> true;\r\n    }\r\n    <span style=\"color: blue;\">return</span> false;\r\n\r\n\t}\r\n}\r\n\r\n\r\n$filterSubset = <span style=\"color: blue;\">new</span> MyReadFilter(range(<span style=\"color: #a31515;\">'A'</span>,<span style=\"color: #a31515;\">'D'</span>));\r\n</pre>\r\n</div>\r\n</p>\r\n<p>now the result is:</p>\r\n<p>\"Codice MinSan\",\"Codice EAN\",\"Descrizione\",\"Giacenza\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"\"</p>\r\n<p>908009448 &nbsp; &nbsp;\",\" &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; \",\"GERME GRANO CONC OLEOSO 100ML &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; \",\"1\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"\"</p>\r\n<p>912543737 &nbsp; &nbsp;\",\"8029041141116\",\"DEFENCE SUN LTT 50 &nbsp;PROT M ALT &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;\",\"1\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"\"</p>\r\n<p>907037509 &nbsp; &nbsp;\",\" &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; \",\"DERMO-LABOCAINA POLVERE 75G &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; \",\"1\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"\"</p>\r\n<p>939181602 &nbsp; &nbsp;\",\" &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; \",\"EUCLOINTIMA ATTIVA 200ML &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;\",\"47\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\" ecc...........</p>\r\n<p>his take all column</p>\r\n<p>i want take only column A (\"Codice Minsan\") and column D (\"Giacenza\")</p>\r\n<p>thanks</p>",
+    "PostedDate": "2012-08-10T00:12:34.387-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

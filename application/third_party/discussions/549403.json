@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "1258855",
+    "ThreadId": "549403",
+    "Html": "<ol>\n<li>ADDING: Seems the script is making PHP crash, I ran the script thru the CLI and apparently CLI crashes so this points that PHP is failing on something. Is it possible that PHPExcel is doing something naughty when reading XLS?</li>\n<li>\nADDING 2: Seems its something with the destructor in PHPExcel.php. If I comment out these two functions its no problem anymore. When I try a XLSX file, it runs smoothly, how come its only crashing when I do a XLS? The array is outputed correctly but CLI is giving up after that.<br />\n//PHPExcel_Calculation::unsetInstance($this);<br />\n//$this-&gt;disconnectWorksheets();<br />\n</li>\n</ol>\nI get connection is reset when running a script that utilize PHPExcel for a XLS file. Same script is running fine with CSV or XLSX. <br />\n<br />\nSetup:<br />\nWindows 7 64bit<br />\nApache 2.2<br />\nPHP 5.2.6<br />\nPHPExcel 1.7.9<br />\n<br />\nNothing in PHP logs but Apache says:<br />\n<br />\n[Mon Jun 23 14:37:00 2014] [notice] Parent: child process exited with status 255 -- Restarting.<br />\n<br />\nWeird part is that its only a problem with the XLS files. Any advice?<br />\n<br />\nCode: <br />\n<br />\nFile 1:<br />\n<br />\n&lt;?php<br />\nrequire (&quot;class/ExcelFileReader.php&quot;);<br />\n<br />\n$excelFileReader = new ExcelFileReader();<br />\n$excelFileReader-&gt;setFileName('kingdom/tspid/tspidn.xls');<br />\ntry {<br />\n<pre><code>$result = $excelFileReader-&gt;getResultArray();\necho var_dump($result);</code></pre>\n\n} catch (Exception $e) {<br />\n<pre><code>die($e-&gt;getMessage());</code></pre>\n\n}<br />\n<br />\nFile 2 function that provides the array:<br />\n<pre><code>public function getResultArray() {\n    if (file_exists($this-&gt;getFileName())) {\n        $fileType = PHPExcel_IOFactory::identify($this-&gt;getFileName());\n        if ($fileType == &quot;CSV&quot;) {\n            $objReader = PHPExcel_IOFactory::createReader($fileType);\n            $objReader-&gt;setReadDataOnly(true);\n            $objReader-&gt;setDelimiter($this-&gt;getDelimiter());\n            $objReader-&gt;setEnclosure($this-&gt;getEnclosure());\n            $objReader-&gt;setLineEnding($this-&gt;getLineBreak());\n            $objReader-&gt;setInputEncoding($this-&gt;getEncoding());\n            $objPHPExcel = $objReader-&gt;load($this-&gt;getFileName());\n        } else {\n            $objPHPExcel = PHPExcel_IOFactory::load($this-&gt;getFileName());\n        }\n\n        $sheetArray = array();\n        $worksheet = $objPHPExcel-&gt;getActiveSheet();\n        foreach ($worksheet-&gt;getRowIterator() as $row) {\n            $cellIterator = $row-&gt;getCellIterator();\n            $cellIterator-&gt;setIterateOnlyExistingCells(false);\n            $rowArray = array();\n            foreach ($cellIterator as $cell) {\n                $rowArray[] = $cell-&gt;getValue();\n            }\n            $sheetArray[] = $rowArray;\n        }\n        //Set result\n        $this-&gt;_result = $sheetArray;\n        return $sheetArray;\n    } else {\n        throw new Exception(&quot;File do not exists!&quot;);\n    }\n}\n</code></pre>\n\nIf anyone has any suggestions or happends to see this error, give me a shout,<br />\n<br />\nBest regards,<br />\n<br />\nGabriel<br />\n",
+    "PostedDate": "2014-06-23T05:42:50.647-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1259113",
+    "ThreadId": "549403",
+    "Html": "Solved by downgrading to 1.7.8.<br />\n",
+    "PostedDate": "2014-06-23T23:26:44.38-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": "2014-06-24T03:25:16.823-07:00"
+  }
+]

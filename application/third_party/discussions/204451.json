@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "416386",
+    "ThreadId": "204451",
+    "Html": "<p>Hi,</p>\r\n<p>I've got an xls file which I need to process that contains some cells which take values from other cells. I created a filter because I don't need all rows and columns of the xls file. Problems are occurring when a cell I want to include is supposed to read its value from a cell I excluded. The value '0' will simply be retrieved with getValue() because of it.</p>\r\n<p>&nbsp;</p>\r\n<p>Example:</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$objReadFilter = <span style=\"color:Blue\">new</span> clsXlsReadFilter();<br>$objReader = PHPExcel_IOFactory::createReaderForFile($strXlsFileName);<br>$objReader-&gt;setReadDataOnly(true);<br>$objReader-&gt;setReadFilter($objReadFilter);<br>$objPHPExcel = $objReader-&gt;load($strXlsFileName);<br><br>$objActiveSheet = $objPHPExcel-&gt;getActiveSheet();<br>echo $objActiveSheet-&gt;getCell('D2')-&gt;getCalculatedValue();<br>&nbsp;</pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n<p>With readFilter class:</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre><span style=\"color:Blue\">class</span> clsXlsReadFilter <span style=\"color:Blue\">implements</span> PHPExcel_Reader_IReadFilter {\r\n    <span style=\"color:Blue\">private</span> $aIncludedColumns = array('D', 'E', 'F');\r\n    <span style=\"color:Blue\">private</span> $aExcludedRows = <span style=\"color:Blue\">array</span>(1);\r\n\r\n    <span style=\"color:Blue\">public</span> <span style=\"color:Blue\">function</span> readCell($strColumn, $iRow, $strWorksheet = <span style=\"color:#A31515\">''</span>) {\r\n        <span style=\"color:Blue\">if</span> (in_array($strColumn, $this-&gt;aIncludedColumns) &amp;&amp; !in_array($iRow, $this-&gt;aExcludedRows)) {\r\n            <span style=\"color:Blue\">return</span> true;\r\n        }\r\n\r\n        <span style=\"color:Blue\">return</span> false;\r\n    }\r\n}\r\n</pre>\r\n</div>\r\n<p>If cell 'D2' has formula '=A2' this example will output '0' instead of the actual value of cell 'A2'.</p>\r\n<p>&nbsp;</p>\r\n<div>I don't actually need to keep the formulas since I'm not storing a new xls file after working with it, I'm only interested in reading the data. Is there a way to force all values to be calculated before the read filter is being processed? Or can something like an output filter be applied instead of a read filter so that all required data is available for output? The latter would allow me to discard all data I don&acute;t need just before using e.g. toArray().</div>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-03-10T06:37:13.043-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "418531",
+    "ThreadId": "204451",
+    "Html": "<p>In the Excel file, in each cell with a formula, the old calculated value from latest calculation (if there has been any?) is stored along with the formula.<br> <br> You can retrieve it like this:</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre><span style=\"color:Blue\">echo</span> $objActiveSheet-&gt;getCell(<span style=\"color:#A31515\">'D2'</span>)-&gt;getOldCalculatedValue();\r\n\r\n</pre>\r\n</div>",
+    "PostedDate": "2010-03-15T22:06:41.457-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,86 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel_Writer_HTML",
+      "DisplayName": "PHPExcel_Writer_HTML"
+    },
+    "ClosedComment": "",
+    "ClosedDate": "2009-12-01T06:50:34.88-08:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "From thread:\nhttp://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=74507\n \nTest:\n----\n$file = 'read.xlsx';\n$excel = PHPExcel_IOFactory::load($file);\n \n$writer = PHPExcel_IOFactory::createWriter($excel, 'PDF');\n$writer->save('write.pdf');\n \nExpected result:\n----\nOutput looks like input\n \nActual result:\n----\nDecimal and thousands separators are lost\n \nEnvironment:\n----\nPHPExcel 1.7.1",
+    "LastUpdatedDate": "2013-05-16T05:42:17.657-07:00",
+    "PlannedForRelease": "PHPExcel 1.7.2 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-11-09T21:32:03.31-08:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Decimal and thousands separators missing in HTML and PDF output",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 10913
+  },
+  "FileAttachments": [
+    {
+      "FileId": 3519,
+      "FileName": "read.xlsx",
+      "DownloadUrl": ".\\3519"
+    },
+    {
+      "FileId": 3520,
+      "FileName": "write.pdf",
+      "DownloadUrl": ".\\3520"
+    },
+    {
+      "FileId": 3522,
+      "FileName": "wi-10913.patch",
+      "DownloadUrl": ".\\3522"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "In PHPExcel_Style_NumberFormat::toFormattedString() the decimal and thousands separators are currently obtained from locale\r\n\r\n$localeconv = localeconv();\r\nif (($localeconv['thousands_sep'] == '') || ($localeconv['decimal_point'] == '')) {\r\n\t$value = number_format($value, strlen($right), $localeconv['mon_decimal_point'], $localeconv['mon_thousands_sep']);\r\n} else {\r\n\t$value = number_format($value, strlen($right), $localeconv['decimal_point'], $localeconv['thousands_sep']);\r\n}\r\n\r\nOn my system, for some reason $localeconv['thousands_sep'] is blank which causes the problem.\r\n\r\nvar_dump(localeconv()); gives this\r\n\r\narray\r\n  'decimal_point' => string '.' (length=1)\r\n  'thousands_sep' => string '' (length=0)\r\n  'int_curr_symbol' => string '' (length=0)\r\n  'currency_symbol' => string '' (length=0)\r\n  'mon_decimal_point' => string '' (length=0)\r\n  'mon_thousands_sep' => string '' (length=0)\r\n  'positive_sign' => string '' (length=0)\r\n  'negative_sign' => string '' (length=0)\r\n  'int_frac_digits' => int 127\r\n  'frac_digits' => int 127\r\n  'p_cs_precedes' => int 127\r\n  'p_sep_by_space' => int 127\r\n  'n_cs_precedes' => int 127\r\n  'n_sep_by_space' => int 127\r\n  'p_sign_posn' => int 127\r\n  'n_sign_posn' => int 127\r\n  'grouping' => \r\n    array\r\n      empty\r\n  'mon_grouping' => \r\n    array\r\n      empty\r\n\r\n\r\nHow about if we provide an option to override system decimal and thousands separators via methods:\r\n\r\nPHPExcel_Shared_String::setDecimalSeparator('.');\r\nPHPExcel_Shared_String::setThousandsSeparator(',');\r\n\r\nAffecting only output by PHPExcel_Writer_HTML and PHPExcel_Writer_PDF. This would allow creating more portable scripts.\r\n\r\nSee patch wi-10913.patch",
+      "PostedDate": "2009-11-09T21:51:03.213-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-11-09T21:51:04.22-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Fixing this in SVN\r\n\r\nAdding this to the documentation for PHPExcel_Writer_CSV:\r\n------\r\n\r\nDecimal and thousands separators\r\nIf the worksheet you are exporting contains numbers with decimal or thousands separators then you should think about what characters you want to use for those before doing the export.\r\n\r\nBy default PHPExcel looks up in the server’s locale settings to decide what characters to use. But to avoid problems it is recommended to set the characters explicitly as shown below.\r\n\r\nEnglish users will want to use this before doing the export:\r\n\r\nrequire_once 'PHPExcel/Shared/String.php'\r\nPHPExcel_Shared_String::setDecimalSeparator('.');\r\nPHPExcel_Shared_String::setThousandsSeparator(',');\r\n\r\nGerman users will want to use the opposite values.\r\n\r\nrequire_once 'PHPExcel/Shared/String.php'\r\nPHPExcel_Shared_String::setDecimalSeparator(',');\r\nPHPExcel_Shared_String::setThousandsSeparator('.');\r\n\r\nNote that the above code sets decimal and thousand separators as global options. This also affects how HTML and PDF is exported.\r\n",
+      "PostedDate": "2009-11-11T19:39:35.043-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-12-01T06:50:34.88-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:03:28.703-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:17.657-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

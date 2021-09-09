@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "1310734",
+    "ThreadId": "569114",
+    "Html": "I concluded that getOldCalculatedValue returns already calculated formula if a cell contains a formula, or value if a cell does not contain a formula. My assumption is confirmed by Mark Baker's post (althought this post is from year 2011):<br />\n<pre><code>$value = $objPHPExcel-&gt;setActiveSheetIndex(0)-&gt;getCell('G'.$i)-&gt;getValue();\nWill return the actual formula if the cell contains a formula, or the value if the cell contains a value.\n\n$value = $objPHPExcel-&gt;setActiveSheetIndex(0)-&gt;getCell('G'.$i)-&gt;getCalculatedValue();\nWill return the calculated value if the cell contains a formula, or the value if the cell contains a value.\n\n$value = $objPHPExcel-&gt;setActiveSheetIndex(0)-&gt;getCell('G'.$i)-&gt;getOldCalculatedValue();\nWill return the previous result of a calculation if the cell contains a formula, or the value if the cell contains a value.\n</code></pre>\n\nWhole post on url: <a href=\"http://phpexcel.codeplex.com/discussions/245384\" rel=\"nofollow\">http://phpexcel.codeplex.com/discussions/245384</a><br />\n<br />\nI created xlsx (Excel 2007) with one cell A1. A1's content is string 'foo'. When I call <br />\n<pre><code>$reader = new PHPExcel_Reader_Excel2007();\n$excel = $reader-&gt;load(Input::file(&quot;pricelist&quot;)-&gt;getRealPath());\n$worksheet = $excel-&gt;setActiveSheetIndex(0);\nvar_dump($worksheet-&gt;getCell('A1')-&gt;getOldCalculatedValue());\n</code></pre>\n\nit prints NULL. If I change function to getCalculatedValue() or getValue() it works ok. I'm using PHPExcel 1.8.0.<br />\n<br />\nBtw which place is more appropriate for asking questions, this forum or stackoverflow? I see some people ask questions a lot on stackoverflow.<br />\n",
+    "PostedDate": "2014-10-06T05:20:21.103-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1311515",
+    "ThreadId": "569114",
+    "Html": "Moved question to stackoverflow: <a href=\"http://stackoverflow.com/questions/26256356/phpexcel-getoldcalculatedvalue-returns-null\" rel=\"nofollow\">http://stackoverflow.com/questions/26256356/phpexcel-getoldcalculatedvalue-returns-null</a><br />\n",
+    "PostedDate": "2014-10-08T04:57:28.097-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1311535",
+    "ThreadId": "569114",
+    "Html": "It isn't strictly true, there are several reasons why getOldCalculatedValue() may return a NULL, even for a cell that contains a formula.<br />\n<br />\nThe main reasons are:<br />\n<ul>\n<li>Not all spreadsheet formats support maintaining the last calculated value</li>\n<li>Even for formats that do support maintaining the last calculated value, the application that created the file may not have written the value to the file</li>\n<li>\nAutomatic calculation may have been disabled in Excel (assuming that Excel was used to create the file<br />\n</li>\n</ul>\nThe last may be even more of an issue if automatic calculation was disabled at some point after the formula was entered, but there have been subsequent data changes which affect the formula, because they won't be reflected in the old calculated value<br />\n<br />\nThe most appropriate place is actually on github, or here.... while I am normally on StackOverflow during the day so I may react more quickly to questions posted there, but it shouldn't be a preferred choice for asking questions on PHPExcel<br />\n",
+    "PostedDate": "2014-10-08T05:50:58.76-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

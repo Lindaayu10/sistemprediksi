@@ -1,0 +1,39 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "Duplicate of Work Item 15029 &#40; http&#58;&#47;&#47;phpexcel.codeplex.com&#47;workitem&#47;15029 &#41;, coordinateFromString throws exception for rows greater than 99,999 Already fixed in SVN",
+    "ClosedDate": "2011-02-22T13:18:36.86-08:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "In Cell.php, lines 492-494 shown below, the current file has an incorrect cell coordinate validator RegEx that causes an exception \"Invalid Cell Coordinate\".  The current code is shown below:\n-----------------------------------------------\n\tpublic static function coordinateFromString($pCoordinateString = 'A1')\n\t{\n\t\tif (preg_match(\"/^([$]?[A-Z]{1,3})([$]?\\d{1,5})$/\", $pCoordinateString, $matches)) {\n                ...\n-----------------------------------------------\n \nOn line 494, I think that the \"row digit\" portion of the RegEx needs to be changed to \\d{1,7} so that rows of up to seven digits are supported (1048576 is the last row).\n \nThis was causing an exception to be thrown when executing the following code:\n \n$excel_sheet->getStyle('A')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);\n \nFor whatever reason, the getStyle method ends up using coordinateFromString() whereas the getColumnDimension() method does not.\n \nMaking the single change given above enabled my code to successfully execute and create a working XLSX with the entire column aligned as desired.",
+    "LastUpdatedDate": "2013-05-16T05:41:45.963-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2011-02-22T12:28:25.953-08:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Cell.php v1.7.5 - bad cell coordinate validator",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 15398
+  },
+  "FileAttachments": [],
+  "Comments": []
+}

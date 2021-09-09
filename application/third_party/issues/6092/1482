@@ -1,0 +1,3528 @@
+Index: Reader/Excel5.php
+===================================================================
+--- Reader/Excel5.php	(revision 8907)
++++ Reader/Excel5.php	(working copy)
+@@ -67,52 +67,6 @@
+ require_once 'PHPExcel/Shared/OLERead.php';
+ 
+ 
+-// ParseXL definitions
+-define('XLS_BIFF8', 0x600);
+-define('XLS_BIFF7', 0x500);
+-define('XLS_WorkbookGlobals', 0x5);
+-define('XLS_Worksheet', 0x10);
+-
+-define('XLS_Type_BOF', 0x809);
+-define('XLS_Type_EOF', 0x0a);
+-define('XLS_Type_BOUNDSHEET', 0x85);
+-define('XLS_Type_DIMENSION', 0x200);
+-define('XLS_Type_ROW', 0x208);
+-define('XLS_Type_DBCELL', 0xd7);
+-define('XLS_Type_FILEPASS', 0x2f);
+-define('XLS_Type_NOTE', 0x1c);
+-define('XLS_Type_TXO', 0x1b6);
+-define('XLS_Type_RK', 0x7e);
+-define('XLS_Type_RK2', 0x27e);
+-define('XLS_Type_MULRK', 0xbd);
+-define('XLS_Type_MULBLANK', 0xbe);
+-define('XLS_Type_INDEX', 0x20b);
+-define('XLS_Type_SST', 0xfc);
+-define('XLS_Type_EXTSST', 0xff);
+-define('XLS_Type_CONTINUE', 0x3c);
+-define('XLS_Type_LABEL', 0x204);
+-define('XLS_Type_LABELSST', 0xfd);
+-define('XLS_Type_NUMBER', 0x203);
+-define('XLS_Type_EXTSHEET', 0x17);
+-define('XLS_Type_NAME', 0x18);
+-define('XLS_Type_ARRAY', 0x221);
+-define('XLS_Type_STRING', 0x207);
+-define('XLS_Type_FORMULA', 0x406);
+-define('XLS_Type_FORMULA2', 0x6);
+-define('XLS_Type_FORMAT', 0x41e);
+-define('XLS_Type_XF', 0xe0);
+-define('XLS_Type_BOOLERR', 0x205);
+-define('XLS_Type_UNKNOWN', 0xffff);
+-define('XLS_Type_NINETEENFOUR', 0x22);
+-define('XLS_Type_MERGEDCELLS', 0xe5);
+-define('XLS_Type_CODEPAGE',0x42);
+-
+-define('XLS_utcOffsetDays' , 25569);
+-define('XLS_utcOffsetDays1904', 24107);
+-define('XLS_SecInADay', 24 * 60 * 60);
+-
+-define('XLS_DEF_NUM_FORMAT', "%s");
+-
+ /**
+  * PHPExcel_Reader_Excel5
+  *
+@@ -124,25 +78,25 @@
+  */
+ class PHPExcel_Reader_Excel5 implements PHPExcel_Reader_IReader
+ {
+-	var $_boundsheets = array();
+-	var $_formatRecords = array();
+-	var $_sst = array();
+-	var $_sheets = array();
++	private $_boundsheets = array();
++	private $_formatRecords = array();
++	private $_sst = array();
++	private $_sheets = array();
+ 	// dvc: added list of names and their sheet associated indexes
+-	var $_namedcells = array();
+-	var $_data;
+-	var $_pos;
+-	var $_ole;
+-	var $_defaultEncoding;
+-	var $_codepage;
+-	var $_defaultFormat = XLS_DEF_NUM_FORMAT;
+-	var $_columnsFormat = array();
+-	var $_rowoffset = 1;
+-	var $_coloffset = 1;
++	private $_namedcells = array();
++	private $_data;
++	private $_pos;
++	private $_ole;
++	private $_defaultEncoding;
++	private $_codepage;
++	private $_defaultFormat = "%s";
++	private $_columnsFormat = array();
++	private $_rowoffset = 1;
++	private $_coloffset = 1;
+ 	// dvc: added for external sheets references
+-	var $_extshref = array();
++	private $_extshref = array();
+ 
+-	var $_dateFormats = array (
++	private $_dateFormats = array (
+ 		// dvc: fixed known date formats
+ 		0xe => 'd/m/Y',
+ 		0xf => 'd-M-y',
+@@ -159,13 +113,13 @@
+ 	);
+ 
+ 	// dvc: separated percent formats
+-	var $_percentFormats = array(
++	private $_percentFormats = array(
+ 		0x9 => '%1.0f%%',
+ 		0xa => '%1.2f%%'
+ 	);
+ 
+ 	// dvc: removed exponentials to format as default strings.
+-	var $_numberFormats = array(
++	private $_numberFormats = array(
+ 		0x1 => '%1.0f',
+ 		0x2 => '%1.2f',
+ 		0x3 => '%1.0f',
+@@ -184,6 +138,50 @@
+ 		0x2c => '$%1.2f'
+ 	);
+ 
++	// ParseXL definitions
++	const XLS_BIFF8 = 0x600;
++	const XLS_BIFF7 = 0x500;
++	const XLS_WorkbookGlobals = 0x5;
++	const XLS_Worksheet = 0x10;
++
++	const XLS_Type_BOF = 0x809;
++	const XLS_Type_EOF = 0x0a;
++	const XLS_Type_BOUNDSHEET = 0x85;
++	const XLS_Type_DIMENSION = 0x200;
++	const XLS_Type_ROW = 0x208;
++	const XLS_Type_DBCELL = 0xd7;
++	const XLS_Type_FILEPASS = 0x2f;
++	const XLS_Type_NOTE = 0x1c;
++	const XLS_Type_TXO = 0x1b6;
++	const XLS_Type_RK = 0x7e;
++	const XLS_Type_RK2 = 0x27e;
++	const XLS_Type_MULRK = 0xbd;
++	const XLS_Type_MULBLANK = 0xbe;
++	const XLS_Type_INDEX = 0x20b;
++	const XLS_Type_SST = 0xfc;
++	const XLS_Type_EXTSST = 0xff;
++	const XLS_Type_CONTINUE = 0x3c;
++	const XLS_Type_LABEL = 0x204;
++	const XLS_Type_LABELSST = 0xfd;
++	const XLS_Type_NUMBER = 0x203;
++	const XLS_Type_EXTSHEET = 0x17;
++	const XLS_Type_NAME = 0x18;
++	const XLS_Type_ARRAY = 0x221;
++	const XLS_Type_STRING = 0x207;
++	const XLS_Type_FORMULA = 0x406;
++	const XLS_Type_FORMULA2 = 0x6;
++	const XLS_Type_FORMAT = 0x41e;
++	const XLS_Type_XF = 0xe0;
++	const XLS_Type_BOOLERR = 0x205;
++	const XLS_Type_UNKNOWN = 0xffff;
++	const XLS_Type_NINETEENFOUR = 0x22;
++	const XLS_Type_MERGEDCELLS = 0xe5;
++	const XLS_Type_CODEPAGE = 0x42;
++
++	const XLS_utcOffsetDays = 25569;
++	const XLS_utcOffsetDays1904 = 24107;
++	const XLS_SecInADay = 86400; # 24 * 60 * 60 = 86400
++
+ 	/**
+ 	 * Loads PHPExcel from file
+ 	 *
+@@ -202,7 +200,7 @@
+ 		$excel->removeSheetByIndex(0);
+ 
+ 		// Use ParseXL for the hard work.
+-		$this->_ole =& new PHPExcel_Shared_OLERead();
++		$this->_ole = new PHPExcel_Shared_OLERead();
+ 
+ 		$this->_rowoffset = $this->_coloffset = 0;
+ 		$this->_defaultEncoding = 'ISO-8859-1';
+@@ -213,7 +211,7 @@
+ 		$this->_read($pFilename);
+ 
+ 		foreach($this->_boundsheets as $index => $details) {
+-			$sheet = &$excel->createSheet();
++			$sheet = $excel->createSheet();
+ 			$sheet->setTitle((string) $details['name']);
+ 
+ 			// read all the columns of all the rows !
+@@ -221,10 +219,17 @@
+ 			$numcols = $this->_sheets[$index]['numCols'];
+ 			for ($row = 0; $row < $numrows; $row++) {
+ 				for ($col = 0; $col < $numcols; $col++) {
+-					@$cellcontent = $this->_sheets[$index]['cells'][$row][$col];
+-					@$cellinfo = $this->_sheets[$index]['cellsInfo'][$row][$col];
+-					if(is_null($cellcontent)) continue;
+-
++					$cellcontent = $cellinfo = null;
++					if (isset($this->_sheets[$index]['cells'][$row][$col])===true) {
++						$cellcontent = $this->_sheets[$index]['cells'][$row][$col];
++					} else {
++						continue;
++					}
++					
++					if (isset($this->_sheets[$index]['cellsInfo'][$row][$col])===true) {
++						$cellinfo = $this->_sheets[$index]['cellsInfo'][$row][$col];
++					}
++					
+ 					$sheet->setCellValueByColumnAndRow($col, $row + 1,
+ 						$cellcontent);
+ 				}
+@@ -275,19 +280,19 @@
+ 		$substreamType = ord($this->_data[$pos + 6]) | ord($this->_data[$pos + 7]) << 8;
+ 
+ 
+-		if (($version != XLS_BIFF8) && ($version != XLS_BIFF7)) {
++		if (($version != self::XLS_BIFF8) && ($version != self::XLS_BIFF7)) {
+ 			return false;
+ 		}
+-		if ($substreamType != XLS_WorkbookGlobals){
++		if ($substreamType != self::XLS_WorkbookGlobals){
+ 			return false;
+ 		}
+ 		$pos += $length + 4;
+ 		$code = ord($this->_data[$pos]) | ord($this->_data[$pos + 1]) << 8;
+ 
+ 		$length = ord($this->_data[$pos + 2]) | ord($this->_data[$pos + 3]) << 8;
+-		while ($code != XLS_Type_EOF){
++		while ($code != self::XLS_Type_EOF){
+ 			switch ($code) {
+-				case XLS_Type_SST:
++				case self::XLS_Type_SST:
+ 					/**
+ 					 * SST - Shared String Table
+ 					 *
+@@ -390,7 +395,7 @@
+ 						//	$retstr : $this->_encodeUTF16($retstr);
+ 						// convert string according codepage and BIFF version
+ 
+-						if($version == XLS_BIFF8) {
++						if($version == self::XLS_BIFF8) {
+ 							$retstr = $this->_encodeUTF16($retstr, $asciiEncoding);
+ 
+ 						} else {
+@@ -408,7 +413,7 @@
+ 					}
+ 					break;
+ 
+-				case XLS_Type_FILEPASS:
++				case self::XLS_Type_FILEPASS:
+ 					/**
+ 					 * SHEETPROTECTION
+ 					 *
+@@ -423,9 +428,9 @@
+ 					return false;
+ 					break;
+ 
+-				case XLS_Type_EXTSHEET:
++				case self::XLS_Type_EXTSHEET:
+ 					// external sheet references provided for named cells
+-					if ($version == XLS_BIFF8) {
++					if ($version == self::XLS_BIFF8) {
+ 						$xpos = $pos + 4;
+ 						$xcnt = ord($this->_data[$xpos]) | ord($this->_data[$xpos + 1]) << 8;
+ 						for ($x = 0; $x < $xcnt; $x++) {
+@@ -436,7 +441,7 @@
+ 					//print_r($this->_extshref);
+ 					break;
+ 
+-				case XLS_Type_NAME:
++				case self::XLS_Type_NAME:
+ 					/**
+ 					 * DEFINEDNAME
+ 					 *
+@@ -473,7 +478,7 @@
+ 					}
+ 					break;
+ 
+-				case XLS_Type_FORMAT:
++				case self::XLS_Type_FORMAT:
+ 					/**
+ 					 * FORMAT
+ 					 *
+@@ -489,7 +494,7 @@
+ 					 * 		Excel File Format"
+ 					 */
+ 					$indexCode = ord($this->_data[$pos + 4]) | ord($this->_data[$pos + 5]) << 8;
+-					if ($version == XLS_BIFF8) {
++					if ($version == self::XLS_BIFF8) {
+ 						$numchars = ord($this->_data[$pos + 6]) | ord($this->_data[$pos + 7]) << 8;
+ 						if (ord($this->_data[$pos + 8]) == 0){
+ 							$formatString = substr($this->_data, $pos + 9, $numchars);
+@@ -504,9 +509,9 @@
+ 
+ 					break;
+ 
+-				case XLS_Type_XF:
++				case self::XLS_Type_XF:
+ 					/**
+-					 * XF – Extended Format
++					 * XF - Extended Format
+ 					 *
+ 					 * This record contains formatting information for cells,
+ 					 * rows, columns or styles.
+@@ -630,7 +635,7 @@
+ 					}
+ 					break;
+ 
+-				case XLS_Type_NINETEENFOUR:
++				case self::XLS_Type_NINETEENFOUR:
+ 					/**
+ 					 * DATEMODE
+ 					 *
+@@ -646,7 +651,7 @@
+ 					$this->_nineteenFour = (ord($this->_data[$pos + 4]) == 1);
+ 					break;
+ 
+-				case XLS_Type_BOUNDSHEET:
++				case self::XLS_Type_BOUNDSHEET:
+ 					/**
+ 					 * SHEET
+ 					 *
+@@ -666,11 +671,11 @@
+ 
+ 
+ 
+-					if ($version == XLS_BIFF8) {
++					if ($version == self::XLS_BIFF8) {
+ 						$compressedUTF16 = ((ord($this->_data[$pos + 11]) & 0x01) == 0);
+ 						$rec_length = ($compressedUTF16) ? $rec_length : $rec_length*2;
+ 						$rec_name = $this->_encodeUTF16(substr($this->_data, $pos + 12, $rec_length), $compressedUTF16);
+-					} elseif ($version == XLS_BIFF7) {
++					} elseif ($version == self::XLS_BIFF7) {
+ 						$rec_name		= substr($this->_data, $pos + 11, $rec_length);
+ 					}
+ 					$this->_boundsheets[] = array(
+@@ -679,7 +684,7 @@
+ 					);
+ 					break;
+ 
+-				case XLS_Type_CODEPAGE:
++				case self::XLS_Type_CODEPAGE:
+ 					/**
+ 					 * CODEPAGE
+ 					 *
+@@ -831,17 +836,17 @@
+ 		$version = ord($this->_data[$spos + 4]) | ord($this->_data[$spos + 5]) << 8;
+ 		$substreamType = ord($this->_data[$spos + 6]) | ord($this->_data[$spos + 7]) << 8;
+ 
+-		if (($version != XLS_BIFF8) && ($version != XLS_BIFF7)) {
++		if (($version != self::XLS_BIFF8) && ($version != self::XLS_BIFF7)) {
+ 			return -1;
+ 		}
+-		if ($substreamType != XLS_Worksheet) {
++		if ($substreamType != self::XLS_Worksheet) {
+ 			return -2;
+ 		}
+ 
+ 		$spos += $length + 4;
+ 		while($cont) {
+ 			$lowcode = ord($this->_data[$spos]);
+-			if ($lowcode == XLS_Type_EOF) {
++			if ($lowcode == self::XLS_Type_EOF) {
+ 				break;
+ 			}
+ 
+@@ -856,7 +861,7 @@
+ 			$this->_multiplier = 1; // need for format with %
+ 
+ 			switch ($code) {
+-				case XLS_Type_DIMENSION:
++				case self::XLS_Type_DIMENSION:
+ 					/**
+ 					 * DIMENSION
+ 					 *
+@@ -867,7 +872,7 @@
+ 					 * 		Excel File Format"
+ 					 */
+ 					if (!isset($this->_numRows)) {
+-						if (($length == 10) ||	($version == XLS_BIFF7)){
++						if (($length == 10) ||	($version == self::XLS_BIFF7)){
+ 							$this->_sheets[$this->_sn]['numRows'] = ord($this->_data[$spos + 2]) | ord($this->_data[$spos + 3]) << 8;
+ 							$this->_sheets[$this->_sn]['numCols'] = ord($this->_data[$spos + 6]) | ord($this->_data[$spos + 7]) << 8;
+ 						} else {
+@@ -877,7 +882,7 @@
+ 					}
+ 					break;
+ 
+-				case XLS_Type_MERGEDCELLS:
++				case self::XLS_Type_MERGEDCELLS:
+ 					/**
+ 					 * MERGEDCELLS
+ 					 *
+@@ -904,8 +909,8 @@
+ 					}
+ 					break;
+ 
+-				case XLS_Type_RK:
+-				case XLS_Type_RK2:
++				case self::XLS_Type_RK:
++				case self::XLS_Type_RK2:
+ 					/**
+ 					 * RK
+ 					 *
+@@ -935,7 +940,7 @@
+ 					$this->_addcell($row, $column, $string, $raw);
+ 					break;
+ 
+-				case XLS_Type_LABELSST:
++				case self::XLS_Type_LABELSST:
+ 					/**
+ 					 * LABELSST
+ 					 *
+@@ -953,9 +958,9 @@
+ 					$this->_addcell($row, $column, $this->_sst[$index]);
+ 					break;
+ 
+-				case XLS_Type_MULRK:
++				case self::XLS_Type_MULRK:
+ 					/**
+-					 * MULRK – Multiple RK
++					 * MULRK - Multiple RK
+ 					 *
+ 					 * This record represents a cell range containing RK value
+ 					 * cells. All cells are located in the same row.
+@@ -986,7 +991,7 @@
+ 					}
+ 					break;
+ 
+-				case XLS_Type_NUMBER:
++				case self::XLS_Type_NUMBER:
+ 					/**
+ 					 * NUMBER
+ 					 *
+@@ -1012,8 +1017,8 @@
+ 					$this->_addcell($row, $column, $string, $raw);
+ 					break;
+ 
+-				case XLS_Type_FORMULA:
+-				case XLS_Type_FORMULA2:
++				case self::XLS_Type_FORMULA:
++				case self::XLS_Type_FORMULA2:
+ 					/**
+ 					 * FORMULA
+ 					 *
+@@ -1036,7 +1041,7 @@
+ 						$scode = ord($this->_data[$soff]) | ord($this->_data[$soff + 1])<<8;
+ 						$sopt = ord($this->_data[$soff + 6]);
+ 						// only reads byte strings...
+-						if ($scode == XLS_Type_STRING && $sopt == '0') {
++						if ($scode == self::XLS_Type_STRING && $sopt == '0') {
+ 							$slen = ord($this->_data[$soff + 4]) | ord($this->_data[$soff + 5]) << 8;
+ 							$string = substr($this->_data, $soff + 7, ord($this->_data[$soff + 4]) | ord($this->_data[$soff + 5]) << 8);
+ 						} else {
+@@ -1097,7 +1102,7 @@
+ 					$this->_addcell($row, $column, $string, $raw);
+ 					break;
+ 
+-				case XLS_Type_BOOLERR:
++				case self::XLS_Type_BOOLERR:
+ 					/**
+ 					 * BOOLERR
+ 					 *
+@@ -1113,7 +1118,7 @@
+ 					$this->_addcell($row, $column, $string);
+ 					break;
+ 
+-				case XLS_Type_ROW:
++				case self::XLS_Type_ROW:
+ 					/**
+ 					 * ROW
+ 					 *
+@@ -1124,7 +1129,7 @@
+ 					 * --	"OpenOffice.org's Documentation of the Microsoft
+ 					 * 		Excel File Format"
+ 					 */
+-				case XLS_Type_DBCELL:
++				case self::XLS_Type_DBCELL:
+ 					/**
+ 					 * DBCELL
+ 					 *
+@@ -1137,9 +1142,9 @@
+ 					 * --	"OpenOffice.org's Documentation of the Microsoft
+ 					 * 		Excel File Format"
+ 					 */
+-				case XLS_Type_MULBLANK:
++				case self::XLS_Type_MULBLANK:
+ 					/**
+-					 * MULBLANK – Multiple BLANK
++					 * MULBLANK - Multiple BLANK
+ 					 *
+ 					 * This record represents a cell range of empty cells. All
+ 					 * cells are located in the same row
+@@ -1149,7 +1154,7 @@
+ 					 */
+ 					break;
+ 
+-				case XLS_Type_LABEL:
++				case self::XLS_Type_LABEL:
+ 					/**
+ 					 * LABEL
+ 					 *
+@@ -1167,7 +1172,7 @@
+ 						ord($this->_data[$spos + 6]) | ord($this->_data[$spos + 7]) << 8));
+ 					break;
+ 
+-				case XLS_Type_EOF:
++				case self::XLS_Type_EOF:
+ 					$cont = false;
+ 					break;
+ 
+@@ -1211,8 +1216,8 @@
+ 	private function _createDate($numValue)
+ 	{
+ 		if ($numValue > 1){
+-			$utcDays = $numValue - ($this->_nineteenFour ? XLS_utcOffsetDays1904 : XLS_utcOffsetDays);
+-			$utcValue = round(($utcDays * XLS_SecInADay));
++			$utcDays = $numValue - ($this->_nineteenFour ? self::XLS_utcOffsetDays1904 : self::XLS_utcOffsetDays);
++			$utcValue = round(($utcDays * self::XLS_SecInADay));
+ 			// dvc: excel returns local date/time as absolutes,
+ 			// i.e. 1 hr = 0.04166, 1 day = 1,
+ 			// so need to treat as GMT to translate
+@@ -1223,7 +1228,7 @@
+ 			$raw = $numValue;
+ 			$hours = round($numValue * 24);
+ 			$mins = round($numValue * 24*60) - $hours * 60;
+-			$secs = round($numValue * XLS_SecInADay) - $hours *60*60 - $mins * 60;
++			$secs = round($numValue * self::XLS_SecInADay) - $hours *60*60 - $mins * 60;
+ 			$string = date ($this->_curformat, mktime($hours, $mins, $secs));
+ 		}
+ 		return array($string, $raw);
+Index: Shared/OLE.php
+===================================================================
+--- Shared/OLE.php	(revision 8907)
++++ Shared/OLE.php	(working copy)
+@@ -42,506 +42,506 @@
+ */
+ class PHPExcel_Shared_OLE
+ {
+-    const OLE_PPS_TYPE_ROOT   =      5;
+-    const OLE_PPS_TYPE_DIR    =      1;
+-    const OLE_PPS_TYPE_FILE   =      2;
+-    const OLE_DATA_SIZE_SMALL = 0x1000;
+-    const OLE_LONG_INT_SIZE   =      4;
+-    const OLE_PPS_SIZE        =   0x80;
++	const OLE_PPS_TYPE_ROOT   =      5;
++	const OLE_PPS_TYPE_DIR    =      1;
++	const OLE_PPS_TYPE_FILE   =      2;
++	const OLE_DATA_SIZE_SMALL = 0x1000;
++	const OLE_LONG_INT_SIZE   =      4;
++	const OLE_PPS_SIZE        =   0x80;
+ 
+-    /**
+-    * The file handle for reading an OLE container
+-    * @var resource
+-    */
+-    var $_file_handle;
++	/**
++	 * The file handle for reading an OLE container
++	 * @var resource
++	*/
++	private $_file_handle;
+ 
+-    /**
+-    * Array of PPS's found on the OLE container
+-    * @var array
+-    */
+-    var $_list = array();
++	/**
++	* Array of PPS's found on the OLE container
++	* @var array
++	*/
++	private $_list = array();
+ 
+-    /**
+-    * Root directory of OLE container
+-    * @var OLE_PPS_Root
+-    */
+-    var $root;
++	/**
++	 * Root directory of OLE container
++	 * @var OLE_PPS_Root
++	*/
++	private $root;
+ 
+-    /**
+-    * Big Block Allocation Table
+-    * @var array  (blockId => nextBlockId)
+-    */
+-    var $bbat;
++	/**
++	 * Big Block Allocation Table
++	 * @var array  (blockId => nextBlockId)
++	*/
++	private $bbat;
+ 
+-    /**
+-    * Short Block Allocation Table
+-    * @var array  (blockId => nextBlockId)
+-    */
+-    var $sbat;
++	/**
++	 * Short Block Allocation Table
++	 * @var array  (blockId => nextBlockId)
++	*/
++	private $sbat;
+ 
+-    /**
+-    * Size of big blocks. This is usually 512.
+-    * @var  int  number of octets per block.
+-    */
+-    var $bigBlockSize;
++	/**
++	 * Size of big blocks. This is usually 512.
++	 * @var  int  number of octets per block.
++	*/
++	private $bigBlockSize;
+ 
+-    /**
+-    * Size of small blocks. This is usually 64.
+-    * @var  int  number of octets per block
+-    */
+-    var $smallBlockSize;
++	/**
++	 * Size of small blocks. This is usually 64.
++	 * @var  int  number of octets per block
++	*/
++	private $smallBlockSize;
+ 
+-    /**
+-    * Reads an OLE container from the contents of the file given.
+-    *
+-    * @acces public
+-    * @param string $file
+-    * @return mixed true on success, PEAR_Error on failure
+-    */
+-    function read($file)
+-    {
+-        $fh = @fopen($file, "r");
+-        if (!$fh) {
+-            throw new Exception("Can't open file $file");
+-        }
+-        $this->_file_handle = $fh;
++	/**
++	 * Reads an OLE container from the contents of the file given.
++	 *
++	 * @acces public
++	 * @param string $file
++	 * @return mixed true on success, PEAR_Error on failure
++	*/
++	public function read($file)
++	{
++		$fh = fopen($file, "r");
++		if (!$fh) {
++			throw new Exception("Can't open file $file");
++		}
++		$this->_file_handle = $fh;
+ 
+-        $signature = fread($fh, 8);
+-        if ("\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1" != $signature) {
+-            throw new Exception("File doesn't seem to be an OLE container.");
+-        }
+-        fseek($fh, 28);
+-        if (fread($fh, 2) != "\xFE\xFF") {
+-            // This shouldn't be a problem in practice
+-            throw new Exception("Only Little-Endian encoding is supported.");
+-        }
+-        // Size of blocks and short blocks in bytes
+-        $this->bigBlockSize = pow(2, $this->_readInt2($fh));
+-        $this->smallBlockSize  = pow(2, $this->_readInt2($fh));
++		$signature = fread($fh, 8);
++		if ("\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1" != $signature) {
++			throw new Exception("File doesn't seem to be an OLE container.");
++		}
++		fseek($fh, 28);
++		if (fread($fh, 2) != "\xFE\xFF") {
++			// This shouldn't be a problem in practice
++			throw new Exception("Only Little-Endian encoding is supported.");
++		}
++		// Size of blocks and short blocks in bytes
++		$this->bigBlockSize = pow(2, $this->_readInt2($fh));
++		$this->smallBlockSize  = pow(2, $this->_readInt2($fh));
+ 
+-        // Skip UID, revision number and version number
+-        fseek($fh, 44);
+-        // Number of blocks in Big Block Allocation Table
+-        $bbatBlockCount = $this->_readInt4($fh);
++		// Skip UID, revision number and version number
++		fseek($fh, 44);
++		// Number of blocks in Big Block Allocation Table
++		$bbatBlockCount = $this->_readInt4($fh);
+ 
+-        // Root chain 1st block
+-        $directoryFirstBlockId = $this->_readInt4($fh);
++		// Root chain 1st block
++		$directoryFirstBlockId = $this->_readInt4($fh);
+ 
+-        // Skip unused bytes
+-        fseek($fh, 56);
+-        // Streams shorter than this are stored using small blocks
+-        $this->bigBlockThreshold = $this->_readInt4($fh);
+-        // Block id of first sector in Short Block Allocation Table
+-        $sbatFirstBlockId = $this->_readInt4($fh);
+-        // Number of blocks in Short Block Allocation Table
+-        $sbbatBlockCount = $this->_readInt4($fh);
+-        // Block id of first sector in Master Block Allocation Table
+-        $mbatFirstBlockId = $this->_readInt4($fh);
+-        // Number of blocks in Master Block Allocation Table
+-        $mbbatBlockCount = $this->_readInt4($fh);
+-        $this->bbat = array();
++		// Skip unused bytes
++		fseek($fh, 56);
++		// Streams shorter than this are stored using small blocks
++		$this->bigBlockThreshold = $this->_readInt4($fh);
++		// Block id of first sector in Short Block Allocation Table
++		$sbatFirstBlockId = $this->_readInt4($fh);
++		// Number of blocks in Short Block Allocation Table
++		$sbbatBlockCount = $this->_readInt4($fh);
++		// Block id of first sector in Master Block Allocation Table
++		$mbatFirstBlockId = $this->_readInt4($fh);
++		// Number of blocks in Master Block Allocation Table
++		$mbbatBlockCount = $this->_readInt4($fh);
++		$this->bbat = array();
+ 
+-        // Remaining 4 * 109 bytes of current block is beginning of Master
+-        // Block Allocation Table
+-        $mbatBlocks = array();
+-        for ($i = 0; $i < 109; $i++) {
+-            $mbatBlocks[] = $this->_readInt4($fh);
+-        }
++		// Remaining 4 * 109 bytes of current block is beginning of Master
++		// Block Allocation Table
++		$mbatBlocks = array();
++		for ($i = 0; $i < 109; $i++) {
++			$mbatBlocks[] = $this->_readInt4($fh);
++		}
+ 
+-        // Read rest of Master Block Allocation Table (if any is left)
+-        $pos = $this->_getBlockOffset($mbatFirstBlockId);
+-        for ($i = 0; $i < $mbbatBlockCount; $i++) {
+-            fseek($fh, $pos);
+-            for ($j = 0; $j < $this->bigBlockSize / 4 - 1; $j++) {
+-                $mbatBlocks[] = $this->_readInt4($fh);
+-            }
+-            // Last block id in each block points to next block
+-            $pos = $this->_getBlockOffset($this->_readInt4($fh));
+-        }
++		// Read rest of Master Block Allocation Table (if any is left)
++		$pos = $this->_getBlockOffset($mbatFirstBlockId);
++		for ($i = 0; $i < $mbbatBlockCount; $i++) {
++			fseek($fh, $pos);
++			for ($j = 0; $j < $this->bigBlockSize / 4 - 1; $j++) {
++				$mbatBlocks[] = $this->_readInt4($fh);
++			}
++			// Last block id in each block points to next block
++			$pos = $this->_getBlockOffset($this->_readInt4($fh));
++		}
+ 
+-        // Read Big Block Allocation Table according to chain specified by
+-        // $mbatBlocks
+-        for ($i = 0; $i < $bbatBlockCount; $i++) {
+-            $pos = $this->_getBlockOffset($mbatBlocks[$i]);
+-            fseek($fh, $pos);
+-            for ($j = 0 ; $j < $this->bigBlockSize / 4; $j++) {
+-                $this->bbat[] = $this->_readInt4($fh);
+-            }
+-        }
++		// Read Big Block Allocation Table according to chain specified by
++		// $mbatBlocks
++		for ($i = 0; $i < $bbatBlockCount; $i++) {
++			$pos = $this->_getBlockOffset($mbatBlocks[$i]);
++			fseek($fh, $pos);
++			for ($j = 0 ; $j < $this->bigBlockSize / 4; $j++) {
++				$this->bbat[] = $this->_readInt4($fh);
++			}
++		}
+ 
+-        // Read short block allocation table (SBAT)
+-        $this->sbat = array();
+-        $shortBlockCount = $sbbatBlockCount * $this->bigBlockSize / 4;
+-        $sbatFh = $this->getStream($sbatFirstBlockId);
+-        for ($blockId = 0; $blockId < $shortBlockCount; $blockId++) {
+-            $this->sbat[$blockId] = $this->_readInt4($sbatFh);
+-        }
+-        fclose($sbatFh);
++		// Read short block allocation table (SBAT)
++		$this->sbat = array();
++		$shortBlockCount = $sbbatBlockCount * $this->bigBlockSize / 4;
++		$sbatFh = $this->getStream($sbatFirstBlockId);
++		for ($blockId = 0; $blockId < $shortBlockCount; $blockId++) {
++			$this->sbat[$blockId] = $this->_readInt4($sbatFh);
++		}
++		fclose($sbatFh);
+ 
+-        $this->_readPpsWks($directoryFirstBlockId);
++		$this->_readPpsWks($directoryFirstBlockId);
+ 
+-        return true;
+-    }
++		return true;
++	}
+ 
+-    /**
+-     * @param  int  block id
+-     * @param  int  byte offset from beginning of file
+-     * @access private
+-     */
+-    function _getBlockOffset($blockId)
+-    {
+-        return 512 + $blockId * $this->bigBlockSize;
+-    }
++	/**
++	 * @param  int  block id
++	 * @param  int  byte offset from beginning of file
++	 * @access private
++	 */
++	private function _getBlockOffset($blockId)
++	{
++		return 512 + $blockId * $this->bigBlockSize;
++	}
+ 
+-    /**
+-     * Returns a stream for use with fread() etc. External callers should
+-     * use PHPExcel_Shared_OLE_PPS_File::getStream().
+-     * @param   int|PPS   block id or PPS
+-     * @return  resource  read-only stream
+-     */
+-    function getStream($blockIdOrPps)
+-    {
+-        static $isRegistered = false;
+-        if (!$isRegistered) {
+-            stream_wrapper_register('ole-chainedblockstream',
+-                                    'PHPExcel_Shared_OLE_ChainedBlockStream');
+-            $isRegistered = true;
+-        }
++	/**
++	* Returns a stream for use with fread() etc. External callers should
++	* use PHPExcel_Shared_OLE_PPS_File::getStream().
++	* @param   int|PPS   block id or PPS
++	* @return  resource  read-only stream
++	*/
++	public function getStream($blockIdOrPps)
++	{
++		static $isRegistered = false;
++		if (!$isRegistered) {
++			stream_wrapper_register('ole-chainedblockstream',
++				'PHPExcel_Shared_OLE_ChainedBlockStream');
++			$isRegistered = true;
++		}
+ 
+-        // Store current instance in global array, so that it can be accessed
+-        // in OLE_ChainedBlockStream::stream_open().
+-        // Object is removed from self::$instances in OLE_Stream::close().
+-        $GLOBALS['_OLE_INSTANCES'][] = $this;
+-        $instanceId = end(array_keys($GLOBALS['_OLE_INSTANCES']));
++		// Store current instance in global array, so that it can be accessed
++		// in OLE_ChainedBlockStream::stream_open().
++		// Object is removed from self::$instances in OLE_Stream::close().
++		$GLOBALS['_OLE_INSTANCES'][] = $this;
++		$instanceId = end(array_keys($GLOBALS['_OLE_INSTANCES']));
+ 
+-        $path = 'ole-chainedblockstream://oleInstanceId=' . $instanceId;
+-        if ($blockIdOrPps instanceof PHPExcel_Shared_OLE_PPS) {
+-            $path .= '&blockId=' . $blockIdOrPps->_StartBlock;
+-            $path .= '&size=' . $blockIdOrPps->Size;
+-        } else {
+-            $path .= '&blockId=' . $blockIdOrPps;
+-        }
+-        return fopen($path, 'r');
+-    }
++		$path = 'ole-chainedblockstream://oleInstanceId=' . $instanceId;
++		if ($blockIdOrPps instanceof PHPExcel_Shared_OLE_PPS) {
++			$path .= '&blockId=' . $blockIdOrPps->_StartBlock;
++			$path .= '&size=' . $blockIdOrPps->Size;
++		} else {
++			$path .= '&blockId=' . $blockIdOrPps;
++		}
++		return fopen($path, 'r');
++	}
+ 
+-    /**
+-     * Reads a signed char.
+-     * @param   resource  file handle
+-     * @return  int
+-     * @access private
+-     */
+-    function _readInt1($fh)
+-    {
+-        list(, $tmp) = unpack("c", fread($fh, 1));
+-        return $tmp;
+-    }
++	/**
++	 * Reads a signed char.
++	 * @param   resource  file handle
++	 * @return  int
++	 * @access private
++	 */
++	private function _readInt1($fh)
++	{
++		list(, $tmp) = unpack("c", fread($fh, 1));
++		return $tmp;
++	}
+ 
+-    /**
+-     * Reads an unsigned short (2 octets).
+-     * @param   resource  file handle
+-     * @return  int
+-     * @access private
+-     */
+-    function _readInt2($fh)
+-    {
+-        list(, $tmp) = unpack("v", fread($fh, 2));
+-        return $tmp;
+-    }
++	/**
++	 * Reads an unsigned short (2 octets).
++	 * @param   resource  file handle
++	 * @return  int
++	 * @access private
++	 */
++	private function _readInt2($fh)
++	{
++		list(, $tmp) = unpack("v", fread($fh, 2));
++		return $tmp;
++	}
+ 
+-    /**
+-     * Reads an unsigned long (4 octets).
+-     * @param   resource  file handle
+-     * @return  int
+-     * @access private
+-     */
+-    function _readInt4($fh)
+-    {
+-        list(, $tmp) = unpack("V", fread($fh, 4));
+-        return $tmp;
+-    }
++	/**
++	 * Reads an unsigned long (4 octets).
++	 * @param   resource  file handle
++	 * @return  int
++	 * @access private
++	 */
++	private function _readInt4($fh)
++	{
++		list(, $tmp) = unpack("V", fread($fh, 4));
++		return $tmp;
++	}
+ 
+-    /**
+-    * Gets information about all PPS's on the OLE container from the PPS WK's
+-    * creates an OLE_PPS object for each one.
+-    *
+-    * @access private
+-    * @param  integer  the block id of the first block
+-    * @return mixed true on success, PEAR_Error on failure
+-    */
+-    function _readPpsWks($blockId)
+-    {
+-        $fh = $this->getStream($blockId);
+-        for ($pos = 0; ; $pos += 128) {
+-            fseek($fh, $pos, SEEK_SET);
+-            $nameUtf16 = fread($fh, 64);
+-            $nameLength = $this->_readInt2($fh);
+-            $nameUtf16 = substr($nameUtf16, 0, $nameLength - 2);
+-            // Simple conversion from UTF-16LE to ISO-8859-1
+-            $name = str_replace("\x00", "", $nameUtf16);
+-            $type = $this->_readInt1($fh);
+-            switch ($type) {
+-            case self::OLE_PPS_TYPE_ROOT:
+-                $pps = new PHPExcel_Shared_OLE_PPS_Root(null, null, array());
+-                $this->root = $pps;
+-                break;
+-            case self::OLE_PPS_TYPE_DIR:
+-                $pps = new PHPExcel_Shared_OLE_PPS(null, null, null, null, null,
+-                                   null, null, null, null, array());
+-                break;
+-            case self::OLE_PPS_TYPE_FILE:
+-                $pps = new PHPExcel_Shared_OLE_PPS_File($name);
+-                break;
+-            default:
+-                continue;
+-            }
+-            fseek($fh, 1, SEEK_CUR);
+-            $pps->Type    = $type;
+-            $pps->Name    = $name;
+-            $pps->PrevPps = $this->_readInt4($fh);
+-            $pps->NextPps = $this->_readInt4($fh);
+-            $pps->DirPps  = $this->_readInt4($fh);
+-            fseek($fh, 20, SEEK_CUR);
+-            $pps->Time1st = self::OLE2LocalDate(fread($fh, 8));
+-            $pps->Time2nd = self::OLE2LocalDate(fread($fh, 8));
+-            $pps->_StartBlock = $this->_readInt4($fh);
+-            $pps->Size = $this->_readInt4($fh);
+-            $pps->No = count($this->_list);
+-            $this->_list[] = $pps;
++	/**
++	* Gets information about all PPS's on the OLE container from the PPS WK's
++	* creates an OLE_PPS object for each one.
++	*
++	* @access private
++	* @param  integer  the block id of the first block
++	* @return mixed true on success, PEAR_Error on failure
++	*/
++	private function _readPpsWks($blockId)
++	{
++		$fh = $this->getStream($blockId);
++		for ($pos = 0; ; $pos += 128) {
++			fseek($fh, $pos, SEEK_SET);
++			$nameUtf16 = fread($fh, 64);
++			$nameLength = $this->_readInt2($fh);
++			$nameUtf16 = substr($nameUtf16, 0, $nameLength - 2);
++			// Simple conversion from UTF-16LE to ISO-8859-1
++			$name = str_replace("\x00", "", $nameUtf16);
++			$type = $this->_readInt1($fh);
++			switch ($type) {
++			case self::OLE_PPS_TYPE_ROOT:
++				$pps = new PHPExcel_Shared_OLE_PPS_Root(null, null, array());
++				$this->root = $pps;
++				break;
++			case self::OLE_PPS_TYPE_DIR:
++				$pps = new PHPExcel_Shared_OLE_PPS(null, null, null, null, null,
++								   null, null, null, null, array());
++				break;
++			case self::OLE_PPS_TYPE_FILE:
++				$pps = new PHPExcel_Shared_OLE_PPS_File($name);
++				break;
++			default:
++				continue;
++			}
++			fseek($fh, 1, SEEK_CUR);
++			$pps->Type    = $type;
++			$pps->Name    = $name;
++			$pps->PrevPps = $this->_readInt4($fh);
++			$pps->NextPps = $this->_readInt4($fh);
++			$pps->DirPps  = $this->_readInt4($fh);
++			fseek($fh, 20, SEEK_CUR);
++			$pps->Time1st = self::OLE2LocalDate(fread($fh, 8));
++			$pps->Time2nd = self::OLE2LocalDate(fread($fh, 8));
++			$pps->_StartBlock = $this->_readInt4($fh);
++			$pps->Size = $this->_readInt4($fh);
++			$pps->No = count($this->_list);
++			$this->_list[] = $pps;
+ 
+-            // check if the PPS tree (starting from root) is complete
+-            if (isset($this->root) &&
+-                $this->_ppsTreeComplete($this->root->No)) {
++			// check if the PPS tree (starting from root) is complete
++			if (isset($this->root) &&
++				$this->_ppsTreeComplete($this->root->No)) {
+ 
+-                break;
+-            }
+-        }
+-        fclose($fh);
++				break;
++			}
++		}
++		fclose($fh);
+ 
+-        // Initialize $pps->children on directories
+-        foreach ($this->_list as $pps) {
+-            if ($pps->Type == self::OLE_PPS_TYPE_DIR || $pps->Type == self::OLE_PPS_TYPE_ROOT) {
+-                $nos = array($pps->DirPps);
+-                $pps->children = array();
+-                while ($nos) {
+-                    $no = array_pop($nos);
+-                    if ($no != -1) {
+-                        $childPps = $this->_list[$no];
+-                        $nos[] = $childPps->PrevPps;
+-                        $nos[] = $childPps->NextPps;
+-                        $pps->children[] = $childPps;
+-                    }
+-                }
+-            }
+-        }
++		// Initialize $pps->children on directories
++		foreach ($this->_list as $pps) {
++			if ($pps->Type == self::OLE_PPS_TYPE_DIR || $pps->Type == self::OLE_PPS_TYPE_ROOT) {
++				$nos = array($pps->DirPps);
++				$pps->children = array();
++				while ($nos) {
++					$no = array_pop($nos);
++					if ($no != -1) {
++						$childPps = $this->_list[$no];
++						$nos[] = $childPps->PrevPps;
++						$nos[] = $childPps->NextPps;
++						$pps->children[] = $childPps;
++					}
++				}
++			}
++		}
+ 
+-        return true;
+-    }
++		return true;
++	}
+ 
+-    /**
+-    * It checks whether the PPS tree is complete (all PPS's read)
+-    * starting with the given PPS (not necessarily root)
+-    *
+-    * @access private
+-    * @param integer $index The index of the PPS from which we are checking
+-    * @return boolean Whether the PPS tree for the given PPS is complete
+-    */
+-    function _ppsTreeComplete($index)
+-    {
+-        return isset($this->_list[$index]) &&
+-               ($pps = $this->_list[$index]) &&
+-               ($pps->PrevPps == -1 ||
+-                $this->_ppsTreeComplete($pps->PrevPps)) &&
+-               ($pps->NextPps == -1 ||
+-                $this->_ppsTreeComplete($pps->NextPps)) &&
+-               ($pps->DirPps == -1 ||
+-                $this->_ppsTreeComplete($pps->DirPps));
+-    }
++	/**
++	* It checks whether the PPS tree is complete (all PPS's read)
++	* starting with the given PPS (not necessarily root)
++	*
++	* @access private
++	* @param integer $index The index of the PPS from which we are checking
++	* @return boolean Whether the PPS tree for the given PPS is complete
++	*/
++	public function _ppsTreeComplete($index)
++	{
++		return isset($this->_list[$index]) &&
++			   ($pps = $this->_list[$index]) &&
++			   ($pps->PrevPps == -1 ||
++				$this->_ppsTreeComplete($pps->PrevPps)) &&
++			   ($pps->NextPps == -1 ||
++				$this->_ppsTreeComplete($pps->NextPps)) &&
++			   ($pps->DirPps == -1 ||
++				$this->_ppsTreeComplete($pps->DirPps));
++	}
+ 
+-    /** 
+-    * Checks whether a PPS is a File PPS or not.
+-    * If there is no PPS for the index given, it will return false.
+-    *
+-    * @access public
+-    * @param integer $index The index for the PPS
+-    * @return bool true if it's a File PPS, false otherwise
+-    */
+-    function isFile($index)
+-    {
+-        if (isset($this->_list[$index])) {
+-            return ($this->_list[$index]->Type == self::OLE_PPS_TYPE_FILE);
+-        }
+-        return false;
+-    }
++	/** 
++	* Checks whether a PPS is a File PPS or not.
++	* If there is no PPS for the index given, it will return false.
++	*
++	* @access public
++	* @param integer $index The index for the PPS
++	* @return bool true if it's a File PPS, false otherwise
++	*/
++	public function isFile($index)
++	{
++		if (isset($this->_list[$index])) {
++			return ($this->_list[$index]->Type == self::OLE_PPS_TYPE_FILE);
++		}
++		return false;
++	}
+ 
+-    /** 
+-    * Checks whether a PPS is a Root PPS or not.
+-    * If there is no PPS for the index given, it will return false.
+-    *
+-    * @access public
+-    * @param integer $index The index for the PPS.
+-    * @return bool true if it's a Root PPS, false otherwise
+-    */
+-    function isRoot($index)
+-    {
+-        if (isset($this->_list[$index])) {
+-            return ($this->_list[$index]->Type == self::OLE_PPS_TYPE_ROOT);
+-        }
+-        return false;
+-    }
++	/** 
++	* Checks whether a PPS is a Root PPS or not.
++	* If there is no PPS for the index given, it will return false.
++	*
++	* @access public
++	* @param integer $index The index for the PPS.
++	* @return bool true if it's a Root PPS, false otherwise
++	*/
++	public function isRoot($index)
++	{
++		if (isset($this->_list[$index])) {
++			return ($this->_list[$index]->Type == self::OLE_PPS_TYPE_ROOT);
++		}
++		return false;
++	}
+ 
+-    /** 
+-    * Gives the total number of PPS's found in the OLE container.
+-    *
+-    * @access public
+-    * @return integer The total number of PPS's found in the OLE container
+-    */
+-    function ppsTotal()
+-    {
+-        return count($this->_list);
+-    }
++	/** 
++	* Gives the total number of PPS's found in the OLE container.
++	*
++	* @access public
++	* @return integer The total number of PPS's found in the OLE container
++	*/
++	public function ppsTotal()
++	{
++		return count($this->_list);
++	}
+ 
+-    /**
+-    * Gets data from a PPS
+-    * If there is no PPS for the index given, it will return an empty string.
+-    *
+-    * @access public
+-    * @param integer $index    The index for the PPS
+-    * @param integer $position The position from which to start reading
+-    *                          (relative to the PPS)
+-    * @param integer $length   The amount of bytes to read (at most)
+-    * @return string The binary string containing the data requested
+-    * @see OLE_PPS_File::getStream()
+-    */
+-    function getData($index, $position, $length)
+-    {
+-        // if position is not valid return empty string
+-        if (!isset($this->_list[$index]) || ($position >= $this->_list[$index]->Size) || ($position < 0)) {
+-            return '';
+-        }
+-        $fh = $this->getStream($this->_list[$index]);
+-        $data = stream_get_contents($fh, $length, $position);
+-        fclose($fh);
+-        return $data;
+-    }
++	/**
++	* Gets data from a PPS
++	* If there is no PPS for the index given, it will return an empty string.
++	*
++	* @access public
++	* @param integer $index    The index for the PPS
++	* @param integer $position The position from which to start reading
++	*                          (relative to the PPS)
++	* @param integer $length   The amount of bytes to read (at most)
++	* @return string The binary string containing the data requested
++	* @see OLE_PPS_File::getStream()
++	*/
++	public function getData($index, $position, $length)
++	{
++		// if position is not valid return empty string
++		if (!isset($this->_list[$index]) || ($position >= $this->_list[$index]->Size) || ($position < 0)) {
++			return '';
++		}
++		$fh = $this->getStream($this->_list[$index]);
++		$data = stream_get_contents($fh, $length, $position);
++		fclose($fh);
++		return $data;
++	}
+ 
+-    /**
+-    * Gets the data length from a PPS
+-    * If there is no PPS for the index given, it will return 0.
+-    *
+-    * @access public
+-    * @param integer $index    The index for the PPS
+-    * @return integer The amount of bytes in data the PPS has
+-    */
+-    function getDataLength($index)
+-    {
+-        if (isset($this->_list[$index])) {
+-            return $this->_list[$index]->Size;
+-        }
+-        return 0;
+-    }
++	/**
++	* Gets the data length from a PPS
++	* If there is no PPS for the index given, it will return 0.
++	*
++	* @access public
++	* @param integer $index    The index for the PPS
++	* @return integer The amount of bytes in data the PPS has
++	*/
++	public function getDataLength($index)
++	{
++		if (isset($this->_list[$index])) {
++			return $this->_list[$index]->Size;
++		}
++		return 0;
++	}
+ 
+-    /**
+-    * Utility function to transform ASCII text to Unicode
+-    *
+-    * @access public
+-    * @static
+-    * @param string $ascii The ASCII string to transform
+-    * @return string The string in Unicode
+-    */
+-    function Asc2Ucs($ascii)
+-    {
+-        $rawname = '';
+-        for ($i = 0; $i < strlen($ascii); $i++) {
+-            $rawname .= $ascii{$i} . "\x00";
+-        }
+-        return $rawname;
+-    }
++	/**
++	* Utility function to transform ASCII text to Unicode
++	*
++	* @access public
++	* @static
++	* @param string $ascii The ASCII string to transform
++	* @return string The string in Unicode
++	*/
++	public static function Asc2Ucs($ascii)
++	{
++		$rawname = '';
++		for ($i = 0; $i < strlen($ascii); $i++) {
++			$rawname .= $ascii{$i} . "\x00";
++		}
++		return $rawname;
++	}
+ 
+-    /**
+-    * Utility function
+-    * Returns a string for the OLE container with the date given
+-    *
+-    * @access public
+-    * @static
+-    * @param integer $date A timestamp 
+-    * @return string The string for the OLE container
+-    */
+-    function LocalDate2OLE($date = null)
+-    {
+-        if (!isset($date)) {
+-            return "\x00\x00\x00\x00\x00\x00\x00\x00";
+-        }
++	/**
++	* Utility function
++	* Returns a string for the OLE container with the date given
++	*
++	* @access public
++	* @static
++	* @param integer $date A timestamp 
++	* @return string The string for the OLE container
++	*/
++	public static function LocalDate2OLE($date = null)
++	{
++		if (!isset($date)) {
++			return "\x00\x00\x00\x00\x00\x00\x00\x00";
++		}
+ 
+-        // factor used for separating numbers into 4 bytes parts
+-        $factor = pow(2, 32);
++		// factor used for separating numbers into 4 bytes parts
++		$factor = pow(2, 32);
+ 
+-        // days from 1-1-1601 until the beggining of UNIX era
+-        $days = 134774;
+-        // calculate seconds
+-        $big_date = $days*24*3600 + gmmktime(date("H",$date),date("i",$date),date("s",$date),
+-                                             date("m",$date),date("d",$date),date("Y",$date));
+-        // multiply just to make MS happy
+-        $big_date *= 10000000;
++		// days from 1-1-1601 until the beggining of UNIX era
++		$days = 134774;
++		// calculate seconds
++		$big_date = $days*24*3600 + gmmktime(date("H",$date),date("i",$date),date("s",$date),
++											 date("m",$date),date("d",$date),date("Y",$date));
++		// multiply just to make MS happy
++		$big_date *= 10000000;
+ 
+-        $high_part = floor($big_date / $factor);
+-        // lower 4 bytes
+-        $low_part = floor((($big_date / $factor) - $high_part) * $factor);
++		$high_part = floor($big_date / $factor);
++		// lower 4 bytes
++		$low_part = floor((($big_date / $factor) - $high_part) * $factor);
+ 
+-        // Make HEX string
+-        $res = '';
++		// Make HEX string
++		$res = '';
+ 
+-        for ($i = 0; $i < 4; $i++) {
+-            $hex = $low_part % 0x100;
+-            $res .= pack('c', $hex);
+-            $low_part /= 0x100;
+-        }
+-        for ($i = 0; $i < 4; $i++) {
+-            $hex = $high_part % 0x100;
+-            $res .= pack('c', $hex);
+-            $high_part /= 0x100;
+-        }
+-        return $res;
+-    }
++		for ($i = 0; $i < 4; $i++) {
++			$hex = $low_part % 0x100;
++			$res .= pack('c', $hex);
++			$low_part /= 0x100;
++		}
++		for ($i = 0; $i < 4; $i++) {
++			$hex = $high_part % 0x100;
++			$res .= pack('c', $hex);
++			$high_part /= 0x100;
++		}
++		return $res;
++	}
+ 
+-    /**
+-    * Returns a timestamp from an OLE container's date
+-    *
+-    * @access public
+-    * @static
+-    * @param integer $string A binary string with the encoded date
+-    * @return string The timestamp corresponding to the string
+-    */
+-    function OLE2LocalDate($string)
+-    {
+-        if (strlen($string) != 8) {
+-            return new PEAR_Error("Expecting 8 byte string");
+-        }
++	/**
++	* Returns a timestamp from an OLE container's date
++	*
++	* @access public
++	* @static
++	* @param integer $string A binary string with the encoded date
++	* @return string The timestamp corresponding to the string
++	*/
++	public static function OLE2LocalDate($string)
++	{
++		if (strlen($string) != 8) {
++			return new PEAR_Error("Expecting 8 byte string");
++		}
+ 
+-        // factor used for separating numbers into 4 bytes parts
+-        $factor = pow(2,32);
+-        $high_part = 0;
+-        for ($i = 0; $i < 4; $i++) {
+-            list(, $high_part) = unpack('C', $string{(7 - $i)});
+-            if ($i < 3) {
+-                $high_part *= 0x100;
+-            }
+-        }
+-        $low_part = 0;
+-        for ($i = 4; $i < 8; $i++) {
+-            list(, $low_part) = unpack('C', $string{(7 - $i)});
+-            if ($i < 7) {
+-                $low_part *= 0x100;
+-            }
+-        }
+-        $big_date = ($high_part * $factor) + $low_part;
+-        // translate to seconds
+-        $big_date /= 10000000;
+-        
+-        // days from 1-1-1601 until the beggining of UNIX era
+-        $days = 134774;
+-        
+-        // translate to seconds from beggining of UNIX era
+-        $big_date -= $days * 24 * 3600;
+-        return floor($big_date);
+-    }
++		// factor used for separating numbers into 4 bytes parts
++		$factor = pow(2,32);
++		$high_part = 0;
++		for ($i = 0; $i < 4; $i++) {
++			list(, $high_part) = unpack('C', $string{(7 - $i)});
++			if ($i < 3) {
++				$high_part *= 0x100;
++			}
++		}
++		$low_part = 0;
++		for ($i = 4; $i < 8; $i++) {
++			list(, $low_part) = unpack('C', $string{(7 - $i)});
++			if ($i < 7) {
++				$low_part *= 0x100;
++			}
++		}
++		$big_date = ($high_part * $factor) + $low_part;
++		// translate to seconds
++		$big_date /= 10000000;
++		
++		// days from 1-1-1601 until the beggining of UNIX era
++		$days = 134774;
++		
++		// translate to seconds from beggining of UNIX era
++		$big_date -= $days * 24 * 3600;
++		return floor($big_date);
++	}
+ }
+Index: Shared/OLE/ChainedBlockStream.php
+===================================================================
+--- Shared/OLE/ChainedBlockStream.php	(revision 8907)
++++ Shared/OLE/ChainedBlockStream.php	(working copy)
+@@ -39,188 +39,188 @@
+  */
+ class PHPExcel_Shared_OLE_ChainedBlockStream
+ {
+-    /**
+-     * The OLE container of the file that is being read.
+-     * @var OLE
+-     */
+-    var $ole;
++	/**
++	 * The OLE container of the file that is being read.
++	 * @var OLE
++	 */
++	private $ole;
+ 
+-    /**
+-     * Parameters specified by fopen().
+-     * @var array
+-     */
+-    var $params;
++	/**
++	 * Parameters specified by fopen().
++	 * @var array
++	 */
++	private $params;
+ 
+-    /**
+-     * The binary data of the file.
+-     * @var  string
+-     */
+-    var $data;
++	/**
++	 * The binary data of the file.
++	 * @var  string
++	 */
++	private $data;
+ 
+-    /**
+-     * The file pointer.
+-     * @var  int  byte offset
+-     */
+-    var $pos;
++	/**
++	 * The file pointer.
++	 * @var  int  byte offset
++	 */
++	private $pos;
+ 
+-    /**
+-     * Implements support for fopen().
+-     * For creating streams using this wrapper, use OLE_PPS_File::getStream().
+-     * @param  string  resource name including scheme, e.g.
+-     *                 ole-chainedblockstream://oleInstanceId=1
+-     * @param  string  only "r" is supported
+-     * @param  int     mask of STREAM_REPORT_ERRORS and STREAM_USE_PATH
+-     * @param  string  absolute path of the opened stream (out parameter)
+-     * @return bool    true on success
+-     */
+-    function stream_open($path, $mode, $options, &$openedPath)
+-    {
+-        if ($mode != 'r') {
+-            if ($options & STREAM_REPORT_ERRORS) {
+-                trigger_error('Only reading is supported', E_USER_WARNING);
+-            }
+-            return false;
+-        }
++	/**
++	 * Implements support for fopen().
++	 * For creating streams using this wrapper, use OLE_PPS_File::getStream().
++	 * @param  string  resource name including scheme, e.g.
++	 *                 ole-chainedblockstream://oleInstanceId=1
++	 * @param  string  only "r" is supported
++	 * @param  int     mask of STREAM_REPORT_ERRORS and STREAM_USE_PATH
++	 * @param  string  absolute path of the opened stream (out parameter)
++	 * @return bool    true on success
++	 */
++	public function stream_open($path, $mode, $options, &$openedPath)
++	{
++		if ($mode != 'r') {
++			if ($options & STREAM_REPORT_ERRORS) {
++				trigger_error('Only reading is supported', E_USER_WARNING);
++			}
++			return false;
++		}
+ 
+-        // 25 is length of "ole-chainedblockstream://"
+-        parse_str(substr($path, 25), $this->params);
+-        if (!isset($this->params['oleInstanceId'],
+-                   $this->params['blockId'],
+-                   $GLOBALS['_OLE_INSTANCES'][$this->params['oleInstanceId']])) {
++		// 25 is length of "ole-chainedblockstream://"
++		parse_str(substr($path, 25), $this->params);
++		if (!isset($this->params['oleInstanceId'],
++				   $this->params['blockId'],
++				   $GLOBALS['_OLE_INSTANCES'][$this->params['oleInstanceId']])) {
+ 
+-            if ($options & STREAM_REPORT_ERRORS) {
+-                trigger_error('OLE stream not found', E_USER_WARNING);
+-            }
+-            return false;
+-        }
+-        $this->ole = $GLOBALS['_OLE_INSTANCES'][$this->params['oleInstanceId']];
++			if ($options & STREAM_REPORT_ERRORS) {
++				trigger_error('OLE stream not found', E_USER_WARNING);
++			}
++			return false;
++		}
++		$this->ole = $GLOBALS['_OLE_INSTANCES'][$this->params['oleInstanceId']];
+ 
+-        $blockId = $this->params['blockId'];
+-        $this->data = '';
+-        if (isset($this->params['size']) &&
+-            $this->params['size'] < $this->ole->bigBlockThreshold &&
+-            $blockId != $this->ole->root->_StartBlock) {
++		$blockId = $this->params['blockId'];
++		$this->data = '';
++		if (isset($this->params['size']) &&
++			$this->params['size'] < $this->ole->bigBlockThreshold &&
++			$blockId != $this->ole->root->_StartBlock) {
+ 
+-            // Block id refers to small blocks
+-            $rootPos = $this->ole->_getBlockOffset($this->ole->root->_StartBlock);
+-            while ($blockId != -2) {
+-                $pos = $rootPos + $blockId * $this->ole->bigBlockSize;
+-                $blockId = $this->ole->sbat[$blockId];
+-                fseek($this->ole->_file_handle, $pos);
+-                $this->data .= fread($this->ole->_file_handle, $this->ole->bigBlockSize);
+-            }
+-        } else {
+-            // Block id refers to big blocks
+-            while ($blockId != -2) {
+-                $pos = $this->ole->_getBlockOffset($blockId);
+-                fseek($this->ole->_file_handle, $pos);
+-                $this->data .= fread($this->ole->_file_handle, $this->ole->bigBlockSize);
+-                $blockId = $this->ole->bbat[$blockId];
+-            }
+-        }
+-        if (isset($this->params['size'])) {
+-            $this->data = substr($this->data, 0, $this->params['size']);
+-        }
++			// Block id refers to small blocks
++			$rootPos = $this->ole->_getBlockOffset($this->ole->root->_StartBlock);
++			while ($blockId != -2) {
++				$pos = $rootPos + $blockId * $this->ole->bigBlockSize;
++				$blockId = $this->ole->sbat[$blockId];
++				fseek($this->ole->_file_handle, $pos);
++				$this->data .= fread($this->ole->_file_handle, $this->ole->bigBlockSize);
++			}
++		} else {
++			// Block id refers to big blocks
++			while ($blockId != -2) {
++				$pos = $this->ole->_getBlockOffset($blockId);
++				fseek($this->ole->_file_handle, $pos);
++				$this->data .= fread($this->ole->_file_handle, $this->ole->bigBlockSize);
++				$blockId = $this->ole->bbat[$blockId];
++			}
++		}
++		if (isset($this->params['size'])) {
++			$this->data = substr($this->data, 0, $this->params['size']);
++		}
+ 
+-        if ($options & STREAM_USE_PATH) {
+-            $openedPath = $path;
+-        }
++		if ($options & STREAM_USE_PATH) {
++			$openedPath = $path;
++		}
+ 
+-        return true;
+-    }
++		return true;
++	}
+ 
+-    /**
+-     * Implements support for fclose().
+-     * @return  string
+-     */
+-    function stream_close()
+-    {
+-        $this->ole = null;
+-        unset($GLOBALS['_OLE_INSTANCES']);
+-    }
++	/**
++	 * Implements support for fclose().
++	 * @return  string
++	 */
++	public function stream_close()
++	{
++		$this->ole = null;
++		unset($GLOBALS['_OLE_INSTANCES']);
++	}
+ 
+-    /**
+-     * Implements support for fread(), fgets() etc.
+-     * @param   int  maximum number of bytes to read
+-     * @return  string
+-     */
+-    function stream_read($count)
+-    {
+-        if ($this->stream_eof()) {
+-            return false;
+-        }
+-        $s = substr($this->data, $this->pos, $count);
+-        $this->pos += $count;
+-        return $s;
+-    }
++	/**
++	 * Implements support for fread(), fgets() etc.
++	 * @param   int  maximum number of bytes to read
++	 * @return  string
++	 */
++	public function stream_read($count)
++	{
++		if ($this->stream_eof()) {
++			return false;
++		}
++		$s = substr($this->data, $this->pos, $count);
++		$this->pos += $count;
++		return $s;
++	}
+ 
+-    /**
+-     * Implements support for feof().
+-     * @return  bool  TRUE if the file pointer is at EOF; otherwise FALSE
+-     */
+-    function stream_eof()
+-    {
+-        $eof = $this->pos >= strlen($this->data);
+-        // Workaround for bug in PHP 5.0.x: http://bugs.php.net/27508
+-        if (version_compare(PHP_VERSION, '5.0', '>=') &&
+-            version_compare(PHP_VERSION, '5.1', '<')) {
++	/**
++	 * Implements support for feof().
++	 * @return  bool  TRUE if the file pointer is at EOF; otherwise FALSE
++	 */
++	public function stream_eof()
++	{
++		$eof = $this->pos >= strlen($this->data);
++		// Workaround for bug in PHP 5.0.x: http://bugs.php.net/27508
++		if (version_compare(PHP_VERSION, '5.0', '>=') &&
++			version_compare(PHP_VERSION, '5.1', '<')) {
+ 
+-           $eof = !$eof;
+-        }
+-        return $eof;
+-    }
++		   $eof = !$eof;
++		}
++		return $eof;
++	}
+ 
+-    /**
+-     * Returns the position of the file pointer, i.e. its offset into the file
+-     * stream. Implements support for ftell().
+-     * @return  int
+-     */
+-    function stream_tell()
+-    {
+-        return $this->pos;
+-    }
++	/**
++	 * Returns the position of the file pointer, i.e. its offset into the file
++	 * stream. Implements support for ftell().
++	 * @return  int
++	 */
++	public function stream_tell()
++	{
++		return $this->pos;
++	}
+ 
+-    /**
+-     * Implements support for fseek().
+-     * @param   int  byte offset
+-     * @param   int  SEEK_SET, SEEK_CUR or SEEK_END
+-     * @return  bool
+-     */
+-    function stream_seek($offset, $whence)
+-    {
+-        if ($whence == SEEK_SET && $offset >= 0) {
+-            $this->pos = $offset;
+-        } elseif ($whence == SEEK_CUR && -$offset <= $this->pos) {
+-            $this->pos += $offset;
+-        } elseif ($whence == SEEK_END && -$offset <= sizeof($this->data)) {
+-            $this->pos = strlen($this->data) + $offset;
+-        } else {
+-            return false;
+-        }
+-        return true;
+-    }
++	/**
++	 * Implements support for fseek().
++	 * @param   int  byte offset
++	 * @param   int  SEEK_SET, SEEK_CUR or SEEK_END
++	 * @return  bool
++	 */
++	public function stream_seek($offset, $whence)
++	{
++		if ($whence == SEEK_SET && $offset >= 0) {
++			$this->pos = $offset;
++		} elseif ($whence == SEEK_CUR && -$offset <= $this->pos) {
++			$this->pos += $offset;
++		} elseif ($whence == SEEK_END && -$offset <= sizeof($this->data)) {
++			$this->pos = strlen($this->data) + $offset;
++		} else {
++			return false;
++		}
++		return true;
++	}
+ 
+-    /**
+-     * Implements support for fstat(). Currently the only supported field is
+-     * "size".
+-     * @return  array
+-     */
+-    function stream_stat()
+-    {
+-        return array(
+-            'size' => strlen($this->data),
+-            );
+-    }
++	/**
++	 * Implements support for fstat(). Currently the only supported field is
++	 * "size".
++	 * @return  array
++	 */
++	public function stream_stat()
++	{
++		return array(
++			'size' => strlen($this->data),
++			);
++	}
+ 
+-    // Methods used by stream_wrapper_register() that are not implemented:
+-    // bool stream_flush ( void )
+-    // int stream_write ( string data )
+-    // bool rename ( string path_from, string path_to )
+-    // bool mkdir ( string path, int mode, int options )
+-    // bool rmdir ( string path, int options )
+-    // bool dir_opendir ( string path, int options )
+-    // array url_stat ( string path, int flags )
+-    // string dir_readdir ( void )
+-    // bool dir_rewinddir ( void )
+-    // bool dir_closedir ( void )
++	// Methods used by stream_wrapper_register() that are not implemented:
++	// bool stream_flush ( void )
++	// int stream_write ( string data )
++	// bool rename ( string path_from, string path_to )
++	// bool mkdir ( string path, int mode, int options )
++	// bool rmdir ( string path, int options )
++	// bool dir_opendir ( string path, int options )
++	// array url_stat ( string path, int flags )
++	// string dir_readdir ( void )
++	// bool dir_rewinddir ( void )
++	// bool dir_closedir ( void )
+ }
+Index: Shared/OLE/OLE_File.php
+===================================================================
+--- Shared/OLE/OLE_File.php	(revision 8907)
++++ Shared/OLE/OLE_File.php	(working copy)
+@@ -30,93 +30,93 @@
+ * @package  OLE
+ */
+ class PHPExcel_Shared_OLE_PPS_File extends PHPExcel_Shared_OLE_PPS
+-{
+-    /**
+-    * The temporary dir for storing the OLE file
+-    * @var string
+-    */
+-    var $_tmp_dir;
++	{
++	/**
++	* The temporary dir for storing the OLE file
++	* @var string
++	*/
++	private $_tmp_dir;
+ 
+-    /**
+-    * The constructor
+-    *
+-    * @access public
+-    * @param string $name The name of the file (in Unicode)
+-    * @see OLE::Asc2Ucs()
+-    */
+-    function __construct($name)
+-    {
+-        $this->_tmp_dir = '';
+-        parent::__construct(
+-            null, 
+-            $name,
+-            PHPExcel_Shared_OLE::OLE_PPS_TYPE_FILE,
+-            null,
+-            null,
+-            null,
+-            null,
+-            null,
+-            '',
+-            array());
+-    }
++	/**
++	* The constructor
++	*
++	* @access public
++	* @param string $name The name of the file (in Unicode)
++	* @see OLE::Asc2Ucs()
++	*/
++	public function __construct($name)
++	{
++		$this->_tmp_dir = '';
++		parent::__construct(
++			null, 
++			$name,
++			PHPExcel_Shared_OLE::OLE_PPS_TYPE_FILE,
++			null,
++			null,
++			null,
++			null,
++			null,
++			'',
++			array());
++	}
+ 
+-    /**
+-    * Sets the temp dir used for storing the OLE file
+-    *
+-    * @access public
+-    * @param string $dir The dir to be used as temp dir
+-    * @return true if given dir is valid, false otherwise
+-    */
+-    function setTempDir($dir)
+-    {
+-        if (is_dir($dir)) {
+-            $this->_tmp_dir = $dir;
+-            return true;
+-        }
+-        return false;
+-    }
++	/**
++	* Sets the temp dir used for storing the OLE file
++	*
++	* @access public
++	* @param string $dir The dir to be used as temp dir
++	* @return true if given dir is valid, false otherwise
++	*/
++	public function setTempDir($dir)
++	{
++		if (is_dir($dir)) {
++			$this->_tmp_dir = $dir;
++			return true;
++		}
++		return false;
++	}
+ 
+-    /**
+-    * Initialization method. Has to be called right after OLE_PPS_File().
+-    *
+-    * @access public
+-    * @return mixed true on success
+-    */
+-    function init()
+-    {
+-        $this->_tmp_filename = tempnam($this->_tmp_dir, "OLE_PPS_File");
+-        $fh = @fopen($this->_tmp_filename, "w+b");
+-        if ($fh === false) {
+-            throw new Exception("Can't create temporary file");
+-        }
+-        $this->_PPS_FILE = $fh;
+-        if ($this->_PPS_FILE) {
+-            fseek($this->_PPS_FILE, 0);
+-        }
+-        return true;
+-    }
+-    
+-    /**
+-    * Append data to PPS
+-    *
+-    * @access public
+-    * @param string $data The data to append
+-    */
+-    function append($data)
+-    {
+-        if ($this->_PPS_FILE) {
+-            fwrite($this->_PPS_FILE, $data);
+-        } else {
+-            $this->_data .= $data;
+-        }
+-    }
++	/**
++	* Initialization method. Has to be called right after OLE_PPS_File().
++	*
++	* @access public
++	* @return mixed true on success
++	*/
++	public function init()
++	{
++		$this->_tmp_filename = tempnam($this->_tmp_dir, "OLE_PPS_File");
++		$fh = fopen($this->_tmp_filename, "w+b");
++		if ($fh === false) {
++			throw new Exception("Can't create temporary file");
++		}
++		$this->_PPS_FILE = $fh;
++		if ($this->_PPS_FILE) {
++			fseek($this->_PPS_FILE, 0);
++		}
++		return true;
++	}
+ 
+-    /**
+-     * Returns a stream for reading this file using fread() etc.
+-     * @return  resource  a read-only stream
+-     */
+-    function getStream()
+-    {
+-        $this->ole->getStream($this);
+-    }
++	/**
++	* Append data to PPS
++	*
++	* @access public
++	* @param string $data The data to append
++	*/
++	public function append($data)
++	{
++		if ($this->_PPS_FILE) {
++			fwrite($this->_PPS_FILE, $data);
++		} else {
++			$this->_data .= $data;
++		}
++	}
++
++	/**
++	 * Returns a stream for reading this file using fread() etc.
++	 * @return  resource  a read-only stream
++	 */
++	public function getStream()
++	{
++		$this->ole->getStream($this);
++	}
+ }
+Index: Shared/OLE/OLE_PPS.php
+===================================================================
+--- Shared/OLE/OLE_PPS.php	(revision 8907)
++++ Shared/OLE/OLE_PPS.php	(working copy)
+@@ -31,190 +31,190 @@
+ */
+ class PHPExcel_Shared_OLE_PPS
+ {
+-    /**
+-    * The PPS index
+-    * @var integer
+-    */
+-    var $No;
++	/**
++	* The PPS index
++	* @var integer
++	*/
++	private $No;
+ 
+-    /**
+-    * The PPS name (in Unicode)
+-    * @var string
+-    */
+-    var $Name;
+- 
+-    /**
+-    * The PPS type. Dir, Root or File
+-    * @var integer
+-    */
+-    var $Type;
+- 
+-    /**
+-    * The index of the previous PPS
+-    * @var integer
+-    */
+-    var $PrevPps;
+- 
+-    /**
+-    * The index of the next PPS
+-    * @var integer
+-    */
+-    var $NextPps;
+- 
+-    /**
+-    * The index of it's first child if this is a Dir or Root PPS
+-    * @var integer
+-    */
+-    var $DirPps;
+- 
+-    /**
+-    * A timestamp
+-    * @var integer
+-    */
+-    var $Time1st;
++	/**
++	* The PPS name (in Unicode)
++	* @var string
++	*/
++	private $Name;
+ 
+-    /**
+-    * A timestamp
+-    * @var integer
+-    */
+-    var $Time2nd;
++	/**
++	* The PPS type. Dir, Root or File
++	* @var integer
++	*/
++	private $Type;
+ 
+-    /**
+-    * Starting block (small or big) for this PPS's data  inside the container
+-    * @var integer
+-    */
+-    var $_StartBlock;
++	/**
++	* The index of the previous PPS
++	* @var integer
++	*/
++	private $PrevPps;
+ 
+-    /**
+-    * The size of the PPS's data (in bytes)
+-    * @var integer
+-    */
+-    var $Size;
++	/**
++	* The index of the next PPS
++	* @var integer
++	*/
++	private $NextPps;
+ 
+-    /**
+-    * The PPS's data (only used if it's not using a temporary file)
+-    * @var string
+-    */
+-    var $_data;
++	/**
++	* The index of it's first child if this is a Dir or Root PPS
++	* @var integer
++	*/
++	private $DirPps;
+ 
+-    /**
+-    * Array of child PPS's (only used by Root and Dir PPS's)
+-    * @var array
+-    */
+-    var $children = array();
++	/**
++	* A timestamp
++	* @var integer
++	*/
++	private $Time1st;
+ 
+-    /**
+-    * Pointer to OLE container
+-    * @var OLE
+-    */
+-    var $ole;
++	/**
++	* A timestamp
++	* @var integer
++	*/
++	private $Time2nd;
+ 
+-    /**
+-    * The constructor
+-    *
+-    * @access public
+-    * @param integer $No   The PPS index
+-    * @param string  $name The PPS name
+-    * @param integer $type The PPS type. Dir, Root or File
+-    * @param integer $prev The index of the previous PPS
+-    * @param integer $next The index of the next PPS
+-    * @param integer $dir  The index of it's first child if this is a Dir or Root PPS
+-    * @param integer $time_1st A timestamp
+-    * @param integer $time_2nd A timestamp
+-    * @param string  $data  The (usually binary) source data of the PPS
+-    * @param array   $children Array containing children PPS for this PPS
+-    */
+-    function __construct($No, $name, $type, $prev, $next, $dir, $time_1st, $time_2nd, $data, $children)
+-    {
+-        $this->No      = $No;
+-        $this->Name    = $name;
+-        $this->Type    = $type;
+-        $this->PrevPps = $prev;
+-        $this->NextPps = $next;
+-        $this->DirPps  = $dir;
+-        $this->Time1st = $time_1st;
+-        $this->Time2nd = $time_2nd;
+-        $this->_data      = $data;
+-        $this->children   = $children;
+-        if ($data != '') {
+-            $this->Size = strlen($data);
+-        } else {
+-            $this->Size = 0;
+-        }
+-    }
++	/**
++	* Starting block (small or big) for this PPS's data  inside the container
++	* @var integer
++	*/
++	private $_StartBlock;
+ 
+-    /**
+-    * Returns the amount of data saved for this PPS
+-    *
+-    * @access private
+-    * @return integer The amount of data (in bytes)
+-    */
+-    function _DataLen()
+-    {
+-        if (!isset($this->_data)) {
+-            return 0;
+-        }
+-        if (isset($this->_PPS_FILE)) {
+-            fseek($this->_PPS_FILE, 0);
+-            $stats = fstat($this->_PPS_FILE);
+-            return $stats[7];
+-        } else {
+-            return strlen($this->_data);
+-        }
+-    }
++	/**
++	* The size of the PPS's data (in bytes)
++	* @var integer
++	*/
++	private $Size;
+ 
+-    /**
+-    * Returns a string with the PPS's WK (What is a WK?)
+-    *
+-    * @access private
+-    * @return string The binary string
+-    */
+-    function _getPpsWk()
+-    {
+-        $ret = $this->Name;
+-        for ($i = 0; $i < (64 - strlen($this->Name)); $i++) {
+-            $ret .= "\x00";
+-        }
+-        $ret .= pack("v", strlen($this->Name) + 2)  // 66
+-              . pack("c", $this->Type)              // 67
+-              . pack("c", 0x00) //UK                // 68
+-              . pack("V", $this->PrevPps) //Prev    // 72
+-              . pack("V", $this->NextPps) //Next    // 76
+-              . pack("V", $this->DirPps)  //Dir     // 80
+-              . "\x00\x09\x02\x00"                  // 84
+-              . "\x00\x00\x00\x00"                  // 88
+-              . "\xc0\x00\x00\x00"                  // 92
+-              . "\x00\x00\x00\x46"                  // 96 // Seems to be ok only for Root
+-              . "\x00\x00\x00\x00"                  // 100
+-              . PHPExcel_Shared_OLE::LocalDate2OLE($this->Time1st)       // 108
+-              . PHPExcel_Shared_OLE::LocalDate2OLE($this->Time2nd)       // 116
+-              . pack("V", isset($this->_StartBlock)? 
+-                        $this->_StartBlock:0)        // 120
+-              . pack("V", $this->Size)               // 124
+-              . pack("V", 0);                        // 128
+-        return $ret;
+-    }
++	/**
++	* The PPS's data (only used if it's not using a temporary file)
++	* @var string
++	*/
++	private $_data;
+ 
+-    /**
+-    * Updates index and pointers to previous, next and children PPS's for this
+-    * PPS. I don't think it'll work with Dir PPS's.
+-    *
+-    * @access private
+-    * @param array &$pps_array Reference to the array of PPS's for the whole OLE
+-    *                          container 
+-    * @return integer          The index for this PPS
+-    */
+-    function _savePpsSetPnt(&$pps_array) 
+-    {
+-        $pps_array[count($pps_array)] = &$this;
+-        $this->No = count($pps_array) - 1;
+-        $this->PrevPps = 0xFFFFFFFF;
+-        $this->NextPps = 0xFFFFFFFF;
+-        if (count($this->children) > 0) {
+-            $this->DirPps = $this->children[0]->_savePpsSetPnt($pps_array);
+-        } else {
+-            $this->DirPps = 0xFFFFFFFF;
+-        }
+-        return $this->No;
+-    }
+-}
++	/**
++	* Array of child PPS's (only used by Root and Dir PPS's)
++	* @var array
++	*/
++	private $children = array();
++
++	/**
++	* Pointer to OLE container
++	* @var OLE
++	*/
++	private $ole;
++
++	/**
++	* The constructor
++	*
++	* @access public
++	* @param integer $No   The PPS index
++	* @param string  $name The PPS name
++	* @param integer $type The PPS type. Dir, Root or File
++	* @param integer $prev The index of the previous PPS
++	* @param integer $next The index of the next PPS
++	* @param integer $dir  The index of it's first child if this is a Dir or Root PPS
++	* @param integer $time_1st A timestamp
++	* @param integer $time_2nd A timestamp
++	* @param string  $data  The (usually binary) source data of the PPS
++	* @param array   $children Array containing children PPS for this PPS
++	*/
++	public function __construct($No, $name, $type, $prev, $next, $dir, $time_1st, $time_2nd, $data, $children)
++	{
++		$this->No      = $No;
++		$this->Name    = $name;
++		$this->Type    = $type;
++		$this->PrevPps = $prev;
++		$this->NextPps = $next;
++		$this->DirPps  = $dir;
++		$this->Time1st = $time_1st;
++		$this->Time2nd = $time_2nd;
++		$this->_data      = $data;
++		$this->children   = $children;
++		if ($data != '') {
++			$this->Size = strlen($data);
++		} else {
++			$this->Size = 0;
++		}
++	}
++
++	/**
++	* Returns the amount of data saved for this PPS
++	*
++	* @access private
++	* @return integer The amount of data (in bytes)
++	*/
++	private function _DataLen()
++	{
++		if (!isset($this->_data)) {
++			return 0;
++		}
++		if (isset($this->_PPS_FILE)) {
++			fseek($this->_PPS_FILE, 0);
++			$stats = fstat($this->_PPS_FILE);
++			return $stats[7];
++		} else {
++			return strlen($this->_data);
++		}
++	}
++
++	/**
++	* Returns a string with the PPS's WK (What is a WK?)
++	*
++	* @access private
++	* @return string The binary string
++	*/
++	private function _getPpsWk()
++	{
++		$ret = $this->Name;
++		for ($i = 0; $i < (64 - strlen($this->Name)); $i++) {
++			$ret .= "\x00";
++		}
++		$ret .= pack("v", strlen($this->Name) + 2)  // 66
++			  . pack("c", $this->Type)              // 67
++			  . pack("c", 0x00) //UK                // 68
++			  . pack("V", $this->PrevPps) //Prev    // 72
++			  . pack("V", $this->NextPps) //Next    // 76
++			  . pack("V", $this->DirPps)  //Dir     // 80
++			  . "\x00\x09\x02\x00"                  // 84
++			  . "\x00\x00\x00\x00"                  // 88
++			  . "\xc0\x00\x00\x00"                  // 92
++			  . "\x00\x00\x00\x46"                  // 96 // Seems to be ok only for Root
++			  . "\x00\x00\x00\x00"                  // 100
++			  . PHPExcel_Shared_OLE::LocalDate2OLE($this->Time1st)       // 108
++			  . PHPExcel_Shared_OLE::LocalDate2OLE($this->Time2nd)       // 116
++			  . pack("V", isset($this->_StartBlock)? 
++						$this->_StartBlock:0)        // 120
++			  . pack("V", $this->Size)               // 124
++			  . pack("V", 0);                        // 128
++		return $ret;
++	}
++
++	/**
++	* Updates index and pointers to previous, next and children PPS's for this
++	* PPS. I don't think it'll work with Dir PPS's.
++	*
++	* @access private
++	* @param array &$pps_array Reference to the array of PPS's for the whole OLE
++	*                          container 
++	* @return integer          The index for this PPS
++	*/
++	private function _savePpsSetPnt(&$pps_array) 
++	{
++		$pps_array[count($pps_array)] = &$this;
++		$this->No = count($pps_array) - 1;
++		$this->PrevPps = 0xFFFFFFFF;
++		$this->NextPps = 0xFFFFFFFF;
++		if (count($this->children) > 0) {
++			$this->DirPps = $this->children[0]->_savePpsSetPnt($pps_array);
++		} else {
++			$this->DirPps = 0xFFFFFFFF;
++		}
++		return $this->No;
++	}
++	}
+Index: Shared/OLE/OLE_Root.php
+===================================================================
+--- Shared/OLE/OLE_Root.php	(revision 8907)
++++ Shared/OLE/OLE_Root.php	(working copy)
+@@ -30,452 +30,452 @@
+ * @package  OLE
+ */
+ class PHPExcel_Shared_OLE_PPS_Root extends PHPExcel_Shared_OLE_PPS
+-{
+-    /**
+-    * The temporary dir for storing the OLE file
+-    * @var string
+-    */
+-    var $_tmp_dir;
+-    
+-    /**
+-     * @param integer $time_1st A timestamp
+-     * @param integer $time_2nd A timestamp
+-     */
+-    public function __construct($time_1st, $time_2nd, $raChild)
+-    {
+-        $this->_tmp_dir = '';
+-        parent::__construct(
+-           null, 
+-           PHPExcel_Shared_OLE::Asc2Ucs('Root Entry'),
+-           PHPExcel_Shared_OLE::OLE_PPS_TYPE_ROOT,
+-           null,
+-           null,
+-           null,
+-           $time_1st,
+-           $time_2nd,
+-           null,
+-           $raChild);
+-    }
++	{
++	/**
++	* The temporary dir for storing the OLE file
++	* @var string
++	*/
++	private $_tmp_dir;
+ 
+-    /**
+-    * Sets the temp dir used for storing the OLE file
+-    *
+-    * @access public
+-    * @param string $dir The dir to be used as temp dir
+-    * @return true if given dir is valid, false otherwise
+-    */
+-    function setTempDir($dir)
+-    {
+-        if (is_dir($dir)) {
+-            $this->_tmp_dir = $dir;
+-            return true;
+-        }
+-        return false;
+-    }
++	/**
++	 * @param integer $time_1st A timestamp
++	 * @param integer $time_2nd A timestamp
++	 */
++	public function __construct($time_1st, $time_2nd, $raChild)
++	{
++		$this->_tmp_dir = '';
++		parent::__construct(
++		   null, 
++		   PHPExcel_Shared_OLE::Asc2Ucs('Root Entry'),
++		   PHPExcel_Shared_OLE::OLE_PPS_TYPE_ROOT,
++		   null,
++		   null,
++		   null,
++		   $time_1st,
++		   $time_2nd,
++		   null,
++		   $raChild);
++	}
+ 
+-    /**
+-    * Method for saving the whole OLE container (including files).
+-    * In fact, if called with an empty argument (or '-'), it saves to a
+-    * temporary file and then outputs it's contents to stdout.
+-    *
+-    * @param string $filename The name of the file where to save the OLE container
+-    * @access public
+-    * @return mixed true on success
+-    */
+-    function save($filename)
+-    {
+-        // Initial Setting for saving
+-        $this->_BIG_BLOCK_SIZE  = pow(2,
+-                      ((isset($this->_BIG_BLOCK_SIZE))? $this->_adjust2($this->_BIG_BLOCK_SIZE)  : 9));
+-        $this->_SMALL_BLOCK_SIZE= pow(2, 
+-                      ((isset($this->_SMALL_BLOCK_SIZE))?  $this->_adjust2($this->_SMALL_BLOCK_SIZE): 6));
+- 
+-        // Open temp file if we are sending output to stdout
+-        if ($filename == '-' || $filename == '') {
+-            $this->_tmp_filename = tempnam($this->_tmp_dir, "OLE_PPS_Root");
+-            $this->_FILEH_ = @fopen($this->_tmp_filename,"w+b");
+-            if ($this->_FILEH_ == false) {
+-                throw new Exception("Can't create temporary file.");
+-            }
+-        } else {
+-            $this->_FILEH_ = @fopen($filename, "wb");
+-            if ($this->_FILEH_ == false) {
+-                throw new Exception("Can't open $filename. It may be in use or protected.");
+-            }
+-        }
+-        // Make an array of PPS's (for Save)
+-        $aList = array();
+-        $this->_savePpsSetPnt($aList);
+-        // calculate values for header
+-        list($iSBDcnt, $iBBcnt, $iPPScnt) = $this->_calcSize($aList); //, $rhInfo);
+-        // Save Header
+-        $this->_saveHeader($iSBDcnt, $iBBcnt, $iPPScnt);
+-  
+-        // Make Small Data string (write SBD)
+-        $this->_data = $this->_makeSmallData($aList);
+-  
+-        // Write BB
+-        $this->_saveBigData($iSBDcnt, $aList);
+-        // Write PPS
+-        $this->_savePps($aList);
+-        // Write Big Block Depot and BDList and Adding Header informations
+-        $this->_saveBbd($iSBDcnt, $iBBcnt, $iPPScnt);
+-        // Close File, send it to stdout if necessary
+-        if (($filename == '-') || ($filename == '')) {
+-            fseek($this->_FILEH_, 0);
+-            fpassthru($this->_FILEH_);
+-            @fclose($this->_FILEH_);
+-            // Delete the temporary file.
+-            @unlink($this->_tmp_filename);
+-        } else {
+-            @fclose($this->_FILEH_);
+-        }
++	/**
++	* Sets the temp dir used for storing the OLE file
++	*
++	* @access public
++	* @param string $dir The dir to be used as temp dir
++	* @return true if given dir is valid, false otherwise
++	*/
++	public function setTempDir($dir)
++	{
++		if (is_dir($dir)) {
++			$this->_tmp_dir = $dir;
++			return true;
++		}
++		return false;
++	}
+ 
+-        return true;
+-    }
++	/**
++	* Method for saving the whole OLE container (including files).
++	* In fact, if called with an empty argument (or '-'), it saves to a
++	* temporary file and then outputs it's contents to stdout.
++	*
++	* @param string $filename The name of the file where to save the OLE container
++	* @access public
++	* @return mixed true on success
++	*/
++	public function save($filename)
++	{
++		// Initial Setting for saving
++		$this->_BIG_BLOCK_SIZE  = pow(2,
++					  ((isset($this->_BIG_BLOCK_SIZE))? $this->_adjust2($this->_BIG_BLOCK_SIZE)  : 9));
++		$this->_SMALL_BLOCK_SIZE= pow(2, 
++					  ((isset($this->_SMALL_BLOCK_SIZE))?  $this->_adjust2($this->_SMALL_BLOCK_SIZE): 6));
+ 
+-    /**
+-    * Calculate some numbers
+-    *
+-    * @access private
+-    * @param array $raList Reference to an array of PPS's
+-    * @return array The array of numbers
+-    */
+-    function _calcSize(&$raList) 
+-    {
+-        // Calculate Basic Setting
+-        list($iSBDcnt, $iBBcnt, $iPPScnt) = array(0,0,0);
+-        $iSmallLen = 0;
+-        $iSBcnt = 0;
+-        for ($i = 0; $i < count($raList); $i++) {
+-            if ($raList[$i]->Type == PHPExcel_Shared_OLE::OLE_PPS_TYPE_FILE) {
+-                $raList[$i]->Size = $raList[$i]->_DataLen();
+-                if ($raList[$i]->Size < PHPExcel_Shared_OLE::OLE_DATA_SIZE_SMALL) {
+-                    $iSBcnt += floor($raList[$i]->Size / $this->_SMALL_BLOCK_SIZE)
+-                                  + (($raList[$i]->Size % $this->_SMALL_BLOCK_SIZE)? 1: 0);
+-                } else {
+-                    $iBBcnt += (floor($raList[$i]->Size / $this->_BIG_BLOCK_SIZE) +
+-                        (($raList[$i]->Size % $this->_BIG_BLOCK_SIZE)? 1: 0));
+-                }
+-            }
+-        }
+-        $iSmallLen = $iSBcnt * $this->_SMALL_BLOCK_SIZE;
+-        $iSlCnt = floor($this->_BIG_BLOCK_SIZE / PHPExcel_Shared_OLE::OLE_LONG_INT_SIZE);
+-        $iSBDcnt = floor($iSBcnt / $iSlCnt) + (($iSBcnt % $iSlCnt)? 1:0);
+-        $iBBcnt +=  (floor($iSmallLen / $this->_BIG_BLOCK_SIZE) +
+-                      (( $iSmallLen % $this->_BIG_BLOCK_SIZE)? 1: 0));
+-        $iCnt = count($raList);
+-        $iBdCnt = $this->_BIG_BLOCK_SIZE / PHPExcel_Shared_OLE::OLE_PPS_SIZE;
+-        $iPPScnt = (floor($iCnt/$iBdCnt) + (($iCnt % $iBdCnt)? 1: 0));
+-   
+-        return array($iSBDcnt, $iBBcnt, $iPPScnt);
+-    }
++		// Open temp file if we are sending output to stdout
++		if ($filename == '-' || $filename == '') {
++			$this->_tmp_filename = tempnam($this->_tmp_dir, "OLE_PPS_Root");
++			$this->_FILEH_ = fopen($this->_tmp_filename,"w+b");
++			if ($this->_FILEH_ == false) {
++				throw new Exception("Can't create temporary file.");
++			}
++		} else {
++			$this->_FILEH_ = fopen($filename, "wb");
++			if ($this->_FILEH_ == false) {
++				throw new Exception("Can't open $filename. It may be in use or protected.");
++			}
++		}
++		// Make an array of PPS's (for Save)
++		$aList = array();
++		$this->_savePpsSetPnt($aList);
++		// calculate values for header
++		list($iSBDcnt, $iBBcnt, $iPPScnt) = $this->_calcSize($aList); //, $rhInfo);
++		// Save Header
++		$this->_saveHeader($iSBDcnt, $iBBcnt, $iPPScnt);
+ 
+-    /**
+-    * Helper function for caculating a magic value for block sizes
+-    *
+-    * @access private
+-    * @param integer $i2 The argument
+-    * @see save()
+-    * @return integer
+-    */
+-    function _adjust2($i2)
+-    {
+-        $iWk = log($i2)/log(2);
+-        return ($iWk > floor($iWk))? floor($iWk)+1:$iWk;
+-    }
++		// Make Small Data string (write SBD)
++		$this->_data = $this->_makeSmallData($aList);
+ 
+-    /**
+-    * Save OLE header
+-    *
+-    * @access private
+-    * @param integer $iSBDcnt
+-    * @param integer $iBBcnt
+-    * @param integer $iPPScnt
+-    */
+-    function _saveHeader($iSBDcnt, $iBBcnt, $iPPScnt)
+-    {
+-        $FILE = $this->_FILEH_;
+-  
+-        // Calculate Basic Setting
+-        $iBlCnt = $this->_BIG_BLOCK_SIZE / PHPExcel_Shared_OLE::OLE_LONG_INT_SIZE;
+-        $i1stBdL = ($this->_BIG_BLOCK_SIZE - 0x4C) / PHPExcel_Shared_OLE::OLE_LONG_INT_SIZE;
+-  
+-        $iBdExL = 0;
+-        $iAll = $iBBcnt + $iPPScnt + $iSBDcnt;
+-        $iAllW = $iAll;
+-        $iBdCntW = floor($iAllW / $iBlCnt) + (($iAllW % $iBlCnt)? 1: 0);
+-        $iBdCnt = floor(($iAll + $iBdCntW) / $iBlCnt) + ((($iAllW+$iBdCntW) % $iBlCnt)? 1: 0);
+-  
+-        // Calculate BD count
+-        if ($iBdCnt > $i1stBdL) {
+-            while (1) {
+-                $iBdExL++;
+-                $iAllW++;
+-                $iBdCntW = floor($iAllW / $iBlCnt) + (($iAllW % $iBlCnt)? 1: 0);
+-                $iBdCnt = floor(($iAllW + $iBdCntW) / $iBlCnt) + ((($iAllW+$iBdCntW) % $iBlCnt)? 1: 0);
+-                if ($iBdCnt <= ($iBdExL*$iBlCnt+ $i1stBdL)) {
+-                    break;
+-                }
+-            }
+-        }
+-  
+-        // Save Header
+-        fwrite($FILE,
+-                  "\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1"
+-                  . "\x00\x00\x00\x00"
+-                  . "\x00\x00\x00\x00"
+-                  . "\x00\x00\x00\x00"
+-                  . "\x00\x00\x00\x00"
+-                  . pack("v", 0x3b)
+-                  . pack("v", 0x03)
+-                  . pack("v", -2)
+-                  . pack("v", 9)
+-                  . pack("v", 6)
+-                  . pack("v", 0)
+-                  . "\x00\x00\x00\x00"
+-                  . "\x00\x00\x00\x00"
+-                  . pack("V", $iBdCnt) 
+-                  . pack("V", $iBBcnt+$iSBDcnt) //ROOT START
+-                  . pack("V", 0)
+-                  . pack("V", 0x1000)
+-                  . pack("V", 0)                  //Small Block Depot
+-                  . pack("V", 1)
+-          );
+-        // Extra BDList Start, Count
+-        if ($iBdCnt < $i1stBdL) {
+-            fwrite($FILE,
+-                      pack("V", -2).      // Extra BDList Start
+-                      pack("V", 0)        // Extra BDList Count
+-                  );
+-        } else {
+-            fwrite($FILE, pack("V", $iAll+$iBdCnt) . pack("V", $iBdExL));
+-        }
++		// Write BB
++		$this->_saveBigData($iSBDcnt, $aList);
++		// Write PPS
++		$this->_savePps($aList);
++		// Write Big Block Depot and BDList and Adding Header informations
++		$this->_saveBbd($iSBDcnt, $iBBcnt, $iPPScnt);
++		// Close File, send it to stdout if necessary
++		if (($filename == '-') || ($filename == '')) {
++			fseek($this->_FILEH_, 0);
++			fpassthru($this->_FILEH_);
++			fclose($this->_FILEH_);
++			// Delete the temporary file.
++			unlink($this->_tmp_filename);
++		} else {
++			fclose($this->_FILEH_);
++		}
+ 
+-        // BDList
+-        for ($i = 0; $i < $i1stBdL && $i < $iBdCnt; $i++) {
+-            fwrite($FILE, pack("V", $iAll+$i));
+-        }
+-        if ($i < $i1stBdL) {
+-            for ($j = 0; $j < ($i1stBdL-$i); $j++) {
+-                fwrite($FILE, (pack("V", -1)));
+-            }
+-        }
+-    }
++		return true;
++	}
+ 
+-    /**
+-    * Saving big data (PPS's with data bigger than PHPExcel_Shared_OLE::OLE_DATA_SIZE_SMALL)
+-    *
+-    * @access private
+-    * @param integer $iStBlk
+-    * @param array &$raList Reference to array of PPS's
+-    */
+-    function _saveBigData($iStBlk, &$raList)
+-    {
+-        $FILE = $this->_FILEH_;
+-   
+-        // cycle through PPS's
+-        for ($i = 0; $i < count($raList); $i++) {
+-            if ($raList[$i]->Type != PHPExcel_Shared_OLE::OLE_PPS_TYPE_DIR) {
+-                $raList[$i]->Size = $raList[$i]->_DataLen();
+-                if (($raList[$i]->Size >= PHPExcel_Shared_OLE::OLE_DATA_SIZE_SMALL) ||
+-                    (($raList[$i]->Type == PHPExcel_Shared_OLE::OLE_PPS_TYPE_ROOT) && isset($raList[$i]->_data)))
+-                {
+-                    // Write Data
+-                    if (isset($raList[$i]->_PPS_FILE)) {
+-                        $iLen = 0;
+-                        fseek($raList[$i]->_PPS_FILE, 0); // To The Top
+-                        while($sBuff = fread($raList[$i]->_PPS_FILE, 4096)) {
+-                            $iLen += strlen($sBuff);
+-                            fwrite($FILE, $sBuff);
+-                        }
+-                    } else {
+-                        fwrite($FILE, $raList[$i]->_data);
+-                    }
+-           
+-                    if ($raList[$i]->Size % $this->_BIG_BLOCK_SIZE) {
+-                        for ($j = 0; $j < ($this->_BIG_BLOCK_SIZE - ($raList[$i]->Size % $this->_BIG_BLOCK_SIZE)); $j++) {
+-                            fwrite($FILE, "\x00");
+-                        }
+-                    }
+-                    // Set For PPS
+-                    $raList[$i]->_StartBlock = $iStBlk;
+-                    $iStBlk += 
+-                            (floor($raList[$i]->Size / $this->_BIG_BLOCK_SIZE) +
+-                                (($raList[$i]->Size % $this->_BIG_BLOCK_SIZE)? 1: 0));
+-                }
+-                // Close file for each PPS, and unlink it
+-                if (isset($raList[$i]->_PPS_FILE)) {
+-                    @fclose($raList[$i]->_PPS_FILE);
+-                    $raList[$i]->_PPS_FILE = null;
+-                    @unlink($raList[$i]->_tmp_filename);
+-                }
+-            }
+-        }
+-    }
++	/**
++	* Calculate some numbers
++	*
++	* @access private
++	* @param array $raList Reference to an array of PPS's
++	* @return array The array of numbers
++	*/
++	private function _calcSize(&$raList) 
++	{
++		// Calculate Basic Setting
++		list($iSBDcnt, $iBBcnt, $iPPScnt) = array(0,0,0);
++		$iSmallLen = 0;
++		$iSBcnt = 0;
++		for ($i = 0; $i < count($raList); $i++) {
++			if ($raList[$i]->Type == PHPExcel_Shared_OLE::OLE_PPS_TYPE_FILE) {
++				$raList[$i]->Size = $raList[$i]->_DataLen();
++				if ($raList[$i]->Size < PHPExcel_Shared_OLE::OLE_DATA_SIZE_SMALL) {
++					$iSBcnt += floor($raList[$i]->Size / $this->_SMALL_BLOCK_SIZE)
++								  + (($raList[$i]->Size % $this->_SMALL_BLOCK_SIZE)? 1: 0);
++				} else {
++					$iBBcnt += (floor($raList[$i]->Size / $this->_BIG_BLOCK_SIZE) +
++						(($raList[$i]->Size % $this->_BIG_BLOCK_SIZE)? 1: 0));
++				}
++			}
++		}
++		$iSmallLen = $iSBcnt * $this->_SMALL_BLOCK_SIZE;
++		$iSlCnt = floor($this->_BIG_BLOCK_SIZE / PHPExcel_Shared_OLE::OLE_LONG_INT_SIZE);
++		$iSBDcnt = floor($iSBcnt / $iSlCnt) + (($iSBcnt % $iSlCnt)? 1:0);
++		$iBBcnt +=  (floor($iSmallLen / $this->_BIG_BLOCK_SIZE) +
++					  (( $iSmallLen % $this->_BIG_BLOCK_SIZE)? 1: 0));
++		$iCnt = count($raList);
++		$iBdCnt = $this->_BIG_BLOCK_SIZE / PHPExcel_Shared_OLE::OLE_PPS_SIZE;
++		$iPPScnt = (floor($iCnt/$iBdCnt) + (($iCnt % $iBdCnt)? 1: 0));
+ 
+-    /**
+-    * get small data (PPS's with data smaller than PHPExcel_Shared_OLE::OLE_DATA_SIZE_SMALL)
+-    *
+-    * @access private
+-    * @param array &$raList Reference to array of PPS's
+-    */
+-    function _makeSmallData(&$raList)
+-    {
+-        $sRes = '';
+-        $FILE = $this->_FILEH_;
+-        $iSmBlk = 0;
+-   
+-        for ($i = 0; $i < count($raList); $i++) {
+-            // Make SBD, small data string
+-            if ($raList[$i]->Type == PHPExcel_Shared_OLE::OLE_PPS_TYPE_FILE) {
+-                if ($raList[$i]->Size <= 0) {
+-                    continue;
+-                }
+-                if ($raList[$i]->Size < PHPExcel_Shared_OLE::OLE_DATA_SIZE_SMALL) {
+-                    $iSmbCnt = floor($raList[$i]->Size / $this->_SMALL_BLOCK_SIZE)
+-                                  + (($raList[$i]->Size % $this->_SMALL_BLOCK_SIZE)? 1: 0);
+-                    // Add to SBD
+-                    for ($j = 0; $j < ($iSmbCnt-1); $j++) {
+-                        fwrite($FILE, pack("V", $j+$iSmBlk+1));
+-                    }
+-                    fwrite($FILE, pack("V", -2));
+-                   
+-                    // Add to Data String(this will be written for RootEntry)
+-                    if ($raList[$i]->_PPS_FILE) {
+-                        fseek($raList[$i]->_PPS_FILE, 0); // To The Top
+-                        while ($sBuff = fread($raList[$i]->_PPS_FILE, 4096)) {
+-                            $sRes .= $sBuff;
+-                        }
+-                    } else {
+-                        $sRes .= $raList[$i]->_data;
+-                    }
+-                    if ($raList[$i]->Size % $this->_SMALL_BLOCK_SIZE) {
+-                        for ($j = 0; $j < ($this->_SMALL_BLOCK_SIZE - ($raList[$i]->Size % $this->_SMALL_BLOCK_SIZE)); $j++) {
+-                            $sRes .= "\x00";
+-                        }
+-                    }
+-                    // Set for PPS
+-                    $raList[$i]->_StartBlock = $iSmBlk;
+-                    $iSmBlk += $iSmbCnt;
+-                }
+-            }
+-        }
+-        $iSbCnt = floor($this->_BIG_BLOCK_SIZE / PHPExcel_Shared_OLE::OLE_LONG_INT_SIZE);
+-        if ($iSmBlk % $iSbCnt) {
+-            for ($i = 0; $i < ($iSbCnt - ($iSmBlk % $iSbCnt)); $i++) {
+-                fwrite($FILE, pack("V", -1));
+-            }
+-        }
+-        return $sRes;
+-    }
++		return array($iSBDcnt, $iBBcnt, $iPPScnt);
++	}
+ 
+-    /**
+-    * Saves all the PPS's WKs
+-    *
+-    * @access private
+-    * @param array $raList Reference to an array with all PPS's
+-    */
+-    function _savePps(&$raList) 
+-    {
+-        // Save each PPS WK
+-        for ($i = 0; $i < count($raList); $i++) {
+-            fwrite($this->_FILEH_, $raList[$i]->_getPpsWk());
+-        }
+-        // Adjust for Block
+-        $iCnt = count($raList);
+-        $iBCnt = $this->_BIG_BLOCK_SIZE / PHPExcel_Shared_OLE::OLE_PPS_SIZE;
+-        if ($iCnt % $iBCnt) {
+-            for ($i = 0; $i < (($iBCnt - ($iCnt % $iBCnt)) * PHPExcel_Shared_OLE::OLE_PPS_SIZE); $i++) {
+-                fwrite($this->_FILEH_, "\x00");
+-            }
+-        }
+-    }
++	/**
++	* Helper function for caculating a magic value for block sizes
++	*
++	* @access private
++	* @param integer $i2 The argument
++	* @see save()
++	* @return integer
++	*/
++	private function _adjust2($i2)
++	{
++		$iWk = log($i2)/log(2);
++		return ($iWk > floor($iWk))? floor($iWk)+1:$iWk;
++	}
+ 
+-    /**
+-    * Saving Big Block Depot
+-    *
+-    * @access private
+-    * @param integer $iSbdSize
+-    * @param integer $iBsize
+-    * @param integer $iPpsCnt
+-    */
+-    function _saveBbd($iSbdSize, $iBsize, $iPpsCnt) 
+-    {
+-        $FILE = $this->_FILEH_;
+-        // Calculate Basic Setting
+-        $iBbCnt = $this->_BIG_BLOCK_SIZE / PHPExcel_Shared_OLE::OLE_LONG_INT_SIZE;
+-        $i1stBdL = ($this->_BIG_BLOCK_SIZE - 0x4C) / PHPExcel_Shared_OLE::OLE_LONG_INT_SIZE;
+-      
+-        $iBdExL = 0;
+-        $iAll = $iBsize + $iPpsCnt + $iSbdSize;
+-        $iAllW = $iAll;
+-        $iBdCntW = floor($iAllW / $iBbCnt) + (($iAllW % $iBbCnt)? 1: 0);
+-        $iBdCnt = floor(($iAll + $iBdCntW) / $iBbCnt) + ((($iAllW+$iBdCntW) % $iBbCnt)? 1: 0);
+-        // Calculate BD count
+-        if ($iBdCnt >$i1stBdL) {
+-            while (1) {
+-                $iBdExL++;
+-                $iAllW++;
+-                $iBdCntW = floor($iAllW / $iBbCnt) + (($iAllW % $iBbCnt)? 1: 0);
+-                $iBdCnt = floor(($iAllW + $iBdCntW) / $iBbCnt) + ((($iAllW+$iBdCntW) % $iBbCnt)? 1: 0);
+-                if ($iBdCnt <= ($iBdExL*$iBbCnt+ $i1stBdL)) {
+-                    break;
+-                }
+-            }
+-        }
+-      
+-        // Making BD
+-        // Set for SBD
+-        if ($iSbdSize > 0) {
+-            for ($i = 0; $i < ($iSbdSize - 1); $i++) {
+-                fwrite($FILE, pack("V", $i+1));
+-            }
+-            fwrite($FILE, pack("V", -2));
+-        }
+-        // Set for B
+-        for ($i = 0; $i < ($iBsize - 1); $i++) {
+-            fwrite($FILE, pack("V", $i+$iSbdSize+1));
+-        }
+-        fwrite($FILE, pack("V", -2));
+-      
+-        // Set for PPS
+-        for ($i = 0; $i < ($iPpsCnt - 1); $i++) {
+-            fwrite($FILE, pack("V", $i+$iSbdSize+$iBsize+1));
+-        }
+-        fwrite($FILE, pack("V", -2));
+-        // Set for BBD itself ( 0xFFFFFFFD : BBD)
+-        for ($i = 0; $i < $iBdCnt; $i++) {
+-            fwrite($FILE, pack("V", 0xFFFFFFFD));
+-        }
+-        // Set for ExtraBDList
+-        for ($i = 0; $i < $iBdExL; $i++) {
+-            fwrite($FILE, pack("V", 0xFFFFFFFC));
+-        }
+-        // Adjust for Block
+-        if (($iAllW + $iBdCnt) % $iBbCnt) {
+-            for ($i = 0; $i < ($iBbCnt - (($iAllW + $iBdCnt) % $iBbCnt)); $i++) {
+-                fwrite($FILE, pack("V", -1));
+-            }
+-        }
+-        // Extra BDList
+-        if ($iBdCnt > $i1stBdL) {
+-            $iN=0;
+-            $iNb=0;
+-            for ($i = $i1stBdL;$i < $iBdCnt; $i++, $iN++) {
+-                if ($iN >= ($iBbCnt - 1)) {
+-                    $iN = 0;
+-                    $iNb++;
+-                    fwrite($FILE, pack("V", $iAll+$iBdCnt+$iNb));
+-                }
+-                fwrite($FILE, pack("V", $iBsize+$iSbdSize+$iPpsCnt+$i));
+-            }
+-            if (($iBdCnt-$i1stBdL) % ($iBbCnt-1)) {
+-                for ($i = 0; $i < (($iBbCnt - 1) - (($iBdCnt - $i1stBdL) % ($iBbCnt - 1))); $i++) {
+-                    fwrite($FILE, pack("V", -1)); 
+-                }
+-            }
+-            fwrite($FILE, pack("V", -2));
+-        }
+-    }
+-}
++	/**
++	* Save OLE header
++	*
++	* @access private
++	* @param integer $iSBDcnt
++	* @param integer $iBBcnt
++	* @param integer $iPPScnt
++	*/
++	private function _saveHeader($iSBDcnt, $iBBcnt, $iPPScnt)
++	{
++		$FILE = $this->_FILEH_;
++
++		// Calculate Basic Setting
++		$iBlCnt = $this->_BIG_BLOCK_SIZE / PHPExcel_Shared_OLE::OLE_LONG_INT_SIZE;
++		$i1stBdL = ($this->_BIG_BLOCK_SIZE - 0x4C) / PHPExcel_Shared_OLE::OLE_LONG_INT_SIZE;
++
++		$iBdExL = 0;
++		$iAll = $iBBcnt + $iPPScnt + $iSBDcnt;
++		$iAllW = $iAll;
++		$iBdCntW = floor($iAllW / $iBlCnt) + (($iAllW % $iBlCnt)? 1: 0);
++		$iBdCnt = floor(($iAll + $iBdCntW) / $iBlCnt) + ((($iAllW+$iBdCntW) % $iBlCnt)? 1: 0);
++
++		// Calculate BD count
++		if ($iBdCnt > $i1stBdL) {
++			while (1) {
++				$iBdExL++;
++				$iAllW++;
++				$iBdCntW = floor($iAllW / $iBlCnt) + (($iAllW % $iBlCnt)? 1: 0);
++				$iBdCnt = floor(($iAllW + $iBdCntW) / $iBlCnt) + ((($iAllW+$iBdCntW) % $iBlCnt)? 1: 0);
++				if ($iBdCnt <= ($iBdExL*$iBlCnt+ $i1stBdL)) {
++					break;
++				}
++			}
++		}
++
++		// Save Header
++		fwrite($FILE,
++				  "\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1"
++				  . "\x00\x00\x00\x00"
++				  . "\x00\x00\x00\x00"
++				  . "\x00\x00\x00\x00"
++				  . "\x00\x00\x00\x00"
++				  . pack("v", 0x3b)
++				  . pack("v", 0x03)
++				  . pack("v", -2)
++				  . pack("v", 9)
++				  . pack("v", 6)
++				  . pack("v", 0)
++				  . "\x00\x00\x00\x00"
++				  . "\x00\x00\x00\x00"
++				  . pack("V", $iBdCnt) 
++				  . pack("V", $iBBcnt+$iSBDcnt) //ROOT START
++				  . pack("V", 0)
++				  . pack("V", 0x1000)
++				  . pack("V", 0)                  //Small Block Depot
++				  . pack("V", 1)
++		  );
++		// Extra BDList Start, Count
++		if ($iBdCnt < $i1stBdL) {
++			fwrite($FILE,
++					  pack("V", -2).      // Extra BDList Start
++					  pack("V", 0)        // Extra BDList Count
++				  );
++		} else {
++			fwrite($FILE, pack("V", $iAll+$iBdCnt) . pack("V", $iBdExL));
++		}
++
++		// BDList
++		for ($i = 0; $i < $i1stBdL && $i < $iBdCnt; $i++) {
++			fwrite($FILE, pack("V", $iAll+$i));
++		}
++		if ($i < $i1stBdL) {
++			for ($j = 0; $j < ($i1stBdL-$i); $j++) {
++				fwrite($FILE, (pack("V", -1)));
++			}
++		}
++	}
++
++	/**
++	* Saving big data (PPS's with data bigger than PHPExcel_Shared_OLE::OLE_DATA_SIZE_SMALL)
++	*
++	* @access private
++	* @param integer $iStBlk
++	* @param array &$raList Reference to array of PPS's
++	*/
++	private function _saveBigData($iStBlk, &$raList)
++	{
++		$FILE = $this->_FILEH_;
++
++		// cycle through PPS's
++		for ($i = 0; $i < count($raList); $i++) {
++			if ($raList[$i]->Type != PHPExcel_Shared_OLE::OLE_PPS_TYPE_DIR) {
++				$raList[$i]->Size = $raList[$i]->_DataLen();
++				if (($raList[$i]->Size >= PHPExcel_Shared_OLE::OLE_DATA_SIZE_SMALL) ||
++					(($raList[$i]->Type == PHPExcel_Shared_OLE::OLE_PPS_TYPE_ROOT) && isset($raList[$i]->_data)))
++				{
++					// Write Data
++					if (isset($raList[$i]->_PPS_FILE)) {
++						$iLen = 0;
++						fseek($raList[$i]->_PPS_FILE, 0); // To The Top
++						while($sBuff = fread($raList[$i]->_PPS_FILE, 4096)) {
++							$iLen += strlen($sBuff);
++							fwrite($FILE, $sBuff);
++						}
++					} else {
++						fwrite($FILE, $raList[$i]->_data);
++					}
++		   
++					if ($raList[$i]->Size % $this->_BIG_BLOCK_SIZE) {
++						for ($j = 0; $j < ($this->_BIG_BLOCK_SIZE - ($raList[$i]->Size % $this->_BIG_BLOCK_SIZE)); $j++) {
++							fwrite($FILE, "\x00");
++						}
++					}
++					// Set For PPS
++					$raList[$i]->_StartBlock = $iStBlk;
++					$iStBlk += 
++							(floor($raList[$i]->Size / $this->_BIG_BLOCK_SIZE) +
++								(($raList[$i]->Size % $this->_BIG_BLOCK_SIZE)? 1: 0));
++				}
++				// Close file for each PPS, and unlink it
++				if (isset($raList[$i]->_PPS_FILE)) {
++					fclose($raList[$i]->_PPS_FILE);
++					$raList[$i]->_PPS_FILE = null;
++					unlink($raList[$i]->_tmp_filename);
++				}
++			}
++		}
++	}
++
++	/**
++	* get small data (PPS's with data smaller than PHPExcel_Shared_OLE::OLE_DATA_SIZE_SMALL)
++	*
++	* @access private
++	* @param array &$raList Reference to array of PPS's
++	*/
++	private function _makeSmallData(&$raList)
++	{
++		$sRes = '';
++		$FILE = $this->_FILEH_;
++		$iSmBlk = 0;
++
++		for ($i = 0; $i < count($raList); $i++) {
++			// Make SBD, small data string
++			if ($raList[$i]->Type == PHPExcel_Shared_OLE::OLE_PPS_TYPE_FILE) {
++				if ($raList[$i]->Size <= 0) {
++					continue;
++				}
++				if ($raList[$i]->Size < PHPExcel_Shared_OLE::OLE_DATA_SIZE_SMALL) {
++					$iSmbCnt = floor($raList[$i]->Size / $this->_SMALL_BLOCK_SIZE)
++								  + (($raList[$i]->Size % $this->_SMALL_BLOCK_SIZE)? 1: 0);
++					// Add to SBD
++					for ($j = 0; $j < ($iSmbCnt-1); $j++) {
++						fwrite($FILE, pack("V", $j+$iSmBlk+1));
++					}
++					fwrite($FILE, pack("V", -2));
++				   
++					// Add to Data String(this will be written for RootEntry)
++					if ($raList[$i]->_PPS_FILE) {
++						fseek($raList[$i]->_PPS_FILE, 0); // To The Top
++						while ($sBuff = fread($raList[$i]->_PPS_FILE, 4096)) {
++							$sRes .= $sBuff;
++						}
++					} else {
++						$sRes .= $raList[$i]->_data;
++					}
++					if ($raList[$i]->Size % $this->_SMALL_BLOCK_SIZE) {
++						for ($j = 0; $j < ($this->_SMALL_BLOCK_SIZE - ($raList[$i]->Size % $this->_SMALL_BLOCK_SIZE)); $j++) {
++							$sRes .= "\x00";
++						}
++					}
++					// Set for PPS
++					$raList[$i]->_StartBlock = $iSmBlk;
++					$iSmBlk += $iSmbCnt;
++				}
++			}
++		}
++		$iSbCnt = floor($this->_BIG_BLOCK_SIZE / PHPExcel_Shared_OLE::OLE_LONG_INT_SIZE);
++		if ($iSmBlk % $iSbCnt) {
++			for ($i = 0; $i < ($iSbCnt - ($iSmBlk % $iSbCnt)); $i++) {
++				fwrite($FILE, pack("V", -1));
++			}
++		}
++		return $sRes;
++	}
++
++	/**
++	* Saves all the PPS's WKs
++	*
++	* @access private
++	* @param array $raList Reference to an array with all PPS's
++	*/
++	private function _savePps(&$raList) 
++	{
++		// Save each PPS WK
++		for ($i = 0; $i < count($raList); $i++) {
++			fwrite($this->_FILEH_, $raList[$i]->_getPpsWk());
++		}
++		// Adjust for Block
++		$iCnt = count($raList);
++		$iBCnt = $this->_BIG_BLOCK_SIZE / PHPExcel_Shared_OLE::OLE_PPS_SIZE;
++		if ($iCnt % $iBCnt) {
++			for ($i = 0; $i < (($iBCnt - ($iCnt % $iBCnt)) * PHPExcel_Shared_OLE::OLE_PPS_SIZE); $i++) {
++				fwrite($this->_FILEH_, "\x00");
++			}
++		}
++	}
++
++	/**
++	* Saving Big Block Depot
++	*
++	* @access private
++	* @param integer $iSbdSize
++	* @param integer $iBsize
++	* @param integer $iPpsCnt
++	*/
++	private function _saveBbd($iSbdSize, $iBsize, $iPpsCnt) 
++	{
++		$FILE = $this->_FILEH_;
++		// Calculate Basic Setting
++		$iBbCnt = $this->_BIG_BLOCK_SIZE / PHPExcel_Shared_OLE::OLE_LONG_INT_SIZE;
++		$i1stBdL = ($this->_BIG_BLOCK_SIZE - 0x4C) / PHPExcel_Shared_OLE::OLE_LONG_INT_SIZE;
++	  
++		$iBdExL = 0;
++		$iAll = $iBsize + $iPpsCnt + $iSbdSize;
++		$iAllW = $iAll;
++		$iBdCntW = floor($iAllW / $iBbCnt) + (($iAllW % $iBbCnt)? 1: 0);
++		$iBdCnt = floor(($iAll + $iBdCntW) / $iBbCnt) + ((($iAllW+$iBdCntW) % $iBbCnt)? 1: 0);
++		// Calculate BD count
++		if ($iBdCnt >$i1stBdL) {
++			while (1) {
++				$iBdExL++;
++				$iAllW++;
++				$iBdCntW = floor($iAllW / $iBbCnt) + (($iAllW % $iBbCnt)? 1: 0);
++				$iBdCnt = floor(($iAllW + $iBdCntW) / $iBbCnt) + ((($iAllW+$iBdCntW) % $iBbCnt)? 1: 0);
++				if ($iBdCnt <= ($iBdExL*$iBbCnt+ $i1stBdL)) {
++					break;
++				}
++			}
++		}
++	  
++		// Making BD
++		// Set for SBD
++		if ($iSbdSize > 0) {
++			for ($i = 0; $i < ($iSbdSize - 1); $i++) {
++				fwrite($FILE, pack("V", $i+1));
++			}
++			fwrite($FILE, pack("V", -2));
++		}
++		// Set for B
++		for ($i = 0; $i < ($iBsize - 1); $i++) {
++			fwrite($FILE, pack("V", $i+$iSbdSize+1));
++		}
++		fwrite($FILE, pack("V", -2));
++	  
++		// Set for PPS
++		for ($i = 0; $i < ($iPpsCnt - 1); $i++) {
++			fwrite($FILE, pack("V", $i+$iSbdSize+$iBsize+1));
++		}
++		fwrite($FILE, pack("V", -2));
++		// Set for BBD itself ( 0xFFFFFFFD : BBD)
++		for ($i = 0; $i < $iBdCnt; $i++) {
++			fwrite($FILE, pack("V", 0xFFFFFFFD));
++		}
++		// Set for ExtraBDList
++		for ($i = 0; $i < $iBdExL; $i++) {
++			fwrite($FILE, pack("V", 0xFFFFFFFC));
++		}
++		// Adjust for Block
++		if (($iAllW + $iBdCnt) % $iBbCnt) {
++			for ($i = 0; $i < ($iBbCnt - (($iAllW + $iBdCnt) % $iBbCnt)); $i++) {
++				fwrite($FILE, pack("V", -1));
++			}
++		}
++		// Extra BDList
++		if ($iBdCnt > $i1stBdL) {
++			$iN=0;
++			$iNb=0;
++			for ($i = $i1stBdL;$i < $iBdCnt; $i++, $iN++) {
++				if ($iN >= ($iBbCnt - 1)) {
++					$iN = 0;
++					$iNb++;
++					fwrite($FILE, pack("V", $iAll+$iBdCnt+$iNb));
++				}
++				fwrite($FILE, pack("V", $iBsize+$iSbdSize+$iPpsCnt+$i));
++			}
++			if (($iBdCnt-$i1stBdL) % ($iBbCnt-1)) {
++				for ($i = 0; $i < (($iBbCnt - 1) - (($iBdCnt - $i1stBdL) % ($iBbCnt - 1))); $i++) {
++					fwrite($FILE, pack("V", -1)); 
++				}
++			}
++			fwrite($FILE, pack("V", -2));
++		}
++	}
++	}
+Index: Shared/OLERead.php
+===================================================================
+--- Shared/OLERead.php	(revision 8907)
++++ Shared/OLERead.php	(working copy)
+@@ -25,33 +25,39 @@
+  * @version    1.6.1, 2008-04-28
+  */
+ 
+-
+-define('NUM_BIG_BLOCK_DEPOT_BLOCKS_POS', 0x2c);
+-define('SMALL_BLOCK_DEPOT_BLOCK_POS', 0x3c);
+-define('ROOT_START_BLOCK_POS', 0x30);
+-define('BIG_BLOCK_SIZE', 0x200);
+-define('SMALL_BLOCK_SIZE', 0x40);
+-define('EXTENSION_BLOCK_POS', 0x44);
+-define('NUM_EXTENSION_BLOCK_POS', 0x48);
+-define('PROPERTY_STORAGE_BLOCK_SIZE', 0x80);
+-define('BIG_BLOCK_DEPOT_BLOCKS_POS', 0x4c);
+-define('SMALL_BLOCK_THRESHOLD', 0x1000);
+-// property storage offsets
+-define('SIZE_OF_NAME_POS', 0x40);
+-define('TYPE_POS', 0x42);
+-define('START_BLOCK_POS', 0x74);
+-define('SIZE_POS', 0x78);
+-define('IDENTIFIER_OLE', pack("CCCCCCCC",0xd0,0xcf,0x11,0xe0,0xa1,0xb1,0x1a,0xe1));
+-define('IDENTIFIER_BIFF7', pack("CCCCCCCC",0x09,0x08,0x08,0x00,0x00,0x05,0x05,0x00));
+-define('IDENTIFIER_BIFF8', pack("CCCCCCCC",0x09,0x08,0x10,0x00,0x00,0x06,0x05,0x00));
++define('IDENTIFIER_OLE', pack("CCCCCCCC", 0xd0,0xcf,0x11,0xe0,0xa1,0xb1,0x1a,0xe1));
++define('IDENTIFIER_BIFF7', pack("CCCCCCCC", 0x09,0x08,0x08,0x00,0x00,0x05,0x05,0x00));
++define('IDENTIFIER_BIFF8', pack("CCCCCCCC", 0x09,0x08,0x10,0x00,0x00,0x06,0x05,0x00));
+ // OpenOffice and Excel 97-2004 for Mac.
+-define('IDENTIFIER_OOF', pack("CCCCCCCC",0xfd,0xff,0xff,0xff,0xff,0xff,0xff,0xff));
+-define('IDENTIFIER_MAC04', pack("CCCCCCCC",0xfd,0xff,0xff,0xff,0x23,0x00,0x00,0x00));
++define('IDENTIFIER_OOF', pack("CCCCCCCC", 0xfd,0xff,0xff,0xff,0xff,0xff,0xff,0xff));
++define('IDENTIFIER_MAC04', pack("CCCCCCCC", 0xfd,0xff,0xff,0xff,0x23,0x00,0x00,0x00));
+ 
+ 
+ class PHPExcel_Shared_OLERead {
+-	var $data = '';
++	private $data = '';
+ 
++	const NUM_BIG_BLOCK_DEPOT_BLOCKS_POS = 0x2c;
++	const SMALL_BLOCK_DEPOT_BLOCK_POS = 0x3c;
++	const ROOT_START_BLOCK_POS = 0x30;
++	const BIG_BLOCK_SIZE = 0x200;
++	const SMALL_BLOCK_SIZE = 0x40;
++	const EXTENSION_BLOCK_POS = 0x44;
++	const NUM_EXTENSION_BLOCK_POS = 0x48;
++	const PROPERTY_STORAGE_BLOCK_SIZE = 0x80;
++	const BIG_BLOCK_DEPOT_BLOCKS_POS = 0x4c;
++	const SMALL_BLOCK_THRESHOLD = 0x1000;
++	// property storage offsets
++	const SIZE_OF_NAME_POS = 0x40;
++	const TYPE_POS = 0x42;
++	const START_BLOCK_POS = 0x74;
++	const SIZE_POS = 0x78;
++	const IDENTIFIER_OLE = IDENTIFIER_OLE;
++	const IDENTIFIER_BIFF7 = IDENTIFIER_BIFF7;
++	const IDENTIFIER_BIFF8 = IDENTIFIER_BIFF8;
++	// OpenOffice and Excel 97-2004 for Mac.
++	const IDENTIFIER_OOF = IDENTIFIER_OOF;
++	const IDENTIFIER_MAC04 = IDENTIFIER_MAC04;
++
+ 	public function read($sFileName)
+ 	{
+ 		// check if file exist and is readable (Darko Miljanovic)
+@@ -60,13 +66,13 @@
+ 			return false;
+ 		}
+ 
+-		$this->data = @file_get_contents($sFileName);
++		$this->data = file_get_contents($sFileName);
+ 		if (!$this->data) {
+ 			$this->error = 1;
+ 			return false;
+ 		}
+ 
+-		if (substr($this->data, 0, 8) != IDENTIFIER_OLE) {
++		if (substr($this->data, 0, 8) != self::IDENTIFIER_OLE) {
+ 			$this->error = 1;
+ 			return false;
+ 		}
+@@ -87,19 +93,19 @@
+ 			return false;
+ 		}*/
+ 
+-		$this->numBigBlockDepotBlocks = $this->_GetInt4d($this->data, NUM_BIG_BLOCK_DEPOT_BLOCKS_POS);
+-		$this->sbdStartBlock = $this->_GetInt4d($this->data, SMALL_BLOCK_DEPOT_BLOCK_POS);
+-		$this->rootStartBlock = $this->_GetInt4d($this->data, ROOT_START_BLOCK_POS);
+-		$this->extensionBlock = $this->_GetInt4d($this->data, EXTENSION_BLOCK_POS);
+-		$this->numExtensionBlocks = $this->_GetInt4d($this->data, NUM_EXTENSION_BLOCK_POS);
++		$this->numBigBlockDepotBlocks = $this->_GetInt4d($this->data, self::NUM_BIG_BLOCK_DEPOT_BLOCKS_POS);
++		$this->sbdStartBlock = $this->_GetInt4d($this->data, self::SMALL_BLOCK_DEPOT_BLOCK_POS);
++		$this->rootStartBlock = $this->_GetInt4d($this->data, self::ROOT_START_BLOCK_POS);
++		$this->extensionBlock = $this->_GetInt4d($this->data, self::EXTENSION_BLOCK_POS);
++		$this->numExtensionBlocks = $this->_GetInt4d($this->data, self::NUM_EXTENSION_BLOCK_POS);
+ 
+ 		$bigBlockDepotBlocks = array();
+-		$pos = BIG_BLOCK_DEPOT_BLOCKS_POS;
++		$pos = self::BIG_BLOCK_DEPOT_BLOCKS_POS;
+ 
+ 		$bbdBlocks = $this->numBigBlockDepotBlocks;
+ 
+ 		if ($this->numExtensionBlocks != 0) {
+-			$bbdBlocks = (BIG_BLOCK_SIZE - BIG_BLOCK_DEPOT_BLOCKS_POS)/4;
++			$bbdBlocks = (self::BIG_BLOCK_SIZE - self::BIG_BLOCK_DEPOT_BLOCKS_POS)/4;
+ 		}
+ 
+ 		for ($i = 0; $i < $bbdBlocks; $i++) {
+@@ -108,8 +114,8 @@
+ 		}
+ 
+ 		for ($j = 0; $j < $this->numExtensionBlocks; $j++) {
+-			$pos = ($this->extensionBlock + 1) * BIG_BLOCK_SIZE;
+-			$blocksToRead = min($this->numBigBlockDepotBlocks - $bbdBlocks, BIG_BLOCK_SIZE / 4 - 1);
++			$pos = ($this->extensionBlock + 1) * self::BIG_BLOCK_SIZE;
++			$blocksToRead = min($this->numBigBlockDepotBlocks - $bbdBlocks, self::BIG_BLOCK_SIZE / 4 - 1);
+ 
+ 			for ($i = $bbdBlocks; $i < $bbdBlocks + $blocksToRead; $i++) {
+ 				$bigBlockDepotBlocks[$i] = $this->_GetInt4d($this->data, $pos);
+@@ -127,9 +133,9 @@
+ 		$this->bigBlockChain = array();
+ 
+ 		for ($i = 0; $i < $this->numBigBlockDepotBlocks; $i++) {
+-			$pos = ($bigBlockDepotBlocks[$i] + 1) * BIG_BLOCK_SIZE;
++			$pos = ($bigBlockDepotBlocks[$i] + 1) * self::BIG_BLOCK_SIZE;
+ 
+-			for ($j = 0 ; $j < BIG_BLOCK_SIZE / 4; $j++) {
++			for ($j = 0 ; $j < self::BIG_BLOCK_SIZE / 4; $j++) {
+ 				$this->bigBlockChain[$index] = $this->_GetInt4d($this->data, $pos);
+ 				$pos += 4 ;
+ 				$index++;
+@@ -142,9 +148,9 @@
+ 		$this->smallBlockChain = array();
+ 
+ 		while ($sbdBlock != -2) {
+-			$pos = ($sbdBlock + 1) * BIG_BLOCK_SIZE;
++			$pos = ($sbdBlock + 1) * self::BIG_BLOCK_SIZE;
+ 
+-			for ($j = 0; $j < BIG_BLOCK_SIZE / 4; $j++) {
++			for ($j = 0; $j < self::BIG_BLOCK_SIZE / 4; $j++) {
+ 				$this->smallBlockChain[$index] = $this->_GetInt4d($this->data, $pos);
+ 				$pos += 4;
+ 				$index++;
+@@ -163,7 +169,7 @@
+ 
+ 	public function getWorkBook()
+ 	{
+-		if ($this->props[$this->wrkbook]['size'] < SMALL_BLOCK_THRESHOLD){
++		if ($this->props[$this->wrkbook]['size'] < self::SMALL_BLOCK_THRESHOLD){
+ 			$rootdata = $this->_readData($this->props[$this->rootentry]['startBlock']);
+ 
+ 			$streamData = '';
+@@ -171,8 +177,8 @@
+ 
+ 			$pos = 0;
+ 			while ($block != -2) {
+-	  			$pos = $block * SMALL_BLOCK_SIZE;
+-				$streamData .= substr($rootdata, $pos, SMALL_BLOCK_SIZE);
++	  			$pos = $block * self::SMALL_BLOCK_SIZE;
++				$streamData .= substr($rootdata, $pos, self::SMALL_BLOCK_SIZE);
+ 
+ 				$block = $this->smallBlockChain[$block];
+ 			}
+@@ -181,8 +187,8 @@
+ 
+ 
+ 		} else {
+-			$numBlocks = $this->props[$this->wrkbook]['size'] / BIG_BLOCK_SIZE;
+-			if ($this->props[$this->wrkbook]['size'] % BIG_BLOCK_SIZE != 0) {
++			$numBlocks = $this->props[$this->wrkbook]['size'] / self::BIG_BLOCK_SIZE;
++			if ($this->props[$this->wrkbook]['size'] % self::BIG_BLOCK_SIZE != 0) {
+ 				$numBlocks++;
+ 			}
+ 
+@@ -195,8 +201,8 @@
+ 			$pos = 0;
+ 
+ 			while ($block != -2) {
+-				$pos = ($block + 1) * BIG_BLOCK_SIZE;
+-				$streamData .= substr($this->data, $pos, BIG_BLOCK_SIZE);
++				$pos = ($block + 1) * self::BIG_BLOCK_SIZE;
++				$streamData .= substr($this->data, $pos, self::BIG_BLOCK_SIZE);
+ 				$block = $this->bigBlockChain[$block];
+ 			}
+ 
+@@ -221,8 +227,8 @@
+ 		$data = '';
+ 
+ 		while ($block != -2)  {
+-			$pos = ($block + 1) * BIG_BLOCK_SIZE;
+-			$data = $data.substr($this->data, $pos, BIG_BLOCK_SIZE);
++			$pos = ($block + 1) * self::BIG_BLOCK_SIZE;
++			$data = $data.substr($this->data, $pos, self::BIG_BLOCK_SIZE);
+ 			$block = $this->bigBlockChain[$block];
+ 		}
+ 		return $data;
+@@ -233,14 +239,14 @@
+ 		$offset = 0;
+ 
+ 		while ($offset < strlen($this->entry)) {
+-			$d = substr($this->entry, $offset, PROPERTY_STORAGE_BLOCK_SIZE);
++			$d = substr($this->entry, $offset, self::PROPERTY_STORAGE_BLOCK_SIZE);
+ 
+-			$nameSize = ord($d[SIZE_OF_NAME_POS]) | (ord($d[SIZE_OF_NAME_POS+1]) << 8);
++			$nameSize = ord($d[self::SIZE_OF_NAME_POS]) | (ord($d[self::SIZE_OF_NAME_POS+1]) << 8);
+ 
+-			$type = ord($d[TYPE_POS]);
++			$type = ord($d[self::TYPE_POS]);
+ 
+-			$startBlock = $this->_GetInt4d($d, START_BLOCK_POS);
+-			$size = $this->_GetInt4d($d, SIZE_POS);
++			$startBlock = $this->_GetInt4d($d, self::START_BLOCK_POS);
++			$size = $this->_GetInt4d($d, self::SIZE_POS);
+ 
+ 			$name = '';
+ 			for ($i = 0; $i < $nameSize ; $i++) {
+@@ -263,7 +269,7 @@
+ 				$this->rootentry = count($this->props) - 1;
+ 			}
+ 
+-			$offset += PROPERTY_STORAGE_BLOCK_SIZE;
++			$offset += self::PROPERTY_STORAGE_BLOCK_SIZE;
+ 		}
+ 
+ 	}

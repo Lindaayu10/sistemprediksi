@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "91036",
+    "ThreadId": "27299",
+    "Html": "\r\nHello PHPExcel Experts,<br /><br />I try to use DataValidation with a NamedRange. But my Dropdownlist is only filled with the Values from the NamedRange when I opened the created document with Excel 2007, selected the Cell with the DataValidation defined, switched to the \"Data\" Tab and opened \"Data Validation\" and confirming that with OK. Then the Dropdownlist is filled with the Values from the NamedRange. Before I only see =SAMPLE<i>CHECK</i>TABLE. <br /><br />I'm running PHPExcel on Debian with Apache2 and PHP Version 5.2.0-8+etch10. Here's my sample code to demonstrate this Problem:<br /><br />&lt;?php<br /><br />/**<br />  * Demonstration problem with PHPExcel DataValidation using NamedRange<br />  */<br />set<i>include</i>path(get<i>include</i>path() . PATH_SEPARATOR . 'PHPExcel1.6.1/Classes/');<br /><br />/** PHPExcel */<br />include 'PHPExcel.php';<br /><br />/** PHPExcel<i>Writer</i>Excel2007 */<br />include 'PHPExcel/Writer/Excel2007.php';<br /><br />// Create new PHPExcel object<br />$objPHPExcel = new PHPExcel();<br /><br />// Set properties<br />$objPHPExcel-&gt;getProperties()-&gt;setCreator(\"Gregor Wolf\");<br />$objPHPExcel-&gt;getProperties()-&gt;setLastModifiedBy(\"Gregor Wolf\");<br />$objPHPExcel-&gt;getProperties()-&gt;setTitle(\"Demonstration of the PHPExcel DataValidation Bug\");<br />// Create Worksheet 2 for Data Validation List<br />$objPHPExcel-&gt;createSheet( );<br />$objPHPExcel-&gt;setActiveSheetIndex(1);<br />$objPHPExcel-&gt;getActiveSheet()-&gt;setTitle(\"Data Validation List\");<br /><br />// Define a Name &amp; Array for the Check Table<br />$checkTableName = \"SAMPLE<i>CHECK</i>TABLE\";<br />$checkTable = array(<br />\t\t\t\t'DE' =&gt; 'Germany',<br />\t\t\t\t'US' =&gt; 'United States of America'<br />\t\t\t\t);<br />$column = 0;<br />$row = 1;<br />$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow($column, $row, $checkTableName);<br />while (list($key, $val) = each($checkTable)) {<br />\t$row++;<br />\t$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueExplicitByColumnAndRow($column, $row, $key);<br />\t$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow($column+1, $row, $val);<br />}<br />$column++;<br />// Definie NameRange<br />$cell = $objPHPExcel-&gt;getActiveSheet()-&gt;getCellByColumnAndRow($column, $row);<br />$columnString = $cell-&gt;getColumn( );<br />$range = $columnString.'2:'.$columnString.$row;<br />$objPHPExcel-&gt;addNamedRange( new PHPExcel_NamedRange($checkTableName, $objPHPExcel-&gt;getActiveSheet(), $range) );<br /><br />// Add some data<br />$objPHPExcel-&gt;setActiveSheetIndex(0);<br />$objPHPExcel-&gt;getActiveSheet()-&gt;setTitle(\"Use Data Validation List\");<br /><br />$row = 1;<br />$column = 0;<br />// Fill Cell Value<br />$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueExplicitByColumnAndRow($column, $row, 'Germany');<br />// Add Data Validation with values of NameRange<br />$objValidation = $objPHPExcel-&gt;getActiveSheet()-&gt;getCellByColumnAndRow($column, $row)-&gt;getDataValidation();<br />$objValidation-&gt;setType( PHPExcel<i>Cell</i>DataValidation::TYPE_LIST );<br />$objValidation-&gt;setErrorStyle( PHPExcel<i>Cell</i>DataValidation::STYLE_INFORMATION );<br />$objValidation-&gt;setAllowBlank(false);<br />$objValidation-&gt;setShowInputMessage(true);<br />$objValidation-&gt;setShowErrorMessage(true);<br />$objValidation-&gt;setShowDropDown(true);<br />$formula = '\"='.$checkTableName.'\"';<br />$objValidation-&gt;setFormula1($formula);<br />$objPHPExcel-&gt;getActiveSheet()-&gt;getCellByColumnAndRow($column, $row)-&gt;setDataValidation($objValidation);<br /><br />// Add another Row<br />$row++;<br />$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueExplicitByColumnAndRow($column, $row, 'United States of America');<br />// Clone Data Validation<br />// $objPHPExcel-&gt;getActiveSheet()-&gt;getCellByColumnAndRow($column, $row)-&gt;setDataValidation(clone $objValidation);<br /><br />// Add another Row<br />$row++;<br />$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueExplicitByColumnAndRow($column, $row, 'Germany');<br /><br />$objValidation = $objPHPExcel-&gt;getActiveSheet()-&gt;getCellByColumnAndRow($column, $row)-&gt;getDataValidation();<br />$objValidation-&gt;setType( PHPExcel<i>Cell</i>DataValidation::TYPE_LIST );<br />$objValidation-&gt;setErrorStyle( PHPExcel<i>Cell</i>DataValidation::STYLE_INFORMATION );<br />$objValidation-&gt;setAllowBlank(false);<br />$objValidation-&gt;setShowInputMessage(true);<br />$objValidation-&gt;setShowErrorMessage(true);<br />$objValidation-&gt;setShowDropDown(true);<br />$objValidation-&gt;setFormula1('\"Germany,United States of America\"');<br />$objPHPExcel-&gt;getActiveSheet()-&gt;getCellByColumnAndRow($column, $row)-&gt;setDataValidation($objValidation);<br /><br />// Setting worksheet's default style<br />$objPHPExcel-&gt;getActiveSheet()-&gt;getDefaultStyle()-&gt;getFont()-&gt;setName('Arial');<br />$objPHPExcel-&gt;getActiveSheet()-&gt;getDefaultStyle()-&gt;getFont()-&gt;setSize(8); <br /><br />$filename = \"DataValidationBug.xlsx\";<br />$objWriter = new PHPExcel<i>Writer</i>Excel2007($objPHPExcel);<br />$objWriter-&gt;save($filename);<br /><br />?&gt;<br /><br />Hope someone can give me a tip.<br /><br />Best regards<br />Gregor<br />",
+    "PostedDate": "2008-05-07T11:51:56.647-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "91142",
+    "ThreadId": "27299",
+    "Html": "\r\nTry changing<br /><pre style=\"background-color:#ECECEC; border:dashed .1em #3E62A6; font-family:Consolas, Courier New, Courier, Monospace; font-size:1em; margin-top:0; padding:.5em; height:auto; overflow:auto; overflow-x:auto; overflow-y:auto;\">\r\n$formula = '\"='.$checkTableName.'\"';\r\n</pre>into<br /><pre style=\"background-color:#ECECEC; border:dashed .1em #3E62A6; font-family:Consolas, Courier New, Courier, Monospace; font-size:1em; margin-top:0; padding:.5em; height:auto; overflow:auto; overflow-x:auto; overflow-y:auto;\">\r\n$formula = $checkTableName;\r\n</pre>",
+    "PostedDate": "2008-05-07T23:26:42.38-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "91296",
+    "ThreadId": "27299",
+    "Html": "\r\nHi Maartenba,<br /><br />thank you so mutch. That solved my problem. Now I only facing the problem that my Apache2 exits with a Segmentation fault when I try to use the clone function to get the Validation also for other cells using:<br /><br /><pre style=\"background-color:#ECECEC; border:dashed .1em #3E62A6; font-family:Consolas, Courier New, Courier, Monospace; font-size:1em; margin-top:0; padding:.5em; height:auto; overflow:auto; overflow-x:auto; overflow-y:auto;\">\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getCellByColumnAndRow($column, $row)-&gt;setDataValidation(clone $objValidation);\r\n</pre><br />Any tips on that? How can I provide more debug information?<br /><br />Best regards<br />Gregor<br />",
+    "PostedDate": "2008-05-08T12:02:00.63-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "91383",
+    "ThreadId": "27299",
+    "Html": "\r\nCan you try running the script from console?<br />",
+    "PostedDate": "2008-05-08T23:38:13.65-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "91530",
+    "ThreadId": "27299",
+    "Html": "\r\nwhen I run the script from the console the only output is 'Segmentation fault'. Also when I run it with php -e DataValidation.php. Any tips?<br />",
+    "PostedDate": "2008-05-09T10:33:55.727-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "91555",
+    "ThreadId": "27299",
+    "Html": "\r\nCan you send me your complete script (maarten ---AT--- phpexcel ---DOT--- NET) if possible?<br />",
+    "PostedDate": "2008-05-09T12:36:02.37-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

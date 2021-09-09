@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "1341020",
+    "ThreadId": "577472",
+    "Html": "Hi, i'd like to know what changes shall i do to write an ods(libreoffice) file,what are the changes between writing a xlsx file from an ods one?\r<br />\nwhen reading you should change the class to Reader/OOCalc.php and $objReader = new PHPExcel_Reader_OOCalc(); For writing, hou should it be? writing a xlsx file is:\r<br />\n$objWriter = PHPExcel_IOFactory::createWriter($data, 'Excel2007');\r<br />\n$objWriter-&gt;save(&quot;./allocatedFile/nameFile.ods&quot;);\r<br />\nIf i use that, it writes a file but when manually opening it it says:\r<br />\n&quot; The file &quot;name.ods&quot; is damaged and can not be opened. LibreOffice can try to repair the file.\r<br />\n<br />\nThe damage may occur as a result of manipulation of the document or incomplete data transmission.&quot; \r<br />\nAny help would be grateful.<br />\n",
+    "PostedDate": "2015-01-12T03:48:07.27-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1341026",
+    "ThreadId": "577472",
+    "Html": "The difference is selecting the correct Writer for the filetype that you are trying to generate:<br />\n<div style=\"color:Black;background-color:White;\"><pre>\r\n$objWriter = PHPExcel_IOFactory::createWriter($data, <span style=\"color:#A31515;\">&#39;OpenDocument&#39;</span>);\n$objWriter-&gt;save(<span style=\"color:#A31515;\">&quot;./allocatedFile/nameFile.ods&quot;</span>); \r\n</pre></div>Strictly speaking, this should be <code>OOCalc</code> like the Reader, and I'll make them consistent before the 1.8.1 release (<code>OOCalc has become something of a misnomer since the release of LibreOffice</code>), but for the moment it's <code>OpenDocument</code>.... for version 2, I'll probably change both to <code>OASIS</code> or possible <code>ODS</code>, which are more generic<br />\n",
+    "PostedDate": "2015-01-12T04:14:39.18-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": "2015-01-12T06:53:43.957-08:00"
+  },
+  {
+    "Id": "1341061",
+    "ThreadId": "577472",
+    "Html": "After changing to &quot;OpenDocument&quot; with $data = new PHPExcel(); it throws this error:<br />\n<br />\nPHP Fatal error:  Class 'PHPExcel_Writer_OpenDocument' not found in /my/server/Classes/PHPExcel/IOFactory.php on line 141<br />\nI'm using 1.8.0 release<br />\n",
+    "PostedDate": "2015-01-12T06:19:41.633-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1341072",
+    "ThreadId": "577472",
+    "Html": "The 1.8.0 release doesn't support writing to .ods (OASIS-format) files. This is in the develop branch on github, but hasn't yet been included in a production release<br />\n",
+    "PostedDate": "2015-01-12T06:47:49.773-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1341075",
+    "ThreadId": "577472",
+    "Html": "Ok, i've already changed the library and it works fine. Thank you!!<br />\n",
+    "PostedDate": "2015-01-12T06:54:39.427-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

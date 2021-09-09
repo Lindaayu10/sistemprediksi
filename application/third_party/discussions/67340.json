@@ -1,0 +1,82 @@
+[
+  {
+    "Id": "228849",
+    "ThreadId": "67340",
+    "Html": "<p>Hi, I'm trying to store HTML code in exce 2007 cell and get those naughty message about incorrect data. After correction all text data is missed, only numbers left.</p>\r\n<p>After some researches I defined that problem is only for XMLWRITER 2007 and only for those cell with html code. It seems that html tags break excel 2007 xml markup.</p>\r\n<p>So question is: How to store HTML code in Excel 2007 cell?</p>\r\n<p>&nbsp;</p>\r\n<p>PS: addslashes() and replacing of &lt;,&gt;,&amp;,&quot; signs do not help. htmlentities() + specialchars() solve problem, but make html code totaly unreadable.</p>\r\n<p>Update: removing all tags and htmlentities with:</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$row[<span style=\"color:#A31515\">'description'</span>] = htmlentities(preg_replace(<span style=\"color:#A31515\">'%&lt;.*?&gt;%i'</span>,<span style=\"color:#A31515\">''</span>,$row[<span style=\"color:#A31515\">'description'</span>]));\r\n</pre>\r\n</div>\r\n<p>helped, but it is a workaround</p>",
+    "PostedDate": "2009-08-28T14:01:32.43-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "228862",
+    "ThreadId": "67340",
+    "Html": "<p>Do you have some code example how you are inserting HTML code into the cell?</p>",
+    "PostedDate": "2009-08-28T15:17:56.613-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "228870",
+    "ThreadId": "67340",
+    "Html": "<div style=\"color:Black;background-color:White\">\r\n<pre><span style=\"color:Blue\">foreach</span>($records <span style=\"color:Blue\">as</span> $index=&gt;$row)\r\n{\t\t\t\r\n\t<span style=\"color:Blue\">foreach</span>(array_values($row) <span style=\"color:Blue\">as</span> $i=&gt;$value)\r\n\t\t$xlsObject-&gt;setActiveSheetIndex(0)-&gt;setCellValueByColumnAndRow($i,$index+2,$value);\r\n}\r\n</pre>\r\n</div>\r\n<p>$records - indexed array with date from database<br>$row - associated array with single item data. It contains field with key &quot;description&quot; where html code stored<br><br>Ssimple html code example:</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>I am offering a used DSR-1500AP DVCAM recorder, \r\n<span style=\"color:Blue\">&lt;</span><span style=\"color:#A31515\">br</span><span style=\"color:Blue\">&gt;</span><span style=\"color:Blue\">&lt;</span><span style=\"color:#A31515\">br</span><span style=\"color:Blue\">&gt;</span>fittet with all options:<span style=\"color:Blue\">&lt;</span><span style=\"color:#A31515\">br</span><span style=\"color:Blue\">&gt;</span><span style=\"color:Blue\">&lt;</span><span style=\"color:#A31515\">br</span><span style=\"color:Blue\">&gt;</span>DSBK-1505 Analog Input Board\r\n<span style=\"color:Blue\">&lt;</span><span style=\"color:#A31515\">br</span><span style=\"color:Blue\">&gt;</span><span style=\"color:Blue\">&lt;</span><span style=\"color:#A31515\">br</span><span style=\"color:Blue\">&gt;</span>DSBK-1501 Digital IN/OUT Board with SDI\r\n<span style=\"color:Blue\">&lt;</span><span style=\"color:#A31515\">br</span><span style=\"color:Blue\">&gt;</span><span style=\"color:Blue\">&lt;</span><span style=\"color:#A31515\">br</span><span style=\"color:Blue\">&gt;</span><span style=\"color:Blue\">&lt;</span><span style=\"color:#A31515\">br</span><span style=\"color:Blue\">&gt;</span><span style=\"color:Blue\">&lt;</span><span style=\"color:#A31515\">br</span><span style=\"color:Blue\">&gt;</span>Machine has only 750 hours on drum, in perfect cosmetic and mechanical condition - see attached pictures<span style=\"color:Blue\"><br>&lt;</span><span style=\"color:#A31515\">br</span><span style=\"color:Blue\">&gt;</span><span style=\"color:Blue\">&lt;</span><span style=\"color:#A31515\">br</span><span style=\"color:Blue\">&gt;</span>machine records miniDV, DVCAM and plays back all incl. DVCPro<span style=\"color:Blue\">&nbsp;</span></pre>\r\n</div>\r\n<p>Here is only &lt;br&gt; tags but they also throw those exception</p>\r\n<p>Advanced html code example:</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre><span style=\"color:Blue\">&lt;</span><span style=\"color:#A31515\">span</span> <span style=\"color:Red\">style</span><span style=\"color:Blue\">=</span><span style=\"color:Blue\">&quot;font-weight: bold;&quot;</span><span style=\"color:Blue\">&gt;</span>bold<span style=\"color:Blue\">&lt;/</span><span style=\"color:#A31515\">span</span><span style=\"color:Blue\">&gt;</span><span style=\"color:Blue\">&lt;</span><span style=\"color:#A31515\">br</span><span style=\"color:Blue\">&gt;</span><span style=\"color:Blue\"><br>&lt;</span><span style=\"color:#A31515\">span</span> <span style=\"color:Red\">style</span><span style=\"color:Blue\">=</span><span style=\"color:Blue\">&quot;font-style: italic;&quot;</span><span style=\"color:Blue\">&gt;</span>italic<span style=\"color:Blue\">&lt;/</span><span style=\"color:#A31515\">span</span><span style=\"color:Blue\">&gt;</span><span style=\"color:Blue\">&lt;</span><span style=\"color:#A31515\">br</span><span style=\"color:Blue\">&gt;<br></span><span style=\"color:Blue\">&lt;</span><span style=\"color:#A31515\">span</span> <span style=\"color:Red\">style</span><span style=\"color:Blue\">=</span><span style=\"color:Blue\">&quot;text-decoration: line-through;&quot;</span><span style=\"color:Blue\">&gt;</span>striked<span style=\"color:Blue\">&lt;/</span><span style=\"color:#A31515\">span</span><span style=\"color:Blue\">&gt;</span><span style=\"color:Blue\">&lt;</span><span style=\"color:#A31515\">br</span><span style=\"color:Blue\">&gt;<br></span><span style=\"color:Blue\">&lt;</span><span style=\"color:#A31515\">span</span> <span style=\"color:Red\">style</span><span style=\"color:Blue\">=</span><span style=\"color:Blue\">&quot;text-decoration: underline;&quot;</span><span style=\"color:Blue\">&gt;</span>underlined<span style=\"color:Blue\">&lt;/</span><span style=\"color:#A31515\">span</span><span style=\"color:Blue\">&gt;</span><span style=\"color:Blue\">&lt;</span><span style=\"color:#A31515\">br</span><span style=\"color:Blue\">&gt;</span><span style=\"color:Blue\"><br>&lt;</span><span style=\"color:#A31515\">h1</span><span style=\"color:Blue\">&gt;</span>h1<span style=\"color:Blue\">&lt;/</span><span style=\"color:#A31515\">h1</span><span style=\"color:Blue\">&gt;</span><span style=\"color:Blue\">&lt;</span><span style=\"color:#A31515\">h2</span><span style=\"color:Blue\">&gt;</span>h2<span style=\"color:Blue\">&lt;/</span><span style=\"color:#A31515\">h2</span><span style=\"color:Blue\">&gt;</span><span style=\"color:Blue\">&lt;</span><span style=\"color:#A31515\">h3</span><span style=\"color:Blue\">&gt;</span>h3<span style=\"color:Blue\">&lt;/</span><span style=\"color:#A31515\">h3</span><span style=\"color:Blue\">&gt;</span><span style=\"color:Blue\"><br>&lt;</span><span style=\"color:#A31515\">div</span> <span style=\"color:Red\">style</span><span style=\"color:Blue\">=</span><span style=\"color:Blue\">&quot;text-align: right;&quot;</span><span style=\"color:Blue\">&gt;</span>right<span style=\"color:Blue\">&lt;</span><span style=\"color:#A31515\">br</span><span style=\"color:Blue\">&gt;</span><span style=\"color:Blue\">&lt;/</span><span style=\"color:#A31515\">div</span><span style=\"color:Blue\">&gt;<br></span><span style=\"color:Blue\">&lt;</span><span style=\"color:#A31515\">div</span> <span style=\"color:Red\">style</span><span style=\"color:Blue\">=</span><span style=\"color:Blue\">&quot;text-align: center;&quot;</span><span style=\"color:Blue\">&gt;</span>center<span style=\"color:Blue\">&lt;</span><span style=\"color:#A31515\">br</span><span style=\"color:Blue\">&gt;</span><span style=\"color:Blue\"><br>&lt;/</span><span style=\"color:#A31515\">div</span><span style=\"color:Blue\">&gt;</span><span style=\"color:Blue\">&lt;</span><span style=\"color:#A31515\">ol</span><span style=\"color:Blue\">&gt;</span><span style=\"color:Blue\">&lt;</span><span style=\"color:#A31515\">li</span><span style=\"color:Blue\">&gt;</span>li<span style=\"color:Blue\">&lt;/</span><span style=\"color:#A31515\">li</span><span style=\"color:Blue\">&gt;</span><span style=\"color:Blue\">&lt;/</span><span style=\"color:#A31515\">ol</span><span style=\"color:Blue\">&gt;</span><span style=\"color:Blue\">&lt;</span><span style=\"color:#A31515\">ul</span><span style=\"color:Blue\">&gt;</span><span style=\"color:Blue\">&lt;</span><span style=\"color:#A31515\">li</span><span style=\"color:Blue\">&gt;</span>ul<span style=\"color:Blue\">&lt;/</span><span style=\"color:#A31515\">li</span><span style=\"color:Blue\">&gt;</span><span style=\"color:Blue\">&lt;/</span><span style=\"color:#A31515\">ul</span><span style=\"color:Blue\">&gt;</span>\r\n</pre>\r\n</div>\r\n<p>I've just thought that reason may be in unclosed tags like &lt;br&gt;</p>",
+    "PostedDate": "2009-08-28T16:21:17.587-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "228874",
+    "ThreadId": "67340",
+    "Html": "<p>sway, can you try to run the following code:<br>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>\r\n$excel = <span style=\"color:Blue\">new</span> PHPExcel();\r\n$sheet = $excel-&gt;getActiveSheet();\r\n\r\n$htmlA = 'I am offering a used DSR-1500AP DVCAM recorder,\r\n&lt;br&gt;&lt;br&gt;fittet with all options:&lt;br&gt;&lt;br&gt;DSBK-1505 Analog Input Board\r\n&lt;br&gt;&lt;br&gt;DSBK-1501 Digital IN/OUT Board with SDI\r\n&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;Machine has only 750 hours on drum, in perfect cosmetic <span style=\"color:Blue\">and</span> mechanical condition - see attached pictures\r\n&lt;br&gt;&lt;br&gt;machine records miniDV, DVCAM <span style=\"color:Blue\">and</span> plays back all incl. DVCPro ';\r\n\r\n$htmlB = '&lt;span style=<span style=\"color:#A31515\">&quot;font-weight: bold;&quot;</span>&gt;bold&lt;/span&gt;&lt;br&gt;\r\n&lt;span style=<span style=\"color:#A31515\">&quot;font-style: italic;&quot;</span>&gt;italic&lt;/span&gt;&lt;br&gt;\r\n&lt;span style=<span style=\"color:#A31515\">&quot;text-decoration: line-through;&quot;</span>&gt;striked&lt;/span&gt;&lt;br&gt;\r\n&lt;span style=<span style=\"color:#A31515\">&quot;text-decoration: underline;&quot;</span>&gt;underlined&lt;/span&gt;&lt;br&gt;\r\n&lt;h1&gt;h1&lt;/h1&gt;&lt;h2&gt;h2&lt;/h2&gt;&lt;h3&gt;h3&lt;/h3&gt;\r\n&lt;div style=<span style=\"color:#A31515\">&quot;text-align: right;&quot;</span>&gt;right&lt;br&gt;&lt;/div&gt;\r\n&lt;div style=<span style=\"color:#A31515\">&quot;text-align: center;&quot;</span>&gt;center&lt;br&gt;\r\n&lt;/div&gt;&lt;ol&gt;&lt;li&gt;li&lt;/li&gt;&lt;/ol&gt;&lt;ul&gt;&lt;li&gt;ul&lt;/li&gt;&lt;/ul&gt;';\r\n\r\n$sheet-&gt;getCell(<span style=\"color:#A31515\">'A1'</span>)-&gt;setValue($htmlA);\r\n$sheet-&gt;getCell(<span style=\"color:#A31515\">'A2'</span>)-&gt;setValue($htmlB);\r\n\r\n$writer = PHPExcel_IOFactory::createWriter($excel, <span style=\"color:#A31515\">'Excel2007'</span>);\r\n$writer-&gt;save(<span style=\"color:#A31515\">'write.xlsx'</span>);\r\n</pre>\r\n</div>\r\n<br><br>It runs fine when I try? Look:<br><br> <a href=\"http://img269.imageshack.us/img269/9321/ss20090829013131.png\"><img src=\"http://img269.imageshack.us/img269/9321/ss20090829013131.th.png\" border=0 alt=\"\"></a></p>",
+    "PostedDate": "2009-08-28T16:33:44.99-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "228879",
+    "ThreadId": "67340",
+    "Html": "<p>I think I should make such test myself...</p>\r\n<p>But problem remins on some set of records. Not all of them.</p>\r\n<p>I've localized error inside 11 records.</p>\r\n<p>Error is: Invalid xml sign</p>",
+    "PostedDate": "2009-08-28T17:09:29.277-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "228880",
+    "ThreadId": "67340",
+    "Html": "<ol>\r\n<li>Are you retrieving data from MySQL?</li>\r\n<li>If yes, are you sure that data is UTF-8?</li>\r\n</ol>",
+    "PostedDate": "2009-08-28T17:17:56.107-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "228882",
+    "ThreadId": "67340",
+    "Html": "<p>1. from MySQL</p>\r\n<p>2. Sure. That was the first thing I tried:</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre><span style=\"color:Blue\">SET</span> NAMES utf8\r\n<span style=\"color:Blue\">SET</span> <span style=\"color:Blue\">CHARACTER</span> <span style=\"color:Blue\">SET</span> utf8\r\n</pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n<p>And I found those html with those invalid sign.</p>\r\n<p>The winner is:&nbsp;</p>\r\n<p>\r\n<pre>&#26;</pre>\r\n</p>\r\n<p>I wish to know how this piece of unicode got into mysql...</p>\r\n<p>Any ideas how to remove such signs?</p>",
+    "PostedDate": "2009-08-28T17:33:27.21-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "228885",
+    "ThreadId": "67340",
+    "Html": "<p>Ah,&nbsp; I see. This is the control character 0x1A (SUB). Control characters are permitted in OOXML, but need to be represented in a special way.</p>\r\n<p>PHPExcel is supposed to handle control characters so there must be a bug in PHPExcel_Writer_Excel2007. Need to do some more testing over the weekend and file a bug report. Will post back here.</p>",
+    "PostedDate": "2009-08-28T17:54:43.15-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "228886",
+    "ThreadId": "67340",
+    "Html": "<p>Thanks.</p>\r\n<p>PS: first day working with lib and already found exception... I'm lucky =)</p>",
+    "PostedDate": "2009-08-28T17:59:23.327-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "228892",
+    "ThreadId": "67340",
+    "Html": "<p>Luckily, the fix was easy :) Look at patch at work item 10558:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10558\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10558</a></p>\r\n<p>Or just wait for tomorrows source code release, and download from here:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx\">http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx</a></p>",
+    "PostedDate": "2009-08-28T18:44:06.923-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

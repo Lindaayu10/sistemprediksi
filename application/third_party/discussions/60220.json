@@ -1,0 +1,106 @@
+[
+  {
+    "Id": "203891",
+    "ThreadId": "60220",
+    "Html": "<p>Hello everyone.</p>\r\n<p>Just wondering if anyone can give me a hand on this. &nbsp;I downloaded the 1.6.7 release. &nbsp;Just want to generate a simple excel file with data coming from a database. &nbsp;Just columns and rows. &nbsp;Got the sample files and simple copied and pasted and change what was necesary to accomodate it to what I need. &nbsp;However, when I click on the link, my page simply displays all the CODE I wrote. &nbsp;I am trying to simple generate a file on Excel 2007 and 2003.</p>\r\n<p>So, wondering if there is something I am missing, the ZIP libraries of my PHP are enable as the requirements mentions. I'm running PHP 5.2.9 and using an Apache webserver.</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks for your help.</p>",
+    "PostedDate": "2009-06-21T17:52:09.353-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "203953",
+    "ThreadId": "60220",
+    "Html": "<p>The most common cause for the page displaying your code is that the PHP isn't being parsed at all: can you give us more details about your platform/webserver configuration, particularly relating to how you are running PHP.</p>",
+    "PostedDate": "2009-06-22T00:35:38.217-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "203980",
+    "ThreadId": "60220",
+    "Html": "<p>Hi Mark,</p>\r\n<p>Thanks for getting back to me.&nbsp; Well, I am running Apache Web Server 2.2, PHP 5.2.9 and MySQL Server 5.1.&nbsp; and I'm running all this on WinXP Pro SP3.&nbsp; I simply went to each webside and got them from there.&nbsp; I am creating an application where involves accessing a database in MySQL and display information on the Browser (IE 7, and Google Chrome).&nbsp; The application works ok, I can connect, and bring data with PHP to my application.&nbsp; I just have some information that is already displaied on the browser and make it available for my users to download it in an excel file.</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-06-22T02:37:45.42-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "204426",
+    "ThreadId": "60220",
+    "Html": "<p>Hi Mark,</p>\r\n<p>You were rigth, was my mistake, I had &lt;?&nbsp;at the begining of my page, instead of &lt;?php.&nbsp; However, I am getting this error message.&nbsp;</p>\r\n<p><strong>Fatal error</strong>: Class 'Classes/PHPExcel_Writer_Excel5' not found in <strong>C:\\Program Files\\Apache Software Foundation\\Apache2.2\\htdocs\\NewAct\\Classes\\PHPExcel\\IOFactory.php</strong> on line <strong>130</strong></p>\r\n<p>Any ideas, or something you can help me with ??&nbsp; Please.</p>\r\n<p>thanks a lot.</p>\r\n<p>Good day.</p>",
+    "PostedDate": "2009-06-23T04:08:15.007-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "204672",
+    "ThreadId": "60220",
+    "Html": "<p>I cannot understand how you got that error message. Can you show us some code?</p>",
+    "PostedDate": "2009-06-23T14:43:08.437-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "204956",
+    "ThreadId": "60220",
+    "Html": "<p>Hi Koyama,</p>\r\n<p>Well, what I think is happening is this.&nbsp; Within the PHPExcel_IOFactory there is a procedure to search for location of classes.</p>\r\n<pre> private static $_searchLocations = array(\r\n  array( 'type' =&gt; 'IWriter', 'path' =&gt; 'Classes/PHPExcel/Writer/{0}.php', 'class' =&gt; 'Classes/PHPExcel_Writer_{0}' ),\r\n  array( 'type' =&gt; 'IReader', 'path' =&gt; 'Classes/PHPExcel/Reader/{0}.php', 'class' =&gt; 'Classes/PHPExcel_Reader_{0}' )\r\n );\r\n\r\n</pre>\r\n<p>Now, the problem is that it is refering to the IWrite file, but inside the IWrite file there is not such a class named PHPeXCEL_Writer_XXXXX that in my case is PHPExcel_Writer_Excel2007.&nbsp; Here is the contect of the IWriter file.</p>\r\n<pre>interface PHPExcel_Writer_IWriter\r\n{\r\n\t/**\r\n\t * Save PHPExcel to file\r\n\t *\r\n\t * @param \tstring \t\t$pFileName\r\n\t * @throws \tException\r\n\t */\t\r\n\tpublic function save($pFilename = null);\r\n}\r\n</pre>\r\n<pre>Now the actual PHPExcel_Writer_Excel2007 class is located in Classes\\PHPExcel\\Writer\\Excel2007.php file.</pre>",
+    "PostedDate": "2009-06-24T05:40:33.457-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "204961",
+    "ThreadId": "60220",
+    "Html": "<p>Yes, something is going wrong in that function.<br> <br> How are you creating the writer? It is supposed to look something like this:<br> <br> <span style=\"font-family:Courier New\">$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');</span><br style=\"font-family:Courier New\"> <span style=\"font-family:Courier New\">$objWriter-&gt;save('write.xls');</span><br style=\"font-family:Courier New\"> <br> Do you have that?</p>",
+    "PostedDate": "2009-06-24T06:00:50.197-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "205806",
+    "ThreadId": "60220",
+    "Html": "<p>Hi Koyama,</p>\r\n<p>Sorry I took so long to get back to you.&nbsp; Here is my code.</p>\r\n<pre>/** PHPExcel */<br>include(&quot;Classes/PHPExcel.php&quot;);</pre>\r\n<pre>/** PHPExcel_IOFactory */<br>include(&quot;Classes/PHPExcel/IOFactory.php&quot;);</pre>\r\n<pre>// Create new PHPExcel object<br>$objPHPExcel = new PHPExcel();</pre>\r\n<pre>// Specifiend what sheet we will write on<br>$objPHPExcel-&gt;setActiveSheetIndex(0);</pre>\r\n<pre>//Serial Number on first cell.<br>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('A1', $_GET['sn']);</pre>\r\n<pre>//Column Names<br>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('A3', 'Date Activated');<br>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('B3', 'Time Activated');<br>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('D3', 'Machine ID');<br>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('E3', 'Company');<br>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('F3', 'Product Version');</pre>\r\n<pre>// Variable to control the looping of the rows.<br>$CurrentRow = 4;</pre>\r\n<pre>// Put data records from mysql by while loop.<br>while (odbc_fetch_row($rs)){</pre>\r\n<pre>&nbsp;$CreationDate=substr(odbc_result($rs,&quot;CreationDate&quot;),0,10);<br>&nbsp;$CreationTime=substr(odbc_result($rs,&quot;CreationDate&quot;),11,5);<br>&nbsp;$SerialNum=odbc_result($rs,&quot;SerialNum&quot;);<br>&nbsp;$MachineId=odbc_result($rs,&quot;MachineId&quot;);<br>&nbsp;$CompanyName=odbc_result($rs,&quot;CompanyName&quot;);<br>&nbsp;$ClientVersion=odbc_result($rs,&quot;ClientVersion&quot;);<br>&nbsp;$UnInstall=odbc_result($rs,&quot;Uninstall&quot;);</pre>\r\n<pre>&nbsp;$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow(1, $CurrentRow, $CreationDate);<br>&nbsp;$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow(2, $CurrentRow, $CreationTime);<br>&nbsp;$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow(3, $CurrentRow, $MachineId);<br>&nbsp;$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow(4, $CurrentRow, $CompanyName);<br>&nbsp;$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow(5, $CurrentRow, $ClientVersion);</pre>\r\n<pre>&nbsp;$CurrentRow++;<br>} </pre>\r\n<pre>// Rename sheet<br>$objPHPExcel-&gt;getActiveSheet()-&gt;setTitle($Sheet_Name);</pre>\r\n<pre>// Set active sheet index to the first sheet, so Excel opens this as the first sheet<br>$objPHPExcel-&gt;setActiveSheetIndex(0);</pre>\r\n<pre>&nbsp;&nbsp;<br>// Save Excel 2007 file<br>$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');<br>$objWriter-&gt;save(str_replace('.php', '.xlsx', __FILE__));</pre>",
+    "PostedDate": "2009-06-26T01:51:22.427-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "206083",
+    "ThreadId": "60220",
+    "Html": "<p>I think it could be your include path that is set up wrong. Where can we see your include path?<br> <br> The reason I am saying this is because you should really do like this:</p>\r\n<pre style=\"font-family:Courier New\">include(&quot;PHPExcel.php&quot;);</pre>\r\n<p>rather than like this:</p>\r\n<pre style=\"font-family:Courier New\">include(&quot;Classes/PHPExcel.php&quot;);</pre>\r\n<p>Can you try to change your include path so it points to <span style=\"font-family:Courier New\">Classes</span> rather than one directory level above? Otherwise the include statements used by PHPExcel internally will not be working.</p>",
+    "PostedDate": "2009-06-26T14:22:48.087-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "206810",
+    "ThreadId": "60220",
+    "Html": "<p>Hi Koyoma.</p>\r\n<p>Problem is, if I make that change, then when I run it, I will get error that PHPExcel does not exist.</p>\r\n<p>Here is how it is,</p>\r\n<p>My site folder is call NEWACT, inside, you will find the page I am having the problem with, also the folder CLASSES and in this folder you will&nbsp; have the PHPExcel folder and the PHPExcel.php file.</p>\r\n<p>Wish I can send you a picture.</p>",
+    "PostedDate": "2009-06-29T17:00:07.433-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "206860",
+    "ThreadId": "60220",
+    "Html": "<p>Can you try to run this and tell me what error message you get, if any?<br> <br style=\"font-family:Courier New\"> <span style=\"font-family:Courier New\">&lt;?php</span><br style=\"font-family:Courier New\"> <span style=\"font-family:Courier New\">/* This is htdocs/NewAct/index.php */</span><br style=\"font-family:Courier New\"> <br style=\"font-family:Courier New\"> <span style=\"font-family:Courier New\">set_include_path(get_include_path() . PATH_SEPARATOR . dirname(__FILE__) . '/Classes/');</span><br style=\"font-family:Courier New\"> <span style=\"font-family:Courier New\">var_dump(get_include_path());</span><br style=\"font-family:Courier New\"> <br style=\"font-family:Courier New\"> <span style=\"font-family:Courier New\">include 'PHPExcel.php';</span><br style=\"font-family:Courier New\"> <span style=\"font-family:Courier New\">include 'PHPExcel/IOFactory.php';</span><br style=\"font-family:Courier New\"> <br style=\"font-family:Courier New\"> <span style=\"font-family:Courier New\">$objPHPExcel = new PHPExcel();</span><br style=\"font-family:Courier New\"> <br style=\"font-family:Courier New\"> <span style=\"font-family:Courier New\">...</span><br style=\"font-family:Courier New\"> <span style=\"font-family:Courier New\">?&gt;</span></p>",
+    "PostedDate": "2009-06-29T19:16:07.357-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "207133",
+    "ThreadId": "60220",
+    "Html": "<p>Hi Koyama,</p>\r\n<p>Here is the error I get.</p>\r\n<p>string(91) &quot;.;C:\\php5\\pear;C:\\Program Files\\Apache Software Foundation\\Apache2.2\\htdocs\\NewAct/Classes/&quot; <br><strong>Fatal error</strong>: Class 'Classes/PHPExcel_Writer_Excel2007' not found in <strong>C:\\Program Files\\Apache Software Foundation\\Apache2.2\\htdocs\\NewAct\\Classes\\PHPExcel\\IOFactory.php</strong> on line <strong>130</strong></p>\r\n<p>Now, I noticed it says C:\\php5, and my PHP is installed on C:\\php so I do not know if this is causing the problem.</p>\r\n<p>Thanks.</p>",
+    "PostedDate": "2009-06-30T09:50:07.06-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "207288",
+    "ThreadId": "60220",
+    "Html": "<p>Everything looks fine, so I can't understand why you that fatal error?<br> <br> Can you try to debug by replacing line 130 in that IOFactory.php file. Instead of this<br> <br> <span style=\"font-family:Courier New\">$instance = new $className($phpExcel);</span><br> <br> Put in this line:<br> <br> <span style=\"font-family:Courier New\">var_dump($className); $instance = new $className($phpExcel);</span><br> <br> and see what you get for <span style=\"font-family:Courier New\">$className</span>.</p>",
+    "PostedDate": "2009-06-30T15:34:07.353-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

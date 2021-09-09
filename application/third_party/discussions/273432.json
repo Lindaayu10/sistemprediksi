@@ -1,0 +1,66 @@
+[
+  {
+    "Id": "675144",
+    "ThreadId": "273432",
+    "Html": "\r\n<p>Hi</p>\r\n<p>I am having problem on how to add data to an existing worksheets with existing data.</p>\r\n<p>Hoping to hear from anyone here.</p>\r\n<p>thanks.</p>\r\n",
+    "PostedDate": "2011-09-22T01:28:20.833-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "675231",
+    "ThreadId": "273432",
+    "Html": "<p>What problem are you having? At its simplest, you load an existing workbook...</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>$workbook = PHPExcel_IOFactory::load(<span style=\"color: #a31515;\">'workbook.xls'</span>);\r\n</pre>\r\n</div>\r\n...add your data like you would otherwise, and output your results somehow.</p>",
+    "PostedDate": "2011-09-22T05:18:03.533-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "675610",
+    "ThreadId": "273432",
+    "Html": "<p>Thanks Scott,</p>\n<p>here is actually my problem.</p>\n<div style=\"color: black; background-color: white;\"><em>\n<pre><pre>$objReader = PHPExcel_IOFactory::createReader('Excel2007');     \n$sheetnames = array('W Dat','M Dat', 'Q Dat');             \n$objReader-&gt;setLoadSheetsOnly($sheetnames);      \n$objPHPExcel = $objReader-&gt;load($input_file);             \n$objPHPExcel-&gt;setActiveSheetIndex($objPHPExcel-&gt;getIndex($objPHPExcel-&gt;getSheetByName('W Dat')));      \n$objWorksheet = $objPHPExcel-&gt;getActiveSheet();             \n$sheetData = $objPHPExcel-&gt;getActiveSheet()-&gt;toArray(null,true,true,true);</pre>\n<span style=\"color: blue;\">foreach</span>($bank_credit <span style=\"color: blue;\">as</span> $line){                &nbsp;</pre>\n<pre><span style=\"color: blue;\"><span style=\"white-space: pre;\">\t</span>if</span>($column_counter &gt;= 12){                  &nbsp;</pre>\n<pre><span style=\"color: blue;\"><span style=\"white-space: pre;\">\t\t</span>if</span>($proceed){                    &nbsp;</pre>\n<pre><span style=\"white-space: pre;\">\t\t\t</span>$details = explode(<span style=\"color: #a31515;\">' '</span>, trim($line));                    &nbsp;</pre>\n<pre><span style=\"white-space: pre;\">\t\t\t</span>$bc[$details[0]] = $details[count($details)-1];                    &nbsp;</pre>\n<pre><span style=\"white-space: pre;\">\t\t\t</span>$objWorksheet-&gt;setCellValueByColumnAndRow(0, $lineStart, $details[0]);                     &nbsp;</pre>\n<pre><span style=\"white-space: pre;\">\t\t\t</span>$objWorksheet-&gt;setCellValueByColumnAndRow(1, $lineStart, $details[count($details)-1]);                     &nbsp;</pre>\n<pre><span style=\"white-space: pre;\">\t\t\t</span>$lineStart++;                  &nbsp;</pre>\n<pre><span style=\"white-space: pre;\">\t\t</span>}                  &nbsp;</pre>\n<pre><span style=\"color: blue;\"><span style=\"white-space: pre;\">\t\t</span>if</span>(strpos($line, stringDate($lastDate)) !== false){                    &nbsp;</pre>\n<pre><span style=\"white-space: pre;\">\t\t\t</span>$proceed = true;                  &nbsp;</pre>\n<pre><span style=\"white-space: pre;\">\t\t</span>}                &nbsp;</pre>\n<pre><span style=\"white-space: pre;\">\t</span>}                &nbsp;</pre>\n<pre><span style=\"white-space: pre;\">\t</span>$column_counter++;              &nbsp;</pre>\n<pre>}</pre>\n</em><em>\n<pre style=\"display: inline !important;\"><pre style=\"display: inline !important;\"><div style=\"color: black; background-color: white;\"><em><pre style=\"display: inline !important;\"><pre style=\"display: inline !important;\"><br /></pre>\n</pre>\n</em></div>\n$objReader-&gt;save($input_file);</pre>\n</pre>\n</em></div>\n<div style=\"color: black; background-color: white;\"></div>\n<div style=\"color: black; background-color: white;\"><span style=\"font-family: Consolas, 'Courier New', Courier, monospace; white-space: pre;\">When I run the code I get this error :</span></div>\n<div style=\"color: black; background-color: white;\"></div>\n<div style=\"color: black; background-color: white;\"><span style=\"font-family: Consolas, 'Courier New', Courier, monospace; white-space: pre;\"><strong>Fatal error</strong>: Call to undefined method PHPExcel_Reader_Excel2007::save() in&nbsp;<strong>C:\\xampp\\htdocs\\accounting\\banks_update.php</strong>&nbsp;on line&nbsp;<strong>176</strong></span></div>\n<div style=\"color: black; background-color: white;\"></div>\n<div style=\"color: black; background-color: white;\"><span style=\"font-family: Consolas, 'Courier New', Courier, monospace; white-space: pre;\">Please Help.</span></div>\n<div style=\"color: black; background-color: white;\">\n<pre>\n</pre>\n</div>\n<p><em> </em></p>\n<div style=\"color: black; background-color: white;\"><em>\n<pre><br /></pre>\n</em></div>\n<p><em> <br /> </em></p>\n<p>&nbsp;</p>",
+    "PostedDate": "2011-09-22T19:39:58.167-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "675683",
+    "ThreadId": "273432",
+    "Html": "<p>wouldn't you need a writer, and not a reader to save the excelsheet? ;)</p>\n<p>&nbsp;</p>\n<p>\n<div style=\"color: black; background-color: white;\">\n<pre>$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, <span style=\"color: #a31515;\">'Excel2007'</span>);\n$objWriter-&gt;save($filename);\n</pre>\n</div>\n</p>",
+    "PostedDate": "2011-09-23T00:27:57.38-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "675686",
+    "ThreadId": "273432",
+    "Html": "<p>What i will be doing is reading and writing into a file in one full swing.</p>\r\n<p>The logic is i am going to read the worksheet and check for updates and insert the updates on the same worksheet.</p>\r\n<p>Thanks.</p>",
+    "PostedDate": "2011-09-23T00:32:21.207-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "675712",
+    "ThreadId": "273432",
+    "Html": "<p>That doesn't change anything. you need a reader to read, and a writer to write ;)</p>\n<p>&nbsp;</p>\n<p>Architecture of PHPExcel is fairly simple, the reader convert the input format to an internal representation. The writers do the opposite, ie. they convert the internal representation to one of the supported file formats. In your case, if you want to output  an excel2007 file, you need the excel2007 writer.</p>",
+    "PostedDate": "2011-09-23T01:11:31.78-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "675747",
+    "ThreadId": "273432",
+    "Html": "<p>do u have any sample code that writes on a worksheet with existing data.</p>",
+    "PostedDate": "2011-09-23T02:49:41.68-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "675791",
+    "ThreadId": "273432",
+    "Html": "<p>Just replace your one save line with code like what borft posted depending on what output you want.</p>",
+    "PostedDate": "2011-09-23T05:12:41.897-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

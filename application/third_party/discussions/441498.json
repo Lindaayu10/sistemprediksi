@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "1035419",
+    "ThreadId": "441498",
+    "Html": "Just for example, I have a sheet named &quot;1&quot; and a sheet named &quot;2&quot;.  In worksheet &quot;2&quot; there is a cell whose contents are the formula &quot;='1'!F4&quot;.<br />\n<pre><code>$objPHPExcel-&gt;setActiveSheetIndexByName(&quot;2&quot;);\n$sheetData = $objPHPExcel-&gt;getActiveSheet()-&gt;getCell('F4')-&gt;getValue();\nvar_dump($sheetData);</code></pre>\n\nproduces the following output:<br />\n<pre><code>string(5) &quot;=1!F4&quot; </code></pre>\n\nIn addition, when I tried to load an entire sheet with <br />\n<pre><code>$sheetData = $objPHPExcel-&gt;getActiveSheet()-&gt;toArray(null,true,true,true);</code></pre>\n\nit initially gave me a Cyclical check, but then when I threw the following line into my code<br />\n<pre><code>PHPExcel_Calculation::getInstance()-&gt;cyclicFormulaCount = 1;</code></pre>\n\nIt would give me the following error (note, this is referring to worksheet '2' cell A2):<br />\n<pre><code>PHP Fatal error:  Uncaught exception 'PHPExcel_Exception' with message '2!A2 -&gt; undefined variable '!'' in /var/www/Classes/PHPExcel/Cell.php:307\nStack trace:\n#0 /var/www/Classes/PHPExcel/Worksheet.php(2415): PHPExcel_Cell-&gt;getCalculatedValue()\n#1 /var/www/Classes/PHPExcel/Worksheet.php(2486): PHPExcel_Worksheet-&gt;rangeToArray('A1:AN180', NULL, true, true, true)\n#2 /var/www/index.php(29): PHPExcel_Worksheet-&gt;toArray(NULL, true, true, true)\n#3 {main}\n  thrown in /var/www/Classes/PHPExcel/Cell.php on line 307</code></pre>\n\nI'll add that I don't know what passing NULL, true, true, true to toArray does, but this same type of error (or correct functionality that I'm using incorrectly) occurs elsewhere, too.<br />\n<br />\nAs it stands, I have standardized spreadsheets so I can manually trace every reference and set the active sheet and cell and get the value, but.... that's a LOT of work when we have hundreds of cells referencing cells in other sheets that reference cells in other sheets that.....<br />\n<br />\nAny help would be appreciated.<br />\n<br />\nThanks,<br />\n-Alex<br />\n",
+    "PostedDate": "2013-04-24T20:09:30.343-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1035463",
+    "ThreadId": "441498",
+    "Html": "So I've been working around the issue, and just ran into another, much like the 2nd block above.  I have the following (I have sheets named 1-days of the month that I pull the same cell from on each):<br />\n<pre><code>for( $i=1;$i&lt;=$daysInMonth;$i++ ) {\n    $objPHPExcel-&gt;setActiveSheetIndexByName($i);\n    echo $objPHPExcel-&gt;getActiveSheet()-&gt;getCell('D19')-&gt;getValue() . &quot;&lt;BR&gt;&quot;;\n}</code></pre>\n\nand that returns &quot;=SUM(D15+D18)&quot; For every getValue().  I understand this is normal functionality and I'm just using it to illustrate the actual value of the cells.  I then change the code to:<br />\n<pre><code>for( $i=1;$i&lt;=$daysInMonth;$i++ ) {\n    $objPHPExcel-&gt;setActiveSheetIndexByName($i);\n    echo $objPHPExcel-&gt;getActiveSheet()-&gt;getCell('D19')-&gt;getCalculatedValue() . &quot;&lt;BR&gt;&quot;;\n}</code></pre>\n\nWhich is just swapping out getCalculatedValue() for getValue().  It outputs the first value correctly (because it doesn't reference a different sheet-it's the first of the month), which is 0, and then it errors out giving me:<br />\n<pre><code>[Thu Apr 25 01:12:42 2013] [error] [client 10.0.1.4] PHP Fatal error:  Uncaught exception 'PHPExcel_Exception' with message '2!D19 -&gt; 2!D15 -&gt; 2!D13 -&gt; 2!B13 -&gt; undefined variable '!'' in /var/www/Classes/PHPExcel/Cell.php:307\nStack trace:\n#0 /var/www/index.php(42): PHPExcel_Cell-&gt;getCalculatedValue()\n#1 {main}\n  thrown in /var/www/Classes/PHPExcel/Cell.php on line 307</code></pre>\n\nFor clarity as to the D19 -&gt; D15 -&gt; D13 -&gt; B13 -&gt; undefined,  D19 =SUM(D15+D18).  D15 =SUM(D13-D14). D13 =SUM(C13-B13)*A15. C13=53454. <strong>B13 ='1'!C13.</strong> And that's where it errs out.  There's got to be something I'm just overlooking<br />\n",
+    "PostedDate": "2013-04-24T23:29:32.077-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1035469",
+    "ThreadId": "441498",
+    "Html": "Give your worksheets a name beginning with an alpha character, or modify the formulae so that the worksheet name is quoted (ie <code>='2'!A1</code>) rather than <code>=1!A1</code>) and it should fix this problem.<br />\n<br />\nAnd in the meanwhile, I'll look at a complete rewrite of the calculation engine so that it can handle purely numeric worksheet names. Memo to self, must modify regular expressions so that a number can't simply be treated as a number anymore, but requires the overhead of an additional context check.... please don't anybody complain about speed of execution once I've added that extra overhead in performance<br />\n",
+    "PostedDate": "2013-04-24T23:47:22.787-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1035475",
+    "ThreadId": "441498",
+    "Html": "I was JUST able to come to the same conclusion.  I found this page: <a href=\"https://phpexcel.codeplex.com/workitem/15884\" rel=\"nofollow\">https://phpexcel.codeplex.com/workitem/15884</a> that details the problem.  I created my own spreadsheet with values with sheetnames both enclosed in 's and not, with and with spaces, just to make sure that wasn't the issue.  Unfortunately, I can't change the sheet names, I'm just processing spreadsheets that are generated in bulk, daily, by an automated system.\r<br />\n<br />\nThanks so much for your response, but the formulas are already referencing the cell as shown in bold above with <strong>B13 ='1'!C13</strong>.  Also, I look back at my output above, and see that getValue() has turned the actual value <strong>&quot;='1'!F4&quot;</strong> into <strong>string(5) &quot;=1!F4&quot;</strong> (I only include the data type to show it only has 5 characters in the string).\r<br />\n<br />\nI thought about looking at how getCalculatedValue() works, but your code is so complex, I couldn't even find its definition.  I'm going to have to do a recursive grep on the Classes directory.<br />\n",
+    "PostedDate": "2013-04-25T00:06:27.017-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1035483",
+    "ThreadId": "441498",
+    "Html": "So I did me some grepping, and on line 2164 of Calculation.php, there is the line:<br />\n<pre><code>$result = self::_unwrapResult($this-&gt;_calculateFormulaValue($pCell-&gt;getValue(), $pCell-&gt;getCoordinate(), $pCell));</code></pre>\n\nIf referencing the cell on a different sheet by using the '1'!A1 format WOULD have worked, getting the formula's text with getValue() removed the 's, as shown above..... which just made me wonder if magic_quotes might have something to do with it.  I'm burnt out for the night, so I'll mess with that tomorrow, just to rule it out.\r<br />\n<br />\nI've gotta say, I've been walking through your code and it's beautiful.\r<br />\n<br />\nI'm sure you already know this, but I tried to trace the issue through the code as far as I could, and essentially, _calculateFormulaValue is sending the value of $pCell to _parseFormula with getValue() which changes ='1'!A1 to =1!A1 (actually, it's 1!A1 by this point, but again, you know this) which then flows down to line 2905 of Calculation.php and hits } elseif (is_numeric($val)) { and it thinks it's a number instead of a sheet name, and then gets the next character which is a ! and it thinks it's a variable or something.<br />\n",
+    "PostedDate": "2013-04-25T00:31:19.183-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

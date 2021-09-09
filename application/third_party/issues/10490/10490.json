@@ -1,0 +1,86 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel",
+      "DisplayName": "PHPExcel"
+    },
+    "ClosedComment": "",
+    "ClosedDate": "2009-09-02T22:46:24.747-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "From thread:\nhttp://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=66530\n-----\n \nIn the test.xlsx workbook we have number-like text strings in cells A1 and A2.\n \nFor the sum, A3=A1+A2, PHPExcel and Microsoft Office Excel unfortunately disagree on the result.\n \nTest:\n----\n$file = 'test.xlsx';\n$reader = PHPExcel_IOFactory::createReaderForFile($file);\n$excel = $reader->load($file);\n \n$sheet = $excel->getActiveSheet();\nvar_dump($sheet->getCell('A3')->getCalculatedValue());\n \nExpected result:\n----\nfloat(3.5)\n \nBased on inspection of calculated value in Microsoft Office Excel 2007.\n \nActual result:\n----\nstring(7) \"#VALUE!\"\n \nNote:\n----\nThis could be a problematic issue to deal with because Microsoft Office Excel 2007 and OpenOffice.org 3.1.0 clearly disagree on how to handle text-to-number conversion. OpenOffice.org says result is 0.\n \nScreen shots:\n \nMicrosoft Office Excel 2007:\nhttp://img201.imageshack.us/img201/9871/ss20090820223745.png\n \nOpenOffice.org 3.1.0:\nhttp://img201.imageshack.us/img201/2123/ss20090820223725.png\n \nEnvironment:\n----\nPHPExcel 1.7.0",
+    "LastUpdatedDate": "2013-05-16T05:42:28.947-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-08-20T13:51:37.19-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Fractions stored as text are not treated as numbers by PHPExcel's calculation engine",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 10490
+  },
+  "FileAttachments": [
+    {
+      "FileId": 3295,
+      "FileName": "test.xlsx",
+      "DownloadUrl": ".\\3295"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "Initial fix checked into SVN to resolved the use of fractions in simple arithmetic formulae (cell references or strings); but will take more work to process when included within a matrix, or a named range, or passed to a function.\r\nCreated a helper method in PHPExcel_Shared_String for validation and conversion of string fraction to a numeric value so it will be available in functions and matrix arithmetic in due course.\r\n\r\nBehaviour emulated is currently Excel compatible: no check made to see if calc engine is set to Open Office or Gnumeric mode.",
+      "PostedDate": "2009-08-21T09:50:13.33-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Thanks you for the fix, Mark. I can verify that it is working.\r\n\r\nI have one comment which I think is perhaps good news:\r\n\r\nI just tried to enter a formula like this in MS Office Excel 2007:\r\n=1 1/2\r\n\r\nResult was that Excel automatically sanitized the formula to this:\r\n=1.5\r\n\r\nTherefore I think there is no risk encountering formulas and matrices with fractions. This makes sense because I know for sure that there is no way to store a formula like \"=1 1/2\" in BIFF8, so probably not in Excel2007 either.\r\n\r\nIf anything, formula sanitization: \"=1 1/2\" -> \"=1.5\" would be a feature in the advanced value binder. Now, that is really a feature for the Excel purist!\r\n\r\nTherefore, I think this worked item can be set to status \"Fixed\". Am I correct, Mark?\r\n",
+      "PostedDate": "2009-08-21T11:50:00.633-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I'm quite happy with the fix that I've done as far as it goes, but I'd prefer to leave this work item active while I do some additional work so that formulae like ={\"1 1/2\"}*2 or =LOG(\"1 1/2\"} work as well.",
+      "PostedDate": "2009-08-21T13:48:04.7-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Ah ok, I see, Mark. Sorry, I misunderstood and had not checked those kind of formulas.\r\n\r\nI notice some more weirdness:\r\nIn Excel '1'+'2'=3, but the SUM of '1' and '2' is 0.\r\n\r\nNow this is what I would call confusing!\r\nhttp://img34.imageshack.us/img34/558/ss20090821225837.png\r\n",
+      "PostedDate": "2009-08-21T14:07:45.7-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": ">> I notice some more weirdness:\r\n>> In Excel '1'+'2'=3, but the SUM of '1' and '2' is 0.\r\n>> \r\nJust one of the many delights when using Excel. The PHPExcel functions do try to emulate all these strange behaviours (of which there are many)\r\n\r\n\r\nAdded in the fraction as a string handling for unary operations, and for matrix arithmetic. \r\n\r\nThat still leaves all the functions, but those will have to be handled on a case by case basis.\r\nAs such, I'm now happy to flag this issue as fixed... and I'll work through all the functions individually",
+      "PostedDate": "2009-08-23T09:58:10.097-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-09-02T22:46:24.747-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:03:44.707-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:28.947-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

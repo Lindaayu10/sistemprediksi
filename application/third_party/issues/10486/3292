@@ -1,0 +1,144 @@
+Index: PHPExcel/Worksheet.php
+===================================================================
+--- PHPExcel/Worksheet.php	(revision 1084)
++++ PHPExcel/Worksheet.php	(working copy)
+@@ -332,14 +332,14 @@
+ 	 *
+ 	 * @var string
+ 	 */
+-	private $_cachedHighestColumn = null;
++	private $_cachedHighestColumn = 'A';
+ 
+ 	/**
+ 	 * Cached highest row
+ 	 *
+ 	 * @var int
+ 	 */
+-	private $_cachedHighestRow = null;
++	private $_cachedHighestRow = 1;
+ 
+ 	/**
+ 	 * Right-to-left?
+@@ -812,36 +812,7 @@
+      */
+     public function getHighestColumn()
+     {
+-		// Cached?
+-		if (!is_null($this->_cachedHighestColumn)) {
+-			return $this->_cachedHighestColumn;
+-		}
+-
+-        // Highest column
+-        $highestColumn = -1;
+-
+-        // Loop through cells
+-        foreach ($this->_cellCollection as $cell) {
+-        	if ($highestColumn < PHPExcel_Cell::columnIndexFromString($cell->getColumn())) {
+-        		$highestColumn = PHPExcel_Cell::columnIndexFromString($cell->getColumn());
+-        	}
+-        }
+-
+-        // Loop through column dimensions
+-        foreach ($this->_columnDimensions as $dimension) {
+-        	if ($highestColumn < PHPExcel_Cell::columnIndexFromString($dimension->getColumnIndex())) {
+-        		$highestColumn = PHPExcel_Cell::columnIndexFromString($dimension->getColumnIndex());
+-        	}
+-        }
+-
+-        // Return & cache
+-		if ($highestColumn < 0) {
+-			$this->_cachedHighestColumn = 'A';
+-		} else {
+-			$this->_cachedHighestColumn = PHPExcel_Cell::stringFromColumnIndex(--$highestColumn);
+-		}
+-
+-        return $this->_cachedHighestColumn;
++		return $this->_cachedHighestColumn;
+     }
+ 
+     /**
+@@ -851,33 +822,7 @@
+      */
+     public function getHighestRow()
+     {
+-		// Cached?
+-		if (!is_null($this->_cachedHighestRow)) {
+-			return $this->_cachedHighestRow;
+-		}
+-
+-        // Highest row
+-        $highestRow = 1;
+-
+-        // Loop through cells
+-        foreach ($this->_cellCollection as $cell) {
+-        	if ($cell->getRow() > $highestRow) {
+-        		$highestRow = $cell->getRow();
+-        	}
+-        }
+-
+-        // Loop through row dimensions
+-        foreach ($this->_rowDimensions as $dimension) {
+-        	if ($highestRow < $dimension->getRowIndex()) {
+-        		$highestRow = $dimension->getRowIndex();
+-        	}
+-        }
+-
+-		// Cache
+-		$this->_cachedHighestRow = $highestRow;
+-
+-        // Return
+-        return $highestRow;
++		return $this->_cachedHighestRow;
+     }
+ 
+     /**
+@@ -987,8 +932,11 @@
+ 			$this->_cellCollection[$pCoordinate] = new PHPExcel_Cell($aCoordinates[0], $aCoordinates[1], null, PHPExcel_Cell_DataType::TYPE_NULL, $this);
+ 			$this->_cellCollectionIsSorted = false;
+ 
+-			$this->_cachedHighestColumn = null;
+-			$this->_cachedHighestRow = null;
++			if (PHPExcel_Cell::columnIndexFromString($this->_cachedHighestColumn) < PHPExcel_Cell::columnIndexFromString($aCoordinates[0]))
++				$this->_cachedHighestColumn = $aCoordinates[0];
++				
++			if ($this->_cachedHighestRow < $aCoordinates[1])
++				$this->_cachedHighestRow = $aCoordinates[1];
+ 
+ 	        return $this->_cellCollection[$pCoordinate];
+     	}
+@@ -1011,8 +959,11 @@
+ 			$this->_cellCollection[$coordinate] = new PHPExcel_Cell($columnLetter, $pRow, null, PHPExcel_Cell_DataType::TYPE_NULL, $this);
+ 			$this->_cellCollectionIsSorted = false;
+ 
+-			$this->_cachedHighestColumn = null;
+-			$this->_cachedHighestRow = null;
++			if (PHPExcel_Cell::columnIndexFromString($this->_cachedHighestColumn) < $pColumn)
++				$this->_cachedHighestColumn = $pColumn;
++				
++			if ($this->_cachedHighestRow < $pRow)
++				$this->_cachedHighestRow = $pRow;
+ 		}
+ 
+ 		return $this->_cellCollection[$coordinate];
+@@ -1091,7 +1042,9 @@
+         // Get row dimension
+         if (!isset($this->_rowDimensions[$pRow])) {
+         	$this->_rowDimensions[$pRow] = new PHPExcel_Worksheet_RowDimension($pRow);
+-			$this->_cachedHighestRow = null;
++
++			if ($this->_cachedHighestRow < $pRow)
++				$this->_cachedHighestRow = $pRow;
+         }
+         return $this->_rowDimensions[$pRow];
+     }
+@@ -1110,7 +1063,9 @@
+     	// Fetch dimensions
+     	if (!isset($this->_columnDimensions[$pColumn])) {
+     		$this->_columnDimensions[$pColumn] = new PHPExcel_Worksheet_ColumnDimension($pColumn);
+-			$this->_cachedHighestColumn = null;
++
++			if (PHPExcel_Cell::columnIndexFromString($this->_cachedHighestColumn) < PHPExcel_Cell::columnIndexFromString($pColumn))
++				$this->_cachedHighestColumn = $pColumn;
+     	}
+     	return $this->_columnDimensions[$pColumn];
+     }

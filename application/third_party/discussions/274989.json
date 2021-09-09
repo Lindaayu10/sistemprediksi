@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "680811",
+    "ThreadId": "274989",
+    "Html": "\r\n<p>Hi there,</p>\r\n<p>I like PHPExcel and it's so much better than the old abandoned Spreadsheet_Excel_Writer, but in some cases it seems to create random results on some function calls:</p>\r\n<p>My application uses an Excel template (Excel 2007 format) to define its spreadsheet layouts (and I wonder why it has to be so complicated to apply styles), beginning with the column width and then adding styles to cells one after the other. All of the sudden,\r\n I keep getting a -1 result when retrieving the column width:</p>\r\n<p></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>    $excelReader= <span style=\"color:blue\">new</span> PHPExcel_Reader_Excel2007();\r\n    $excelReader-&gt;setReadDataOnly(true);\r\n    $this-&gt;reader= $excelReader-&gt;load(dirname(<span style=\"color:blue\">__FILE__</span>).<span style=\"color:#a31515\">&quot;/report.xlsx&quot;</span>);\r\n\r\n    $this-&gt;reader-&gt;setActiveSheetIndex(0);\r\n    $sheetReader= $this-&gt;reader-&gt;getActiveSheet();\r\n\r\n    <span style=\"color:green\">// set column width</span>\r\n    $letterStart= ord(<span style=\"color:#a31515\">&quot;A&quot;</span>);\r\n    $letterEnd= ord(<span style=\"color:#a31515\">&quot;V&quot;</span>);\r\n    <span style=\"color:blue\">for</span> (;$letterStart &lt;= $letterEnd;$letterStart&#43;&#43;) {\r\n      $sheet-&gt;getColumnDimension(chr($letterStart))-&gt;setWidth(\r\n        $sheetReader-&gt;getColumnDimension(chr($letterStart))-&gt;getWidth()\r\n      );</pre>\r\n<pre>      // getWidth() keeps on returning -1\r\n    }\r\n</pre>\r\n</div>\r\n<p></p>\r\n<p>Is this a known problem?</p>\r\n<p>Thanks for any help in advance!</p>\r\n<p>Best regards, Sascha</p>\r\n",
+    "PostedDate": "2011-10-06T07:44:58.18-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "696377",
+    "ThreadId": "274989",
+    "Html": "<p>Hi,</p>\r\n<p>I have the same problem. I create a new file and</p>\r\n<p>$this-&gt;sheet-&gt;getRowDimension('1')-&gt;getRowHeight();</p>\r\n<p>always return -1.</p>\r\n<p>Is there another way to get the height of a row?</p>\r\n<p>Greets, Isa</p>",
+    "PostedDate": "2011-11-10T04:21:46.01-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "696385",
+    "ThreadId": "274989",
+    "Html": "<p>Hi Isa,</p>\r\n<p>could you post some more of your code? I found a solution to my problem, the solution was not to use a reference to the active spreadsheet but to retrieve the column dimensions through the reader object directly:</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>$excelReader= <span style=\"color: blue;\">new</span> PHPExcel_Reader_Excel2007();\r\n$this-&gt;reader= $excelReader-&gt;load(dirname(<span style=\"color: blue;\">__FILE__</span>).<span style=\"color: #a31515;\">\"/report.xlsx\"</span>);\r\n\r\n$this-&gt;reader-&gt;setActiveSheetIndex(0);\r\n$height= $this-&gt;reader-&gt;getActiveSheet()-&gt;getRowDimension(1)-&gt;getRowHeight();\r\n</pre>\r\n</div>\r\n</p>\r\n<p>Hope that helps!</p>\r\n<p>Regards, Sascha</p>",
+    "PostedDate": "2011-11-10T04:30:41.617-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

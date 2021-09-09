@@ -1,0 +1,126 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": "2009-07-27T00:05:57.833-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I have an application reading some data and the performing outlier analysis on the data. The result is then written into an excel file. The sheet contains about 2500 rows, 10 columns and 2 sheets.\nIn the past I have used the \"Spreadsheet/Excel/Writer.php\" classes; now I rewrote the same app using phpexel.\nAll excel writing is handled in one function and I tried latest php as well as latest phpexcel 27716. But it seems that each time a new file is created/written memory is allocated but never freed.\n \nI attach a small php script just doing the same thing (ie creating many excel files with some static/meaningless data) and the output looks like this\n$ php -f memtest.php\n15:12:11 Before File out/Example_00001.xlsx  - Memory usage: 6.5 MB\n15:12:30 Done File out/Example_00001.xlsx  - Memory usage: 65.75 MB\n \n15:12:30 Before File out/Example_00002.xlsx  - Memory usage: 65.75 MB\n15:12:48 Done File out/Example_00002.xlsx  - Memory usage: 117 MB\n \n15:12:48 Before File out/Example_00003.xlsx  - Memory usage: 117 MB\n15:13:07 Done File out/Example_00003.xlsx  - Memory usage: 169.75 MB\n \n15:13:07 Before File out/Example_00004.xlsx  - Memory usage: 169.75 MB\n15:13:27 Done File out/Example_00004.xlsx  - Memory usage: 219.5 MB\n \n15:13:27 Before File out/Example_00005.xlsx  - Memory usage: 219.5 MB\n15:13:46 Done File out/Example_00005.xlsx  - Memory usage: 269.25 MB\n \n15:13:46 Before File out/Example_00006.xlsx  - Memory usage: 269.25 MB\n15:14:06 Done File out/Example_00006.xlsx  - Memory usage: 324.75 MB\n \n15:14:06 Before File out/Example_00007.xlsx  - Memory usage: 324.75 MB\n15:14:25 Done File out/Example_00007.xlsx  - Memory usage: 374.75 MB\n \n15:14:25 Before File out/Example_00008.xlsx  - Memory usage: 374.75 MB\n15:14:45 Done File out/Example_00008.xlsx  - Memory usage: 424.5 MB\n \n15:14:45 Before File out/Example_00009.xlsx  - Memory usage: 424.5 MB\n15:15:04 Done File out/Example_00009.xlsx  - Memory usage: 474.25 MB\n \n15:15:04 Before File out/Example_00010.xlsx  - Memory usage: 474.25 MB\n \nFatal error: Allowed memory size of 536870912 bytes exhausted (tried to allocate\n 816 bytes) in D:\\users\\phpclasses\\phpexcel\\phpexcel-27716\\Classes\\PHPExcel\\Cell\\DefaultValueBinder.php on line 75\n \nIt might be a php issue (not freeing class data), but as the pear excel classes don't show increasing memory usage it might be a phpexcel issue.\n \nthanks for looking at it - Peter\n \nThe script is attached -",
+    "LastUpdatedDate": "2013-05-16T05:42:38.68-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-05-24T06:22:33.987-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "out of memory - phpexcel seems to not release some memory",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 10032
+  },
+  "FileAttachments": [
+    {
+      "FileId": 3092,
+      "FileName": "memtest.php",
+      "DownloadUrl": ".\\3092"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "It is correct that memory is not released. This was noted by whisper in post #8 in this thread:\r\nhttp://www.codeplex.com/PHPExcel/Thread/View.aspx?ThreadId=18404\r\n\r\nAlso look at links in this thread:\r\nhttp://www.codeplex.com/PHPExcel/Thread/View.aspx?ThreadId=38176\r\n\r\nMaarten, would it be an idea to investigate whether circular references can be avoided. Perhaps by using supervisors?",
+      "PostedDate": "2009-05-24T16:09:47.25-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Will try to do some profiling with this test script.",
+      "PostedDate": "2009-05-24T23:46:51.127-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Thanks for the replies - for now I split up the script into the parent creating all necessary data in a 'normal' multi-dimensional array; then serialize the array and execute a child process which just reads the serialized array and writes the excel file (with proper formatting) and then exits and lets the parent do the next iteration.",
+      "PostedDate": "2009-05-25T00:21:43.3-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Hi,\r\n\r\nI don't understand that this problem is not higher on the list. I get the \"Allowed memory size of 134217728 bytes exhausted\" problem with 31 rows and 15 columns with simple data.\r\n\r\nI used the latest change set available and the latest version of PHP but that didn't help.\r\n\r\nAny ideas when this get solved?",
+      "PostedDate": "2009-06-26T22:40:00.93-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "@wvaneck: That indeed sounds like too high memory usage. Can you attach the Excel file so we can test?",
+      "PostedDate": "2009-06-28T17:46:26.407-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "@koyama: I cannot give you the excel file as it is full of personal information but if you create a new xlsx (Excel 2007) file create a new sheet with ~31 rows and 15 columns of random TEXT. The most text is for address column and the shortest text is for boolean like field (Y/N), the other fields range in lenght somewhere in between.\r\n\r\nI had to adjust the memory to allow for 550MB before it would finish the iteration through all rows and all columns.",
+      "PostedDate": "2009-06-28T19:05:23.517-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "@koyama/@wvaneck - when I first submitted the issue I attached an example; so no need to disclose any personal information - just use the memtest.php I attached to the original issue description\r\nPeter",
+      "PostedDate": "2009-06-29T00:14:05.493-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "@pircher: Your sample is good but it doesn't seem to highlight the problem I am experiencing. I adjusted your sample to make each cell unique as all text pieces are ending up in the \"SharedStrings.xml\" file and the \"sheet1.xml\" would reference the text in the sharedstrings file.\r\n\r\nIn my case I am iterating through the sheet, row by row and column by column and that is when I see the memory increasing.",
+      "PostedDate": "2009-06-29T08:01:20.687-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "@wvaneck: I cannot reproduce the high memory usage. There must be something special about the Excel file you are reading. You may also send the file directly to me (erik at phpexcel dot net).\r\n\r\npircher's issue specifically has to do with dealing with multiple files. This doesn't sound like your case, or is it? I think the issues are not similar?",
+      "PostedDate": "2009-06-29T19:42:44.383-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "@koyama: I found something in sheet1.xml which is the following:\r\n    <row r=\"2473\" spans=\"3:13\">\r\n      <c r=\"C2473\" s=\"1\"/>\r\n      <c r=\"M2473\" s=\"1\"/>\r\n    </row>\r\n    <row r=\"11467\" spans=\"11:11\">\r\n      <c r=\"K11467\" s=\"3\"/>\r\n    </row>\r\n    <row r=\"32789\" spans=\"3:13\">\r\n      <c r=\"C32789\" s=\"1\"/>\r\n      <c r=\"M32789\" s=\"1\"/>\r\n    </row>\r\n\r\nThose three rows where at the end of the row collection in sheet1. No idea how they got there but when I remove them it works fine and adding them back in will cause the problem.\r\n\r\nThe data (31 rows / 15 columns) was an export from MS AX (Dynamics). Don't know how they did the get the data out, I can find out to see what the process was to cause this abnormality.\r\n",
+      "PostedDate": "2009-06-30T00:55:01.273-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "@wvaneck: This must indeed be what is causing the problem and it sounds like a different issue than pircher's. Can you perhaps send me the complete sample file so we can investigate this further? (erik at phpexcel dot net)",
+      "PostedDate": "2009-07-09T06:00:14.067-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "@pircher: Also take a look at this thread including recent workaround by WhiteCubes\r\nhttp://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=18404",
+      "PostedDate": "2009-07-09T06:01:49.643-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "@koyama  - thanks for the reference to the other thread very useful. My workaround to the issue (as I'm creating many spreadsheets, but onyl one is used at a time) to have two processes - one getting/creating the data then serializing and the other unserializing/creatig the spreadhseet and then exiting ...\r\n\r\nBut this works iin my scenario - your solution will work in many others. As I'm used to 'old' C/C++ programming from years ago - implcicit garbage collection is a very nice luxery, but I definitely can live with explicit destroy calls.\r\n\r\nthansk again - ",
+      "PostedDate": "2009-07-10T01:21:04.21-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-07-27T00:05:57.833-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:03:59.387-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:38.68-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

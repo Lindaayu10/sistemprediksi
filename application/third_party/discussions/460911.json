@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "1102641",
+    "ThreadId": "460911",
+    "Html": "Hi,\r<br />\nI've a problem to make simple data validation on data lentgh...\r<br />\n<br />\n$formule = '&quot;=NBCAR(A1)&lt;6&quot;';\r<br />\n$objValidation = $objPHPExcel-&gt;getActiveSheet()-&gt;getCell('A1')-&gt;getDataValidation();\r<br />\n$objValidation-&gt;setErrorStyle( PHPExcel_Cell_DataValidation::STYLE_STOP );\r<br />\n$objValidation-&gt;setAllowBlank(false);\r<br />\n$objValidation-&gt;setShowErrorMessage(true);\r<br />\n$objValidation-&gt;setErrorTitle('Error length');\r<br />\n$objValidation-&gt;setError('Limited to 6');\r<br />\n$objValidation-&gt;setFormula1($formule);\r<br />\n<br />\nAny idea please ?\r<br />\n<br />\nThanks\r<br />\n<br />\nSorry for my poor english :)<br />\n",
+    "PostedDate": "2013-10-02T01:59:46.657-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1102706",
+    "ThreadId": "460911",
+    "Html": "The formulas must be in English. Try with LEN in this case.<br />\n",
+    "PostedDate": "2013-10-02T05:23:29.617-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1103094",
+    "ThreadId": "460911",
+    "Html": "Thanks for reply :)\r<br />\nI've tested with LEN, but it doesn't works...\r<br />\n<br />\n$formule = '&quot;=LEN(A1)&lt;6&quot;';\r<br />\n$objValidation = $objPHPExcel-&gt;getActiveSheet()-&gt;getCell('A1')-&gt;getDataValidation();\r<br />\n$objValidation-&gt;setErrorStyle( PHPExcel_Cell_DataValidation::STYLE_STOP );\r<br />\n$objValidation-&gt;setAllowBlank(false);\r<br />\n$objValidation-&gt;setShowErrorMessage(true);\r<br />\n$objValidation-&gt;setErrorTitle('Error length');\r<br />\n$objValidation-&gt;setError('Limited to 6');\r<br />\n$objValidation-&gt;setFormula1($formule); <br />\n",
+    "PostedDate": "2013-10-03T02:45:06.96-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1103098",
+    "ThreadId": "460911",
+    "Html": "So good, I found the solution in PHPExcel/cell/DataValidation.php structure\r<br />\nWith <strong>TYPE_TEXTLENGTH</strong>  and <strong>OPERATOR_LESSTHAN</strong> variables\r<br />\n<br />\nThis code limit the length of the cell to 6 :\r<br />\n<br />\n$objValidation = $objPHPExcel-&gt;getActiveSheet()-&gt;getCell('A1')-&gt;getDataValidation();\r<br />\n$objValidation-&gt;setType( PHPExcel_Cell_DataValidation::TYPE_TEXTLENGTH );\r<br />\n$objValidation-&gt;setOperator(PHPExcel_Cell_DataValidation::OPERATOR_LESSTHAN );\r<br />\n$objValidation-&gt;setErrorStyle( PHPExcel_Cell_DataValidation::STYLE_STOP );\r<br />\n$objValidation-&gt;setAllowBlank(false);\r<br />\n$objValidation-&gt;setShowErrorMessage(true);\r<br />\n$objValidation-&gt;setErrorTitle('Erreur de saisie');\r<br />\n$objValidation-&gt;setError('Le nombre de caractères est limité à 6');\r<br />\n$objValidation-&gt;setFormula1('6');\r<br />\n<br />\nWe can close this thread :)<br />\n",
+    "PostedDate": "2013-10-03T03:01:15.243-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

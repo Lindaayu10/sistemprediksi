@@ -1,0 +1,39 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "It can be somewhat troubling to get started with using this extension in the Yii framework, because the Yii autoloader throws exceptions when it cannot find a class files, preventing other autloaders to do their work. \n\nSince PHPExcel's class names are not compatible with the Yii autoloader, and the Yii autoloader takes precedence over PHPExcel's autoloader you cannot get PHPExcel to work in the framework without either spl_unregistering the Yii autoloader  before use and re-registering it after use, but this workaround can easily be prevented by implementing a fix in PHPExcel's autoloader. \n\nFor example you could add a beforeAutoloadRegister() and an afterAutoloadRegister to swap around the order in which these autoloaders work, saving you the trouble of having to repeat this manually (and figuring it out when using this library for the first time). \n\nThanks to _softark_ and _Antonio Ramirez_ for [pointing me in the right direction](http://www.yiiframework.com/wiki/101/how-to-use-phpexcel-external-library-with-yii/#c8432) getting this to work.\n\n```php\n/**\n * PHPExcel_Autoloader\n *\n * @category\tPHPExcel\n * @package\t\tPHPExcel\n * @copyright\tCopyright (c) 2006 - 2012 PHPExcel (http://www.codeplex.com/PHPExcel)\n */\nclass PHPExcel_Autoloader\n{\n\t/**\n\t * Register the Autoloader with SPL\n\t *\n\t */\n\tpublic static function Register() {\n\t\tif (function_exists('__autoload')) {\n\t\t\t//\tRegister any existing autoloader function with SPL, so we don't get any clashes\n\t\t\tspl_autoload_register('__autoload');\n\t\t}\n\t\t$registered = false;\n\t\tif(self::beforeAutoloadRegister()) {\n\t\t\t//\tRegister ourselves with SPL\n\t\t\t$registered = spl_autoload_register(array('PHPExcel_Autoloader', 'Load'));\n\t\t\tself::afterAutoloadRegister();\n\t\t}\n\t\t\n\t\treturn $registered;\n\t}\t//\tfunction Register()\n\n\tprivate static function beforeAutoloadRegister()\n\t{\n\t\t//fix for usage in Yii framework v1.1.x (unregister Yii's autoloader)\n\t\tif(class_exists('YiiBase') && method_exists('YiiBase','autoload'))\n\t\t\tspl_autoload_unregister(array('YiiBase', 'autoload'));\n\t\t\n\t\treturn true;\n\t}\n\tprivate static function afterAutoloadRegister()\n\t{\n\t\t//fix for usage in Yii framework v1.1.x (re-register Yii's autoloader)\n\t\tif(class_exists('YiiBase') && method_exists('YiiBase','autoload'))\n\t\t\tspl_autoload_register(array('YiiBase', 'autoload'));\n\t}\n```",
+    "LastUpdatedDate": "2013-04-09T16:08:30.123-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2013-03-29T08:06:09.55-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Yii Framework Autoloader compatibility fix",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 2,
+    "Id": 19543
+  },
+  "FileAttachments": [],
+  "Comments": []
+}

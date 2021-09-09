@@ -1,0 +1,60 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel",
+      "DisplayName": "PHPExcel"
+    },
+    "ClosedComment": "Fixed in SVN",
+    "ClosedDate": "2008-04-21T00:07:06.56-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hello,\nI have a problem redirecting my output to the web browser. In fact when I do $objWriter->save('php://output') I expect to be able to download a file containing that output.\nInstead I see a lot of scrumbled data, which I suppose is the raw xlsx data with no header.\nSo I tried to send a new header to tell the browser which kind of content it has to expect in order to show the normal download dialog but nothing. The server tells me it can't send any header after the one that is sent at PHPExcel\\PHPExcel\\Style\\NumberFormat.php:1 which is not normal, as everybody knows that the content of line 1 of that file is the <? tag...\n \nBasically I just want the writer to send the file to the browser instead of saving it into the hdd of the server where it runs, what am I supposed to do?\nThanks,\nLuca;)",
+    "LastUpdatedDate": "2013-05-16T05:43:38.657-07:00",
+    "PlannedForRelease": "PHPExcel 1.6.1 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2008-04-18T07:38:11.277-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Output redirection to web browser",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 6020
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "I have the same problem... I ave downloaded the latest SVN, thats a bit better : instead of having scrumberd data in IE, it try to download a file. The problem is that the file name is \"excel.zip\", so instead of opening with Excel il opens with Winzip. I'm using Excel 2003 with the 2007 converter.\r\n\r\nI have the same issue if I write the XLSX to disk, and try to redirect the navigator to that file with the following code :\r\necho('<html><head><META HTTP-EQUIV=\"Refresh\" Content= \"0;URL=my_file.xlsx\"></head></html>');\r\n\r\nInstead of downloading \"my_file.xlsx\", IE try to download a file called \"my_file.zip\". That file correctly open with Winzip, it's the same as to rename the XLSX to ZIP.",
+      "PostedDate": "2008-04-30T05:42:55.947-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I have found a way to correct my issue by adding the following mime type to the mime.types configuration file of Apache :\r\napplication/vnd.openxmlformats-officedocument.spreadsheetml.sheet xlsx\r\n\r\nThen I use the following code to generate the file and redirect my browser :\r\n$objWriter->save('my_file.xlsx');\r\necho('<html><head><META HTTP-EQUIV=\"Refresh\" Content= \"0;URL=my_file.xlsx\"></head></html>');\r\n\r\nIf I use $objWriter->save('php://output'); I still receive a file called excel.zip instead of excel.xlsx",
+      "PostedDate": "2008-04-30T06:20:13.103-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:05:19.36-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:43:38.657-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

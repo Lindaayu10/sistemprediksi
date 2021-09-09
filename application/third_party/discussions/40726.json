@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "135071",
+    "ThreadId": "40726",
+    "Html": "<br>\r\nhelp..<br>\r\n<br>\r\ni have this project in which i had to read an excel file with php and it does...<br>\r\nbut the problem is i cannot display the dates in the original format... from 6/30/08 it displays something like this 39629<br>\r\n<br>\r\nhere is my script:<br>\r\n<br>\r\n&lt;?<br>\r\n/** Error reporting */<br>\r\nerror_reporting(E_ALL);<br>\r\n<br>\r\n/** Include path **/<br>\r\nini_set('include_path', ini_get('include_path').';../Classes/'); //Classes dir<br>\r\n<br>\r\n/** PHPExcel_IOFactory */<br>\r\ninclude 'PHPExcel/IOFactory.php';<br>\r\n<br>\r\n$objReader = PHPExcel_IOFactory::createReader(&quot;Excel2007&quot;);<br>\r\n$objReader = new PHPExcel_Reader_Excel2007();<br>\r\n$objReader-&gt;setReadDataOnly(true);<br>\r\n&nbsp;<br>\r\n$objPHPExcel = $objReader-&gt;load(&quot;test.xlsx&quot;); //ARCHIVE excel2007 dir<br>\r\n<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getDefaultStyle()-&gt;getFont()-&gt;setName('Arial'); //how to use this? is this only for fomatting?<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getDefaultStyle()-&gt;getFont()-&gt;setSize(8); //how to use this? is this only for fomatting?<br>\r\n<br>\r\n$hrows = $objPHPExcel-&gt;getActiveSheet()-&gt;getHighestRow(); //total rows<br>\r\n$varray = array(&quot;A&quot;,&quot;B&quot;,&quot;C&quot;,&quot;D&quot;,&quot;E&quot;,&quot;F&quot;,&quot;G&quot;,&quot;H&quot;,&quot;I&quot;); //these are my columns<br>\r\n<br>\r\n//the C1..X is my date column formatted as 6/30/08<br>\r\n<br>\r\necho &quot;&lt;table border='1'&gt;&quot;;<br>\r\nfor ($row=6;$row&lt;=$hrows;$row++){ //start of my data<br>\r\n<br>\r\n&nbsp;&nbsp; &nbsp;echo &quot;&lt;tr&gt;&quot;;<br>\r\n&nbsp;&nbsp; &nbsp;for ($col=0;$col&lt;count($varray);$col++){ //fields<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$vcell = $varray[$col].$row;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$val = ($objPHPExcel-&gt;getActiveSheet()-&gt;getCell($vcell)); //CELL<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if($varray[$col] == &quot;I&quot;){<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$temp = $val-&gt;getCalculatedValue();//returns the value in the cell<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;else{<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$temp = $val-&gt;getvalue();//returns the value in the cell<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br>\r\n<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if($temp != &quot;&quot;){<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if($varray[$col] == &quot;I&quot; || $varray[$col] == &quot;H&quot; || $varray[$col] == &quot;G&quot;){<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;echo &quot;&lt;td align='right'&gt;&quot;.number_format($temp, 2, '.', ',').&quot;&lt;/td&gt;&quot;;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;else{<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;echo &quot;&lt;td&gt;&quot;.$temp.&quot;&lt;/td&gt;&quot;;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;else{<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;echo &quot;&lt;td&gt;&amp;nbsp;&lt;/td&gt;&quot;;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}<br>\r\n&nbsp;&nbsp; &nbsp;}<br>\r\n&nbsp;&nbsp; &nbsp;echo &quot;&lt;/tr&gt;&quot;;<br>\r\n}<br>\r\n<br>\r\n?&gt;<br>\r\n<br>\r\nand also is it possible that by reading the excel file can i copy or display its appearance/original formating in the browser? <br>\r\n<br>\r\n<br>\r\nHope you could help me...<br>\r\nThanks in advance....<br>\r\n<br>\r\n<br>\r\n",
+    "PostedDate": "2008-11-25T03:19:27.343-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "135105",
+    "ThreadId": "40726",
+    "Html": "<p>Dates are held in Excel as a date/timestamp value representing the number of days since 1st January 1900 (or 1st January 1904, depending on the operating platform/calendar). The actual formatting of dates in Excel so that they appear as a date, is handled by applying a formatting mask to the value.<br>\r\nPHP dates are held as a date/timestamp value representing the number of seconds since 1st January 1970.<br>\r\n<br>\r\nThe actual value in the Excel cell (39629) is the Excel date/timestamp. You need to format this to display it as a date in your HTML. You can convert it to a PHP date/timestamp value by calling the PHPExcel_Shared_Date::ExcelToPHP() method:</p>\r\n<p>$phpDateValue = PHPExcel_Shared_Date::ExcelToPHP($excelDateValue);<br>\r\n<br>\r\nand then using the PHP date functions to format it as you wish.<br>\r\n<br>\r\nIf you want to use Excel's defined format by reading the formatting mask, then you can use the PHPExcel_Style_NumberFormat::ToFormattedString() method:<br>\r\n<br>\r\n$formattedDateString = PHPExcel_Style_NumberFormat::ToFormattedString($objPHPExcel-&gt;getActiveSheet()-&gt;getCell($cellID)-&gt;getValue(), $objPHPExcel-&gt;getActiveSheet()-&gt;getStyle($cellID)-&gt;getNumberFormat()-&gt;getFormatCode())</p>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2008-11-25T06:09:06.483-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "135107",
+    "ThreadId": "40726",
+    "Html": "&gt;&gt; and also is it possible that by reading the excel file can i copy or display its appearance/original formating in the browser? <br>\r\nCertainly it is.<br>\r\nTake a look at the HTML writer, and see how it creates styles based on the excel style settings, and then builds an HTML table applying those styles to the individual cells<br>\r\n<br>\r\nIn fact, for what you're doing in the code above, you could simply use the PHPExcel HTML writer to build the table<br>\r\n",
+    "PostedDate": "2008-11-25T06:11:27.817-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "135397",
+    "ThreadId": "40726",
+    "Html": "<br>\r\n<br>\r\nhi again... hi mark thanks for the reply...<br>\r\nbut still no luck...<br>\r\ndo i make things right? <br>\r\n<br>\r\n$vcell = $varray[$col].$row;<br>\r\n$val = ($objPHPExcel-&gt;getActiveSheet()-&gt;getCell($vcell)); //CELL<br>\r\n<br>\r\n$temp = $val-&gt;getvalue();<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br>\r\n$temp = PHPExcel_Shared_Date::ExcelToPHP($temp); // 39629 to 6/30/08 how to use it?<br>\r\n$temp = PHPExcel_Style_NumberFormat::ToFormattedString($objPHPExcel-&gt;getActiveSheet()-&gt;getCell($vcell)-&gt;getValue(), $objPHPExcel-&gt;getActiveSheet()-&gt;getStyle($vcell)-&gt;getNumberFormat()-&gt;getFormatCode());<br>\r\n//then 6/30/08 to PHP format? <br>\r\n<br>\r\n<br>\r\nim a little mix up... <br>\r\n<br>\r\n<br>\r\non more thing, is it possible to make a query directly to excel file using the class?<br>\r\n<br>\r\nThanks in Advance.... <br>\r\n<br>\r\n<br>\r\n",
+    "PostedDate": "2008-11-25T21:12:44.413-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "135709",
+    "ThreadId": "40726",
+    "Html": "Nope, you're combining to different ways of performing the same task:<br>\r\n<br>\r\nEither<br>\r\n$vcell = $varray[$col].$row;<br>\r\n$val = ($objPHPExcel-&gt;getActiveSheet()-&gt;getCell($vcell)); //CELL<br>\r\n$temp = $val-&gt;getvalue();<br>\r\n$temp = PHPExcel_Shared_Date::ExcelToPHP($temp); // 39629 to 6/30/08 how to use it?<br>\r\necho date('m/d/y',$temp);    // Standard PHP date function, which you can use to format the date however you want<br>\r\n<br>\r\nOr<br>\r\n$vcell = $varray[$col].$row;<br>\r\n$val = ($objPHPExcel-&gt;getActiveSheet()-&gt;getCell($vcell)); //CELL<br>\r\n$temp = $val-&gt;getvalue();<br>\r\n$temp = PHPExcel_Style_NumberFormat::ToFormattedString($temp, $objPHPExcel-&gt;getActiveSheet()-&gt;getStyle($vcell)-&gt;getNumberFormat()-&gt;getFormatCode());<br>\r\n<br>\r\n<br>\r\n&gt;&gt; on more thing, is it possible to make a query directly to excel file using the class?<br>\r\nNot quite sure what you mean by this... you've already read the excel file when you do $objPHPExcel = $objReader-&gt;load(&quot;test.xlsx&quot;); <br>\r\nWhat other queries do you want to make?<br>\r\n<br>\r\n",
+    "PostedDate": "2008-11-26T14:52:43.19-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "135756",
+    "ThreadId": "40726",
+    "Html": "<br>\r\n<br>\r\ngot it! thanks mark!<br>\r\n<br>\r\n<br>\r\nabout the queries... <br>\r\ncan i pass sql queries to the class to get some information i wanted to display?<br>\r\n<br>\r\nfor example: sql queries on dates? between dates... directly to excel file? and the result/display will be the covering dates that i posted in the browser?<br>\r\n<br>\r\n<br>\r\nthanks in advance.... <br>\r\n",
+    "PostedDate": "2008-11-26T19:40:07.433-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "135795",
+    "ThreadId": "40726",
+    "Html": "&gt;&gt; can i pass sql queries to the class to get some information i wanted to display?<br>\r\n&gt;&gt;<br>\r\nThe answer to this is &quot;No&quot;.<br>\r\nSQL is a language for accessing data within a structured relational database, but an Excel workbook is simply a series of unstructured unrelated data.\r\n",
+    "PostedDate": "2008-11-27T00:37:48.337-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

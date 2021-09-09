@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "1347192",
+    "ThreadId": "578934",
+    "Html": "Hi I created time cell by <a href=\"https://phpexcel.codeplex.com/discussions/331005\" rel=\"nofollow\">this topic</a>.\r<br />\nI have format:<br />\n<pre><code>$d= DateTime::from('00:30:00');\n$objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue('N' . ($key + 2), $d-&gt;format('G:i:00'));\n\n$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('N' . ($key + 2))\n                -&gt;getNumberFormat()\n                -&gt;setFormatCode(\\PHPExcel_Style_NumberFormat::FORMAT_DATE_TIME4);\n</code></pre>\n\nAll is correct, but when I add in excel function SUM of this values returns 0:00:00. I must click to every cell click ENTER, then function SUM will start process.\r<br />\nAny Idea what is wrong?, or how can I prepare data for this process?\r<br />\n<br />\nFor any help thx.<br />\n",
+    "PostedDate": "2015-01-29T09:08:43.643-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1347203",
+    "ThreadId": "578934",
+    "Html": "<strong>Don't</strong> store a formatted date as a string in a cell. You can't simply add string values and expect to get a sensible number as a result.\r<br />\n<br />\nThe topic you've linked to shows several methods for converting a date (whether a formatted string, a PHP DateTime object or a unix timestamp) to a MS Excel serialized date/timestamp. Use the result of a call to <code>PHPExcel_Shared_Date::PHPToExcel($d)</code> to set as the cell value, not the result of a call to <code>$d-&gt;format('G:i:00')</code><br />\n",
+    "PostedDate": "2015-01-29T09:41:26.57-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1347253",
+    "ThreadId": "578934",
+    "Html": "@MarkBaker Thx, and one more question, it is possible use not DateTime? Because I don't need date only time.<br />\nI have only '00:30:00' string and in excel is [now_date '00:30:00'] like 29.1.2015  2:30:00<br />\n",
+    "PostedDate": "2015-01-29T11:45:10.493-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1347316",
+    "ThreadId": "578934",
+    "Html": "If you need purely time, then you need to force the date to Excel's baseline date: 31st December 1900. Standard PHP behaviour when setting a DateTime object with purely a time, it will assume today's date. Similarly with unix timestamps, though you can only do this if you're using 64-bit PHP, otherwise the baseline date falls outside the range of a 32-bit unix timestamp.\r<br />\n<br />\nAlternatively, use <code>PHPExcel_Shared_Date::FormattedPHPToExcel(1899, 12, 31, 0, 30, 0);</code><br />\n",
+    "PostedDate": "2015-01-29T15:22:22.337-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1347414",
+    "ThreadId": "578934",
+    "Html": "@MarkBaker Thx, when I use this solution I have also date in in excel cell.\r<br />\nAnd what about this? Is this best particle?<br />\n<pre><code>$time = '00:30:00';\n$objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue('N' . ($key + 2), '=TIMEVALUE(&quot;'.$time.'&quot;)');</code></pre>\n\n",
+    "PostedDate": "2015-01-30T00:36:29.673-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

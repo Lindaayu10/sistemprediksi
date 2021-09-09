@@ -1,0 +1,98 @@
+[
+  {
+    "Id": "109000",
+    "ThreadId": "32890",
+    "Html": "I have a PHP application which collects responses to a set of questions from my client's clients.<br>\r\nMy client wants the results presented in an Excel workbook (Excel 97) with a worksheet for each clients set of responses and a comparison of some of the results in the front page.<br>\r\nMy script creates the responses worksheets exactly as desired. Before I write to file I interate&nbsp; thought the each of the response worksheets to collect data for the comparison page.<br>\r\nWhen I use $thisSheet-&gt;getCell('C21')-&gt;getValue() the formula (=C19/C20) is returned however when I use $thisSheet-&gt;getCell('C21')-&gt;getCalculatedValue() it returns 0. Can someboby advise what I may be doing in correctly or is this a problem with PHPExcel?<br>\r\nCheers<br>\r\n",
+    "PostedDate": "2008-08-04T19:25:11.6-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "109009",
+    "ThreadId": "32890",
+    "Html": "Hmm.. There is not enough information for me to reconstruct the error. Simple division should be working. Can you please provide a more detailed example?<br>\r\n",
+    "PostedDate": "2008-08-04T20:10:17.74-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "109023",
+    "ThreadId": "32890",
+    "Html": "This is my actual code. <br>\r\n$questions is an array of items to which the participants responded they are grouped into 5 groups (but could be any number of questions and groups)<br>\r\n$frontPage is worksheet[0] &amp; has had some headings written to it earlier on<br>\r\n$fpRowIndex is an array of row numbers for the front page<br>\r\n$groupResponseLine is an array of rows in the response worksheets worksheet[1...10] from which the data for the front page is to be taken.<br>\r\nAs I said in the original post if I use getValue() instead of getCalculatedValue() the formulas are returned.<br>\r\n<br>\r\n<blockquote>foreach ($questions as $question) {<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if ($question-&gt;name != $groupName) {<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$groupName = $question-&gt;name;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for ($n=1;$n&lt;=$partCount;$n++) {<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$workbook-&gt;setActiveSheetIndex($n);<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$thisSheet = $workbook-&gt;getActiveSheet();<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$frontPage-&gt;setCellValue(&quot;A$fpRowIndex[$groupIndex]&quot;,&quot;Resp $n&quot;);<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$frontPage-&gt;getStyle(&quot;A$fpRowIndex[$groupIndex]&quot;)-&gt;getFont()-&gt;setName('Arial');&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$frontPage-&gt;getStyle(&quot;B$fpRowIndex[$groupIndex]&quot;)-&gt;getFont()-&gt;setName('Arial');&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$frontPage-&gt;getStyle(&quot;C$fpRowIndex[$groupIndex]&quot;)-&gt;getFont()-&gt;setName('Arial');&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$frontPage-&gt;getStyle(&quot;D$fpRowIndex[$groupIndex]&quot;)-&gt;getFont()-&gt;setName('Arial');&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp; &nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$frontPage-&gt;setCellValue(&quot;B$fpRowIndex[$groupIndex]&quot;,$thisSheet-&gt;getCell(&quot;C&quot;.$groupResponseLine[$groupIndex])-&gt;getCalculatedValue());<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$frontPage-&gt;getStyle(&quot;B$fpRowIndex[$groupIndex]&quot;)-&gt;getNumberFormat()-&gt;setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_PERCENTAGE_00);<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$frontPage-&gt;setCellValue(&quot;C$fpRowIndex[$groupIndex]&quot;,$thisSheet-&gt;getCell(&quot;D&quot;.$groupResponseLine[$groupIndex])-&gt;getCalculatedValue());<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$frontPage-&gt;getStyle(&quot;C$fpRowIndex[$groupIndex]&quot;)-&gt;getNumberFormat()-&gt;setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_PERCENTAGE_00);<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$frontPage-&gt;setCellValue(&quot;D$fpRowIndex[$groupIndex]&quot;,$thisSheet-&gt;getCell(&quot;E&quot;.$groupResponseLine[$groupIndex])-&gt;getCalculatedValue());<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$frontPage-&gt;getStyle(&quot;D$fpRowIndex[$groupIndex]&quot;)-&gt;getNumberFormat()-&gt;setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_PERCENTAGE_00);<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$fpRowIndex[$groupIndex]++;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$groupIndex++;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; <br>\r\n&nbsp;&nbsp; &nbsp;}<br>\r\n</blockquote>I hope this is enough information.<br>\r\nThanks for your response.<br>\r\n<br>\r\n",
+    "PostedDate": "2008-08-04T22:33:37.02-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "109063",
+    "ThreadId": "32890",
+    "Html": "Well I don't see anything suspicious there... This may sound silly, but have you checked what's in <code>C19</code> and <code>C20</code>?<br>\r\n<br>\r\n<code>var_dump($thisSheet-&gt;getCell('C19')-&gt;getValue());<br>\r\nvar_dump($thisSheet-&gt;getCell('C20')-&gt;getValue());</code>\r\n",
+    "PostedDate": "2008-08-05T04:33:58.417-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "109203",
+    "ThreadId": "32890",
+    "Html": "Could this be because the value of C19 is actually a formula, 'SUM(C7:C18)', if so any suggestions on how to accomplish what I need to?<br>\r\nAll the correct values are written to the individual worksheets. It is when I attempt to collect data from each of the sheets for the front comparison worksheet.<br>\r\n",
+    "PostedDate": "2008-08-05T14:06:57.067-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "109219",
+    "ThreadId": "32890",
+    "Html": "No, that should be ok to my knowledge. Just to check, please post what you get when you run this:<br>\r\n<br>\r\n<code>var_dump($thisSheet-&gt;getCell('C19')-&gt;getCalculatedValue());<br>\r\n</code>\r\n<code>var_dump($thisSheet-&gt;getCell('C20')-&gt;getCalculatedValue());<br>\r\n</code>\r\n",
+    "PostedDate": "2008-08-05T15:24:02.513-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "109291",
+    "ThreadId": "32890",
+    "Html": "This is what is weird.<br>\r\n<ul>\r\n    <li><code>var_dump($thisSheet-&gt;getCell('C19')-&gt;getCalculatedValue());&nbsp;&nbsp; displays </code><strong>int(0)</strong></li>\r\n    <li><code>var_dump($thisSheet-&gt;getCell('C19')-&gt;getValue());&nbsp;&nbsp; </code>displays <strong>string(12) &quot;=SUM(C7:C18)</strong></li>\r\n    <li><code>var_dump($thisSheet-&gt;getCell('C20')-&gt;getCalculatedValue());&nbsp; displays </code><strong>int(30) </strong>which is the correct value.</li>\r\n</ul>\r\n",
+    "PostedDate": "2008-08-06T01:00:39.577-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "109306",
+    "ThreadId": "32890",
+    "Html": "Are the values in C7..C18 actual numbers, or strings containing a numeric value?\r\n",
+    "PostedDate": "2008-08-06T02:26:45.53-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "109480",
+    "ThreadId": "32890",
+    "Html": "Originally I was writing to cells C7..C18 using this code:<br>\r\n<blockquote>$workbook-&gt;getActiveSheet()-&gt;setCellValue(&quot;C$rowIndex&quot;,($r-&gt;policy_response == 0 ? 'n/a':$r-&gt;policy_response));<br>\r\n</blockquote>var_dump() reports these as string, in the resultant worksheets these cells return TRUE to ISNUMBER <br>\r\n<br>\r\nAfter Mark's post I changed it to:<br>\r\n<br>\r\n<blockquote>if ($r-&gt;policy_response == 0) {<br>\r\n&nbsp;&nbsp;&nbsp; $workbook-&gt;getActiveSheet()-&gt;getCell(&quot;C$rowIndex&quot;)-&gt;setValueExplicit('n/a',PHPExcel_Cell_DataType::TYPE_STRING);<br>\r\n} else {<br>\r\n&nbsp;&nbsp;&nbsp; $workbook-&gt;getActiveSheet()-&gt;getCell(&quot;C$rowIndex&quot;)-&gt;setValueExplicit($r-&gt;policy_response,PHPExcel_Cell_DataType::TYPE_NUMERIC);<br>\r\n}<br>\r\n</blockquote>var_dump still reports these cells as strings????????<br>\r\n<blockquote><br>\r\n</blockquote>\r\n",
+    "PostedDate": "2008-08-06T14:10:17.827-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "109526",
+    "ThreadId": "32890",
+    "Html": "Well, as long as<br>\r\n<br>\r\n<code>var_dump($thisSheet-&gt;getCell('C19')-&gt;getCalculatedValue());&nbsp;&nbsp; displays\r\n</code><strong>int(0)</strong><br>\r\n<br>\r\nthen the result of the division<br>\r\n<br>\r\n<code>C21 = C19 / C20 = 0</code><br>\r\n<br>\r\nshould be zero so there is no problem. I figure that you didn't expect <code>C19</code> to be 0 so your real question is why <code>C19</code> is zero.<br>\r\n<br>\r\nCan you please post exactly what you get when you run this:<br>\r\n<br>\r\n<code>var_dump($thisSheet-&gt;getCell('C7')-&gt;getCalculatedValue());<br>\r\n</code>\r\n<code>var_dump($thisSheet-&gt;getCell('C7')-&gt;getValue());<br>\r\n</code>\r\n<code>var_dump($thisSheet-&gt;getCell('C8')-&gt;getCalculatedValue());<br>\r\n</code>\r\n<code>var_dump($thisSheet-&gt;getCell('C8')-&gt;getValue());<br>\r\n</code>\r\n<code>...<br>\r\n</code>\r\n<code>var_dump($thisSheet-&gt;getCell('C18')-&gt;getCalculatedValue());</code>\r\n",
+    "PostedDate": "2008-08-06T17:49:13.21-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "109586",
+    "ThreadId": "32890",
+    "Html": "Using&nbsp;<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$workbook-&gt;getActiveSheet()-&gt;getCell(&quot;C$rowIndex&quot;)-&gt;setValueExplicit($r-&gt;policy_response,PHPExcel_Cell_DataType::TYPE_NUMERIC);<br>\r\ndoesn't actually change the PHP datatype to a numeric (though it probably should)<br>\r\n<br>\r\nTry explicitly typecasting using<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$workbook-&gt;getActiveSheet()-&gt;setCellValue(&quot;C$rowIndex&quot;,($r-&gt;policy_response == 0 ? 'n/a':(integer)$r-&gt;policy_response));\r\n",
+    "PostedDate": "2008-08-07T00:53:24.733-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "109893",
+    "ThreadId": "32890",
+    "Html": "I'm not absolutely sure what has fixed this issue but it is working. Thanks Mark &amp; Koyama<br>\r\n",
+    "PostedDate": "2008-08-08T00:33:53.967-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,106 @@
+[
+  {
+    "Id": "129365",
+    "ThreadId": "38992",
+    "Html": "Hello,<br>\r\n<br>\r\nI read an excel file from and fill in some data. After that, I want to output it to the user. So that he gets 'save as...' possibility. But for now it only works by saving it to my webspace... How can I fix this?<br>\r\n<br>\r\n$objReader&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;= new PHPExcel_Reader_Excel5();<br>\r\n$objPHPExcel&nbsp;&nbsp; &nbsp;= $objReader-&gt;load('1.XLS');<br>\r\n$objPHPExcel-&gt;setActiveSheetIndex(0);<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('B3',$type-&gt;date);<br>\r\n...<br>\r\n$objWriter&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;= new PHPExcel_Writer_Excel5($objPHPExcel);<br>\r\n$objWriter-&gt;save('test.xls'); <br>\r\n<br>\r\n$objWriter-&gt;save('php://test.xls');\r\n",
+    "PostedDate": "2008-11-01T01:43:20.34-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "129381",
+    "ThreadId": "38992",
+    "Html": "Here is the method for Excel5 writer (Excel 2003 format). It allows you to specify the suggested filename in the download dialog. Moreover it ensures that Excel file will not be cached. This is important if you later modify the Excel file on server. Otherwise the browser may not deliver the newest version of the Excel file the second time the download link is clicked.<br>\r\n<br>\r\n<code>\r\n$excel = new PHPExcel();<br>\r\n<br>\r\n// do stuff to build the spreadsheet<br>\r\n<br>\r\n$writer = new PHPExcel_Writer_Excel5($excel);<br>\r\n<br>\r\nheader('Content-Type: application/vnd.ms-excel');<br>\r\nheader('Content-Disposition: attachment;filename=&quot;My Excel File.xls&quot;');<br>\r\nheader('Cache-Control: max-age=0');<br>\r\n<br>\r\n$writer-&gt;save('php://output');<br>\r\n</code>\r\n<br>\r\nFor the Excel 2007 format replace lines above with these:<br>\r\n<br>\r\n<code>\r\nheader('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');<br>\r\n</code>\r\n<code>\r\nheader('Content-Disposition: attachment;filename=&quot;My Excel File.xlsx&quot;');<br>\r\n</code><br>\r\nPrevious experience tells me that it can be quite tricky to get this stuff working the way one want it. I am not even sure that the above headers are technically correct. Everyone seems to have their own favorite set of headers. Due to bugs, there can especially be problems with Internet Explorer (both IE6 and IE7). If you are not careful, IE may 1) ignore the suggested filename, 2) not recognize filetype, 3) refuse to download at all. Therefore, I strongly recommend that you test extensively on all the browsers / platforms that you expect your users to work on.<br>\r\n<br>\r\n",
+    "PostedDate": "2008-11-01T07:41:54.07-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "129389",
+    "ThreadId": "38992",
+    "Html": "Thanks for the replay. When I use the php://output... I get following error:<br>\r\n<span style=\"font-family:arial;font-size:13px\"><br>\r\n&lt;b&gt;Fatal error&lt;/b&gt;: Uncaught exception 'Exception' with message 'Can't open php://test.xls. It may be in use or protected.' in C:\\wamp\\www\\library\\PHPExcel\\Shared\\OLE\\OLE_Root.php:103\r\n<p>&nbsp;</p>\r\n</span>\r\n",
+    "PostedDate": "2008-11-01T09:09:58.513-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "129390",
+    "ThreadId": "38992",
+    "Html": "Do not do like this:<br>\r\n<code>$objWriter-&gt;save('php://test.xls'); </code><br>\r\n<br>\r\nDo like this:<br>\r\n<code>$objWriter-&gt;save('php://output');</code><br>\r\n<br>\r\n",
+    "PostedDate": "2008-11-01T09:26:42.037-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "129605",
+    "ThreadId": "38992",
+    "Html": "Ok, but what is 'output'? Is it a variable? 'Cause I'm getting an empty spreadsheet... (what does the php:// do? Don't know that command?)<br>\r\n<br>\r\nthis is my code:<br>\r\n<br>\r\n<span style=\"font-size:13px\">\r\n<p>&nbsp;</p>\r\n<p>// loading the template.xls<br>\r\n$objReader = new PHPExcel_Reader_Excel5();<br>\r\n$objPHPExcel = $objReader-&gt;load($config-&gt;application-&gt;upload.'/riolering/onderstation/inspectieformulier/template.XLS');<br>\r\n$objPHPExcel-&gt;setActiveSheetIndex(0);</p>\r\n<p>// filling in some data<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('B3',$type-&gt;datum);<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('B4',$onderstation-&gt;naam);<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('B5',$onderstation-&gt;straat);<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('B6',$onderstation-&gt;postcode);</p>\r\n<p>// output<br>\r\n$objWriter = new PHPExcel_Writer_Excel5($objPHPExcel);</p>\r\n<p>header(&quot;Pragma: public&quot;);<br>\r\nheader(&quot;Expires: 0&quot;);<br>\r\nheader(&quot;Cache-Control: must-revalidate, post-check=0, pre-check=0&quot;); <br>\r\nheader(&quot;Content-Type: application/force-download&quot;);<br>\r\nheader(&quot;Content-Type: application/octet-stream&quot;);<br>\r\nheader(&quot;Content-Type: application/download&quot;);<br>\r\nheader(&quot;Content-Disposition: attachment;filename=test.xls&quot;); <br>\r\nheader(&quot;Content-Transfer-Encoding: binary &quot;);</p>\r\n<p>$objWriter-&gt;save('php://output');</p>\r\n</span>\r\n",
+    "PostedDate": "2008-11-03T02:56:28.297-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "129626",
+    "ThreadId": "38992",
+    "Html": "Sorry, I managed to fix the problem. 'Cause I'm working with the Zend Framework I still had to do a render. Forgot that :). thanks anyway.<br>\r\n",
+    "PostedDate": "2008-11-03T04:49:24.59-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "245579",
+    "ThreadId": "38992",
+    "Html": "<p>How did u solve it?</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-10-14T06:59:03.78-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "245580",
+    "ThreadId": "38992",
+    "Html": "<p>Hi</p>\r\n<p>I am having the same problem using Zend Framework with PHPExcel.</p>\r\n<p>Did you use <span style=\"font-size:13px\">$objWriter-&gt;save('php://output');?</span></p>\r\n<p><span style=\"font-size:13px\">Could you please post a sample of code?</span></p>\r\n<p>Thanks</p>",
+    "PostedDate": "2009-10-14T06:59:33.057-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "245724",
+    "ThreadId": "38992",
+    "Html": "<p>\r\n<p>Hey Jia,</p>\r\n<p>I'm also working with the Zend Framework and PHPExcel. Here is a little example. If it doesn't work out, post your code, or give us the error you get.</p>\r\n<p>I think it's the &quot;die()&quot; that you didn't do. I found it out myself that it works this way.</p>\r\n<p>public function testAction() {</p>\r\n</p>\r\n<p>&nbsp;&nbsp;$objPHPExcel&nbsp;= new PHPExcel();<br>&nbsp;&nbsp;$objPHPExcel-&gt;getProperties()-&gt;setCreator(&quot;Kantersnet&quot;);<br>&nbsp;&nbsp;<br>&nbsp;&nbsp;$objPHPExcel-&gt;createSheet($title);<br>&nbsp;&nbsp;$objPHPExcel-&gt;setActiveSheetIndex($this-&gt;_i);<br>&nbsp;&nbsp;$objPHPSheet&nbsp;= $objPHPExcel-&gt;getActiveSheet();<br>&nbsp;&nbsp;<br>&nbsp;&nbsp;$objPHPSheet-&gt;setCellValue('A1', 'blabla');<br>&nbsp;&nbsp;... input ... layout ...<br>&nbsp;&nbsp;<br>&nbsp;&nbsp;header(&quot;Pragma: public&quot;);<br>&nbsp;&nbsp;header(&quot;Expires: 0&quot;);<br>&nbsp;&nbsp;header(&quot;Cache-Control: must-revalidate, post-check=0, pre-check=0&quot;);<br>&nbsp;&nbsp;header(&quot;Content-Type: application/force-download&quot;);<br>&nbsp;&nbsp;header(&quot;Content-Type: application/octet-stream&quot;);<br>&nbsp;&nbsp;header(&quot;Content-Type: application/download&quot;);<br>&nbsp;&nbsp;header(&quot;Content-Disposition: attachment; filename=blabla.xls&quot;);<br>&nbsp;&nbsp;header(&quot;Content-Transfer-Encoding: binary&quot;);</p>\r\n<p>&nbsp;&nbsp;$objWriter = new PHPExcel_Writer_Excel5($objPHPExcel);<br>&nbsp;&nbsp;$objWriter-&gt;save(&quot;php://output&quot;);<br>&nbsp;&nbsp;<br>&nbsp;&nbsp;die();</p>\r\n<p>}</p>",
+    "PostedDate": "2009-10-14T12:16:06.027-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "254196",
+    "ThreadId": "38992",
+    "Html": "<p>You should use Action Helper Context Switch.</p>\r\n<p>In the init() of your Controller:</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre><span style=\"color:Blue\">public</span> <span style=\"color:Blue\">function</span> init()\r\n{\r\n\t$excelConfig = <span style=\"color:Blue\">array</span>(\r\n\t\t<span style=\"color:#A31515\">'excel'</span> =&gt; <span style=\"color:Blue\">array</span>(\r\n\t\t<span style=\"color:#A31515\">'suffix'</span>  =&gt; <span style=\"color:#A31515\">'excel'</span>,\r\n\t\t<span style=\"color:#A31515\">'headers'</span> =&gt; <span style=\"color:Blue\">array</span>(\r\n\t\t\t<span style=\"color:#A31515\">'Content-type'</span> =&gt; <span style=\"color:#A31515\">'application/vnd.ms-excel'</span>, <span style=\"color:Green\">// for excel2007: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'</span>\r\n\t\t\t<span style=\"color:#A31515\">'Cache-Control'</span> =&gt; <span style=\"color:#A31515\">'max-age=0'</span>,\r\n\t\t\t<span style=\"color:#A31515\">'Content-Disposition'</span> =&gt; <span style=\"color:#A31515\">'attachment;filename=My File.xls&quot;'</span>\r\n\t\t)\r\n\t));\r\n\t$contextSwitch = $this-&gt;_helper-&gt;contextSwitch();\r\n\t$contextSwitch-&gt;addContexts($excelConfig);\r\n\t$contextSwitch-&gt;addActionContext(<span style=\"color:#A31515\">'excel-export'</span>, <span style=\"color:#A31515\">'excel'</span>);\r\n\t$contextSwitch-&gt;initContext();\r\n}\r\n</pre>\r\n</div>\r\n<p>then in the action do your Zend Framework stuffs, remember that with context switch you should create two views: excel-export.phtml and excel-export.excel.phtml, put your PHPExcel logic in this last view.</p>",
+    "PostedDate": "2009-11-06T04:05:17.527-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "426221",
+    "ThreadId": "38992",
+    "Html": "<p>I don't know what writer's save method does, but if all you want is to disable rendering using setNoRender() method of ViewRenderer would be more appropriate (i.e.</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$this-&gt;_helper-&gt;viewRenderer-&gt;setNoRender();\r\n</pre>\r\n</div>\r\n<p>) instead of using die().</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-03-31T16:35:23.197-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "487120",
+    "ThreadId": "38992",
+    "Html": "<p>Just curious. How are you integrating the library into the Zend Framework?&nbsp;</p>",
+    "PostedDate": "2010-08-31T11:07:19.997-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1209749",
+    "ThreadId": "38992",
+    "Html": "i made same, but error 'Cannot read file because wrong file extension<br />\n",
+    "PostedDate": "2014-02-18T01:30:13.953-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

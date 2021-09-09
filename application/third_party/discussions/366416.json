@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "864893",
+    "ThreadId": "366416",
+    "Html": "\r\n<p>Hello together,</p>\r\n<p>I have a problem I like to generate a very large excel 2007-file which has round about 10M cells. I know that every row needs about 1k / each cell.</p>\r\n<p>I started with generating a excel workbook with 100k cells and everything worked fine.</p>\r\n<p>After I increased the number of cells I got some errors (memory_limit and max_execution_time). So increased the limits ...</p>\r\n<p>Since 2M cells I only get an error &quot;500 - Internal server error.&quot;, no memory or time error like expected.&nbsp; I found no entry for that in php errorlog or in windows log. What can I do now?</p>\r\n<p>&nbsp;</p>\r\n<p>My System:</p>\r\n<p>Operating System: Windows 2008 Server SP 2</p>\r\n<p>Webserver:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; IIS 7.0</p>\r\n<p>RAM:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 32 GB</p>\r\n<p>CPU:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 8 CPU</p>\r\n<p>&nbsp;</p>\r\n<p>I use the cell caching method cache_in_memory_serialized. I read in other discussion to use use other methods, but nothing changed except the performance of the writing process ...</p>\r\n<p>Writing 1M worked fine, it took 81 seconds to generate the excel-file with a size of 3,26 MB.</p>\r\n<p>&nbsp;</p>\r\n<p>My last limits:</p>\r\n<p>memory_limit:&nbsp; 3072M</p>\r\n<p>max_execution_time: 3600</p>\r\n<p>&nbsp;</p>\r\n<p>Has anybody an idea what I can do now?</p>\r\n<p>Thanks for your help!</p>\r\n<p>&nbsp;</p>\r\n<p>Regards Tom</p>\r\n",
+    "PostedDate": "2012-07-13T09:02:04.163-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "865033",
+    "ThreadId": "366416",
+    "Html": "\r\n<p>The most obvious is an Apache timeout or that you're still hitting a time/memory limit.</p>\r\n<p>Larger spreadsheets are slow, and it's a lot better to use CLI or background processes to manage them rather than a browser window.</p>\r\n<p>&nbsp;</p>\r\n<p>Are you taking advantage of the fluent interface, or using the range methods for setting cells and styles to help performance and memory usage?</p>\r\n",
+    "PostedDate": "2012-07-13T09:52:50.567-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "869071",
+    "ThreadId": "366416",
+    "Html": "<p>Hello,</p>\r\n<p>I will explain how I insert my data in the sheet:</p>\r\n<p>$dbResults = array with data from DB</p>\r\n<p>$sheet = PHPExcel-&gt;setActiveSheetIndex(0)</p>\r\n<p>$style = array with styles</p>\r\n<p>&nbsp;</p>\r\n<p># Code</p>\r\n<p>$sheet-&gt;fromArray($dbResults, \"\",&nbsp; \"A2\", true);</p>\r\n<p>$sheet-&gt;getStyle($sheet-&gt;calculateWorksheetDimension())-&gt;applyFromArray($style);</p>\r\n<p>&nbsp;</p>\r\n<p>Can I improve this code?</p>\r\n<p>&nbsp;</p>\r\n<p>Regards Tom</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2012-07-15T23:50:33.403-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "869227",
+    "ThreadId": "366416",
+    "Html": "<p>Hello,</p>\r\n<p>I found my problem, it was a Activity and RequestTimeout in IIS (Start --&gt; Administrative Tool --&gt; IIS Manager --&gt; FastCGI Settings).</p>\r\n<p>There I raised the limits and it worked for 2M cells.</p>\r\n<p>&nbsp;</p>\r\n<p>After make I tried 3M cells i got another error:</p>\r\n<p>PHP Fatal error: Out of memory (allocated 1791492096) ....</p>\r\n<p>&nbsp;</p>\r\n<p>Increase memory limit made no changes to this message. I'm wondering about that because set memory_limit 3GB and this is quiet even less then that. Is it a IIS limitation which I have to change?</p>\r\n<p>&nbsp;</p>\r\n<p>Regards Tom</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2012-07-16T01:58:41.563-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

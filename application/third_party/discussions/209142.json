@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "430326",
+    "ThreadId": "209142",
+    "Html": "<p>Hi! I'm working to include PHPExcel in our CMS. I'm stumped by what seems a minor quirk. Whenever I try to export a text that contains an apostrophe (like &quot;I'm here&quot;) I get an underscore instead (like &quot;I_m here&quot;). This happens no matter which writer I use (e.g. both xls and csv files).</p>\r\n<p>I'm using PHP 5.2.6 and the latest PHPExcel under Linux.</p>\r\n<p>I don't see anything in my code that might provoke such a replacing of text. I would be grateful for any hints. Here's my code:</p>\r\n<pre>\t// Create new PHPExcel object\r\n\t$objPHPExcel = new PHPExcel();\r\n\t\r\n\t// Set properties\r\n\t$objPHPExcel-&gt;getProperties()-&gt;setCreator(&quot;Sar-At &quot;.SarelVersioneCompleta(true, $xls-&gt;versioneSarel));\r\n\t$objPHPExcel-&gt;getProperties()-&gt;setLastModifiedBy(&quot;Sar-At &quot;.SarelVersioneCompleta(true, $xls-&gt;versioneSarel));\r\n\t$objPHPExcel-&gt;getProperties()-&gt;setTitle($tabella);\r\n\t$objPHPExcel-&gt;getProperties()-&gt;setSubject($xls-&gt;Database.' - '.$tabella);\r\n\t$objPHPExcel-&gt;getProperties()-&gt;setDescription($xls-&gt;Database.' - '.$tabella);\r\n\t\r\n\t// Add some data\r\n\t$objPHPExcel-&gt;setActiveSheetIndex(0);\r\n\t$xls-&gt;query ('SET NAMES utf8');\r\n\t// Export column names</pre>\r\n<pre>\t$row='';\r\n\twhile ($xls-&gt;next_record()) {\r\n\t\tinc($row);// Empty to A, A to B, B to C, Z to AA etc.\r\n\t\t$colonne[] = $xls-&gt;f('fieldName');\r\n\t\t$objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue($row.'1',  $xls-&gt;f('fieldName'));\r\n\t\t}\r\n\t$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(&quot;A1:$row&quot;.'1')-&gt;applyFromArray(\r\n\t\tarray('fill' \t=&gt; array(\r\n\t\t\t\t\t\t\t\t\t'type'\t\t=&gt; PHPExcel_Style_Fill::FILL_SOLID,\r\n\t\t\t\t\t\t\t\t\t'color'\t\t=&gt; array('argb' =&gt; 'FFD7D7E7')\r\n\t\t\t\t\t\t\t\t),\r\n\t\t\t )\r\n\t\t);\r\n\t\r\n\t$xls-&gt;query (&quot;SELECT * FROM `$tabella` ORDER BY id&quot;);\r\n\t$column = 2;\r\n\twhile ($xls-&gt;next_record()) {\r\n\t\t$row='';\r\n\t\treset ($colonne);\r\n\t\twhile (list($key,$value) = each($colonne)) {\r\n\t\t\tinc($row);\r\n\t\t\t$theField = $xls-&gt;f($value);\r\n\t\t\t$objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue($row.$column, $theField);\r\n\t\t\t}\r\n\t\t$column++;\r\n\t\t}\r\n\t\r\n\t// Rename sheet\r\n\t$objPHPExcel-&gt;getActiveSheet()-&gt;setTitle($tabella);\r\n</pre>",
+    "PostedDate": "2010-04-12T23:52:28.517-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "432246",
+    "ThreadId": "209142",
+    "Html": "<p>Nobody? I'll even accept and appreciate answers such as &quot;not happening to me, recheck your own code&quot; and non-definitive hints... Thanks in advance!</p>",
+    "PostedDate": "2010-04-17T07:17:31.91-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "432893",
+    "ThreadId": "209142",
+    "Html": "<p>Strange. I cannot reproduce this. Can you try to run this:</p>\r\n<p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>$excel = <span style=\"color:blue\">new</span> PHPExcel();\r\n\r\n$worksheet = $excel-&gt;getActiveSheet();\r\n$worksheet-&gt;getCell(<span style=\"color:#a31515\">'A1'</span>)-&gt;setValue(<span style=\"color:#a31515\">&quot;I'm here&quot;</span>);\r\n\r\n$writer = PHPExcel_IOFactory::createWriter($excel, <span style=\"color:#a31515\">'Excel5'</span>);\r\n$writer-&gt;save(<span style=\"color:#a31515\">'write.xls'</span>);\r\n\r\n\r\n</pre>\r\n</div>\r\n</p>",
+    "PostedDate": "2010-04-19T14:31:19.517-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "1024178",
+    "ThreadId": "438774",
+    "Html": "Hi All,\r<br />\n<br />\nI am new to PHPExcel. i just need to read cell but with text formatting.\r<br />\n<br />\n<img src=\"http://s10.postimg.org/q11xa2kh5/xlformat.png\" alt=\"Image\" />\r<br />\n<br />\nAs per image  &quot;this <strong>is bold</strong>&quot;. so how can i detect that &quot;is bold&quot; text is bold?\r<br />\n<br />\nSorry for my English.\r<br />\n<br />\nThanks All.<br />\n",
+    "PostedDate": "2013-04-02T03:58:46.563-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1024769",
+    "ThreadId": "438774",
+    "Html": "Using PHPExcel, you can identify if a cell contains rich text because a getValue() call will return a PHPExcel_RichText object rather than a string/integer/float/boolean scalar type.\r<br />\n<br />\nYou can then loop through the collection of PHPExcel_RichText_Run objects for that PHPExcel_RichText object looking at the style associated with it:<br />\n<div style=\"color:Black;background-color:White;\"><pre>\r\n$cellValueAsString = <span style=\"color:#A31515;\">&#39;&#39;</span>;\n$elements = $cell-&gt;getValue()-&gt;getRichTextElements();\n<span style=\"color:Blue;\">foreach</span> ($elements <span style=\"color:Blue;\">as</span> $element) {\n    <span style=\"color:Green;\">// Rich text start?</span>\n    <span style=\"color:Blue;\">if</span> ($element <span style=\"color:Blue;\">instanceof</span> PHPExcel_RichText_Run) {\n        <span style=\"color:Blue;\">if</span> ($element-&gt;getFont()-&gt;getSuperScript()) {\n            $cellValueAsString .= <span style=\"color:#A31515;\">&#39;&lt;sup&gt;&#39;</span>;\n        } <span style=\"color:Blue;\">else</span> <span style=\"color:Blue;\">if</span> ($element-&gt;getFont()-&gt;getSubScript()) {\n            $cellValueAsString .= <span style=\"color:#A31515;\">&#39;&lt;sub&gt;&#39;</span>;\n        }\n    }\n    <span style=\"color:Green;\">// Convert UTF8 data to PCDATA</span>\n    $cellText = $element-&gt;getText();\n    $cellValueAsString .= htmlspecialchars($cellText);\n    <span style=\"color:Blue;\">if</span> ($element <span style=\"color:Blue;\">instanceof</span> PHPExcel_RichText_Run) {\n        <span style=\"color:Blue;\">if</span> ($element-&gt;getFont()-&gt;getSuperScript()) {\n            $cellValueAsString .= <span style=\"color:#A31515;\">&#39;&lt;/sup&gt;&#39;</span>;\n        } <span style=\"color:Blue;\">else</span> <span style=\"color:Blue;\">if</span> ($element-&gt;getFont()-&gt;getSubScript()) {\n            $cellValueAsString .= <span style=\"color:#A31515;\">&#39;&lt;/sub&gt;&#39;</span>;\n        }\n    }\n}\r\n</pre></div>The logic can easily be modified to test for other formatting feaqtures such as bold, italic, underline, etc<br />\n",
+    "PostedDate": "2013-04-03T04:44:53.267-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1027067",
+    "ThreadId": "438774",
+    "Html": "Thanks a lot. it help me very much.<br />\n<br />\nI m facing another problem.<br />\n<br />\ni tried to read a colum as bellow<br />\n<br />\nhere UnitNo is very important for me.<br />\ne.g<br />\n<img src=\"http://s8.postimg.org/fk5515vj5/unitno.jpg\" alt=\"Image\" /><br />\n<br />\nfor($row = $startRowIndex;;$row++)<br />\n<pre><code>{\n    $unitNo = $objSheet-&gt;getCellByColumnAndRow(0, $row)-&gt;getValue();\n    $unitNo = trim($unitNo);\n    if(empty ($unitNo))\n    {\n        break;\n    }\n   // ........\n   // ........\n   // other stuff which depends on unitNo\n</code></pre>\n\n}<br />\n<br />\nfor value 2.1 it gave me value 2.1 thats fine. but for 2.10 also it gave me 2.1 but i need 2.10 as it is. To solve this i changed all such cells' formatting to &quot;Text&quot; in xlsx sheet. but it didnt work for me. How to change or instruct getValue that it return me text as it is in xlsx ??<br />\n",
+    "PostedDate": "2013-04-08T01:54:09.077-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1027127",
+    "ThreadId": "438774",
+    "Html": "That's what the getFormattedValue() method is intended for... getValue() returns the raw value, getCalculatedValue() retunrs the calculated result (if the cell contained a formula), while getFormattedValue() applies any numberFormat mask that was applied to the cell<br />\n",
+    "PostedDate": "2013-04-08T04:01:42.143-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1027220",
+    "ThreadId": "438774",
+    "Html": "Thank you, MarkBaker\r<br />\n<br />\nPHPExcel rocks.. \r<br />\n<br />\nOnce again. Thanks<br />\n",
+    "PostedDate": "2013-04-08T07:05:34.15-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

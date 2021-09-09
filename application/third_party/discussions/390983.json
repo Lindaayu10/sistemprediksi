@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "897994",
+    "ThreadId": "390983",
+    "Html": "\r\n<p>Hi all,</p>\r\n<p>it seems to me that when i set the readDataOnly for my reader, i'm no longer able to get the merged cells array.</p>\r\n<p>if i get merged cells with read data only to FALSE, i get the full array</p>\r\n<p>if i get merged cells with read data only to TRUE, i get an empty array</p>\r\n<p>Now, i'm trying to compare 2 excel files for content (i'm not caring of styles), but i'd like to &quot;bypass&quot; merged cells considering the same content for all the cells merged.</p>\r\n<p>Is there a way to have ReadDataOnly AND the getMErgeCells method to work?</p>\r\n<p>thanks a lot</p>\r\n<p>bye</p>\r\n",
+    "PostedDate": "2012-08-10T04:42:38.557-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "898596",
+    "ThreadId": "390983",
+    "Html": "<p>You're quite correct - setting readDataOnly means read only the data in the cells.... it does not read read any additional information such as styling, merged cells, conditional formatting, etc.</p>\r\n<p>I have actually opened an issue on <a href=\"https://github.com/PHPOffice/PHPExcel/issues/15\">github </a>for discussion of this very topic, but so far nobody has expressed any opinion on the matter, specifically referencing merged cells as an example.</p>",
+    "PostedDate": "2012-08-12T13:37:25.753-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "899906",
+    "ThreadId": "390983",
+    "Html": "<p>Thank you mark.</p>\r\n<p>in my opinion, merged cells are something related to \"structure\" and not to \"style\", that's why i was expecting to read them even in \"read data only\" mode.</p>\r\n<p>Btw, my workaround at the moment is: walking the excel file with readdataonly FALSE and build an array of arrays (merged cells for each worksheet)</p>\r\n<p>then, walking the same excel with readdataonly TRUE and finally read data using the merged cells array found before..</p>\r\n<p>not the best efficiency, but at least it works :)</p>\r\n<p>thank you again</p>",
+    "PostedDate": "2012-08-16T06:00:27.467-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "899993",
+    "ThreadId": "390983",
+    "Html": "<p>My thinking is largely in agreement: merging is structure rather than style, so should be read regardless... but I wish a few people would express an opinion on the matter before I'm forced to take a dictatorial approach and then get all the complaints from people because the behaviour has changed.</p>",
+    "PostedDate": "2012-08-16T09:54:19.08-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "900063",
+    "ThreadId": "390983",
+    "Html": "<blockquote style=\"padding-bottom: 0px; font-style: italic; margin: 0.25em 1em 0px; padding-left: 0.25em; padding-right: 0.25em; padding-top: 0px; border: #ccc 0.1em solid;\"><strong>MarkBaker wrote:</strong><br />\r\n<p>My thinking is largely in agreement: merging is structure rather than style, so should be read regardless... but I wish a few people would express an opinion on the matter before I'm forced to take a dictatorial approach and then get all the complaints from people because the behaviour has changed.</p>\r\n</blockquote>\r\n<p><br />Yes Mark, merging is structure (later in this post another request :P)</p>\r\n<p>But the date format, if it's up to me, is NOT structure.</p>\r\n<p>We all know that a date in excel is saved as a number. and if i'm reading \"data only\" it's right to get that number.</p>\r\n<p>And 23% if i fetch data only is 0,23, nothing else.</p>\r\n<p>or maybe it's the case of setting up another level.</p>\r\n<p>Now we have level \"read everything\" and level \"read only data\". It should be nice to have a \"intermediate\" level reading also cell formatting (and i agree, nothing regarding style)</p>\r\n<p>but, i underline it, merged cells are structure and should be in the level \"only data\"! it's not the same level of cell (content) formatting!</p>\r\n<p>&nbsp;</p>\r\n<p>Regarding merged cells, what about inserting a method for cells reading to get the \"merged value\"?&nbsp; i mean, if my cell merged is A1:A5, fetching cell A5 should return A1 value.. Now i've my function to do this, but why don't integrate this functionality in phpexcel? it should be useful for everyone..</p>\r\n<p>bye and thanks</p>",
+    "PostedDate": "2012-08-16T13:34:06.21-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "900090",
+    "ThreadId": "390983",
+    "Html": "<p>The issue with date is that I get so many complaints from people who use readDataOnly(TRUE) and then can't identify dates... at least several a week (nearly as many as \"I'm using getValue() on a cell that contains '16-Aug-2012' but it returns 41137, is this a bug?\". Perhaps multiple levels is the answer, especially now that I've added includeCharts() and am looking at includeAutoFilterCriteria(). But any such change will need a bit of time to warn people of pending changes.</p>\r\n<p>&nbsp;</p>\r\n<p>Merged cells are more of a problem if getValue() returns the merged cell value for every cell in the merge range. If A1:A5 is merged and contains 2, then =SUM(A1:A5) will return 2 at present... if each cell returned 2, then =SUM(A1:A5) would return 10. I know I'm planning a complete rewrite of the calc engine, and could code it to handle this difference, but it would entail additional testing for every cell referenced in a formula to see if it was in a merge range, which is additional overhead.</p>",
+    "PostedDate": "2012-08-16T14:32:02.147-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "900556",
+    "ThreadId": "390983",
+    "Html": "<blockquote style=\"padding-bottom: 0px; font-style: italic; margin: 0.25em 1em 0px; padding-left: 0.25em; padding-right: 0.25em; padding-top: 0px; border: #ccc 0.1em solid;\"><strong>MarkBaker wrote:</strong><br />\r\n<p>The issue with date is that I get so many complaints from people who use readDataOnly(TRUE) and then can't identify dates... at least several a week (nearly as many as \"I'm using getValue() on a cell that contains '16-Aug-2012' but it returns 41137, is this a bug?\". Perhaps multiple levels is the answer, especially now that I've added includeCharts() and am looking at includeAutoFilterCriteria(). But any such change will need a bit of time to warn people of pending changes.</p>\r\n<p>&nbsp;</p>\r\n<p>Merged cells are more of a problem if getValue() returns the merged cell value for every cell in the merge range. If A1:A5 is merged and contains 2, then =SUM(A1:A5) will return 2 at present... if each cell returned 2, then =SUM(A1:A5) would return 10. I know I'm planning a complete rewrite of the calc engine, and could code it to handle this difference, but it would entail additional testing for every cell referenced in a formula to see if it was in a merge range, which is additional overhead.</p>\r\n</blockquote>\r\n<p>I understand what you say, and a RTFM is always a good thing :), but i assume that 95 times on 100 you are reading a file that YOU KNOW, column by column, what is containing. So you know that column A is reporting a date, and you know how to manage it.</p>\r\n<p>If you really do not know how the file is (so what are you reading?) you can avoid the \"read data only\", isn't it?</p>\r\n<p>&nbsp;</p>\r\n<p>Regarding merged cells, i was thinking more to a \"GetMergedValue\" than to overwrite the GetValue. You are, as always, right on the SUM case, i didn't think to it..</p>",
+    "PostedDate": "2012-08-17T04:44:21.687-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

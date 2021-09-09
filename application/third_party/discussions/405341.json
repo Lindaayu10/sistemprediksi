@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "950396",
+    "ThreadId": "405341",
+    "Html": "\r\n<p>as my title describes my PDF renderer, already specified to its write folders and configured in the code will execute on my local server but when i move it to my websites server, and re input the locations and execute the program it downloads me a PDF but\r\n its all blank with an error message, and it only weighs 1kb. In other words it seems to not be rendering correctly the data. I´ve done trials with my own personal code and even the pdf example code in tests and still brings the same error. Is it a bug, or\r\n could it be something else? If anyone can help me solve this i´d be greatly abliged. Heres the pdf example code running on my websites server:</p>\r\n<p></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>&lt;?php\r\n\r\n\r\n<span style=\"color:green\">/** Error reporting */</span>\r\nerror_reporting(E_ALL);\r\nini_set(<span style=\"color:#a31515\">'display_errors'</span>, TRUE);\r\nini_set(<span style=\"color:#a31515\">'display_startup_errors'</span>, TRUE);\r\ndate_default_timezone_set(<span style=\"color:#a31515\">'Europe/London'</span>);\r\n\r\n<span style=\"color:blue\">if</span> (PHP_SAPI == <span style=\"color:#a31515\">'cli'</span>)\r\n\t<span style=\"color:blue\">die</span>(<span style=\"color:#a31515\">'This example should only be run from a Web Browser'</span>);\r\n\r\n<span style=\"color:green\">/** Include PHPExcel */</span>\r\n<span style=\"color:blue\">require_once</span> <span style=\"color:#a31515\">'../phpexcel/Classes/PHPExcel.php'</span>;\r\n\r\n\r\n<span style=\"color:green\">//\tChange these values to select the Rendering library that you wish to use</span>\r\n<span style=\"color:green\">//\t\tand its directory location on your server</span>\r\n<span style=\"color:green\">//$rendererName = PHPExcel_Settings::PDF_RENDERER_TCPDF;</span>\r\n$rendererName = PHPExcel_Settings::PDF_RENDERER_MPDF;\r\n<span style=\"color:green\">//$rendererName = PHPExcel_Settings::PDF_RENDERER_DOMPDF;</span>\r\n<span style=\"color:green\">//$rendererLibrary = 'tcPDF5.9';</span>\r\n$rendererLibrary = <span style=\"color:#a31515\">'MPDF5.4'</span>;\r\n<span style=\"color:green\">//$rendererLibrary = 'domPDF0.6.0beta3';</span>\r\n$rendererLibraryPath = <span style=\"color:#a31515\">'../libraries/PDF/'</span> . $rendererLibrary;\r\n\r\n\r\n<span style=\"color:green\">// Create new PHPExcel object</span>\r\n$objPHPExcel = <span style=\"color:blue\">new</span> PHPExcel();\r\n\r\n<span style=\"color:green\">// Set document properties</span>\r\n$objPHPExcel-&gt;getProperties()-&gt;setCreator(<span style=\"color:#a31515\">&quot;Maarten Balliauw&quot;</span>)\r\n\t\t\t\t\t\t\t -&gt;setLastModifiedBy(<span style=\"color:#a31515\">&quot;Maarten Balliauw&quot;</span>)\r\n\t\t\t\t\t\t\t -&gt;setTitle(<span style=\"color:#a31515\">&quot;PDF Test Document&quot;</span>)\r\n\t\t\t\t\t\t\t -&gt;setSubject(<span style=\"color:#a31515\">&quot;PDF Test Document&quot;</span>)\r\n\t\t\t\t\t\t\t -&gt;setDescription(<span style=\"color:#a31515\">&quot;Test document for PDF, generated using PHP classes.&quot;</span>)\r\n\t\t\t\t\t\t\t -&gt;setKeywords(<span style=\"color:#a31515\">&quot;pdf php&quot;</span>)\r\n\t\t\t\t\t\t\t -&gt;setCategory(<span style=\"color:#a31515\">&quot;Test result file&quot;</span>);\r\n\r\n\r\n<span style=\"color:green\">// Add some data</span>\r\n$objPHPExcel-&gt;setActiveSheetIndex(0)\r\n            -&gt;setCellValue(<span style=\"color:#a31515\">'A1'</span>, <span style=\"color:#a31515\">'Hello'</span>)\r\n            -&gt;setCellValue(<span style=\"color:#a31515\">'B2'</span>, <span style=\"color:#a31515\">'world!'</span>)\r\n            -&gt;setCellValue(<span style=\"color:#a31515\">'C1'</span>, <span style=\"color:#a31515\">'Hello'</span>)\r\n            -&gt;setCellValue(<span style=\"color:#a31515\">'D2'</span>, <span style=\"color:#a31515\">'world!'</span>);\r\n\r\n<span style=\"color:green\">// Miscellaneous glyphs, UTF-8</span>\r\n$objPHPExcel-&gt;setActiveSheetIndex(0)\r\n            -&gt;setCellValue(<span style=\"color:#a31515\">'A4'</span>, <span style=\"color:#a31515\">'Miscellaneous glyphs'</span>)\r\n            -&gt;setCellValue(<span style=\"color:#a31515\">'A5'</span>, <span style=\"color:#a31515\">'�����������������'</span>);\r\n\r\n<span style=\"color:green\">// Rename worksheet</span>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setTitle(<span style=\"color:#a31515\">'Simple'</span>);\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setShowGridLines(false);\r\n\r\n<span style=\"color:green\">// Set active sheet index to the first sheet, so Excel opens this as the first sheet</span>\r\n$objPHPExcel-&gt;setActiveSheetIndex(0);\r\n\r\n\r\n<span style=\"color:blue\">if</span> (!PHPExcel_Settings::setPdfRenderer(\r\n\t\t$rendererName,\r\n\t\t$rendererLibraryPath\r\n\t)) {\r\n\t<span style=\"color:blue\">die</span>(\r\n\t\t<span style=\"color:#a31515\">'NOTICE: Please set the $rendererName and $rendererLibraryPath values'</span> .\r\n\t\t<span style=\"color:#a31515\">'<br>'</span> .\r\n\t\t<span style=\"color:#a31515\">'at the top of this script as appropriate for your directory structure'</span>\r\n\t);\r\n}\r\n\r\n\r\n<span style=\"color:green\">// Redirect output to a client�s web browser (PDF)</span>\r\nheader(<span style=\"color:#a31515\">'Content-Type: application/pdf'</span>);\r\nheader(<span style=\"color:#a31515\">'Content-Disposition: attachment;filename=&quot;01simple.pdf&quot;'</span>);\r\nheader(<span style=\"color:#a31515\">'Cache-Control: max-age=0'</span>);\r\n\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, <span style=\"color:#a31515\">'PDF'</span>);\r\n$objWriter-&gt;save(<span style=\"color:#a31515\">'php://output'</span>);\r\n<span style=\"color:blue\">exit</span>;\r\n</pre>\r\n</div>\r\n&nbsp;\r\n<p></p>\r\n",
+    "PostedDate": "2012-12-03T01:19:45.94-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "950956",
+    "ThreadId": "405341",
+    "Html": "\r\n<p>Knowing what the error message says might help solve the problem</p>\r\n",
+    "PostedDate": "2012-12-03T23:30:14.773-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "951241",
+    "ThreadId": "405341",
+    "Html": "\r\n<p>Sure thing, my error apears at openening the PDF file it reads:</p>\r\n<p><span style=\"white-space:pre\"></span>Adobe reader cannot open 'name.pdf ' beacause it is either not a supported file type or becuase the file has been damaged.</p>\r\n<p>It only generates this error on pdf files created on my websites server, but on local tests it executes just fine</p>\r\n",
+    "PostedDate": "2012-12-04T08:23:30.34-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "951364",
+    "ThreadId": "405341",
+    "Html": "\r\n<p>Open the file in a text editor and look for any unusual text messages in plaintext, particularly at the beginning or end of the file</p>\r\n",
+    "PostedDate": "2012-12-04T13:08:20.147-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "951534",
+    "ThreadId": "405341",
+    "Html": "\r\n<p>I have this message:</p>\r\n<p>Fatal error: Class 'PHPExcel_Writer_PDF_mPDF' not found in /hsphere/local/home/c364411/desarollo.patruus.com/phpexcel/Classes/PHPExcel/Writer/PDF.php on line 64</p>\r\n<p>That's the error i&nbsp;received. I'm going to try and resolve it, thanks for the tip.&nbsp;</p>\r\n",
+    "PostedDate": "2012-12-04T23:30:39.633-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

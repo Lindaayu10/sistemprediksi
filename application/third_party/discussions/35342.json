@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "117485",
+    "ThreadId": "35342",
+    "Html": "Hallo, Whenever I am setting a german character like ö or ß with setCellValue and writing an Excel File using Excel5 Writer, I am getting following error message:<br>\r\n<strong>Notice</strong>:  iconv() [<a href=\"http://entw2/ismastra/excelprojekt/function.iconv\">function.iconv</a>]: Detected an illegal character in input string in <strong>/usr/local/puc/phpinc/PHPExcel/PHPExcel/Writer/Excel5/Worksheet.php</strong> on line <strong>1608<br>\r\n<br>\r\n</strong>Is there a way to overcome this?<br>\r\nThanks in advance!<br>\r\n",
+    "PostedDate": "2008-09-10T01:32:59.513-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "117514",
+    "ThreadId": "35342",
+    "Html": "This could be a problem with your server. Can you try solution from here?<br>\r\n<a href=\"http://www.codeplex.com/PHPExcel/Thread/View.aspx?ThreadId=33773\">http://www.codeplex.com/PHPExcel/Thread/View.aspx?ThreadId=33773</a><br>\r\n<br>\r\n",
+    "PostedDate": "2008-09-10T03:34:43.443-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "117536",
+    "ThreadId": "35342",
+    "Html": "yes i tried, i changed both lines mentioned in the solution (even though i only had an error on line 1608 in Worksheet.php)<br>\r\nbut no luck. the error dissapeared but the characters wont show up in my Excel sheet, any other ideas?<br>\r\n",
+    "PostedDate": "2008-09-10T05:54:44.087-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "117548",
+    "ThreadId": "35342",
+    "Html": "<strong>1.</strong><br>\r\nJust to be sure, can you verify that <code>iconv()</code> is broken on your platform when called from PHP. Can you try in separate script the following: <br>\r\n<br>\r\n<code>\r\nvar_dump(iconv('UTF-8', 'UTF-16LE', 'hello'));<br>\r\n</code>\r\n<br>\r\nExpected result:<br>\r\n----<br>\r\n<code>\r\nstring(10) &quot;h�e�l�l�o�&quot;<br>\r\n</code>\r\n<br>\r\nResult on server with broken iconv() function.<br>\r\n----<br>\r\n<code>\r\nbool(false)<br>\r\n</code>\r\n<br>\r\nAt least that was what I got when I tried for the other issue I linked to.Please post your result.<br>\r\n<br>\r\n<strong>\r\n2.</strong><br>\r\nDo you have mbstring enabled? Check with phpinfo(). If not, that could be why the solution is not working for you.<br>\r\n<br>\r\nTry the following and see if it works:<br>\r\n<br>\r\n<code>\r\nvar_dump(mb_convert_encoding('hello', 'UTF-16LE','UTF-8'));<br>\r\n</code>\r\n<br>\r\nExpected result with mbstring enabled:<br>\r\n----<br>\r\n<code>\r\nstring(10) &quot;h�e�l�l�o�&quot;<br>\r\n</code>\r\n<br>\r\n",
+    "PostedDate": "2008-09-10T06:59:53.283-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "117557",
+    "ThreadId": "35342",
+    "Html": "<pre id=line1>Hallo koyama,<br><br>i tried:<br>var_dump(iconv('UTF-8', 'UTF-16LE', 'hello'));<br>var_dump(mb_convert_encoding('hello', 'UTF-16LE','UTF-8'));<br><br>and got:<br>string(10) &quot;h�e�l�l�o�&quot;<br>string(10) &quot;h�e�l�l�o�&quot;<br><br>as i said, normal characters work, just the special german ones wont, like &quot;ö&quot; &quot;ä&quot; &quot;ü&quot; or &quot;ß&quot;</pre>\r\n",
+    "PostedDate": "2008-09-10T07:25:34.787-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "117570",
+    "ThreadId": "35342",
+    "Html": "Ok, I see now what you mean. I misread your post.<br>\r\n<br>\r\nThe problem is most likely that you are not using UTF-8. Whenever you set cell values, always use UTF-8.<br>\r\n<br>\r\nExample:<br>\r\n<code>\r\n// test.php<br>\r\n$cell-&gt;setValue('öäüß');<br>\r\n</code>\r\n<br>\r\nIf you do like the above in test.php, make sure that <code>test.php</code> is encoded in UTF-8 (without BOM). ISO-8859-1 or the like will not work.<br>\r\n<br>\r\nNot all text editors are good for writing UTF-8 without BOM. I like the free Notepad++ because it has specific menu options: &quot;Format &gt; Encode in UTF-8 without BOM&quot; etc.<br>\r\n<br>\r\nSimilarly, if you are retrieving data from database, make sure you are reading UTF-8 strings. Encoding will depend on database settings and database connection settings. There are really many pitfalls.<br>\r\n",
+    "PostedDate": "2008-09-10T08:04:28.803-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "117789",
+    "ThreadId": "35342",
+    "Html": "wow koyama, thanks i am using eclipse and the encoding was wrong. thanks again koyama for this wonderful php class :-)<br>\r\n",
+    "PostedDate": "2008-09-11T02:39:12.73-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

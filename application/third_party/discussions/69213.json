@@ -1,0 +1,130 @@
+[
+  {
+    "Id": "235499",
+    "ThreadId": "69213",
+    "Html": "<p>Hi There.</p>\r\n<p>I have to do a simple question: I would like to read each single cell as a string without considering the specific cell properties.</p>\r\n<p>&nbsp;</p>\r\n<p>I mean...if i have a 'Percentage typed' cell (1,85%) I would like to read the cell as &quot;1,85%&quot;. At the moment when I get a cell content of type percentage I get a value encoded in this way &quot;0,0185&quot;.</p>\r\n<p>The same thing happens when I try to get date typed cell values.</p>\r\n<p>I read the documentation but I didn't find any help. I read that is possible to encode a cell from string to a specific value when you write a file...but not the opposite thing.</p>\r\n<p>I would appreciate any helps</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks in advance</p>\r\n<p>&nbsp;</p>\r\n<p>R.</p>",
+    "PostedDate": "2009-09-17T02:10:14.423-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "235502",
+    "ThreadId": "69213",
+    "Html": "<p>Try something like this:</p>\r\n<p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$objWorksheet = $objPHPExcel-&gt;getActiveSheet();\r\n$cell = $objWorksheet-&gt;getCell(<span style=\"color:#A31515\">'A1'</span>);\r\n\r\n$cellData = PHPExcel_Style_NumberFormat::toFormattedString(\r\n    $cell-&gt;getCalculatedValue(),\r\n    $objPHPExcel-&gt;getCellXfByIndex( $cell-&gt;getXfIndex() )-&gt;getNumberFormat()-&gt;getFormatCode()\r\n);\r\n\r\nvar_dump($cellData);\r\n</pre>\r\n</div>\r\n</p>\r\n<p>Agreed, we should try to make this simpler. I think there will be a simpler way in the future.</p>",
+    "PostedDate": "2009-09-17T02:43:49.477-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "235505",
+    "ThreadId": "69213",
+    "Html": "<p>I'm sorry but I forgot some importants information:</p>\r\n<p>- I'm using PHPExcel_Reader_Excel5();</p>\r\n<p>- I'm using this library inside a symfony plugin.</p>\r\n<p>So the problem I have is that the function PHPExcel::getCellXfByIndex() is not defined for my object...</p>\r\n<p>&nbsp;</p>\r\n<p>Thank you again</p>\r\n<p>&nbsp;</p>\r\n<p>R.</p>",
+    "PostedDate": "2009-09-17T03:03:44.537-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "235511",
+    "ThreadId": "69213",
+    "Html": "<p>How about this?</p>\r\n<pre>$objWorksheet = $objPHPExcel-&gt;getActiveSheet();<br>$cell = $objWorksheet-&gt;getCell(<span style=\"color:#a31515\">'A1'</span>);<br><br>$cellData = PHPExcel_Style_NumberFormat::toFormattedString(<br>    $cell-&gt;getCalculatedValue(),<br>    $objPHPExcel-&gt;getStyle('A1')-&gt;getNumberFormat()-&gt;getFormatCode()<br>);<br><br>var_dump($cellData);<br></pre>",
+    "PostedDate": "2009-09-17T03:22:51.963-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "235516",
+    "ThreadId": "69213",
+    "Html": "<p>Erik</p>\r\n<p>I know it's a slight memory overhead for each cell, but it might be worth adding a getFormattedValue() method to the PHPExcel_Cell class. I notice that Excel itself actually holds this in the according to the Excel object map</p>",
+    "PostedDate": "2009-09-17T04:16:55.923-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "235532",
+    "ThreadId": "69213",
+    "Html": "<p>@Mark</p>\r\n<p>Ok, I better see if I can get my head into that Excel 2007 developer reference. What I am wondering about with <span style=\"font-family:Courier New\">$_formattedValue</span> is how this will deal with color information in the number format, e.g. <span style=\"font-family:Courier New\">[Red]</span>. If <span style=\"font-family:Courier New\">$_formattedValue</span> should contain all information about styling then color information would have to be contained in it, I guess?</p>\r\n<p>In connection with another work item (April 2009) we briefly discussed the possibility introducing <span style=\"font-family:Courier New\">getFormattedValue()</span> vs. modifying the advanced value binder.</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=9830\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=9830</a></p>\r\n<p>We have had recent discussion <em>&quot;<span id=\"ctl00_ctl00_MasterContent_Content_TitlePanel\"><span id=\"ctl00_ctl00_MasterContent_Content_TitleLabel\">How to get datatype for calculated value?</span></span>&quot;</em> somewhat related to this.</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10607\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10607</a></p>\r\n<p>Since then I have been thinking that it is perhaps best to let the value binder control in addition to <span style=\"font-family:Courier New\">setValue()</span>, also <span style=\"font-family:Courier New\">getValue()</span>, and even <span style=\"font-family:Courier New\">getDataType()</span>. That way it would be possible to let the default value binder stay fully compatible with the way the library currently works. <span style=\"font-family:Courier New\">AdvancedValueBinder.php</span> could then be modified so that <span style=\"font-family:Courier New\">getValue()</span> returns what our current <span style=\"font-family:Courier New\">toFormattedString()</span> returns. So when people ask how to get the formatted value we would just answer: <em>&quot;You probably want to use AdvancedValueBinder&quot;</em>.</p>\r\n<p>Once <span style=\"font-family:Courier New\">AdvancedValueBinder.php</span> becomes the default value binder in PHPExcel we would have a library working more intuitively. I would really be happy if we could find some kind of solution to these issues.</p>",
+    "PostedDate": "2009-09-17T05:05:02.243-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "235537",
+    "ThreadId": "69213",
+    "Html": "<p>@Erik</p>\r\n<p>I'm not sure we actually need to store the <span style=\"font-family:Courier New\">$_formattedValue, simply provide a simple method that returns the value as a formatted value</span></p>\r\n<p>I'd certainly consider it something that could be tied in with the changes we're considering for getValue(), getFormula(), isFormula()/isCalculatedValue(), getFormattedValue().</p>\r\n<p>The Excel formatted value doesn't seem to hold colour information, simply to hold numbers with the correct number of decimals, comma separators, fractions and date masking. It might be possible to pass an extra argument to the getFormattedValue() call identifying whether it should return an HTML span with colour information as well.</p>",
+    "PostedDate": "2009-09-17T05:23:59.51-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "235562",
+    "ThreadId": "69213",
+    "Html": "<p>Ok, here is something. There are many connected issues. What do you say about this solution?</p>\r\n<p><strong>Cell properties</strong></p>\r\n<table border=1 cellspacing=0 cellpadding=0>\r\n<tbody>\r\n<tr>\r\n<td width=225 valign=top>\r\n<p align=center>&nbsp;</p>\r\n</td>\r\n<td width=225 valign=top>\r\n<p align=center><strong>PHPExcel 1.7.0</strong></p>\r\n</td>\r\n<td width=225 valign=top>\r\n<p align=center><strong>proposed</strong></p>\r\n</td>\r\n</tr>\r\n<tr>\r\n<td width=225 valign=top>\r\n<p align=center>$_value</p>\r\n</td>\r\n<td width=225 valign=top>\r\n<p align=center>holds explicit value,  or formula if the cell has a formula</p>\r\n</td>\r\n<td width=225 valign=top>\r\n<p align=center>holds explicit value if no formula, or  calculated value if cell has formula</p>\r\n</td>\r\n</tr>\r\n<tr>\r\n<td width=225 valign=top>\r\n<p align=center>$_dataType</p>\r\n</td>\r\n<td width=225 valign=top>\r\n<p align=center>dataType of the raw  value, or &lsquo;f&rsquo; is cell has a formula</p>\r\n</td>\r\n<td width=225 valign=top>\r\n<p align=center>dataType of raw value, or, if cell has a  formula, the dataType of the calculated value</p>\r\n</td>\r\n</tr>\r\n<tr>\r\n<td width=225 valign=top>\r\n<p align=center>$_calculatedValue</p>\r\n</td>\r\n<td width=225 valign=top>\r\n<p align=center>&nbsp;</p>\r\n</td>\r\n<td width=225 valign=top>\r\n<p align=center>remove this property,  store calculated value in $_value instead</p>\r\n</td>\r\n</tr>\r\n<tr>\r\n<td width=225 valign=top>\r\n<p align=center>$_formula</p>\r\n</td>\r\n<td width=225 valign=top>\r\n<p align=center>&nbsp;</p>\r\n</td>\r\n<td width=225 valign=top>\r\n<p align=center>new proposed property, holds e.g. &lsquo;A1+A2&rsquo;</p>\r\n</td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n<p>&nbsp;</p>\r\n<p><strong>Cell method and value binders</strong></p>\r\n<table border=1 cellspacing=0 cellpadding=0>\r\n<tbody>\r\n<tr>\r\n<td width=185 valign=top>\r\n<p>&nbsp;</p>\r\n</td>\r\n<td width=188 valign=top>\r\n<p align=center><strong>AdvancedValueBinder</strong></p>\r\n</td>\r\n<td width=181 valign=top>\r\n<p align=center><strong>DefaultValueBinder</strong></p>\r\n</td>\r\n</tr>\r\n<tr>\r\n<td width=185 valign=top>\r\n<p>setValue()</p>\r\n</td>\r\n<td width=188 valign=top>\r\n<p align=center>&nbsp;</p>\r\n</td>\r\n<td width=181 valign=top>\r\n<p align=center>&nbsp;</p>\r\n</td>\r\n</tr>\r\n<tr>\r\n<td width=185 valign=top>\r\n<p>getValue()</p>\r\n</td>\r\n<td width=188 valign=top>\r\n<p align=center>let it return the formatted, calculated value (like  toFormattedString)</p>\r\n</td>\r\n<td width=181 valign=top>\r\n<p align=center>&nbsp;</p>\r\n</td>\r\n</tr>\r\n<tr>\r\n<td width=185 valign=top>\r\n<p>setDataType()</p>\r\n</td>\r\n<td colspan=2 width=369 valign=top>\r\n<p align=center>as it works now, but  ensure that value is updated to match datatype</p>\r\n</td>\r\n</tr>\r\n<tr>\r\n<td width=185 valign=top>\r\n<p>getDataType()</p>\r\n</td>\r\n<td width=188 valign=top>\r\n<p align=center>let it return the dataType of the calculated  value. Never &lsquo;f&rsquo;</p>\r\n</td>\r\n<td width=181 valign=top>\r\n<p align=center>&nbsp;</p>\r\n</td>\r\n</tr>\r\n<tr>\r\n<td width=185 valign=top>\r\n<p>setValueExplicit()</p>\r\n</td>\r\n<td colspan=2 width=369 valign=top>\r\n<p align=center>deprecate setting  formulas using this method. Instead recommend using setFormula()</p>\r\n</td>\r\n</tr>\r\n<tr>\r\n<td width=185 valign=top>\r\n<p>getValueExplicit()</p>\r\n<p>[new method]</p>\r\n</td>\r\n<td colspan=2 width=369 valign=top>\r\n<p align=center>returns the unformatted calculated value as  contained in $_value property</p>\r\n</td>\r\n</tr>\r\n<tr>\r\n<td width=185 valign=top>\r\n<p>setFormula()</p>\r\n<p>[new method]</p>\r\n</td>\r\n<td width=188 valign=top>\r\n<p align=center>e.g. setFormula(&lsquo;A1+5&rsquo;)</p>\r\n</td>\r\n<td width=181 valign=top>\r\n<p align=center>&nbsp;</p>\r\n</td>\r\n</tr>\r\n<tr>\r\n<td width=185 valign=top>\r\n<p>getFormula()</p>\r\n<p>[new method]</p>\r\n</td>\r\n<td width=188 valign=top>\r\n<p align=center>returns e.g. &lsquo;A1+5&rsquo;</p>\r\n<p align=center>as contained in  $_formula property</p>\r\n</td>\r\n<td width=181 valign=top>\r\n<p align=center>&nbsp;</p>\r\n</td>\r\n</tr>\r\n<tr>\r\n<td width=185 valign=top>\r\n<p>hasFormula()</p>\r\n<p>[new method]</p>\r\n</td>\r\n<td colspan=2 width=369 valign=top>\r\n<p align=center>&nbsp;</p>\r\n</td>\r\n</tr>\r\n<tr>\r\n<td width=185 valign=top>\r\n<p>getFormattedValue()</p>\r\n<p>[new method, needed?]</p>\r\n</td>\r\n<td colspan=2 width=369 valign=top>\r\n<p align=center>&nbsp;</p>\r\n</td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-09-17T06:22:28.513-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "236272",
+    "ThreadId": "69213",
+    "Html": "<p>That's basically what I was thinking, definitely as regards the cell properties... personally I'd use the getValue() method to return the raw, unformatted, calculated&nbsp;value (you're suggesting getValueExplicit() for that), and have the getFormattedValue to return the value formatted like toFormattedString, dropping the need for getValueExplicit().</p>\r\n<p>The calculate() method should update the $_value and&nbsp;$_dataType properties with the result of the calculation, and setting a formula using setFormula() should automatically trigger the calculate() method as well.</p>\r\n<p>At least, that's my take.</p>\r\n<p>&nbsp;</p>\r\n<p>It might also be worthwhile having a method that will return both $_value and $_dataType in a single call, though that's not critical.</p>",
+    "PostedDate": "2009-09-18T15:37:44.203-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "236279",
+    "ThreadId": "69213",
+    "Html": "<blockquote style=\"border:0.1em solid #cccccc;margin:0.25em 1em 0pt;padding:0pt 0.25em;font-style:italic\"><strong>MarkBaker wrote:</strong><br>\r\n<p>... personally I'd use the getValue() method to return the raw, unformatted, calculated&nbsp;value (you're suggesting getValueExplicit() for that), and have the getFormattedValue to return the value formatted like toFormattedString, dropping the need for getValueExplicit().</p>\r\n</blockquote>\r\n<p><br>Yes, I understand that the proposal may seem weird. I thought so too. But I think the beauty is that it allows you to think of <span style=\"font-family:Courier New\">setValue() / getValue()</span> as somewhat symmetric methods per value binder.<br><br>Example with the advance value binder:<br><br></p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>$cell-&gt;setValue(<span style=\"color:#a31515\">'2009-09-19'</span>);<br><span style=\"color:blue\">echo</span> $cell-&gt;getValue(); <span style=\"color:green\">// '2009-09-19' (depends on the format mask)</span><br></pre>\r\n</div>\r\n<p><br> Likewise with <span style=\"font-family:Courier New\">setValueExplicit() / getValueExplicit()</span>. These would be symmetric methods too.<br> <br> I don't think users will complain about <span style=\"font-family:Courier New\">getValue()</span> returning the formatted, calculated value. That is how SourceForge PHP-ExcelReader works. In that library, if you want the unformatted, calculated value, you instead need to fetch the entry in the array called <span style=\"font-family:Courier New\">&quot;raw&quot;</span> which would correspond to  <span style=\"font-family:Courier New\">getValueExplicit()</span>.<br> <br> Methods <span style=\"font-family:Courier New\">setValueExplicit() / getValueExplicit() / setFormula() / getFormula() </span>have no direct counterpart in Excel. These may be considered as advanced methods provided by PHPExcel. They are not affected by any value binder. Advanced developers would always prefer those methods whenever high control or speed is required (being faster than <span style=\"font-family:Courier New\">setValue() / getValue()</span>)</p>\r\n<p>P.S.: For the sake of the discussion I am trying to defend the proposal, but don't get me wrong. I am unsure about all the consequences. :)</p>",
+    "PostedDate": "2009-09-18T16:33:08.33-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "428514",
+    "ThreadId": "69213",
+    "Html": "<p>Hi,</p>\r\n<p>Has anyone&nbsp;figured out&nbsp;a simple solution on this topic?</p>\r\n<p>Thanks in advance,</p>\r\n<p>Jordan</p>",
+    "PostedDate": "2010-04-07T14:25:35.023-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "433000",
+    "ThreadId": "69213",
+    "Html": "<p>@dancho413: Not yet, but we will return to this later.</p>",
+    "PostedDate": "2010-04-19T21:08:34.51-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "523624",
+    "ThreadId": "69213",
+    "Html": "\r\n<p>@koyama:</p>\r\n<p>I have thought of another reason/argument for furthering this.</p>\r\n<p>I am dealing with .ods spreadsheets with very old dates. OpenOffice, unlike Excel, does correctly handle pre1900 dates. So while the spreadsheet, in OOo Calc, correctly handles say 04/28/1675, and treats it as a date formatted column, reading it from PHP\r\n seems to drag it through the bad date conversion mud which I am assuming is assuming Excel's broken behaviour.</p>\r\n<p>Now if I were able to read that string as it is formatted, I could strtotime() it in PHP and have an actual useable timestamp to do anything I needed with or reformat as necessary ie: 1675-04-28 for DB insertion. I read this thread:&nbsp;<a href=\"http://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=215120\">http://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=215120</a>&nbsp;on\r\n the subject, and the date object has the same limitation, I suspect because of the Excel assumptions again because my PHP is quite happy dealing with dates in the 1600's even without using the date object.</p>\r\n<p>Do you see a better solution than exposing more simply the formatted date?</p>\r\n<p>Cheers,</p>\r\n<p>CHgsd</p>\r\n",
+    "PostedDate": "2010-11-17T22:26:38.073-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "523628",
+    "ThreadId": "69213",
+    "Html": "\r\n<p>@koyama:</p>\r\n<p>Actually scratch that. I just tried the longer example you gave of returning a formatted string and it breaks the date just as well. Should I start another thread about this because I am right now 100% dead in the water. So much for launching this tomorrow.</p>\r\n<p>Cheers,</p>\r\n<p>CHgsd</p>\r\n",
+    "PostedDate": "2010-11-17T22:33:22.663-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "523682",
+    "ThreadId": "69213",
+    "Html": "\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<strong>chgsd wrote:</strong><br>\r\n<p>I am dealing with .ods spreadsheets with very old dates. OpenOffice, unlike Excel, does correctly handle pre1900 dates. So while the spreadsheet, in OOo Calc, correctly handles say 04/28/1675, and treats it as a date formatted column, reading it from PHP\r\n seems to drag it through the bad date conversion mud which I am assuming is assuming Excel's broken behaviour.</p>\r\n<p>Now if I were able to read that string as it is formatted, I could strtotime() it in PHP and have an actual useable timestamp to do anything I needed with or reformat as necessary ie: 1675-04-28 for DB insertion. I read this thread:&nbsp;<a href=\"http://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=215120\">http://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=215120</a>&nbsp;on\r\n the subject, and the date object has the same limitation, I suspect because of the Excel assumptions again because my PHP is quite happy dealing with dates in the 1600's even without using the date object.</p>\r\n</blockquote>\r\n<p>Until recently, PHPExcel worked purely with Excel files (the OOCalc reader was only introduced in version 1.7.1, and Gnumeric hasn't yet been released) so all the date handling was based on Excel's date range. This caused problems enough at the time, because\r\n it covered a wider date range than PHP's integer&nbsp;date range on 32-bit servers (not to mention 1900 as a leap year), hence allowing date conversion functions to work with PHP DateTime objects, which do cover the full Excel range of dates. Internally, all\r\n dates are held as Excel date/time stamps. PHP DateTime objects are used for all conversions.</p>\r\n<p>It would be possible to modify PHPExcel to work with the larger date range internally, extending the internal use of Excel date/time stamps to allow negative values for dates prior to the 1900 base (complicated a bit with the alternative 1904 calendar).\r\n 32-bit PHP servers would still be limited to the Unix minimum date (or 64-bit windows which seems to mask date functions at 32-bits), unless using DateTime objects. The biggest drawback would be extra validation in the Excel Writers to ensure that dates prior\r\n to 1900 threw an exception. I'll put it on the to-do list, but it isn't a priority: most users aren't even concerned with dates prior to 2000, let alone 1900.</p>\r\n",
+    "PostedDate": "2010-11-18T01:16:18.13-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "523812",
+    "ThreadId": "69213",
+    "Html": "\r\n<p>@MarkBaker,</p>\r\n<p>First of all thank you for your detailed reply. I ended up discovering a bit after my post the source of the problem by reading in OOCalc.php how date fields were interpreted. I was unfortunately a little too hot with the time I invested in using this library\r\n and having to scrap many hours worth of work, to come back here and update my previous post. Fortunately a couple hours sleep has helped me see this from a little more perspective and I have momentarily patched OOCalc.php</p>\r\n<p>It is funny in a sad way actually because I specifically chose this library because it supported both Excel and OpenDocument as although I am a strong supporter of OOo, I try to be fair to other people's choices. Little did I know that would come around\r\n and mess me over like it did. So I believe my ultimate solution is dropping Excel support for the time being due to my patch and bring in a different library which simply handles ODS and CSV when I can dedicate the time to it. Someday down the road if PHPExcel\r\n allows wider date ranges I will be able to re visit. I can live with the patch I made to it for the time being but do not wish to handle upgrades as the patch is a hack.</p>\r\n<p>Now concerning the overall philosphy behind what you detailed, I will share the way I see things (my opinion) which will perhaps better explain my surprise when digging into OOCalc.php and discovering how dates were handled internally.</p>\r\n<p>Because you now have the capability to handle a wider date range than Excel, I would move towards doing that, especially since it would entail handing the date management to the core language the library is written in. Even if Excel is the last credible\r\n spreadsheet program to be arrogant enough to ignore pre 1900/1904 dates, someday it will get fixed. Cursory google searches report that this has been a very long standing frustration for a lot of users. Naturally your decision to carry on the same limitation\r\n is not a fault, because at the rate bugs are fixed in their land, we will all grow old and grey bearded before it is fixed. That being said I find it bothersome that now that you are expanding to support other spreadsheet formats and it appears that you are\r\n trying to be the competent best reader of all spreadhseets, which is a very&nbsp;noble&nbsp;goal, that even though the other applications do not suffere from the problems of Excel, the library forces it on them regardless.</p>\r\n<p>I am sure you understand the importance of our history and don't need to hear me talk about the importance of pre-1900 dates, but for anyone reading this down the road, I will cite a few examples:</p>\r\n<ul>\r\n<li>If you are doing a spreadsheet with important dates for your country: When did your given country establish independence, foundation, liberty?\r\n</li><li>If you are doing a spreadsheet with important discoveries: When was the theory of radioactivity created?\r\n</li><li>If you are doing a spreadsheet with birth/death dates of important historical figures: When were the life events of the discoverer of the process of pasteurization?\r\n</li></ul>\r\n<p>What it comes down to I guess if I were to summarize what I am trying to say is that right now the handling of xls(x) files could probably be deemed lossless, because you are bound internally by the same limitations as Excel. Then handling of ODS files however\r\n is lossy, and I feel that should either carry a big warning or perhaps be fixed :) This reminded me of Lossy Zip but I can't find any results on that from google anymore. I guess some tech humor can fade away on the internet.</p>\r\n<p>Thank you again and sorry for the frustration, I was just heartbroken and&nbsp;disappointed&nbsp;that I didn't do more testing going into this before spending a lot of time integrating. It is 100% my fault.&nbsp;</p>\r\n<p>Off to find some windmills,</p>\r\n<p>CHgsd</p>\r\n",
+    "PostedDate": "2010-11-18T06:56:28.81-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

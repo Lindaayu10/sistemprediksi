@@ -1,0 +1,116 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "Speed enhancements have been made to PHPExcel since this issue was reported.",
+    "ClosedDate": "2010-08-30T05:04:08.25-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "In order to generate the enclosed spreadsheet using 1.7.0, I need to call set_time_limit(90).  Using 1.7.1, I kept incrementing that until I finally gave up at 5 minutes.  90 seconds is uncomfortably long but 5 minutes+ is not really acceptable.",
+    "LastUpdatedDate": "2013-05-16T05:42:19.453-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Medium",
+      "Severity": 100,
+      "Id": 2
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-11-03T08:37:52.61-08:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "1.7.1 Extremely Slow",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 10874
+  },
+  "FileAttachments": [
+    {
+      "FileId": 3491,
+      "FileName": "Invoices.xls",
+      "DownloadUrl": ".\\3491"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "I tried a plain read/write using PHPExcel 1.7.1 with the workbook you uploaded\r\n\r\n$tstartRead = microtime(true);\r\n\r\n$excel = PHPExcel_IOFactory::load('Invoices.xls');\r\n\r\n$tendRead = microtime(true);\r\n\r\n$tstartWrite = microtime(true);\r\n\r\n$writer = PHPExcel_IOFactory::createWriter($excel, 'Excel5');\r\n$writer->save('write.xls');\r\n\r\n$tendWrite = microtime(true);\r\n\r\necho 'read took: ' . ($tendRead - $tstartRead) . ' seconds<br>';\r\necho 'write took: ' . ($tendWrite - $tstartWrite) . ' seconds<br>';\r\necho \" Peak memory usage: \" . (memory_get_peak_usage(true) / 1024 / 1024) . \" MB\";\r\nexit;\r\n\r\nResult:\r\n----\r\nread took: 27.7427179813385 seconds\r\nwrite took: 28.89918804168701 seconds\r\nPeak memory usage: 63.25 MB \r\n\r\nThe result indicates that it should be possible to generate that workbook in around 60 seconds. To find out what the problem is I'm afraid we will need to see some sample code. Can you show some?",
+      "PostedDate": "2009-11-03T09:38:20.73-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Try changing the value of $_calculationCacheExpirationTime at line 114 in Calculation.php to\r\nprivate $_calculationCacheExpirationTime = 60.0;\r\nand see if that makes any noticeable difference",
+      "PostedDate": "2009-11-03T10:00:09.907-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Changing $_calculationCacheExpirationTime to 60.0 and using 6 minutes (set_time_limit(360)) produces a good spreadsheet.  6 minutes and $_calculationCacheExpirationTime = 0.01 causes the maximum time to be exceeded.  I'll cobble together some example code but I'll need a little bit of time.",
+      "PostedDate": "2009-11-03T11:30:50.53-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "The problem lies in the flattenArray() method in the PHPExcel_Calculation_Functions class, which takes a multi-dimensional array (rows and columns) and flattens it down to a 1-dimensional array that is then processed in a simple loop by many of the functions in the function library like SUM(). The 1.7.0 code didn't always pass this through as a 2-d array, causing problems with some functions: the latest code does pass all matrices/cell ranges through correctly as 2-d arrays, so that they can be processed correctly; but the flattening process is slower.\r\nI'll look at ways of speeding up that function: there's a few examples of different methods on php.net (though not all of them work) but I'm sure it can be made more efficient.\r\n\r\nThe benefit of increasing $_calculationCacheExpirationTime is because your worksheet recursively calls calculated values in several places... with calculation caching, PHPExcel only needs to calculate each individual cell value once, even if it is used in other calculations.... but because it's taking so long to execute flattenArray, the cache is expiring, which means that it will be recalculated, exaccerbating the problem. If I can reduce the flattenArray() method time, then it shouldn't be necessary to alter the cache time.\r\nNote that $_calculationCacheExpirationTime should normally be modified by using the PHPExcel_Calculation::getInstance()->setCalculationCacheExpirationTime(60) method",
+      "PostedDate": "2009-11-03T15:10:26.04-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "In the meanwhile, replacing flattenArray() method in the PHPExcel_Calculation_Functions class with the following may show some improvement:\r\n\r\n\tpublic static function flattenArray($array) {\r\n\t\tif (is_scalar($array)) {\r\n\t\t\treturn $array;\r\n\t\t}\r\n\r\n\t\t$arrayValues = array();\r\n\t\tforeach ($array as $value) {\r\n\t\t\tif (is_array($value)) {\r\n\t\t\t\tforeach ($value as $val) {\r\n\t\t\t\t\tif (is_array($val)) {\r\n\t\t\t\t\t\tforeach ($val as $v) {\r\n\t\t\t\t\t\t\t$arrayValues[] = $v;\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t} else {\r\n\t\t\t\t\t\t$arrayValues[] = $val;\r\n\t\t\t\t\t}\r\n\t\t\t\t}\r\n\t\t\t} else {\r\n\t\t\t\t$arrayValues[] = $value;\r\n\t\t\t}\r\n\t\t}\r\n\r\n\t\treturn $arrayValues;\r\n\t}\t//\tfunction flattenArray()\r\n",
+      "PostedDate": "2009-11-03T15:53:15.927-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Thank you Mark.  I sent code and data to Erik.  If you would like a copy to assist with your optimizations, do not hesitate to ask.\r\n\r\nI'm interested in hearing more about \"your worksheet recursively calls calculated values in several places\".  Can you tell me how I can avoid that (other than eliminating the duplicate information on the worksheet...which I can't given the project's specifications that I was assigned)?  I did change the formulas in row 3680 from \"=SUM(F7:F3671)\" to \"=F3673\" (for example).  I also can't calculate the values in PHP in place of the formulas (again, because of the specs).",
+      "PostedDate": "2009-11-03T15:59:08.867-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Wow...that is a LOT faster!  Runs in under 2.5 minutes now (with original $_calculationCacheExpirationTime of 0.01).",
+      "PostedDate": "2009-11-03T16:19:50.3-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Erik sent me a private email in which he says that a side effect of http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10536 \"puts a high strain on the writer when there are many rows\".  So I eliminated my calls to getColumnDimension($column)->setAutoSize(true) and along with Mark's suggestion, the performance is not back to, if not better than, 1.7.0.  Thanks guys!",
+      "PostedDate": "2009-11-03T16:52:23.817-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I also tested Erik's suggestion by itself (ie with the original 1.7.1 flattenArray function and original $_calculationCacheExpirationTime value of 0.01) and that alone is enough to let the script run in under 90 seconds.",
+      "PostedDate": "2009-11-03T17:09:46.27-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "@ZCodePlex13\r\n>> I'm interested in hearing more about \"your worksheet recursively calls calculated values in several places\". \r\n>> Can you tell me how I can avoid that (other than eliminating the duplicate information on the worksheet...\r\n>> which I can't given the project's specifications that I was assigned)? I did change the formulas in row 3680 \r\n>> from \"=SUM(F7:F3671)\" to \"=F3673\" (for example). I also can't calculate the values in PHP in place of the \r\n>> formulas (again, because of the specs).\r\n>>\r\nRecursive formulae aren't a bad thing. A simple case of cell A1 containing =B1+C1, cell A2 containing =B2+C2 and A3 containing =A1+A2 is a recursion. If you calculate A3, it automatically calculates A1 and A2 as well, and caches the results for all three cells. If you had already calculated the values of A1 and A2, then there is no need to recursively recalculate them again when requesting the A3 calculation.\r\nThis is perfectly standard behaviour for Excel and for PHPExcel, and there should be no need for you to go out of your way to avoid it.\r\n\r\n\r\nExcel sets a \"dirty\" flag against cells that may change, so it knows when they need recalculating, or when to reuse the cached result. It can do this because it holds a \"network map\" of the relationships betwen cells, so any change to the value in cell B1 can flag up that A1, A2 and A3 need recalculation.\r\nWithin PHPExcel though, we don't maintain such a map, it's a big memory overhead: we simply have a cache expiry time that tells the calculation engine that it should use a previously cached result, or recalculate.\r\n\r\n\r\nThe problem was that it was taking so long between the calculations of A1 and A2 before calculating A3, that the cache had expired, and it was recalculating A1 and A2 again; which was increasing the overall time still further. While the 1.7.0 calc engine should be anything between 2 and 12 times faster than previous versions, every change I make now to more closely replicate Excel results in every case is slowing it down again, so I need to fine tune it very carefully and squeeze every clock cycle of performance from it that I can. Refactoring the flattenArray() method certainly helps, and I suspect I can tweak it still further... knowing that there will almost certainly be further changes in future releases that slow the calc engine in other areas; so I'm grateful that you've brought this to my attention so quickly.",
+      "PostedDate": "2009-11-04T01:09:34.56-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-11-04T03:40:40.597-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-08-30T05:04:08.25-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:03:30.84-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:19.453-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "1088127",
+    "ThreadId": "455453",
+    "Html": "Good day.\r<br />\nApologize if below topic already been discussed.\r<br />\n<br />\nFor now I'm not able to understand why when I load below data in CSV file format:\r<br />\n8937201013040385655\r<br />\n8937201012090493666\r<br />\n8937201012090493674\r<br />\n8937201012090493682\r<br />\n<br />\nAfter importing [ $value = (int) $cell-&gt;getValue(); ] I receiving:<br />\n8937201013040386048\r<br />\n8937201012090493952\r<br />\n8937201012090493952\r<br />\n8937201012090493952\r<br />\n<br />\nBut when the same data loaded in XLSX format values imported as needed.\r<br />\nIf I removing (int) near getValue nothing changes for XLSX format, but for CSV values appeared as follows:\r<br />\n8.9372010130404E+18\r<br />\n8.9372010120905E+18\r<br />\n8.9372010120905E+18\r<br />\n8.9372010120905E+18\r<br />\n<br />\nAny ideas how that issue could be fixed?<br />\n",
+    "PostedDate": "2013-09-04T02:13:59.523-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1088698",
+    "ThreadId": "455453",
+    "Html": "I think you need to write a value binder, &quot;mixing&quot; the default value binder and the method used by the Excel 2007 Reader.\r<br />\nActually, the default value binder (used in CSV) cast to float any number, the Excel loader is more smart, he check if php can store the value as an integer, else cast to float (but i don't know why it try &quot;double&quot;, afaik, in php, it's the same as float).\r<br />\nYou can also check the &quot;precision&quot; setting in php.ini, the default 14 seems small for you. Be careful if you need some calculation, with your numbers, you can easily going after max integer and having an automatic cast.\r<br />\n<br />\n(You use php in 64b, i guess ?)\r<br />\nIf you build Excel files with these numbers, at least on 32b Excel, the values will be rounded (your first value is accepted by Excel, but the formula area show 8937201013040380000 and the cell display 8.9372E+18)<br />\n",
+    "PostedDate": "2013-09-05T04:25:42.043-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

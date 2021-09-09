@@ -1,0 +1,161 @@
+<?
+$docroot = $_SERVER["DOCUMENT_ROOT"]; // "C:\Inetpub\intranet"
+
+$json_str = $_POST['json_str'];
+$json_orig = json_decode($json_str);
+
+$builder_code = $json_orig->builder_code;
+$builder_name = $json_orig->builder_name;
+$job_name = $json_orig->job_name;
+$lot = $json_orig->lot;
+$block = $json_orig->block;
+$subdivision = $json_orig->subdivision;
+$street = $json_orig->street;
+$location = $json_orig->location;
+$job_number = $json_orig->job_number;
+$dept = str_pad($json_orig->dept, 2, "0", STR_PAD_LEFT);
+$jwo = $json_orig->jwo;
+$bid_date = $json_orig->bid_date;
+$model_name = $json_orig->model_name;
+$notes = $json_orig->notes;
+// $ = $json_orig->;
+$json_obj_array = $json_orig->data_array;
+
+$takeoff_number_array = $json_orig->takeoff_number_array;
+$takeoff_number_string = '';
+if(!empty($takeoff_number_array))
+{
+  $first = true;
+  foreach($takeoff_number_array As $takeoff_number)
+  {
+    if($first)
+    {
+      $takeoff_number_string = str_pad($takeoff_number, 4, "0", STR_PAD_LEFT);
+      $first = false;
+    }
+    else $takeoff_number_string .= ' / '.str_pad($takeoff_number, 4, "0", STR_PAD_LEFT);
+  }
+}
+
+/* PHPExcel */
+require_once $docroot.'\util\PHPExcel\trunk\Classes\PHPExcel.php';
+
+// Create new PHPExcel object
+$objReader = PHPExcel_IOFactory::createReader('Excel2007');
+$objPHPExcel = $objReader->load($docroot.'\pricing\forms\billing_sheet_template.xlsx');
+
+$today = date('Y-m-d');
+$today_MDY = date('n/j/y');
+
+// Add some data
+$objPHPExcel->setActiveSheetIndex(0);
+
+$excel_sheet = $objPHPExcel->getActiveSheet();
+
+$excel_sheet->setCellValue('E5', $today_MDY)
+            ->setCellValue('E9', $jwo)
+            ->setCellValue('B10', $builder_name)
+            ->setCellValue('E10', $dept)
+            ->setCellValue('B12', $job_name)
+            ->setCellValue('E12', $job_number)
+            ->setCellValue('E13', $lot)
+            ->setCellValue('E14', $block)
+            ->setCellValue('B14', $subdivision)
+            ->setCellValue('B15', $street)
+            ->setCellValue('B16', $location)
+            ->setCellValue('B18', $takeoff_number_string)
+            ->setCellValue('B19', $bid_date)
+            ->setCellValue('B20', $model_name)
+            ->setCellValue('B23', $notes);
+           
+$first_template_data_row = 26; //the start of the "line item data" table in the template file.
+$last_template_data_row = 200; //the extent of the "line item data" table in the template file.
+$max_rows_per_page = 29;
+$group_id = 1;
+$R = $first_template_data_row;
+
+/*
+json_obj_array : [{LINE ITEM},{LINE ITEM},{GROUP ITEM},{LINE ITEM},etc...]
+
+LINE ITEM:
+'group' : false
+'qty' : ''
+'cust_code' : ''
+'name' : ''
+'notes' : ''
+'price' : ''
+
+GROUP ITEM:
+'group' : true
+'group_name' : ''
+'group_item_array' : line item array object
+*/
+foreach($json_obj_array As $json_obj)
+{
+  if($json_obj->group === true)
+  {
+    $Q = $R - 1;
+    $last_row_formula = $excel_sheet->getCell("E$Q")->getValue();
+    if($last_row_formula != '') //if there isn't already a spacer (defined as the previous row having no formula), then leave one:
+    {
+      $excel_sheet->setCellValue("E$R", ''); //clear the formula for the spacer row.
+      $R++; // leave a spacer row before the group.
+    }
+    $excel_sheet->setCellValue("C$R", $json_obj->group_name . ':');
+    $R++;
+    foreach($json_obj->group_item_array As $line_item_obj)
+    {
+      $excel_sheet->setCellValue("A$R", $line_item_obj->qty)
+                  ->setCellValue("B$R", $line_item_obj->cust_code)
+                  ->setCellValue("C$R", $line_item_obj->name . ' - ' . $line_item_obj->notes)
+                  ->setCellValue("D$R", $line_item_obj->price);
+      $R++;
+      $excel_sheet->setCellValue("E$R", ''); //clear the formula for the spacer row.
+      $R++; // leave a spacer row after the group.      
+    }
+    $Q = $R - 1;
+    $group_id++;
+  }
+  else
+  {
+    $excel_sheet->setCellValue("A$R", $json_obj->qty)
+                ->setCellValue("B$R", $json_obj->cust_code)
+                ->setCellValue("C$R", $json_obj->name . ' - ' . $json_obj->notes)
+                ->setCellValue("D$R", $json_obj->price);
+    $R++;
+  }
+}
+
+$last_line_item_row = $R - 1;
+$num_line_items = $last_line_item_row - $first_template_data_row + 1;
+
+// Set print breaks if needed:
+$j = $num_line_items;
+$r_break = $first_template_data_row;
+while($j > $max_rows_per_page)
+{
+  $r_break += $max_rows_per_page;
+  $excel_sheet->setBreak( "A$r_break" , PHPExcel_Worksheet::BREAK_ROW );
+  $j -= $max_rows_per_page;
+}
+
+// Delete unused table rows, leaving some spare ones if there's room on the page:
+// removeRow(First Row to Remove = 1, Num Rows to Remove = 1)
+$last_row_to_leave = $last_line_item_row; // don't leave any spare rows.
+//$last_row_to_leave = $last_line_item_row + ($max_rows_per_page - $j);
+//$excel_sheet->removeRow($last_row_to_leave+1, $last_template_data_row - $last_row_to_leave);
+
+// Set active sheet index to the first sheet, so Excel opens this as the first sheet
+$objPHPExcel->setActiveSheetIndex(0)->setSelectedCell('A1');
+
+$filename = "$today $builder_code - $subdivision - L$lot B$block Billing Sheet.xlsx";
+
+// Redirect output to a client’s web browser (Excel2007)
+header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+header('Content-Disposition: attachment;filename="'.$filename.'"');
+header('Cache-Control: max-age=0');
+
+$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+$objWriter->save('php://output');
+exit;
+?>

@@ -1,0 +1,55 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hi,\n \ni think something is wrong.. in while loop (data comes from mysql) i set a row to bold if its empty. but it also deletes the alignment setting.\nthe row where i set the bold is not longer horizotal left oriented. now its horizontal right..\n \ni just added a piece of code for demonstration:\n \n[CODE]\n$objPHPExcel->getActiveSheet()->getPageSetup()->setOrientation(PHPExcel_Worksheet_PageSetup::ORIENTATION_LANDSCAPE);\n$objPHPExcel->getActiveSheet()->getStyle('A1')->getFont()->setBold(true);\n$objPHPExcel->getActiveSheet()->getStyle('A1')->getFont()->setSize(14);\n \n$objPHPExcel->getActiveSheet()->getRowDimension('2')->setRowHeight(25);\n$objPHPExcel->getActiveSheet()->getStyle('A2')->getFont()->setSize(8);\n$objPHPExcel->getActiveSheet()->getStyle('A2')->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_TOP);\n \n$objPHPExcel->getActiveSheet()->getStyle('A3:D3')->getFont()->setBold(true);\n$objPHPExcel->getActiveSheet()->getStyle('A')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);\n \n \n$objPHPExcel->setActiveSheetIndex(0)\n\t\t\t->setCellValue('A1', $_SESSION['list_name'])\n\t\t\t->setCellValue('A2', 'Anzahl Datensätze: '.mysql_num_rows($result));\n\t\t\t\n\t\t\t\t\n \n$objPHPExcel->getActiveSheet()->getColumnDimension('C')->setAutoSize(true);\n$objPHPExcel->getActiveSheet()->getColumnDimension('D')->setAutoSize(true);\n \n \n\t$objPHPExcel->setActiveSheetIndex(0)\n\t\t\t\t->setCellValue('A3', 'ID')\n\t\t\t\t->setCellValue('B3', 'Company')\n\t\t\t\t->setCellValue('C3', 'Type')\n\t\t\t\t->setCellValue('D3', 'Amount');\n\t\t\t\t\n\t\t\t\t\n\t$i = 4;\n\twhile($row = mysql_fetch_assoc($result)) {\n\t\t\n\t\t\n\tif(empty($row['members']))\n\t$objPHPExcel->getActiveSheet()->getStyle('A'.$i.':D'.$i)->getFont()->setBold(true);\n\t\n\t\n\t$objPHPExcel->setActiveSheetIndex(0)\n\t\t\t\t->setCellValue('A'.$i, $row['id'])\n\t\t\t\t->setCellValue('B'.$i, $row['name'])\n\t\t\t\t->setCellValue('C'.$i, $row['gname'])\n\t\t\t\t->setCellValue('D'.$i, $row['ers']);\n \n\t$i++;\n\t}",
+    "LastUpdatedDate": "2013-09-11T09:56:16.113-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2011-03-04T14:03:24.6-08:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Setting style to bold delets alignment",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 15467
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "There should be absolutely no correlation between font style bold, and alignment. Are you certain that it's setting the cell to bold that is resetting alignment? Or could it be storing the empty values in the cells? If the cells are empty (why are you setting bold?), then how are you testing to see the alignment has changed?\r\n\r\nWhat is the value returned using $objPHPExcel->getActiveSheet()->getStyle('A'.$i)->getAlignment()->getHorizontal(); after setting cell 'A'.$i to bold, and after setting the cell value?\r\n\r\n\r\n\r\n",
+      "PostedDate": "2011-03-05T02:06:15.003-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:02:29.36-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "This is super late.... \r\n\r\nHowever, I just had a similar issue where cell alignment was overwriting the default styles.\r\n\r\nThe fix was to set the default style for the worksheet then add the extra unique styles. \r\n\r\n```\n\t//apply styles to entire workbook\n\t$objPHPExcelWrite -> getDefaultStyle()->applyFromArray($styleArray);\n     //used the above to set borders on all cells\r\n\r\n\t/*****************************************\n\t * START -Special styles for first row - need to add after get default style to ensure no overwriting of formating\n\t * **************************************/\n\t\n\t//set height of 1st row to show header larger\n\t$sheet1->getRowDimension(1)->setRowHeight(50);\n\t$sheet2->getRowDimension(1)->setRowHeight(50);\t\r\n\r\n\t//set 1st row to center alignment\n\t$sheet1->getStyle(\"A1:E1\")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);\n\t$sheet2->getStyle(\"A1:E1\")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);\r\n\r\n\t//set first row as bold\n\t$sheet1->getStyle(\"A1:E1\")->getFont()->setBold(true);\n\t$sheet2->getStyle(\"A1:E1\")->getFont()->setBold(true);\n```\nHope this helps someone in the future.",
+      "PostedDate": "2013-09-11T09:56:16.113-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

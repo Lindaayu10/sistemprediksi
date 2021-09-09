@@ -1,0 +1,101 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel_Reader_Excel2007",
+      "DisplayName": "PHPExcel_Reader_Excel2007"
+    },
+    "ClosedComment": "Fixed in SVN",
+    "ClosedDate": "2008-10-27T00:16:51.23-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Attachment shows example of formula not passed through during plain read/write. It contains a defined name, but otherwise there is nothing special.\n \nTest:\n----\n$reader = new PHPExcel_Reader_Excel2007();\n$excel = $reader->load('read.xlsx');\n \n$writer = new PHPExcel_Writer_Excel2007($excel);\n$writer->save('write.xlsx');\n \nExpected result:\n----\nOutput is identical to input\n \nActual result:\n----\nFormula in B1 is lost\n \nEnvironment:\n----\nPHPExcel: Latest source in SVN (revision 594), but works with release 1.6.3",
+    "LastUpdatedDate": "2013-05-16T05:43:09.24-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "High",
+      "Severity": 150,
+      "Id": 3
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2008-10-25T21:43:45.523-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Formula with defined name not passed through using Excel2007 reader/writer",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 7887
+  },
+  "FileAttachments": [
+    {
+      "FileId": 2217,
+      "FileName": "lost-defined-name-formula.zip",
+      "DownloadUrl": ".\\2217"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "Looking at the datatype in cell B1 immediately after the read, the datatype is 'str', which doesn't match any of the datatypes defined in PHPExcel_Cell_DataType. It should be 'f' for formula, but is being set to 'str' by a call to PHPExcel_Cell->setValueExplicit() somewhere in the reader.\r\n",
+      "PostedDate": "2008-10-26T13:42:05.247-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "It's being set for each cell by a call in the Excel2007 reader at line 500 in the load() method: the 'str' value is being set at line 399.",
+      "PostedDate": "2008-10-26T13:52:53.653-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "The writer doesn't write the cell because it doesn't match any of the PHPExcel datatypes",
+      "PostedDate": "2008-10-26T14:01:52.527-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Other function expressions such as =UPPER(A1) also have a 'str' datatype when read from Excel 2007",
+      "PostedDate": "2008-10-26T14:36:40.23-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "No issues with the Excel 5 reader, which does recognise these correctly as formulae",
+      "PostedDate": "2008-10-26T14:44:46.683-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Force $cellDataType to a value of 'f' when following default switch processing (for 'str'), and $c->f is true (indicating a formula)",
+      "PostedDate": "2008-10-26T15:32:06.997-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2008-10-26T15:33:56.67-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Fix verified to work from here.",
+      "PostedDate": "2008-10-26T22:05:05.387-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2008-10-27T00:16:51.23-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:04:39.647-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:43:09.24-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

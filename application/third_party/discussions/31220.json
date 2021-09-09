@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "103755",
+    "ThreadId": "31220",
+    "Html": "I am exporting a mysql database to excel using the library. Mostly work except for one of the custom exports ( exporting based on site)&nbsp;the resultant file will either not load in excel 2007 or give conversion error. I&nbsp; have tried to take care of potential illegal characters with the below code<br>\r\n<br>\r\n$out = preg_replace('/[^\\x20-\\x7E\\x09\\x0A\\x0D]/',&quot;&quot;,$in);<br>\r\n&nbsp;$out = preg_replace('/&amp;(?!\\w{2,6};)/', '&amp;amp;', $out);<br>\r\n&nbsp;$out = str_replace('&lt;','&amp;gt',$out);<br>\r\n<br>\r\nbut is still happening.<br>\r\n<br>\r\nanyone got any ideas?<br>\r\n<br>\r\nHave also tried<br>\r\n<br>\r\n$out = preg_replace('/[^\\x20-\\x7E\\x09\\x0A\\x0D]/',&quot;&quot;,$in);<br>\r\n&nbsp;$out = preg_replace('/([\\xc0-\\xdf].)/se', &quot;'&amp;#' . ((ord(substr('$1', 0, 1)) - 192) * 64 + (ord(substr('$1', 1, 1)) - 128)) . ';'&quot;, $out);<br>\r\n&nbsp;$out = preg_replace('/([\\xe0-\\xef]..)/se', &quot;'&amp;#' . ((ord(substr('$1', 0, 1)) - 224) * 4096 + (ord(substr('$1', 1, 1)) - 128) * 64 + (ord(substr('$1', 2, 1)) - 128)) . ';'&quot;, $out); <br>\r\n&nbsp;$out = preg_replace('/&amp;(?!\\w{2,6};)/', '&amp;amp;', $out);<br>\r\n&nbsp;$out = str_replace('&lt;','&amp;gt',$out);<br>\r\n<br>\r\nto no effect<br>\r\n<br>\r\n",
+    "PostedDate": "2008-07-09T19:50:10.73-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "104670",
+    "ThreadId": "31220",
+    "Html": "Just a quick update<br>\r\nI am running every thing through the below function (and have tried a number of other variants)to try and strip out anything that might be causing problems<br>\r\n<br>\r\n<p>function strip_invalid_xml_chars ($in)<br>\r\n{<br>\r\n&nbsp;$out = utf8_encode($in);<br>\r\n&nbsp;$out = iconv(&quot;UTF-8&quot;,&quot;UTF-8//IGNORE&quot;,$out);<br>\r\n&nbsp;$out = str_replace(&quot;\\r&quot;,&quot; &quot;,$out);<br>\r\n&nbsp;$out = preg_replace('/&amp;(?!\\w{2,6};)/', '&amp;amp;', $out);<br>\r\n&nbsp;$out = preg_replace('/[^\\x20-\\x7E\\x09\\x0A]/',&quot;&quot;,$out);<br>\r\n&nbsp;$out = preg_replace('/([\\xc0-\\xdf].)/se', &quot;'&amp;#' . ((ord(substr('$1', 0, 1)) - 192) * 64 + (ord(substr('$1', 1, 1)) - 128)) . ';'&quot;, $out);<br>\r\n&nbsp;$out = preg_replace('/([\\xe0-\\xef]..)/se', &quot;'&amp;#' . ((ord(substr('$1', 0, 1)) - 224) * 4096 + (ord(substr('$1', 1, 1)) - 128) * 64 + (ord(substr('$1', 2, 1)) - 128)) . ';'&quot;, $out); </p>\r\n<p>return $out;</p>\r\n<p>}<br>\r\n<br>\r\nand I am still only able to open some of the exported files.<br>\r\n<br>\r\nI can unzip the files and have looked at the xml files directly and cannot see anything that is causing the problems&nbsp; manually.<br>\r\n<br>\r\nHas anybody got any ideas of what else I can look at to try and solve this rather picky problem.</p>\r\n",
+    "PostedDate": "2008-07-14T18:18:25.147-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "104707",
+    "ThreadId": "31220",
+    "Html": "I don't know what the problem is, but maybe others would be able to help if you say what kind of data you are trying to export and where are all those illegal characters coming from? I guess you aren't exporting ordinary text?<br>\r\n",
+    "PostedDate": "2008-07-14T23:29:42.217-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "104710",
+    "ThreadId": "31220",
+    "Html": "Can you send me a sample, non-opening XLSX file via e-mail? (maarten at php excel dot net)\r\n",
+    "PostedDate": "2008-07-14T23:34:59.11-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "104934",
+    "ThreadId": "31220",
+    "Html": "<p>Hi Maarten, I have sent you both a working and nonworking file. They are both produced by the same code just a different dataset of the DB.</p>\r\n<p>&nbsp;</p>\r\n<p>I have also exported it as html to see i I could see anything there and it opened fine in IE and could not see any issues there.</p>\r\n<p>&nbsp;</p>\r\n<p>Hi Koyama thanks for your reply. yes the data should just be text but as it is sometimes cut and pasted from other apps it could contain characters such as &amp; &lt; and those wierd quotes that word can do, as well as possible others.</p>\r\n",
+    "PostedDate": "2008-07-15T15:58:57.23-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

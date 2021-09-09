@@ -1,0 +1,66 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "Calculation_Engine",
+      "DisplayName": "Calculation_Engine"
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "PHPExcel does not seem to properly evaluate the formula of cell (8, 190) in the attached Excel 2007 file.\n \nSome sample code:\n \nrequire_once '../Classes/PHPExcel.php';\nrequire_once '../Classes/PHPExcel/Reader/Excel2007.php';\n \n$workbook = $reader->load($file);\n$sheet = $workbook->getSheet();\n$rows = $sheet->getHighestRow();\n$cell = $sheet->getCellByColumnAndRow(8, 190);\n$val = $cell->getCalculatedValue();\nvar_dump($val);\n \nThis gives the following error:\n \nPHP Fatal error:  Call to a member function cellExists() on a non-object in /Users/christian/Projects/phpexcel/Classes/PHPExcel/Calculation.php on line 3194\n \nAfter enabling printing in the debug log, I see:\n \nBlad1!I190 -> Evaluating Cell D190 in current worksheet\nBlad1!I190 -> Evaluation Result for cell Blad1!D190 is a string with a value of 76440UK\nBlad1!I190 -> Evaluating Cell A4 in worksheet [1]Nordic Stock Report (14)\nPHP Fatal error:  Call to a member function cellExists() on a non-object in /Users/christian/Projects/phpexcel/Classes/PHPExcel/Calculation.php on line 3194\n \nInserting an existence check in Calculation.php on line 3194, the evaluation goes a bit futher:\n \nBlad1!I190 -> Evaluating Cell D190 in current worksheet\nBlad1!I190 -> Evaluation Result for cell Blad1!D190 is a string with a value of 76440UK\nBlad1!I190 -> Evaluating Cell A4 in worksheet [1]Nordic Stock Report (14)\nBlad1!I190 -> Evaluation Result for cell A4 in worksheet [1]Nordic Stock Report (14) is a null value\nBlad1!I190 -> Evaluating Cell I483 in worksheet [1]Nordic Stock Report (14)\nBlad1!I190 -> Evaluation Result for cell I483 in worksheet [1]Nordic Stock Report (14) is a null value\nBlad1!I190 -> Evaluating Range A4:I483\nBlad1!I190 -> Blad1!I5 -> Evaluating Cell D5 in current worksheet\nBlad1!I190 -> Blad1!I5 -> Evaluation Result for cell Blad1!D5 is a string with a value of 33315UK\nBlad1!I190 -> Blad1!I5 -> Evaluating Cell A4 in worksheet [1]Nordic Stock Report (14)\nBlad1!I190 -> Blad1!I5 -> Evaluation Result for cell A4 in worksheet [1]Nordic Stock Report (14) is a null value\nBlad1!I190 -> Blad1!I5 -> Evaluating Cell I483 in worksheet [1]Nordic Stock Report (14)\nBlad1!I190 -> Blad1!I5 -> Evaluation Result for cell I483 in worksheet [1]Nordic Stock Report (14) is a null value\nBlad1!I190 -> Blad1!I5 -> Evaluating Range A4:I483\nPHP Fatal error:  Uncaught exception 'Exception' with message 'Blad1!I190 -> Blad1!I5 -> Blad1!I5 -> Cyclic Reference in Formula' in /Users/christian/Projects/phpexcel/Classes/PHPExcel/Cell.php:288\n \nWhen I open the Excel file in Numbers, I don't see any issues.",
+    "LastUpdatedDate": "2013-02-21T19:02:34.727-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2011-01-29T08:28:46.547-08:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Formula containing external workbook references does not properly evaluate",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 15184
+  },
+  "FileAttachments": [
+    {
+      "FileId": 5312,
+      "FileName": "vlookup-sample.xlsx",
+      "DownloadUrl": ".\\5312"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "First question: what version of PHPExcel? If I look at line 3194 in Calculation.php in version 1.7.5, I find that it's just a } (closing brace), so I'm assuming that you're using the latest Calculation.php from the SVN repository.\r\nThis cell contains a formula =VLOOKUP(D180,'C:\\Sales\\STOCK REPORTS\\[STOCK REPORT 110128.xlsx]Nordic Stock Report (14)'!$A$4:$I$483,9,0) which is referencing an external workbook C:\\Sales\\STOCK REPORTS\\STOCK REPORT 110128.xlsx. The PHPExcel calculation engine doesn't handle references to external workbooks. It's theoretically possible, but would require a significant amount of work to do so.... and PHPExcel would need to load that external workbook as a new PHPExcel object, meaning that the external workbook would need to be available and in the correct directory.\r\n\r\nI'm not sure what you're doing with the existence check that you've added... more specifically, what you're doing if the referenced worksheet ('C:\\Sales\\STOCK REPORTS\\[STOCK REPORT 110128.xlsx]Nordic Stock Report (14)') does not exist. From the evaluation log, it looks as though you're getting the code to use the current worksheet instead.\r\nThis gives you a situation where you're accessing cells have formulae that reference themself (e.g. the formula in cell Blad1!I5 now references cell Blad1!I5) instead of referencing 'C:\\Sales\\STOCK REPORTS\\[STOCK REPORT 110128.xlsx]Nordic Stock Report (14)'!I5) giving the circular reference. Like Excel itself, PHPExcel has two methods for handling circular references: the first (default option) is to throw an exception... which is what you are seeing in your modified code. The second is to iterate through the cycle up to a predetermined number of times before returning the current value of the result. This iteration count can be modified by setting the $cyclicFormulaCount property in the calculation engine to a value greater than 0.\r\n\r\nHowever, changing the cyclic iteration count doesn't help your current issue. While fixing this problem in the calculation engine would be the best solution, it simply isn't practical... it would take too long for me to rewrite it to handle the loading and cross-referencing of external workbooks. A more practical solution would be to copy the relevant worksheets from C:\\Sales\\STOCK REPORTS\\[STOCK REPORT 110128.xlsx] into your existing workbook, and then modify the formulae to reference them as internal references.\r\n\r\n\r\n>> When I open the Excel file in Numbers, I don't see any issues.\r\nNumbers has been written by a large team of full-time developers. PHPExcel has been written by a few individuals in their spare time. Rewriting the calculation engine to work with external workbook references would probably take me the best part of a year; and while it might be a nice feature, it would be both memory and processor intensive.\r\n",
+      "PostedDate": "2011-01-29T09:41:38.953-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2011-01-29T09:42:34.63-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "As for the version, you are right: I am using the latest SVN.\r\n\r\nThank you for the clarification on the external workbook issue. Obviously, it is out of scope for PHPExcel to handle external workbook references. The amount of Excel functionality already handled by PHPExcel is simply stunning. My sincere thanks for contributing and maintaining such a great product to the community!",
+      "PostedDate": "2011-01-29T12:28:41.46-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:02:34.727-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

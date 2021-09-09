@@ -1,0 +1,10 @@
+[
+  {
+    "Id": "931420",
+    "ThreadId": "400543",
+    "Html": "\r\n<p>&nbsp; &nbsp; &nbsp;当我在使用 $objPHPExcel-&gt;getActiveSheet()-&gt;removeColumn('C',200)方法移除C列以后的200列时,得到的结果不太理想,我当前的模板共有17行,而直接使用此方法得到的模板是从C17开始,后面的列并没有移除(17行),查看源码发现,在removeColumn方法中调用了insertNewBefore方法,而在insertNewBefore方法中的以下代码中:<br>\r\n</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><span style=\"color:green\">// Clear cells if we are removing columns or rows</span>\r\n\t\t$highestColumn\t= $pSheet-&gt;getHighestColumn();\r\n\t\t$highestRow\t= $pSheet-&gt;getHighestRow();\r\n\r\n\t\t<span style=\"color:green\">// 1. Clear column strips if we are removing columns</span>\r\n\t\t<span style=\"color:blue\">if</span> ($pNumCols &lt; 0 &amp;&amp; PHPExcel_Cell::columnIndexFromString($beforeColumn) - 2 &#43; $pNumCols &gt; 0) {\r\n\t\t\t<span style=\"color:blue\">for</span> ($i = 1; $i &lt;= $highestRow-1; &#43;&#43;$i) {\r\n\t\t\t\t<span style=\"color:blue\">for</span> ($j = PHPExcel_Cell::columnIndexFromString($beforeColumn) - 1 &#43; $pNumCols; $j &lt;= PHPExcel_Cell::columnIndexFromString($beforeColumn) - 2; &#43;&#43;$j) {\r\n\t\t\t\t\t$coordinate = PHPExcel_Cell::stringFromColumnIndex($j) . $i;\r\n\t\t\t\t\t$pSheet-&gt;removeConditionalStyles($coordinate);\r\n\t\t\t\t\t<span style=\"color:blue\">if</span> ($pSheet-&gt;cellExists($coordinate)) {\r\n\t\t\t\t\t\t$pSheet-&gt;getCell($coordinate)-&gt;setValueExplicit(<span style=\"color:#a31515\">''</span>, PHPExcel_Cell_DataType::TYPE_NULL);\r\n\t\t\t\t\t\t$pSheet-&gt;getCell($coordinate)-&gt;setXfIndex(0);\r\n\t\t\t\t\t}\r\n\t\t\t\t}\r\n\t\t\t}\r\n\t\t}\r\n</pre>\r\n</div>\r\n&nbsp;for循环中使用了$highestRow-1,导致最后一行(17行)没有被&quot;移除&quot;.<br>\r\n修改$highestRow-1为$highestRow后 ,removeColumn使用正常了.&nbsp;\r\n<p></p>\r\n",
+    "PostedDate": "2012-10-23T19:39:41.407-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,171 @@
+diff -Nru Old//Classes/PHPExcel/Style/Conditional.php New//Classes/PHPExcel/Style/Conditional.php
+--- Old//Classes/PHPExcel/Style/Conditional.php	2011-12-16 11:18:14.011991500 -0500
++++ New//Classes/PHPExcel/Style/Conditional.php	2011-12-24 02:21:50.587620100 -0500
+@@ -40,6 +40,7 @@
+ 	const CONDITION_CELLIS					= 'cellIs';
+ 	const CONDITION_CONTAINSTEXT			= 'containsText';
+ 	const CONDITION_EXPRESSION 				= 'expression';
++	const CONDITION_COLORSCALE				= 'colorScale';
+ 
+ 	/* Operator types */
+ 	const OPERATOR_NONE						= '';
+@@ -55,6 +56,14 @@
+ 	const OPERATOR_NOTCONTAINS				= 'notContains';
+ 	const OPERATOR_BETWEEN					= 'between';
+ 
++	/* Stop types */
++	const STOP_MIN							= 'min';
++	const STOP_MAX							= 'max';
++	const STOP_NUMBER						= 'num';
++	const STOP_PERCENTILE					= 'percentile';
++	const STOP_PERCENT						= 'percent';
++	const STOP_FORMULA						= 'formula';
++
+ 	/**
+ 	 * Condition type
+ 	 *
+@@ -90,6 +99,27 @@
+ 	 */
+ 	private $_style;
+ 
++	/**
++	 * Stops' colors
++	 *
++	 * @var PHPExcel_Style_Color[]
++	 */
++	private $_stopColors = array();
++	
++	/**
++	 * Stops' types
++	 *
++	 * @var int[]
++	 */
++	private $_stopTypes = array();
++
++	/**
++	 * Stops' values
++	 *
++	 * @var string[]
++	 */
++	private $_stopValues = array();
++
+     /**
+      * Create a new PHPExcel_Style_Conditional
+      */
+@@ -247,6 +277,71 @@
+     }
+ 
+ 	/**
++	 * Sets a color stop for the color scale type
++	 * 
++	 * @param int $stopNumber				Number from 1 to 3, 1 being the first stop
++	 * @param PHPExcel_Style_Color $pValue
++	 * @param string $stopType				PHPExcel_Style_Conditional stop type
++	 * @param string $stopValue				Value constraint for the stop type
++	 *
++	 * @throws Exception
++	 * @return PHPExcel_Style_Conditional
++	 */
++	public function setColorScaleStop($stopNumber, PHPExcel_Style_Color $pValue, $stopType = PHPExcel_Style_Conditional::STOP_MIN, $stopValue = '') {
++		if ($stopNumber != 1 && $stopType == PHPExcel_Style_Conditional::STOP_MIN) {
++			throw new Exception('STOP_MIN can only be applied as the 1st stop.');
++		}		
++		if ($stopNumber != 3 && $stopType == PHPExcel_Style_Conditional::STOP_MAX) {
++			throw new Exception('STOP_MAX can only be applied as the 3rd stop.');
++		}
++		
++		$this->_stopColors[$stopNumber] = $pValue;
++		$this->_stopTypes[$stopNumber] = $stopType;
++		$this->_stopValues[$stopNumber] = $stopValue;
++		
++		return $this;
++	}
++
++	/**
++	 * Get color of the stop, if it exists
++	 * 
++	 * @param int $stopNumber
++	 * @return PHPExcel_Style_Color
++	 */
++	public function getColorScaleStopColor($stopNumber) {
++		if (array_key_exists($stopNumber, $this->_stopColors)) {
++			return $this->_stopColors[$stopNumber];
++		}
++		return null;
++	}
++
++	/**
++	 * Get type of the stop, if it exists
++	 * 
++	 * @param int $stopNumber
++	 * @return string
++	 */
++	public function getColorScaleStopType($stopNumber) {
++		if (array_key_exists($stopNumber, $this->_stopTypes)) {
++			return $this->_stopTypes[$stopNumber];
++		}
++		return null;
++	}
++
++	/**
++	 * Get value of the stop, if it exists
++	 * 
++	 * @param int $stopNumber
++	 * @return string
++	 */
++	public function getColorScaleStopValue($stopNumber) {
++		if (array_key_exists($stopNumber, $this->_stopValues)) {
++			return $this->_stopValues[$stopNumber];
++		}
++		return null;
++	}
++
++	/**
+ 	 * Get hash code
+ 	 *
+ 	 * @return string	Hash code
+diff -Nru Old//Classes/PHPExcel/Writer/Excel2007/Worksheet.php New//Classes/PHPExcel/Writer/Excel2007/Worksheet.php
+--- Old//Classes/PHPExcel/Writer/Excel2007/Worksheet.php	2011-12-16 11:18:14.090119000 -0500
++++ New//Classes/PHPExcel/Writer/Excel2007/Worksheet.php	2011-12-24 02:21:49.210541400 -0500
+@@ -460,8 +460,40 @@
+ 						// cfRule
+ 						$objWriter->startElement('cfRule');
+ 						$objWriter->writeAttribute('type',		$conditional->getConditionType());
+-						$objWriter->writeAttribute('dxfId',		$this->getParentWriter()->getStylesConditionalHashTable()->getIndexForHashCode( $conditional->getHashCode() ));
+ 						$objWriter->writeAttribute('priority',	$id++);
++						
++						// No dxf exists for the colorscale type
++						if ($conditional->getConditionType() != PHPExcel_Style_Conditional::CONDITION_COLORSCALE) {
++							$objWriter->writeAttribute('dxfId', $this->getParentWriter()->getStylesConditionalHashTable()->getIndexForHashCode( $conditional->getHashCode() ));
++						}
++						
++						if ($conditional->getConditionType() == PHPExcel_Style_Conditional::CONDITION_COLORSCALE) {
++							$objWriter->startElement('colorScale');
++							
++							for ($i = 1; $i <= 3; $i++) {
++								if ($conditional->getColorScaleStopColor($i) !== null) {
++									$objWriter->startElement('cfvo');
++									$objWriter->writeAttribute('type', $conditional->getColorScaleStopType($i));
++									
++									if ($conditional->getColorScaleStopType($i) != PHPExcel_Style_Conditional::STOP_MIN
++										&& $conditional->getColorScaleStopType($i) != PHPExcel_Style_Conditional::STOP_MAX) {
++										$objWriter->writeAttribute('val', $conditional->getColorScaleStopValue($i));
++									}
++									
++									$objWriter->endElement();
++								}
++							}
++							
++							for ($i = 1; $i <= 3; $i++) {
++								if ($conditional->getColorScaleStopColor($i) !== null) {
++									$objWriter->startElement('color');
++									$objWriter->writeAttribute('rgb', $conditional->getColorScaleStopColor($i)->getARGB());
++									$objWriter->endElement();
++								}
++							}
++							
++							$objWriter->endElement();
++						}
+ 
+ 						if (($conditional->getConditionType() == PHPExcel_Style_Conditional::CONDITION_CELLIS
+ 								||

@@ -1,0 +1,96 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Version 1.7.2\n \nWhen there's Html markup in a cell, this code shouldnot be used:\nPHPExcel\\Writer\\HTML.php Line 1010+\n\t// replace leading spaces on each line with &nbsp;\n\t$cellData = $this->_convertNbsp($cellData);\n \n\t// convert newline \"\\n\" to '<br>'\n\t$cellData = str_replace(\"\\n\", '<br/>', $cellData);\n \nMarkup like:\n<h3>Thank you</h3>\n<ul>\n    <li>For:\n    <ul>\n        <li>Your time</li>\n        <li>Your work</li>\n    </ul>\n  </li>\n</ul>\n \nwill become:\n<h3>Thank you</h3><br/><ul><br/>&nbsp;&nbsp;&nbsp;&nbsp;<li>For:<br/>&nbsp;&nbsp;&nbsp;&nbsp;<ul><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<li>Hohe Energiedichte</li><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<li>Your time</li><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<li>Your work</li><br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<p>&nbsp;</p><br/>&nbsp;&nbsp;&nbsp;&nbsp;<br/>&nbsp;&nbsp;&nbsp;&nbsp;</ul><br/>&nbsp;&nbsp;&nbsp;&nbsp;</li><br/></ul><br/>\n \n### Solution(for me) ###\n\tif($cellData == strip_tags($cellData)){\n\t\t$cellData = $this->_convertNbsp($cellData);\n\t\t$cellData = str_replace(\"\\n\", '<br/>', $cellData);\n\t}\n \nCheers\n \nEDIT:\nTracker strips out Formating and Indentation!\nHtml markup has indentation",
+    "LastUpdatedDate": "2013-02-21T19:02:03.64-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2012-02-02T01:25:49.977-08:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "HTML Writer should not use \"_convertNbsp\", when markup in cell",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 17335
+  },
+  "FileAttachments": [
+    {
+      "FileId": 6171,
+      "FileName": "MarkupInXLSX.jpg",
+      "DownloadUrl": ".\\6171"
+    },
+    {
+      "FileId": 6205,
+      "FileName": "MarkupIndention.jpg",
+      "DownloadUrl": ".\\6205"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "Version 1.7.2 is a pretty ancient version of PHPExcel, 2 years old to be precise - 1.7.6 is the latest, with 1.7.7 only a week away from production release - and no longer contains the specific code that you're talking about.... so I'm not going to go back and patch old versions.\r\n\r\nAdditionally, HTML markup in a spreadsheet cell isn't handled as markup by Excel itself, it's simply a string of data, so I see no reason to put in a lot of logic to try and represent something that doesn't exist in Excel/Open Office/Gnumeric/etc.\r\n\r\nThe HTML->Rich Text Run helper that's on the roadmap for this year's releases may be of some help to you\r\n\r\n\n\n** Closed by MarkBaker 02.02.2012 02:07",
+      "PostedDate": "2012-02-02T03:33:25.793-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Just looked at latest version:\r\n\r\nversion    1.7.6, 2011-02-27\r\n\r\nLine 1041+\r\n\r\n// Converts the cell content so that spaces occuring at beginning of each new line are replaced by &nbsp;\r\n// Example: \" Hello\\n to the world\" is converted to \"&nbsp;&nbsp;Hello\\n&nbsp;to the world\"\r\n $cellData = preg_replace(\"/(?m)(?:^|\\\\G) /\", '&nbsp;', $cellData);\r\n\r\n // convert newline \"\\n\" to '<br>'\r\n $cellData = nl2br($cellData);\r\n\r\nSo my point still stands, this will create invalid markup when saved to a html file.\r\n\r\n Cheers",
+      "PostedDate": "2012-02-02T03:33:26.483-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "@makefun : which version of PHP do you have on your server ?",
+      "PostedDate": "2012-02-02T04:55:15.943-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-02-02T08:19:32.81-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "@Progi1984\r\nWould be unrelated to PHP-Version, but anyway several server…\r\nphp-5.3.5-nts-Win32-VC9-x86\r\nto\r\nphp 5.3.9-nts-Win32-VC9-x86\r\n\r\nAlso somewhat unrelated, rather something I looked in due to \"in a spreadsheet cell isn't handled as markup by Excel itself\"…\r\nIt seems to me Excel2010 and .xlsx could do without &nbsp; — indentation as wanted.\r\nBTW we use this to have some people proof read postings…\r\n\r\nCheers",
+      "PostedDate": "2012-02-02T08:19:44.043-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Could your give us a part of code for testing ?",
+      "PostedDate": "2012-02-02T12:59:42.073-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "@Progi1984\r\nHappy to provide code ;-)\r\nBeware this problem depends on how markup is indented — tabs will be fine e.g., but no spaces\r\nIn attached picture you can see how it's done in my example code — just in case its stripped again…\r\n\r\nCheers\r\n\r\nHere's the code:\r\n<?php \r\n\t// Report all PHP errors\r\n\terror_reporting(E_ALL);\r\n\t$reportTitle = 'Test';\r\n\t// Define a date stamp\r\n\t$today = date('d.m.Y');\r\n\t// Define a file date stamp\r\n\t$todayFile = date('dMY-Hi');\r\n\t \r\n\t// Error count\r\n\t$myErrors = 0;\r\n\r\n\t// PHPExcel\r\n\trequire_once 'PHPExcel/PHPExcel.php';\r\n\t// PHPExcel_IOFactory\r\n\trequire_once 'PHPExcel/PHPExcel/IOFactory.php';\r\n\t$objPHPExcel = new PHPExcel();\r\n\t// Set a date stamp\r\n\t$today = date('d.m.Y');\r\n\t// Set a file date stamp\r\n\t$todayFile = date('dMY-Hi');\r\n\t// Set page properties\r\n\t$objPHPExcel\r\n\t\t->getProperties()\r\n\t\t->setSubject(\"Report $reportTitle\");\r\n\t\t\t\r\n\t// Set default font\r\n\t$objPHPExcel->getDefaultStyle()->getFont()->setName('Arial');\r\n\t$objPHPExcel->getDefaultStyle()->getFont()->setSize(9);\t\r\n\t$objPHPExcel->getActiveSheet()->setCellValue('A3', '\r\n\t\t  <h3>Thank you</h3>\r\n\t\t  <ul>\r\n\t\t\t  <li>For:\r\n\t\t\t  <ul>\r\n\t\t\t\t  <li>Your time</li>\r\n\t\t\t\t  <li>Your work</li>\r\n\t\t\t  </ul>\r\n\t\t\t</li>\r\n\t\t  </ul>');\r\n\t$objPHPExcel->getActiveSheet()->setCellValue('B3', '\r\n      <h3>Thank you</h3>\r\n        <ul>\r\n      \t  <li>For:\r\n      \t  <ul>\r\n      \t\t  <li>Your time</li>\r\n      \t\t  <li>Your work</li>\r\n      \t  </ul>\r\n      \t</li>\r\n        </ul>');\r\n\t\r\n\t// Html\r\n\t$htmlFile = str_replace('.php', '.htm', __FILE__);\r\n\t$objWriterHtml = new PHPExcel_Writer_HTML($objPHPExcel);\r\n\t$objWriterHtml->save($htmlFile);\r\n\t\r\n\t// Look where the problem is\r\n\t$showHTMLout = '<pre>';\r\n\t$showHTMLout .= $objWriterHtml->generateSheetData();\r\n\t$showHTMLout .= '</pre>';\r\n\r\n\techo $showHTMLout;\r\n\r\n\r\n?>\r\n\r\n",
+      "PostedDate": "2012-02-07T01:38:51.98-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-02-07T01:38:54.247-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:02:03.64-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

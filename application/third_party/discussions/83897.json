@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "288118",
+    "ThreadId": "83897",
+    "Html": "<p>Hey guys,</p>\r\n<p>Im a web developer, but what i am looking for is a program that can read xlsx files, and output them to the browser.</p>\r\n<p>I know this class can CREATE those files ( from the documentation ) but can it also import them to php and then output them as data to the browser? with say an echo function or something like that?</p>\r\n<p>I tried phpexcelreader but that script did not work....looking forward to an answer.</p>\r\n<p>&nbsp;</p>\r\n<p>Thank you.</p>",
+    "PostedDate": "2010-02-10T01:53:20.46-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "288174",
+    "ThreadId": "83897",
+    "Html": "<p>Perfectly easy. Read the workbook using the Excel2007 Reader (or let the IO Factory detect that it's an Excel 2007 file) then save (to php://output)&nbsp;using the HTML Writer</p>\r\n<p><span style=\"color:Blue\">\r\n<div style=\"color:Black;background-color:White\">\r\n<pre><span style=\"color:Blue\">require_once</span> <span style=\"color:#A31515\">'PHPExcel/IOFactory.php'</span>;</pre>\r\n<pre>\r\n$objPHPExcel = PHPExcel_IOFactory::load(<span style=\"color:#A31515\">&quot;myWorkBook.xlsx&quot;</span>);</pre>\r\n<pre>\r\n$objWriter-&gt;setSheetIndex(0);\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, <span style=\"color:#A31515\">'HTML'</span>);\r\n$objWriter-&gt;save(str_replace(<span style=\"color:#A31515\">&quot;php://output&quot;</span>);\r\n</pre>\r\n</div>\r\n</span></p>",
+    "PostedDate": "2010-02-10T04:31:49.66-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "288457",
+    "ThreadId": "83897",
+    "Html": "<p>Hmmm, so that directly outputs the spreadsheet to the browser.</p>\r\n<p>something like this</p>\r\n<p>$foo =&nbsp; $objWriter-&gt;save(str_replace(<span style=\"color:#a31515\">&quot;php://output&quot;</span>);</p>\r\n<p>Would be invalid then?</p>\r\n<p>I need to be able to display it within the current template. Sorry, there was just a lot of documentation and i couldnt find something regarding this.</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks again for your help!</p>\r\n<p><span style=\"color:Blue\"> </span></p>",
+    "PostedDate": "2010-02-10T13:42:38.147-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "288478",
+    "ThreadId": "83897",
+    "Html": "<p>$foo =&nbsp; $objWriter-&gt;save(<span style=\"color:#a31515\">&quot;php://output&quot;</span>);</p>\r\n<p>is perfectly valid PHP, but the save method has no return so $foo would be assigned a value of null. php://output is a standard php output stream. The save() method doesn't assign the data to $foo, but saves to the specified output stream, in this case php://output. Equally, you could specify a filename here:</p>\r\n<p>$foo =&nbsp; $objWriter-&gt;save(<span style=\"color:#a31515\">&quot;filename.html&quot;</span>)</p>\r\n<p>To display within the current template, you could save to file, then use standard PHP file_get_contents() and strip out any markup (such as the head) that you didn't need.</p>\r\n<p>Alternatively, you could have an iframe in the main page, with a src that called your PHPExcel script.</p>",
+    "PostedDate": "2010-02-10T14:28:29.063-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "288587",
+    "ThreadId": "83897",
+    "Html": "<p>Great, ill try it out. Thank you.</p>",
+    "PostedDate": "2010-02-10T21:24:34.077-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "467498",
+    "ThreadId": "219490",
+    "Html": "<p>PHP Version 5.2.6-3ubuntu</p>\r\n<p>4.5 PHPExcel 1.7.3c</p>\r\n<p>OS Ubuntu 9.04 APC 3.0.19</p>\r\n<p>Hello,  The following below steps work (have a series of steps and don't want to reload the file for each step)</p>\r\n<pre><pre>$objReader = PHPExcel_IOFactory::createReader($fileFormat);\r\n$objReader-&gt;setReadDataOnly(true); \r\n$objFile = $objReader-&gt;load($fileName);\r\n$objFile-&gt;setActiveSheetIndex(0);\r\n$objWorksheet = $objFile-&gt;getActiveSheet();\r\n$sheetName = $objWorksheet-&gt;getTitle();\r\napc_delete(session_id());\r\napc_store(session_id(), $objWorksheet); <br></pre>\r\n<br></pre>\r\n<p>and to retrieve:</p>\r\n<p>\r\n<pre>$objWorksheet = apc_fetch(session_id());</pre>\r\n</p>\r\n<p>I get the member function on a non-object error when the file is large e.g. 5,000 - 10,000 rows.</p>\r\n<p>I was hoping someone might be able to  suggest the correct apc settings in the php.ini file I need to tweak to get a 10,000 file to pass.</p>\r\n<p>Currently I use defaults except below:</p>\r\n<p>[apc]</p>\r\n<p>apc.enabled = 1</p>\r\n<p>apc.max_file_size = 10M</p>\r\n<p>apc.shm_segments = 1</p>\r\n<p>apc.shm_size = 64</p>\r\n<p>apc.stat = 1</p>\r\n<p>&nbsp;</p>\r\n<p>A 10,000 row file is taking about 9 - 11 seconds to load if I need to change ttl settings.</p>\r\n<p>Any other insights to php apc with PHPExcel would be welcomed - very much a php apc novice.</p>\r\n<p>Many thanks to the developers for a great product.</p>",
+    "PostedDate": "2010-07-14T15:39:55.44-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "469895",
+    "ThreadId": "219490",
+    "Html": "<p>It isn't a good idea storing a PHPExcel object in APC.</p>\r\n<p>Storing an object in APC requires that the object be serialised... a function performed automatically by APC. However, a PHPExcel object comprises a series of nested objects that contain cyclic references (e.g. a worksheet object references cell objects, and the cell objects reference their parent worksheet). This cyclic relationship causes problems in PHP when the objects are unserialized (when read from APC) because the unserialize function creates a new parent object for every child object rather than linking correctly to a single parent object.</p>",
+    "PostedDate": "2010-07-20T14:02:30.037-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

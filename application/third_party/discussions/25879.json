@@ -1,0 +1,122 @@
+[
+  {
+    "Id": "86641",
+    "ThreadId": "25879",
+    "Html": "\r\nUsing a script to export db table rows into a workbook with 7 sheets and few columns for each, i've noticed that it uses more than 1500 M of memory for a file that should be maximum 10M(using excel 2007 writer)<br /><br />How is this possible? How can i limit the memory usage?<br />",
+    "PostedDate": "2008-04-14T02:13:27.613-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "87187",
+    "ThreadId": "25879",
+    "Html": "\r\nAny ideas?<br /><br />It actually takes 1 Gb of ram for a 10000 rows workbook.<br />",
+    "PostedDate": "2008-04-16T11:16:29.787-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "87282",
+    "ThreadId": "25879",
+    "Html": "\r\nWe know about this problem, but not how to solve it...<br />PHP uses reference counting to free up memory, which is part of the problem. This can be fixed, but does not improve that much.<br />Major problem is we are using too much objects under the hood.<br />",
+    "PostedDate": "2008-04-16T23:20:31.4-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "87453",
+    "ThreadId": "25879",
+    "Html": "\r\nOh , is there a way to save the file in more steps then? I've read about an user suggesting an add method beside the save one..<br />",
+    "PostedDate": "2008-04-17T15:36:47.517-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "89014",
+    "ThreadId": "25879",
+    "Html": "\r\nActually, I'd need such functionality too.<br />I'm not sure if the excel format supports simple merging of two files, but maybe it'd be a good idea to support some kind of disk caching? I think a little bit is already implemented in the PHPExcel_Writer..<br />E.g. my script works on 1000 rows, and when I'm finished I send these rows to the disk cache and calculate the next 1000? Something like that'd be great. :)<br />",
+    "PostedDate": "2008-04-25T07:54:05.427-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "89294",
+    "ThreadId": "25879",
+    "Html": "\r\nSaving in more steps is not the main issue: the writer actually does not consume that much memory. The base library (PHPExcel_*) is a little too heavy on objects. Still looking into a nice way to make it lighter without breaking any API...<br />",
+    "PostedDate": "2008-04-27T23:19:51.34-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "89327",
+    "ThreadId": "25879",
+    "Html": "\r\nWell, I didn't mean the Writer, I meant the storage of the excel data - if there is some way to send parts of it to the disk cache.<br />Anyway, I hope you guys can figure something out. :)<br />",
+    "PostedDate": "2008-04-28T02:18:34.813-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "90519",
+    "ThreadId": "25879",
+    "Html": "\r\nArgh, now I reached the limits. Generating a worksheet with 10,000+ rows requires over 1.5 GB memory usage. :(<br /><br />What about using cache systems like Cache_Lite or memcache?<br /><br /><a href=\"http://pear.php.net/package/Cache_Lite\" class=\"externalLink\">http://pear.php.net/package/Cache_Lite<span class=\"externalLinkIcon\" style=\"font-family:Consolas, Courier New, Courier, Monospace;\"></span></a><br /><a href=\"http://www.php.net/manual/en/book.memcache.php\" class=\"externalLink\">http://www.php.net/manual/en/book.memcache.php<span class=\"externalLinkIcon\" style=\"font-family:Consolas, Courier New, Courier, Monospace;\"></span></a><br />",
+    "PostedDate": "2008-05-05T04:53:29.527-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "544429",
+    "ThreadId": "25879",
+    "Html": "\r\n<p>Just installed v1.7.5 and run straight into memory problems trying to export 6000 rows from a MYSQL table into an Excel2007 spreadsheet. Seems running 15 cols I get to some 5000 rows before 128MB of RAM is exhausted. Been trying to solve this however seems\r\n that there are no way of doing this without bumping memory to the roof.</p>\r\n<p>I know this is an old thread but I cant see to find any sollutions. I was thinking of breaking the export into several Excel files, however how could this solve anything as I would need to stitch them together which would bring me back to the initial problem...</p>\r\n<p>Has anyone found a sollution to free up memory? Anyone found a sollution to trim down the system to not enable objects that I will not use?</p>\r\n<p>Regards,</p>\r\n<p>Kim Steinhaug - <a href=\"mailto:kim@steinhaug.com\">kim@steinhaug.com</a> - <a href=\"http://www.steinhaug.no/\">\r\nwww.steinhaug.no&nbsp;</a></p>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2011-01-05T10:11:13.63-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "544442",
+    "ThreadId": "25879",
+    "Html": "\r\n<p>Objects that you don't use aren't loaded... that's what the &quot;Lazy Loader&quot; manages.</p>\r\n<p>Have you tried enabling cell caching? Using cell caching can reduce memory requirements to about 1/3.</p>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2011-01-05T10:35:52.63-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "545293",
+    "ThreadId": "25879",
+    "Html": "\r\n<p>Thanks Mark!</p>\r\n<p>I added this to my script:</p>\r\n<pre>$cacheMethod = PHPExcel_CachedObjectStorageFactory:: cache_to_phpTemp;\r\n$cacheSettings = <span>array</span>( <span>'memoryCacheSize'</span> =&gt; <span>'32MB'</span>);\r\nPHPExcel_Settings::setCacheStorageMethod($cacheMethod, $cacheSettings);\r\n</pre>\r\n<p>Then the script completed iteration of 15 cols and 6800 records with 66MB footprint. Without that cache above the script would choke after 5000 rows and exhausted 120MB of RAM. Is the above code what you was referring to?</p>\r\n<p>&nbsp;</p>\r\n<p>Regards,<br>\r\nKim Steinhaug<br>\r\n<a href=\"mailto:kim@steinhaug.com\">kim@steinhaug.com</a> -&nbsp;<a href=\"http://www.easywebshop.no\">www.easywebshop.no</a>&nbsp;</p>\r\n",
+    "PostedDate": "2011-01-07T02:36:42.133-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "545299",
+    "ThreadId": "25879",
+    "Html": "\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<strong>kimss wrote:</strong><br>\r\n<p>Then the script completed iteration of 15 cols and 6800 records with 66MB footprint. Without that cache above the script would choke after 5000 rows and exhausted 120MB of RAM. Is the above code what you was referring to?</p>\r\n</blockquote>\r\n<p>&nbsp;That's precisely what I was referring to. The default behaviour for PHPExcel is to maintain the entire workbook &quot;in memory&quot; (a default cacheMethod of PHPExcel_CachedObjectStorageFactory::cache_in_memory), which is fast access to cell data, but uses\r\n PHP's memory allocation resulting in &quot;memory exceeded&quot; errors with larger workbooks. The alternative cacheMethods store cell data outside of PHP memory (or in a compressed form in PHP memory) giving a trade off between reduced memory usage and slower execution\r\n speed; allowing you to work with much larger workbooks within the same PHP memory, but at a cost in speed.</p>\r\n",
+    "PostedDate": "2011-01-07T02:51:52.507-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "545304",
+    "ThreadId": "25879",
+    "Html": "\r\n<p>Im working on benchmarking now, and the workbook is created in 11s with the cached method while the&nbsp;Excel2007 writer takes 25s to create the file. This is a total of 36s to complete the export, which is no problem as I can expand the execution time.</p>\r\n<p>At the top of your head, what would be the fastest writer to create a Excel file? Is there any ways to speed it up?</p>\r\n<p>Thanks Mark!</p>\r\n",
+    "PostedDate": "2011-01-07T03:04:01.02-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "545315",
+    "ThreadId": "25879",
+    "Html": "\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<strong>kimss wrote:</strong><br>\r\n<p>At the top of your head, what would be the fastest writer to create a Excel file? Is there any ways to speed it up?</p>\r\n</blockquote>\r\n<p>&nbsp;It should really depend what output format you want, rather than which is the fastest. Not all of the writers support the same feature: CSV is the fastest, for example,and uses the least memory; but has no formatting. Excel5 doesn't support formulae\r\n containing functions from the Analysis Toolpack, or autofilter, or document properties (yet).</p>\r\n<p>You can find some comparisons between the performance of the different Writers in this thread\r\n<a href=\"http://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=234150\">http://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=234150</a>&nbsp;and I've started to put together a chart showing which features are supported by which Readers and Writers in the\r\n Documentation (though it will take a long time before I've completed that).</p>\r\n<p>&nbsp;</p>\r\n<p>If your worksheets include formulae, then you can improve writer speed by setting setPreCalculateFormulas(false). This tells the writer not to calculate the resulting value of any formula, and only the formula itself is written to the generated Excel file.\r\n The cost of this is an overhead when opening the file in MS Excel itself as it forces recalculation then (possibly with a prompt asking if you want to recalculate, depending on the version of Excel).</p>\r\n<p>You can&nbsp;also&nbsp;set styles (including number format masks, bold, colours, etc) against rows or columns, rather than each individual cell, while you are building the worksheet. This will also help boost writer speed.</p>\r\n",
+    "PostedDate": "2011-01-07T03:31:57.69-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "545338",
+    "ThreadId": "25879",
+    "Html": "\r\n<p>Thank you for your reply, I really appretiate it!</p>\r\n<p>Regards,<br>\r\nKim Steinhaug&nbsp;</p>\r\n",
+    "PostedDate": "2011-01-07T05:17:36.457-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

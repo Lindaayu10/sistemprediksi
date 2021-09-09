@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "953730",
+    "ThreadId": "406187",
+    "Html": "\r\n<p>I had read the file using :</p>\r\n<p>$objReader = PHPExcel_IOFactory::createReader('Excel2007');<br>\r\n$objReader-&gt;setReadDataOnly(true);<br>\r\n<br>\r\n$objPHPExcel = $objReader-&gt;load(&quot;test.xlsx&quot;);<br>\r\n$objWorksheet = $objPHPExcel-&gt;getActiveSheet();</p>\r\n<p>&nbsp;</p>\r\n<p>which is of 2300 rows and 42 columns. I had done the reading part and now i have to read another file which is of almost same to compare both.</p>\r\n<p>While reading the second file i am getting the memory issue. So i just want to clear the memory to read the second file.</p>\r\n<p>Can anyone help me on this?</p>\r\n",
+    "PostedDate": "2012-12-09T23:02:16.593-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "953835",
+    "ThreadId": "406187",
+    "Html": "\r\n<p>I think this question is in the top 3 of phpexcel questions :)</p>\r\n<p>As always, you have to disconnect worksheets from phpexcel object and then unset it.</p>\r\n<p>For the next file you have to recreate the object</p>\r\n<p>To disconnect and unset:</p>\r\n<div style=\"background-color:white; color:black\">\r\n<pre>$objPHPExcel-&gt;disconnectWorksheets();\r\n<span style=\"color:blue\">unset</span>($objPHPExcel);</pre>\r\n</div>\r\n",
+    "PostedDate": "2012-12-10T03:08:23.59-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "954885",
+    "ThreadId": "406187",
+    "Html": "\r\n<p>Thanks Massi,</p>\r\n<p>&nbsp;&nbsp;&nbsp; It was not working for me as i am not disconnecting the work sheets before unset command.</p>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2012-12-11T21:09:09.203-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "955495",
+    "ThreadId": "406187",
+    "Html": "\r\n<p>it happened to all of us :)</p>\r\n",
+    "PostedDate": "2012-12-13T02:37:26.13-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1064706",
+    "ThreadId": "406187",
+    "Html": "Hi, I was trying to do this method.<br />\n<br />\nI found, that unsetting is still not working as we want.<br />\n<br />\nExample of unseting $objPHPExcel<br />\n<pre><code>echo sizeofvar($objPHPExcel); // 30837904 (30M) code from http://stackoverflow.com/questions/2192657/how-to-determine-the-memory-footprint-size-of-a-variable</code></pre>\n\nSo example of unsetting:<br />\n<pre><code>echo memory_get_usage(true); // 75759616 (75M) - current memory usage befere unsetting\n$objPHPExcel-&gt;disconnectWorksheets();\nunset($objPHPExcel);\necho memory_get_usage(true); // 57147392 (57M) - after</code></pre>\n\nSo unset clear 18612224 (18M) of memory. But size of $objPHPExcel is 30837904 (30M)<br />\n<br />\nSo after unset in memmory is still 12225680 (12M) of data which we don't wanted.<br />\n",
+    "PostedDate": "2013-07-04T15:17:43.6-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

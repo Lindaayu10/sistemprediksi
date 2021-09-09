@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "289894",
+    "ThreadId": "85054",
+    "Html": "<p>on a <code>Apache/2.2.3 (Debian) mod_jk/1.2.18 mod_python/3.2.10 Python/2.4.4 PHP/5.2.0-8+etch16 mod_ssl/2.2.3 OpenSSL</code><code>/0.9.8c mod_perl/2.0.2 Perl/v5.8.8</code></p>\r\n<p>I receive this error</p>\r\n<p><strong>Fatal error</strong>:  Uncaught exception 'Zend_Controller_Response_Exception' with message 'Cannot send headers; headers already sent in , line 0'</p>\r\n<p>I have investigated and it is caused from -&gt;save(&quot;php://output&quot;), headers_sent() function in zend response object return true!!! after this call</p>\r\n<p>I substituted -&gt;save(&quot;php://output&quot;) with -&gt;save(&quot;-&quot;) and now all performs good</p>",
+    "PostedDate": "2010-02-11T15:12:30.697-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "290080",
+    "ThreadId": "85054",
+    "Html": "<p>-&gt;save(&quot;php://output&quot;) writes the Excel workbook directly to the browser. Because this is output to the browser, PHP also sends its standard headers to the browser immediately before the workbook.</p>\r\n<p>-&gt;save(&quot;-&quot;) writes the Excel workbook to a file called '-' in the current working directory</p>\r\n<p>&nbsp;</p>\r\n<p>I've not used PHPExcel with ZF, but if you're sending PHPExcel output to the browser before ZF sends its own headers to the browser, you will get this error</p>",
+    "PostedDate": "2010-02-12T05:10:07.353-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "290090",
+    "ThreadId": "85054",
+    "Html": "<p>I look in the source of PHPExcel_Writer_Excel5 (@version&nbsp;&nbsp; &nbsp;1.7.2, 2010-01-11) but &quot;-&quot; create a temp file and it uses fpassthru($this-&gt;_FILEH_); to send output, I though&nbsp; sending to php://stdout with ob_start() and output_buffering = true (enabled in every request of Zend_Framework) the headers would remain in the PHP output buffer ... is it wrong ? writing directly to the handle seems to flush ob_buffer maybe ? thanks I have not a deep knowledge of php's internals, but I would think php://output was governed by output_buffering settings</p>",
+    "PostedDate": "2010-02-12T05:28:10.86-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "290196",
+    "ThreadId": "85054",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>oreficematteo wrote:</strong><br>\r\n<p>I have not a deep knowledge of php's internals, but I would think php://output was governed by output_buffering settings</p>\r\n</blockquote>\r\n<p>&nbsp;<a href=\"http://bugs.php.net/bug.php?id=42473\">http://bugs.php.net/bug.php?id=42473</a></p>",
+    "PostedDate": "2010-02-12T10:10:30.487-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,66 @@
+[
+  {
+    "Id": "139605",
+    "ThreadId": "42034",
+    "Html": "Hello,<br>\r\n<br>\r\nI am trying to generate an Excel 5 document, on my Windows development machine works as expected but on the Linux production machine fails when trying to write the excel file. The code where it fails is when sending the file to the browser, I tried 2 ways and both fail:<br>\r\n<br>\r\n1) Using php://output:<br>\r\n<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; $writer = PHPExcel_IOFactory::createWriter($obj, 'Excel5');<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$writer-&gt;save(&quot;php://output&quot;);<br>\r\n<br>\r\nHere I get an error like &quot;&quot;Uncaught exception: Can't create temporary in ... OLE_File.php line 93. Here at this line the function tmpnam() fails. <br>\r\n<br>\r\n2) Using a custom temporary file path:<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; $tmpfile = tempnam(sys_get_temp_dir(), &quot;hunting_phpexcel_&quot;);<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$writer = PHPExcel_IOFactory::createWriter($obj, 'Excel5');<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$writer-&gt;save($tmpfile);<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;readfile($tmpfile);<br>\r\n<br>\r\nThis one fails without error, the file is simply empty. <br>\r\n<br>\r\nI should mention that both code snippets work on Windows.<br>\r\n<br>\r\nThanks you. <br>\r\n<br>\r\n",
+    "PostedDate": "2008-12-11T01:13:18.27-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "139622",
+    "ThreadId": "42034",
+    "Html": "Could this be a permission problem on your systems temporary file directory? What do you get when you run the following?<br>\r\n<br>\r\n<code>\r\n&lt;?php<br>\r\nerror_reporting(E_ALL);<br>\r\nini_set('display_errors', 1);<br>\r\n<br>\r\nvar_dump(sys_get_temp_dir());<br>\r\nvar_dump(tempnam(sys_get_temp_dir(), 'test'));<br>\r\n?&gt;<br>\r\n</code>\r\n",
+    "PostedDate": "2008-12-11T02:09:47.75-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "139681",
+    "ThreadId": "42034",
+    "Html": "Hi koyama, <br>\r\n<br>\r\nThe files are created in /tmp folder and the dump is: string(4) &quot;/tmp&quot;\r\nstring(15) &quot;/tmp/testVO2waE&quot;\r\n<br>\r\n<br>\r\nNo idea why it doesnt work in phpexcel...<br>\r\n<br>\r\nThanks!<br>\r\n",
+    "PostedDate": "2008-12-11T06:19:32.75-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "139728",
+    "ThreadId": "42034",
+    "Html": "Ok, what do you get for this?<br>\r\n<br>\r\n<code>\r\n&lt;?php<br>\r\nerror_reporting(E_ALL);<br>\r\nini_set('display_errors', 1);<br>\r\n<br>\r\n$filename = tempnam('/tmp', 'test');<br>\r\nvar_dump($filename);<br>\r\n<br>\r\nvar_dump(fopen($filename, &quot;w+b&quot;));<br>\r\n?&gt;<br>\r\n</code>\r\n<br>\r\n",
+    "PostedDate": "2008-12-11T08:50:34.547-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "139732",
+    "ThreadId": "42034",
+    "Html": "It returns: string(15) &quot;/tmp/testeI15Qv&quot;\r\nresource(3) of type (stream)\r\n<br>\r\n<br>\r\nAnyhow I modified a bit the library source code to always use the system temporary folder and if I specifically say what temporary file to use it seems to work. But now another problem appeared, the generated file does not open Excel 2003 says that it has errors and tries to fix them. On Windows I dont have any errors. I compared the Linux generated file with the one on Windows and indeed there are a few bytes different. What could be wrong?<br>\r\n<br>\r\nThanks for your help!<br>\r\n",
+    "PostedDate": "2008-12-11T08:58:48.77-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "139745",
+    "ThreadId": "42034",
+    "Html": "Good to hear that you resolved your /tmp folder problem. Not sure what the error was though.<br>\r\n<br>\r\nYour new problem sounds strange. Can you send me both files to erik at phpexcel dot net ? Will have to compare them in HEX editor and see where the difference occurs although I have no clue what the problem is. Please put the files in a folder and zip it before attaching in the email. Otherwise your email client may slightly alter the Excel file (at least Outlook does).<br>\r\n",
+    "PostedDate": "2008-12-11T09:21:35.963-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "139779",
+    "ThreadId": "42034",
+    "Html": "Thanks, I received the files. I think I now see what the problem is. It may sound strange, but it is likely that it is your Windows machine that has a problem and not your Linux machine.<br>\r\n<br>\r\n1.<br>\r\nThe problem seem to be that you are supplying string values using ISO 8859-1. You need to always use UTF-8 in PHPExcel. If you correct this, it should be working on your Linux machine.<br>\r\n<br>\r\n2.<br>\r\nIf you fix 1. then you will suddenly find that it is no longer working on your Windows machine. So why does it appear to work on your Windows machine? It looks like mbsting extension is not enabled on this machine. It needs to be enabled for PHPExcel_Writer_Excel5 to work correctly with special characters like ä. If&nbsp; you get mbstring extension enabled it should work on your Windows machine too. It was just sort of pure luck that your Excel file came out right on your Windows machine because two problems were canceling each other.<br>\r\n",
+    "PostedDate": "2008-12-11T11:08:32.98-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "139973",
+    "ThreadId": "42034",
+    "Html": "Erik you were right! It works perfectly now! I would have never find the real reason thanks a lot for your help!<br>\r\n",
+    "PostedDate": "2008-12-12T01:23:56.617-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

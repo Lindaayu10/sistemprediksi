@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "1204077",
+    "ThreadId": "529551",
+    "Html": "I start with these code<br />\n<pre><code>$cacheMethod = PHPExcel_CachedObjectStorageFactory::cache_to_phpTemp;\n$cacheSettings = array( 'memoryCacheSize' =&gt; '128MB');\n$cacheEnabled = PHPExcel_Settings::setCacheStorageMethod($cacheMethod, $cacheSettings);\nif (!$cacheEnabled)\n{\n            # WARNING - Cache to php temp not enableable ###&quot; . PHP_EOL;\n}\n$inputFileType = PHPExcel_IOFactory::identify($file_path);\n$objReader = PHPExcel_IOFactory::createReader($inputFileType);  \n$objReader-&gt;setReadDataOnly(true);\n$objPHPExcel = $objReader-&gt;load($file_path);\n$objWorksheet   = $objPHPExcel-&gt;setActiveSheetIndex(0); </code></pre>\n\nThen <br />\n<pre><code>$highestRow = $objWorksheet-&gt;getHighestRow();</code></pre>\n\nreturns 2560. Ok, I've an excel with 2560 rows populated. <br />\n<br />\nThen I loop<br />\n<pre><code>for ($x =1; $x&lt;=$highestRow; $x++)  // here $x plus plus ...\n{\n   $ean                = $objWorksheet-&gt;getCellByColumnAndRow(15, $row)-&gt;getValue();\n   $description        = $objWorksheet-&gt;getCellByColumnAndRow(13, $row)-&gt;getValue();\n   echo $ean .&quot;:&quot; .$description . PHP_EOL;\n}</code></pre>\n\nBut every row is empty, only 2560 &quot;:&quot; are printed.<br />\n<br />\nSo I'd like to dump entire row because I really cannot understand why returned value are empty! Every single cell of sheet, from A to BC, from 1 to 2560, are filled with some value.<br />\n<br />\nWhy empty?<br />\nHow to debug?<br />\n",
+    "PostedDate": "2014-02-07T00:12:58.173-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1204133",
+    "ThreadId": "529551",
+    "Html": "Perhaps either:<br />\n<div style=\"color:Black;background-color:White;\"><pre>\r\n<span style=\"color:Blue;\">for</span> ($x =1; $x&lt;=$highestRow; $x++) \n{\n   $ean                = $objWorksheet-&gt;getCellByColumnAndRow(15, $x)-&gt;getValue();\n   $description        = $objWorksheet-&gt;getCellByColumnAndRow(13, $x)-&gt;getValue();\n   <span style=\"color:Blue;\">echo</span> $ean .<span style=\"color:#A31515;\">&quot;:&quot;</span> .$description . PHP_EOL;\n}\r\n</pre></div>or<br />\n<div style=\"color:Black;background-color:White;\"><pre>\r\n<span style=\"color:Blue;\">for</span> ($row =1; $row&lt;=$highestRow; $row++) \n{\n   $ean                = $objWorksheet-&gt;getCellByColumnAndRow(15, $row)-&gt;getValue();\n   $description        = $objWorksheet-&gt;getCellByColumnAndRow(13, $row)-&gt;getValue();\n   <span style=\"color:Blue;\">echo</span> $ean .<span style=\"color:#A31515;\">&quot;:&quot;</span> .$description . PHP_EOL;\n}\r\n</pre></div>",
+    "PostedDate": "2014-02-07T01:51:23.487-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1204316",
+    "ThreadId": "529551",
+    "Html": "Oh ... what a stupid ... sorry for this waste of time ...<br />\n",
+    "PostedDate": "2014-02-07T06:55:00.133-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

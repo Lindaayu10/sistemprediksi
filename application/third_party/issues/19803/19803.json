@@ -1,0 +1,85 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel",
+      "DisplayName": "PHPExcel"
+    },
+    "ClosedComment": "Fixed in version 1.8.0",
+    "ClosedDate": "2014-03-04T03:17:43.15-08:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hello:\nIn version 1.7.9 if used: \n\ndefine('PHPEXCEL_ROOT', '../../includes/PHPExcel/');\ninclude PHPEXCEL_ROOT . 'PHPExcel/IOFactory.php';\n\nDisplays the following error message:\n\nPHP Catchable fatal error:  Argument 1 passed to PHPExcel_Cell::attach() must be an instance of PHPExcel_CachedObjectStorage_CacheBase, instance of PHPExcel_Worksheet given, called in ...\\www\\includes\\PHPExcel\\PHPExcel\\CachedObjectStorage\\Memory.php on line 99 and defined in ...\\www\\includes\\PHPExcel\\PHPExcel\\Cell.php on line 115\n\nThanks for your help.\n\nCarlos",
+    "LastUpdatedDate": "2014-03-04T03:17:43.15-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Medium",
+      "Severity": 100,
+      "Id": 2
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2013-06-03T07:42:14.283-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Fixed"
+    },
+    "Summary": "Catchable fatal error:  Argument 1 passed to PHPExcel_Cell::attach()...",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 19803
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "Besides the fact that defining PHPEXCEL_ROOT as a relative path isn't a good idea, because it prevents PHPExcel itself from defining it as an absolute path, what other code are you executing because all that include will do is define a class, it won't execute any PHPExcel code at all.\r\n\r\nCan you show what other code you're running? I'm guessing cloning a worksheet",
+      "PostedDate": "2013-06-03T08:58:18.667-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Hello:\r\n\r\nThanks for responding. Now use the recommended route:\r\n\r\n..\\www\\Classes\r\n\r\nand try:\n     \n\t spl_autoload_register ('__autoload');\n\t require_once '../../Classes/PHPExcel/IOFactory.php';\n     ...\n\t$objPHPExcel = PHPExcel_IOFactory::load($fileName);\t\n\t$sheetCopy = clone $objPHPExcel->getSheetByName($nameSheet);\r\n\r\nThe result is:\r\n\r\nPHP Catchable fatal error:  Argument 1 passed to PHPExcel_Cell::attach() must be an instance of PHPExcel_CachedObjectStorage_CacheBase, instance of PHPExcel_Worksheet given, called in C:\\wamp\\www\\Classes\\PHPExcel\\CachedObjectStorage\\Memory.php on line 99 and defined in C:\\wamp\\www\\Classes\\PHPExcel\\Cell.php on line 115\r\n\r\n\nThank you very much for your help.\r\n\r\nRegards,\r\n\r\nCarlos\n",
+      "PostedDate": "2013-06-03T10:12:17.11-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Thanks for the clarification, confirming that it's a clone helps narrow down the problem. I've been investigating further, and have a partial solution; but at the moment it's still corrupting cell A1 in the original spreadsheet that was cloned, so I don't have a fix yet.",
+      "PostedDate": "2013-06-03T13:04:23.12-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-06-03T13:05:28.86-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Thank you very much for your reply. I'll be aware of changes. It is a great product.\r\n\r\nCongratulations,\r\n\r\nCarlos",
+      "PostedDate": "2013-06-03T13:19:26.653-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I am getting this same error. I am trying to dynamically generate x number of worksheets depending on the data.\r\n\r\n$reader = new PHPExcel_Reader_Excel2007();\n$objPHPExcel = $reader->load(APPPATH.\"files/dmr.xlsx\");\n$clonedSheet = clone $objPHPExcel->getSheetByName('1');\n$objPHPExcel->addSheet($clonedSheet, 2);\r\n\r\nReading the file works fine it is the clone throwing it off and I get the same error. I am running PHPExcel 1.7.9 and on the latest version of PHP. I also get the same error when I use the copy(); method. \r\n\r\n------------------------------------------------------------------------------------------------------\r\n\r\nA PHP Error was encountered\r\n\r\nSeverity: 4096\r\n\r\nMessage: Argument 1 passed to PHPExcel_Cell::attach() must be an instance of PHPExcel_CachedObjectStorage_CacheBase, instance of PHPExcel_Worksheet given, called in C:\\wamp\\www\\sites\\techwaterlabs\\application\\third_party\\PHPExcel\\CachedObjectStorage\\Memory.php on line 99 and defined\r\n\r\nFilename: PHPExcel/Cell.php\r\n\r\nLine Number: 115\r\n\r\n------------------------------------------------------------------------------------------------------\r\n\r\nAny help would be great. \r\n\r\nThanks\r\n\r\nKoby",
+      "PostedDate": "2013-06-27T12:40:08.02-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "This issue has already been resolved in the develop branch on github",
+      "PostedDate": "2013-06-27T13:31:18.54-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "sorry MarkBaker, but I still I get the same error, I put the same code as is as shown, but do not find it, I'm using the latest version of PHPExcel",
+      "PostedDate": "2013-09-11T06:32:52.81-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2014-03-04T03:17:43.15-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "625348",
+    "ThreadId": "260766",
+    "Html": "<p>I have an Excel file made with PHPExcel which have an header with a left aligned logo and right aligned date &amp; user text. For the first page, I want a similar header (same logo and same date &amp; user text) but with some added information (title and parameters  of the file centered a couples lines later).<br /> <br /> This is what I'm doing so far:<br /> <br /></p>\n<div style=\"color: black; background-color: white;\">\n<pre>&lt;?php\n   \n    $sheet = $this-&gt;_spreadsheet-&gt;getActiveSheet(); <span style=\"color: green;\">//_spreadsheet is an instance of PHPExcel</span>\n       \n    $logo = <span style=\"color: blue;\">new</span> PHPExcel_Worksheet_HeaderFooterDrawing();\n    $logo-&gt;setName(<span style=\"color: #a31515;\">'Logo'</span>);\n    $logo-&gt;setPath(DOCUMENT_ROOT . <span style=\"color: #a31515;\">'/public/logo.jpg'</span>); <span style=\"color: green;\">//Path is OK &amp; tested under PHP</span>\n    $logo-&gt;setHeight(38); <span style=\"color: green;\">//If image is larger/smaller than that, image will be proportionally resized</span>\n    $sheet-&gt;getHeaderFooter()-&gt;addImage($logo, PHPExcel_Worksheet_HeaderFooter::IMAGE_HEADER_LEFT);\n       \n    $sheet-&gt;getHeaderFooter()-&gt;setOddHeader(<span style=\"color: #a31515;\">'&amp;L&amp;G&amp;RExport date: '</span> . date(<span style=\"color: #a31515;\">'Y-m-d H:i:s'</span>) . <span style=\"color: #a31515;\">\"\\n\"</span> . <span style=\"color: #a31515;\">'User: '</span> . $user-&gt;name);\n       \n    <span style=\"color: blue;\">if</span> ($grid-&gt;getTitle() != <span style=\"color: #a31515;\">''</span>) {\n        $sheet-&gt;getHeaderFooter()-&gt;setDifferentFirst(true);\n\n        $sheet-&gt;getHeaderFooter()-&gt;addImage($logo, PHPExcel_Worksheet_HeaderFooter::IMAGE_HEADER_LEFT);\n        $sheet-&gt;getHeaderFooter()-&gt;setFirstHeader(<span style=\"color: #a31515;\">'&amp;L&amp;G&amp;C&amp;\"-,Bold\"'</span> . <span style=\"color: #a31515;\">\"\\n\\n\\n\"</span> . $grid-&gt;getTitle() . <span style=\"color: #a31515;\">\"\\n\"</span> . $grid-&gt;getParameters() . <span style=\"color: #a31515;\">'&amp;RExport date: '</span> . date(<span style=\"color: #a31515;\">'Y-m-d H:i:s'</span>) . <span style=\"color: #a31515;\">\"\\n\"</span> . <span style=\"color: #a31515;\">'User: '</span> . $user-&gt;name);\n    }\n   \n?&gt;\n</pre>\n</div>\n<p><br /> <br /> For the \"regular\" header, logo and text is all there so everything is OK. For the first page header I have 2 problems:<br /> <br /></p>\n<ol>\n<li>The logo isn't showing on the first page header (but the text is OK).</li>\n<li>Since the centered title will be followed by some text (dynamically  loaded with *getParameters*) I want the first page header to stretch to  fit it's content.</li>\n</ol>\n<p><br /> How can I do this with PHPExcel?</p>",
+    "PostedDate": "2011-06-09T06:40:37.153-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1207986",
+    "ThreadId": "260766",
+    "Html": "I'm facing the same issue. I dont know how to set two different images for the first and &quot;regular&quot; headers when using &quot;getActiveSheet()-&gt;getHeaderFooter()-&gt;setDifferentFirst(true)&quot;. <br />\n<br />\nThis is what I have so far:<br />\n<pre><code>$objPHPExcel-&gt;getActiveSheet()-&gt;getHeaderFooter()-&gt;setDifferentFirst(true);\n\n$objPHPExcel-&gt;getActiveSheet()-&gt;getHeaderFooter()-&gt;setFirstHeader('&amp;L&amp;G&amp;R&amp;D - &amp;T');\n$objPHPExcel-&gt;getActiveSheet()-&gt;getHeaderFooter()-&gt;setFirstFooter('&amp;C&amp;&quot;Arial,Normal&quot;Page &amp;P / &amp;N');\n\n$objDrawing = new PHPExcel_Worksheet_HeaderFooterDrawing();\n$objDrawing-&gt;setName('Logo');\n$objDrawing-&gt;setPath('img/logo.png');\n$objDrawing-&gt;setResizeProportional(true);\n$objDrawing-&gt;setHeight(95);\n$objPHPExcel-&gt;getActiveSheet()-&gt;getHeaderFooter()-&gt;addImage($objDrawing, PHPExcel_Worksheet_HeaderFooter::IMAGE_HEADER_LEFT);\n\n$objPHPExcel-&gt;getActiveSheet()-&gt;getHeaderFooter()-&gt;setOddHeader('&amp;L&amp;G&amp;R&amp;D - &amp;T');\n$objPHPExcel-&gt;getActiveSheet()-&gt;getHeaderFooter()-&gt;setOddFooter('&amp;C&amp;&quot;Arial,Normal&quot;Page &amp;P / &amp;N');\n\n$objDrawing = new PHPExcel_Worksheet_HeaderFooterDrawing();\n$objDrawing-&gt;setName('Logo2');\n$objDrawing-&gt;setPath('img/logo.png');\n$objDrawing-&gt;setResizeProportional(true);\n$objDrawing-&gt;setHeight(95);\n$objPHPExcel-&gt;getActiveSheet()-&gt;getHeaderFooter()-&gt;addImage($objDrawing, PHPExcel_Worksheet_HeaderFooter::IMAGE_HEADER_LEFT);\n</code></pre>\n\nIt's showing the image only in the &quot;regular&quot; headers. The first one is blank.<br />\n<br />\nI'm using 1.7.9 version and Excel2007 writer btw.<br />\n<br />\nAnyone could help me, please? <br />\n",
+    "PostedDate": "2014-02-13T08:42:15.2-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1208429",
+    "ThreadId": "260766",
+    "Html": "Solved it!\r<br />\n<br />\n<a href=\"https://github.com/PHPOffice/PHPExcel/pull/320\" rel=\"nofollow\">https://github.com/PHPOffice/PHPExcel/pull/320</a><br />\n",
+    "PostedDate": "2014-02-14T08:05:39.39-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

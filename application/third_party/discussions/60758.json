@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "205856",
+    "ThreadId": "60758",
+    "Html": "<p>Hi,</p>\r\n<p>I'm facing a problem with a data validated list. The problem is that when the xlsx is generated it gives me a warning that it contains unreadable content.</p>\r\n<p>I have to click yes and then it gives me --&gt; &quot;Replaced Part: /xl/worksheets/sheet1.xml part with XML error. &nbsp;Illegal xml character. Line 113, column 80&quot;</p>\r\n<p><br>Basicly i know what the error is but i don't know how to solve it.</p>\r\n<p>\r\n<pre>the Var i'm trying to use looks like this</pre>\r\n<pre>$Work_List = &quot;Test1, Test2, Test3&quot;;</pre>\r\n<pre></pre>\r\nHere you can find my code:</p>\r\n<p>&nbsp;</p>\r\n<pre>$objValidation = $objPHPExcel-&gt;getActiveSheet()-&gt;getCell('C'.$excel_rows)-&gt;getDataValidation();\r\n$objValidation-&gt;setType( PHPExcel_Cell_DataValidation::TYPE_LIST );\r\n$objValidation-&gt;setErrorStyle( PHPExcel_Cell_DataValidation::STYLE_INFORMATION );\r\n$objValidation-&gt;setAllowBlank(false);\r\n$objValidation-&gt;setShowInputMessage(true);\r\n$objValidation-&gt;setShowErrorMessage(true);\r\n$objValidation-&gt;setShowDropDown(true);\r\n$objValidation-&gt;setErrorTitle('Input error');\r\n$objValidation-&gt;setError('Value is not in list.');\r\n$objValidation-&gt;setPromptTitle('Pick from list');\r\n$objValidation-&gt;setPrompt('Please pick a value from the drop-down list.');\r\n</pre>\r\n<pre>//The NEXT Line is the problem\r\n$objValidation-&gt;setFormula1('&quot;'.$Work_List.'&quot;');\r\n\t\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getCell('C'.$excel_rows)-&gt;setDataValidation($objValidation);</pre>\r\n<p>What did i Already tried</p>\r\n<p>\r\n<pre>$objValidation-&gt;setFormula1('&quot;$Work_List&quot;');<br>$objValidation-&gt;setFormula1($Work_List);&nbsp;<br>$objValidation-&gt;setFormula1('$Work_List');&nbsp;</pre>\r\n<pre></pre>\r\n<pre>can someone tell me how to use a variable in a validation object?</pre>\r\n<pre>Thanks in advance!</pre>\r\n<pre>Ducky</pre>\r\n</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-06-26T04:33:06.737-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "205868",
+    "ThreadId": "60758",
+    "Html": "<p>I have found why it doesn't work. The string i supply contains chars like &eacute;, &ugrave; etc</p>\r\n<p>I tried to convert them to UTF-8 but it doesn't change a thing.</p>\r\n<p>&nbsp;</p>\r\n<pre>function FixEncoding($x){ \r\n  if(mb_detect_encoding($x)=='UTF-8'){ \r\n    return $x; \r\n  }else{ \r\n    return utf8_encode($x); \r\n  } \r\n} </pre>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>anyone an idea to solve this?</p>",
+    "PostedDate": "2009-06-26T05:33:20.417-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "206080",
+    "ThreadId": "60758",
+    "Html": "<p>If your strings are UTF-8 encoded in the first place then it should really not be necessary to do any conversion with <span style=\"font-family:Courier New\">utf8_encode()</span>. I rarely have to use that function.<br> <br> The question is where are those characters &eacute;, &ugrave; coming from? Have you hard-coded them in the PHP-script? If yes, it should suffice to save the file as UTF-8 (without BOM). Notepad++ is a good text editor doing this.</p>",
+    "PostedDate": "2009-06-26T14:09:17.467-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "206479",
+    "ThreadId": "60758",
+    "Html": "<p>I found a function to check the strings encoding and it appears to be UTF8.</p>\r\n<p>The strings are coming from a database and those contain &eacute;, &ugrave; etc.</p>\r\n<p>if you want i can send you a sample of the database and the code i wrote.</p>\r\n<p>I found it very strange. Even when i convert the chars to html code (like &amp;amp;) it doesn't work.</p>\r\n<p>thanks for your help.</p>\r\n<p>&nbsp;</p>\r\n<p>kind regards&nbsp;</p>\r\n<p>vincent</p>",
+    "PostedDate": "2009-06-29T00:27:08.753-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "206868",
+    "ThreadId": "60758",
+    "Html": "<p><em>&gt;&gt; I found a function to check the strings encoding and it appears to be UTF-8.</em><br> <br> Hmm... Right now I still suspect that it isn't properly encoded as UTF-8.<br> <br> <em>&gt;&gt; The strings are coming from a database and those contain &eacute;, &ugrave; etc.</em><br> <br> If you are retrieving from MySQL, the most common problem is with the connection collation. Can you have a look at this thread and see if the case applies to you:<br> <a href=\"View.aspx?ThreadId=50415\">http://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=50415</a><br> <br> <em>&gt;&gt; if you want i can send you a sample of the database and the code i wrote.</em><br> <br> Actually, because I suspect it is the database connection character set that is the problem, I would like to see the generated xlsx file instead (erik at phpexcel dot net). That is, if the above doesn't solve the problem.</p>",
+    "PostedDate": "2009-06-29T19:31:55.25-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

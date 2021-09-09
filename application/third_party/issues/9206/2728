@@ -1,0 +1,68 @@
+Index: changelog.txt
+===================================================================
+--- changelog.txt	(revision 773)
++++ changelog.txt	(working copy)
+@@ -51,6 +51,7 @@
+ - Bugfix:   (ET) Work item 9085 - PHPExcel_Writer_Excel5 maximum allowed record size 4 bytes too short
+ - Bugfix:   (MB) Work item 9119 - Not numeric strings are formatted as dates and numbers using worksheet's toArray method
+ - Bugfix:   (ET) Work item 9132 - Excel5 simple formula parsing error
++- Bugfix:   (ET) Work item 9206 - Problems writing dates with CSV
+ 
+ 
+ 2009/01/05 (v1.6.5):
+Index: Classes/PHPExcel/Style/NumberFormat.php
+===================================================================
+--- Classes/PHPExcel/Style/NumberFormat.php	(revision 773)
++++ Classes/PHPExcel/Style/NumberFormat.php	(working copy)
+@@ -29,7 +29,10 @@
+ /** PHPExcel_IComparable */
+ require_once 'PHPExcel/IComparable.php';
+ 
++/** PHPExcel_Shared_Date */
++require_once 'PHPExcel/Shared/Date.php';
+ 
++
+ /**
+  * PHPExcel_Style_NumberFormat
+  *
+@@ -352,6 +355,10 @@
+ 		if (preg_match("/^[hmsdy]/i", $format)) { // custom datetime format
+ 			// dvc: convert Excel formats to PHP date formats
+ 			// first remove escapes related to non-format characters
++			
++			// OpenOffice.org uses upper-case number formats, e.g. 'YYYY', convert to lower-case
++			$format = strtolower($format);
++
+ 			$format = str_replace('\\', '', $format);
+ 
+ 			// 4-digit year
+@@ -382,7 +389,7 @@
+ 			$format = str_replace('x', 'm', $format);
+ 
+ 			// 12-hour suffix
+-			$format = str_replace('AM/PM', 'A', $format);
++			$format = str_replace('am/pm', 'A', $format);
+ 
+ 			// tmp place holder
+ 			$format = str_replace('dd', 'x', $format);
+@@ -397,7 +404,7 @@
+ 			$format = str_replace('ss', 's', $format);
+ 
+ 			// fractional seconds - no php equivalent
+-			$format = str_replace('.S', '', $format);
++			$format = str_replace('.s', '', $format);
+ 
+ 			if (!strpos($format,'A')) { // 24-hour format
+ 				$format = str_replace('h', 'H', $format);
+@@ -406,7 +413,10 @@
+ 			// user defined flag symbol????
+ 			$format = str_replace(';@', '', $format);
+ 			
+-			return date($format, (1 * $value));
++			if (is_float($value)) {
++				return date($format, PHPExcel_Shared_Date::ExceltoPHP($value));
++			}
++			return date($format, $value);
+ 			
+ 		} else if (preg_match('/%$/', $format)) { // % number format
+ 			if (preg_match('/\.[#0]+/i',$format,$m)) {

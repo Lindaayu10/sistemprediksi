@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "1056488",
+    "ThreadId": "446984",
+    "Html": "Hey there,\r<br />\n<br />\nI am using a file and writing 90 columns to it using Excel 2007.\r<br />\n<br />\nWith a low amount of rows, say 5, it is an instant download, but the more rows I write, the slower it gets, to the point where writing 1000 rows takes like 15 minutes.\r<br />\n<br />\nCurrently from what I am testing, 300 rows are writing at 10 rows per second, while 450 rows write at 9 rows per sec, but for example, 750 does it in a bit over 8 rows per second.\r<br />\n<br />\nHowever, reaching 800 rows, I suddenly hit a huge fall: it went down to 2.5 rows per second.\r<br />\n<br />\nFor 1000 rows, I didn't even calculate, but it was like 15 minutes.\r<br />\n<br />\nIs there anything that can be done to help this? I am using different memory cache sizes but I am not sure if it does anything at all, tried from 32 to 512 and it all feels the same.\r<br />\n<br />\nAny suggestions?<br />\n",
+    "PostedDate": "2013-06-13T10:47:09.03-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1056813",
+    "ThreadId": "446984",
+    "Html": "What type of caching are you using? Any caching other than cache_in_memory will have some slowdown effect, because caching is a compromise between memory usage and speed.\r<br />\n<br />\nIs the big slowdown in actually writing the file, or is it in setting the data in the PHPExcel object? \r<br />\nIf the latter, are you setting each cell value individually? or using features such as the fromArray() method?\r<br />\nAre you using styling? Setting styles across a range of cells is faster than styling each cell individually<br />\n",
+    "PostedDate": "2013-06-14T04:43:19.95-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1057320",
+    "ThreadId": "446984",
+    "Html": "Thanks Mark,\r<br />\n<br />\nI was using php temp but I switched to no caching and memory gzip with the same issue, latest tests are with no caching at all.\r<br />\n<br />\nAs far as I can see, it's in writing, however what's most interesting to me is that before 800 rows (or maybe a few more) it does it relatively quickly, around 2 minutes. When trying with 1031 rows which is about 92000 cells written, it goes to 20 minutes to write the file, which is suddenly 18 minutes more for only 200 more rows.\r<br />\n<br />\nI am writing cells individually with lines such as this in a foreach:\r<br />\n<br />\n$objWorksheet-&gt;getCell('B'.$row)-&gt;setValue($corto['Corto']['id']);\r<br />\n<br />\nI do use style but in a range as you recommend, and removing the styling to debug does little difference, a few seconds.<br />\n",
+    "PostedDate": "2013-06-15T19:55:17.18-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1059874",
+    "ThreadId": "446984",
+    "Html": "Anyone got any idea of what may be happening?<br />\n",
+    "PostedDate": "2013-06-22T05:08:40.497-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,106 @@
+[
+  {
+    "Id": "256350",
+    "ThreadId": "74898",
+    "Html": "<p>Hi, I want to ask you if can I read Excel files using PHPExcel class. Specially, I'm interested about reading the Currency format cells. Waiting for your answer, thanks.</p>",
+    "PostedDate": "2009-11-12T07:37:36.517-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "256357",
+    "ThreadId": "74898",
+    "Html": "<p>I've just found something in documentation, <span style=\"font-size:10pt\" lang=NL>PHPExcel_Reader_IReadFilter, etc.. But I don't understand complettly how to use it. Can someone give me a complete php file about reading an excel file?<br></span></p>",
+    "PostedDate": "2009-11-12T07:53:05.67-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "256395",
+    "ThreadId": "74898",
+    "Html": "<p>Take a look at the 20readexcel5.php script in the /Tests directory of the distribution</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>error_reporting(E_ALL);\r\n\r\n<span style=\"color:Blue\">require_once</span> <span style=\"color:#A31515\">'./Classes/PHPExcel/IOFactory.php'</span>;\r\n\r\n$filename = <span style=\"color:#A31515\">'myExcelFile.xls'</span>\r\n<span style=\"color:Blue\">if</span> (!file_exists($filename)) {\r\n\t<span style=\"color:Blue\">die</span>(<span style=\"color:#A31515\">&quot;File $filename does not exist.&lt;br /&gt;&quot;</span>);\r\n}\r\n$objPHPExcel = PHPExcel_IOFactory::load($filename);\r\n</pre>\r\n</div>\r\n<p><br><br>You can then access cell data using the normal PHPExcel methods</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$cellValue = $objPHPExcel-&gt;getActiveSheet()-&gt;getCell(<span style=\"color:#A31515\">'B14'</span>)-&gt;getValue();\r\n</pre>\r\n</div>\r\n<p>or</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$cellValue = $objPHPExcel-&gt;getActiveSheet()-&gt;getCell(<span style=\"color:#A31515\">'B14'</span>)-&gt;getCalculatedValue();\r\n</pre>\r\n</div>\r\n<p>You can identify if a cell is formatted for currency by reading the cell formatting</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$cellStyle = $objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(<span style=\"color:#A31515\">'B14'</span>)-&gt;getNumberFormat();\r\n</pre>\r\n</div>\r\n<p>and then scanning the $cellStyle value to see if it contains the relevant currency symbol (e.g. $ or [$EUR ])</p>",
+    "PostedDate": "2009-11-12T09:13:51.437-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "256624",
+    "ThreadId": "74898",
+    "Html": "<p>Thank you..</p>\r\n<p>I've done what you wrote, but I receive this:</p>\r\n<p style=\"padding-left:30px\">10:48:25 Load from Excel5 file <br> <strong>Fatal error</strong>:  Class 'ZipArchive' not found in <strong>D:\\xServer\\www\\neoland.ro\\xpanel\\classes\\phpexcel\\PHPExcel\\Reader\\Excel2007.php</strong> on line <strong>200</strong></p>\r\n<p>Do you know what problem is this?</p>",
+    "PostedDate": "2009-11-13T00:51:56.98-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "256628",
+    "ThreadId": "74898",
+    "Html": "<p>Are you trying to read xls or xlsx file?</p>",
+    "PostedDate": "2009-11-13T00:56:47.033-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "256634",
+    "ThreadId": "74898",
+    "Html": "<p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>&lt;?\r\n<span style=\"color:Green\">/** Error reporting */</span>\r\nerror_reporting(E_ALL);\r\n\r\n<span style=\"color:Green\">/** Include path **/</span>\r\nset_include_path(get_include_path() . PATH_SEPARATOR . <span style=\"color:#A31515\">'../../classes/phpexcel/'</span>);\r\n\r\n<span style=\"color:Green\">/** PHPExcel_IOFactory */</span>\r\n<span style=\"color:Blue\">include</span> <span style=\"color:#A31515\">'PHPExcel/IOFactory.php'</span>;\r\n\r\n$filename = <span style=\"color:#A31515\">'asbis - work.xls'</span>;\r\n<span style=\"color:Blue\">if</span> (!file_exists($filename)) {\r\n\t<span style=\"color:Blue\">die</span>(<span style=\"color:#A31515\">&quot;File $filename does not exist.&lt;br /&gt;&quot;</span>);\r\n}\r\n\r\n\r\n<span style=\"color:Blue\">echo</span> date(<span style=\"color:#A31515\">'H:i:s'</span>) . <span style=\"color:#A31515\">&quot; Load from Excel5 file\\n&quot;</span>;\r\n$objPHPExcel = PHPExcel_IOFactory::load($filename);\r\n\r\n?&gt;\r\n</pre>\r\n</div>\r\n</p>",
+    "PostedDate": "2009-11-13T01:11:30.78-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "256642",
+    "ThreadId": "74898",
+    "Html": "<p>I just enabled php_zip PHP extension and that error disappears. But I have now others errors:</p>\r\n<p><strong>Notice</strong>:  Undefined offset:  27 in <strong>D:\\xServer\\www\\neoland.ro\\xpanel\\classes\\phpexcel\\PHPExcel\\Reader\\Excel5.php</strong> on line <strong>4237</strong><br> <strong>Notice</strong>:  Undefined offset:  27 in <strong>D:\\xServer\\www\\neoland.ro\\xpanel\\classes\\phpexcel\\PHPExcel\\Reader\\Excel5.php</strong> on line <strong>4238</strong></p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-11-13T01:20:51.503-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "256645",
+    "ThreadId": "74898",
+    "Html": "<p>Can you upload the Excel file that is giving you those errors? This must be a bug.</p>\r\n<p>Please upload the file here so we can check:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10749\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10749</a></p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-11-13T01:26:26.183-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "256648",
+    "ThreadId": "74898",
+    "Html": "<p>http://phpexcel.codeplex.com/Project/Download/AttachmentDownload.ashx?ProjectName=PHPExcel&amp;WorkItemId=10749&amp;FileAttachmentId=3535</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-11-13T01:29:28.893-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "256649",
+    "ThreadId": "74898",
+    "Html": "<p>I'm waiting for some news, thank you for your help..</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-11-13T01:30:15.313-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "256660",
+    "ThreadId": "74898",
+    "Html": "<p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>&lt;?\r\n<span style=\"color:Green\">/** Error reporting */</span>\r\nini_set(<span style=\"color:#A31515\">'memory_limit'</span>, -1);\r\nset_time_limit(0);\r\n\r\nerror_reporting(E_ALL);\r\n\r\n<span style=\"color:Green\">/** Include path **/</span>\r\nset_include_path(get_include_path() . PATH_SEPARATOR . <span style=\"color:#A31515\">'../../classes/phpexcel/'</span>);\r\n\r\n<span style=\"color:Green\">/** PHPExcel_IOFactory */</span>\r\n<span style=\"color:Blue\">include</span> <span style=\"color:#A31515\">'PHPExcel/IOFactory.php'</span>;\r\n\r\n$filename = <span style=\"color:#A31515\">'Deluo - 11 nov.xls'</span>;\r\n<span style=\"color:Blue\">if</span> (!file_exists($filename)) {\r\n\t<span style=\"color:Blue\">die</span>(<span style=\"color:#A31515\">&quot;File $filename does not exist.&lt;br /&gt;&quot;</span>);\r\n}\r\n\r\n\r\n<span style=\"color:Blue\">echo</span> date(<span style=\"color:#A31515\">'H:i:s'</span>) . <span style=\"color:#A31515\">&quot; Load from Excel5 file&lt;br&gt;&quot;</span>;\r\n$objPHPExcel = PHPExcel_IOFactory::load($filename);\r\n\r\n<span style=\"color:Blue\">echo</span> $objPHPExcel-&gt;getActiveSheet()-&gt;getCell(<span style=\"color:#A31515\">'E17'</span>)-&gt;getValue().<span style=\"color:#A31515\">&quot;&lt;br&gt;&quot;</span>;\r\n<span style=\"color:Blue\">echo</span> $objPHPExcel-&gt;getActiveSheet()-&gt;getCell(<span style=\"color:#A31515\">'E17'</span>)-&gt;getCalculatedValue().<span style=\"color:#A31515\">&quot;&lt;br&gt;&quot;</span>;\r\n<span style=\"color:Blue\">echo</span> $objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(<span style=\"color:#A31515\">'E17'</span>)-&gt;getNumberFormat();\r\n\r\n\r\n?&gt;\r\n</pre>\r\n</div>\r\nThis is working:</p>\r\n<p>http://phpexcel.codeplex.com/Project/Download/AttachmentDownload.ashx?ProjectName=PHPExcel&amp;WorkItemId=10749&amp;FileAttachmentId=3536</p>\r\n<p>But I still receive some notices:</p>\r\n<p style=\"padding-left:30px\"><span style=\"color:#808080\">12:22:52 Load from Excel5 file<br><br><strong>Notice</strong>:  Uninitialized string offset:  0 in <strong>D:\\xServer\\www\\neoland.ro\\xpanel\\classes\\phpexcel\\PHPExcel\\Reader\\Excel5.php</strong> on line <strong>4274</strong><br><br><strong>Notice</strong>:  Uninitialized string offset:  1 in <strong>D:\\xServer\\www\\neoland.ro\\xpanel\\classes\\phpexcel\\PHPExcel\\Reader\\Excel5.php</strong> on line <strong>4621</strong><br><br><strong>Notice</strong>:  Uninitialized string offset:  2 in <strong>D:\\xServer\\www\\neoland.ro\\xpanel\\classes\\phpexcel\\PHPExcel\\Reader\\Excel5.php</strong> on line <strong>4621</strong><br> 21.5<br>21.5<br><br><strong>Catchable fatal error</strong>:  Object of class PHPExcel_Style_NumberFormat could not be converted to string in <strong>D:\\xServer\\www\\neoland.ro\\xpanel\\xscripts\\excelreader3\\x.php</strong> on line <strong>25</strong></span></p>\r\n<p style=\"padding-left:30px\">&nbsp;</p>",
+    "PostedDate": "2009-11-13T02:30:14.99-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "256682",
+    "ThreadId": "74898",
+    "Html": "<p><span style=\"color:#808080\"><strong>Notice</strong>:  Uninitialized string offset:  0 in <strong>D:\\xServer\\www\\neoland.ro\\xpanel\\classes\\phpexcel\\PHPExcel\\Reader\\Excel5.php</strong> on line <strong>4274</strong><br><br><strong>Notice</strong>:  Uninitialized string offset:  1 in <strong>D:\\xServer\\www\\neoland.ro\\xpanel\\classes\\phpexcel\\PHPExcel\\Reader\\Excel5.php</strong> on line <strong>4621</strong><br><br><strong>Notice</strong>:  Uninitialized string offset:  2 in <strong>D:\\xServer\\www\\neoland.ro\\xpanel\\classes\\phpexcel\\PHPExcel\\Reader\\Excel5.php</strong> on line <strong>4621</strong></span></p>\r\n<p>&nbsp;</p>\r\n<p>I can verify these notices. Will investigate today and create necessary work item to resolve this.</p>",
+    "PostedDate": "2009-11-13T03:45:33.297-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "256767",
+    "ThreadId": "74898",
+    "Html": "<p>Bug was identified:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10936\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10936</a></p>\r\n<p>Use patch or just wait for tomorrow source code:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx\">http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx</a></p>",
+    "PostedDate": "2009-11-13T06:58:34.677-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

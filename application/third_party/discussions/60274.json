@@ -1,0 +1,90 @@
+[
+  {
+    "Id": "204084",
+    "ThreadId": "60274",
+    "Html": "<p>I've been looking through the discussions, as well as through the source code, and--unless I'm missing something--it looks like PHPExcel operates on a cell-by-cell basis, at least insofar as it relates to adding data.</p>\r\n<p>For my current project, I found that to be something of a limitation.&nbsp; I added a &quot;header&quot; row (row 1), with data like name, title, start date, and the like--some 28 columns worth of data.&nbsp; Later, though, I was asked to add a new column, right after Column P; this, of course, required me to completely re-letter the subsequent columns, both in the header row and in my database retrieval loop.</p>\r\n<p>It got to where I've written a utility function, called addRowToSheet, that takes three parameters--the PHPExcel object, an array of row elements (each of which is an array), and the row number to add.&nbsp; So, for example, I might have the following for my row elements:</p>\r\n<p>&nbsp;</p>\r\n<pre>$rowElements = array(\r\n  array('contents' =&gt; 'Name', 'rotation' =&gt; '90', 'size' =&gt; '10'),\r\n  array('contents' =&gt; 'Title', 'rotation' =&gt; '90', 'size' =&gt; '20'),\r\n);</pre>\r\n<p>&nbsp;</p>\r\n<p>In the function, I loop through each row element, use the PHPExcel_Cell::stringFromColumnIndex() method to get the column number, and use the appropriate PHPExcel method to process the keys (e.g. if array_key_exists('contents', $element), call the setCellValue() method).&nbsp; At present, I allow for adding the contents; setting the rotation, vertical, and horizontal alignment; setting the size; toggling bold styling; and setting the number formatting (at least for three possible formats, of my choosing).&nbsp; I'm finding that this function keeps getting larger and larger, though...</p>\r\n<p>Thing is, after having found PHPExcel_Cell::stringFromColumnIndex() this morning (my boss and I actually wrote our own function last week to do just this, but as a do/while), I can't help but think that there's got to be a simple way of adding a row's worth of data at a time.</p>\r\n<p>Am I missing something obvious?&nbsp; Or am I stuck with my utility function--which, frankly, has saved me a lot of time, and is something I'm fairly happy with.</p>",
+    "PostedDate": "2009-06-22T08:19:20.553-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "204136",
+    "ThreadId": "60274",
+    "Html": "<p>I don't know if I've understood you correctly, but can't this be done with a typical for loop?</p>\r\n<p>The algorithm being:</p>\r\n<p>for $i = 1 to sizeof($array_name){</p>\r\n<p>setcellvalueexplicit('A' . $i, $array_name['index'] ...&nbsp;&nbsp;&nbsp; //setcellvalueexplicit is faster than the regular setcellvalue (thanks to koyama for the pointer)</p>\r\n<p>setcellvalueexplicit('B' . $i, $array_name['index'] ...</p>\r\n<p>setcellvalueexplicit('C' . $i, $array_name['index'] ...</p>\r\n<p>.</p>\r\n<p>.</p>\r\n<p>.</p>\r\n<p>}</p>\r\n<p>Just thought I'll mention this since you're looking for something simple. Please ignore this if you're not a beginner.</p>",
+    "PostedDate": "2009-06-22T10:26:34.053-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "204137",
+    "ThreadId": "60274",
+    "Html": "<p>karpar:</p>\r\n<p>Yes, that would work fine--but here's the problem.&nbsp; Let's say I have this:</p>\r\n<p>\r\n<pre>setCellValueExplicit('A'.$i, $elements['index'];\r\n...\r\nsetCellValueExplicit('B'.$i, $elements['index'];\r\n...\r\nsetCellValueExplicit('C'.$i, $elements['index'];\r\n...\r\nsetCellValueExplicit('D'.$i, $elements['index'];\r\n...\r\nsetCellValueExplicit('E'.$i, $elements['index'];</pre>\r\n</p>\r\n<p>Then, someone comes back and says, &quot;Let's add a column right at the beginning of the list...&quot;&nbsp; I then have to back and change A to B, B to C, C to D, and so on in the code.</p>\r\n<p>Adding a row as an entity in and of itself somewhat solves this problem, since I can dynamically determine the column position--and simply drop the new column data (cell) into the proper position of the array.</p>\r\n<p>(Incidentally, I'm a PHPExcel beginner, but not so much at PHP itself. :) So, I can use all the PHPExcel pointers I can get my hands on.)</p>",
+    "PostedDate": "2009-06-22T10:31:36.683-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "204141",
+    "ThreadId": "60274",
+    "Html": "<p>Very true - my column structure doesn't change often and it's not been a problem for me, but I see it's an issue in your case (especially since you have 28 columns!). Perhaps Erik or Mark could help you out - sorry I wasn't of much help.</p>",
+    "PostedDate": "2009-06-22T10:37:21.327-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "204142",
+    "ThreadId": "60274",
+    "Html": "<p>No apologies necessary!&nbsp; Indeed, 28 is a bit long, but it's the request of the &quot;client,&quot; so c'est la vie.</p>",
+    "PostedDate": "2009-06-22T10:41:14.897-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "204249",
+    "ThreadId": "60274",
+    "Html": "<pre>You could take advantage of the way the PHP Increment operator works with character values rather than just numerics</pre>\r\n<pre>$column='A';</pre>\r\n<pre>setCellValueExplicit($column++.$i, $elements['index'];\r\n...\r\nsetCellValueExplicit($column++.$i, $elements['index'];\r\n...\r\nsetCellValueExplicit($column++.$i, $elements['index'];\r\n...\r\nsetCellValueExplicit($column++.$i, $elements['index'];\r\n...\r\nsetCellValueExplicit($column++.$i, $elements['index'];</pre>",
+    "PostedDate": "2009-06-22T15:21:30.447-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "204439",
+    "ThreadId": "60274",
+    "Html": "<p>Mark:</p>\r\n<p>That works, although I suspect it would fail once $column is 'Z'.&nbsp; Of course, using the built-in PHPExcel_Cell::stringFromColumnIndex() with a number gets around this somewhat.</p>\r\n<p>Still, though, it feels...well, inelegant.&nbsp; Doesn't the following look so much better?</p>\r\n<p>\r\n<pre>addRowToSheet($objPHPExcel, $acctHeaderRow, $currentRow);</pre>\r\n</p>",
+    "PostedDate": "2009-06-23T04:36:33.593-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "204500",
+    "ThreadId": "60274",
+    "Html": "<p>&gt;&gt; That works, although I suspect it would fail once $column is 'Z'.&nbsp;</p>\r\n<p>:-)</p>\r\n<p>Try it and see, you just might be surprised</p>\r\n<p>&nbsp;</p>\r\n<p>Quoting from the manual:</p>\r\n<p>PHP follows Perl's convention when dealing with arithmetic operations on character variables and not C's. For example, in Perl <em>'Z'+1</em> turns into <em>'AA'</em>, while in C <em>'Z'+1</em> turns into <em>'['</em> ( <em>ord('Z') == 90</em>, <em>ord('[') == 91</em> ). Note that character variables can be incremented but not decremented and even so only plain ASCII characters (a-z and A-Z) are supported.</p>",
+    "PostedDate": "2009-06-23T07:19:40.197-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "204514",
+    "ThreadId": "60274",
+    "Html": "<p>Definitely good to know, Mark.&nbsp; Still, though, it's just...well, ugly.&nbsp; I like being able to cobble an array of arrays and pass that to my function to add a row.&nbsp; Somehow it just feels cleaner.&nbsp; I've even had my boss suggest that I extend PHPExcel to add my own classes to support this functionality (although I admit to being a bit nervous at such a prospect).</p>\r\n<p>Nevertheless, I appreciate your insight!&nbsp; At the very least, it helps me to get a better grasp on character arithmetic.</p>\r\n<p>So, Mark...feel like tackling my question (in another thread) about number formatting? ;-)</p>",
+    "PostedDate": "2009-06-23T07:36:22.613-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "204558",
+    "ThreadId": "60274",
+    "Html": "<p>I've added this suggestion as a new <a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10179\">workitem</a></p>\r\n<p>(and anyting implemented may well use the incrementor operation on column characters)</p>",
+    "PostedDate": "2009-06-23T09:15:45.29-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "204570",
+    "ThreadId": "60274",
+    "Html": "<p>Brilliant! I'm much obliged.</p>",
+    "PostedDate": "2009-06-23T09:28:28.627-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

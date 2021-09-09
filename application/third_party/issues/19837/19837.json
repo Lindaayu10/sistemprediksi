@@ -1,0 +1,60 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hi there!  Does anyone have suggestion or a solution to fix this error pls?",
+    "LastUpdatedDate": "2013-06-12T17:15:55.09-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2013-06-10T17:41:21.65-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Fatal error: Uncaught exception 'Exception' with message 'Column string index can not be longer than 3 characters'",
+    "Type": {
+      "Name": "Unassigned",
+      "Id": 5
+    },
+    "VoteCount": 1,
+    "Id": 19837
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "So what exactly were you doing when you got this error? Reading? Writing? Setting data in cells? A clue would be useful.",
+      "PostedDate": "2013-06-11T14:46:06.827-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Hello! It's for writing. We have a tool which generates consolidated reports. Data loads in a xml file (php smarty template) and then pass it to the excel writer. These reports populate data in many columns when it runs for a long date range. I'm guessing it might exceeding the limit of the column string index. I was looking at this function below in cell.php.\r\n\r\n```\n public static function columnIndexFromString($pString = 'A')\n\t{\n\t\t// Convert to uppercase\n\t\t$pString = strtoupper($pString);\r\n\r\n\t\t$strLen = strlen($pString);\n\t\t// Convert column to integer\n\t\tif ($strLen == 1) {\n\t\t\treturn (ord($pString{0}) - 64);\n\t\t} elseif ($strLen == 2) {\n\t\t\treturn $result = ((1 + (ord($pString{0}) - 65)) * 26) + (ord($pString{1}) - 64);\n\t\t} elseif ($strLen == 3) {\n\t\t\treturn ((1 + (ord($pString{0}) - 65)) * 676) + ((1 + (ord($pString{1}) - 65)) * 26) + (ord($pString{2}) - 64);\n} else {\n\t\t\tthrow new Exception(\"Column string index can not be \" . ($strLen != 0 ? \"longer than 3 characters\" : \"empty\") . \".\");\n\t\t}\n\t} \n```\r\n\r\nI'm wondering if there's a solution when it comes to \"strLen == 4\"? Or do we have any other way to fix this? \r\n\r\nYour help would be appreciated.\r\n\r\nThanks.\r\n\r\nHeman\n",
+      "PostedDate": "2013-06-11T22:09:14.4-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "As no version of Excel can handle that many columns, then you need some kind of warning to tell you that you've exceeded the limit.... the limit is 16,384 for Excel2007 and above, 256 columns for earlier versions",
+      "PostedDate": "2013-06-11T23:39:39.067-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Hello mark, Thanks for the reply. I counted the columns generated from that report and it's 5550. So it's under the limit and should work I guess. Do you find any other issue related to this error? ",
+      "PostedDate": "2013-06-12T17:15:55.09-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

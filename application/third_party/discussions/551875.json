@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "1273682",
+    "ThreadId": "551875",
+    "Html": "I am using PHPExcel version 1.8 and uploading Excel files using the Excel5 reader object. The Excel files that get uploaded are somewhat inconsistent and one in particular will come in with a column hidden. I need to be able to detect if/when this column is hidden and delete it if it is hidden. I have been able to delete the hidden column by using the following:<br />\n<pre><code>$worksheet-&gt;removeColumn('B');</code></pre>\n\nHowever, as I mentioned the column isn't always hidden and therefor needs to be detected prior to deleting. I've tried to use this code below to detect and remove the column only when it's hidden:<br />\n<pre><code>if ($worksheet-&gt;getColumnDimension('B')-&gt;getVisible(false)) {\n    $worksheet-&gt;removeColumn('B');\n}</code></pre>\n\nWhat am I doing wrong and can someone please help me understand getVisible better since I cannot seem to find much documentation on this. Thank you in advance for any help.<br />\n",
+    "PostedDate": "2014-07-17T11:32:23.633-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1275091",
+    "ThreadId": "551875",
+    "Html": "Well, I ended up finding my own solution. For those of you who have the same question, see below for the work around. I know what the highest column should be, so this is why this works, otherwise if you are just trying to remove any hidden columns this is <strong>not</strong> the solution. \r<br />\n<br />\nFirst thing I did was look for the highest column with:<br />\n<pre><code>$highestCol = $worksheet-&gt;getHighestDataColumn();</code></pre>\n\nThen, since I know what the highest column should be and I also know that if the highest column is one letter higher than expected that there was a hidden column stored in the file. So, I just checked for this highest letter with:<br />\n<pre><code>if ($highestCol == &quot;I&quot;) $worksheet-&gt;removeColumn('B');</code></pre>\n\nVery simple. If anyone discovers a way to use the original code I posted let me know. I would still like to use the following approach if I could:<br />\n<pre><code>if ($worksheet-&gt;getColumnDimension('B')-&gt;getVisible(false)) {\n    $worksheet-&gt;removeColumn('B');\n}</code></pre>\n\n",
+    "PostedDate": "2014-07-22T06:30:09.09-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

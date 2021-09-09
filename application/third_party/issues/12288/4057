@@ -1,0 +1,37 @@
+Index: PHPExcel/Reader/Excel5.php
+===================================================================
+--- PHPExcel/Reader/Excel5.php	(revision 1394)
++++ PHPExcel/Reader/Excel5.php	(working copy)
+@@ -3985,7 +3985,7 @@
+ 	}
+ 
+ 	/**
+-	 * Read SHEETPROTECTION record
++	 * Read SHEETPROTECTION record (FEATHEADR)
+ 	 */
+ 	private function _readSheetProtection()
+ 	{
+@@ -4001,10 +4001,21 @@
+ 
+ 		// offset: 0; size: 2; repeated record header
+ 
+-		// offset: 2; size: 9; not used
++		// offset: 2; size: 2; FRT cell reference flag (=0 currently)
+ 
+-		// offset: 11; size: 8; unknown data
++		// offset: 4; size: 8; Currently not used and set to 0
+ 
++		// offset: 12; size: 2; Shared feature type index (2=Enhanced Protetion, 4=SmartTag)
++		$isf = $this->_GetInt2d($recordData, 12);
++		if ($isf != 2) {
++			return;
++		}
++
++		// offset: 14; size: 1; =1 since this is a feat header
++
++		// offset: 15; size: 4; size of rgbHdrSData
++
++		// rgbHdrSData, assume "Enhanced Protection"
+ 		// offset: 19; size: 2; option flags
+ 		$options = $this->_GetInt2d($recordData, 19);
+ 

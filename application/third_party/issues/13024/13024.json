@@ -1,0 +1,95 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "No further clarification to determine if this is a genuine issue, or simply a case of a misnamed file.",
+    "ClosedDate": "2011-01-02T06:23:33.843-08:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hi guys, i use the following \nrequire_once 'libs/Classes/PHPExcel.php';\nrequire_once 'libs/Classes/PHPExcel/IOFactory.php';\n$objReader =PHPExcel_IOFactory::createReaderForFile($targetFile);\n//$objReader->setReadDataOnly(true);  --> i get an error for this on the server, show i made it comment \n$objPHPExcel = $objReader->load($targetFile);\n$objPHPExcel->setActiveSheetIndex(0);\n\t\t\t\t\t\n$maxCol =$objPHPExcel->getActiveSheet()->getHighestColumn();\n$colsno = PHPExcel_Cell::columnIndexFromString($maxCol); \nbut when i upload a file it returns wrong number of counted columns. That is happening for every xls file i try. On localhost works perfect but on server i face enormous problem, please becaues is urgent i'd like your help.\nThanks in advance for your interest!",
+    "LastUpdatedDate": "2013-05-16T05:41:59.537-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2010-05-13T05:06:53.32-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Count columns wrong on server but on localhost",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 13024
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "What error do you get from setReadDataOnly(true);, and what type of file is $targetFile?\r\n\r\nWhat values are you getting for $maxCol and $colsno and what values do you expext?\r\n\r\nWhat differences are there between the environments on localhost and the server?\r\n\r\n",
+      "PostedDate": "2010-05-13T05:28:09.443-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Thanks for your interest, fortunately i've made it to work but unfortunately i can't tell what produces the error because,since i was dissapointed i overwrited all the files in folder Classes and then it worked. The following \r\n$maxCol =$objPHPExcel->getActiveSheet()->getHighestColumn();\r\n$colsno = PHPExcel_Cell::columnIndexFromString($maxCol); \r\nwere working well as values but didn't correspond to the true, because in my xls for example i had filled till column E but  getHighestColumn(); returned P and then columnIndexFromString($maxCol); returned 16.\r\nBefore my post i was made sure that between the enviroments there are no differences.",
+      "PostedDate": "2010-05-13T06:15:28.643-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "No i didn't make it , after some iterations i got that Fatal error: Call to undefined method PHPExcel_Reader_CSV::setReadDataOnly(),if i commented it then i face the same problem i referred above",
+      "PostedDate": "2010-05-13T06:26:07.947-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Something that i forgot and i'm sorry for this, is that the $targetFile is the absolute path to uploaded file, but i don't think that produces the error beacuse initially played and i didn't make any change on it.",
+      "PostedDate": "2010-05-13T06:38:27.923-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "The highest row/column isn't necessarily the highest row/column that contains visible data, but can also include blank cells.\r\nIf you open your excel workbook in Excel and click ctrl-end on the worksheet. This should move the cursor to the highest column/row.\r\n\r\nIf you're getting an error with PHPExcel_Reader_CSV::setReadDataOnly() then the IO Factory hasn't been able to determine that $targetFile is an xls file (or any of the filetypes that PHPExcel can handle) and is dropping through to the default CSV reader, which doesn't have a setReadDataOnly() method. Please verify that $targetFile is a genuine Excel5 file, not simply a file with an extension of .xls",
+      "PostedDate": "2010-05-13T06:49:17.86-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Ok Mark thank you very much for your interest,because i didn't find it yet, can you tell me exactly how to verify that it is a  excel5 file?",
+      "PostedDate": "2010-05-13T07:35:14.46-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": ">> can you tell me exactly how to verify that it is a excel5 file?\r\nIf you open a real xls file in a text editor (such as Windows notepad), the first few characters will look something like:\r\nÐÏ\u0011à¡±\u001aá\r\nThe first few characters of a real xlsx file will look something like:\r\nPK\u0003\u0004\u0014 \u0006 \b   ! He_^\u0001  µ\u0006  \u0013 Ü\u0001[Content_Types].xml ¢Ø\u0001(  \u0002\r\n\r\nIt's a common trick to save a CSV or TSV file, or an HTML file with an extension of .xls, because MS Excel will be able to read these.\r\nPHPExcel will still be able to process CSV or TSV files, but you'll need to identify them as such\r\n",
+      "PostedDate": "2010-05-13T09:28:00.07-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Ok i trully thank you very much!",
+      "PostedDate": "2010-05-13T09:47:31.03-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2011-01-02T06:23:33.843-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:02:58.81-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:41:59.537-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

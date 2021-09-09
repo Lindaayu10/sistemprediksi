@@ -1,0 +1,66 @@
+[
+  {
+    "Id": "280570",
+    "ThreadId": "81708",
+    "Html": "<p>I have grades being written and as usual they have a % sign displayed, however I am getting the green arrow telling me the value is text and not numeric.&nbsp; Can I use setValue($IRAT_Grade.'%', TYPE_NUMERIC);</p>\r\n<p>&nbsp;</p>\r\n<p>Do I need to use setValueExplicit instead?</p>\r\n<p>&nbsp;</p>\r\n<pre>$objPHPExcel-&gt;getActiveSheet()-&gt;getCell('G'.$datarow)-&gt;setValue($IRAT_Raw);\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getCell('H'.$datarow)-&gt;setValue($IRAT_Grade.'%');\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getCell('I'.$datarow)-&gt;setValue($GRAT_Raw);\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getCell('J'.$datarow)-&gt;setValue($GRAT_Grade.'%');\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getCell('K'.$datarow)-&gt;setValue($AppEx_Raw);\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getCell('L'.$datarow)-&gt;setValue($AppEx_Grade.'%');</pre>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-01-22T06:32:49.623-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "280574",
+    "ThreadId": "81708",
+    "Html": "<p>I assume there is no percentage datatype?</p>",
+    "PostedDate": "2010-01-22T06:48:48.2-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "280576",
+    "ThreadId": "81708",
+    "Html": "<p>Do like this</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>$worksheet-&gt;getCell(<span style=\"color:#a31515\">'A1'</span>)-&gt;setValue(.21);<br>$worksheet-&gt;getStyle(<span style=\"color:#a31515\">'A1'</span>)-&gt;getNumberFormat()-&gt;setFormatCode(<span style=\"color:#a31515\">'0.00%'</span>);<br></pre>\r\n</div>\r\n<p>If you don't want decimals, the number format looks like this:</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>$worksheet-&gt;getCell(<span style=\"color:#a31515\">'A2'</span>)-&gt;setValue(.21);<br>$worksheet-&gt;getStyle(<span style=\"color:#a31515\">'A2'</span>)-&gt;getNumberFormat()-&gt;setFormatCode(<span style=\"color:#a31515\">'0%'</span>);<br></pre>\r\n</div>\r\n<p>You are free to use <span style=\"font-family:Courier New\">setValueExplicit()</span>:</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>$worksheet-&gt;getCell(<span style=\"color:#a31515\">'A2'</span>)-&gt;setValueExplicit(.21, PHPExcel_Cell_DataType::TYPE_NUMERIC);<br>$worksheet-&gt;getStyle(<span style=\"color:#a31515\">'A2'</span>)-&gt;getNumberFormat()-&gt;setFormatCode(<span style=\"color:#a31515\">'0%'</span>);<br></pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n<p>Alternatively, you can enable the <span style=\"font-family:Courier New\">AdvancedValueBinder.php</span> at the beginning of your script.</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>PHPExcel_Cell::setValueBinder( <span style=\"color:blue\">new</span> PHPExcel_Cell_AdvancedValueBinder() );<br><br>$worksheet-&gt;getCell(<span style=\"color:#a31515\">'A3'</span>)-&gt;setValue(<span style=\"color:#a31515\">'21%'</span>);<br></pre>\r\n</div>\r\n<p>The intention with <span style=\"font-family:Courier New\">AdvancedValueBinder.php</span> is that it behaves like Microsoft Office Excel, automatically setting number formats for you, recognizing dates, times, percentages etc.</p>",
+    "PostedDate": "2010-01-22T06:51:06.643-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "280610",
+    "ThreadId": "81708",
+    "Html": "<p>Using your first example:</p>\r\n<p>&nbsp;</p>\r\n<pre>$worksheet-&gt;getCell(<span style=\"color:#a31515\">'A1'</span>)-&gt;setValue(.21);<br>$worksheet-&gt;getStyle(<span style=\"color:#a31515\">'A1'</span>)-&gt;getNumberFormat()-&gt;setFormatCode(<span style=\"color:#a31515\">'0.00%'</span>);<br><br>I'm getting values that display 10000% or 8750%<br><br>The datatype in my MySQL table are decimal (5,2) and look like 100 or 87.50</pre>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-01-22T08:02:38.633-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "280613",
+    "ThreadId": "81708",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>SFDonovan wrote:</strong><br>\r\n<p>Using your first example:</p>\r\n<p>&nbsp;</p>\r\n<pre>$worksheet-&gt;getCell(<span style=\"color:#a31515\">'A1'</span>)-&gt;setValue(.21);<br>$worksheet-&gt;getStyle(<span style=\"color:#a31515\">'A1'</span>)-&gt;getNumberFormat()-&gt;setFormatCode(<span style=\"color:#a31515\">'0.00%'</span>);<br><br>I'm getting values that display 10000% or 8750%<br><br>The datatype in my MySQL table are decimal (5,2) and look like 100 or 87.50</pre>\r\n<p>&nbsp;</p>\r\n</blockquote>\r\n<p>Ok, then you need to divide by 100. Example:</p>\r\n<p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$value = 87.50;\r\n\r\n$worksheet-&gt;getCell(<span style=\"color:#A31515\">'A1'</span>)-&gt;setValue($value / 100);\r\n$worksheet-&gt;getStyle(<span style=\"color:#A31515\">'A1'</span>)-&gt;getNumberFormat()-&gt;setFormatCode(<span style=\"color:#A31515\">'0.00%'</span>);\r\n</pre>\r\n</div>\r\n<br>The above should look like 87.50% when you open the file in MS Office Excel.</p>",
+    "PostedDate": "2010-01-22T08:07:46.75-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "280620",
+    "ThreadId": "81708",
+    "Html": "<p>Easy enough but my concern is why is my data being changed?&nbsp; Why am I now forced to divide by 100?&nbsp; Why did 100 turn into 1000, and 87.50 into 8750?</p>",
+    "PostedDate": "2010-01-22T08:17:49.593-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "280628",
+    "ThreadId": "81708",
+    "Html": "<p>When you type in a value such as <span style=\"font-family:Courier New\">87.50%</span> in MS Office Excel, the underlying value is actually <span style=\"font-family:Courier New\">0.875</span>, not <span style=\"font-family:Courier New\">87.50</span>.<br><br>You can verify this in MS Office Excel. Type <span style=\"font-family:Courier New\">87.50%</span> in cell <span style=\"font-family:Courier New\">A1</span><br> <br> <a href=\"http://img11.imageshack.us/img11/87/ss20100122172049.png\"><img src=\"http://img11.imageshack.us/img11/87/ss20100122172049.th.png\" border=0 alt=\"\"></a> <br><br>Change number format to '<strong>General</strong>' to reveal the true, underlying value.<br><br> <a href=\"http://img11.imageshack.us/img11/3871/ss20100122172125.png\"><img src=\"http://img11.imageshack.us/img11/3871/ss20100122172125.th.png\" border=0 alt=\"\"></a> <br><br>As you can see, it is <span style=\"font-family:Courier New\">0.875</span> and not <span style=\"font-family:Courier New\">87.5</span>. Therefore, you need to use <span style=\"font-family:Courier New\">$cell-&gt;setValue(0.875)</span></p>",
+    "PostedDate": "2010-01-22T08:30:28.367-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "280631",
+    "ThreadId": "81708",
+    "Html": "<p>Thanks.</p>\r\n<p>&nbsp;</p>\r\n<p>I have another question and will post a separate thread.</p>",
+    "PostedDate": "2010-01-22T08:46:37.597-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]
