@@ -242,9 +242,120 @@ class Uji_akurasi extends CI_Controller
         ];
         $this->db->insert('akurasi',$akurasi);
 
+				 $insertModel = [
+					 'probabilitas_kelas_sb' => $nilai_kelas_sb,
+					 'probabilitas_kelas_b' => $nilai_kelas_b,
+					 'jenkel_lsb' => $nilai_jenkel_lsb,
+					 'jenkel_lb' => $nilai_jenkel_lb,
+					 'jenkel_psb' => $nilai_jenkel_psb,
+					 'jenkel_pb' => $nilai_jenkel_pb,
+					 'mean_pengetahuan_sb' => $nilai_mean_pengetahuansb,
+					 'mean_pengetahuan_b' => $nilai_mean_pengetahuanb,
+					 'mean_keterampilan_sb' => $nilai_mean_ketrampilansb,
+					 'mean_keterampilan_b' => $nilai_mean_ketrampilanb,
+					 'stdev_pengetahuan_sb' => $standar_deviasi_pengetahuansb,
+					 'stdev_pengetahuan_b' => $standar_deviasi_pengetahuanb,
+					 'stdev_keterampilan_sb' => $standar_deviasi_ketrampilansb,
+					 'stdev_keterampilan_b' => $standar_deviasi_ketrampilanb,
+					 'spiritual_asb' => $nilai_spiritual_asb,
+					 'spiritual_ab' => $nilai_spiritual_ab,
+					 'spiritual_bsb' => $nilai_spiritual_bsb,
+					 'spiritual_bb' => $nilai_spiritual_bb,
+					 'sosial_asb' => $nilai_sosial_asb,
+					 'sosial_ab' => $nilai_sosial_ab,
+					 'sosial_bsb' => $nilai_sosial_bsb,
+					 'sosial_bb' => $nilai_sosial_bb,
+				 ];
+
+				 $this->model_ujiakurasi->storeModel($insertModel);
+
         redirect($_SERVER['HTTP_REFERER']);
 
        }
+
+			public function testData()
+			{
+				$request = $this->input->post();
+				$model = $this->model_ujiakurasi->getModel();
+
+				$nilai_kelas_sb	= $model->probabilitas_kelas_sb;
+				$nilai_kelas_b	= $model->probabilitas_kelas_b;
+
+				$nilai_jenkel_lsb			= $model->jenkel_lsb;
+				$nilai_jenkel_lb			= $model->jenkel_lb;
+				$nilai_jenkel_psb			= $model->jenkel_psb;
+				$nilai_jenkel_pb			= $model->jenkel_pb;
+
+				$nilai_mean_pengetahuansb	= $model->mean_pengetahuan_sb;
+				$nilai_mean_pengetahuanb	= $model->mean_pengetahuan_b;
+				$nilai_mean_ketrampilansb	= $model->mean_keterampilan_sb;
+				$nilai_mean_ketrampilanb	= $model->mean_keterampilan_b;
+
+				$standar_deviasi_pengetahuansb	= $model->stdev_pengetahuan_sb;
+				$standar_deviasi_pengetahuanb		= $model->stdev_pengetahuan_b;
+				$standar_deviasi_ketrampilansb	= $model->stdev_keterampilan_sb;
+				$standar_deviasi_ketrampilanb		= $model->stdev_keterampilan_b;
+
+				$nilai_spiritual_asb	= $model->spiritual_asb;
+				$nilai_spiritual_ab		= $model->spiritual_ab;
+				$nilai_spiritual_bsb	= $model->spiritual_bsb;
+				$nilai_spiritual_bb		= $model->spiritual_bb;
+				$nilai_sosial_asb			= $model->sosial_asb;
+				$nilai_sosial_ab			= $model->sosial_ab;
+				$nilai_sosial_bsb			= $model->sosial_bsb;
+				$nilai_sosial_bb			= $model->sosial_bb;
+
+				if ($request['jk']==='L' || $request['jk']==='l') {
+					$temp_jenkel_sb	=	$nilai_jenkel_lsb;
+					$temp_jenkel_b	=	$nilai_jenkel_lb;
+				}else{
+					$temp_jenkel_sb	=	$nilai_jenkel_psb;
+					$temp_jenkel_b	=	$nilai_jenkel_pb;
+				}
+				if ($request['spiritual']==='A' || $request['spiritual']==='a') {
+					$temp_spiritual_sb	=	$nilai_spiritual_asb;
+					$temp_spiritual_b		=	$nilai_spiritual_ab;
+				}else{
+					$temp_spiritual_sb	=	$nilai_spiritual_bsb;
+					$temp_spiritual_b		=	$nilai_spiritual_bb;
+				}
+				if ($request['sosial']==='A' || $request['sosial']==='a') {
+					$temp_sosial_sb	=	$nilai_sosial_asb;
+					$temp_sosial_b	=	$nilai_sosial_ab;
+				}else{
+					$temp_sosial_sb	=	$nilai_sosial_bsb;
+					$temp_sosial_b	=	$nilai_sosial_bb;
+				}
+
+				$gauss_pengetahuansb = 1/sqrt(2*3.14*$standar_deviasi_pengetahuansb)*exp(-(pow($request['pengetahuan']-$nilai_mean_pengetahuansb, 2))/(pow(2*$standar_deviasi_pengetahuansb, 2)));
+
+				$gauss_pengetahuanb= 1/sqrt(2*3.14*$standar_deviasi_pengetahuanb)*exp(-(pow($request['pengetahuan']-$nilai_mean_pengetahuanb, 2))/(pow(2*$standar_deviasi_pengetahuanb, 2)));
+
+				$gauss_ketrampilansb= 1/sqrt(2*3.14*$standar_deviasi_ketrampilansb)*exp(-(pow($request['keterampilan']-$nilai_mean_ketrampilansb, 2))/(pow(2*$standar_deviasi_ketrampilansb, 2)));
+
+				$gauss_ketrampilanb= 1/sqrt(2*3.14*$standar_deviasi_ketrampilanb)*exp(-(pow($request['keterampilan']-$nilai_mean_ketrampilanb, 2))/(pow(2*$standar_deviasi_ketrampilanb, 2)));
+
+
+				$nilai_prediksi_sb	=	$nilai_kelas_sb * $temp_jenkel_sb * $gauss_pengetahuansb * $gauss_ketrampilansb * $temp_spiritual_sb * $temp_sosial_sb;
+				$nilai_prediksi_b		=	$nilai_kelas_b * $temp_jenkel_b * $gauss_pengetahuanb * $gauss_ketrampilanb * $temp_spiritual_b * $temp_sosial_b;
+
+				$insert = [
+					'nama_siswa' => ($request['nama_siswa']),
+					'jenkel' => ($request['jk']),
+					'pengetahuan' => ($request['pengetahuan']),
+					'ketrampilan' =>($request['keterampilan']),
+					'spiritual' => ($request['spiritual']),
+					'sosial' => ($request['sosial']),
+					'nilai_sangatbaik' => number_format($nilai_prediksi_sb, 6, '.', ''),
+					'nilai_baik' => number_format($nilai_prediksi_b, 6, '.', ''),
+					'predikat_asli' => '-',
+					'predikat_hasil' => ($nilai_prediksi_sb > $nilai_prediksi_b ? 'SANGAT BAIK' : 'BAIK'),
+				];
+				$this->db->insert('hasil',$insert);
+
+				$this->session->set_flashdata('success', ($nilai_prediksi_sb > $nilai_prediksi_b ? 'SANGAT BAIK' : 'BAIK'));
+				redirect($_SERVER['HTTP_REFERER']);
+			}
 
        public function excel()
     {

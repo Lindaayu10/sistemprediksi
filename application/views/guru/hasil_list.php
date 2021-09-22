@@ -180,6 +180,7 @@ if (!$query) {
   $row = mysqli_fetch_array($query);
   if(!empty($row)){
 {
+			echo "<tr>";
       echo "<td>" . $row['id_hasil'] . "</td>";
       echo "<td>" . $row['nama_siswa'] . "</td>";
       echo "<td>" . $row['jenkel'] . "</td>";

@@ -17,16 +17,19 @@ class Login extends CI_Controller{
 
     if($validate->num_rows() > 0){
         $data  = $validate->row_array();
+
         $username  = $data['username'];
         $password = $data['password'];
         $level = $data['level'];
         $sesdata = array(
+        		'id'				=> $data['id_user'],
             'username'  => $username,
             'password'  => $password,
             'level'     => $level, 
-            'logged_in' => TRUE
+            'logged_in' => TRUE,
+            'authenticated' => TRUE
         );
-        
+
         $this->session->set_userdata($sesdata);
         // access login for admin
         if($level === 'admin'){
