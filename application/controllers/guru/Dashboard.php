@@ -14,7 +14,6 @@ class Dashboard extends CI_Controller
 
 	function index()
 	{
-
 		if ($this->Dashboard_model->logged_id()) {
 
 			$this->load->view('guru/dashboard');

@@ -5,7 +5,7 @@ class Dashboard_model extends CI_Model{
         //fungsi cek session
     function logged_id()
     {
-        return $this->session->userdata('id_admin');
+        return $this->session->userdata('id');
     }
 
         //fungsi check login

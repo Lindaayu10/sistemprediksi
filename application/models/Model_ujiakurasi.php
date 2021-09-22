@@ -47,7 +47,7 @@ class Model_ujiakurasi extends CI_Model
     //fungsi cek session
     function logged_id()
     {
-        return $this->session->userdata('id_admin');
+        return $this->session->userdata('id');
     }
 
     //fungsi check username & password login
@@ -116,6 +116,16 @@ class Model_ujiakurasi extends CI_Model
         
         
         $this->db->update($this->_table, $this, array('id_uji' => $post['id_uji']));
+    }
+
+		public function getModel(){
+			return $this->db->get('model')->row();
+		}
+
+
+		public function storeModel($data)
+		{
+			return $this->db->insert('model', $data);
     }
     
     //hapus data database

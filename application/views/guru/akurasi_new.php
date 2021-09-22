@@ -147,90 +147,74 @@
           </h6>
         </div>
         <div class="card-body">
-          <div class="table-responsive">
 
-    <?php if ($this->session->flashdata('success')): ?>
-    <div class="alert alert-success" role="alert">
-      <?php echo $this->session->flashdata('success'); ?>
-    </div>
-    <?php endif; ?>
+					<?php if ($this->session->flashdata('success')): ?>
+					<div class="alert alert-success" role="alert">
+						<?php echo $this->session->flashdata('success'); ?>
+					</div>
+					<?php endif; ?>
 
-    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+							<form action="<?= base_url('guru/uji_akurasi/testData') ?>" method="post" enctype="multipart/form-data" >
+								<div class="row">
+									<div class="col-md-4">
 
-      <tbody>
-    <form action="<?php base_url('guru/uji_akurasi/add') ?>" method="post" enctype="multipart/form-data" >
-<div class="container">
-<div class="row">
-  <div class="col-md-4">
-      <div class="form-group">
-      <input class="form-control <?php echo form_error('id_uji') ? 'is-invalid':'' ?>" name="id_uji" placeholder="name" type="hidden" />
-   </div>
+										<div class="form-group">
+											<label for="name">Nama Siswa*</label>
+											<input class="form-control <?php echo form_error('nama_siswa') ? 'is-invalid':'' ?>"
+														 type="text" name="nama_siswa" placeholder="nama guru" />
+											<div class="invalid-feedback">
+												<?php echo form_error('nama_siswa') ?>
+											</div>
+										</div>
 
-      <div class="form-group">
-        <label for="name">Nama Siswa*</label>
-        <input class="form-control <?php echo form_error('nama_siswa') ? 'is-invalid':'' ?>"
-         type="text" name="nama_siswa" placeholder="nama guru" />
-        <div class="invalid-feedback">
-          <?php echo form_error('nama_siswa') ?>
-        </div>
-      </div>
+										<div class="form-group">
+											<label for="name">Jenis Kelamin(P/L)*</label>
+											<input class="form-control <?php echo form_error('jk') ? 'is-invalid':'' ?>"
+														 type="text" name="jk" placeholder="Jenis Kelamin(P/L)" />
+											<div class="invalid-feedback">
+												<?php echo form_error('Jenis Kelamin(P/L)_guru') ?>
+											</div>
+										</div>
 
-       <div class="form-group">
-        <label for="name">Jenis Kelamin(P/L)*</label>
-        <input class="form-control <?php echo form_error('Jenis Kelamin(P/L)_guru') ? 'is-invalid':'' ?>"
-         type="text" name="Jenis Kelamin(P/L)_guru" placeholder="Jenis Kelamin(P/L)" />
-        <div class="invalid-feedback">
-          <?php echo form_error('Jenis Kelamin(P/L)_guru') ?>
-        </div>
-      </div>
+										<div class="form-group">
+											<label for="name">Pengetahuan*</label>
+											<input class="form-control <?php echo form_error('pengetahuan') ? 'is-invalid':'' ?>"
+														 type="text" name="pengetahuan" placeholder="Pengetahuan" />
+											<div class="invalid-feedback">
+												<?php echo form_error('Pengetahuan') ?>
+											</div>
+										</div>
+										<div class="form-group">
+											<label for="name">Ketrampilan*</label>
+											<input class="form-control <?php echo form_error('keterampilan') ? 'is-invalid':'' ?>"
+														 type="text" name="keterampilan" placeholder="Ketrampilan" />
+											<div class="invalid-feedback">
+												<?php echo form_error('Ketrampilan') ?>
+											</div>
+										</div>
+										<div class="form-group">
+											<label for="name">Spiritual*</label>
+											<input class="form-control <?php echo form_error('spiritual') ? 'is-invalid':'' ?>"
+														 type="text" name="spiritual" placeholder="Spiritual" />
+											<div class="invalid-feedback">
+												<?php echo form_error('Spiritual') ?>
+											</div>
+										</div>
+										<div class="form-group">
+											<label for="name">Sosial*</label>
+											<input class="form-control <?php echo form_error('sosial') ? 'is-invalid':'' ?>"
+														 type="text" name="sosial" placeholder="Sosial" />
+											<div class="invalid-feedback">
+												<?php echo form_error('Sosial') ?>
+											</div>
+										</div>
+										<div class="col-md-4">
+											<button class="btn btn-success" type="submit">Predict</button>
+										</div>
+									</div>
+								</div>
 
-       <div class="form-group">
-        <label for="name">Pengetahuan*</label>
-        <input class="form-control <?php echo form_error('Pengetahuan') ? 'is-invalid':'' ?>"
-         type="text" name="Pengetahuan" placeholder="Pengetahuan" />
-        <div class="invalid-feedback">
-          <?php echo form_error('Pengetahuan') ?>
-        </div>
-      </div>
-       <div class="form-group">
-        <label for="name">Ketrampilan*</label>
-        <input class="form-control <?php echo form_error('Ketrampilan') ? 'is-invalid':'' ?>"
-         type="text" name="Ketrampilan" placeholder="Ketrampilan" />
-        <div class="invalid-feedback">
-          <?php echo form_error('Ketrampilan') ?>
-        </div>
-      </div>
-       <div class="form-group">
-        <label for="name">Spiritual*</label>
-        <input class="form-control <?php echo form_error('Spiritual') ? 'is-invalid':'' ?>"
-         type="text" name="Spiritual" placeholder="Spiritual" />
-        <div class="invalid-feedback">
-          <?php echo form_error('Spiritual') ?>
-        </div>
-      </div>
-       <div class="form-group">
-        <label for="name">Sosial*</label>
-        <input class="form-control <?php echo form_error('Sosial') ? 'is-invalid':'' ?>"
-         type="text" name="Sosial" placeholder="Sosial" />
-        <div class="invalid-feedback">
-          <?php echo form_error('Sosial') ?>
-        </div>
-      </div>
-      </div>
-  </div>
-  <div class="col-md-4">
-<br>
-      <input class="btn btn-success" type="submit" name="btn" value="Add" />
-
-  </div>
-</div>
-
-</div>
               </form>
-          </tbody>
-        </table>
-      </div>
-    </div>
   </div>
 
 </div>
