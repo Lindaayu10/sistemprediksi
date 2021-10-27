@@ -14,7 +14,6 @@ class Page extends CI_Controller{
       }else{
           echo "Access Denied";
       }
- 
   }
   function guru(){
     //Allowing akses to guru only

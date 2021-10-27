@@ -75,7 +75,7 @@
                     <!-- <h6 class="collapse-header">Prediksi:</h6> -->
                     <a class="collapse-item" href="<?= base_url("guru/hasil") ?>">Hasil</a>
                     <a class="collapse-item" href="kriteria">Kriteria</a>
-                    <a class="collapse-item" href="datatrining">Data Trining</a>
+                    <a class="collapse-item" href="datatrining">Data Training</a>
                     <a class="collapse-item" href="datatesting">Data Testing</a>
                     <a class="collapse-item" href="uji_akurasi">Uji Akurasi</a>
                 </div>
@@ -134,7 +134,7 @@
 
         <!-- Page Heading -->
         <div class="text-center justify-content-between mb-4">
-          <h1 class="h3 mb-0 text-gray-800">Data Siswa</h1>
+          <h1 class="h3 mb-0 text-gray-800">DATA SISWA</h1>
         </div>
 
         <!-- DataTales Example -->

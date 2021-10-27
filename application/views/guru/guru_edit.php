@@ -15,11 +15,9 @@
   <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
 <link href="<?php echo base_url('assets/fontawesome-free/css/all.min.css') ?>" rel="stylesheet" type="text/css">
   
-
   <!-- Custom styles for this template-->
   <!-- <link rel="stylesheet" href="<?//= base_url() ?>assets/css/bootstrap.css"> -->
   <link href="<?= base_url() ?>assets/css/sb-admin-2.min.css" rel="stylesheet">
-
 
 </head>
 
@@ -77,7 +75,7 @@
                     <!-- <h6 class="collapse-header">Prediksi:</h6> -->
                     <a class="collapse-item" href="<?= base_url("guru/hasil") ?>">Hasil</a>
                     <a class="collapse-item" href="kriteria">Kriteria</a>
-                    <a class="collapse-item" href="datatrining">Data Trining</a>
+                    <a class="collapse-item" href="datatrining">Data Training</a>
                     <a class="collapse-item" href="datatesting">Data Testing</a>
                     <a class="collapse-item" href="uji_akurasi">Uji Akurasi</a>
                 </div>

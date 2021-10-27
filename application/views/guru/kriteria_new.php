@@ -76,7 +76,7 @@
                     <!-- <h6 class="collapse-header">Prediksi:</h6> -->
                     <a class="collapse-item" href="<?= base_url("guru/hasil") ?>">Hasil</a>
                     <a class="collapse-item" href="kriteria">Kriteria</a>
-                    <a class="collapse-item" href="datatrining">Data Trining</a>
+                    <a class="collapse-item" href="datatrining">Data Training</a>
                     <a class="collapse-item" href="datatesting">Data Testing</a>
                     <a class="collapse-item" href="uji_akurasi">Uji Akurasi</a>
                 </div>

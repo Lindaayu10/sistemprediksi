@@ -77,7 +77,7 @@
                     <!-- <h6 class="collapse-header">Prediksi:</h6> -->
                     <a class="collapse-item" href="<?= base_url("guru/hasil") ?>">Hasil</a>
                     <a class="collapse-item" href="kriteria">Kriteria</a>
-                    <a class="collapse-item" href="datatrining">Data Trining</a>
+                    <a class="collapse-item" href="datatrining">Data Training</a>
                     <a class="collapse-item" href="datatesting">Data Testing</a>
                     <a class="collapse-item" href="uji_akurasi">Uji Akurasi</a>
                 </div>
@@ -105,7 +105,6 @@
       <i class="fa fa-bars"></i>
     </button>
 
-
     <!-- Topbar Navbar -->
     <ul class="navbar-nav ml-auto">
 
@@ -123,7 +122,7 @@
     </li>
 
     </ul>
-</nav>
+    </nav>
     <!-- End of Topbar -->
 
     <!-- Begin Page Content -->
@@ -148,7 +147,7 @@
       </div>
       <div class="card-body">
     <div class="table-responsive">
-    <?php if ($this->session->flashdata('success')): ?>
+      <?php if ($this->session->flashdata('success')): ?>
     <div class="alert alert-success" role="alert">
       <?php echo $this->session->flashdata('success'); ?>
     </div>

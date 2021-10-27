@@ -9,7 +9,7 @@
   <meta name="description" content="">
   <meta name="author" content="">
   <link rel="icon" href="<?= base_url() ?>assets/img/logoamikom.png" type="image/png">
-  <title>Data Trining</title>
+  <title>Data Training</title>
 
   <!-- Custom fonts for this template-->
   <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
@@ -76,7 +76,7 @@
                     <!-- <h6 class="collapse-header">Prediksi:</h6> -->
                     <a class="collapse-item" href="<?= base_url("guru/hasil") ?>">Hasil</a>
                     <a class="collapse-item" href="kriteria">Kriteria</a>
-                    <a class="collapse-item" href="datatrining">Data Trining</a>
+                    <a class="collapse-item" href="datatrining">Data Training</a>
                     <a class="collapse-item" href="datatesting">Data Testing</a>
                     <a class="collapse-item" href="uji_akurasi">Uji Akurasi</a>
                 </div>
@@ -131,7 +131,7 @@
 
         <!-- Page Heading -->
         <div class="d-sm-flex align-items-center justify-content-between mb-4">
-          <h1 class="h3 mb-0 text-gray-800">Edit Data Trining</h1>
+          <h1 class="h3 mb-0 text-gray-800">Edit Data Training</h1>
           <hr >
           <hr>
         </div>

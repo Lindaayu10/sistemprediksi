@@ -9,7 +9,7 @@
   <meta name="description" content="">
   <meta name="author" content="">
   <link rel="icon" href="<?= base_url() ?>assets/img/logoamikom.png" type="image/png">
-  <title>Data Siswa</title>
+  <title>Uji Akurasi</title>
 
   <!-- Custom fonts for this template-->
   <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
@@ -77,7 +77,7 @@
                 <div class="bg-white py-2 collapse-inner rounded">
                     <!-- <h6 class="collapse-header">Prediksi:</h6> -->
                     <a class="collapse-item" href="<?= base_url("admin/Admin_hasil") ?>">Hasil</a>
-                    <a class="collapse-item" href="<?= base_url("guru/uji_akurasi") ?>">Uji Akurasi</a>
+                    <a class="collapse-item" href="<?= base_url("admin/uji_akurasi") ?>">Uji Akurasi</a>
                 </div>
             </div>
         </li>
@@ -118,7 +118,7 @@
               <span class="mr-2 d-none d-lg-inline text-gray-600 small">Selamat Datang, <b><?php echo $this->session->userdata("nama") ?></span>
                 <img class="img-profile rounded-circle" src="<?= base_url() ?>assets/img/340br.jpg">
               </a>
-  <!-- Dropdown - User Information -->
+        <!-- Dropdown - User Information -->
         <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
           <a class="dropdown-item" href="<?php echo base_url() ?>admin/logout" data-toggle="modal" data-target="#logoutModal">
             <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
@@ -129,98 +129,98 @@
 
     </ul>
 
-          </nav>
-          <!-- End of Topbar -->
+    </nav>
+    <!-- End of Topbar -->
 
+        <!-- Begin Page Content -->
+        <div class="container-fluid">
+
+
+        <!-- Content Row -->
+        <div class="row">
           <!-- Begin Page Content -->
           <div class="container-fluid">
 
+        <!-- Page Heading -->
+        <div class="text-center justify-content-between mb-4">
+          <h1 class="h3 mb-0 text-gray-800">DATA SISWA</h1>
+        </div>
 
-          <!-- Content Row -->
-          <div class="row">
-            <!-- Begin Page Content -->
-            <div class="container-fluid">
-
-          <!-- Page Heading -->
-          <div class="text-center justify-content-between mb-4">
-            <h1 class="h3 mb-0 text-gray-800">Data Siswa</h1>
+        <!-- DataTales Example -->
+        <div class="card shadow mb-4">
+          <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">
+              <a href="<?php echo site_url('admin/Admin_datasiswa/add') ?>"><i class="fas fa-plus"></i> Add New</a>
+            </h6>
           </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <thead class="text-center">
+                  <tr>
+                    <th>ID </th>
+                    <th>NISN</th>
+                    <th>Nama Siswa</th>
+                    <th>TTL</th>
+                    <th>Jenkel</th>
+                    <th>Agama</th>
+                    <th>Alamat</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
 
-          <!-- DataTales Example -->
-          <div class="card shadow mb-4">
-            <div class="card-header py-3">
-              <h6 class="m-0 font-weight-bold text-primary">
-                <a href="<?php echo site_url('admin/Admin_datasiswa/add') ?>"><i class="fas fa-plus"></i> Add New</a>
-              </h6>
-            </div>
-            <div class="card-body">
-              <div class="table-responsive">
-                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                  <thead class="text-center">
+                <tbody>
+
+                  <?php foreach ($datasiswa as $d): ?>
                     <tr>
-                      <th>ID </th>
-                      <th>NISN</th>
-                      <th>Nama Siswa</th>
-                      <th>TTL</th>
-                      <th>Jenkel</th>
-                      <th>Agama</th>
-                      <th>Alamat</th>
-                      <th>Action</th>
-                    </tr>
-                  </thead>
+                      <td width="50">
+                        <?php echo $d->id_datasiswa ?>
+                      </td>
+                     <td width="150">
+                        <?php echo $d->nisn ?>
+                      </td>                    
+                      <td width="300">
+                        <?php echo $d->nama_siswa ?>
+                      </td> 
+                      <td width="300">
+                        <?php echo $d->ttl ?>
+                      </td>                   
+                      <td width="80">
+                        <?php echo $d->jenkel ?>
+                      </td>
+                       <td width="80">
+                        <?php echo $d->agama ?>
+                      </td>
+                      <td width="250">
+                        <?php echo $d->alamat ?>
+                      </td>
+                       <td width="300">
+                      <a href="<?php echo site_url('admin/Admin_datasiswa/edit/'.$d->id_datasiswa) ?>"
+                       class="btn btn-primary"><i class="fas fa-edit"></i> Edit</a>
+                       <a href="<?php echo site_url('admin/Admin_datasiswa/delete/'.$d->id_datasiswa) ?>"
+                         class="btn btn-danger"><i class="fas fa-trash"></i> Delete</a>
 
-                  <tbody>
+                       </td>
+                       </tr>
+                     <?php endforeach; ?>
 
-                    <?php foreach ($datasiswa as $d): ?>
-                      <tr>
-                        <td width="50">
-                          <?php echo $d->id_datasiswa ?>
-                        </td>
-                       <td width="150">
-                          <?php echo $d->nisn ?>
-                        </td>                    
-                        <td width="300">
-                          <?php echo $d->nama_siswa ?>
-                        </td> 
-                        <td width="300">
-                          <?php echo $d->ttl ?>
-                        </td>                   
-                        <td width="80">
-                          <?php echo $d->jenkel ?>
-                        </td>
-                         <td width="80">
-                          <?php echo $d->agama ?>
-                        </td>
-                        <td width="250">
-                          <?php echo $d->alamat ?>
-                        </td>
-                         <td width="300">
-                        <a href="<?php echo site_url('admin/Admin_datasiswa/edit/'.$d->id_datasiswa) ?>"
-                         class="btn btn-primary"><i class="fas fa-edit"></i> Edit</a>
-                         <a href="<?php echo site_url('admin/Admin_datasiswa/delete/'.$d->id_datasiswa) ?>"
-                           class="btn btn-danger"><i class="fas fa-trash"></i> Delete</a>
-
-                         </td>
-                         </tr>
-                       <?php endforeach; ?>
-
-                     </tbody>
-                   </table>
-                 </div>
+                   </tbody>
+                 </table>
                </div>
              </div>
-
            </div>
-           <!-- /.container-fluid -->
+
          </div>
+         <!-- /.container-fluid -->
+       </div>
 
-         
-
-      </div>
-      <!-- End of Content Wrapper -->
+       
 
     </div>
-    <!-- End of Page Wrapper -->
+    <!-- End of Content Wrapper -->
+
+  </div>
+  <!-- End of Page Wrapper -->
 
 
   <!-- Scroll to Top Button-->

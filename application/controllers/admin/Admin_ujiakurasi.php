@@ -2,7 +2,7 @@
 
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Uji_akurasi extends CI_Controller
+class Admin_ujiakurasi extends CI_Controller
 {
     public function __construct()
     {
@@ -17,7 +17,7 @@ class Uji_akurasi extends CI_Controller
         {   
             $data["uji_akurasi"] = $this->db->get('hasil')->result_array();
             $data["akurasi"] = $this->db->from('akurasi')->order_by('id_akurasi', 'DESC')->get()->result()[0] ?? [];
-            $this->load->view("guru/uji_akurasi", $data); 
+            $this->load->view("admin/uji_akurasi", $data); 
         }else{
 
            // jika session belum terdaftar, maka redirect ke halaman login
@@ -349,11 +349,11 @@ class Uji_akurasi extends CI_Controller
 					'nilai_sangatbaik' => number_format($nilai_prediksi_sb, 6, '.', ''),
 					'nilai_baik' => number_format($nilai_prediksi_b, 6, '.', ''),
 					'predikat_asli' => '-',
-					'predikat_hasil' => ($nilai_prediksi_sb > $nilai_prediksi_b ? 'BAIK' : 'SANGAT BAIK'),
+					'predikat_hasil' => ($nilai_prediksi_sb > $nilai_prediksi_b ? 'SANGAT BAIK' : 'BAIK'),
 				];
 				$this->db->insert('hasil',$insert);
 
-				$this->session->set_flashdata('success', ($nilai_prediksi_sb > $nilai_prediksi_b ? 'BAIK' : 'SANGAT BAIK'));
+				$this->session->set_flashdata('success', ($nilai_prediksi_sb > $nilai_prediksi_b ? 'SANGAT BAIK' : 'BAIK'));
 				redirect($_SERVER['HTTP_REFERER']);
 			}
 

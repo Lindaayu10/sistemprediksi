@@ -77,7 +77,7 @@
                 <div class="bg-white py-2 collapse-inner rounded">
                     <!-- <h6 class="collapse-header">Prediksi:</h6> -->
                     <a class="collapse-item" href="<?= base_url("admin/Admin_hasil") ?>">Hasil</a>
-                    <a class="collapse-item" href="<?= base_url("guru/uji_akurasi") ?>">Uji Akurasi</a>
+                    <a class="collapse-item" href="<?= base_url("admin/Admin_ujiakurasi") ?>">Uji Akurasi</a>
                 </div>
             </div>
         </li>
@@ -158,7 +158,8 @@
 
         <!-- Page Heading -->
         <div class="text-center justify-content-between mb-4">
-         <h1 class="h3 mb-0 text-black-800">Sistem Prediksi Tingkat Prestasi Siswa Sekolah Dasar</h1>
+         <h1 class="h3 mb-0 text-black-800">Sistem Prediksi Tingkat Prestasi Siswa Sekolah Dasar</h1><p>
+         <h3>Menggunakan Metode Algoritma Naive Bayes</h1>
         </div>
 
         <!-- Content Row -->
@@ -166,12 +167,16 @@
 
         <!-- Earnings (Monthly) Card Example -->
         <div class="col-xl-3 col-md-6 mb-4">
-          <div class="card border-left-primary shadow h-100 py-2">
+          <div class="card border-left-info shadow h-100 py-2">
             <div class="card-body">
               <div class="row no-gutters align-items-center">
                 <div class="col mr-2">
-                  <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Data Siswa</div>
-                  <div class="h5 mb-0 font-weight-bold text-gray-800">
+                  <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Data Siswa</div>
+                  <div class="row no-gutters align-items-center">
+                    <div class="col-auto">
+                      <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <div class="col-auto">
@@ -188,7 +193,7 @@
             <div class="card-body">
               <div class="row no-gutters align-items-center">
                 <div class="col mr-2">
-                  <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Data Trining</div>
+                  <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Data Training</div>
                 </div>
                 <div class="col-auto">
                   <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>

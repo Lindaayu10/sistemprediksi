@@ -42,7 +42,7 @@ class datatesting extends CI_Controller
                 $highestRow = $worksheet->getHighestRow();
                 $highestColumn = $worksheet->getHighestColumn();
     
-                for($row=4; $row<=$highestRow; $row++){
+                for($row=2; $row<=$highestRow; $row++){
     
                     $nama_siswa = $worksheet->getCellByColumnAndRow(1, $row)->getValue();
                     $jenkel = $worksheet->getCellByColumnAndRow(2, $row)->getValue();
