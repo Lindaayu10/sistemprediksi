@@ -1,77 +1,76 @@
 <?php
 
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
 class Hasil extends CI_Controller
 {
-    public function __construct()
-    {
-        parent::__construct();
-        $this->load->model("model_hasil");
-        $this->load->library('form_validation');
-    }
- 
-    public function index()
-    {
-        if($this->model_hasil->logged_id())
-        {   
-            $data["hasil"] = $this->model_hasil->getAll();
-            $this->load->view("guru/hasil_list", $data); 
-        }else{
+	public function __construct()
+	{
+		parent::__construct();
+		$this->load->model("model_hasil");
+		$this->load->library('form_validation');
+	}
 
-           // jika session belum terdaftar, maka redirect ke halaman login
-           redirect("auth/index");
-        }
-    }
+	public function index()
+	{
+		if ($this->model_hasil->logged_id()) {
+			$data["hasil"] = $this->model_hasil->getAll();
+			$this->load->view("guru/hasil_list", $data);
+		} else {
 
-    //mmenambahkan data ke database
-    public function add()
-    {
-        $hasil = $this->model_hasil;
-        $validation = $this->form_validation;
-        $validation->set_rules($hasil->rules());
+			// jika session belum terdaftar, maka redirect ke halaman login
+			redirect("auth/index");
+		}
+	}
 
-        if ($validation->run()) {
-            $hasil->save();
-            $this->session->set_flashdata('success', 'Berhasil disimpan');
-        }
+	//mmenambahkan data ke database
+	public function add()
+	{
+		$hasil = $this->model_hasil;
+		$validation = $this->form_validation;
+		$validation->set_rules($hasil->rules());
 
-        $this->load->view("guru/hasil_new");
-    }
+		if ($validation->run()) {
+			$hasil->save();
+			$this->session->set_flashdata('success', 'Berhasil disimpan');
+		}
 
-    //mengedit data ke database
-    public function edit($id_hasil = null)
-    {
-        if (!isset($id_hasil)) redirect('guru/hasil');
+		$this->load->view("guru/hasil_new");
+	}
 
-        $hasil = $this->model_hasil;
-        $validation = $this->form_validation;
-        $validation->set_rules($hasil->rules());
+	//mengedit data ke database
+	public function edit($id_hasil = null)
+	{
+		if (!isset($id_hasil)) redirect('guru/hasil');
 
-        if ($validation->run()) {
-            $hasil->update();
-            $this->session->set_flashdata('success', 'Berhasil disimpan');
-        }
+		$hasil = $this->model_hasil;
+		$validation = $this->form_validation;
+		$validation->set_rules($hasil->rules());
 
-        $data["hasil"] = $hasil->getById($id_hasil);
-        if (!$data["hasil"]) show_404();
-        
-        $this->load->view("guru/hasil_edit", $data);
-    }
+		if ($validation->run()) {
+			$hasil->update();
+			$this->session->set_flashdata('success', 'Berhasil disimpan');
+		}
 
-    //menghapus data di database
-    public function delete($id_hasil = null)
-    {
-        if (!isset($id_hasil)) show_404();
-        
-        if ($this->model_hasil->delete($id_hasil)) {
-            redirect(site_url('guru/hasil'));
-        }
-    }
+		$data["hasil"] = $hasil->getById($id_hasil);
+		if (!$data["hasil"]) show_404();
 
-    //public function logout()
-    //{
-      //  $this->session->sess_destroy();
-        //redirect('beranda');
-    //}
+		$this->load->view("guru/hasil_edit", $data);
+	}
+
+	//menghapus data di database
+	public function delete($id_hasil = null)
+	{
+		if (!isset($id_hasil)) show_404();
+
+		if ($this->model_hasil->delete($id_hasil)) {
+			redirect(site_url('guru/hasil'));
+		}
+	}
+
+	//public function logout()
+	//{
+	//  $this->session->sess_destroy();
+	//redirect('beranda');
+	//}
 }

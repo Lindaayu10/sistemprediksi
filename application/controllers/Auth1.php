@@ -9,4 +9,4 @@
 // 		$this->load->view('auth/login');
 // 		$this->load->view('layouts/footer');
 // 	}
-}
+// }
