@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "550515",
+    "ThreadId": "242077",
+    "Html": "\r\n<p>Good Morning:</p>\r\n<p>I'm having problems saving an&nbsp;Excel2007 spreadsheet&nbsp;with PHPExcel.</p>\r\n<p>Here is my code, it's really simple as I'm just experimenting:</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><span style=\"color:blue\">require_once</span> <span style=\"color:#a31515\">'../Classes/PHPExcel/IOFactory.php'</span>;\r\n$objPHPExcel = PHPExcel_IOFactory::load(<span style=\"color:#a31515\">&quot;ks.xlsx&quot;</span>);\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, <span style=\"color:#a31515\">'Excel2007'</span>);\r\n$objWriter-&gt;save(str_replace(<span style=\"color:#a31515\">'.php'</span>, <span style=\"color:#a31515\">'.xlsx'</span>, <span style=\"color:blue\">__FILE__</span>));\r\n</pre>\r\n<pre>It loads the Excel spreadsheet fine and I am able to get the Cells it, however, I did do some debugging to see where the error lied, and it lies in the save line. The Excel Spreadsheet does contain a few errors, such as 'Invalid Cell Reference Errors', and 'Divide By Zero Error'. Can that be why it's having trouble resaving the file? If you would like the Excel Spreadsheet that I am using, PM me, or Reply stating.</pre>\r\n<pre>Also, while loading the file, it takes around 30s to load it. Can it be because of the 92.5 MB peak memory usage or how large the file is (567KB)? </pre>\r\n<pre>Thank you very much, I hope my questions may be answered.<br></pre>\r\n</div>\r\n",
+    "PostedDate": "2011-01-17T05:28:36.98-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "550519",
+    "ThreadId": "242077",
+    "Html": "\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<strong>Manifest wrote:</strong><br>\r\n<p>I'm having problems saving an&nbsp;Excel2007 spreadsheet&nbsp;with PHPExcel.</p>\r\n<p>It loads the Excel spreadsheet fine and I am able to get the Cells it, however, I did do some debugging to see where the error lied, and it lies in the save line. The Excel Spreadsheet does contain a few errors, such as 'Invalid Cell Reference Errors', and\r\n 'Divide By Zero Error'. Can that be why it's having trouble resaving the file? If you would like the Excel Spreadsheet that I am using, PM me, or Reply stating.</p>\r\n</blockquote>\r\n<p>Are there any real; errors here? or is this just a question about speed/performance?&nbsp;You don't desrcibe what result you get in the saved file? or any messages you might be seeing on screen?</p>\r\n<p>Can't Excel read it? Is it missing data that was in the original loaded file? What is the actual problem?</p>\r\n<p>&nbsp;</p>\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<strong>Manifest wrote:</strong><br>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>Also, while loading the file, it takes around 30s to load it. Can it be because of the 92.5 MB peak memory usage or how large the file is (567KB)? </pre>\r\n<pre>Thank you very much, I hope my questions may be answered.<br></pre>\r\n</div>\r\n</blockquote>\r\n<p>&nbsp;There are plenty of comments here on the boards about speed and memory usage.</p>\r\n<p>A filesize is pretty meaningless when describing a workbook... it's much more important to know how many cells it contains. However, all you're doing is reading and then rewriting a workbook &quot;as is&quot;, so there isn't much you can do to improve the speed of\r\n execution. However, if you know what filetype it is, then use:</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>$objReader = PHPExcel_IOFactory::createReader(<span style=\"color:#a31515\">&quot;Excel2007&quot;</span>);\r\n$objPHPExcel = $objReader-&gt;load(<span style=\"color:#a31515\">&quot;ks.xlsx&quot;</span>);\r\n</pre>\r\n</div>\r\n<p>rather than</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>$objPHPExcel = PHPExcel_IOFactory::load(<span style=\"color:#a31515\">&quot;ks.xlsx&quot;</span>);\r\n</pre>\r\n</div>\r\n<p>because then PHPExcel doesn't have to identify the filetype itself.</p>\r\n<p>It won't make much difference though.</p>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2011-01-17T05:42:29.803-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "550539",
+    "ThreadId": "242077",
+    "Html": "\r\n<p>Sorry for not explaining myself clearly.</p>\r\n<p>1) There are not any real errors, Excel 2007 opens it up smoothly.</p>\r\n<p>2) There is no saved file created from that code I have written. However, &nbsp;I have tried to cut the Excel sheet down, to 2 Worksheets, (Usually 34 Worksheets), and the xlsx file was created, but didn't finish creating the file and halted. I opened up\r\n the xlsx spreadsheet and a 'Excel found unreadable content'..., and did not recover anything.</p>\r\n<p>3) On the screen, I get an HTTP 500 Internal Server Error, most of the time. Or it loads the page, but it&nbsp;halts during the Save line. No error messages telling me what the problem is, no xlsx file created during these times.</p>\r\n<p>4) There are about&nbsp;&nbsp;(77Rx33C = ) 2,849 Cells for each of the&nbsp;31 of the worksheets, the other 3 are information that the Excel spreadsheet gets its resources from.</p>\r\n<p>Thank you for your quick reply.</p>\r\n",
+    "PostedDate": "2011-01-17T06:19:40.307-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "553317",
+    "ThreadId": "242077",
+    "Html": "\r\n<p>I got rid of the HTTP 500 Error by displaying the Errors.</p>\r\n<p>Though, I have an&nbsp;unandled exception:</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>Fatal error: Uncaught <span style=\"color:blue\">exception</span> <span style=\"color:#a31515\">'Exception'</span> with message <span style=\"color:#a31515\">'PrevMonth!A17 -&gt; Formula Error: An unexpected error occured'</span> </pre>\r\n<pre>in C:\\www\\Classes\\PHPExcel\\Cell.php:284 Stack trace: </pre>\r\n<pre><span style=\"color:green\">#0 C:\\www\\Classes\\PHPExcel\\Writer\\Excel2007\\Worksheet.php(965): PHPExcel_Cell-&gt;getCalculatedValue() </span></pre>\r\n<pre><span style=\"color:green\">#1 C:\\www\\Classes\\PHPExcel\\Writer\\Excel2007\\Worksheet.php(911): PHPExcel_Writer_Excel2007_Worksheet-&gt;_writeCell(Object(PHPExcel_Shared_XMLWriter), Object(PHPExcel_Worksheet), 'A17', Array, Array) </span></pre>\r\n<pre><span style=\"color:green\">#2 C:\\www\\Classes\\PHPExcel\\Writer\\Excel2007\\Worksheet.php(82): PHPExcel_Writer_Excel2007_Worksheet-&gt;_writeSheetData(Object(PHPExcel_Shared_XMLWriter), Object(PHPExcel_Worksheet), Array) </span></pre>\r\n<pre><span style=\"color:green\">#3 C:\\www\\Classes\\PHPExcel\\Writer\\Excel2007.php(264): PHPExcel_Writer_Excel2007_Worksheet-&gt;writeWorksheet(Object(PHPExcel_Worksheet), Array) </span></pre>\r\n<pre><span style=\"color:green\">#4 C:\\www\\Tests\\kstest.php(38): PHPExcel_Writer_Excel2007-&gt;save('C:\\www\\Tests\\ks...') </span></pre>\r\n<pre><span style=\"color:green\">#5 {main} thrown in C:\\www\\Classes\\PHPExcel\\Cell.php on line 284</span>\r\n</pre>\r\n<pre>In the worksheet PrevMonth, A17 contains an Ivalid Cell Reference. It's getting its data from Another Sheet, named Employee List and it's getting the information line by line.</pre>\r\n<pre>e.g. &quot;='Employee List'!A9&quot;</pre>\r\n<pre>If I just delete the #REF! error, it continues with the write.</pre>\r\n<pre>Just thought I should post my findings, and hope in the near future you can fix the exception.</pre>\r\n<pre>Thanks alot!</pre>\r\n<pre>Manifest</pre>\r\n</div>\r\n",
+    "PostedDate": "2011-01-21T09:02:46.17-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "553477",
+    "ThreadId": "242077",
+    "Html": "This discussion has been copied to a work item. Click <a href=\"http://phpexcel.codeplex.com/workitem/15132\">here</a> to go to the work item and continue the discussion.",
+    "PostedDate": "2011-01-21T15:26:11.09-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

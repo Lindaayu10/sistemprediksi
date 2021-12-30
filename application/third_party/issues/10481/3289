@@ -1,0 +1,37 @@
+Index: Classes/PHPExcel/Shared/Excel5.php
+===================================================================
+--- Classes/PHPExcel/Shared/Excel5.php	(revision 1081)
++++ Classes/PHPExcel/Shared/Excel5.php	(working copy)
+@@ -61,6 +61,7 @@
+ 	{
+ 		// default font size of workbook
+ 		$fontSize = $sheet->getParent()->getDefaultStyle()->getFont()->getSize();
++		$fontName = $sheet->getParent()->getDefaultStyle()->getFont()->getName();
+ 
+ 		$columnDimensions = $sheet->getColumnDimensions();
+ 
+@@ -80,7 +81,23 @@
+ 			$pixelWidth = PHPExcel_Shared_Drawing::cellDimensionToPixels($width, $fontSize);
+ 
+ 		} else {
+-			$pixelWidth = (int) 64 * $fontSize / 11; // here we interpolate from Calibri 11
++
++			// we have no default column dimension, width depends on default font and size
++			// let's cover some of the common cases
++			switch ($fontName) {
++				case 'Verdana':
++					$pixelWidth = (int) 72 * $fontSize / 10; // here we extrapolate from Verdana 10
++					break;
++				case 'Calibri':
++					$pixelWidth = (int) 64 * $fontSize / 11; // here we extrapolate from Calibri 11
++					break;
++				case 'Arial':
++					$pixelWidth = (int) 64 * $fontSize / 10; // here we extrapolate from Arial 10
++					break;
++				default:
++					$pixelWidth = (int) 64 * $fontSize / 11; // just use values for Calibri 11 as approximation
++					break;
++			}
+ 		}
+ 
+ 		// now find the effective column width in pixels

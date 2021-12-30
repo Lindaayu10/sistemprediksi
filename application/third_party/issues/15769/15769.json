@@ -1,0 +1,86 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I would like to report that I am receiving the following error when parsing the attached file:\n \nNotice: Undefined offset: 0 in /usr/local/lib/php/PHPExcel/PHPExcel.php on line 564\n \nFatal error: Call to a member function getNumberFormat() on a non-object in /usr/local/lib/php/PHPExcel/PHPExcel/Worksheet.php on line 2203\n \nThe parsing code I am running is:\n \n\t\ttry {\n\t\t\t$objPHPExcel = PHPExcel_IOFactory::load($inputFileName);\n\t\t} catch (Exception $e) {\n\t\t\tvar_dump($e); die;\n\t\t}\n\t\t$objPHPCSV = new PHPExcel_Writer_CSV($objPHPExcel);\n\t\t$objPHPCSV->save($outputFileName);",
+    "LastUpdatedDate": "2013-02-21T19:02:24.75-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2011-04-27T07:10:01.8-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Fatal error: Call to a member function getNumberFormat() on a non-object",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 15769
+  },
+  "FileAttachments": [
+    {
+      "FileId": 5613,
+      "FileName": "New Words 4-27-2011 8-35 PM.xlsx",
+      "DownloadUrl": ".\\5613"
+    },
+    {
+      "FileId": 6477,
+      "FileName": "parse_error.xls",
+      "DownloadUrl": ".\\6477"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "Can I ask how this xlsx file was created? It's missing a lot of information that would normally appear in any file generated using MS Excel itself (such as document properties and the default theme).",
+      "PostedDate": "2011-04-30T06:47:37.673-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-06-19T12:02:10.677-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "We get this error from time to time as well.\r\nIt happens in Worksheet.php, method rangeToArray, here:\r\n\r\nif ($formatData) {\r\n  $style = $this->_parent->getCellXfByIndex($cell->getXfIndex());\r\n  $returnValue[$rRef][$cRef] = PHPExcel_Style_NumberFormat::toFormattedString($returnValue[$rRef][$cRef], $style->getNumberFormat()->getFormatCode());\r\n}\r\n\r\nobviously only if $formatData is set to true.\r\nApparently under some circumstances getCellXfByIndex returns null or false.\r\n\r\nAttached is an excel file that causes the error if you run this code:\r\n\r\n$absFilePath = \"<path to excel file here>\";\r\n$type = PHPExcel_IOFactory::identify($absFilePath);\r\n$objReader = PHPExcel_IOFactory::createReader($type);\r\n$objPHPExcel = $objReader->load($absFilePath);\r\n$worksheet = $objPHPExcel->getActiveSheet();\r\n$cells = $worksheet->toArray(); // Error happens here\r\n\r\n\r\nUnfortunately I don't know how the attached Excel file was created (it was uploaded by one of our users).\r\n",
+      "PostedDate": "2012-06-19T12:02:12.827-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "A brutal but otherwise working patch is the following:\r\n\r\nif ($formatData) {\r\n  $style = $this->_parent->getCellXfByIndex($cell->getXfIndex());\r\n  if ($style) { // Added if here\r\n    $returnValue[$rRef][$cRef] = PHPExcel_Style_NumberFormat::toFormattedString($returnValue[$rRef][$cRef], $style->getNumberFormat()->getFormatCode());\r\n  } // End of added if here\r\n}\r\n\r\nIt would be nice to have this patch (or a better one) in the next PHPExcel release. It would help increase compatibility with some more exotic xls variants.",
+      "PostedDate": "2012-06-19T12:34:22.86-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Is there anything common about the worksheets where this occurs? e.g. merged cells or similar that might help narrow down the cause of the problem rather than simply building workrounds. The latter is what has caused many of the performance issues in the past, so I'd rather try to identify and fix a root cause.",
+      "PostedDate": "2012-06-20T01:03:58.347-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": ">>Is there anything common about the worksheets where this occurs?\r\nSorry, I don't know that. \r\nUsers upload any sort of excel files to our servers but that's it. I don't know (and I cannot know) where they get these files from or what they did to them.\r\n\r\nHowever, two excel files that both run into this issue are attached. Hopefully this can help understand what's going on.\r\n\r\nAs for the workaround, yes, it's definitely not the best one, but still I believe it makes sense from a resiliency pov: \r\n\"if for whatever reason you don't have any style associated to a cell, don't try to use that style (and possibly log some debug statement if running in debug mode and/or return a list of warnings)\".\r\n\r\nCheers",
+      "PostedDate": "2012-06-20T07:33:35.963-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:02:24.75-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

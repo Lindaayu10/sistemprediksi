@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "660457",
+    "ThreadId": "269669",
+    "Html": "\r\n<p>I am trying to get a database Mysql export to Excel using phpExcel, here's my code:</p>\r\n<p></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>&lt;?php\r\n<span style=\"color:blue\">require_once</span> <span style=\"color:#a31515\">'../Classes/PHPExcel.php'</span>;\r\n<span style=\"color:green\">//require_once '../Classes/PHPExcel/IOFactory.php';</span>\r\n\r\n$sql = <span style=\"color:#a31515\">&quot;Select * from $DB_TBLName&quot;</span>;\r\n\r\nmysql_connect(<span style=\"color:#a31515\">&quot;127.0.0.1&quot;</span>,<span style=\"color:#a31515\">&quot;root&quot;</span>,<span style=\"color:#a31515\">&quot;&quot;</span>);\r\nmysql_select_db(<span style=\"color:#a31515\">&quot;development&quot;</span>);\r\n$result = mysql_query(<span style=\"color:#a31515\">&quot;select * from zr_1657&quot;</span>);\r\n\r\n<span style=\"color:green\">// Create new PHPExcel object</span>\r\n$objPHPExcel = <span style=\"color:blue\">new</span> PHPExcel();\r\n\r\n<span style=\"color:green\">// Set properties</span>\r\n$objPHPExcel-&gt;getProperties()-&gt;setCreator(<span style=\"color:#a31515\">&quot;Maarten Balliauw&quot;</span>)\r\n\t\t\t\t\t\t\t -&gt;setLastModifiedBy(<span style=\"color:#a31515\">&quot;Maarten Balliauw&quot;</span>)\r\n\t\t\t\t\t\t\t -&gt;setTitle(<span style=\"color:#a31515\">&quot;Office 2007 XLSX Test Document&quot;</span>)\r\n\t\t\t\t\t\t\t -&gt;setSubject(<span style=\"color:#a31515\">&quot;Office 2007 XLSX Test Document&quot;</span>)\r\n\t\t\t\t\t\t\t -&gt;setDescription(<span style=\"color:#a31515\">&quot;Test document for Office 2007 XLSX, generated using PHP classes.&quot;</span>)\r\n\t\t\t\t\t\t\t -&gt;setKeywords(<span style=\"color:#a31515\">&quot;office 2007 openxml php&quot;</span>)\r\n\t\t\t\t\t\t\t -&gt;setCategory(<span style=\"color:#a31515\">&quot;Test result file&quot;</span>);\r\n\r\n$objPHPExcel-&gt;setActiveSheetIndex(0);\r\n\r\n<span style=\"color:green\">// Rename sheet</span>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setTitle(<span style=\"color:#a31515\">'Name of Sheet 1'</span>);\r\n\r\n<span style=\"color:green\">// datadunp</span>\r\n$col = 0;\r\n$row = 0;\r\n<span style=\"color:blue\">while</span>($row = mysql_fetch_assoc($result)) {\r\n    <span style=\"color:blue\">foreach</span>($row <span style=\"color:blue\">as</span> $key=&gt;$value) {\r\n        $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow($col, $row, $value);\r\n        $col&#43;&#43;;\r\n    }\r\n    $row&#43;&#43;;\r\n}\r\n\r\n\r\n\r\n<span style=\"color:green\">// Redirect output to a client�s web browser (Excel5)</span>\r\nheader(<span style=\"color:#a31515\">'Content-Type: application/vnd.ms-excel; charset=utf-8'</span>);\r\nheader(<span style=\"color:#a31515\">'Content-Disposition: attachment;filename=&quot;omgnotworking.xls&quot;'</span>);\r\nheader(<span style=\"color:#a31515\">'Cache-Control: max-age=0'</span>);\r\n\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, <span style=\"color:#a31515\">'Excel5'</span>);\r\n$objWriter-&gt;save(<span style=\"color:#a31515\">'php://output'</span>);\r\n<span style=\"color:blue\">exit</span>;\r\n\r\n</pre>\r\n</div>\r\nIs there something obvious that i am doing wrong? I'm quite new to PHP, so maybe there's a syntax or something.<br>\r\n<br>\r\n<p></p>\r\n",
+    "PostedDate": "2011-08-19T02:03:11.127-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "660461",
+    "ThreadId": "269669",
+    "Html": "<p>You are actually using the $row var twice ;) once as a row iterator, and once as an array to contain the result data from the mysql query ;)</p>\n<p>&nbsp;</p>\n<p>So, the solution is to change the name of one of the two! Furthermore, it would probably help if you could describe your problem a little more. I'm assuming your script isn't working :)</p>",
+    "PostedDate": "2011-08-19T02:16:21.333-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "660487",
+    "ThreadId": "269669",
+    "Html": "<p>I want to export data from my table in my database, and export into a excel file, I can't find an example from phpExcel class i am using that does this and pull data and save it into a excel file. I have used phpExcel because i need to create multiple worksheets in Excel. I manage get the script going, but when it downloads the file, it pulls nothing from the database, so the file is empty.</p>",
+    "PostedDate": "2011-08-19T03:32:12.983-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "660490",
+    "ThreadId": "269669",
+    "Html": "<p>dit you read the rest of my comment? you initialiser $row as an int with value 0, then you overwrite it with the mysql result. Then you try to use the result row ($row) as a rowindex, which obviously doesn't work ;) Furthermore, you init $col to 0 from outside the while loop, this means it never gets reset during the fetching of the mysql result.</p>\r\n<p>&nbsp;</p>\r\n<p>you probably want something like the following:</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre><span style=\"color: green;\">// datadunp</span>\r\n$rowIterator = 0;\r\n<span style=\"color: blue;\">while</span>($row = mysql_fetch_assoc($result)) {\r\n   $col = 1;\r\n\r\n    <span style=\"color: blue;\">foreach</span>($row <span style=\"color: blue;\">as</span> $key=&gt;$value) {\r\n        $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow($col, $rowIterator, $value);\r\n        $col++;\r\n    }\r\n    $rowIterator++;\r\n}\r\n\r\n</pre>\r\n</div>\r\n</p>",
+    "PostedDate": "2011-08-19T03:40:36.087-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1039816",
+    "ThreadId": "269669",
+    "Html": "Dear,\r<br />\n<br />\nI want to know how export mysql database to excel 2010 or 2013. I tried more but when i open xls file it still loading....\r<br />\nPlease help me!<br />\n",
+    "PostedDate": "2013-05-06T04:43:08.893-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1039992",
+    "ThreadId": "269669",
+    "Html": "@ndtdnc - I appreciate that English probably isn't your first language, but can you actually explain what your problem is?<br />\n",
+    "PostedDate": "2013-05-06T11:02:32.523-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

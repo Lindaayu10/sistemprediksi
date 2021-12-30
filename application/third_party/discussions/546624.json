@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "1249723",
+    "ThreadId": "546624",
+    "Html": "Hi,<br />\n<br />\nI successfully used previous versions of PHPExcel (prior to 1.8.0) to create multiple worksheets and write to disk (saved in /tmp), after creating and writing about 8 excel documents I would then load all 8 sheets into 1 large excel document as 8 individual tabs and save to disk. This worked well.<br />\n<br />\nI upgraded to PHPExcel 1.8.0: I am able to create the 8 documents but unable to load them into the large excel document.<br />\n<br />\nThe error in Excel2007.php is at line 364:<br />\n$wbRels = simplexml_load_string($this-&gt;_getFromZipArchive($zip, &quot;xl/_rels/workbook.xml.rels&quot;), 'SimpleXMLElement', PHPExcel_Settings::getLibXmlLoaderOptions());<br />\n<br />\n$wbRels is null. So this line: foreach ($wbRels-&gt;Relationship as $rel) { ... does not load anything.<br />\n<br />\nAfter running my code a random number of times, PHPExcel creates the directories _rels, docProps, &amp; xl in the root folder with various files in them. If I remove these folders I am able to load the external sheets into 1 large excel document. When these files/folders exist, I get the error above.<br />\n<br />\nOS: Ubuntu 12.04<br />\n",
+    "PostedDate": "2014-05-26T09:54:51.67-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1249997",
+    "ThreadId": "546624",
+    "Html": "Commenting out lines 320-324 in Classes/PHPExcel/Reader/Excel2007.php\r<br />\n<br />\n//if (strpos($fileName, '//') !== false)\r<br />\n//{\r<br />\n//\t$fileName = substr($fileName, strpos($fileName, '//') + 1);\r<br />\n//}\r<br />\n//$fileName = PHPExcel_Shared_File::realpath($fileName);\r<br />\n<br />\nsolves the problem. The directories _rels, docProps, &amp; xl were being created by another processes that reads xlsx files.<br />\n",
+    "PostedDate": "2014-05-27T06:09:12.243-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

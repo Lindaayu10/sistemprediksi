@@ -1,0 +1,116 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "Fixed in SVN",
+    "ClosedDate": "2010-10-12T11:54:14.82-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Whenever I try to set cell values with a string of one char the excel that is generated has empty cells.\n \nWith version 1.7.3 everything worked fine: this started to happen when i upgraded from 1.7.3 to 1.7.3c. In 1.7.4 it is still happening.\n \nBelow is a snippet that can reproduce the problem on my machine.\nI also attach the excel created from that script.\n \n<?php\n \nrequire_once './Classes/PHPExcel.php';\nrequire_once './Classes/PHPExcel/IOFactory.php';\n \n$test_values = array( 1 => 'A',\n\t\t\t\t\t\t2 => 'B',\n\t\t\t\t\t\t3 => 'C',\n\t\t\t\t\t\t4 => 'D',\n\t\t\t\t\t\t5 => '+',\n\t\t\t\t\t\t6 => '-');\n \n$PHPExcel = new PHPExcel();\n$PHPExcel->setActiveSheetIndex(0);\n \nforeach ($test_values AS $row => $cell_value)\n\t$PHPExcel->getActiveSheet()->setCellValueByColumnAndRow(0, $row, $cell_value);\n\t\nheader('Content-Type: application/vnd.ms-excel');\nheader('Content-Disposition: attachment;filename=\"singleCharTest.xls\"');\nheader('Cache-Control: max-age=0');\n \n$objWriter = PHPExcel_IOFactory::createWriter($PHPExcel, 'Excel5');\n$objWriter->save('php://output');\n \n?>",
+    "LastUpdatedDate": "2013-05-16T05:41:51.567-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2010-09-16T01:42:50.393-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Setting cell values to one char strings",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 14260
+  },
+  "FileAttachments": [
+    {
+      "FileId": 4845,
+      "FileName": "singleCharTest.xls",
+      "DownloadUrl": ".\\4845"
+    },
+    {
+      "FileId": 4847,
+      "FileName": "singleCharTest2.xls",
+      "DownloadUrl": ".\\4847"
+    },
+    {
+      "FileId": 4849,
+      "FileName": "singleCharTest3.xls",
+      "DownloadUrl": ".\\4849"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "I have absolutely no idea what is happening here. I've executed your exact code, and attached my result. As you can see, the worksheet contains exactly what it should contain.",
+      "PostedDate": "2010-09-16T03:45:18.423-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Can you confirm that your singleCharTest.xls file was created by PHPExcel, because it contains summary information within the file that PHPExcel doesn't actually write (in any version)",
+      "PostedDate": "2010-09-16T03:49:38.34-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-09-16T05:06:20.53-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Probably I created it running the snippet and, using FireFox, I opened it, but then I saved it using Excel.\r\nTo be sure I generated it once again and saved it directly from Firefox.\r\n\r\nSome more info, than maybe can be helpful:\r\nI run Excel 2007.\r\nMy machine has php 5.2 running (if you need I can attach a copy of my phpinfo() ).\r\n\r\nWhat else can you need to know?\r\n\r\nThank you for fast reply.",
+      "PostedDate": "2010-09-16T05:06:21.737-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I have and old laptop running Excel 2000, but I have the same problem. The same apply if I use explorer instead of firefox.\r\n\r\nAs soon as I get back home I'll try to run the snippet on my local machine to see if it works correctly.",
+      "PostedDate": "2010-09-16T05:24:53.203-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "See my comment in http://phpexcel.codeplex.com/workitem/14233\r\nIt's just un bug in Shared/String.php",
+      "PostedDate": "2010-09-16T06:25:08.61-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I can confirm that using gorfou's patch everything is working as expected.\r\n\r\nThank you.",
+      "PostedDate": "2010-09-16T06:32:44.413-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Thanks gorfou & for your confirmation Boydon. Fix duly applied to the SVN code",
+      "PostedDate": "2010-09-16T09:55:10.61-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-09-16T09:55:26.447-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-10-12T11:54:14.82-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:02:44.633-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:41:51.567-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

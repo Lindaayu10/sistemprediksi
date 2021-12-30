@@ -1,0 +1,45 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "When creating a writer class and adding it to IOFactory's search location with PHPExcel_IOFactory::addSearchLocation(), PHPExcel_IOFactory::createWriter() will fail to create the class.\n \nThis is because the $searchType will always match on the first $searchLocation in the self::$_searchLocations array.\n \nWhen the line\n$instance = new $className($phpExcel);\nis executed, an error is thrown because the class can not be found.\n \nThe class also doesn't load the location specified in the PHPExcel_IOFactory::createWriter() call and depends only on autoloading.\n \nThe error can be recreated by extracting the attached archive to your web root.\n \nindex.php\n=======\n<?php\n\t/** PHPExcel */\n\trequire_once 'Classes/PHPExcel.php';\n \n\tPHPExcel_IOFactory::addSearchLocation('IWriter', 'Writer/{0}.php', 'Writer_{0}');\n \n\t$objPHPExcel = new PHPExcel();\n\t$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'My2007');\n \nWriter.My2007.php\n==============\n<?php\n \n\t/** My custom writer */\n\tclass Writer_My2007 extends PHPExcel_Writer_Excel2007\n\t{\n\t\tpublic function __construct(PHPExcel $pPHPExcel = null)\n\t\t{\n\t\t\tprint(\"My writer loaded\");\n\t\t}\n\t}\n \nNavigating to index.php in your browser raises the error:\nFatal error: Class 'PHPExcel_Writer_My2007' not found in /var/www/phpexcel/Classes/PHPExcel/IOFactory.php on line 141\n \nThe bug can be fixed by changing the PHPExcel_IOFactory::createWriter() function to\n/**\n *\tCreate PHPExcel_Writer_IWriter\n *\n *\t@static\n *\t@access\tpublic\n *\t@param\tPHPExcel $phpExcel\n *\t@param\tstring  $writerType\tExample: Excel2007\n *\t@return\tPHPExcel_Writer_IWriter\n *\t@throws\tException\n */\npublic static function createWriter(PHPExcel $phpExcel, $writerType = '') {\n\t// Search type\n\t$searchType = 'IWriter';\n \n\t// Include class\n\tforeach (self::$_searchLocations as $searchLocation) {\n\t\tif ($searchLocation['type'] == $searchType) {\n\t\t\t$className = str_replace('{0}', $writerType, $searchLocation['class']);\n\t\t\t$classFile = str_replace('{0}', $writerType, $searchLocation['path']);\n \n\t\t\t// Include the class file if it exists\n\t\t\tif (is_readable($classFile)) {\n\t\t\t\tinclude_once $classFile;\n\t\t\t}\n \n\t\t\t// If the class is defined, create an instance\n\t\t\tif (class_exists($className, true)) {\n\t\t\t\t$instance = new $className($phpExcel);\n\t\t\t}\n \n\t\t\tif (!is_null($instance)) {\n\t\t\t\treturn $instance;\n\t\t\t}\n\t\t}\n\t}\n \n\t// Nothing found...\n\tthrow new Exception(\"No $searchType found for type $writerType\");\n}\t//\tfunction createWriter()",
+    "LastUpdatedDate": "2013-02-21T19:02:11.927-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2011-10-27T07:30:33.38-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "PHPExcel_IOFactory::createWriter() not finding custom IWriter classes.",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 16807
+  },
+  "FileAttachments": [
+    {
+      "FileId": 5977,
+      "FileName": "IOFactory-bug.tar.gz",
+      "DownloadUrl": ".\\5977"
+    }
+  ],
+  "Comments": []
+}

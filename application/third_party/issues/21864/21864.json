@@ -1,0 +1,39 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hi\nI'm trying to reduce the memory foot print for some reports that uses clone\nBut i get this problems:\nFrom 06largescale-with-cellcaching-sqlite3.php\n```\n// Add data\nfor ($i = 2; $i <= 5000; $i++) {\n\t$objPHPExcel->getActiveSheet()->setCellValue('A' . $i, \"FName $i\")\n\t                              ->setCellValue('B' . $i, \"LName $i\")\n\t                              ->setCellValue('C' . $i, \"PhoneNo $i\")\n\t                              ->setCellValue('D' . $i, \"FaxNo $i\")\n\t                              ->setCellValue('E' . $i, true);\n}\n\n$objClonedWorksheet = clone $objPHPExcel->getSheet(0);\n$objClonedWorksheet->setTitle('Kopia');\n$objPHPExcel->addSheet($objClonedWorksheet);\n$objPHPExcel->setActiveSheetIndex(1);\n$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(6,1,47);\n$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(6,2,27);\n// Set active sheet index to the first sheet, so Excel opens this as the first sheet\n$objPHPExcel->setActiveSheetIndex(0);\n```\nSo I added a clone on the worksheet.\n\nIt returns, via cli,\n```\nFatal error: Uncaught exception 'PHPExcel_Exception' with message 'neas \"AS\": syntack error' in <phpexcelpath>\\CachedObjectStorage\\SQLite3.php line 268 (or near that line at least)\n```\nThe code there is\n```\nif (!$this->_DBHandle->exec('CREATE TABLE kvp_'.$tableName.' (id VARCHAR(12) PRIMARY KEY, value BLOB)\n\t\t                                       AS SELECT * FROM kvp_'.$this->_TableName))\n```\nWhich seems like a bad sql-line\nI changed it to first create then insert or just create table as\nBut then it returns this instead\nSome warnings and doesn't write on the new sheet\nif I I run my real rapport which write on templates and clones sheets from an other loading of the template\nI get something like\n```\nPHP Warning:  SQLite3Stmt::execute(): The SQLite3 object has not been correctly\ninitialised in C:\\Apache22\\PHP\\Classes\\PHPExcel\\CachedObjectStorage\\SQLite3.php\non line 172\n\nWarning: SQLite3Stmt::execute(): The SQLite3 object has not been correctly initi\nalised in C:\\Apache22\\PHP\\Classes\\PHPExcel\\CachedObjectStorage\\SQLite3.php on line 184\nPHP Fatal error:  Uncaught exception 'PHPExcel_Exception' with message 'library\nroutine called out of sequence' in C:\\Apache22\\PHP\\Classes\\PHPExcel\\CachedObject\nStorage\\SQLite3.php:174\nStack trace:\n#0 C:\\Apache22\\PHP\\Classes\\PHPExcel\\Worksheet.php(1201): PHPExcel_CachedObjectSt\norage_SQLite3->isDataSet('B36')\n#1 C:\\Apache22\\PHP\\Classes\\PHPExcel\\Worksheet.php(1110): PHPExcel_Worksheet->get\nCellByColumnAndRow(1, 36)\n#2 E:\\test_portal\\classes\\Cliexport_k1453_cross.php(433): PHPExcel_Worksheet->se\ntCellValueByColumnAndRow(1, 36, '08:00 - 08:59')\n```\n\nAny workaround?\nPHP 5.3.0\nPhphexcel 1.8.0",
+    "LastUpdatedDate": "2015-05-18T08:38:16.777-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2015-05-18T08:32:06.797-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Clone throws error for sqlite3",
+    "Type": {
+      "Name": "Unassigned",
+      "Id": 5
+    },
+    "VoteCount": 1,
+    "Id": 21864
+  },
+  "FileAttachments": [],
+  "Comments": []
+}

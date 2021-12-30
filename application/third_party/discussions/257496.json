@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "612254",
+    "ThreadId": "257496",
+    "Html": "\r\n<p>The following code stops working at the $objReader-&gt;load($fl); line</p>\r\n<p>$fl = &quot;../../documents/imports/&quot;.$subid.&quot;__AXA.xlsx&quot;;</p>\r\n<p>if (file_exists($fl)) {</p>\r\n<p>&nbsp;&nbsp;&nbsp; require_once '../../includes/phpexcel/Classes/PHPExcel/IOFactory.php';<br>\r\n&nbsp;&nbsp;&nbsp; <br>\r\n&nbsp;&nbsp;&nbsp; $inputFileName = $fl;<br>\r\n&nbsp;&nbsp;&nbsp; <br>\r\n&nbsp;&nbsp;&nbsp; $objReader = PHPExcel_IOFactory::createReader('Excel2007');<br>\r\n&nbsp;&nbsp;&nbsp; try {<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; // Load $inputFileName to a PHPExcel Object\r\n<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $objPHPExcel = $objReader-&gt;load($fl); <br>\r\n&nbsp;&nbsp;&nbsp; } catch(Exception $e) {<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; die('Error loading file: '.$e-&gt;getMessage());<br>\r\n&nbsp;&nbsp;&nbsp; }</p>\r\n<p>}</p>\r\n<p>Any ideas please.</p>\r\n",
+    "PostedDate": "2011-05-13T02:15:54.773-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "622776",
+    "ThreadId": "257496",
+    "Html": "<p>Hi,</p>\r\n<p>I have the same problem!</p>\r\n<p>My code :</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre><span style=\"color: blue;\">require_once</span> <span style=\"color: #a31515;\">'/var/www/htdocs/rapport/Classes/PHPExcel/IOFactory.php'</span>;<br /><br />$objet1 = <span style=\"color: blue;\">new</span> PHPExcel_Reader_Excel5();\r\n$excel1 = $objet1-&gt;load(<span style=\"color: #a31515;\">'rap.xlsx'</span>);\r\n<span style=\"color: blue;\">&nbsp;</span>\r\n$objet2 = <span style=\"color: blue;\">new</span> PHPExcel_Reader_Excel5();\r\n$excel2 = $objet2-&gt;load(<span style=\"color: #a31515;\">'rap2.xlsx'</span>);<span style=\"color: blue;\"></span>\r\n\r\n$writer = <span style=\"color: blue;\">new</span> PHPExcel();\r\n\r\n<span style=\"color: blue;\">for</span> ($i=0;$i&lt;$excel1-&gt;getSheetCount();$i++){\r\n    $writer-&gt;addSheet($excel1-&gt;getSheet($i));\r\n}<span style=\"color: blue;\"></span>\r\n\r\n<span style=\"color: blue;\">for</span> ($i=0;$i&lt;$excel2-&gt;getSheetCount();$i++){\r\n    $writer-&gt;addSheet($excel2-&gt;getSheet($i));\r\n}\r\n\r\n$save = <span style=\"color: blue;\">new</span> PHPExcel_Writer_Excel5($writer);\r\n$save-&gt;save(<span style=\"color: #a31515;\">'master.xlsx'</span>);\r\n</pre>\r\n</div>\r\n</p>\r\n<p>&nbsp;</p>\r\n<p>Can anyone help us?</p>\r\n<p>Thanks</p>",
+    "PostedDate": "2011-06-03T13:48:51.64-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "622783",
+    "ThreadId": "257496",
+    "Html": "<p>@Triqu.</p>\r\n<p>Try using the correct reader... the Excel5 reader is for Excel BIFF files, those files (typically) created using MS Excel 2003 or earlier, with an extension of .xls. To load Office Open XML files created with Excel 2007 or later, with an extension of .xlsx, you need to use the Excel2007 Reader.</p>\r\n<p>Likewise, when writing, use the correct writer: Excel2007 for .xlsx files, Excel5 for .xls files.</p>\r\n<p>@Drumgor</p>\r\n<p>No ideas without a lot more information. Do you get any errors displayed? Is anything written to your PHP error log? Is there anything in the file that might break PHPExcel? Are you hitting a timeout or a memory limit? The possibilities are infinite, and my crystal ball is broken at the moment.</p>",
+    "PostedDate": "2011-06-03T14:04:11.783-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "623256",
+    "ThreadId": "257496",
+    "Html": "<p>I got mine to work but unfortunately cannot remember what it was that I changed. The code I posted above is still the same so the problem obviously lay elsewhere. Sorry I can't help.</p>",
+    "PostedDate": "2011-06-05T17:03:35.187-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "623846",
+    "ThreadId": "257496",
+    "Html": "<p>I have just hit the same problem again and remembered the issue is not with phpexcel but rather something in the spreadsheet one is trying to load that phpexcel does not like, because the exact same code works fine on other spreadsheets.</p>",
+    "PostedDate": "2011-06-06T17:22:46.25-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "625540",
+    "ThreadId": "257496",
+    "Html": "<p>Finally i used this :&nbsp;</p>\r\n<pre><span></span><div style=\"color: black; background-color: white;\"><pre><span style=\"color: green;\">// Creation d'un lecteur</span>\r\n$objReader = PHPExcel_IOFactory::createReader($inputFileType);\r\n<span style=\"color: green;\">// Lecture du fichier excel (le nouveau rapport)</span>\r\n$objPHPExcel = $objReader-&gt;load($nouveauRapport);\r\n</pre>\r\n</div>\r\n</pre>\r\n<pre><br /></pre>\r\n<p>It's working perfectly.</p>\r\n<p>Thanks again for the quick reply MarkBaker.</p>",
+    "PostedDate": "2011-06-09T11:04:49.507-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

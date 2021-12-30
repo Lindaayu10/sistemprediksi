@@ -1,0 +1,39 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel_Writer_Excel5",
+      "DisplayName": "PHPExcel_Writer_Excel5"
+    },
+    "ClosedComment": "Fixed in SVN\n\nNote to users:\n----\nmbstring extension must be enabled. Check with phpinfo() if you are unsure whether it is enabled. If not enabled, you will still get broken sheet names for non-ASCII.\n\nNote to developers of Spreadsheet_Excel_Writer:\n---\nMethod of fix in the following post is basically correct:\nhttp://pear.php.net/bugs/bug.php?id=12362#1220656641\nbut one must also remember to update the sheet offset values. Otherwise one will get broken xls files when opened in MS Office Excel. (At least for version 2007)",
+    "ClosedDate": "2008-09-21T19:21:44.723-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Test:\n----\n$PHPExcel = new PHPExcel();\n$ws0 = $PHPExcel->getActiveSheet();\n$ws0->getCell('A1')->setValue('ASCII');\n$ws0->setTitle('hello');\n \n$ws1 = $PHPExcel->createSheet();\n$ws1->getCell('A1')->setValue('Cyrillic');\n$ws1->setTitle('Россия');\n \n$ws2 = $PHPExcel->createSheet();\n$ws2->getCell('A1')->setValue('Danish');\n$ws2->setTitle('æøå');\n \n$ws3 = $PHPExcel->createSheet();\n$ws3->getCell('A1')->setValue('Kanji');\n$ws3->setTitle('日本');\n \n$writer = new PHPExcel_Writer_Excel5($PHPExcel);\n$writer->save('test.xls');\n \nExpected result for sheet names:\n----\n1. hello\n2. Россия\n3. æøå\n4. 日本\n \nActual result for sheet names:\n----\n1. hello\n2. Ð Ð¾ÑÑÐ¸Ñ\n3. Ã¦Ã¸Ã¥\n4. æ¥æ¬\n \nEnvironment:\n----\nPHPExcel: Latest source from SVN (1.6.3+)\n \nIdentical bug reports for PEAR Spreadsheet_Excel_Writer which the PHPExcel_Writer_Excel5 is based on.\n----\nhttp://pear.php.net/bugs/bug.php?id=8191\nhttp://pear.php.net/bugs/bug.php?id=12362",
+    "LastUpdatedDate": "2013-05-16T05:43:16.85-07:00",
+    "PlannedForRelease": "PHPExcel 1.6.4 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Medium",
+      "Severity": 100,
+      "Id": 2
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2008-09-21T18:53:55.307-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "UTF-8 sheet names not working with PHPExcel_Writer_Excel5",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 7643
+  },
+  "FileAttachments": [],
+  "Comments": []
+}

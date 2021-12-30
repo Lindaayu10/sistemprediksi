@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "990586",
+    "ThreadId": "430505",
+    "Html": "\r\n<p>I've been trying for hours to make a formula that will sum the same cell in multiple sheets.&nbsp; It should look like this:</p>\r\n<p>=SUM(sheet_0:sheet_1!D13)</p>\r\n<p>However this:<br>\r\n$worksheet-&gt;setCellValue('D10', '=SUM(sheet_0:sheet_1!D13)');<br>\r\n<br>\r\nGives me the error:<br>\r\nFatal error:&nbsp; Call to a member function cellExists() on a non-object in ...\\PHPExcel\\Calculation.php on line 3241</p>\r\n<p>If I manually create a workbook in excel I can enter in that formula and it works.</p>\r\n<p>I'm using setTitle() to name each worksheet.&nbsp; Is there a way to do this without names perhaps?</p>\r\n<p>I'm using PHPExcel v1.7.8.</p>\r\n<div id=\"_mcePaste\" style=\"left:-10000px; top:0px; width:1px; height:1px; overflow:hidden\">\r\n<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\" width=\"64\">\r\n<colgroup><col width=\"64\"></colgroup>\r\n<tbody>\r\n<tr height=\"20\">\r\n<td width=\"64\" height=\"20\" style=\"height:15.0pt; width:48pt\">&lt;b&gt;Fatal error&lt;/b&gt;:<span>&nbsp;\r\n</span>Call to a member function cellExists() on a non-object in &lt;b&gt;C:\\Work\\Clients\\Elite Meetings\\admin.elitemeetings.com\\git\\library\\PHPExcel\\Calculation.php&lt;/b&gt; on line &lt;b&gt;3241&lt;/b&gt;&lt;br /&gt;</td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n</div>\r\n",
+    "PostedDate": "2013-01-22T15:02:03.153-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "990599",
+    "ThreadId": "430505",
+    "Html": "\r\n<p>3D ranges aren't supported by the calculation engine. If you want to save a worksheet with a formula like this, then Excel2007 is the only option, and only if preCalculateFormulas is set to FALSE</p>\r\n",
+    "PostedDate": "2013-01-22T15:41:47-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "990608",
+    "ThreadId": "430505",
+    "Html": "\r\n<p>Ah, thanks!&nbsp; That was quite helpful.</p>\r\n<p>For anyone else reading this, I used the following:</p>\r\n<p>$worksheet-&gt;setCellValue('D10', &quot;=SUM('sheet_0:sheet_1'!D13)&quot;);</p>\r\n<p>Some of my sheet names have spaces, thus they are surrounded by 'single-quotes'</p>\r\n<p>$writer = PHPExcel_IOFactory::createWriter($excel, 'Excel2007');<br>\r\n$writer-&gt;setPreCalculateFormulas(false);</p>\r\n<p>Where $excel is my PHPExcel object:<br>\r\n$excel = new PHPExcel();</p>\r\n",
+    "PostedDate": "2013-01-22T16:15:08.747-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1250855",
+    "ThreadId": "430505",
+    "Html": "Very Helpfull!\r<br />\n<br />\nBut, what if I have to do this for all the &quot;summary sheet&quot; cells and not only for 1 cell?\r<br />\n<br />\nFor example: if every cells in D column in my &quot;summary sheet&quot; is the sum of every corrispondent D-Column-cell of all other sheets (and I can't predict how many sheets I have)?<br />\n",
+    "PostedDate": "2014-05-29T06:32:10.827-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,38 @@
+Index: Classes/PHPExcel/Shared/String.php
+===================================================================
+--- Classes/PHPExcel/Shared/String.php	(revision 934)
++++ Classes/PHPExcel/Shared/String.php	(working copy)
+@@ -158,13 +158,17 @@
+ 	}
+ 
+ 	/**
+-	 * Formats a numeric value as a string for output in various output writers
++	 * Formats a numeric value as a string for output in various output writers forcing
++	 * point as decimal separator in case locale is other than English.
+ 	 *
+ 	 * @param mixed $value
+ 	 * @return string
+ 	 */
+ 	public static function FormatNumber($value) {
+-		return number_format($value, 2, '.', '');
++		if (is_float($value)) {
++			return str_replace(',', '.', $value);
++		}
++		return (string) $value;
+ 	}
+ 
+ 	/**
+Index: Classes/PHPExcel/Writer/Excel2007/Worksheet.php
+===================================================================
+--- Classes/PHPExcel/Writer/Excel2007/Worksheet.php	(revision 934)
++++ Classes/PHPExcel/Writer/Excel2007/Worksheet.php	(working copy)
+@@ -1022,7 +1022,8 @@
+ 							if ($this->getParentWriter()->getPreCalculateFormulas()) {
+ 								$calculatedValue = $pCell->getCalculatedValue();
+ 								if (!is_array($calculatedValue) && substr($calculatedValue, 0, 1) != '#') {
+-									$objWriter->writeElement('v', $calculatedValue);
++									$v = PHPExcel_Shared_String::FormatNumber($calculatedValue);
++									$objWriter->writeElement('v', $v);
+ 								} else {
+ 									$objWriter->writeElement('v', '0');
+ 								}

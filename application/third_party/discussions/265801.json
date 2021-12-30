@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "644668",
+    "ThreadId": "265801",
+    "Html": "\r\n<p>hi ,</p>\r\n<p>i am a beginner in using php , and i am using your library php excel to read a data file .the biggest issue i am facing is that when ever i read date and time from cell it converts to numbers like&nbsp;40725.999791667 should be 2011-07-01 23:59 ,&nbsp;</p>\r\n<p>i am facing two other issues if you could will be great help !</p>\r\n<p></p>\r\n<pre>set_time_limit (6000);\r\nrequire_once('classes/phpexcel.php');\r\n$objReader = PHPExcel_IOFactory::createReader('Excel2007');\r\n$objReader-&gt;setReadDataOnly(true);\r\n$objPHPExcel = $objReader-&gt;load(&quot;2.xlsx&quot;);\r\n$objWorksheet = $objPHPExcel-&gt;setActiveSheetIndex('0') ;\r\n$i=0;$dum=false;$sum=0;\r\nforeach ($objWorksheet-&gt;getRowIterator() as $row) \r\n{\r\n  $cellIterator = $row-&gt;getCellIterator();\r\n  $cellIterator-&gt;setIterateOnlyExistingCells(false); \r\n   if($dum) //to ignore first cell \r\n {                                                  .\r\n   foreach ($cellIterator as $cell) \r\n   {    if($i==2||$i==3||$i==4||$i==9)\r\n        {\r\n\t          if($i==2)\r\n\t\t      {\r\n\t\t\t  $value[$i]=$cell-&gt;getValue();\r\n\t\t\t  $num1=$value[$i]; // get the starting date and time\r\n\t\t\t  }\r\n\t\t      if($i==3)\r\n\t\t      {\r\n\t\t\t  $value[$i]=$cell-&gt;getValue();\r\n\t\t\t  $num2=$value[$i]; // get the ending date and time\r\n\t\t\t  }\r\n\t\t      if($i==4)\r\n\t\t      { \r\n\t\t\t  $value[$i]=$cell-&gt;getValue(); \r\n\t\t\t  $asd=preg_split('#(?=\\d)(?&lt;=[a-z])#i',$value[$i] ); //convert strings as asd12321 to asd , 12321\r\n\t\t\t  $value[$i]=$asd[1]; // to read only digit\r\n\t\t\t  }\r\n\t\t\t  if($i==9)\r\n\t\t      {\r\n\t\t\t  $value[$i]=$cell-&gt;getValue(); // read a string\r\n\t\t\t  $value[$i&#43;1]=$num2-$num1; //to take diff in minutes between the two \r\n\t\t\t  }\r\n\t\t     \r\n\t\t}$i&#43;&#43;;\r\n\t\t\r\n    }$i=0;\r\n\t\r\n\t$con =  mysql_connect(&quot;localhost&quot;,&quot;root&quot;,&quot;&quot;);\r\n    if (!$con)\r\n    {$value[0]=$value[2];\r\n     die('Could not connect: ' . mysql_error());\r\n    }mysql_select_db(&quot;mobilink&quot;, $con);\r\n    $sql=&quot;INSERT INTO my query ....&quot;;\r\n    if (!mysql_query($sql,$con))\r\n    {\r\n    die('Error: ' . mysql_error());\r\n    }\r\n\t$sum&#43;&#43;;\r\n     \r\n\r\n     mysql_close($con);\r\n\r\n\r\n \r\n   }\r\n $dum=true;\r\n  \r\n}</pre>\r\nas you can see its a mess ! i tried using your option to retrive data from selected columbs but i cant ! i have to loop through 26 columbs at a time to fetch only 4 values. if you can only show me how to change this code into more efficent code . i would be\r\n so much thank full to you.\r\n<p></p>\r\n",
+    "PostedDate": "2011-07-19T15:23:12.91-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "644670",
+    "ThreadId": "265801",
+    "Html": "<p>i have php version 5.3.5 and i have 1.7.6 phpexcel and as you can guess i do full fill the requirments of phpexcel waiting for the response</p>",
+    "PostedDate": "2011-07-19T15:32:39.223-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "644959",
+    "ThreadId": "265801",
+    "Html": "<p>Boss,<br />Microsoft uses reference date &amp; time as 1 Jan, 1900 , 00:00:00 AM.</p>\r\n<p>Time is taken as a ratio of time with 24:00:00 like, 06:00:00 am is .25 beacuse 06:00:00/24:00:00 = .25, thus time will always be less than 1.</p>\r\n<p>Date is taken as no. of days passed since Jan 1, 1990.</p>\r\n<p>Ex- June 2, 2011 will be stored as 40696 as it comes after 40696 days from Jan 1, 1900.</p>\r\n<p>&nbsp;</p>\r\n<p>Here is a code snippet which i used to separate the same:</p>\r\n<p>&nbsp;</p>\r\n<p>First if condition is for time, else is for date:</p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre><span style=\"color: blue;\">if</span>(PHPExcel_Shared_Date::isDateTime($cell))\r\n{\r\n<span style=\"color: green;\">//print($value.\"&lt;br&gt;\");</span>\r\n\t<span style=\"color: blue;\">if</span>($value != <span style=\"color: #a31515;\">\"null\"</span>)\r\n\t{\r\n\t\t<span style=\"color: blue;\">if</span>($value&lt;1000)\r\n\t\t{\r\n\t\t<span style=\"color: blue;\">if</span>($time_flag!=3)\r\n\t\t{\r\n\t\t\t$H=$value*24;\r\n\t\t\t$M=($H-floor($H))*60;\r\n\t\t\t$S=($M-floor($M))*60;\r\n\t\t\t$value=floor($H).<span style=\"color: #a31515;\">\":\"</span>.floor($M).<span style=\"color: #a31515;\">\":\"</span>.floor($S);\r\n\t\t\t$time_flag++;\t\t\t\t</pre>\r\n<pre>\t\t}\r\n\t}\r\n\t<span style=\"color: blue;\">else</span>\r\n\t{\r\n                $value*=24*60*60;\t<span style=\"color: green;\">//CONVERT MICROSOFT EXCEL TIME FORMAT(I.E. TIME:24.00.00 &lt;= 1.00) TO total seconds</span>\r\n\t\t$time_flag=1;\r\n\t}\r\n\t}\r\n\t<span style=\"color: blue;\">else</span>\r\n\t{\t\r\n\t<span style=\"color: green;\">// echo($value.'---');</span>\r\n\t$value=floor($value);\r\n\t<span style=\"color: green;\">// echo($value.'&lt;br&gt;');</span>\r\n\t$date = <span style=\"color: blue;\">new</span> DateTime(<span style=\"color: #a31515;\">'1899-12-30'</span>);\t<span style=\"color: green;\">//REFERENCE DATE AS TAKEN BY MICROSOFT EXCEL TO REPRESENT DATE</span>\r\n\t$date-&gt;add(<span style=\"color: blue;\">new</span> DateInterval(<span style=\"color: #a31515;\">'P'</span>.$value.<span style=\"color: #a31515;\">'D'</span>));\r\n\t$value=$date-&gt;format(<span style=\"color: #a31515;\">'d-M-Y'</span>);\r\n\t}\r\n}\r\n</pre>\r\n</div>",
+    "PostedDate": "2011-07-20T06:40:13.857-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "644962",
+    "ThreadId": "265801",
+    "Html": "<p>There exists Excel date/time conversion in PHPExcel:</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>$date = PHPExcel_Style_NumberFormat::toFormattedString($cell, <span style=\"color: #a31515;\">\"M/D/YYYY\"</span>);\r\n</pre>\r\n</div>\r\n</p>",
+    "PostedDate": "2011-07-20T06:45:33.347-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "645144",
+    "ThreadId": "265801",
+    "Html": "<p>thanks to&nbsp;<a class=\"UserProfileLink\" href=\"http://www.codeplex.com/site/users/view/daredev\">daredev</a>&nbsp;and&nbsp;</p>\r\n<table cellspacing=\"0\" cellpadding=\"0\">\r\n<tbody>\r\n<tr id=\"PostPanel\" class=\"Post\">\r\n<td id=\"PostDetailsCell_644962\" class=\"AltPost\">\r\n<div class=\"Details\">\r\n<div class=\"UserName\"><a class=\"UserProfileLink\" href=\"http://www.codeplex.com/site/users/view/ScottMSanders\">ScottMSanders</a>&nbsp;for all your help . i have solved this date issue now can you help with columns selection issue !</div>\r\n</div>\r\n</td>\r\n</tr>\r\n</tbody>\r\n</table>",
+    "PostedDate": "2011-07-20T12:40:45.543-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "802620",
+    "ThreadId": "346577",
+    "Html": "\r\n<p>I'm building a WordPress plugin using PHPExcel to export reports of student attendance. &nbsp;So far, I'm able to successfully take the array of student data (including attendance) and convert and download it as a spreadsheet. &nbsp;Unfortunately, there's\r\n an odd bug: when a student has attended zero events, that cell on the spreadsheet is blank instead of showing a zero. &nbsp;I'd prefer it come out with an actual zero, but I can't find a way to do that. &nbsp;Here's my script:</p>\r\n<p></p>\r\n<pre>        error_reporting( E_ALL);\r\n\tini_set( 'include_path', ini_get( 'include_path' ).';../Classes/' );\r\n\r\n\tinclude 'PHPExcel.php';\r\n\tinclude 'PHPExcel/Writer/Excel2007.php';\r\n\t\r\n\t$objPHPExcel = new PHPExcel();\r\n\t\r\n\t$objPHPExcel-&gt;setActiveSheetIndex( 0 );\r\n\t$objPHPExcel-&gt;getProperties()-&gt;setCreator( $user );\r\n\t$objPHPExcel-&gt;getProperties()-&gt;setLastModifiedBy( $user );\r\n\t$objPHPExcel-&gt;getProperties()-&gt;setTitle( $title );\r\n\t$objPHPExcel-&gt;getProperties()-&gt;setSubject( $title );\r\n\t$objPHPExcel-&gt;getProperties()-&gt;setDescription( $title );\r\n\t$objPHPExcel-&gt;getActiveSheet()-&gt;fromArray( $data, null, 'A1' );\r\n\t$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('A1:H1')-&gt;getFont()-&gt;setBold(true);\r\n\t\r\n\t$columns = array( 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H' );\r\n\t\r\n\tforeach ( $columns as $column ) {\r\n\t\r\n\t\t$objPHPExcel-&gt;getActiveSheet()-&gt;getColumnDimension($column)-&gt;setAutoSize(true);\r\n\t\r\n\t} // End $columns foreach\r\n\t\t\r\n\t$file_name = str_replace( ' ', '_', $title);\r\n\r\n\tif ( $_POST['type'] == 'spreadsheet' ) {\r\n\t\r\n\t\theader( 'Content-type: application/vnd.ms-excel' );\t\r\n\t\theader( 'Content-Disposition: attachment; filename=&quot;' . $file_name . '.xls&quot;' );\r\n\t\r\n\t\t$objWriter = new PHPExcel_Writer_Excel2007( $objPHPExcel );\r\n\t\t$objWriter-&gt;save( 'php://output' );\r\n\t\r\n\t} </pre>\r\n<p></p>\r\n<p>$data contains the array of student info, which is structured like this:</p>\r\n<pre>Array\r\n(\r\n    [0] =&gt; Array\r\n        (\r\n            [0] =&gt; First Name\r\n            [1] =&gt; Last Name\r\n            [2] =&gt; BU ID\r\n            [3] =&gt; Barcode\r\n            [4] =&gt; Major\r\n            [5] =&gt; Class\r\n            [6] =&gt; Seminars\r\n            [7] =&gt; Showcases\r\n        )\r\n\r\n    [1] =&gt; Array\r\n        (\r\n            [first_name] =&gt; Seth\r\n            [last_name] =&gt; Abel\r\n            [buid] =&gt; B00385307\r\n            [barcode] =&gt; 100324707\r\n            [student_major] =&gt; CMM\r\n            [class] =&gt; MBU2100\r\n            [seminar] =&gt; 0\r\n            [showcase] =&gt; 1\r\n        )\r\n\r\n    [2] =&gt; Array\r\n        (\r\n            [first_name] =&gt; Zachary\r\n            [last_name] =&gt; Abend\r\n            [buid] =&gt; B00373103\r\n            [barcode] =&gt; 100291996\r\n            [student_major] =&gt; MBU\r\n            [class] =&gt; MBU2100\r\n            [seminar] =&gt; 0\r\n            [showcase] =&gt; 1\r\n        )</pre>\r\n<pre>.</pre>\r\n<pre>.</pre>\r\n<pre>.</pre>\r\n<p></p>\r\n<pre>)</pre>\r\n<p></p>\r\n<p>As you can see is the example data, the those students have each attended 1 showcase, but zero seminars. &nbsp;When this spreadsheet is downloaded and opened in Excel, the 1 shows up fine, but the seminar cells are blank. &nbsp;Since I'm using the fromArray()\r\n function to populate the spreadsheet, is there something I should do to make those zeros appear properly?</p>\r\n",
+    "PostedDate": "2012-02-28T07:20:24.087-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "807644",
+    "ThreadId": "346577",
+    "Html": "<p>Does anyone have an idea about how to fix this? &nbsp;Mark?</p>",
+    "PostedDate": "2012-03-08T11:38:14.427-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "810315",
+    "ThreadId": "346577",
+    "Html": "<p>Finally got the answer on Stack Exchange:</p>\r\n<p>Change</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>$objPHPExcel-&gt;getActiveSheet()-&gt;fromArray( $data, null, <span style=\"color: #a31515;\">'A1'</span> );\r\n</pre>\r\n</div>\r\n</p>\r\n<p>...to...</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>$objPHPExcel-&gt;getActiveSheet()-&gt;fromArray( $data, null, <span style=\"color: #a31515;\">'A1'</span>, true );\r\n</pre>\r\n</div>\r\n</p>",
+    "PostedDate": "2012-03-14T09:30:40.573-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,70 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel",
+      "DisplayName": "PHPExcel"
+    },
+    "ClosedComment": "",
+    "ClosedDate": "2009-12-01T06:49:28.883-08:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "From thread:\nhttp://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=74034\n \n----\nTest:\n \n$excel = new PHPExcel();\n$worksheet = $excel->getActiveSheet();\n \n$worksheet->getCell('A1')->setValue('-');\n$worksheet->getCell('B1')->setValue('.');\n$worksheet->getCell('C1')->setValue('-.');\n \nvar_dump($worksheet->getCell('A1')->getDataType());\nvar_dump($worksheet->getCell('A1')->getValue());\n \nvar_dump($worksheet->getCell('B1')->getDataType());\nvar_dump($worksheet->getCell('B1')->getValue());\n \nvar_dump($worksheet->getCell('C1')->getDataType());\nvar_dump($worksheet->getCell('C1')->getValue());\n \nExpected result:\n----\nstring 's' (length=1)\nstring '-' (length=1)\n \nstring 's' (length=1)\nstring '.' (length=1)\n \nstring 's' (length=1)\nstring '-.' (length=2)\n \nActual result:\n----\nstring 'n' (length=1)\nfloat -0\n \nstring 'n' (length=1)\nfloat 0\n \nstring 'n' (length=1)\nfloat -0\n \nEnvironment:\n----\nPHPExcel 1.7.1",
+    "LastUpdatedDate": "2013-05-16T05:42:18.887-07:00",
+    "PlannedForRelease": "PHPExcel 1.7.2 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-11-04T16:30:03.147-08:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "setValue('-') and setValue('.') sets numeric 0 instead of 1-character string",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 10884
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "Fixing this in SVN.\r\n\r\nThe problem was with the expression for detecting when a PHP string is an Excel numeric\r\n\r\nChanging from this\r\n\r\npreg_match('/^\\-?[0-9]*\\\\.?[0-9]*$/', $pValue)\r\n\r\nto this in PHPExcel/Cell/DefaultValueBinder.php\r\n\r\npreg_match('/^\\-?([0-9]+\\\\.?[0-9]*|[0-9]*\\\\.?[0-9]+)$/', $pValue)\r\n\r\nensures that PHP strings without any digits in it do not slip through as Excel numerics.",
+      "PostedDate": "2009-11-04T16:39:24.267-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-11-04T16:45:49.773-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I've tried this solution and work for me. Thank's.",
+      "PostedDate": "2009-11-05T05:46:53.467-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-12-01T06:49:28.883-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:03:30.31-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:18.887-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

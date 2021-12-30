@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "574470",
+    "ThreadId": "248151",
+    "Html": "\r\n<p>If I use this code...</p>\r\n<p>$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('D1')-&gt;getNumberFormat()-&gt;setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_DATE_XLSX14);</p>\r\n<p>...the API class doc says this format is 'mm-dd-yy', but no, it is some other format. Instead I must use this code...</p>\r\n<p>$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('D1')-&gt;getNumberFormat()-&gt;setFormatCode('MM-DD-YY');</p>\r\n<p>...which is a lot easier, and note CAPS are required or this won't work either...</p>\r\n<p>...which also makes me wonder if the other FORMAT_DATE_* entries in the API class docs are correct..?</p>\r\n<div id=\"x__mcePaste\" style=\"left:-10000px; top:0px; width:1px; height:1px; overflow:hidden\">\r\n<p lang=\"en-US\" style=\"margin-bottom:0in; background:#f3f3f3; border:1px dotted #000000; padding:0.01in 0.06in\">\r\n<span style=\"color:#333333\"><span style=\"font-family:Courier New,monospace\"><span style=\"font-size:x-small\">setFormatCode(PHPExcel_Style_NumberFormat::</span></span></span></p>\r\n</div>\r\n",
+    "PostedDate": "2011-03-02T07:53:26.76-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "574583",
+    "ThreadId": "248151",
+    "Html": "<blockquote style=\"padding-bottom: 0px; font-style: italic; margin: 0.25em 1em 0px; padding-left: 0.25em; padding-right: 0.25em; padding-top: 0px; border: #ccc 0.1em solid;\"><strong>ScottMSanders wrote:</strong><br />\r\n<p>If I use this code...</p>\r\n<p>$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('D1')-&gt;getNumberFormat()-&gt;setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_DATE_XLSX14);</p>\r\n<p>...the API class doc says this format is 'mm-dd-yy', but no, it is some other format. Instead I must use this code...</p>\r\n<div id=\"x__mcePaste\" style=\"width: 1px; height: 1px; overflow: hidden; top: 0px; left: -10000px;\">\r\n<p style=\"padding-bottom: 0.01in; padding-left: 0.06in; padding-right: 0.06in; margin-bottom: 0in; background: #f3f3f3; padding-top: 0.01in; border: #000000 1px dotted;\" lang=\"en-US\"><span style=\"color: #333333;\"><span style=\"font-family: Courier New,monospace;\"><span style=\"font-size: x-small;\">setFormatCode(PHPExcel_Style_NumberFormat::</span></span></span></p>\r\n</div>\r\n</blockquote>\r\n<p>What format exactly are you getting? And which writer?<br />The API class document simply specifies these constants and their values, that should match the relevant Excel format values; so the API document is not wrong.</p>\r\n<p>What <em>may </em>be wrong is the code used to render Excel dates to readable dates using these values (for functions like toArray() or the Writers). I've not seen any evidence of this, but it is possible.</p>\r\n<blockquote style=\"padding-bottom: 0px; font-style: italic; margin: 0.25em 1em 0px; padding-left: 0.25em; padding-right: 0.25em; padding-top: 0px; border: #ccc 0.1em solid;\"><strong>ScottMSanders wrote:</strong><br />\r\n<p>$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('D1')-&gt;getNumberFormat()-&gt;setFormatCode('MM-DD-YY');</p>\r\n<p>...which is a lot easier, and note CAPS are required or this won't work either...</p>\r\n<div id=\"x__mcePaste\" style=\"width: 1px; height: 1px; overflow: hidden; top: 0px; left: -10000px;\">\r\n<p style=\"padding-bottom: 0.01in; padding-left: 0.06in; padding-right: 0.06in; margin-bottom: 0in; background: #f3f3f3; padding-top: 0.01in; border: #000000 1px dotted;\" lang=\"en-US\"><span style=\"color: #333333;\"><span style=\"font-family: Courier New,monospace;\"><span style=\"font-size: x-small;\">setFormatCode(PHPExcel_Style_NumberFormat::</span></span></span></p>\r\n</div>\r\n</blockquote>\r\n<p>&nbsp;All format codes should be case insensitive: capitalisation should be irrelevant. If this isn't the case, then there is a code fault... to identify this, I need to know exactly what method (Writer, toArray(), whatever) you are using to test this. Otherwise, I need to test all possible permutations myself to try and identify the location of any fault, and (as I've indicated elsewhere) I have rather less time&nbsp;at the moment than I normally would have. Knowing what you actually get from PHPExcel_Style_NumberFormat::FORMAT_DATE_XLSX14 would also help. If you could provide a code example that demonstrates this problem, it would certainly help.</p>",
+    "PostedDate": "2011-03-02T11:54:38.13-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "574595",
+    "ThreadId": "248151",
+    "Html": "<p>I get format M/D/YYYY, with writers Excel2007 and Excel5, using the above code and writer code like this:</p>\r\n<p>$objWriter = PHPExcel_IOFactory::createWriter($workbook, 'Excel2007');</p>\r\n<p>A given date is in MySQL format like 2011-03-02.</p>\r\n<p>I dunno what other code you need, as my script is kinda extensive, but can supply more if needed.</p>",
+    "PostedDate": "2011-03-02T12:15:10.57-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "575545",
+    "ThreadId": "248151",
+    "Html": "<p>Interesting; and very strange behaviour. Excel is clearly recognising it as a date mask (otherwise it would simply be displayed as a number), but is ignoring the actual mask value and reverting to the default (locale specific) date mask.</p>\r\n<p>It's similar with a couple of the other masks as well:</p>\r\n<p>d-mmm-yy (FORMAT_DATE_XLSX15) and d-mmm (FORMAT_DATE_XLSX16), which should display the day&nbsp;without leading zeroes, both show it with leading zeroes, while m/d/yy h:mm (FORMAT_DATE_XLSX22) reverts to the locale date/time mask as well. These were all new default masks introduced to the number format dropdowns in MS Excel2007, and all seem to work correctly when set as uppercase rather than lowercase.</p>\r\n<p>I've only tested reading the PHPExcel output in MS Excel 2003 at the moment: I'll test using MS Excel 2010 later.</p>\r\n<p>&nbsp;</p>\r\n<p>Simply solution is to simply make those particular masks upper case in the constants list, but I want to do some experimentation with custom masks as well to verify that those don't suffer from the same problems.</p>",
+    "PostedDate": "2011-03-04T06:14:58.873-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

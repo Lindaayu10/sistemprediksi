@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "806521",
+    "ThreadId": "347571",
+    "Html": "\r\n<p>Hello everybody,</p>\r\n<p>I'm using PHPExcel 1.7.6 under PHP 5.3 to read a 380 x 14 Excel2007 sheet, containing just numbers (no formulas or formatting). I've read some tips from Mark Baker to limit memory footprint on stackoverflow, and I managed to halve it.</p>\r\n<p>Yet there's something that puzzles me: if I set a Read Filter that always returns false, memory occupation still goes up 9MB upon instantiating the (empty) PHPExcel object.</p>\r\n<p>I was wondering if this is normal, or if I am missing something. Here's my code:</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>\t<span style=\"color:blue\">class</span> MyReadFilter <span style=\"color:blue\">implements</span> PHPExcel_Reader_IReadFilter {\r\n\t\t<span style=\"color:blue\">public</span> <span style=\"color:blue\">function</span> readCell($column, $row, $worksheetName = <span style=\"color:#a31515\">''</span>) {\r\n\t\t\t<span style=\"color:blue\">return</span> false;\r\n\t\t}\r\n\t}\r\n\r\n\t$filterSubset = <span style=\"color:blue\">new</span> MyReadFilter();\r\n\t\r\n\t$objReader = PHPExcel_IOFactory::createReader(<span style=\"color:#a31515\">'Excel2007'</span>);\r\n\t$objReader-&gt;setLoadSheetsOnly(<span style=\"color:#a31515\">'Export'</span>);\r\n\t$objReader-&gt;setReadDataOnly(true);\r\n\t$objReader-&gt;setReadFilter($filterSubset);\r\n\t\r\n\t$objPHPExcel = $objReader-&gt;load($name);\r\n\r\n</pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n<p>Is there anything I can do to reduce those 9MB? I just need to read excel files, never to write them. What about cutting &quot;write&quot; methods away from some classes? Any other ideas?</p>\r\n<p>Thank you</p>\r\n",
+    "PostedDate": "2012-03-06T15:10:32.413-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "806531",
+    "ThreadId": "347571",
+    "Html": "<p>Certain features are always loaded, irrespective of read filters. For example, every defined style will always be loaded unless you have setReadDataOnly(true), whether they are actually used in the cells that you filter out or those that you retain. That's because styles are loaded first, without anything to tell us what cells they apply to: it's only when we load the cells themselves (based on the filter) that we can actually assign those styles to their cells... so even an empty workbook can still contain a lot of information.</p>\r\n<p>Likewise, named ranges, printer settings, etc are always loaded, irrespective of the setReadDataOnly() setting, or of read filters.</p>\r\n<p>Only classes that you actually use are loaded (that's the value of the autoloader) so if you don't ever write, none of the writer classes will ever be loaded.</p>",
+    "PostedDate": "2012-03-06T15:43:52-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "806559",
+    "ThreadId": "347571",
+    "Html": "<p>Hi Mark,</p>\r\n<p>I see your point. As you can see from the code, I already setReadDataOnly(true) on the reader. I just want to be sure that there's nothing else (method calls I'm not aware of, tips &amp; tricks) to reduce those 9MB.</p>\r\n<p>Thanks</p>\r\n<p>PS: PHPExcel is a nice and very useful project, thank you for the time your are spending on it.</p>",
+    "PostedDate": "2012-03-06T16:16:31.693-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "806901",
+    "ThreadId": "347571",
+    "Html": "<p>By the way, how can I release all of the classes memory (PHPExcel, reader, worksheet) after my toArray() call (I don't need those classes any more)?</p>\r\n<p>Is this the correct way to do it?<br />\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>\t<span style=\"color: blue;\">unset</span>($objWorksheet);\r\n\t<span style=\"color: blue;\">unset</span>($objPHPExcel);\r\n\t<span style=\"color: blue;\">unset</span>($objReader);\r\n\tgc_collect_cycles();\r\n<br />Thank you<br />Stephen</pre>\r\n</div>\r\n</p>",
+    "PostedDate": "2012-03-07T07:33:12.243-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "806983",
+    "ThreadId": "347571",
+    "Html": "<p>It's awkward to release everything cleanly because of complex parent/child/parent relationships between the objects, but use:</p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>$objPHPExcel-&gt;disconnectWorksheets();\r\n<span style=\"color: blue;\">unset</span>($objPHPExcel);\r\n</pre>\r\n</div>\r\n<p>rather than</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre><span style=\"color: blue;\">unset</span>($objWorksheet);\r\n<span style=\"color: blue;\">unset</span>($objPHPExcel);\r\n</pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n<p>The reader can be unset as soon as you've loaded the file to $objPHPExcel</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2012-03-07T09:40:15.613-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "807510",
+    "ThreadId": "347571",
+    "Html": "<p>Thank you very much Mark.</p>",
+    "PostedDate": "2012-03-08T08:13:05.457-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

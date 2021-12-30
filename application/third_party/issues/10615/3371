@@ -1,0 +1,78 @@
+Index: C:/xampp/htdocs/_phpexcel/PHPExcel/Classes/PHPExcel/Reader/Excel5.php
+===================================================================
+--- C:/xampp/htdocs/_phpexcel/PHPExcel/Classes/PHPExcel/Reader/Excel5.php	(revision 1135)
++++ C:/xampp/htdocs/_phpexcel/PHPExcel/Classes/PHPExcel/Reader/Excel5.php	(revision 1136)
+@@ -3878,6 +3878,7 @@
+ 			case 'tRef3d': // 3d cell reference
+ 			case 'tArea3d': // 3d cell range reference
+ 			case 'tRefN':
++			case 'tAreaN':
+ 			case 'tStr': // string
+ 				$formulaStrings[] = "$space1$space0{$token['data']}";
+ 				unset($space0, $space1);
+@@ -4372,6 +4373,14 @@
+ 			$size = 5;
+ 			$data = $this->_readBIFF8CellAddressB(substr($formulaData, 1, 4), $baseCell);
+ 			break;
++		
++		case 0x2D:
++		case 0x4D:
++		case 0x6D:
++			$name = 'tAreaN';
++			$size = 9;
++			$data = $this->_readBIFF8CellRangeAddressB(substr($formulaData, 1, 8), $baseCell);
++			break;
+ 
+ 		case 0x3A: // 3d reference to cell
+ 		case 0x5A:
+@@ -4612,6 +4621,50 @@
+ 	}
+ 
+ 	/**
++	 * Reads a cell range address in BIFF8 for shared formulas. Uses positive and negative values for row and column
++	 * to indicate offsets from a base cell
++	 * section 3.3.4
++	 *
++	 * @param string $subData
++	 * @param string $baseCell Base cell
++	 * @return string Cell range address
++	 */
++	private function _readBIFF8CellRangeAddressB($subData, $baseCell = 'A1')
++	{
++		list($baseCol, $baseRow) = PHPExcel_Cell::coordinateFromString($baseCell);
++		$baseCol = PHPExcel_Cell::columnIndexFromString($baseCol) - 1;
++
++		// TODO: if cell range is just a single cell, should this funciton
++		// not just return e.g. 'A1' and not 'A1:A1' ?
++
++		// offset: 0; size: 2; relative index to first row (0... 65535) should be treated as offset (-32768... 32767)
++		$frIndex = $this->_GetInt2d($subData, 0);
++		$frIndex = ($frIndex <= 32767) ? $frIndex : $frIndex - 65536;
++		$fr = $baseRow + $frIndex + 1;
++
++		// offset: 2; size: 2; relative index to first row (0... 65535) should be treated as offset (-32768... 32767)
++		$lrIndex = $this->_GetInt2d($subData, 2);
++		$lrIndex = ($lrIndex <= 32767) ? $lrIndex : $lrIndex - 65536;
++		$lr = $baseRow + $lrIndex + 1;
++
++		// offset: 4; size: 2; relative index to first column
++
++		// bit: 7-0; mask 0x00FF; column index
++		$fcIndex = 0x00FF & $this->_GetInt2d($subData, 4);
++		$fcIndex = ($fcIndex <= 127) ? $fcIndex : $fcIndex - 256;
++		$fc = PHPExcel_Cell::stringFromColumnIndex($baseCol + $fcIndex);
++
++		// offset: 6; size: 2; relative index to first column
++
++		// bit: 7-0; mask 0x00FF; column index
++		$lcIndex = 0x00FF & $this->_GetInt2d($subData, 6);
++		$lcIndex = ($lcIndex <= 127) ? $lcIndex : $lcIndex - 256;
++		$lc = PHPExcel_Cell::stringFromColumnIndex($baseCol + $lcIndex);
++
++		return "$fc$fr:$lc$lr";
++	}
++
++	/**
+ 	 * Read BIFF8 cell range address list
+ 	 * section 2.5.15
+ 	 *

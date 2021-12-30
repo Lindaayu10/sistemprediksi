@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "286264",
+    "ThreadId": "83263",
+    "Html": "<p>Hello,</p>\r\n<p>I'm trying to create a spreadsheet which takes some of its cell values from an xml file, but when I try to insert words with foreign characters in them, it fails.</p>\r\n<p>The xml file has utf-8 encoding.</p>\r\n<p>I am creating an Excel 5 sheet using</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$objPHPExcel = <span style=\"color:Blue\">new</span> PHPExcel();\r\n$objPHPExcel-&gt;setActiveSheetIndex(0)-&gt;setCellValue(<span style=\"color:#A31515\">'B1'</span>, $str);\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, <span style=\"color:#A31515\">'Excel5'</span>);\r\n$objWriter-&gt;save($pathToExcelFile);\r\n</pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n<p>I have tried using iconv and mbstring to encode the string before it is entered into the cell</p>\r\n<p>e.g.</p>\r\n<p>&nbsp;</p>\r\n<pre>$current_enc = mb_detect_encoding($str);\r\n$objPHPExcel-&gt;setActiveSheetIndex(0)-&gt;setCellValue('B1', iconv($current_enc, &quot;UTF-8&quot;, $str));\t\r\n\r\n$objPHPExcel-&gt;setActiveSheetIndex(0)-&gt;setCellValue('B1', mb_convert_encoding($str, &quot;UTF-8&quot;, $current_enc));\t</pre>\r\n<p>&nbsp;</p>\r\n<p>and I get the same result each time.</p>\r\n<p>If i am trying to insert a string like &quot;Tv&auml;tts&auml;ck&quot; it appears in the spreadsheet as &quot;Tv&quot;</p>\r\n<p>Any help would be greatly appreciated.</p>\r\n<p>This has been a really useful class so far, we are using it to embed images into the spreadsheet, which I think is why we went for the Excel5 type of file.</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks</p>\r\n<p>&nbsp;</p>\r\n<p>Peter</p>",
+    "PostedDate": "2010-02-05T07:33:31.393-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "291491",
+    "ThreadId": "83263",
+    "Html": "<p>This is strange. There should be no problems with UTF-8 in Excel5 writer.</p>\r\n<p>As a test, can you try to insert the string directly. This should be working if your PHP script is saved as UTF-8 :</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$objPHPExcel-&gt;setActiveSheetIndex(0)-&gt;setCellValue(<span style=\"color:#A31515\">'B1'</span>, <span style=\"color:#A31515\">'Tv&auml;tts&auml;ck'</span>);\r\n\r\n</pre>\r\n</div>",
+    "PostedDate": "2010-02-16T16:12:21.787-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "414151",
+    "ThreadId": "83263",
+    "Html": "<p>Hello,</p>\r\n<p>I've tried this out and I still get the same result...</p>\r\n<p>I have tried</p>\r\n<p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$str = <span style=\"color:#A31515\">'Tv&auml;tts&auml;ck'</span>;\r\n$objPHPExcel-&gt;setActiveSheetIndex(0)-&gt;setCellValue(<span style=\"color:#A31515\">'B'</span>.$i, $str);\r\n</pre>\r\n</div>\r\n</p>\r\n<p>and</p>\r\n<p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$str = <span style=\"color:#A31515\">'Tv&auml;tts&auml;ck'</span>;\r\n$current_enc = mb_detect_encoding($str);\r\n$objPHPExcel-&gt;setActiveSheetIndex(0)-&gt;setCellValue(<span style=\"color:#A31515\">'B'</span>.$i, iconv($current_enc, <span style=\"color:#A31515\">&quot;UTF-8&quot;</span>, $str));\t\r\n</pre>\r\n</div>\r\n</p>\r\n<p>which both result in just &quot;Tv&quot; appearing in the cell</p>\r\n<p>if i do</p>\r\n<p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$str = <span style=\"color:#A31515\">'Tv&auml;tts&auml;ck'</span>;\r\n$current_enc = mb_detect_encoding($str);<br>$objPHPExcel-&gt;setActiveSheetIndex(0)-&gt;setCellValue(<span style=\"color:#A31515\">'B'</span>.$i, mb_convert_encoding($str, <span style=\"color:#A31515\">&quot;UTF-8&quot;</span>, $current_enc));\t\r\n</pre>\r\n</div>\r\n</p>\r\n<p>I get &quot;Tvttsck&quot;</p>\r\n<p>which is a different result, but still not quite what I'm looking for!</p>\r\n<p>Can you suggest anything else I could try. Are different versions of excel likely to be more effective?</p>\r\n<p>Is there anything I can pass when I output the file to specify the encoding type?</p>\r\n<p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, <span style=\"color:#A31515\">'Excel5'</span>);\r\n$objWriter-&gt;save($pathToExcelFile);\r\n</pre>\r\n</div>\r\n</p>\r\n<p>thanks for your help</p>\r\n<p>&nbsp;</p>\r\n<p>Peter</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-03-04T06:59:37.613-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "414158",
+    "ThreadId": "83263",
+    "Html": "<p>Update:</p>\r\n<p>I've just read</p>\r\n<p>http://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=71406</p>\r\n<p>who found that using utf8_encode worked, so I tried</p>\r\n<p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$str = utf8_encode(<span style=\"color:#A31515\">'Tv&auml;tts&auml;ck'</span>);\r\n$objPHPExcel-&gt;setActiveSheetIndex(0)-&gt;setCellValue(<span style=\"color:#A31515\">'B'</span>.$i, $str);\r\n</pre>\r\n</div>\r\n</p>\r\n<p>and that seems to work.</p>\r\n<p>However I noticed in the post I read that you advise against this because it slows down the code and shouldn't be neccessary, so if there is a way I could get it to work without doing this then I would still rather do that.</p>\r\n<p>Thanks</p>\r\n<p>Peter</p>",
+    "PostedDate": "2010-03-04T07:11:29.587-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "414183",
+    "ThreadId": "83263",
+    "Html": "<p>Hurrah, I've figured it out.</p>\r\n<p>&nbsp;</p>\r\n<p>I couldn't work out why the characters in 01simple.php was working, but this wasn't.</p>\r\n<p>It was becasue the code wasn't saved as utf-8.</p>\r\n<p>I'm editing in dreamweaver cs4, and I have the default encoding (edit &gt; preferences &gt; new document &gt; default encoding)</p>\r\n<p>set to utf-8, so I assumed that this doc was utf-8.</p>\r\n<p>However, I discovered that if you go into</p>\r\n<p>modify &gt; page properties &gt; title/encoding &gt; encoding</p>\r\n<p>you can modify the encoding of the page.</p>\r\n<p>Also, make sure you don't use utf8_encode once you've set the encoding up in the page or it will turn out weird.</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks for your help, hope this helps someone else solve this problem a bit more quickly than I did!</p>\r\n<p>&nbsp;</p>\r\n<p>Cheers</p>\r\n<p>&nbsp;</p>\r\n<p>Peter</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-03-04T07:45:01.637-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

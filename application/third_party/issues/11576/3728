@@ -1,0 +1,20 @@
+Index: Classes/PHPExcel/Shared/Date.php
+===================================================================
+--- Classes/PHPExcel/Shared/Date.php	(revision 1301)
++++ Classes/PHPExcel/Shared/Date.php	(working copy)
+@@ -288,6 +288,15 @@
+ 	 * @return	float|false		Excel date/time serial value
+ 	 */
+ 	public static function stringToExcel($dateValue = '') {
++		// restrict to dates and times like these because date_parse accepts too many strings
++		// '2009-12-31'
++		// '2009-12-31 15:59'
++		// '2009-12-31 15:59:10'
++		if (!preg_match('/^\d{4}\-\d{1,2}\-\d{1,2}( \d{1,2}:\d{1,2}(:\d{1,2})?)?$/', $dateValue)) {
++			return false;
++		}
++
++		// now try with date_parse
+ 		$PHPDateArray = date_parse($dateValue);
+ 
+ 		if ($PHPDateArray['error_count'] == 0) {

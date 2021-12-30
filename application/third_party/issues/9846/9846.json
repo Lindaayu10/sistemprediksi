@@ -1,0 +1,136 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel_Writer_Excel2007",
+      "DisplayName": "PHPExcel_Writer_Excel2007"
+    },
+    "ClosedComment": "Fixed in SVN",
+    "ClosedDate": "2009-05-08T16:45:14.77-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Test 1:\n-------\nsetlocale(LC_ALL, 'german');\n$excel = new PHPExcel();\n \n$sheet = $excel->getActiveSheet();\n$sheet->getCell('A1')->setValue(1234.56);\n \n$writer = PHPExcel_IOFactory::createWriter($excel, 'Excel2007');\n$writer->save('write-1.xlsx');\n \nExpected result:\n--------\n1234.56 inserted as numeric value in cell A1\n \nActual result:\n--------\n1234.56 inserted as string value in cell A1\n \nScreen shot:\n--------\nhttp://img258.imageshack.us/img258/4854/write1m.png\n \nYou can see that contents is left aligned in the cell, that is because it is inserted as a string\n \nEnvironment:\n----\nPHPExcel 1.6.7\n \n \n************************************\n \nOk, then let's instead try using setValueExplicit instead:\n \nTest 2:\n-------\nsetlocale(LC_ALL, 'german');\n$excel = new PHPExcel();\n \n$sheet = $excel->getActiveSheet();\n$sheet->getCell('A1')->setValueExplicit(1234.56, PHPExcel_Cell_DataType::TYPE_NUMERIC);\n \n$writer = PHPExcel_IOFactory::createWriter($excel, 'Excel2007');\n$writer->save('write-2.xlsx');\n \nExpected result:\n--------\n1234.56 inserted as numeric value in cell A1\n \nActual result:\n--------\n1234.56 again inserted as string value in cell A1, but now Excel file is also corrupt\n \nScreen shot:\n--------\nhttp://img407.imageshack.us/img407/6788/write2error.png\nhttp://img407.imageshack.us/img407/1069/write2.png\n \nEnvironment:\n----\nPHPExcel 1.6.7",
+    "LastUpdatedDate": "2013-05-16T05:42:43.767-07:00",
+    "PlannedForRelease": "PHPExcel 1.7.0 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-04-24T04:54:20.77-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Fractional (decimal) numbers not inserted correctly when locale is other than English",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 9846
+  },
+  "FileAttachments": [
+    {
+      "FileId": 3012,
+      "FileName": "write-1.xlsx",
+      "DownloadUrl": ".\\3012"
+    },
+    {
+      "FileId": 3013,
+      "FileName": "write-2.xlsx",
+      "DownloadUrl": ".\\3013"
+    },
+    {
+      "FileId": 3014,
+      "FileName": "wi-9846.patch",
+      "DownloadUrl": ".\\3014"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "Patch does two things\r\n\r\n1. Enforces point as decimal separator for numeric values as it should be in the Excel file no matter locale.\r\n2. Makes dataTypeForValue() in PHPExcel_Cell_DefaultValueBinder locale aware (decimal separator depends on locale)\r\n\r\nAll together, the patch should enable that fractional numbers can be inserted using localized strings, as expected. I.e. here examples of correct ways to insert a number in different locales:\r\n\r\nIn English locale:\r\n\r\n$sheet->getCell('A1')->setValue(1234.56);\r\n$sheet->getCell('A1')->setValue('1234.56');\r\n\r\nIn German locale:\r\n\r\n$sheet->getCell('A1')->setValue(1234.56);\r\n$sheet->getCell('A1')->setValue('1234,56');\r\n",
+      "PostedDate": "2009-04-24T04:58:19.893-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-04-24T04:58:20.38-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-04-24T06:22:23.433-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Is this patch stable enough to include?",
+      "PostedDate": "2009-04-24T08:00:26.777-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I did some further testing. Patch should be stable!\r\n",
+      "PostedDate": "2009-04-24T20:13:27.173-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-04-25T01:47:00.047-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Did some testing too, works like a charm!",
+      "PostedDate": "2009-04-25T01:48:33.017-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-04-25T01:48:33.97-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-04-25T01:48:44.203-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Fixed in SVN\r\n\r\n** Closed by maartenba 4/25/2009 1:48 AM",
+      "PostedDate": "2009-05-08T07:11:15.393-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Bug fixed, but broke desired behavior that setValue('1234.56') works for inserting numeric values in non-English locale.",
+      "PostedDate": "2009-05-08T07:11:17.317-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-05-08T07:11:50.927-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Fixing again in SVN\r\n\r\nTo clarify, this is how to insert numeric values in any locale:\r\n$sheet->getCell('A1')->setValue(1234.56);\r\n$sheet->getCell('A1')->setValue('1234.56');\r\n\r\nThis results in a string being inserted, in any locale:\r\n$sheet->getCell('A1')->setValue('1234,56');\r\n",
+      "PostedDate": "2009-05-08T16:44:55.27-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-05-08T16:45:14.77-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:04:06.45-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:43.767-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

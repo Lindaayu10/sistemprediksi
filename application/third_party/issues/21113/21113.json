@@ -1,0 +1,39 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hello!\n\nRecently I've had a discussion open about performance issue while normally exporting DB data to excel:\nhttps://phpexcel.codeplex.com/discussions/549981\nwhich has profiling screenshot: http://screencast.com/t/biZvmt8Hq67\n\nNow, turned out the date export of the date column from mysql is not usable by Excel functions, after reading documentation, I added one line:\n> PHPExcel_Cell::setValueBinder( new PHPExcel_Cell_AdvancedValueBinder());\n\nAnd converted 4 lines like this: \n> $objPHPExcel->setActiveSheetIndex(0)->getCell(\"L$i\")->setValueExplicit($User['name'], PHPExcel_Cell_DataType::TYPE_STRING);\n\nInto a lines like this:\n> $objPHPExcel->setActiveSheetIndex(0)->getCell(\"T$i\")->setValue($User['update_time'])->getStyle(\"T$i\")->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_DATE_YYYYMMDDSLASH);\n\nWhich seems to work on small test batch, but is EXTREMELY SLOW! profiling for 100 rows, profiling proves there is a problem: the method getHashCode gets called 61220 times! significantly contributing to the problem - this makes the report impossible to create in reasonable time.\n\nThe current profiling screenshot:\nhttp://screencast.com/t/tzkH7nJQthhe\n\n\nIs this a bug in the handling of dates?\n\n\nThanks!",
+    "LastUpdatedDate": "2014-07-02T06:21:23.493-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2014-06-30T02:14:54.057-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Performance issues when setting Date cells",
+    "Type": {
+      "Name": "Unassigned",
+      "Id": 5
+    },
+    "VoteCount": 2,
+    "Id": 21113
+  },
+  "FileAttachments": [],
+  "Comments": []
+}

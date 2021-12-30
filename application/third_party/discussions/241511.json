@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "548287",
+    "ThreadId": "241511",
+    "Html": "\r\n<p>I have recently begun working with/learning to use PHPExcel and I am encountering some issues with the process of loading a &quot;template&quot; file and then saving it.</p>\r\n<p>The issue I'm experiencing is that some, but not all, of the formulas and cell formatting are being lost when I load the file and then save it (without making any changes to the content) using the Excel5 reader/writer.</p>\r\n<p>I ran the &quot;30template.php&quot; test file (I also ran other test files but this is the one that is pertinent to my intended usage) and&nbsp;<em>almost</em>&nbsp;everything worked fine. &nbsp;The only difference between the input and output files is that in the\r\n output file; the green formatted text (&quot;payable within 30 days after the end of the month&quot;) comes out as unformatted black text (like the rest of the text in that cell). &nbsp;Everything else looks exactly like it does in the original templates/30template.xls\r\n source file.</p>\r\n<p>I then copied the 30template.php file to a new test file and modified it so that it would load my sample (XLS) file. &nbsp;I also removed the code that adds new content to the file but, other than that, no other code was changed. &nbsp;This new test file\r\n simply loads the file and saves it back &quot;as-is&quot;. &nbsp;Eventually I plan to use this in a load-modify-save scenario but I'm currently limiting it to the load-save parts to reduce the number of things to troubleshoot.</p>\r\n<p>&nbsp;When I do this some, but not all, of the cells that contain formulas come out completely empty (i.e. no formulas or content of any kind) and lose all formatting (those cells have currency formatting set in the source file). &nbsp;Other cells which\r\n also contain (similar) formulas and currency formatting remain intact though (i.e. the formulas and formatting are still in the output file). &nbsp;The cells that come out empty are B6:M6, B8:M8, D9:M9, B14:M14, B16:M16, and B27:M27.</p>\r\n<p>I then tried the same code with an XLSX format file. &nbsp;The XLSX file was created by opening the XLS file&nbsp;in Excel and saving it as an XLSX file. &nbsp;The test code was updated to use the Excel2007 reader/writer but otherwise unchanged from the\r\n initial test. &nbsp;When running this; the output file comes out with all of the formulas intact but the currency formatting is then lost in any cell that contains a formula (i.e. all of the formatting is set to &quot;general&quot;).</p>\r\n<p>In both test cases the formatting for any cell that does not contain a formula is retained perfectly.</p>\r\n<p>After reading the documentation, discussions, and bug tracker and several days of experimenting; I am stumped as to what is happening to cause this behavior. &nbsp;The only formulas in the workbook are SUM formulas (a few have some additional multiplication\r\n or division as well). &nbsp;I'm not sure if this is an issue with the server, test code, Excel file, or a bug. &nbsp;No error messages are produced during the test run(s).</p>\r\n<p>The environment is:</p>\r\n<p>Server: Redhat Enterprise 5<br>\r\nPHP version: 5.2.12 &nbsp;(also tested with 5.2.13 on a completely different server running CentOS with the same results)<br>\r\nPHPExcel version: 1.7.5 and snapshot 66707 (tried 66707 after encountering the issues using 1.7.5)</p>\r\n<p>The test file I'm using will be uploaded shortly.</p>\r\n",
+    "PostedDate": "2011-01-12T14:29:40.43-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "548767",
+    "ThreadId": "241511",
+    "Html": "\r\n<p>Rich Text isn't supported in the Excel5 Writer (<a href=\"http://phpexcel.codeplex.com/workitem/8916\">Work Item 8916</a>)</p>\r\n<p>I've tried to load your file, but am getting a fatal error 'Workbook does not contain sheet:Costs'</p>\r\n",
+    "PostedDate": "2011-01-13T08:22:18.643-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "548777",
+    "ThreadId": "241511",
+    "Html": "\r\n<p>mea culpa on the &quot;Costs&quot; worksheet. I'll try and identify the problem with the formulae tonight.</p>\r\n<p>The formulae load correctly; and the&nbsp;problem appears to be in the Excel5 Writer and directly related to the *-1.</p>\r\n<p>If =SUM(C5*0.25)*-1 is changed to =-SUM(C5*0.25) the file will save correctly. My suspicion is that the Excel5 parser is misinterpreting this formula, and so generating an invalid formula value that Excel cannot subsequently read.</p>\r\n",
+    "PostedDate": "2011-01-13T08:40:17.313-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "548903",
+    "ThreadId": "241511",
+    "Html": "\r\n<p>Thank you for the quick response Mark.<br>\r\nI have been running a few more tests of my own using a much more simplified workbook and trying various load/save formats. &nbsp;I started noticing issues relating to the '* -1' in the formulas as well.<br>\r\nI also have noticed a few oddities with cells formatted as Currency and using the parens.</p>\r\n<p>Here is the sample data I set up and the results of the load/save operations ( I tried formulas with and without the SUM function in case that plays a role in any way .. but it doesn't seem to):</p>\r\n<p><span style=\"text-decoration:underline\"><strong>Test Data (Cell = Value/Formula [Formatting])</strong></span><br>\r\nA1 &nbsp; = 10 [ General ]<br>\r\nA2 &nbsp; = A1 * 5 [ General ]<br>\r\nA3 &nbsp; = A1 / 5 [ General ]<br>\r\nA4 &nbsp; = SUM(A1 * 5) / 5 [ General ]<br>\r\nA5 &nbsp; = A1 * 5 [ Currency format ]<br>\r\nA6 &nbsp; = A1 * 5 [ Currency format red ]<br>\r\nA7 &nbsp; = A1 * 5 [ Currency format with parens ]<br>\r\nA8 &nbsp; = A1 * 5 [ Currency format with parens red ]<br>\r\nA9 &nbsp; = (A1 * 5) * -1 [ Currency format ]<br>\r\nA10 = (A1 * 5) * -1 [ Currency format red ]<br>\r\nA11 = (A1 * 5) * -1 [ Currency format with parens ]<br>\r\nA12 = (A1 * 5) * -1 [ Currency format with parens red ]<br>\r\nA13 = SUM(A1 / 5) * -1 [ Currency format ]<br>\r\nA14 = SUM(A1 / 5) * -1 [ Currency format red ]<br>\r\nA15 = SUM(A1 / 5) * -1 [ Currency format with parens ]<br>\r\nA16 = SUM(A1 / 5) * -1 [ Currency format with parens red ]<br>\r\nA17 = A1 * 5 [ Number format ]<br>\r\nA18 = SUM(A1 / 5) * -1 [ Number format ]</p>\r\n<p>&nbsp;</p>\r\n<p><span style=\"text-decoration:underline\"><strong>Results</strong></span><br>\r\n<em><span style=\"text-decoration:underline\">Load as Excel5 - Save as Excel5</span></em><br>\r\nA1:A8 = retained values/formulas/formatting<br>\r\nA9:A16 = formulas and formatting lost<br>\r\nA17 = retained formula and formatting<br>\r\nA18 = formula and formatting lost<br>\r\n<br>\r\n<span style=\"text-decoration:underline\"><em>Load as Excel5 - Save as Excel2007<br>\r\n</em></span>All values/formulas/formatting retained<br>\r\n<br>\r\n<span style=\"text-decoration:underline\"><em>Load as Excel2007 - Save as Excel5</em></span><br>\r\nA1:A6 = retained values/formulas/formatting<br>\r\nA7:A8 = retained formulas but lost formatting<br>\r\nA9:A16 = formulas and formatting lost<br>\r\nA17 = retained formula and formatting<br>\r\nA18 = formula and formatting lost<br>\r\n<br>\r\n<span style=\"text-decoration:underline\"><em>Load as Excel2007 - Save as Excel2007</em></span><br>\r\nA1:A6 = retained values/formulas/formatting<br>\r\nA7:A8 = retained formulas but lost formatting<br>\r\nA9:A10 = retained formulas and formatting<br>\r\nA11:A12 = retained formulas but lost formatting<br>\r\nA13:A14 = retained formulas and formatting<br>\r\nA15:A16 = retained formulas but lost formatting<br>\r\nA17:A18 = retained formulas and formatting<br>\r\n<br>\r\n&nbsp;Where it says &quot;lost formatting&quot; that means that the formatting is set to &quot;General&quot; for those cells in the output file.</p>\r\n",
+    "PostedDate": "2011-01-13T12:04:29.023-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "548947",
+    "ThreadId": "241511",
+    "Html": "\r\n<p>Formatting should always be retained; but I'll try running some tests with the problem formats that you've identified over the next week. Certainly for some of the Excel5 saves, it could be the problem with the formula that's affecting the&nbsp;number format&nbsp;as\r\n well. I'm particularly concerned about any number formats that are lost in the Excel2007 Writer.</p>\r\n<p>&nbsp;</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/workitem/7895\">Work Item 7895</a>&nbsp;is the problem with the unary minus in the Excel5 Writer Parser: the Excel5 Reader has no problem with this. Formulas that contain those unsupported features are returned as an\r\n empty string by the parser, when it converts the stored formula to its BIFF representation. Unary minus has been on the hit list for a while as the next feature to address in the Work Item 7895 list. I'll see if I can do something about it over the weekend.</p>\r\n",
+    "PostedDate": "2011-01-13T13:26:11.31-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "549333",
+    "ThreadId": "241511",
+    "Html": "\r\n<p>Having had a quick look through the Excel5 Writer Parser, there's no quick and easy fix for the unary minus operator. In some instances, it works correctly (eg. =-SUM(C5*0.25)), in others not. I can patch it so that =SUM(C5*0.25)*-1 will work, but not =SUM(21*-1).\r\n I'd far rather spend the time and get a full solution, than provide a quick fix that sometimes works and sometimes doesn't (without any clear reason why).</p>\r\n",
+    "PostedDate": "2011-01-14T06:22:03.723-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "549446",
+    "ThreadId": "241511",
+    "Html": "\r\n<p>I totally agree that the time would be better spent working on a solution that is both complete and well understood. &nbsp;Additionally, it sounds like I may be able to work around the issue by changing the formulas and/or using the Excel2007 writer for\r\n the output (which is fine by me since the Excel5 format isn't a requirement).</p>\r\n<p>I'll give it a try with a different formula format (i.e. using the &quot;=-SUM()&quot; style formula rather than the unary minus) and the Excel2007 writer and will post a follow-up with additional info if I run into any further issues using that combination (especially\r\n if there is a recurrence of number formats being lost using the Excel2007 writer).</p>\r\n<p>Thank you again for the quick responses and your hard work on this project.</p>\r\n",
+    "PostedDate": "2011-01-14T08:48:02.85-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,111 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hello,\nI started using your library (great work!), and I think I have found a bug when copying worksheets from one workbook to another. Below I present the code of the script.\n```\n$template = new excel_reader(\"a.xlsx\");\n$logic_spec = new excel_writer();\n\nfor($sheet = 1; $sheet <= $template->get_sheet_count(); $sheet++)\n{\n  $template->debug();\n\n  $sheet_to_clone_1 = $template->clone_sheet(\"OnOff\");\n  $logic_spec->add_external_sheet($sheet_to_clone_1, 'siallal'.$sheet);\n\n  $template->debug();\n}\n\n$logic_spec->save('logic_spec');\n```\nThe output I get is:\n```\nArray\n(\n    [0] => AI\n    [1] => AO\n    [2] => DI\n    [3] => DO\n    [4] => OnOff\n)\nArray\n(\n    [0] => AO\n    [1] => DI\n    [2] => DO\n    [3] => OnOff\n)\nArray\n(\n    [0] => AO\n    [1] => DI\n    [2] => DO\n    [3] => OnOff\n)\nArray\n(\n    [0] => DI\n    [1] => DO\n    [2] => OnOff\n)\nArray\n(\n    [0] => DI\n    [1] => DO\n    [2] => OnOff\n)\nArray\n(\n    [0] => DO\n    [1] => OnOff\n)\nArray\n(\n    [0] => DO\n    [1] => OnOff\n)\nArray\n(\n    [0] => OnOff\n)\nArray\n(\n    [0] => OnOff\n)\nArray\n(\n)\n```\nWhen I run a script with modified line responsible for adding cloned sheet:\n```\n$template = new excel_reader(\"a.xlsx\");\n$logic_spec = new excel_writer();\n\nfor($sheet = 1; $sheet <= $template->get_sheet_count(); $sheet++)\n{\n  $template->debug();\n\n  $sheet_to_clone_1 = $template->clone_sheet(\"OnOff\");\n  //  $logic_spec->add_external_sheet($sheet_to_clone_1, 'siallal'.$sheet); // <----- modified\n\n  $template->debug();\n}\n\n$logic_spec->save('logic_spec');\n\n```\nI got correct, not modified output:\n```\nArray\n(\n    [0] => AI\n    [1] => AO\n    [2] => DI\n    [3] => DO\n    [4] => OnOff\n)\nArray\n(\n    [0] => AI\n    [1] => AO\n    [2] => DI\n    [3] => DO\n    [4] => OnOff\n)\nArray\n(\n    [0] => AI\n    [1] => AO\n    [2] => DI\n    [3] => DO\n    [4] => OnOff\n)\nArray\n(\n    [0] => AI\n    [1] => AO\n    [2] => DI\n    [3] => DO\n    [4] => OnOff\n)\nArray\n(\n    [0] => AI\n    [1] => AO\n    [2] => DI\n    [3] => DO\n    [4] => OnOff\n)\nArray\n(\n    [0] => AI\n    [1] => AO\n    [2] => DI\n    [3] => DO\n    [4] => OnOff\n)\nArray\n(\n    [0] => AI\n    [1] => AO\n    [2] => DI\n    [3] => DO\n    [4] => OnOff\n)\nArray\n(\n    [0] => AI\n    [1] => AO\n    [2] => DI\n    [3] => DO\n    [4] => OnOff\n)\nArray\n(\n    [0] => AI\n    [1] => AO\n    [2] => DI\n    [3] => DO\n    [4] => OnOff\n)\nArray\n(\n    [0] => AI\n    [1] => AO\n    [2] => DI\n    [3] => DO\n    [4] => OnOff\n)\n```\nsources of the methods \"clone_sheet\" and \"add_external_sheet\" are below:\n```\nclass excel_reader\n{\n  protected $excel_object;\n  protected $excel_sheet_count;\n  protected $excel_sheet_active;\n  protected $excel_sheet_names;\n\n  public function __construct($file_path)\n  {\n    if(file_exists($file_path))\n    {\n      try\n      {\n        $this->excel_object = PHPExcel_IOFactory::load($file_path);\n        //      $objReader = PHPExcel_IOFactory::createReader('Excel2007');\n        //      $objReader->setReadDataOnly(true);\n        //      $this->excel_object = $objReader->load($file_path);;\n      }\n\n      catch(Exception $exception)\n      {\n        exit('error loading file: '.$exception->getMessage().\"\\n\");\n      }\n\n      $this->excel_sheet_active = 0;\n      $this->excel_object->getSheet($this->excel_sheet_active);\n      $this->excel_object->setActiveSheetIndex($this->excel_sheet_active);\n      $this->excel_sheet_count = $this->excel_object->getSheetCount();\n      $this->excel_sheet_names = $this->excel_object->getSheetNames();\n    }\n    else\n    {\n      exit('file '.$file_path.' does not exist!'.\"\\n\");\n    }\n  }\n\n  public function __destruct()\n  {\n    $this->excel_object->disconnectWorksheets();\n    unset($this->excel_object);\n  }\n\n  public function next_sheet()\n  {\n    $next_sheet = $this->excel_sheet_active + 1;\n\n    if($next_sheet < $this->excel_sheet_count)\n    {\n      $this->excel_sheet_active = $next_sheet;\n      $this->excel_object->getSheet($this->excel_sheet_active);\n    }\n    else\n    {\n      $this->excel_sheet_active = 0;\n      $this->excel_object->getSheet(0);\n    }\n\n    $this->excel_object->setActiveSheetIndex($this->excel_sheet_active);\n  }\n\n  public function clone_sheet($sheet_name) // <-------- here\n  {\n    return clone $this->excel_object->getSheetByName($sheet_name);\n  }\n\n  public function get_sheet_count()\n  {\n    return $this->excel_sheet_count;\n  }\n\n  public function get_active_sheet_name()\n  {\n    return $this->excel_sheet_names[$this->excel_sheet_active];\n  }\n\n  public function debug()\n  {\n    $sheet_names = $this->excel_object->getSheetNames();\n    print_r($sheet_names);\n  }\n}\n\n//----------------------------------------------------------------------\n// class responsible for creating and writing excel file\n\nclass excel_writer\n{\n  protected $excel_object;\n\n  public function __construct()\n  {\n    $this->excel_object = new PHPExcel();\n  }\n\n  public function __destruct()\n  {\n    $this->excel_object->disconnectWorksheets();\n    unset($this->excel_object);\n  }\n\n  public function add_external_sheet($cloned_sheet, $new_sheet_name) // <-------- here\n  {\n    $cloned_sheet->setTitle($new_sheet_name);\n    $this->excel_object->addExternalSheet($cloned_sheet);\n  }\n\n  public function save($file_name)\n  {\n    $excel_object_writer = PHPExcel_IOFactory::createWriter($this->excel_object, 'Excel2007');\n    $excel_object_writer->save($file_name.'.xlsx');\n  }\n}\n```\nAs you see, it the first example every iteration I am loosing a original worksheet from the workbook. Am I doing something wrong?  I am using:\n```\nPHP 5.3.3 (cli) (built: Jun 28 2012 11:20:32)\nCopyright (c) 1997-2010 The PHP Group\nZend Engine v2.3.0, Copyright (c) 1998-2010 Zend Technologies\n\nand PHPExcel 1.7.8\n```",
+    "LastUpdatedDate": "2015-03-25T09:08:33.077-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2013-02-28T02:14:41.803-08:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "addExternalSheet is removing original sheet",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 19405
+  },
+  "FileAttachments": [
+    {
+      "FileId": 6831,
+      "FileName": "a.xlsx",
+      "DownloadUrl": ".\\6831"
+    },
+    {
+      "FileId": 6832,
+      "FileName": "converter.php",
+      "DownloadUrl": ".\\6832"
+    },
+    {
+      "FileId": 6834,
+      "FileName": "converter.php",
+      "DownloadUrl": ".\\6834"
+    },
+    {
+      "FileId": 6835,
+      "FileName": "converter_1.2.php",
+      "DownloadUrl": ".\\6835"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "I have attached the excel file + script source file.",
+      "PostedDate": "2013-02-28T02:15:22.867-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-28T02:19:33.95-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-28T04:11:29.66-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-28T06:55:03.62-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-28T06:56:35.313-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Updated converter, but still not working properly.",
+      "PostedDate": "2013-02-28T06:56:35.883-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-28T06:59:59.843-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-28T07:02:36.417-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-28T07:02:37.01-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "In version 1.8.0, addExternalSheet works as a movement. I use a simple code for copyng:\r\n\r\n$copy = $source_sheet->copy()->setTitle( $title );\n$copy = $sourceWorkBook->addSheet( $copy );\n$sheet = $destinationWorkBook->addExternalSheet( $copy );",
+      "PostedDate": "2015-03-25T09:08:33.077-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+[
+  {
+    "Id": "96201",
+    "ThreadId": "28858",
+    "Html": "Hello Community,<br>\r\n<br>\r\nI'm inserting time values (ie. 1:05, 2:00, 0:45) into a column and try to calculate them afterwards by the sum method. I'm setting the number format to '[hh]:mm' to get the correct sum.<br>\r\n<br>\r\nThe problem is, that Excel 2007 does not recognize the values correctly and so the sum is always &quot;0:00&quot;. If I edit each cell by doubleclicking and leaving the cell, Excel seems to correct the type and adds the edited amount of time to the final sum.<br>\r\n<br>\r\nHere's the part of the code:<br>\r\n...<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('F'.$counter, $duration);<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('F'.$counter)-&gt;getNumberFormat()-&gt;setFormatCode('[hh]:mm');<br>\r\n...<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue('F'.$counter, '=SUM(F'.($startActivity).':F'.($counter-1).')');<br>\r\n...<br>\r\n<br>\r\nAny one gots some hints?<br>\r\n<br>\r\nCheers<br>\r\nJens Jacobsen<br>\r\n",
+    "PostedDate": "2008-06-02T04:35:24.39-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "96205",
+    "ThreadId": "28858",
+    "Html": "Can you try this using disabled &quot;pre calculate formulas&quot; (check documentation)?\r\n",
+    "PostedDate": "2008-06-02T04:47:59.447-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "96207",
+    "ThreadId": "28858",
+    "Html": "The pre calculate formulas is disabled. I forgot to mention that.<br>\r\n<br>\r\n...<br>\r\n$objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel);<br>\r\n$objWriter-&gt;setPreCalculateFormulas(false);<br>\r\n...<br>\r\n<br>\r\n",
+    "PostedDate": "2008-06-02T04:59:39.86-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "96214",
+    "ThreadId": "28858",
+    "Html": "Here's an example (based on the default tests) for this problem:<br>\r\nhttp://www.jens-jacobsen.de/22timecalculation.phps<br>\r\n",
+    "PostedDate": "2008-06-02T05:16:07.427-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "96218",
+    "ThreadId": "28858",
+    "Html": "Setting time with PHP's time() function should work properly (instead of setting a string xx:yy)\r\n",
+    "PostedDate": "2008-06-02T05:46:05.617-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "96434",
+    "ThreadId": "28858",
+    "Html": "First of all: Thanks for your time and answering me ;)<br>\r\n<br>\r\nBut, I cannot get this to work. Here's what I tried<br>\r\n<br>\r\n// this would be 1.1.1970 01:00:00 -&gt; 3600<br>\r\n$seconds = (60 * 60);<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('A1', $seconds);<br>\r\n<br>\r\n// how excel changes the entered value '01:00' (in Excel ofc) if you change format from [hh]:mm to default: 0,0416666666667<br>\r\n// so write it to the cell<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('B1', ($seconds / (24 * 60 * 60)));<br>\r\n<br>\r\n// this works in excel if you change the format of B1 to [hh]:mm manually<br>\r\n// now try this in PHPExcel<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('C1', ($seconds / (24 * 60 * 60)));<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('C1')-&gt;getNumberFormat()-&gt;setFormatCode('[hh]:mm');<br>\r\n// doesnt work :( prints out: 613657:00 and if you hover the cell in Excel: 01.01.1970&nbsp; 01:00:00<br>\r\n<table width=70 height=28 cellspacing=0 cellpadding=0 border=0 style=\"border-collapse:collapse\">\r\n    <col width=64 style=\"width:48pt\"><col>\r\n    <tbody>\r\n    </tbody>\r\n    <tbody>\r\n        <tr height=17 style=\"height:12.75pt\">\r\n        </tr>\r\n    </tbody>\r\n</table>\r\nSome more hints? Btw. I also tried to use methods from PHPExcel_Shared_Date, but that didn't work either.<br>\r\n<table width=64 cellspacing=0 cellpadding=0 border=0 style=\"border-collapse:collapse;width:48pt\">\r\n    <col width=64 style=\"width:48pt\"><col>\r\n    <tbody>\r\n    </tbody>\r\n    <tbody>\r\n        <tr height=17 style=\"height:12.75pt\">\r\n        </tr>\r\n    </tbody>\r\n</table>\r\n",
+    "PostedDate": "2008-06-03T01:03:55.327-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "96487",
+    "ThreadId": "28858",
+    "Html": "<br>\r\n<div style=\"border-right:medium none;padding-right:0.2em;border-top:#aaa 0.1em dotted;padding-left:0.2em;padding-bottom:0.2em;margin:1em 0em 2.5em 3em;border-left:medium none;padding-top:0.2em;border-bottom:#aaa 0.1em dotted;font-style:italic\"><br>\r\njacobsenj wrote:<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('C1', ($seconds / (24 * 60 * 60)));<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('C1')-&gt;getNumberFormat()-&gt;setFormatCode('[hh]:mm');<br>\r\n// doesnt work :( prints out: 613657:00 and if you hover the cell in Excel: 01.01.1970  01:00:00<br>\r\n<table style=\"border-collapse:collapse\" height=28 cellspacing=0 cellpadding=0 width=70 border=0>\r\n    <colgroup><col style=\"width:48pt\" width=64><col></colgroup>\r\n    <tbody>\r\n    </tbody>\r\n    <tbody>\r\n        <tr style=\"height:12.75pt\" height=17>\r\n        </tr>\r\n    </tbody>\r\n</table>\r\nSome more hints? Btw. I also tried to use methods from PHPExcel_Shared_Date, but that didn't work either.<br>\r\n<table style=\"width:48pt;border-collapse:collapse\" cellspacing=0 cellpadding=0 width=64 border=0>\r\n    <colgroup><col style=\"width:48pt\" width=64><col></colgroup>\r\n    <tbody>\r\n    </tbody>\r\n    <tbody>\r\n        <tr style=\"height:12.75pt\" height=17>\r\n        </tr>\r\n    </tbody>\r\n</table>\r\n<br>\r\n<br>\r\n</div>\r\nThe PHPExcel Excel 7 writer detects that the value is a date because it uses a date mask, and attempts to convert the cell value from a PHP date to an Excel date before writing it to the xlsx file... it isn't aware that this is already a valid Excel date/time serial value.<br>\r\nIt's erroring somewhere in that logic, writing an invalid Excel date/time serial value to the worksheet.<br>\r\n<br>\r\nI'll try and debug exactly what it's doing tonight. \r\n",
+    "PostedDate": "2008-06-03T06:24:45.313-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "96734",
+    "ThreadId": "28858",
+    "Html": "Mark, any luck on this one?\r\n",
+    "PostedDate": "2008-06-04T06:51:52.227-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "96921",
+    "ThreadId": "28858",
+    "Html": "The Excel 2007 writer assumes that any cell value formatted as a date ('[hh]:mm' in this case) is a PHP date/time serial, and so converts it to an Excel date/time serial before writing it to file. The values in this case (the individual durations - such as $seconds / (24 * 60 * 60)));) are already Excel timestamps, so the conversion from PHP to Excel when the value is already Excel causes some of the problem.<br>\r\nIf you were to use a PHP time value, you'd still have problems with this conversion because $seconds would be treated as a full date/time value (from the PHP base date of 01-01-1970 01:00:00, so it would convert to an Excel value around that date and time. When displayed with the [hh]:mm mask, this will include the number of days since the Excel base date (01-01-1900, so giving erroneous values). Even though you can use negative values for PHP dates, trying to factor in the difference to give a valid PHP date/time for the duration based on 01-01-1900 so that it will be correctly converted to the right Excel value isn't possible because the absolute base date for PHP is 14-12-1901.<br>\r\n<br>\r\n<br>\r\nThere is a discrepancy between the Excel 5 and Excel 2007 writers: Excel 2007 assumes that date/times are PHP and converts them to Excel data/times before writing, but the Excel 5 writer assumes (correctly in this case) that they are Excel date/time values.<br>\r\n<br>\r\n<br>\r\nSo interim solution is to use the Excel 5 writer; or to comment out the appropriate block of code in the _writeCell() method of the PHPExcel_Writer_Excel2007_Worksheet class.<br>\r\n<br>\r\nLonger term solution is to provide a flag that is used to determine whether the writer should convert dates from PHP to Excel before writing, or assume that they are already Excel date/times and simply write them. I'm looking at the date function logic again (having noticed some errors in passing negative values to the DATE function) anyway, modifying it so that you can request the response as an Excel date/time value, PHP date/time value, or a PHP date/time object. While I'm doing that, I'll take a look at providing a flag for determining whether dates passed to the writers should be converted to Excel dates, or written &quot;as is&quot;; and I'll apply the same writing logic to both Excel 5 and Excel 2007.<br>\r\n",
+    "PostedDate": "2008-06-05T00:57:49.67-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "97087",
+    "ThreadId": "28858",
+    "Html": "Copied into a work item: <a href=\"http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=6302\">http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=6302</a>\r\n",
+    "PostedDate": "2008-06-05T12:10:13.953-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

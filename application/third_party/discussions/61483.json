@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "208577",
+    "ThreadId": "61483",
+    "Html": "<p>Has anyone written any code which can verify that the file uploaded really is an Excel document? I have this but I don't know if it's enough:</p>\r\n<p>\r\n<p>if ( strToLower ( $path_info['extension'] ) != 'xls' )</p>\r\n<p>&nbsp;&nbsp; &nbsp;{</p>\r\n<p>&nbsp;&nbsp; &nbsp;echo &quot;You did not upload an Excel 2000/XP/2003 (.xls) file, please go back and try again!&lt;br /&gt;\\n&quot;;</p>\r\n<p>&nbsp;&nbsp; &nbsp;end_HTML ( );</p>\r\n<p>&nbsp;&nbsp; &nbsp;}</p>\r\n<p>&nbsp;</p>\r\n<p>$objReader = PHPExcel_IOFactory::createReader('Excel5');</p>\r\n<p>$objReader-&gt;setReadDataOnly(true);</p>\r\n<p>&nbsp;</p>\r\n<p>if ( ! $objPHPExcel = $objReader-&gt;load($_FILES['uploadedfile']['name']) )</p>\r\n<p>&nbsp;&nbsp; &nbsp;{</p>\r\n<p>&nbsp;&nbsp; &nbsp;echo &quot;There was a problem reading the Excel file, please check the format and contents of this file and try again!&lt;br /&gt;\\n&quot;;</p>\r\n<p>&nbsp;&nbsp; &nbsp;end_HTML ( );</p>\r\n<p>&nbsp;&nbsp; &nbsp;}</p>\r\n</p>",
+    "PostedDate": "2009-07-04T15:05:32.063-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "208583",
+    "ThreadId": "61483",
+    "Html": "<p>1.<br> With Excel5 reader, if the file is not a valid BIFF5 or BIFF8 Excel file (covering Excel 5.0, 95, 97, 2000, XP, 2003 formats), then it will throw an exception.<br><br>Therefore you can do like this:<br><br><span style=\"font-family:Courier New\">$objReader = PHPExcel_IOFactory::createReader('Excel5');</span><br style=\"font-family:Courier New\"><span style=\"font-family:Courier New\">$objReader-&gt;setReadDataOnly(true);</span><br style=\"font-family:Courier New\"><br style=\"font-family:Courier New\"><span style=\"font-family:Courier New\">try {</span><br style=\"font-family:Courier New\"><span style=\"font-family:Courier New\">&nbsp;&nbsp;&nbsp; $objPHPExcel = $objReader-&gt;load($_FILES['uploadedfile']['name']);</span><br style=\"font-family:Courier New\"><span style=\"font-family:Courier New\">} catch (Exception $e) {</span><br style=\"font-family:Courier New\"> <span style=\"font-family:Courier New\">&nbsp;&nbsp;&nbsp; // something went wrong</span><br style=\"font-family:Courier New\"><span style=\"font-family:Courier New\">&nbsp;&nbsp;&nbsp; echo $e-&gt;getMessage();</span><br style=\"font-family:Courier New\"><span style=\"font-family:Courier New\">&nbsp;&nbsp;&nbsp; exit;</span><br style=\"font-family:Courier New\"><span style=\"font-family:Courier New\">}</span><br><br> It may not be good to discard uploaded files just because file extension is not as expected. Users can accidentally alter file extension to something other than xls. The above will read the file even with wrong file extension.<br> <br> 2.<br> You may instead want to use the below method. It works similarly, but will automatically resolve file type and invoke the correct reader. You probably also want to accept Excel 2007 (xlsx files). With the below code you don't have to worry whether users have saved as xlsx or xls (or even csv).<br> <br> <span style=\"font-family:Courier New\">try {</span><br style=\"font-family:Courier New\"> <span style=\"font-family:Courier New\">&nbsp;&nbsp;&nbsp; $objPHPExcel = <span style=\"background-color:#ffff00;font-family:Courier New\">PHPExcel_IOFactory::load($_FILES['uploadedfile']['name']);</span></span><br> <span style=\"font-family:Courier New\">} catch (Exception $e) {</span><br style=\"font-family:Courier New\"> <span style=\"font-family:Courier New\">&nbsp;&nbsp;&nbsp; // something went wrong</span><br style=\"font-family:Courier New\"> <span style=\"font-family:Courier New\">&nbsp;&nbsp;&nbsp; echo $e-&gt;getMessage();</span><br style=\"font-family:Courier New\"> <span style=\"font-family:Courier New\">&nbsp;&nbsp;&nbsp; exit;</span><br style=\"font-family:Courier New\"> <span style=\"font-family:Courier New\">}</span><br> <br> The drawback with this method is that you cannot use <span style=\"font-family:Courier New\">setReadDataOnly(true)</span>, but with recent improvements in speed (since PHPExcel 1.6.7), there is not much gain anymore using that so I wouldn't worry about that.<br> <br> Download latest source code here:<br> <a href=\"../SourceControl/ListDownloadableCommits.aspx\">http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx</a></p>",
+    "PostedDate": "2009-07-04T15:43:11.64-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "208587",
+    "ThreadId": "61483",
+    "Html": "<p>I really like 2. better!</p>\r\n<p>&nbsp;</p>\r\n<p>Are there any other security tips?</p>",
+    "PostedDate": "2009-07-04T16:11:23.053-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "208589",
+    "ThreadId": "61483",
+    "Html": "<p><em>&gt;&gt; Are there any other security tips?</em><br> <br>We should probably not call this a security tip. Rather it's about providing good error messages to the user if they upload wrong files accidentally. The above should suffice.</p>",
+    "PostedDate": "2009-07-04T16:24:55.2-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "943577",
+    "ThreadId": "403683",
+    "Html": "\r\n<p>Howdy all,</p>\r\n<p>I'm having the usual problems with memory allocation when dealing with large spreadsheets. &nbsp;I've been reading the threads and trying all the various caching options. &nbsp;I'm still seeing a lot of crashing, but that might be because I have a fundamental\r\n misunderstanding of how things tie together.</p>\r\n<p>Is caching also bound to the memory limit set in the php.ini (or locally, in code, if possible)?</p>\r\n<p>&nbsp;</p>\r\n<p>I have 16Gb of RAM allocated to this server. &nbsp;If I turn the memory limit off I can regularly crash apache (obviously). &nbsp;If I set any limit at all I always run out. &nbsp;I was experimenting with the various caching options, but even with the caching\r\n options I always get out of memory errors. &nbsp;I've used this bit of code that I saw recommended to ensure that the caching option is invoked properly:</p>\r\n<p>&nbsp;</p>\r\n<p></p>\r\n<pre>if (!PHPExcel_Settings::setCacheStorageMethod($cacheMethod,$cacheSettings)) die('CACHEING ERROR');</pre>\r\n<p></p>\r\n<p>Thanks for any help,</p>\r\n<p>&nbsp;</p>\r\n<p>Scott</p>\r\n",
+    "PostedDate": "2012-11-18T08:50:58.883-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "943682",
+    "ThreadId": "403683",
+    "Html": "\r\n<p>PHP has a memory limit defined for any thread executing a PHP script. This limit is defined in the php.ini file, and defines the maximum amount of memory that can be used by PHP scripts... that comprises the PHP script code (including PHPExcel and all its\r\n classes), and any data that PHP holds in memory (such as variables, object instances, etc). As PHPExcel works with an &quot;in-memory&quot; model, all cells are (by default) loaded as cell objects into that limited PHP memory. As a typical rule of thumb, each cell requires\r\n an average of 1k of PHP memory if using 32-bit PHP, 1.6k if using 64-bit PHP.</p>\r\n<p>You might have 16GB of memory in your server, but the PHP memory limit defined in php.ini is likely to be a great deal less than that (and unless you are using a 64-bit version of PHP, you can't even use 16GB of memory with PHP).</p>\r\n<p>&nbsp;</p>\r\n<p>Cell caching provides alternatives to the way cell data is loaded into memory, providing options to reduce the amount of memory required for each loaded cell. cache_in_memory is the default behaviour, maintaining each cell as a cell object in memory.&nbsp;Options\r\n such as cache_in_memory_serialized, cache_igbinary&nbsp;and cache_in_memory_gzip store the cell object in a serialised or a compressed format in memory, which typically takes less memory than an object instance. A cell only exists as a cell object instance while\r\n it is actually being accessed.&nbsp;cache_to_discISAM, cache_to_phpTemp, cache_to_apc, cache_to_memcache and cache_to_wincache store the cell data outside of PHP memory; but maintain an index in PHP memory telling PHPExcel where the cell data is stored. cache_to_sqlite\r\n and cache_to_sqlite3 are the most memory efficient, using a SQLite database to store cell data in an indexed database table, so no &quot;in memory&quot; index is required. Again, a cell object instance will only exist in memory while actually being accessed.</p>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2012-11-18T15:53:50.31-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "944089",
+    "ThreadId": "403683",
+    "Html": "\r\n<p>Thanks for the reply, Mark, appreciated.</p>\r\n<p>We're running the 64-bit version of php:</p>\r\n<p></p>\r\n<pre>file /usr/bin/php\r\n/usr/bin/php: ELF 64-bit LSB executable, AMD x86-64, version 1 (SYSV), for GNU/Linux 2.6.9, dynamically linked (uses shared libs), stripped</pre>\r\n<p></p>\r\n<p>&nbsp;</p>\r\n<p>I'm not sure where to begin troubleshooting then. &nbsp;With these caching methods I'm still running out of memory:&nbsp;<span>cache_to_discISAM, cache_to_phpTemp, cache_to_apc. &nbsp;I'm still trying to get memcache(d) to work properly, so I don't have any data for that\r\n yet. &nbsp;</span></p>\r\n<p>&nbsp;</p>\r\n<p><span>Thanks,</span></p>\r\n<p>&nbsp;</p>\r\n<p><span>Scott</span></p>\r\n<p><span><br>\r\n</span></p>\r\n",
+    "PostedDate": "2012-11-19T09:22:39.073-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

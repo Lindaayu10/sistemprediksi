@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "1260295",
+    "ThreadId": "549814",
+    "Html": "Hi guys.<br />\n<br />\nI have to say that Im very new to phpexcel.<br />\nFirst of all here is my simple code:<br />\n<pre><code>$objReader = PHPExcel_IOFactory::createReader('Excel2007');\n$objPHPExcel = $objReader-&gt;load(&quot;exl/temp.xlsx&quot;);\n\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('B1', 'Juni.2014');</code></pre>\n\nB1 gets &quot;Juni.2014&quot;.<br />\nA1 is saved as &quot;=B1&quot; in my template with format &quot;date.month&quot;.<br />\nA2 =A1+1 <br />\nA3 =A1+2 and so on.<br />\n<br />\n<strong>What should happen:</strong> The script inserts &quot;Juni.2014&quot; in B1 and the list under column A will get filled with every day of the inserted month (1.Jun. / 2.Jun. / 3.Jun).<br />\n<br />\n<strong>But what really happens:</strong> When I insert Juni.2014 into B1, the cell A1 (=B1) shows up &quot;Juni.2014&quot; too. The saved format &quot;day.month.&quot; gets corrupted.<br />\n<br />\nWhen I open the result.xlsx excel shows up the right format for the cell A1, but its not working.<br />\nEven if I change the format to something else it wont change anything.<br />\n<br />\nThe script isnt even touching the cell A1, so why the hell isnt this working?<br />\nI hope this was clear enough.<br />\n<br />\nLooking forward for your help.<br />\n",
+    "PostedDate": "2014-06-27T00:40:04.593-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1260310",
+    "ThreadId": "549814",
+    "Html": "&quot;Juni.2014&quot; is nothing more than a string to PHPExcel, so it won't do anything clever at all.... what you say should happen requires a degree of intelligence, it need PHPExcel to recognise &quot;Juni.2014&quot; as a month and year with a dot separating them, and to automatically convert that to a MS Excel serialized datetime stamp..... it requires me as a developer to program that intelligence into PHPExcel, in 14 different languages..... and I'm afraid that neither PHPExcel nor I are that smart.\r<br />\n<br />\nBut PHPExcel is an open source project.... you're clearly familiar with languages that I don't use, so there's nothing to stop you recoding PHPExcel's date recognition rules so that it will recognise &quot;Juni.2014&quot; as a date and convert it to a MS Excel serialized datetime stamp and set a number format mask accordingly.\r<br />\n<br />\nHowever, Neither PHPExcel nor myself are totally stupid, and we've provided you with a hook that will allow PHPExcel to do this for you, by creating a custom cell value binder. Looking at the code of the advanced value binder might give you an idea of how to achieve this.<br />\n",
+    "PostedDate": "2014-06-27T01:47:09.88-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1260325",
+    "ThreadId": "549814",
+    "Html": "Wow. Looks like you feel offended by my question. Theres no need to notice phpexcel isnt a 'totally' stupid thing.<br />\nI already said Im new to this. So please come down a bit.<br />\n<br />\nBack to topic:<br />\nAlright. Applying a straight date format to the cell should fix this shouldnt it?<br />\n<pre><code>$objReader = PHPExcel_IOFactory::createReader('Excel2007');\n$objPHPExcel = $objReader-&gt;load(&quot;exl/temp.xlsx&quot;);\n\necho date('H:i:s') . &quot; Add new data to the template&lt;br&gt;&quot;;\n\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('B1', '01.06.2014');\n$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('B1')-&gt;getNumberFormat()-&gt;setFormatCode('MMM. JJ');\n\necho date('H:i:s') . &quot; Write to Excel2007 format&lt;br&gt;&quot;;\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');\n$objWriter-&gt;save('exl/test.xlsx');</code></pre>\n\nI also tried to set the cell format before inserting the value. Both wont work. In excel there is no format applied to the cell.<br />\n",
+    "PostedDate": "2014-06-27T02:24:44.243-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1260340",
+    "ThreadId": "549814",
+    "Html": "<code>'01.06.2014'</code> is a string, and will be treated no differently to any other string in PHPExcel: simply setting a number format mask won't magically change the datatype to a number. A string with a numeric format mask is still a string, whether in MS Excel or in PHPExcel.\r<br />\n<br />\nIf you want to work with dates, you need to convert them to MS Excel serialized date/time values, ie a floating point number representing the number of days since 1st January 1900 or 1st January 1904 (depending on whether the workbook is using the Windows 1900 or the Mac 1904 calendar).\r<br />\n<br />\nYou have two options here: <br />\n<ul>\n<li>either you convert '01.06.2014' yourself (perhaps using the <code>PHPExcel_Shared_Date::PHPToExcel()</code> method) and then write the resulting float value to the cell and setting the number format mask</li>\n<li>or you set a cell value binder that will do this for you automatically if it recognises that a string is a date format</li>\n</ul>\n",
+    "PostedDate": "2014-06-27T03:10:58.75-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": "2014-06-27T06:41:56.953-07:00"
+  },
+  {
+    "Id": "1260412",
+    "ThreadId": "549814",
+    "Html": "<strong>MarkBaker wrote:</strong><br />\n<blockquote>\n[...]<br />\nYou have two options here: <br />\n<ul>\n<li>either you convert '01.06.2014' yourself (perhaps using the <code>PHPExcel_Shared_Date::PHPToExcel()</code> method) and then write the resulting float value to the cell and setting the number format mask</li>\n<li>\nor you set a cell value binder that will do this for you automatically if it recognises that a string is a date format<br />\n</li>\n</ul>\n</blockquote>\n<pre><code>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('B1', '41791');\n$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('B1')-&gt;getNumberFormat()-&gt;setFormatCode('MMM. YY');</code></pre>\n\nThanks a lot for the detailed explanation. Problem is found. :)<br />\n",
+    "PostedDate": "2014-06-27T06:41:34.873-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

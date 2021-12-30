@@ -1,0 +1,115 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel",
+      "DisplayName": "PHPExcel"
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hello,\nIt seems it's not possible now to set cell style and value in 1 call. I mean something like this:\n \n$worksheet->setCellValueAndStyle('A1', 'bla bla', $boldStyle);\n \nSo, now I often have to write code like this:\n \n$worksheet->setCellValue('A1', 'bla bla');\n$worksheet->duplicateStyle($boldStyle, 'A1');\n \nAnd it looks too verbose and boring...\n \nMaybe you will implement such a possibility?",
+    "LastUpdatedDate": "2013-02-21T19:02:07.07-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2011-12-30T08:10:45.397-08:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Set cell value and style in one call",
+    "Type": {
+      "Name": "Feature",
+      "Id": 1
+    },
+    "VoteCount": 1,
+    "Id": 17152
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "Fluent interface already allows you to do this... setCellValue() can return either the cell, or the worksheet: (default is to return the worksheet).\r\n\r\nworksheet->setCellValue('A1', 'bla bla')->duplicateStyle($boldStyle, 'A1');\r\n",
+      "PostedDate": "2011-12-31T18:10:44.05-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "What is the shortest way for this scenario?:\r\n\r\n$cell = $worksheet->setCellValueByColumnAndRow($columnIndex, $rowIndex, 'bla bla', true);\r\n$worksheet->setSharedStyle($boldSty​le, $cell->getColumn() . $rowIndex);\r\n\r\nNow it seems too verbose.",
+      "PostedDate": "2012-01-01T08:22:17.467-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-01-02T03:38:20.28-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "We provide the fluent interface already, which allows multiple method calls to be nested: the returns from all methods are fully documented in the API docs, and writing code that used a fluent interface is basic PHP.\r\n\r\n\n\n** Closed by MarkBaker 02.01.2012 3:38",
+      "PostedDate": "2012-01-02T05:09:08.897-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Mark,\r\nI am sorry if I am missing something, but I just want to help make the library better.\r\n\r\nAre you sure you understood my last question?\r\nIs there a way to make the code shorter than I wrote it? If there is not, then don't you think it's too verbose?",
+      "PostedDate": "2012-01-02T05:09:09.933-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "The fluent interface is the mechanism that we provide to allow your code to be simplified... but in the specific case of setting a cell value, then applying a style to a column the answer is that there's no shortcut because you're working with different entities (cell <> row), though you could write (albeit very ugly):\r\n\r\n$worksheet->setSharedStyle($boldSty​le, $worksheet->setCellValueByColumnAndRow($columnIndex, $rowIndex, 'bla bla', true)->getColumn() . $rowIndex); \r\n\r\nIf we were to provide a wider range methods to cover all potential combinations of calls, then we'd be writing a bloated library, so we provide the basic functions as efficiently and as practically as we can.",
+      "PostedDate": "2012-01-02T05:58:24.227-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-01-02T05:59:48.32-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "\r\n\r\n\n\n** Closed by MarkBaker 02.01.2012 5:59",
+      "PostedDate": "2012-01-03T02:49:36.343-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Mark, \r\nI am not working with different entities. I am working with the same entity: first I want to set a value for a cell, and then I want to set a shared style for the same cell.\r\nWhy did you think I am working with different entities?\r\nAlso, we don't need to cover all potential combinations of calls, but we need to provide a simple and convenient API for the top usage scenarios.\r\nBased on my subjective experience (I worked with Excel from .NET & PHP applications for almost 7 years) setting a cell value and style at the same time is one of the most used scenarios.",
+      "PostedDate": "2012-01-03T02:49:37.233-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Just because user code looks \"verbose and boring\", that's no reason to \"bloat\" the library code with extra methods.\r\n\r\nThere are already 2 Cell methods (setValue and setValueExplicit), and 4 Worksheet methods (setCellValue, setCellValueByColumnAndRow, setCellValueExplicit and setCellValueExplicitByColumnAndRow) for setting a cell's value. Because PHP doesn't inherently support overloading (without a lot of performance overhead and convoluted code) I'd need to create an additional 4 Worksheet methods (and an additional 2 Cell methods) to provide the ability to set styles in the same method calls. That feels like a lot of overhead in a library that's already considered bloated by many.\r\n\r\nYour last two-lines of code could also be written as:\r\n\r\n$worksheet->setSharedStyle($boldSty​le, $worksheet->setCellValueByColumnAndRow($columnIndex, $rowIndex, 'bla bla', true)->getCoordinate()); \r\n\r\nwhich isn't excessively verbose.\r\n\r\nMethods are available to do everything you want... method calls can be chained using the fluent interface to simplify user code... In many cases, variant methods are available, so if you want to work with cell addresses such as \"A1\" you can, or if you want to work with row and column numbers (e.g. 0,0) you can, and many methods that accept cell addresses also accept range addresses.\r\n\r\nFor performance reasons, it's also a lot more efficient to set styles for a whole range of cells, rather than for every individual cell... so it's better to loop through setting your cell values (or using the fromArray() method), and then applying a style to all related cells as a range (e.g. \"A1:A120\").\r\n\r\nI'll leave your issue open this time, to give other users an opportunity to vote; but it's pretty low on my list of priorities for the coming year.",
+      "PostedDate": "2012-01-03T05:39:19.647-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Yes, the lack of good overloading support sucks :(\r\nBy the way, I didn't notice the getCoordinate() method, it helps a little bit.\r\nThe reason why I created this thread is that I used PEAR_Excel_Writer before and they have a very convenient method write($col, $row, $value, $style). We used styling extensively in our projects so we used this method very often (and we often need to style individual cells). So after rewriting our code to use PHPExcel I got 2 times more lines of code in some places. That is why I was so sad about this...",
+      "PostedDate": "2012-01-03T07:52:36.113-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-01-11T04:55:29.9-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Setting cell value and format using x,y coordinates is what I need to do, preferably in the same line of code. The fluent interface apparently allows that, so that's fine, but I haven't gotten that to work, yet.\r\nI would think an optional format param on any cell writting function would make this super simple, but that issue has obviously been discussed and dismissed, so no problem.\r\nI though this post was what I needed, but the example of how to use the fluent interface gives an error (undefined method PHPExcel_Cell::getCoordinate()  (tried getCoordinates() too, which is defined in the drawing class, so not sure that's really what I need because I'm not drawing!.\r\n\r\nThe docs are pretty light on formatting examples.\r\n\r\nSo,\r\nall I need to do is loop through some db rows and spit it out to a browser as .xlxs with some cells having differenet formats.\r\nThis works fine without formatting, but it applies \"general\" formatting which drops leading 0's and alignment is not always consistent with what I want, so I need to specify, of course. Formatting using 'A1', 'B1' cell references seems to works fine, but I can't do the formatting with row/col indexes.\r\n\r\n$objPHPExcel = new PHPExcel();\r\n$objPHPExcel->setActiveSheetIndex(0);\r\n$worksheet = $objPHPExcel->getActiveSheet();\r\n... set col widths and such\r\n$styleArray = array( \r\n  'font' => array(\r\n  'bold' => true    \r\n)); \r\n// this works but is too verbose to do for every cell\r\n$worksheet->getStyle('A1')->applyFromArray($styleArray);\r\n\r\nforeach($rows as $row){\r\n// this is what I want to do:\r\n$worksheet->setSharedStyle($styleArray, $worksheet->setCellValueByColumnAndRow($ccol++,$crow, strval($row[\"Title\"]), true)->getCoordinate());\r\n...\r\n}\r\nbut this gives the method not found error for getCoordinate.\r\nI need multiple different formats, so each cell may use a different one (but cols will all use same except for 1st one (bold).\r\nMy problem is probably that the docs are pretty dense in some places and light in others, so lots of trawling through the code is necessary (to figure out params, return types, formatting codes, etc). \r\n\r\nAnother method mentioned to format a doc is to write the data first and then go back and format the rows or columns. That would work too. I cannot figure out how to do that without using explicit ranges ('A1:A5'). What I'd like to use are numeric col/row indexes or row, col methods with numeric index params instead. How would I do that?\r\n\r\nFinally, setting the default number format to text without having to specify in each different style might be nice.\r\n\r\nGreat package, but pretty complex!",
+      "PostedDate": "2012-09-22T16:03:29.04-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Setting cell value and format using x,y coordinates is what I need to do, preferably in the same line of code. The fluent interface apparently allows that, so that's fine, but I haven't gotten that to work, yet.\r\nI would think an optional format param on any cell writting function would make this super simple, but that issue has obviously been discussed and dismissed, so no problem.\r\nI though this post was what I needed, but the example of how to use the fluent interface gives an error (undefined method PHPExcel_Cell::getCoordinate()  (tried getCoordinates() too, which is defined in the drawing class, so not sure that's really what I need because I'm not drawing!.\r\n\r\nThe docs are pretty light on formatting examples.\r\n\r\nSo,\r\nall I need to do is loop through some db rows and spit it out to a browser as .xlxs with some cells having differenet formats.\r\nThis works fine without formatting, but it applies \"general\" formatting which drops leading 0's and alignment is not always consistent with what I want, so I need to specify, of course. Formatting using 'A1', 'B1' cell references seems to works fine, but I can't do the formatting with row/col indexes.\r\n\r\n$objPHPExcel = new PHPExcel();\r\n$objPHPExcel->setActiveSheetIndex(0);\r\n$worksheet = $objPHPExcel->getActiveSheet();\r\n... set col widths and such\r\n$styleArray = array( \r\n  'font' => array(\r\n  'bold' => true    \r\n)); \r\n// this works but is too verbose to do for every cell\r\n$worksheet->getStyle('A1')->applyFromArray($styleArray);\r\n\r\nforeach($rows as $row){\r\n// this is what I want to do:\r\n$worksheet->setSharedStyle($styleArray, $worksheet->setCellValueByColumnAndRow($ccol++,$crow, strval($row[\"Title\"]), true)->getCoordinate());\r\n...\r\n}\r\nbut this gives the method not found error for getCoordinate.\r\nI need multiple different formats, so each cell may use a different one (but cols will all use same except for 1st one (bold).\r\nMy problem is probably that the docs are pretty dense in some places and light in others, so lots of trawling through the code is necessary (to figure out params, return types, formatting codes, etc). \r\n\r\nAnother method mentioned to format a doc is to write the data first and then go back and format the rows or columns. That would work too. I cannot figure out how to do that without using explicit ranges ('A1:A5'). What I'd like to use are numeric col/row indexes or row, col methods with numeric index params instead. How would I do that?\r\n\r\nFinally, setting the default number format to text without having to specify in each different style might be nice.\r\n\r\nGreat package, but pretty complex!",
+      "PostedDate": "2012-09-22T16:03:33.157-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:02:07.07-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

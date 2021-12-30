@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "273336",
+    "ThreadId": "79804",
+    "Html": "<p>Hi All</p>\r\n<p>I have a very simple report that is being generated from data and all the cell&nbsp;formatting&nbsp;is fine. The problem I have is that the column headings will not repeat for each new page of the report.</p>\r\n<p>I am using the following code with the repeat rows function at the bottom:</p>\r\n<p>\r\n<p><br>//set row -- colmun...<br>$iRow=5;<br>$sCol=&quot;A&quot;;</p>\r\n</p>\r\n<div id=\"_mcePaste\" style=\"left:-10000px;top:0px;width:1px;height:1px;overflow-x:hidden;overflow-y:hidden\">// repeat coloumn headings for every new page...</div>\r\n<div id=\"_mcePaste\" style=\"left:-10000px;top:0px;width:1px;height:1px;overflow-x:hidden;overflow-y:hidden\"><span style=\"white-space:pre\"> </span>$objPHPExcel-&gt;getActiveSheet()-&gt;getPageSetup()-&gt;setRowsToRepeatAtTopByStartAndEnd(4, 5);</div>\r\n<p>&nbsp;</p>\r\n<p>//write column headings....<br>$sIndex = $sCol . $iRow;<br>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue($sIndex, 'heading1');<br>$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle($sIndex)-&gt;applyFromArray($aFormats['acolheading_noborder_Alignleft']);<br>$sCol++;</p>\r\n<p>$sIndex = $sCol . $iRow;<br>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue($sIndex, 'heading2');<br>$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle($sIndex)-&gt;applyFromArray($aFormats['acolheading_noborder_Alignleft']);<br>$sCol++;</p>\r\n<p>$sIndex = $sCol . $iRow;<br>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue($sIndex, 'heading3');<span style=\"white-space:pre\"> <br></span>$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle($sIndex)-&gt;applyFromArray($aFormats['acolheading_noborder_Alignleft']);<br>$sCol++;</p>\r\n<p>$sIndex = $sCol . $iRow;<br>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue($sIndex, 'heading4');<br>$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle($sIndex)-&gt;applyFromArray($aFormats['acolheading_noborder_Alignleft']);</p>\r\n<p>// repeat coloumn headings for every new page...<br>$objPHPExcel-&gt;getActiveSheet()-&gt;getPageSetup()-&gt;setRowsToRepeatAtTopByStartAndEnd($iRow,&nbsp;$iRow);</p>\r\n<p>I can't seem to see where I am going wrong! Am I missing some additional code?</p>\r\n<p>Many Thanks In Advance for your help<br>Bob</p>",
+    "PostedDate": "2010-01-05T07:56:34.633-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "277065",
+    "ThreadId": "79804",
+    "Html": "<p>I don't see anything wrong with your code.</p>\r\n<p>Here is a simple test which I just tried and it worked fine with PHPExcel 1.7.2:</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$excel = <span style=\"color:Blue\">new</span> PHPExcel();\r\n\r\n$worksheet = $excel-&gt;getActiveSheet();\r\n$worksheet-&gt;getCell(<span style=\"color:#A31515\">'A1'</span>)-&gt;setValue(<span style=\"color:#A31515\">'heading'</span>);\r\n\r\n<span style=\"color:Blue\">for</span> ($i = 2; $i &lt; 300; $i++) {\r\n    $worksheet-&gt;getCell(<span style=\"color:#A31515\">&quot;A$i&quot;</span>)-&gt;setValue(<span style=\"color:#A31515\">&quot;test$i&quot;</span>);\r\n}\r\n\r\n$worksheet-&gt;getPageSetup()-&gt;setRowsToRepeatAtTopByStartAndEnd(1, 1);\r\n\r\n$writer = PHPExcel_IOFactory::createWriter($excel, <span style=\"color:#A31515\">'Excel2007'</span>);\r\n$writer-&gt;save(<span style=\"color:#A31515\">'write.xlsx'</span>);\r\n\r\n\r\n</pre>\r\n</div>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-01-14T03:40:14.02-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,45 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hi,\n\nI've encountered a strange behaviour in some of my projects after updating to PHPExcel 1.8.0.\n\nWhen I assign the result of two subsequent calls to \"getCellByColumnAndRow()\" into different variables, both variables refers to the last cell requested.\n\nHere is a sample code to reproduce the issue  :\n\n```\nrequire 'PHPExcel.php';\n\n$excel = new PHPExcel();\n$sheet = $excel->getActiveSheet();\n\n$A1 = $sheet->getCellByColumnAndRow(0,1);\necho \"A1=\".$A1->getCoordinate(). \"\\n\"; // Should print \"A1\"\n\n$D9 = $sheet->getCellByColumnAndRow(3,9);\necho \"D9=\".$D9->getCoordinate().\"\\n\"; // Should print \"D9\"\n\necho \"A1=\".$A1->getCoordinate().\"\\n\"; // Should print \"A1\"\n```\n\nThe output I get is the following :\n\n```\nA1=A1\nD9=D9\nA1=D9\n```\n\nI've ran this code sample on PHP 5.2 and the latest 5.6. I get the same results.\n\nThank you",
+    "LastUpdatedDate": "2015-10-29T00:56:35.043-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2015-10-16T07:19:23.383-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Wrong coordinates when using multiple \"getCellByColumnAndRow()\" calls",
+    "Type": {
+      "Name": "Unassigned",
+      "Id": 5
+    },
+    "VoteCount": 1,
+    "Id": 22046
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "<sigh>\nNo it isn't.\r\n\r\nYou can only have one active cell at any one time; if you assign a cell to a variable, that variable becomes a __pointer__ to the currently active cell\r\n\r\nYou set the active cell to `A1` with a call to `$A1 = $sheet->getCellByColumnAndRow(0,1);` and assign `$A1` as a pointer to the current active cell.\r\n\r\nYou set the active cell to `D9` with a call to `$D9 = $sheet->getCellByColumnAndRow(3,9);` and assign `$D9` as a pointer to the current active cell. `$A1` is also now pointing to cell `D9` as the current active cell.\r\n\r\n",
+      "PostedDate": "2015-10-29T00:56:35.043-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

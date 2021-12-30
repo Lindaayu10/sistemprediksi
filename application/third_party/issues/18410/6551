@@ -1,0 +1,183 @@
+<?php
+
+/**
+ * - classes and functions for creating Excel spreadsheet files
+ */
+require_once ("C:\wamp\www\Amfphp\Services\Reporting\xlClasses\PHPExcel.php");
+require_once ("C:\wamp\www\Amfphp\Services\Reporting\xlClasses\PHPExcel\IOFactory.php");
+
+/**
+ * - define report specific constants
+ */
+define ("Template",			"ReportTemplate");
+define ("begCol",			"A");
+define ("qtyCol",			"E");
+define ("widCol",			"H");
+define ("lenCol",			"J");
+define ("sqfCol",			"K");
+define ("cpuCol",			"M");
+define ("ovhCol",			"N");
+define ("endCol",			"P");
+
+	createXLSX();
+
+/**
+*	This function will create the XLSX by creating a PHPExcel() object
+* 	and calling the component creation functions.
+*/
+function createXLSX() {
+
+	/**
+	 * instantiate an Excel object
+	 */
+	$objXL										= new PHPExcel();
+	$objReader									= new PHPExcel_Reader_Excel2007();
+	$objXLTmpl									= $objReader->load("CostList.xlsx");
+	$objXL										= $objXLTmpl->copy();
+	
+	$objXL->getProperties()->setTitle("CostList_00020");
+	
+	/**
+	 * determine data input ranges for the report
+	 */
+  	$rBounds									= PHPExcel_Cell::getRangeBoundaries($objXL->getNamedRange("A12")->getRange());
+
+	$ccBegCol									= $rBounds[0][0];
+	$ccBegRow									= $rBounds[0][1];
+	$ccEndCol									= $rBounds[1][0];
+	$ccEndRow									= $rBounds[1][1];
+
+	/**
+	 * - get the number of component records
+	 */
+	$clCount									= $sReport->clCount;
+
+	if ($clCount != 0) {
+		/**
+		 * - label the worksheet
+		 */
+		$tabLabel								= 'Scheme ' . $sFN->searchArr($sIDArr, $sReport->schemeID);
+
+		$objSheet								= $objXL->getSheetByName("ReportTemplate")->copy();
+
+		/**
+		 * - add a new worksheet with the new name and select it as the current worksheet
+		 */
+		$objSheet->setTitle($tabLabel);
+		$objXL->addExternalSheet($objSheet);
+		$objXL->setActiveSheetIndex($objXL->getIndex($objXL->getSheetByName($tabLabel)));
+
+		$ccInput								= $ccBegRow;
+
+		/**
+		 * - insert empty rows
+		 */
+		$objXL->getActiveSheet()->insertNewRowBefore($ccEndRow, ($clCount - 1));
+
+		/**
+		 * - load the detail data
+		 */
+		ccDetail($objXL, $sReport->schemeID, $tabLabel, $ccBegCol, $ccBegRow);
+	}
+	/**
+	 * - remove the template worksheet
+	 */
+	$objXL->removeSheetByIndex(0);
+	$objXL->setActiveSheetIndex(0);
+
+	/**
+	 * - prepare the browser for the Excel format
+	 */
+	header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+	header('Content-Disposition: attachment;filename=CostList_00020.xlsx');
+	header('Cache-Control: max-age=0');
+
+	/**
+	 * - prepare for display
+	 */
+	$objWriter									= PHPExcel_IOFactory::createWriter($objXL, "Excel2007");
+	$objWriter->save('php://output');
+}
+
+/**
+*
+* - Component Creation Functions
+*
+**/
+
+	function ccDetail($xl, $schemID, $name, $col, $row) {
+		
+		$xl										= (object) $xl;
+		$rFN									= new RptFunctions();
+
+		$arr									= $rFN->getCLArray($schemID);
+		$count									= count($arr);
+		$pos									= $col . ($row - 1);
+		$rDetails								= array();
+		$styleArray								= array(
+													'font' => array(
+														'color'	=> array(
+															'argb' => PHPExcel_Style_Color::COLOR_DARKRED),
+														'size'	=> '20',
+													)
+												  );
+
+		for ($i = 0; $i < $count; $i++) {
+			$dRow								= ($row - 1) + $i;
+			$cabSum								= (($arr[$i]->partDesc == NULL) && ($arr[$i]->cabTag != ''));
+			
+			if ($cabSum) {
+				/**
+				 * - set font colour to dark red
+				 * - set font size to 20
+				 * - set row height to 25.5
+				 */
+				$sumRange						= begCol . $dRow . ':' . endCol . $dRow;
+				$xl->getActiveSheet()->getStyle($sumRange)->applyFromArray($styleArray);
+				
+				/**
+				 * - the following alternate methods also do not work
+				 */
+//				$xl->getActiveSheet()->getStyle($sumRange)->getFont()->getColor()->setARGB(PHPExcel_Style_Color::COLOR_RED);
+//				$xl->getActiveSheet()->getStyle($sumRange)->getFont()->setSize('20');
+
+				/**
+				 * - this does work
+				 */
+				$xl->getActiveSheet()->getRowDimension($dRow)->setRowHeight(25.5);
+				
+				$sqftFormula					= '';
+				$itemCostFormula				= '=(' .
+												  sqfCol . $dRow . '*' .
+												  cpuCol . $dRow . ') + '.
+												  ovhCol . $dRow;
+			} else {
+				$sqftFormula					= '=(' .
+												  widCol . $dRow . '*' .
+												  lenCol . $dRow . '*' .
+												  qtyCol . $dRow . ') / 144';
+				
+				$itemCostFormula				= '';
+			}
+			
+			$rDetails[$i][0]					= $arr[$i]->partDesc;
+			$rDetails[$i][1]					= '';
+			$rDetails[$i][2]					= $arr[$i]->intFin;
+			$rDetails[$i][3]					= $arr[$i]->extFin;
+			$rDetails[$i][4]					= $arr[$i]->compQty;
+			$rDetails[$i][5]					= $arr[$i]->compDepth;
+			$rDetails[$i][6]					= 'x';
+			$rDetails[$i][7]					= $arr[$i]->compWidth;
+			$rDetails[$i][8]					= 'x';
+			$rDetails[$i][9]					= $arr[$i]->compHeight;
+			$rDetails[$i][10]					= $sqftFormula;
+			$rDetails[$i][11]					= $arr[$i]->labourUnits;
+			$rDetails[$i][12]					= $arr[$i]->compCost;
+			$rDetails[$i][13]					= $arr[$i]->ovhCost;
+			$rDetails[$i][14]					= $itemCostFormula;
+			$rDetails[$i][15]					= $arr[$i]->cabTag;
+		}
+
+		$xl->getActiveSheet()->fromArray($rDetails, null, $pos);
+	}
+?>

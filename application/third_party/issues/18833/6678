@@ -1,0 +1,16 @@
+<?php
+
+date_default_timezone_set('UTC');
+
+require 'PHPExcel.php';
+
+// removing the following line fixes calculation error on C1
+setlocale(LC_NUMERIC, 'pl_PL.UTF-8');
+
+$xls = new PHPExcel();
+$xls->getActiveSheet()->getCell('A1')->setValue(0.5);
+$xls->getActiveSheet()->getCell('B1')->setValue('=A1 > 0');
+$xls->getActiveSheet()->getCell('C1')->setValue('=COUNTIF(A1:A1, ">0")');
+
+$writer = new PHPExcel_Writer_Excel2007($xls);
+$writer->save('/tmp/failure.xlsx');

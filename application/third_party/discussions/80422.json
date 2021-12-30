@@ -1,0 +1,74 @@
+[
+  {
+    "Id": "275648",
+    "ThreadId": "80422",
+    "Html": "<p>I have had some problems with Data Validation during using PHPExcel lib. I wanted to create a simple drop/down list, but there was a limitation in this case.</p>\r\n<p>The concrete problem is if you want to export a drop/down list with lots of items (example: 100items, each of them is longer than 25chars) -&gt; Here PHPExcel</p>\r\n<p>rough cut the string. But in OpenOffice or Excel i can create a long drop/down list. So it should be work, but it is not.</p>\r\n<p>&nbsp;</p>\r\n<p>The solution is an another type of formula. PHPExcel is use a &quot;native&quot; formula: &quot;listitem1,listitem2,...,listitemN&quot;. Theres a better method when you pre-store</p>\r\n<p>the items which you want to see in drop/down lists. And when you just creating the drop/down list, only reference those pre-store items.</p>\r\n<p>&nbsp;</p>\r\n<p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow(0, 1, <span style=\"color:#A31515\">'item1'</span>);\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow(0, 2, <span style=\"color:#A31515\">'item2'</span>);\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow(0, 3, <span style=\"color:#A31515\">'item3'</span>);\r\n...\r\n$valid_obj-&gt;setFormula1('&lt;SheetName&gt;!$A$1:$A$3);\r\n</pre>\r\n</div>\r\n</p>",
+    "PostedDate": "2010-01-11T04:39:37.127-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "276963",
+    "ThreadId": "80422",
+    "Html": "<p>Agreed. Named ranges are better that using <span style=\"font-family:Courier New\">&quot;listitem1,listitem2,...,listitemN&quot;</span>. There is a 255 character count limit in formulas in Excel. I don't think we can blame PHPExcel.</p>\r\n<p>Related thread:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=63917\">http://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=63917</a></p>",
+    "PostedDate": "2010-01-13T20:50:45.47-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "277006",
+    "ThreadId": "80422",
+    "Html": "<p>Hi,</p>\r\n<p>&quot;There is a 255 character count limit in formulas in Excel.&quot; -&gt; Yeah, i know that. This is the reason wherefore I started looking for a solution for my problem.</p>\r\n<p>&quot;I don't think we can blame PHPExcel&quot; -&gt; Let him be at a standstill far from me. PHPExcel is a great lib. But I didnt find any problem solving method in any PHPExcel documentation (My personally opinion this should be in the documentation [and the solution also]).</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-01-13T23:43:28.103-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "277043",
+    "ThreadId": "80422",
+    "Html": "<p>Following your suggestion I have just added the following piece of text in section &quot;Setting data validation on a cell&quot; in the &quot;PHPExcel developer documentation&quot;.</p>\r\n<p style=\"padding-left:30px\"><span style=\"font-size:14pt;color:black\" lang=EN-US><span style=\"font-size:7pt;font-family:'Times New Roman';font-style:normal;font-variant:normal;font-weight:normal;line-height:normal\">&nbsp;</span></span>It is important to remember that any string participating in an Excel formula is allowed to be maximum 255 characters (not bytes). This sets a limit on how many items you can have in the string <span style=\"font-family:Courier New\">&quot;Item A,Item B,Item C&quot;</span>. Therefore it is normally a better idea to type the item values directly in some cell range, say <span style=\"font-family:Courier New\">A1:A3</span>, and instead use, say, <span style=\"font-family:Courier New\">$objValidation-&gt;setFormula1('Sheet!$A$1:$A$3');</span>. Another benefit is that the item values themselves can contain the comma <span style=\"font-family:Courier New\">','</span> character itself.</p>\r\n<p>Let's see if it helps.</p>",
+    "PostedDate": "2010-01-14T01:50:49.993-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "277049",
+    "ThreadId": "80422",
+    "Html": "<p>Hopefully :)</p>\r\n<p>Keep up the good work.</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-01-14T01:59:44.907-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "284460",
+    "ThreadId": "80422",
+    "Html": "<p>Hi,<br><br>Setting the data validation formula to a cell range doesn't seem to work with the Excel5 Writer. <br><br>When I set the formula to this:<br><br>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$obj_validation-&gt;setFormula1(<span style=\"color:#A31515\">'Sheet1!$A$1:$A$2'</span>);  \r\n</pre>\r\n</div>\r\n&nbsp; <br>I get a <em>&quot;File error: data may have been lost&quot;</em> message when I open the Excel file.<br><br>However if I include an equals symbol (=) and double quotes, like this:<br><br>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$obj_validation-&gt;setFormula1(<span style=\"color:#A31515\">'&quot;=Sheet1!$A$1:$A$2&quot;'</span>); \r\n</pre>\r\n</div>\r\n&nbsp; &nbsp;<br>I no longer get the error message, but it doesn't show me my list of values either.&nbsp; However, from within Excel, if I manually highlight the cell, go to its Data Validation settings, and click &quot;OK&quot; to save its Data Validation settings -- without making any changes -- then the list of values is correctly displayed.<br><br>I'm using Excel 2007 to test it, but I need to create Excel files with long data validation lists, that can be opened in both Office 2003 and 2007.</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-02-01T16:08:52.287-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "284577",
+    "ThreadId": "80422",
+    "Html": "<p>@jknight:</p>\r\n<p>Bug with list type data validation verified in PHPExcel_Writer_Excel5</p>\r\n<p>This is correct:</p>\r\n<pre>$obj_validation-&gt;setFormula1(<span style=\"color:#a31515\">'Sheet1!$A$1:$A$2'</span>);  </pre>\r\n<p>Although I don't get <em>&quot;File error: data may have been lost&quot; </em>message when I open the file in Microsoft Office Excel 2007, I instead see empty drop-down.</p>\r\n<p>Two minor bugs fixed in PHPExcel_Writer_Excel5. 1) Option flag bug in datavalidation record. 2) Formula token bug for 3dArea</p>\r\n<p>Can you test with latest source code in a couple of hours:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/SourceControl/list/changesets\">http://phpexcel.codeplex.com/SourceControl/list/changesets</a></p>\r\n<pre><br></pre>",
+    "PostedDate": "2010-02-01T23:31:29.753-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "284941",
+    "ThreadId": "80422",
+    "Html": "<p>Got the latest source code, it's working great. Thank you!</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-02-02T12:51:49.827-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "492606",
+    "ThreadId": "80422",
+    "Html": "<p>I am attempting to use Named Ranges for Data Validation to work around the 255 char limit in formulas.<br>The generated excel file has UNPOPULATED (empty) drop downs (with no errors reported writing out or opening the xls)<br>I get the same result writing both excel5 and excel2007.<br><br>I am using PHPExcel @version 1.7.4, 2010-08-26 to generate&nbsp; and excel2010Beta to open the files.</p>\r\n<p>I have tried a number of different values for &lt;SheetName&gt;: Sheet, Sheet0, Sheet1.&nbsp; All fail to populate dropdown<br>I have also tried using setCellValueByColumnAndRow(0, 1, 'item1') etc, fails to populated dropdown<br><br>Am I doing something incorrectly?&nbsp; Any advice would be greatly appreciated.</p>\r\n<p>Sample code follows:<br><br>&nbsp;&nbsp;&nbsp; require_once 'lib/phpexcel/PHPExcel.php';<br>&nbsp;&nbsp;&nbsp; $objPHPExcel = new PHPExcel();<br>&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;setActiveSheetIndex(0);<br><br>&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(&quot;A1&quot;, &quot;item1&quot;);<br>&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(&quot;A2&quot;, &quot;item2&quot;);<br>&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(&quot;A3&quot;, &quot;item3&quot;);<br><br>&nbsp;&nbsp;&nbsp; $objValidation = $objPHPExcel-&gt;getActiveSheet()-&gt;getCell(&quot;B1&quot;)-&gt;getDataValidation();<br>&nbsp;&nbsp;&nbsp; $objValidation-&gt;setType( PHPExcel_Cell_DataValidation::TYPE_LIST );<br>&nbsp;&nbsp;&nbsp; $objValidation-&gt;setErrorStyle( PHPExcel_Cell_DataValidation::STYLE_INFORMATION );<br>&nbsp;&nbsp;&nbsp; $objValidation-&gt;setAllowBlank(false);<br>&nbsp;&nbsp;&nbsp; $objValidation-&gt;setShowInputMessage(true);<br>&nbsp;&nbsp;&nbsp; $objValidation-&gt;setShowErrorMessage(true);<br>&nbsp;&nbsp;&nbsp; $objValidation-&gt;setShowDropDown(true);<br>&nbsp;&nbsp;&nbsp; $objValidation-&gt;setErrorTitle('Input error');<br>&nbsp;&nbsp;&nbsp; $objValidation-&gt;setError('Value is not in list.');<br>&nbsp;&nbsp;&nbsp; $objValidation-&gt;setPromptTitle('Pick from list');<br>&nbsp;&nbsp;&nbsp; $objValidation-&gt;setPrompt('Please pick a value from the drop-down list.');<br>&nbsp;&nbsp;&nbsp; //Using a comma separated list here works, but using a range comes back empty<br>&nbsp;&nbsp;&nbsp; $objValidation-&gt;setFormula1('Sheet!$A$1:$A$3');<br><br>&nbsp;&nbsp;&nbsp; //// Export as Excel5: fails to populate dropdown<br>&nbsp;&nbsp;&nbsp; //header('Content-Type: application/vnd.ms-excel');<br>&nbsp;&nbsp;&nbsp; //header('Content-Disposition: attachment;filename=&quot;dropdown_test.xls&quot;');<br>&nbsp;&nbsp;&nbsp; //header('Cache-Control: max-age=0');<br>&nbsp;&nbsp;&nbsp; //$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');<br>&nbsp;&nbsp;&nbsp; //$objWriter-&gt;save('php://output');<br>&nbsp;&nbsp;&nbsp; //exit;<br><br>&nbsp;&nbsp;&nbsp; // Export as Excel2007: fails to populate dropdown<br>&nbsp;&nbsp;&nbsp; header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');<br>&nbsp;&nbsp;&nbsp; header('Content-Disposition: attachment;filename=&quot;dropdown_test.xlsx&quot;');<br>&nbsp;&nbsp;&nbsp; header('Cache-Control: max-age=0');<br>&nbsp;&nbsp;&nbsp; $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');<br>&nbsp;&nbsp;&nbsp; $objWriter-&gt;save('php://output');<br>&nbsp;&nbsp;&nbsp; exit;﻿</p>\r\n<p>TIA</p>",
+    "PostedDate": "2010-09-12T19:52:51.72-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

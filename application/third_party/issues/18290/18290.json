@@ -1,0 +1,50 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "DISCLAIMER: This really looks like a PHP issue (5.3.11 at least), not a PHPExcel issue (I'm going to open a case in the PHP bugtracker as well), but since this can have a potentially bad impact on PHPExcel, here it is:\n \nJust creating a PHPExcel instance like:\n \n$objPHPExcel = new PHPExcel();\n \nleaks ~50 file handles in the httpd process.\n \nIf PHPExcel is used heavily in a production environment things can get nasty pretty soon so here are my findings and a proposed patch.\n \nI traced the leak down to these 3 lines in PHPExcel_Autoloader::Load\n \nif ((file_exists($pObjectFilePath) === false) || (is_readable($pObjectFilePath) === false)) {\n  return false;\n}\n \nApparently using file_exists and/or is_readable within the Load method causes a file handle to be leaked forever in the httpd process.\n \nAssuming that PHPExcel is properly installed and all files are there, just commenting out the above lines prevents the leak.",
+    "LastUpdatedDate": "2013-02-21T19:01:52.543-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2012-06-28T15:18:23.837-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Handle leak in PHPExcel_Autoloader with Apache 2.2 + PHP 5.3",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 18290
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "Update: apparently the leak has nothing to do with the autoloader and is caused by is_readable, so a temporary patch could just be:\r\n\r\nif ((file_exists($pObjectFilePath) === false) /*|| (is_readable($pObjectFilePath) === false)*/) {\r\n  return false;\r\n}\r\n",
+      "PostedDate": "2012-06-29T02:11:49.03-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:01:52.543-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

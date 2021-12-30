@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "237329",
+    "ThreadId": "69719",
+    "Html": "<p>Hello,</p>\r\n<p>First thanks a lot for this library, it is very useful !</p>\r\n<p>I have the following question: say I have a cell which content is text.</p>\r\n<p>Say that this text is black for the major part, and a word in it is colored in red.</p>\r\n<p>Do I Have a way to get to that piece of information somehow ?</p>\r\n<p>From what I could understand so far, I can easily acces the cell style, but I did not get how to get to the cell content syle.</p>\r\n<p>Thank you for your help.</p>\r\n<p>Best,</p>\r\n<p>Thomas</p>",
+    "PostedDate": "2009-09-22T07:35:45.02-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "237344",
+    "ThreadId": "69719",
+    "Html": "<p>&gt;&gt; Say that this text is black for the major part, and a word in it is colored in red.</p>\r\n<p>&gt;&gt; Do I Have a way to get to that piece of information somehow ?</p>\r\n<p>Excel allows ordinary strings as well as Rich-Text strings. It sounds like you have a Rich-Text string. Here is some code taken from the HTML writer which shows how it outputs Rich-Text string as HTML:</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre><span style=\"color:Green\">// Value</span>\r\n<span style=\"color:Blue\">if</span> ($cell-&gt;getValue() <span style=\"color:Blue\">instanceof</span> PHPExcel_RichText) {\r\n    <span style=\"color:Green\">// Loop through rich text elements</span>\r\n    $elements = $cell-&gt;getValue()-&gt;getRichTextElements();\r\n    <span style=\"color:Blue\">foreach</span> ($elements <span style=\"color:Blue\">as</span> $element) {\r\n        <span style=\"color:Green\">// Rich text start?</span>\r\n        <span style=\"color:Blue\">if</span> ($element <span style=\"color:Blue\">instanceof</span> PHPExcel_RichText_Run) {\r\n            $cellData .= <span style=\"color:#A31515\">'&lt;span style=&quot;'</span> . $this-&gt;_assembleCSS($this-&gt;_createCSSStyleFont($element-&gt;getFont())) . <span style=\"color:#A31515\">'&quot;&gt;'</span>;\r\n\r\n            <span style=\"color:Blue\">if</span> ($element-&gt;getFont()-&gt;getSuperScript()) {\r\n                $cellData .= <span style=\"color:#A31515\">'&lt;sup&gt;'</span>;\r\n            } <span style=\"color:Blue\">else</span> <span style=\"color:Blue\">if</span> ($element-&gt;getFont()-&gt;getSubScript()) {\r\n                $cellData .= <span style=\"color:#A31515\">'&lt;sub&gt;'</span>;\r\n            }\r\n        }\r\n\r\n        <span style=\"color:Green\">// Convert UTF8 data to PCDATA</span>\r\n        $cellText = $element-&gt;getText();\r\n        $cellData .= htmlspecialchars($cellText);\r\n\r\n        <span style=\"color:Blue\">if</span> ($element <span style=\"color:Blue\">instanceof</span> PHPExcel_RichText_Run) {\r\n            <span style=\"color:Blue\">if</span> ($element-&gt;getFont()-&gt;getSuperScript()) {\r\n                $cellData .= <span style=\"color:#A31515\">'&lt;/sup&gt;'</span>;\r\n            } <span style=\"color:Blue\">else</span> <span style=\"color:Blue\">if</span> ($element-&gt;getFont()-&gt;getSubScript()) {\r\n                $cellData .= <span style=\"color:#A31515\">'&lt;/sub&gt;'</span>;\r\n            }\r\n\r\n            $cellData .= <span style=\"color:#A31515\">'&lt;/span&gt;'</span>;\r\n        }\r\n    }\r\n}\r\n</pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n<p>You can extract the various font properties such as color, bold, italic, etc. from the&nbsp;</p>\r\n<pre>$element-&gt;getFont()<br></pre>\r\n<p>which is an PHPExcel_Style_Font object. Try to see if the above contains the answer to your question. Otherwise post back.</p>",
+    "PostedDate": "2009-09-22T07:57:57.28-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "237364",
+    "ThreadId": "69719",
+    "Html": "<p>Hi,</p>\r\n<p>Thank you for your quick answer.</p>\r\n<p>In fact, I do not &quot;see&quot; where the link between a cell (of type PHPExcel_Cell) is linked to rich text (of type PHPExcel_RichText).</p>\r\n<p>Below is my test code:</p>\r\n<p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre><span style=\"color:Green\">/** PHPExcel */</span>\r\n<span style=\"color:Blue\">require_once</span> <span style=\"color:#A31515\">'../Classes/PHPExcel.php'</span>;\r\n\r\n<span style=\"color:Green\">/** PHPExcel_IOFactory */</span>\r\n<span style=\"color:Blue\">require_once</span> <span style=\"color:#A31515\">'../Classes/PHPExcel/IOFactory.php'</span>;\r\n\r\n<span style=\"color:Green\">//open xls</span>\r\n$objReader = PHPExcel_IOFactory::createReaderForFile(<span style=\"color:#A31515\">'s38.xls'</span>);\r\n$objReader-&gt;setReadDataOnly(true);\r\n$objPHPExcel = $objReader-&gt;load(<span style=\"color:#A31515\">'s38.xls'</span>);\r\n\r\n$objPHPExcel-&gt;setActiveSheetIndex(0);\r\n$sheet = $objPHPExcel-&gt;getActiveSheet();\r\n<span style=\"color:Blue\">for</span>($i=0;$i&lt;30;$i++){\r\n\t<span style=\"color:Blue\">for</span>($j=0;$j&lt;30;$j++){\r\n\t\t$cell = $sheet-&gt;getCellByColumnAndRow($i,$j);\r\n\t\t<span style=\"color:Blue\">if</span> ($cell-&gt;getValue() <span style=\"color:Blue\">instanceof</span> PHPExcel_RichText) {\r\n\t\t\t$elements = $cell-&gt;getValue()-&gt;getRichTextElements();\t\t\r\n\t\t}\r\n\t}\r\n}\r\n\r\n</pre>\r\n</div>\r\nThe problem is that I never get in :</p>\r\n<pre><span style=\"color:Blue\">if</span> ($cell-&gt;getValue() <span style=\"color:Blue\">instanceof</span> PHPExcel_RichText)</pre>\r\n<p>Thanks again.</p>\r\n<p>BR,</p>\r\n<p>Thomas</p>",
+    "PostedDate": "2009-09-22T08:24:17.58-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "237366",
+    "ThreadId": "69719",
+    "Html": "<p>You will need to remove this:</p>\r\n<pre>$objReader-&gt;setReadDataOnly(true);<br><br></pre>\r\n<p>It strips all styles, including the font styles in Rich-Text strings.</p>",
+    "PostedDate": "2009-09-22T08:30:00.897-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "237705",
+    "ThreadId": "69719",
+    "Html": "<p>It works perfectly.</p>\r\n<p>Thanks a lot for your support.</p>\r\n<p>BR,</p>\r\n<p>Thomas</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-09-23T01:21:08.627-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

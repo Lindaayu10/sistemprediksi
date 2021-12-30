@@ -1,0 +1,106 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "All",
+      "DisplayName": "All"
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "In MS Office Excel it is possible to style an entire row or column. This is not the same as styling individual cells. I think we do not have the option do such a thing in PHPExcel.\n \nSample file attached (2007-read.xlsx) created in MS Office Excel showing one row and one column having background color. Performing a read/write using Excel2007 reader/writer results in entire rows/columns losing their styles (2007-write.xlsx).\n \nEnvironment: PHPExcel, latest source from SVN (1.6.2+).",
+    "LastUpdatedDate": "2017-11-27T22:26:07.66-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2008-08-18T04:18:46.723-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Support for row and column styles (feature request)",
+    "Type": {
+      "Name": "Feature",
+      "Id": 1
+    },
+    "VoteCount": 8,
+    "Id": 7333
+  },
+  "FileAttachments": [
+    {
+      "FileId": 2035,
+      "FileName": "row-and-column-styles.zip",
+      "DownloadUrl": ".\\2035"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "As natural way of extending styles to columns and rows consider this syntax:\r\n\r\n// single column A, setting e.g. horizontal alignment\r\n$objWorksheet->getStyle('A')->getAlignment()->setHorizontal(...);\r\n\r\n// range of columns A to K\r\n$objWorksheet->getStyle('A:K')->getAlignment()->setHorizontal(...);\r\n\r\n// single row '1'\r\n$objWorksheet->getStyle('1')->...;\r\n\r\n// range of rows '1:23'\r\n$objWorksheet->getStyle('1:23')->...;\r\n\r\n\r\nWe could at the same time allow column range syntax as follows for the getColumnDimension() and getRowDimension() methods:\r\n\r\n$objWorksheet->getColumnDimension('A:K')->setWidth(20);\r\n\r\nWhat do you guys think of this syntax?",
+      "PostedDate": "2009-08-10T08:55:18.83-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "That's actually pretty straightforward!\r\ngetStyleByRow() and getStyleByColumn() can also be handy methods as an alias, same as the current getStyleByColumnAndRow()",
+      "PostedDate": "2009-08-10T22:38:24.42-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Good point with adding those extra methods, ok I will start investigating how all of this can be solved.",
+      "PostedDate": "2009-08-11T07:51:10.617-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-08-11T07:51:41.62-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Basic read/write of column styles has been enabled (will be included in tomorrows source code release)\r\n\r\nOne can style columns and rows just like cells as follows:\r\n\r\n$objWorksheet->getStyle('A')->...;\r\n$objWorksheet->getStyle('A:K')->...;\r\n$objWorksheet->getStyle('1')->...;\r\n$objWorksheet->getStyle('1:23')->...;\r\n\r\n--------\r\nIt is working fine, but there is still need for some adjustments before this work item can be closed:\r\n\r\n1.\r\nPHPExcel 1.7.0 and earlier does not efficiently write column information to the Excel file. It uses one record per column instead of grouping multiple columns in one record when possible. With 16,384 columns this is critical for overall efficiency. \r\n\r\nThis problem also affects PHPExcel 1.7.0 in some other cases with column dimensions, but has so far gone unnoticed probably because most people are using only few columns (< 100). With column styles enabled it is common that the full range of columns is used, for example when one sets a background color for the whole sheet. To resolve all of this, I will try to integrate a columnDimension supervisor.\r\n\r\n2.\r\nColumns styles, row styles, and cell styles are layered as shown in an illustration from \"OpenOffice.org's Documentation of the Microsoft File Format\":\r\n\r\nhttp://img207.imageshack.us/img207/2678/ss20090814021557.png\r\n\r\nThe expected behavior when you set the style for a column is that you immediately see all cells in the column picking up the style. Therefore the application also needs to take into account that it may be necessary to overwrite cell styles in the column. This has not yet been implemented, but the plan is to resolve it.\r\n\r\n3.\r\nBorder styling in conjunction with row/column styles - there may be some problems. Avoid them until this work item is fixed.",
+      "PostedDate": "2009-08-13T17:39:40.263-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Some further improvements in today's SVN... \r\nFixing the problem where new cells didn't inherit the style from row or column.\r\n\r\nHere is an example how to use the feature.\r\n\r\nWhen one constructs a workbook in PHPExcel, for sake of speed, advice is to set the column styles before filling in cell data in the sheet. Because when one styles a column, PHPExcel will need to loop through the entire collection of cells in the column and update their styles if necessary (which is expensive if there are many cells).\r\n\r\nExample of usage:\r\n-----\r\n$excel = new PHPExcel();\r\n\r\n$worksheet = $excel->getActiveSheet();\r\n\r\n// Set the column styles as the first thing\r\n$worksheet->getStyle('A:C')->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID);\r\n$worksheet->getStyle('A')->getFill()->getStartColor()->setRGB('FFFF00');\r\n$worksheet->getStyle('B:C')->getFill()->getStartColor()->setRGB('00FF00');\r\n$worksheet->getStyle('C')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);\r\n\r\n// Some nice styles for the header (ordinary cell styles)\r\n$worksheet->getCell('A1')->setValue('Name');\r\n$worksheet->getCell('B1')->setValue('Country');\r\n$worksheet->getCell('C1')->setValue('City');\r\n$worksheet->getStyle('A1:C1')->getFill()->getStartColor()->setRGB('000000');\r\n$worksheet->getStyle('A1:C1')->getFont()->getColor()->setRGB('FFFFFF');\r\n\r\n// Cell data\r\nfor ($i = 2; $i <= 10; ++$i) {\r\n\t$worksheet->getCell(\"A$i\")->setValue('Joe');\r\n\t$worksheet->getCell(\"B$i\")->setValue('Norway');\r\n\t$worksheet->getCell(\"C$i\")->setValue('Oslo');\r\n}\r\n\r\n$writer = PHPExcel_IOFactory::createWriter($excel, 'Excel2007');\r\n$writer->save('write.xlsx');\r\n\r\nResult:\r\n----\r\nhttp://img132.imageshack.us/img132/1476/ss20091003071309.png\r\n\r\nNote:\r\n----\r\nFeature is still not completely implemented, but simple things like the above works.\r\n",
+      "PostedDate": "2009-10-02T22:32:43.603-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-04-06T06:49:36.343-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2011-08-04T11:01:11.09-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Does this still work? I tried this code, but it maxes out my memory...\r\n\r\n$workbook->getActiveSheet()->getStyle('A')->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);",
+      "PostedDate": "2011-08-04T11:26:44.287-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-07-23T05:30:23.333-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:05:01.97-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2017-11-27T22:26:07.66-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

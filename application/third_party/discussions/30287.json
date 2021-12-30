@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "100867",
+    "ThreadId": "30287",
+    "Html": "I created an 2007 Excel template file, with repeat row setting inside.&nbsp; ( I repeat Row 1 to 15) <br>\r\nI used the PHPExcel_Reader_Excel2007 to read and then write it to Excel 2003 immediately.<br>\r\nFinally, the Excel 2003 file missing the Repeat Row setting.<br>\r\n<br>\r\nThis is my code: <br>\r\n<em>$objReader = new PHPExcel_Reader_Excel2007();<br>\r\n$objPHPExcel&nbsp; = $objReader-&gt;load(&quot;spec_template.xlsx&quot;);&nbsp;&nbsp; <br>\r\n$objPHPExcel-&gt;setActiveSheetIndex(0);<br>\r\n<br>\r\n$objWriter = new PHPExcel_Writer_Excel5($objPHPExcel);&nbsp;&nbsp; </em><br>\r\n<br>\r\nAfter that, I tried to use <em>$objPHPExcel-&gt;getActiveSheet()-&gt;getPageSetup()-&gt;setRowsToRepeatAtTopByStartAndEnd(1, 15);&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </em><br>\r\nFailed Aslo.<br>\r\n<br>\r\n<br>\r\nIt is fine if I output to Excel 2007 file.<br>\r\n<br>\r\nIs any bugs inside PHPExcel_Writer_Excel5?<br>\r\n<br>\r\n<br>\r\n<br>\r\n<hr>\r\nMy Development environment:<br>\r\nPHPExcel 1.6.2<br>\r\nFedora 9<br>\r\nphp 5.2.6<br>\r\nPEAR 1.7.2<br>\r\nSpreadsheet_Excel_Writer 0.9.1<br>\r\n<br>\r\n<br>\r\n",
+    "PostedDate": "2008-06-25T13:06:31.913-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "100943",
+    "ThreadId": "30287",
+    "Html": "That's not implemented. I've created a work item for this&nbsp;<a href=\"http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=6485\">http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=6485</a>\r\n",
+    "PostedDate": "2008-06-25T23:17:10.59-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "100954",
+    "ThreadId": "30287",
+    "Html": "Thanks for your quick reply.<br>\r\n<br>\r\nI still have 3 questions<br>\r\n<br>\r\n1. <em>$phpSheet-&gt;getPageSetup()-&gt;isRowsToRepeatAtTopSet()</em> always get false ( the repeat row set in Excel template)<br>\r\nThis function only works when&nbsp;&nbsp; I add<em>&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;getPageSetup()-&gt;setRowsToRepeatAtTopByStartAndEnd(1, 2);&nbsp;</em> in my code.<br>\r\n<br>\r\n2. it should be <em>$worksheet-&gt;repeatRows($repeat[0] -1, $repeat[1] - 1); </em><br>\r\n<br>\r\n3. <em>$worksheet-&gt;repeatRows</em> always crash the generated Excel. All format and setting have been lost<br>\r\n",
+    "PostedDate": "2008-06-26T01:59:14.043-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "124512",
+    "ThreadId": "30287",
+    "Html": "Hi,<br>\r\n<br>\r\nHas this been fixed?&nbsp; I am unable to get rows to repeat at top using PHPExcel 1.6.3 (PHPExcel_Writer_Excel5)<br>\r\n<br>\r\nMy code is:<br>\r\n$objPHPExcel = new PHPExcel();<br>\r\n$objPHPExcel-&gt;setActiveSheetIndex(0);<br>\r\n.... add data to worksheet....<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getPageSetup()-&gt;setOrientation(PHPExcel_Worksheet_PageSetup::ORIENTATION_LANDSCAPE);<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getPageSetup()-&gt;setRowsToRepeatAtTopByStartAndEnd(1, 2); <br>\r\n<br>\r\n$objWriter = new PHPExcel_Writer_Excel5($objPHPExcel);<br>\r\n$objWriter-&gt;save($filename);<br>\r\n<br>\r\n... but no rows repeat at top?<br>\r\n<br>\r\nThanks<br>\r\n",
+    "PostedDate": "2008-10-11T15:16:36.653-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "124521",
+    "ThreadId": "30287",
+    "Html": "Support for repeating rows and print area was implemented for PHPExcel_Writer_Excel5, but had to be removed again due to the these bugs for PEAR Spreadsheet_Excel_Writer<br>\r\n<br>\r\n<a href=\"http://pear.php.net/bugs/bug.php?id=2010\">http://pear.php.net/bugs/bug.php?id=2010</a><br>\r\n<a href=\"http://pear.php.net/bugs/bug.php?id=2146\">http://pear.php.net/bugs/bug.php?id=2146</a><br>\r\n<br>\r\n(PHPExcel_Writer_Excel5 is based on PEAR Spreadsheet_Excel_Writer)<br>\r\nI just looked at the relevant portions of the code and I now see what the problem is. Unfortunately it's not just a tiny problem, but I'll see what I can do about this although it may take time. Subscribe to this thread, and I'll post back when there is something ready.<br>\r\n<br>\r\n",
+    "PostedDate": "2008-10-11T17:53:33.217-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "125749",
+    "ThreadId": "30287",
+    "Html": "Update: Fixed per work item 7834<br>\r\n<a href=\"http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=7834\">http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=7834</a><br>\r\n<br>\r\n<br>\r\n",
+    "PostedDate": "2008-10-16T19:57:53.653-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

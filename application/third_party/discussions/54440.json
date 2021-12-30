@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "183483",
+    "ThreadId": "54440",
+    "Html": "someone have a tutorial to include google chart into spreadsheet<br>\r\nthx :) \r\n",
+    "PostedDate": "2009-04-24T18:10:27.157-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "183529",
+    "ThreadId": "54440",
+    "Html": "It should be possible to download a generated chart using file_get_contents(), for example. This can then be included as an image on the spreadsheet.\r\n",
+    "PostedDate": "2009-04-25T01:43:41.63-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "183667",
+    "ThreadId": "54440",
+    "Html": "&lt;?php<br>\r\nset_include_path(get_include_path() . PATH_SEPARATOR . './Classes/');<br>\r\nrequire_once 'PHPExcel.php';<br>\r\ninclude 'PHPExcel/IOFactory.php';<br>\r\n<br>\r\n//basic function to download chart<br>\r\nfunction charting($title,$val1,$val2,$color){<br>\r\n$url = file_get_contents(&quot;http://chart.apis.google.com/chart?chs=340x200&amp;cht=p3&amp;chl=$title&amp;chd=t:$val1,$val2&amp;chtt=Example+Chart&amp;chco=$color&quot;);<br>\r\n$img = fopen(&quot;chart.png&quot;, 'w');<br>\r\nfwrite($img, $url);<br>\r\nfclose($img); <br>\r\n}<br>\r\n<br>\r\n//create excel file<br>\r\n$objPHPExcel = new PHPExcel();<br>\r\ncharting(&quot;PHP|Java&quot;,50,50,&quot;00ff00,0000ff&quot;);<br>\r\n$objPHPExcel-&gt;setActiveSheetIndex(0);<br>\r\n$objDrawing = new PHPExcel_Worksheet_Drawing();<br>\r\n$objDrawing-&gt;setName('Example Chart');<br>\r\n$objDrawing-&gt;setDescription('Example Chart');<br>\r\n$objDrawing-&gt;setPath('chart.png');<br>\r\n$objDrawing-&gt;setCoordinates('H6');<br>\r\n$objDrawing-&gt;setWorksheet($objPHPExcel-&gt;getActiveSheet());<br>\r\n<br>\r\n//Write xlsx<br>\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');<br>\r\n$objWriter-&gt;save(str_replace('.php', '.xlsx', __FILE__));<br>\r\n<br>\r\n?&gt;<br>\r\n<br>\r\nwORK ok. thx for the info :)<br>\r\n",
+    "PostedDate": "2009-04-25T17:59:53.517-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

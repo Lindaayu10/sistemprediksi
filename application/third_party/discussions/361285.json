@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "854999",
+    "ThreadId": "361285",
+    "Html": "\r\n<p>Case: PHP 5.1.6 on Linux, PHPExcel 1.7.7. The PHP installation has no --enable-zip, therefore i'm using&nbsp;</p>\r\n<pre>PHPExcel_Settings::setZipClass(PHPExcel_Settings::PCLZIP);</pre>\r\n<p>If i send my PHPExcel object to the browser with the Excel5 Writer it works like a charm, it gives a beautiful XLS-file. If i use the Excel2007-writer with the PCLZIP-class enabled, it sends an empty (0kB) XLSX-sheet to the browser.</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>$objPHPExcel-&gt;setActiveSheetIndex(0);\nheader(<span style=\"color:#a31515\">'Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'</span>);\nheader(<span style=\"color:#a31515\">'Content-Disposition: attachment;filename=&quot;'</span>.$filename.<span style=\"color:#a31515\">'.xlsx&quot;'</span>);\nheader(<span style=\"color:#a31515\">'Cache-Control: max-age=0'</span>);\n$objWriter = <span style=\"color:blue\">new</span> PHPExcel_Writer_Excel2007($objPHPExcel);\n$objWriter-&gt;save(<span style=\"color:#a31515\">'php://output'</span>);\n</pre>\r\n</div>\r\n<p>I figured out that PCLZIP generates an error: (by enabling E_ALL and suppressing the headers)</p>\r\n<p><strong>Fatal error</strong><span>: Uncaught exception 'Exception' with message 'Error zipping files : PCLZIP_ERR_READ_OPEN_FAIL (-2) : Unable to open temporary file 'pclzip-4fec5ba9056af.tmp' in binary write mode' in /home/site/html/Classes/PHPExcel/Shared/ZipArchive.php:105</span></p>\r\n<p>The tmp-directory used by PHPExcel (and PCLZIP, if i'm correct) has CHMOD 777:&nbsp;</p>\r\n<p><span>echo substr(sprintf('%o', fileperms(PHPExcel_Shared_</span><span>File::sys_get_temp_dir())), -4);</span></p>\r\n<p><span>gives 1777.</span></p>\r\n<p>The same code <em>does</em> work on my developement server, which runs PHP 5.3.10 on OS X (Darwin) with --enable-zip turned on (but with the PCLZIP-override in the code). It then gives the correct xlsx sheet.</p>\r\n",
+    "PostedDate": "2012-06-28T06:45:58.527-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "857724",
+    "ThreadId": "361285",
+    "Html": "<p>Took me some time to figure out: i had to edit the pclzip.lib.php in the Shared directory to use a different temporary directory then the default. Apparently in some server configurations the PCLZip library does not work correctly when using the system temp directory. (Which is weird, because i use the PCLZip library in a different part of the website myself, and there it d&oacute;es work with the default temp directory.)</p>\r\n<p>However: problem fixed, but the cause is not completely clear to me...</p>",
+    "PostedDate": "2012-07-05T02:41:47.073-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "860014",
+    "ThreadId": "361285",
+    "Html": "<p>Testing to see if I can find an environment that replicates this so I can test a fix</p>",
+    "PostedDate": "2012-07-10T16:08:24.783-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "941292",
+    "ThreadId": "361285",
+    "Html": "\r\n<p>Hi Mark,</p>\r\n<p>Just had the same issue. Somehow my tmp_dir did not get a trailing slash '/'. There is even a note in the&nbsp;<span>pclzip.lib.php file about it.</span></p>\r\n<p>I now added the following line to my &quot;config.inc.php&quot; file of my project and all is fine:</p>\r\n<p>define( 'PCLZIP_TEMPORARY_DIR', '/tmp/' );</p>\r\n<p>Hope that helps,</p>\r\n<p>Martijn</p>\r\n",
+    "PostedDate": "2012-11-13T16:12:59.24-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

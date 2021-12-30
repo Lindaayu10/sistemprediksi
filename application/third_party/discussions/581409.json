@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "1354087",
+    "ThreadId": "581409",
+    "Html": "Hello there--\r<br />\n<br />\nI'm using an application online that uses PHPExcel to manage a kind of virtual Excel document. It that allows exports in PDF, CSV, or Excel formats.\r<br />\n<br />\nHowever, the Excel format causes errors (even though it looks identical to the CSV format).\r<br />\n<br />\nExcel says &quot;The file format and extension of &quot;yaddayadda.xls&quot; don't match. The file could be corrupted or unsafe. Unless you trust it's source, don't open it.&quot;\r<br />\n<br />\nI think this has to deal with extension hardening:\r<br />\n<br />\n<a href=\"http://blogs.msdn.com/b/vsofficedeveloper/archive/2008/03/11/excel-2007-extension-warning.aspx\" rel=\"nofollow\">http://blogs.msdn.com/b/vsofficedeveloper/archive/2008/03/11/excel-2007-extension-warning.aspx</a>\r<br />\n<br />\n<br />\nAnyway as a big rookie with PHPExcel, what part of the source code does the function that writes .XLS/ Excel documents found, so I can change that to just write CSVs? Help appreciated, thanks.<br />\n",
+    "PostedDate": "2015-02-19T10:56:27.143-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1354177",
+    "ThreadId": "581409",
+    "Html": "I am having the same issue, upgraded to the latest version to try and solve this, any help would be much appreciated!<br />\n",
+    "PostedDate": "2015-02-19T17:20:55.727-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1354330",
+    "ThreadId": "581409",
+    "Html": "A BIFF-format Excel file (.xls) bears no resemblance to a CSV file: if you are writing a csv file with a .xls extension, then you may well get the warning explained in the MSDBN blog entry because .xls extension assumes BIFF-format and a csv file isn't a BIFF-format file..... the solution is to use the appropriate extensions for the appropriate file types.\r<br />\n<br />\nWhen you write a file with PHPExcel, you select a Writer, e.g<br />\n<div style=\"color:Black;background-color:White;\"><pre>\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, <span style=\"color:#A31515;\">&#39;Excel5&#39;</span>);\r\n</pre></div>to select the <code>Excel5</code> Writer for BIFF-format (<code>.xls</code>) files, or <br />\n<div style=\"color:Black;background-color:White;\"><pre>\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, <span style=\"color:#A31515;\">&#39;Excel2007&#39;</span>);\r\n</pre></div>to select the <code>Excel2007</code> Writer for OfficeOpenXML (<code>.xlsx</code>) files, or<br />\n<div style=\"color:Black;background-color:White;\"><pre>\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, <span style=\"color:#A31515;\">&#39;CSV&#39;</span>);\r\n</pre></div>to select the CSV Writer for CSV-format files\r<br />\n<br />\nThen you call the <code>save()</code> method for that Writer instance\r<br />\n<br />\nThis is all documented<br />\n",
+    "PostedDate": "2015-02-20T06:51:53.563-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

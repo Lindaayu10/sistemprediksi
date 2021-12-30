@@ -1,0 +1,39 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "When save()ing a fairly complex Excel file read from a template (which I cannot post, sorry) I see hundreds of errors logged like this:\n\n\"PHP Notice:  Uninitialized string offset: 0\" \n\nWith the error source of Calculation/Functions.php line 311.\n\nThis turns out to be inside the _ifCondition function where the code\n\n\t\t$condition\t= PHPExcel_Calculation_Functions::flattenSingleValue($condition);\n\t\tif (!in_array($condition{0},array('>', '<', '='))) {\n\t\t\tif (!is_numeric($condition)) { $condition = PHPExcel_Calculation::_wrapResult(strtoupper($condition)); }\n\t\t\treturn '='.$condition;\n\t\t}\n               // ... etc, rest of function follows\n\nIs executed. The first line is 310.\n\nApparently what's happening is that flattenSingleValue() is returning an empty string.\n\nOkay, so, no problem! I can check for and handle this case. But, what is the appropriate return value for this function when this $condition is empty? Is it an empty string? Is is '='? The former seems to not cause a corrupted resultant file, but I don't know if that means it's correct.\n\nThis is with PHPExcel 1.7.8. I am reading from Excel5 and writing to Excel2007 (if that helps); this occurs on (at least) 64bit Windows.",
+    "LastUpdatedDate": "2013-02-21T19:01:27.747-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2013-02-12T12:42:09.45-08:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "PHP Notice:  Uninitialized string offset: 0",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 19345
+  },
+  "FileAttachments": [],
+  "Comments": []
+}

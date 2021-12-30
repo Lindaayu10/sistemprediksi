@@ -1,0 +1,82 @@
+[
+  {
+    "Id": "1035568",
+    "ThreadId": "441537",
+    "Html": "Hi,<br />\n<br />\nI have an important project that requires XLS/XLSX files to be uploaded to Mysql Database. I stumbled upon PHPEXCEL and have been trying to write a script but without much success as I am new to PHPEXCEL.<br />\n<br />\nIf any one can suggest, guide me how to read and import Excel data to Mysql DB using PHPEXCEL I would be much obliged.<br />\n<br />\nThanks in advance.<br />\n",
+    "PostedDate": "2013-04-25T04:14:53.887-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1035628",
+    "ThreadId": "441537",
+    "Html": "Hum... A small example easy, directly from the documentation (4.5.5):<br />\n<pre><code>&lt;?php\n$objReader = PHPExcel_IOFactory::createReader('Excel2007');\n$objReader-&gt;setReadDataOnly(true);\n\n$objPHPExcel = $objReader-&gt;load(&quot;test.xlsx&quot;);\n$objWorksheet = $objPHPExcel-&gt;getActiveSheet();\n\n$highestRow = $objWorksheet-&gt;getHighestRow(); // e.g. 10\n$highestColumn = $objWorksheet-&gt;getHighestColumn(); // e.g 'F'\n\n$highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn); // e.g. 5\n\necho '&lt;table&gt;' . &quot;\\n&quot;;\nfor ($row = 1; $row &lt;= $highestRow; ++$row) {\n  echo '&lt;tr&gt;' . &quot;\\n&quot;;\n\n  for ($col = 0; $col &lt;= $highestColumnIndex; ++$col) {\n    echo '&lt;td&gt;' . $objWorksheet-&gt;getCellByColumnAndRow($col, $row)-&gt;getValue() . '&lt;/td&gt;' . &quot;\\n&quot;;\n  }\n\n  echo '&lt;/tr&gt;' . &quot;\\n&quot;;\n}\necho '&lt;/table&gt;' . &quot;\\n&quot;;\n?&gt;\n</code></pre>\n\nIt shows the course of all cells in a worksheet, without the use of iterators. The contents of cells are displayed, but you can easily store it in a table instead.\r<br />\nThe type of input file can be changed as needed (type known by a test or determined by the method PHPExcel_IOFactory identify() upstream).\r<br />\nOnly data is read (setReadDataOnly), this reduces the resources needed but in return, certain data (date, time) are less easy to interpreted.\r<br />\nThere are other ways to do, difficulties can appear, but rather than rewrite documentation - that is freely available for everyone - we will see those you'll be faced.<br />\n",
+    "PostedDate": "2013-04-25T06:32:26.617-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1035681",
+    "ThreadId": "441537",
+    "Html": "So kind of you Lwol to respond immediately. I will start working immediately and keep you updated. Before that I will go thru' the documentation which I didn't earlier. \r<br />\n<br />\nThanks again. <br />\n",
+    "PostedDate": "2013-04-25T08:02:08.927-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1035754",
+    "ThreadId": "441537",
+    "Html": "<strong>LWol wrote:</strong><br />\n<blockquote>\nHum... A small example easy, directly from the documentation (4.5.5):<br />\n```\nIt shows the course of all cells in a worksheet, without the use of iterators. The contents of cells are displayed, but you can easily store it in a table instead.<br />\nThe type of input file can be changed as needed (type known by a test or determined by the method PHPExcel_IOFactory identify() upstream).<br />\nOnly data is read (setReadDataOnly), this reduces the resources needed but in return, certain data (date, time) are less easy to interpreted.<br />\nThere are other ways to do, difficulties can appear, but rather than rewrite documentation - that is freely available for everyone - we will see those you'll be faced.<br />\n</blockquote>\nHello LWol,<br />\n<br />\nWith minor changes made in your script, I made it thru' to display my excel data on a webpage.<br />\n<br />\nOutput from a test xls file:<br />\n<blockquote>\nUsername\tEmail\tGender\tCountry\t<br />\npsb\t<a href=\"mailto:psb67@hotmail.com\tM\tIndia\" rel=\"nofollow\">psb67@hotmail.com\tM\tIndia</a><br />\nnaga\t<a href=\"mailto:naga@hotmail.com\tF\tFrance\" rel=\"nofollow\">naga@hotmail.com\tF\tFrance</a><br />\nsudha\t<a href=\"mailto:sudha@gmail.com\tF\tGermany\" rel=\"nofollow\">sudha@gmail.com\tF\tGermany</a><br />\nraama\t<a href=\"mailto:rama@yahoo.com\tF\tSpain\" rel=\"nofollow\">rama@yahoo.com\tF\tSpain</a><br />\n</blockquote>\nI would be much obliged if you can just give me some clues on where to place mysqli prepared insert statements in the script. <br />\n<blockquote>\n<strong>To quote Mr. Mark's reply to a query from another thread, &quot; Within the for row loop, instead of echoing each cell value, build it into an SQL insert statement, and then at the end of the col loop, where you currently echo '&lt;/tr&gt;', execute the insert&quot;;  I am unable to interpret it, although its a simple and straight forward one.</strong><br />\n</blockquote>\nThanks again in advance.<br />\n",
+    "PostedDate": "2013-04-25T10:35:08.45-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1035790",
+    "ThreadId": "441537",
+    "Html": "<strong>LWol wrote:</strong><br />\n<blockquote>\nHum... A small example easy, directly from the documentation (4.5.5):<br />\n<br />\nIt shows the course of all cells in a worksheet, without the use of iterators. The contents of cells are displayed, but you can easily store it in a table instead.<br />\nThe type of input file can be changed as needed (type known by a test or determined by the method PHPExcel_IOFactory identify() upstream).<br />\nOnly data is read (setReadDataOnly), this reduces the resources needed but in return, certain data (date, time) are less easy to interpreted.<br />\nThere are other ways to do, difficulties can appear, but rather than rewrite documentation - that is freely available for everyone - we will see those you'll be faced.<br />\n</blockquote>\nHello LWol,<br />\n<br />\nThanks for citing 4.5.5- Looping cells using iterators - from the documentation. It has been highly useful.<br />\n<br />\nRegards<br />\n",
+    "PostedDate": "2013-04-25T12:26:55.887-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1035962",
+    "ThreadId": "441537",
+    "Html": "Well... You need to have something like : \r<br />\nINSERT INTO YourTable (FieldUsername, FieldEmail, FieldGender, FieldCountry) VALUES ('psb', '<a href=\"mailto:psb67@hotmail.com',\" rel=\"nofollow\">psb67@hotmail.com',</a> 'M', 'India'), ('naga', '<a href=\"mailto:naga@hotmail.com',\" rel=\"nofollow\">naga@hotmail.com',</a> 'F', 'France'), ...\r<br />\n<br />\nIn your loop (skip the first row, containing header), you build the values part : <br />\n<pre><code>if($SQL!='') $SQL.=',';\n$SQL.='(\\''.mysqli_real_escape_string($Link, $objWorksheet-&gt;getCellByColumnAndRow($colUsername, $row)-&gt;getValue()).'\\',\\''.\n        mysqli_real_escape_string($Link, $objWorksheet-&gt;getCellByColumnAndRow($colEmail, $row)-&gt;getValue()).'\\',\\''.\n        mysqli_real_escape_string($Link, $objWorksheet-&gt;getCellByColumnAndRow($colGender, $row)-&gt;getValue()).'\\',\\''.\n        mysqli_real_escape_string($Link, $objWorksheet-&gt;getCellByColumnAndRow($colCountry, $row)-&gt;getValue()).'\\')';\n</code></pre>\n\nAfter the loop : <br />\n<pre><code>if($SQL!=''){\n    $SQL='INSERT INTO YourTable (FieldUsername, FieldEmail, FieldGender, FieldCountry) VALUES '.$SQL;\n    $result=mysqli_query($Link, $SQL);\n}\n</code></pre>\n\n$colUsername, $colEmail, .... contains the appropriate column number. $SQL, empty string on loop entry.\r<br />\nIf you have numerous entries or the MySQL server don't accept big query, you need to check the size into the loop.\r<br />\nAdapt this if you use a cell iterator, add some checks on data(gender, email, ...), on result, use INSERT IGNORE or REPLACE...\r<br />\n<br />\nMy example uses not the &quot;prepared statement&quot; in the MySQL sense because I think that this is not the best solution here.<br />\n",
+    "PostedDate": "2013-04-26T01:25:57.813-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1037060",
+    "ThreadId": "441537",
+    "Html": "<strong>LWol wrote:</strong><br />\n<blockquote>\nWell... You need to have something like : <br />\nINSERT INTO YourTable (FieldUsername, FieldEmail, FieldGender, FieldCountry) VALUES ('psb', '<a href=\"mailto:psb67@hotmail.com',\" rel=\"nofollow\">psb67@hotmail.com',</a> 'M', 'India'), ('naga', '<a href=\"mailto:naga@hotmail.com',\" rel=\"nofollow\">naga@hotmail.com',</a> 'F', 'France'), ...<br />\n</blockquote>\nHello LWol,\r<br />\n<br />\nI sincerely appreciate you for guiding me from the beginning with immense patience. I tried to implement your code but could not succeed and was almost on the verge of giving up but finally managed to update data in excel sheet to mysql DB with mysqli query(insert into....). Now, I will try to make the update automatic by adding auto-save vb script in excel sheet.\r<br />\n<br />\nOnce again thank you so much and will be in touch.\r<br />\nRegards.<br />\n",
+    "PostedDate": "2013-04-29T05:05:16.007-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1037082",
+    "ThreadId": "441537",
+    "Html": "Glad to have been able to help.\r<br />\n<br />\n<strong>psb1967 wrote:</strong>\r<br />\nNow, I will try to make the update automatic by adding auto-save vb script in excel sheet.\r<br />\n<br />\nCan you develop what you would like to realize?<br />\n",
+    "PostedDate": "2013-04-29T05:41:43.753-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1037188",
+    "ThreadId": "441537",
+    "Html": "<strong>LWol wrote:</strong><br />\n<blockquote>\nGlad to have been able to help.<br />\n<br />\n<strong>psb1967 wrote:</strong><br />\nNow, I will try to make the update automatic by adding auto-save vb script in excel sheet.<br />\n<br />\nCan you develop what you would like to realize?<br />\n</blockquote>\nHello LWol,<br />\n<br />\n<strong>First and foremost, a big thanks to Mr. MarkBaker</strong> for his extraordinary contribution.<br />\n<br />\n&lt;&lt;Now, I will try to make the update automatic by adding auto-save vb script in excel sheet.<br />\n<br />\n Can you develop what you would like to realize?&gt;&gt;<br />\n<br />\nIt is highly a valuable question. Frankly, in my excitement I had completely overlooked the fact that the vb script is only used to save excel file but the question of refreshing or reloading the php page, only then mysql DB will get updated, did not strike my mind. I think I will find a solution for that. Lets see. :)<br />\n<br />\nWill keep you updated. <br />\n<br />\nRegards.<br />\n",
+    "PostedDate": "2013-04-29T08:38:50.207-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1038660",
+    "ThreadId": "441537",
+    "Html": "<strong>LWol wrote:</strong><br />\n<blockquote>\nGlad to have been able to help.<br />\n</blockquote>\nHello LWol,\r<br />\n<br />\nGave my script a final touch up, replaced mysqli-&gt;query(&quot;INSERT INTO.....) statement with mysqli INSERT INTO prepared statement - binding and execute. Now its complete.\r<br />\n<br />\nNice day.<br />\n",
+    "PostedDate": "2013-05-02T09:53:41.093-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

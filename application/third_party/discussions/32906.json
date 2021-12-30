@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "109062",
+    "ThreadId": "32906",
+    "Html": "Hello People,<br>\r\n<br>\r\nWhen i run this line:<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('M'.$lastRow,&quot;=SUMIF(M3:M&quot;.($lastRow-1).&quot;;\\&quot;&lt;0\\&quot;)&quot;);<br>\r\n<br>\r\nThe generated excelsheet is corrupted. When you open the generated excel file, excel offers to fix the problem. This results in an empty cell. <br>\r\n<br>\r\nThe formula on itself looks like this: =SUMIF(M3:M5;&quot;&lt;0&quot;)<br>\r\n<br>\r\nIn the original excelsheet that i need to reproduce with PHP the formula is in Dutch and looks like this: =SOM.ALS(N8:N16;&quot;&lt;0&quot;)<br>\r\n<br>\r\nI tried adding the dot in between SUM and IF, but that doesn't help either.<br>\r\n<br>\r\nAny suggestions?<br>\r\n<br>\r\nRegards,<br>\r\n<br>\r\nSander<br>\r\n",
+    "PostedDate": "2008-08-05T04:24:40.49-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "109074",
+    "ThreadId": "32906",
+    "Html": "One of your semicolons needs to be replaced by comma<br>\r\n<br>\r\nChange this<br>\r\n<code>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('M'.$lastRow,&quot;=SUMIF(M3:M&quot;.($lastRow-1).&quot;<span style=\"color:red\">;</span>\\&quot;&lt;0\\&quot;)&quot;);<br>\r\n<br>\r\n</code>\r\nto this<br>\r\n<code>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('M'.$lastRow,&quot;=SUMIF(M3:M&quot;.($lastRow-1).&quot;<span style=\"color:red\">,</span>\\&quot;&lt;0\\&quot;)&quot;);<br>\r\n</code>\r\n<br>\r\nThat is because you need to write the formula the way Excel stores it internally. When this kind of thing happens a good tip may be to first create the Excel sheet in Microsoft Office Excel 2007 or OpenOffice 3.0 (Beta), put in the formula from there, save it as <code>xlsx</code>, then read the spreadsheet using PHPExcel and echo the cell value with the formula. You can then see how it should actually be written.<br>\r\n<br>\r\nRelated thread:<br>\r\n<a href=\"http://www.codeplex.com/PHPExcel/Thread/View.aspx?ThreadId=23766\">http://www.codeplex.com/PHPExcel/Thread/View.aspx?ThreadId=23766</a><br>\r\n",
+    "PostedDate": "2008-08-05T05:07:46.22-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "109075",
+    "ThreadId": "32906",
+    "Html": "After a trying and searching a few times. I found an answer to my own problem.<br>\r\n<br>\r\nI had to replace the ; with ,&nbsp; (for splitting the parameters in the formula).<br>\r\n<br>\r\nNow the document is fully working. <br>\r\n<br>\r\n<strong>edit:</strong><br>\r\n<br>\r\nThanks <a id=\"ctl00_ctl00_Content_TabContentPanel_Content_PostRepeater_ctl02_UserNameLink\" href=\"../../site/users/view/koyama\">koyama</a>! ,<br>\r\n<br>\r\nIt is just like you said, just before i posted my reply. <br>\r\n",
+    "PostedDate": "2008-08-05T05:08:14.123-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

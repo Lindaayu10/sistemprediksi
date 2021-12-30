@@ -1,0 +1,121 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hi,\nI have done my tests on the latest SVN code (92409).\nMy model contains conditional formatting rules (mef_conditionnelle.xlsx).\nWhen the rule is verified, my cell is red and cell format is 'percentage' (see screen.jpg).\n \nNow I load my model and I write it without any modification.\nConditional formatting rules are written. Red background is conserved but percentage cell format is lost (cell format is now 'standard')\n \nPHP code:\n// Read\n$objReader = PHPExcel_IOFactory::createReader('Excel2007');\n$objReader->setIncludeCharts(TRUE);\n$objPHPExcel = @$objReader->load('doc/mef_conditionnelle.xlsx');\n// Write\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');\n$objWriter->setIncludeCharts(TRUE);\n$objWriter->save('doc/output.xlsx');\n \nCould you correct it please?\nThank you.",
+    "LastUpdatedDate": "2013-11-21T03:40:06.79-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2012-08-17T01:24:56.743-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Conditional formatting, cell format is lost after reading",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 2,
+    "Id": 18481
+  },
+  "FileAttachments": [
+    {
+      "FileId": 6558,
+      "FileName": "screen.jpg",
+      "DownloadUrl": ".\\6558"
+    },
+    {
+      "FileId": 6559,
+      "FileName": "mef_conditionnelle.xlsx",
+      "DownloadUrl": ".\\6559"
+    },
+    {
+      "FileId": 6560,
+      "FileName": "output.xlsx",
+      "DownloadUrl": ".\\6560"
+    },
+    {
+      "FileId": 6561,
+      "FileName": "screen.jpg",
+      "DownloadUrl": ".\\6561"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "Try with the latest github develop branch - that is our source code repository now, the codeplex svn repository is no longer being maintained",
+      "PostedDate": "2012-08-17T04:01:59.46-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-08-17T04:07:36.757-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Please test against develop branch on gitbub. If this is still an issue then, re-raise it. Codeplex SVN source code is obsolete\r\n\r\n\n\n** Closed by MarkBaker 17/08/2012 04:07",
+      "PostedDate": "2012-08-20T01:58:27.29-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I've done my tests on latest github code (dc01c8b) and this problem is still active.\r\nIf my explanations are not clear please ask me precisions. Attached files could help you.",
+      "PostedDate": "2012-08-20T01:58:28.047-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "An idea about this problem ?",
+      "PostedDate": "2012-08-30T06:53:50.617-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I have a fix, but it has a side effect: for some reason that I haven't yet been able to fathom, it changes the font colour of every cell outside of the conditional cells to white... so I can't implement yet it until I've got to the bottom of that side effect.",
+      "PostedDate": "2012-09-02T04:17:19.357-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Hi, \nI am trying to do a similar thing. I have cells with conditional formatting and currency cell format. The conditional formatting reflects red background after the condition is met, but the currency cell format is lost.\nIs this still an issue? Or when can we expect an update?\r\n\r\nI have found the same issue # 15905. And other related # 18190 and 18183.\r\n\r\nthank you.\nAnnie",
+      "PostedDate": "2012-10-15T10:21:24.863-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Hello, is there an update to the issue? thank you.",
+      "PostedDate": "2012-11-12T13:41:22.053-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:01:46.017-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I've the same issue with the latest 1.7.8\nI see this commit on Jul 03, 2012: \"Conditional styles no longer overrides cell style for style elements that aren't defined in the conditional formatting\":\nhttps://phpexcel.codeplex.com/SourceControl/changeset/92409\nthat seems to be related to that bug, but I'm still experiencing the same issues. Any numberformat styling  disappears after applying conditional formatting that only sets the background color, for example.\nThanks",
+      "PostedDate": "2013-04-11T09:01:36.35-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Hi everyone,\r\n\r\nI have the same problem with 1.7.9 and I'm not reading and editing an existing file, but creating a new .xlsx in PHPExcel. I did some digging around and came up with the following.\r\n\r\nThe conditional formatting doesn't remove or change the number format of the cells themselves. If you right click -> Cell Format you can see that the number format is still there as it should be.\r\n\r\nThe problem is that conditional formatting sets it's own number format (General by default), even if you don't ask it to, and applies it too all cells that match the rule. You can see it in the conditional format dialog. If all cells you apply the rule to have the same formatting, then you can set the number format in the conditional style array. In my case this isn't an option as my rule applies to cell with many different formats (alternate row colors).\r\n\r\nI tried reproducing the conditional formatting in Excel 2010 and I noticed that by default Excel won't select a number format for the rule which preserves the original cel format. But when you select a number format then there is no way do unselect it and Excel will apply that format to all cells that match the rule and ignore the original format. The only way to get rid of it is to delete the rule, make a new one and make sure you don't touch any of the number format options in the conditional formatting dialog.\r\n\r\nThe option of not setting a conditional number format doesn't seem to be available in PHPexcel. And the more I think about it, the more it seems the only reason one can do it in Excel is because of a bug in the interface.",
+      "PostedDate": "2013-11-19T07:47:28.493-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-11-21T03:40:06.79-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

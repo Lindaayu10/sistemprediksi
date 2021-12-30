@@ -1,0 +1,66 @@
+[
+  {
+    "Id": "1039788",
+    "ThreadId": "442655",
+    "Html": "I want import data from mysql to excel via phpexcel, but in rows I want change some cells...<br />\nexample <br />\nname | surname | number | and insert formulas <br />\n<br />\nmy code<br />\n<blockquote>\nerror_reporting(E_ALL);<br />\nini_set('display_errors', TRUE);<br />\nini_set('display_startup_errors', TRUE);<br />\ndate_default_timezone_set('Europe/London');<br />\n// connection with the database<br />\ninclude &quot;../../mikanprom/inc/mysql.php&quot;;<br />\n// require the PHPExcel file<br />\nrequire_once '../Classes/PHPExcel.php';<br />\nrequire_once 'functions.php';   //my functions for data<br />\n// simple query<br />\n$query = &quot;SELECT jmbg,ime FROM dobavljaci&quot;;<br />\nif ($result = mysql_query($query) or die(mysql_error())) {<br />\n// Create a new PHPExcel object<br />\n$objPHPExcel = new PHPExcel();<br />\n$objPHPExcel-&gt;getActiveSheet(0)-&gt;setTitle('List of Cities');<br />\n$objPHPExcel-&gt;setActiveSheetIndex(0);<br />\n// Loop through the result set<br />\n$rowNumber = 1;<br />\nwhile ($row = mysql_fetch_row($result)) {<br />\n$col = 'D'; //start from column<br />\n$ime = $row['ime'];    //this is data from mysql<br />\n$jmbg = $row['jmbg']; //this is data from mysql<br />\n$grad = 'anything else'; //example my excel formulas<br />\n$rows = array(&quot;$ime&quot;,&quot;$jmbg&quot;,&quot;$grad&quot;);  //this I create custom array<br />\nforeach($rows as $cell) {<br />\n$objPHPExcel-&gt;getActiveSheet(0)-&gt;setCellValue($col.$rowNumber,$cell);<br />\n$col++;<br />\n}<br />\n$rowNumber++;<br />\n}<br />\n// Save as an Excel BIFF (xls) file<br />\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');<br />\nheader('Content-Type: application/vnd.ms-excel');<br />\nheader('Content-Disposition: attachment;filename=&quot;myFile.xls&quot;');<br />\nheader('Cache-Control: max-age=0');<br />\n$objWriter-&gt;save('php://output');<br />\nexit();<br />\n}<br />\n</blockquote>\nWhen I start script I get error<br />\n<blockquote>\nNotice: Undefined index: ime in C:\\xamp\\xampp\\htdocs\\mljekara\\phpexcel\\Tests\\mojtest2.php on line 28<br />\nNotice: Undefined index: jmbg in C:\\xamp\\xampp\\htdocs\\mljekara\\phpexcel\\Tests\\mojtest2.php on line 29<br />\n</blockquote>\nThis error is repeated as many records in the database have<br />\n<br />\nCan anybody help me, I do not know to solve this problem.<br />\n<br />\nBest regards,<br />\nTesic<br />\n",
+    "PostedDate": "2013-05-06T02:44:14.663-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1039813",
+    "ThreadId": "442655",
+    "Html": "The number (28,29) do not correspond to the posted code.<br />\n<pre><code>$row = mysql_fetch_row($result)\n[..]\n$ime = $row['ime']; //this is data from mysql\n$jmbg = $row['jmbg']; //this is data from mysql</code></pre>\n\nMysql_fetch_row return a numerical array, no chance to have a 'ime' or a 'jmbg' key.<br />\nTry with mysql_fetch_assoc...<br />\nTroubleshooting : use print_r on your array, you quickly see what is in it.<br />\n<br />\nPS : <br />\n<pre><code>$rows = array(&quot;$ime&quot;,&quot;$jmbg&quot;,&quot;$grad&quot;); // why using &quot; ? lost of time in a loop.\n$rows = array($ime,$jmbg,$grad); // same result, or you can use $row['ime'], $row['jmbg']</code></pre>\n\nEdit : A little quick on this, you got a string... but i prefer using setCellValueExplicit.<br />\n<pre><code>$objPHPExcel-&gt;getActiveSheet(0)-&gt;setCellValue($col.$rowNumber,$cell)// no parameter for getActiveSheet (only a sheet active)</code></pre>\n\n",
+    "PostedDate": "2013-05-06T04:19:33.293-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1039837",
+    "ThreadId": "442655",
+    "Html": "Excellent, now working. Thanks LWol.\r<br />\n<br />\nIn the meantime, I have few problems when I load excel template.\r<br />\nFor example duplicating my sheets. In template I have 3 sheets, but my output file has 8 sheets.\r<br />\n<br />\nIn my template I have one hidden sheet, if the real problem? The same happens when Assign a sheet that is visible.\r<br />\n<br />\nalso\r<br />\nwhen I open my create file I get a message in excel<br />\n<blockquote>\n&quot;Excel found unreadable content in 'MYFILE.XLSX.' Do you want to recover the contents of this workbooks? If you trust the source of this workbook, click Yes.&quot;<br />\n</blockquote>\n",
+    "PostedDate": "2013-05-06T05:20:56.963-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1039849",
+    "ThreadId": "442655",
+    "Html": "The last point: A common problem (you will find many topics of discussion dealing with it), there is something that can be found in the Excel file that should not be there. Opens the file (not modified by Excel) using a text editor and look if you do not see an error message (as your &quot;notices&quot;) in the file or other messages. It may also be more difficult to locate characters: a simple space, return to the line, the UTF-8 marker. If your data are not in UTF-8, then turn them (utf8_encode)\r<br />\n<br />\nFor a copy of sheets, you can find an example in the documentation Chapter 4.4.2.\r<br />\nA hidden attribute must not interfere, but Excel does not love if all the sheets are equipped with.<br />\n",
+    "PostedDate": "2013-05-06T05:50:51.04-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1039920",
+    "ThreadId": "442655",
+    "Html": "I want disable copy sheets... when I start script, output file has 8 sheets...in my templates I have 3 sheet, and I want 3 sheet in my output file...<br />\n",
+    "PostedDate": "2013-05-06T08:16:42.61-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1039985",
+    "ThreadId": "442655",
+    "Html": "Amazing... A call to getSheetCount after loading returns what?<br />\n",
+    "PostedDate": "2013-05-06T10:45:35.64-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1040091",
+    "ThreadId": "442655",
+    "Html": "when I call getSheetCount I get result 10<br />\n",
+    "PostedDate": "2013-05-06T14:23:40.477-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1040325",
+    "ThreadId": "442655",
+    "Html": "If this value is displayed immediately after loading, one would tend to think that the original workbook contains ten sheets. If this is really not the case... Something disrupts the reader, this will require an analysis of this file.<br />\n",
+    "PostedDate": "2013-05-07T04:16:23.443-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

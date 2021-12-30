@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "996554",
+    "ThreadId": "431993",
+    "Html": "I having trouble with installing version 1.7.8 and using the external domPDF library. I know it's completely down to me doing something wrong but not sure what.\r<br />\n<br />\nOriginall was receiving the error &quot;PDF Rendering library has not been defined&quot;. After reading a thread in PDF.php added:<br />\n<pre><code>    //$rendererName = PHPExcel_Settings::PDF_RENDERER_MPDF;\n    $rendererName = PHPExcel_Settings::PDF_RENDERER_DOMPDF;\n    //$rendererLibrary = 'tcPDF5.9';\n    //$rendererLibrary = 'mPDF5.4';\n    $rendererLibrary = '../libraries/PDF/';\n\n    if (!PHPExcel_Settings::setPdfRenderer($rendererName,$rendererLibrary)) {\n    die('NOTICE: Please set the $rendererName and $rendererLibraryPath values at the top of this script as appropriate for your directory structure');\n    }   \n</code></pre>\n\nThis has stopped that error however the PDF doc are not being created correctly. They won't open as they report its either not a supported file type or because the file is damaged.\r<br />\n<br />\nAm I adding the above code in the wrong location?\r<br />\n<br />\nThe domPDF libraries are under phpexcel in /libraries/PDF.\r<br />\n<br />\nMany thanks.<br />\n",
+    "PostedDate": "2013-02-05T01:31:01.797-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1046271",
+    "ThreadId": "431993",
+    "Html": "Hey bro, If you are try to use dompdf to create pdf file.. you have to download the dompdf @ <a href=\"https://github.com/dompdf/dompdf/downloads\" rel=\"nofollow\">https://github.com/dompdf/dompdf/downloads</a>\r<br />\n<br />\nextract it inside PHPExcel/Writer/dompdf\r<br />\n<br />\nthen try this configuration:<br />\n<pre><code>    $rendererName = PHPExcel_Settings::PDF_RENDERER_DOMPDF;\n\n    $rendererLibrary = 'dompdf'; // this is the name of dompdf folder.. \n\n    $rendererLibraryPath = '/var/www/e_report/system/libraries/PHPExcel/Writer/'.$rendererLibrary;\n\n    if (!PHPExcel_Settings::setPdfRenderer(\n    $rendererName,\n    $rendererLibraryPath\n        )) {\n        die(\n            'NOTICE: Please set the $rendererName and $rendererLibraryPath values' .\n            EOL .\n            'at the top of this script as appropriate for your directory structure'\n        );\n    }\n\n    $objWriter = new PHPExcel_Writer_PDF($this-&gt;excelReport);\n\n    $objWriter-&gt;save('test.pdf');\n</code></pre>\n\nthat should work.. poke me for more info..<br />\n",
+    "PostedDate": "2013-05-20T19:01:46.9-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

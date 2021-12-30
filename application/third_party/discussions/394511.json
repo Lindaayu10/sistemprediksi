@@ -1,0 +1,106 @@
+[
+  {
+    "Id": "908769",
+    "ThreadId": "394511",
+    "Html": "\r\n<p>My code imports user provided spreadsheets that may well be in a particular format, but the data provided in some cells can &quot;appear&quot; to be numeric, text, or date/time.&nbsp; In particular, firmware version column can have a variety of values.&nbsp; And I\r\n cannot know ahead of time what that value may look like.&nbsp; That is, I cannot enforce the type that the users will format the cell.&nbsp; Although I have tried formatting the cells as TEXT only to still get the same problem.</p>\r\n<p>Although the type is generally text, reader can interpret the results differently.</p>\r\n<p>Currently, if the cell value is 00.01.02 then reader will tell me it's a date 2000-01-02.</p>\r\n<p>How can I ensure that I get the value exactly as the user provided?</p>\r\n<p>I have tried setReadDataOnly() to both TRUE and FALSE with no difference.</p>\r\n<p>I have tried getValue() and getFormattedValue() which gives me either the date format or the numerical data value.</p>\r\n<p>Any direction would be appreciated.</p>\r\n",
+    "PostedDate": "2012-09-05T09:47:54.277-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "908802",
+    "ThreadId": "394511",
+    "Html": "\r\n<p>Couple of notes:</p>\r\n<p>setReadDataOnly(): Tells the reader to skip empty cells (only cells that contain data are read).</p>\r\n<p>getValue(): Reads the raw data as stored by the spreadsheet (example: dates are stored as an integer by the spreadsheet but are displayed as defined by the format code).</p>\r\n<p>getFormattedValue(): Returns the data after applying the spreadsheet format code to it.</p>\r\n<p>Are you trying to normalize the data supplied by the user for processing?</p>\r\n<p>I've written code for my company to specifically do this kind of thing. &nbsp;My solution is to take a snapshot of the data (first 10 rows of the first worksheet) and display it to the user in spreadsheet fashion (with row and columns headers) and show a\r\n form where they select the column that contains the data you are trying to collect.</p>\r\n<p>For example, I would have form field labeled 'Birthdate' with a drop down list beside it which lists all the column letters displayed in the sample data. The customer selects the column letter of the column that contains the birth dates.</p>\r\n<p>This way the customer tells you which column contains each specific piece of data you are trying to collect.</p>\r\n<p>From there, you can write your code to handle specific exceptions of formatting differences.</p>\r\n<p>For example, sometimes the birth dates in the spreadsheet only contain month and year (text field usually) and others may only contain the day values (text or numeric field usually) for the current month. I wrote my code to look at the sample data and if\r\n there is a single integer in that column I then provide a Month selector (January - December) that the customer uses to specify with month those days belong to (for our application the Birth Year isn't necessary so I fill that in with current year if it is\r\n missing).</p>\r\n<p>Side note: I also used an internal PHP Excel function to determine if the column is storing the date as an integer internally and apply a format code to it to normalize those dates to mm/dd/yyyy automatically.</p>\r\n<p>Dates are the most work for normalizing, but I've been able to code things so the application is pretty robust for handling differently formatted types of data.</p>\r\n<p>If you have more specific questions on how I handle things just ask.</p>\r\n<p>- Christopher Mullins</p>\r\n",
+    "PostedDate": "2012-09-05T10:45:34.933-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "908813",
+    "ThreadId": "394511",
+    "Html": "<p>Thanks for the reply.</p>\r\n<p>I'm not really \"normalizing\".&nbsp; But the value is compared against a database for validity.&nbsp; There are way too many cells that are being compared, and way too many possible values to load up a sheet with validation / drop down lists.</p>\r\n<p>It seems that PHPExcel is seeing the value '00.02.01' (the sample version # in question from the source sheet) as a date.&nbsp; GetValue() and GetFormattedValue() return '2000-02-01'.&nbsp; Unless I change setReadDataOnly() = TRUE in which case I get the numeric data value for '2000-02-01'.</p>\r\n<p>If I set the source spreadsheet column as TEXT and save the file (before importing it into my app), it doesn't help.</p>\r\n<p>Since different vendors make their software version numbers in a wide variety of formats, I cannot really enforce the values entered in this column.</p>\r\n<p>So I guess really what I am after is how to get PHPExcel to give me the value '00.02.00' instead of PHPExcel converting it into a date first?</p>\r\n<p>&nbsp;</p>\r\n<p>- John Mullan</p>",
+    "PostedDate": "2012-09-05T11:39:22.893-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "908820",
+    "ThreadId": "394511",
+    "Html": "\r\n<p>I think PHP Excel is returning the value&nbsp;<span>according to its Excel datatype (as stored in the Excel file itself).</span></p>\r\n<p>If that is the case then this piece of code might help you find a solution:</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><span style=\"color:blue\">if</span> (PHPExcel_Shared_Date::isDateTime($cell)) {\n  $data = PHPExcel_Style_NumberFormat::toFormattedString($cell-&gt;getValue(), <span style=\"color:#a31515\">&quot;M/D/YYYY&quot;</span>);\n}\n</pre>\r\n</div>\r\n<p>You can check to find out if the cell is marked as a date field (not sure how to unset this).</p>\r\n<p>It's at least a starting point.</p>\r\n<p>- Christopher Mullins</p>\r\n<p>Addendum: I amended my statement above to what I was meaning which Mark stated much more clearly than I.</p>\r\n",
+    "PostedDate": "2012-09-05T12:03:33.373-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "908863",
+    "ThreadId": "394511",
+    "Html": "\r\n<p>PHPExcel will not automatically convert any cell content into a date unless you tell it to do so. If '00.02.01' is a string cell content in the workbook you are loading, then it will be stored in PHPExcel as a string with a value of '00.02.01'. It doesn't\r\n try to change anything, but stores the value according to its Excel datatype (as stored in the Excel file itself).</p>\r\n<p>If PHPExcel is reading the value as a date, then something in the Excel file is explicitly telling it that the value is a date. I'm not aware of any exceptions to this with files that are genuinely spreadsheet files rather than CSV or equivalent (and even\r\n then, a value would only be converted to a date if you were applying the advanced value binder.</p>\r\n<p>Note that if this was the case, then getValue() would be returning an Excel date/timestamp (numeric value) and getFormattedValue() would be returning a human-readable date. If it is returning the same formatted value for both getValue() and getFormattedValue()\r\n calls, then it is almost certain a string containing that value in the Excel workbook.</p>\r\n<p>&nbsp;</p>\r\n<p>Can you please provide a workbook that demonstrates this issue</p>\r\n",
+    "PostedDate": "2012-09-05T14:01:31.03-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "909089",
+    "ThreadId": "394511",
+    "Html": "\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<strong>schir1964 wrote:</strong><br>\r\n</blockquote>\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<p>I think PHP Excel is returning the value&nbsp;<span>according to its Excel datatype (as stored in the Excel file itself).</span></p>\r\n<p>If that is the case then this piece of code might help you find a solution:</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><span style=\"color:blue\">if</span> (PHPExcel_Shared_Date::isDateTime($cell)) {\n  $data = PHPExcel_Style_NumberFormat::toFormattedString($cell-&gt;getValue(), <span style=\"color:#a31515\">&quot;M/D/YYYY&quot;</span>);\n}\n</pre>\r\n</div>\r\n<p>You can check to find out if the cell is marked as a date field (not sure how to unset this).</p>\r\n<p>It's at least a starting point.</p>\r\n<p>- Christopher Mullins</p>\r\n<p>Addendum: I amended my statement above to what I was meaning which Mark stated much more clearly than I.</p>\r\n</blockquote>\r\n<p>Actually I have tried ensuring the data type was set to TEXT.&nbsp; It was defined as GENERAL before I did that.&nbsp; Still same result.</p>\r\n",
+    "PostedDate": "2012-09-06T04:15:33.78-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "909090",
+    "ThreadId": "394511",
+    "Html": "\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<strong>MarkBaker wrote:</strong><br>\r\n<p>PHPExcel will not automatically convert any cell content into a date unless you tell it to do so. If '00.02.01' is a string cell content in the workbook you are loading, then it will be stored in PHPExcel as a string with a value of '00.02.01'. It doesn't\r\n try to change anything, but stores the value according to its Excel datatype (as stored in the Excel file itself).</p>\r\n<p>If PHPExcel is reading the value as a date, then something in the Excel file is explicitly telling it that the value is a date. I'm not aware of any exceptions to this with files that are genuinely spreadsheet files rather than CSV or equivalent (and even\r\n then, a value would only be converted to a date if you were applying the advanced value binder.</p>\r\n<p>Note that if this was the case, then getValue() would be returning an Excel date/timestamp (numeric value) and getFormattedValue() would be returning a human-readable date. If it is returning the same formatted value for both getValue() and getFormattedValue()\r\n calls, then it is almost certain a string containing that value in the Excel workbook.</p>\r\n<p>&nbsp;</p>\r\n<p>Can you please provide a workbook that demonstrates this issue</p>\r\n</blockquote>\r\n<p>&nbsp;</p>\r\n<p>I will attempt to upload a sample of the workbook.&nbsp; Can someone tell me how to?</p>\r\n",
+    "PostedDate": "2012-09-06T04:17:28.937-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "909098",
+    "ThreadId": "394511",
+    "Html": "<blockquote style=\"border: solid .1em #ccc; font-style: italic; margin: .25em 1em 0 1em; padding: 0 .25em 0 .25em;\"><strong>jmullan99 wrote:</strong><br />\r\n<blockquote style=\"border: solid .1em #ccc; font-style: italic; margin: .25em 1em 0 1em; padding: 0 .25em 0 .25em;\"><strong>schir1964 wrote:</strong><br /></blockquote>\r\n<blockquote style=\"border: solid .1em #ccc; font-style: italic; margin: .25em 1em 0 1em; padding: 0 .25em 0 .25em;\">\r\n<div style=\"color: black; background-color: white;\"></div>\r\n<span style=\"color: blue;\">if</span> (PHPExcel_Shared_Date::isDateTime($cell)) {   $data = PHPExcel_Style_NumberFormat::toFormattedString($cell-&gt;getValue(), <span style=\"color: #a31515;\">\"M/D/YYYY\"</span>); }</blockquote>\r\n</blockquote>\r\n<p>This indeed gives me $data = '2/1/2000'</p>\r\n<p>The source spreadsheet cell(s) do begin with a single quote as well.</p>\r\n<p>Still don't know how to attach a file here.</p>",
+    "PostedDate": "2012-09-06T04:36:07.217-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "909106",
+    "ThreadId": "394511",
+    "Html": "<p>There is a special \"issue\" <a href=\"http://phpexcel.codeplex.com/workitem/10749?ProjectName=phpexcel\">here</a>&nbsp;specifically for file uploads from discussion threads - scroll to the bottom of the page and you will find an upload option</p>",
+    "PostedDate": "2012-09-06T05:15:37.403-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "909116",
+    "ThreadId": "394511",
+    "Html": "<p>Okay, it is uploaded.&nbsp; Sorry for the generic file name.&nbsp; I called it <span style=\"color: #008000;\">sample.xls</span></p>\r\n<p>Cheers.</p>",
+    "PostedDate": "2012-09-06T05:40:01.953-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "909178",
+    "ThreadId": "394511",
+    "Html": "<p>I have more information that may help.&nbsp; Probably to show how \"green\" I am working with PHPExcel.</p>\r\n<p>First, I read in the source workbook/spreadsheet and basically loop through the cells in a particular order and copy them into a new workbook, send the new workbook out to the user.</p>\r\n<p>So what I did this morning is to also add the source spreadsheet to the output workbook via addExternalSheet().&nbsp; When I open the resultant workbook the source sheet shows the original values ('0.02.01') but my processed sheet shows '2000-02-01'.</p>\r\n<p>Obviously I am missing something here.&nbsp; But I don't know what.&nbsp; Is my newly created sheet \"converting\" things for me?&nbsp; AdvancedValueBinder?</p>\r\n<p>Cheers,</p>\r\n<p>John</p>",
+    "PostedDate": "2012-09-06T07:45:18.123-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "909244",
+    "ThreadId": "394511",
+    "Html": "<p>I'll run some tests tonight against you sample.xls and try to identify exactly what is happening.</p>\r\n<p>AdvancedValueBinder shouldn't be affecting this, especially if you haven't enabled it</p>",
+    "PostedDate": "2012-09-06T09:44:31.44-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "909401",
+    "ThreadId": "394511",
+    "Html": "<p>Well, actually, I did have it enabled.&nbsp; I \"disabled\" it and now things are fine.</p>\r\n<p>I originally activated it for a reason quite a while ago and can't remember why.&nbsp; I suppose I'll find out at some point.</p>\r\n<p>I am now rewriting my routine to copy the input worksheet into the workbook I will send out to the user, then analyze the cells in-place.&nbsp; This will ultimately run faster and save on memory.</p>\r\n<p>However, it would still be good to know how to beat the issue.</p>\r\n<p>Cheers,</p>\r\n<p>John</p>",
+    "PostedDate": "2012-09-06T16:50:46.79-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

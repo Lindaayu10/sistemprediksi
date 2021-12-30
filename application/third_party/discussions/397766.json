@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "920794",
+    "ThreadId": "397766",
+    "Html": "\r\n<p>I have an excel sheet that contains a formula which references an external workbook.&nbsp; Obviously, the formula cannot be computed in absence of the external reference but I would like to retrieve the underlying raw formula string.&nbsp;&nbsp; When I call\r\n getValue() on the cell, all I get is &quot;#ref&quot; in return.&nbsp;&nbsp; Is there a way to retrieve the underlying formula?&nbsp; This seems like a very simple task but I can't seem to find any solution in the documentation.</p>\r\n<p>Appreciate any advice, thanks.</p>\r\n",
+    "PostedDate": "2012-10-02T12:05:13.687-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "920828",
+    "ThreadId": "397766",
+    "Html": "<p>getValue() should return the raw formula: exceptions might be if this was an BIFF (.xls) file that used functions from the analysis toolpack. If a #ref is being returned instead, then it suggests a problem with parsing that formula when reading it from the file.</p>",
+    "PostedDate": "2012-10-02T13:01:18.31-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "921393",
+    "ThreadId": "397766",
+    "Html": "<p>Thanks for the quick reply, Mark.&nbsp; You are correct in that the #REF seems to be an issue with BIFF formatted files but I've created files sans the Analysis Toolpack addon and it still occurs.&nbsp; Here's an example of what I'm seeing:&nbsp; I've created two blank Excel workbooks, Book1, Book2.&nbsp; Cell \"A1\" in Book2 references cell \"A1\" in Book1. Very simple external reference example.&nbsp; I save both workbooks in the following formats: BIFF(xls), 2007XML(xlsx), 2003XML(xml).&nbsp; The results of calling getValue(\"A1\") on Book2 results in the following results respectively:</p>\r\n<p>BIFF(xls):&nbsp; =#REF!</p>\r\n<p>2007XML(xlsx):&nbsp; =[1]Sheet1!$A$1</p>\r\n<p>2003XML(xml): '\\Users\\Mike\\Desktop\\[Book1.xml]Sheet1'!A1</p>\r\n<p>It appears that the only format that truly returns the actual formula with the external reference string is the 2003XML format.&nbsp; Sans the ability to open a BIFF file and save it as a 2003XML file there doesn't seem to be any way for me to grab the underlying formula out of a BIFF file.&nbsp; Is there any work around you can think of?&nbsp; Thanks.</p>",
+    "PostedDate": "2012-10-03T10:53:46.393-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "921483",
+    "ThreadId": "397766",
+    "Html": "<p>I'd need to look at the underlying BIFF formula parser to try and determine exactly what it's doing in the case of a formula referencing an external workbook. while we clearly can't evaluate that formula, we should still be able to pick up the raw value.</p>",
+    "PostedDate": "2012-10-03T13:02:59.893-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "921484",
+    "ThreadId": "397766",
+    "Html": "This discussion has been copied to a work item. Click <a href=\"http://phpexcel.codeplex.com/workitem/18740\">here</a> to go to the work item and continue the discussion.",
+    "PostedDate": "2012-10-03T13:03:37.153-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

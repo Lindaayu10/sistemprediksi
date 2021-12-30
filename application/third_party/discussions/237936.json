@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "534114",
+    "ThreadId": "237936",
+    "Html": "\r\n<p>How would i convert excel template to a pdf after i input the data and output to the browser.</p>\r\n<p>It worked fine with excel, but when converting to pdf it does not work.</p>\r\n<p>&nbsp;</p>\r\n<p>/** Error reporting */<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; error_reporting(E_ALL);<br>\r\n<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; date_default_timezone_set('Europe/London');<br>\r\n<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; /** PHPExcel */<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; require_once ('/home/scav/public_html/admin/php/classes/PHPExcel.php');<br>\r\n<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $objPHPexcel = PHPExcel_IOFactory::load('/home/scav/public_html/admin/templates/excel/invoicetemplate.xls');<br>\r\n<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; // redirect output to client browser<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; header('Content-Type: application/vnd.ms-excel');<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; header('Content-Disposition: attachment;filename=&quot;membership.xls&quot;');<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; header('Cache-Control: max-age=0');<br>\r\n<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $objWriter = PHPExcel_IOFactory::createWriter($objPHPexcel, 'Excel5');<br>\r\n<br>\r\n<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $objWorksheet = $objPHPexcel-&gt;getActiveSheet();<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $objWorksheet-&gt;setCellValueByColumnAndRow(0, 1, 'hi');<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $objWorksheet-&gt;setCellValueByColumnAndRow(1, 2, post('first_name'));<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $objWorksheet-&gt;setCellValueByColumnAndRow(2, 3, post('test'));<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $objWorksheet-&gt;setCellValueByColumnAndRow(3, 4, 'wtf');<br>\r\n<br>\r\n<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $objWriter = new PHPExcel_Writer_PDF($objPHPexcel);<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $objWriter-&gt;setPreCalculateFormulas(false);<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //$objWriter-&gt;save('php://output');<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp; $objWriter-&gt;save(&quot;php://output&quot;);<br>\r\n&nbsp;<br>\r\n<br>\r\n&nbsp;&nbsp;&nbsp; }</p>\r\n",
+    "PostedDate": "2010-12-10T12:42:49.467-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "534123",
+    "ThreadId": "237936",
+    "Html": "\r\n<p>You need to send the appropriate headers for a PDF file. Take a look at the 01simple-download-pdf.php file in the /Tests directory</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><div style=\"color:black; background-color:white\"><pre>header(<span style=\"color:#a31515\">'Content-Type: application/pdf'</span>);\r\nheader(<span style=\"color:#a31515\">'Content-Disposition: attachment;filename=&quot;membership.pdf&quot;'</span>);\r\nheader(<span style=\"color:#a31515\">'Cache-Control: max-age=0'</span>);\r\n\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPexcel, <span style=\"color:#a31515\">'PDF'</span>);\r\n$objWriter-&gt;setPreCalculateFormulas(false);\r\n$objWriter-&gt;save(<span style=\"color:#a31515\">'php://output'</span>);\r\n</pre>\r\n</div>\r\n</pre>\r\n</div>\r\n",
+    "PostedDate": "2010-12-10T12:50:02.533-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "534128",
+    "ThreadId": "237936",
+    "Html": "\r\n<p>thanks that worked, forgot about those headers.</p>\r\n<p>&nbsp;</p>\r\n<p>Also, the images are gone. Are images supported?</p>\r\n<p>And the file looks like a worksheet, how can i get rid of all those gridlines?</p>\r\n",
+    "PostedDate": "2010-12-10T12:55:58.14-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "534198",
+    "ThreadId": "237936",
+    "Html": "\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<strong>mace519 wrote:</strong><br>\r\n<p>Also, the images are gone. Are images supported?</p>\r\n</blockquote>\r\n<p>This is a known issue: see <a href=\"http://phpexcel.codeplex.com/workitem/9985\">\r\nwork item 9985</a></p>\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<strong>mace519 wrote:</strong><br>\r\n<p>And the file looks like a worksheet, how can i get rid of all those gridlines?</p>\r\n</blockquote>\r\n<p>&nbsp;Are you running PHPExcel 1.7.4 or 1.7.5?</p>\r\n",
+    "PostedDate": "2010-12-10T15:39:55.197-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "534977",
+    "ThreadId": "237936",
+    "Html": "\r\n<p>1.75</p>\r\n",
+    "PostedDate": "2010-12-13T05:51:53.207-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "534979",
+    "ThreadId": "237936",
+    "Html": "\r\n<p>also, when adding borders in an excel template, when converted to pdf the borders leave a gap between where the excel cells were.</p>\r\n",
+    "PostedDate": "2010-12-13T06:01:56.207-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,24 @@
+--- Excel5-org.php	Fri Oct 16 14:08:34 2009
++++ Excel5.php	Fri Oct 16 14:12:41 2009
+@@ -746,6 +746,7 @@
+ 
+ 			// treat OBJ records
+ 			foreach ($this->_objs as $n => $obj) {
++				if(empty($allSpContainers[$n + 1])) break;
+ 
+ 				// the first shape container never has a corresponding OBJ record, hence $n + 1
+ 				$spContainer = $allSpContainers[$n + 1];
+@@ -756,8 +757,11 @@
+ 				}
+ 
+ 				// calculate the width and height of the shape
+-				list($startColumn, $startRow) = PHPExcel_Cell::coordinateFromString($spContainer->getStartCoordinates());
+-				list($endColumn, $endRow) = PHPExcel_Cell::coordinateFromString($spContainer->getEndCoordinates());
++				$startCoordinates = $spContainer->getStartCoordinates();
++				$endCoordinates   = $spContainer->getEndCoordinates();
++				if( empty($startCoordinates) || empty($endCoordinates) ) continue;
++				list($startColumn, $startRow) = PHPExcel_Cell::coordinateFromString( $startCoordinates );
++				list($endColumn, $endRow)     = PHPExcel_Cell::coordinateFromString( $endCoordinates );
+ 
+ 				$startOffsetX = $spContainer->getStartOffsetX();
+ 				$startOffsetY = $spContainer->getStartOffsetY();

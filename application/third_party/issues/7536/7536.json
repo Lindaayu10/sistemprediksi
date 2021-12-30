@@ -1,0 +1,39 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel",
+      "DisplayName": "PHPExcel"
+    },
+    "ClosedComment": "Fixed in SVN",
+    "ClosedDate": "2008-09-08T05:18:46.91-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Issue was dicovered here:\nhttp://www.codeplex.com/PHPExcel/Thread/View.aspx?ThreadId=35056\n \nPer construction this function recognizes number formats containing characters such as 'd' as date formats. This causes number formats such as\n'#,##0.00;[Red](#,##0.00)' to be treated as date because is sees the letter 'd' in Red as a date entry. When this happens one may run into trouble if one sets numeric cell values using string type:\n \n$ws->setCellValue('F1', '34.7');\n$ws->getStyle('F1')->getNumberFormat()->setFormatCode('#,##0.00;[Red](#,##0.00)');\n \nleading to notice when using PHPExcel_Writer_Excel2007.\n \nNotice: Undefined index: 34.7 in /opt/lampp/htdocs/test/PHPExcel/Classes/PHPExcel/Writer/Excel2007/Worksheet.php on line 989\n \nMoreover only blank cell is seen in the resulting Excel spreadsheet when one opens it.\n \nThe problem is not present if one instead uses floats:\n \n$ws->setCellValue('F1', 34.7);\n \nBut it seems to be a too restrictive requirement if variable type has to be float.\n \nIs it possible to refine the PHPExcel_Shared_Date::isDateTimeFormatCode function to avoid to above situation?",
+    "LastUpdatedDate": "2013-05-16T05:43:20.267-07:00",
+    "PlannedForRelease": "PHPExcel 1.6.4 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2008-09-06T15:38:38.107-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "PHPExcel_Shared_Date::isDateTimeFormatCode erroneously says true",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 7536
+  },
+  "FileAttachments": [],
+  "Comments": []
+}

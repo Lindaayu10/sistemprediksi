@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "1359546",
+    "ThreadId": "584480",
+    "Html": "Hi!,<br />\n<br />\nI've been testing this library and it works great, except for the final .xls that is not displaying correctly some Spanish Characters like &quot;áéíóú&quot; and long numbers (it turns into exponencial numbers).<br />\n<br />\ni thought that this chars problem was solved adding this line:<br />\n&quot;mysqli_set_charset($Link, 'utf8');//if not by default&quot;<br />\nBut it seems to not be working... any idea of whats going on?<br />\n<br />\nIf de entry is &quot;áéíóú&quot; it displays = Ã¡Ã©Ã­Ã³<br />\nIf the numbers are more than 20 chars it displays = 1,23123E+17<br />\n<br />\nThanks for reading!<br />\n<br />\nHere is the code of index:<br />\n<pre><code>&lt;?php\n$host='localhost'; $user='m9000207_ficlog'; $pass='*******'; $DataBase='m9000207_ficlog';//define the correct values\n// open the connexion to the databases server\n$Link=@mysqli_connect($host,$user,$pass,$DataBase) or die('Can\\'t connect !');\nmysqli_set_charset($Link, 'utf8');//if not by default\n//your request\n$SQL='SELECT * FROM registros';\n$rs=mysqli_query($Link, $SQL);//get the result (ressource)\n/** Include PHPExcel */\nrequire_once '../Classes/PHPExcel.php';//change if necessary\n\n// Create new PHPExcel object\n$objPHPExcel = new PHPExcel();\n$F=$objPHPExcel-&gt;getActiveSheet();\n$Line=1;\nwhile($Trs=mysqli_fetch_assoc($rs)){//extract each record\n    $F-&gt;setCellValue('A'.$Line, $Trs['user_name'])\n        -&gt;setCellValue('B'.$Line, $Trs['user_last'])\n        -&gt;setCellValue('C'.$Line, $Trs['pais'])\n        -&gt;setCellValue('D'.$Line, $Trs['tel'])\n        -&gt;setCellValue('E'.$Line, $Trs['user_email']);//write in the sheet\n    ++$Line;\n}\n// Redirect output to a client’s web browser (Excel5)\nheader('Content-Type: application/vnd.ms-excel');\nheader('Content-Disposition: attachment;filename=&quot;report.xls&quot;');\nheader('Cache-Control: max-age=0');\n\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');\n$objWriter-&gt;save('php://output');\nexit;</code></pre>\n\n",
+    "PostedDate": "2015-03-03T12:46:27.213-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1359572",
+    "ThreadId": "584480",
+    "Html": "What charset is used for your database table?<br />\n",
+    "PostedDate": "2015-03-03T14:12:50.097-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1359580",
+    "ThreadId": "584480",
+    "Html": "<strong>MarkBaker wrote:</strong><br />\n<blockquote>\nWhat charset is used for your database table?<br />\n</blockquote>\nHi Mark,\r<br />\n<br />\nIm using utf8_general_ci\r<br />\n<br />\nThanks!<br />\n",
+    "PostedDate": "2015-03-03T14:38:15.563-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1359594",
+    "ThreadId": "584480",
+    "Html": "This is the type of problem I hate: unable to replicate in any way other than providing non-UTF-8 data to PHPExcel..... if data is UTF-8, there should be no issue.<br />\n<br />\nCan you try issuing<br />\n<pre><code>mysqli_query($Link, &quot;SET NAMES 'utf8mb4'&quot;);</code></pre>\n\nbefore your SELECT query?<br />\n",
+    "PostedDate": "2015-03-03T15:46:18.443-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

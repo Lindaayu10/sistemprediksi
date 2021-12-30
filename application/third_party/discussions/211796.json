@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "439882",
+    "ThreadId": "211796",
+    "Html": "<p>PHP Version 5.3.0</p>\r\n<p>Windows XP</p>\r\n<p>PHPExcel version 1.7.2, 2010-01-11</p>\r\n<p>Hi, first off, a warning: I am new to excel, let alone phpexcel. I just downloaded phpexcel today and I was looking through it and reading the test examples. I ran into an error when trying to load an excel template my company uses.</p>\r\n<p>&nbsp;</p>\r\n<p>error_reporting(E_ALL);<br><br>/** PHPExcel_IOFactory */<br>require_once '../Classes/PHPExcel/IOFactory.php';<br><br>if (!file_exists(&quot;Product_Add_Sheet2.xlsx&quot;)) {<br>&nbsp;&nbsp; &nbsp;exit(&quot;We need the original to copy first.\\n&quot;);<br>}<br><br>echo date('H:i:s') . &quot; Load from Product add sheet\\n&quot;;<br>$objPHPExcel = PHPExcel_IOFactory::load(&quot;Product_Add_Sheet2.xlsx&quot;);<br><br><strong>Fatal error</strong>:  Allowed memory size of 134217728 bytes exhausted  (tried to allocate 71 bytes) in <strong>C:\\xampp\\htdocs\\downloads\\excel\\Classes\\PHPExcel\\Worksheet.php</strong> on line <strong>2380<br><br><br></strong>The file does not contain much data it has 4 sheets, about a total of 50 columns between them, and only 2 rows of data.</p>\r\n<p>Some of the columns have validation such as pulldown data and what not.</p>\r\n<p>I am not sure why this is not working. Im not sure if this has anything to do with it but earlier I was trying to manually save the file in xml spreadsheet format I was given an error stating that it was password protected. Is that causing phpexcel to be unable to do its thing?</p>\r\n<div id=\"_mcePaste\" style=\"left:-10000px;top:0px;width:1px;height:1px;overflow:hidden\">\r\n<h1>5.3.05.3</h1>\r\n</div>",
+    "PostedDate": "2010-05-06T07:46:16.967-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "440364",
+    "ThreadId": "211796",
+    "Html": "<p>So, despite knowing very little about excel, im trying to debug this...<br><br>I believe it is being caused by the drop down lists and other validations in the spreadsheet. I have traced the error to the data validations loop in the reader/excel2007.php file. When I print_r the data validation it returns:<br><br>SimpleXMLElement Object (     [@attributes] =&gt; Array         (             [type] =&gt; list             [allowBlank] =&gt; 1             [showInputMessage] =&gt; 1             [showErrorMessage] =&gt; 1             [sqref] =&gt; R16:R65536         )      [formula1] =&gt; Years )<br><br>It then goes through all of cells R16 - R65536 in the loop, running out of memory about half way.</p>\r\n<p>&nbsp;</p>\r\n<p>I know nothing of excel so why is it set to a range of cells 16-65536 when theres only 1 row of data?</p>\r\n<p>And does anyone have an idea of what is happening here? Is the way the validation formula was implemented causing issues when trying to input in the document, or is that a wrong path to be considering.</p>",
+    "PostedDate": "2010-05-07T08:07:35.617-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "440468",
+    "ThreadId": "211796",
+    "Html": "<p>I had a similar issue. I have a few&nbsp;columns&nbsp;in a sheet that had drop down validation on them. That is to say the ENTIRE column from row 2 to row 65536 had the validation pick list applied to them&nbsp;regardless&nbsp;of whether they contained data or not. I think, for whatever reason, PHPExcel wants or needs to read/store all of those validation defs for each and every cell and, eventually, runs out of memory.</p>\r\n<p>To resolve this I simply re-defined my pick list data validation on the first 1000 rows of my columns&nbsp;instead&nbsp;of the entire column. The problem went away. Is this optimal? No, but for my purposes it's unlikely a user will enter in 1000 rows at once so it is effective.</p>\r\n<p>Hope this helps.</p>",
+    "PostedDate": "2010-05-07T12:51:44.123-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "442223",
+    "ThreadId": "211796",
+    "Html": "<p>Hmm well, this could be a big problem for me.<br><br>See, right now we have a linux based database system called filepro. We have an export and import functionality which writes the data to a csv then the users can use a custom program to load the csv into an excel template and then make any changes, export from the program to csv again and load it back into the db.<br><br>We are changing to a php/mysql platform. My boss no longer wants the whole export to csv then to excel, then back to csv then into the db approach. He wants PHP to simply export to excel then import back in.</p>\r\n<p>&nbsp;</p>\r\n<p>I figured this would help me accomplish that, but if I can not read in the template I do not know if I can get it working. I suppose my other option would be to rebuild the template in php, but that seems like a pain. Does anyone have any idea how I can fix or get around this issue&nbsp; without defining how many rows will be effected by the validation?</p>",
+    "PostedDate": "2010-05-12T12:33:29.613-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "442256",
+    "ThreadId": "211796",
+    "Html": "<p>The next release, due on Monday, includes a number of changes to improve the memory footprints of both PHPExcel itself, and of workbooks loaded into PHPExcel. This won't fix every problem with memory usage in PHPExcel; but the new class autoloader will reduce the memory footprint of the PHPExcel script, while cell caching allows you to reduce the memory required for each cell within your workbooks, and being able to clear the self-references within the PHPExcel objects should allow scripts to unset workbooks or worksheets cleanly.</p>\r\n<ul>\r\n<li>The class autoloader only loads those classes that are actually required by your scripts.</li>\r\n<li>You will need to configure cell caching if you want to reduce memory usage (because the default still holds all cell objects in memory as at present), and there is a speed cost in this.</li>\r\n<li>Executing a $objPHPExcel-&gt;disconnectWorksheets() call before unset($objPHPExcel) will now clear PHPExcel objects from memory.</li>\r\n</ul>\r\n<p>There are other performance and memory related changes that still need to be made, but this process is ongoing... we estimate an average of 1k/cell overhead for any PHPExcel object: i'd expect&nbsp;4 sheets with about 50 columns between them, and only 2 rows of data to take no more than 100k of memory. I'll take a look at the data validations loop issue in due course: it should probably set to the max number of rows in the worksheet rather than the 65536 maximum row limit for an Excel5 worksheet, and adjust as necessary when new rows were inserted. The 65536 is probably also a problem for Excel2007 where that maximum limit is 1,048,576.</p>",
+    "PostedDate": "2010-05-12T13:41:07.947-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "442499",
+    "ThreadId": "211796",
+    "Html": "This discussion has been copied to a work item. Click <a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=13025\">here</a> to go to the work item and continue the discussion.",
+    "PostedDate": "2010-05-13T06:20:17.213-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

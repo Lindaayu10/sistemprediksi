@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "205254",
+    "ThreadId": "60592",
+    "Html": "<p>Hi again. My script creates excel2003, as well as excel2007 and pdf files.&nbsp;</p>\r\n<p>some days ago i added images-support to it. the code belov shows how i create and add it:</p>\r\n<p>\r\n<pre>$objDrawing = new PHPExcel_Worksheet_Drawing();\r\n$objDrawing-&gt;setName('Name');\r\n$objDrawing-&gt;setDescription('Desc');\r\n$objDrawing-&gt;setPath($_SERVER['DOCUMENT_ROOT'].$pathToImageRes);\r\n$objDrawing-&gt;setHeight(250);\r\n$objDrawing-&gt;setCoordinates('A1');\r\n$objDrawing-&gt;setOffsetX(3);\r\n//$objDrawing-&gt;setRotation(0);\r\n$objDrawing-&gt;getShadow()-&gt;setVisible(true);\r\n$objDrawing-&gt;getShadow()-&gt;setDirection(45);\r\n$objDrawing-&gt;setWorksheet($objPHPExcel-&gt;getActiveSheet());\r\n</pre>\r\n</p>\r\n<p>and there is a little trouble with path of image in it.</p>\r\n<p>both excel 2003 and excel 2007 files creates almost successfully. a trouble was with pdf. script says:<br>&quot;TCPDF ERROR: [Image] No such file or directory in ./www/username/www/htdocs//_russian/analytics/content/val_img/650/jan09_v4.png&quot;<br>I couldn't understand what was wrong, until I found a starting dot in the image path. I tried to find a place in Shared/PDF/tcpdf.php where this dot is appends. It was unsuccessful. then I decided to add these lines to the `public function Image(lots_of_params)`, just at the beginnig of it:</p>\r\n<p>\r\n<pre>$twoChars = substr($file, 0, 2);\r\nif ($twoChars == &quot;./&quot;)\r\n\t$file = substr($file, 1);\r\n</pre>\r\n</p>\r\n<p>and it helped me. $file contains a right path.</p>\r\n<p>&nbsp;</p>\r\n<p>p.s. can somebody explain the code below? why is it used? in my case, $tag['attribute']['src'] contains &quot;/www/username/www/htdocs//_russian/analytics/content/val_img/650/jan09_v4.png&quot;, as you see the first symbol is &quot;/&quot;, and according to the code below, $_SERVER['DOCUMENT_ROOT'] that is &quot;/www/username/www/htdocs/&quot; will be added at the beginning of $tag['attribute']['src'] and it will be &quot;/www/username/www/htdocs//www/username/www/htdocs//_russian/analytics/content/val_img/650/jan09_v4.png&quot;. Am I right? why is it used? I can't understand anyway.</p>\r\n<p>&nbsp;</p>\r\n<p>\r\n<pre>case 'img': {\r\n\tif (isset($tag['attribute']['src'])) {\r\n\t\t// replace relative path with real server path\r\n\t\tif ($tag['attribute']['src'][0] == '/') {\r\n\t\t\t$tag['attribute']['src'] = $_SERVER['DOCUMENT_ROOT'].$tag['attribute']['src'];\r\n\t\t}\r\n</pre>\r\n</p>",
+    "PostedDate": "2009-06-24T23:24:43.533-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "206114",
+    "ThreadId": "60592",
+    "Html": "<p>Thanks for the research. I now recall seing that TCPDF ERROR before, but didn't investigate it further. Will examine your example and post back when I know more.</p>",
+    "PostedDate": "2009-06-26T17:24:49.033-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "211062",
+    "ThreadId": "60592",
+    "Html": "<p>Using your example I was indeed able to reconstruct that TCPDF error on Linux. After some thinking, I think the solution is to avoid using an absolute path in the <span style=\"font-family:Courier New\">setPath()</span> method. I would only use relative paths because, as far as I can see, absolute path won't work if you instead wanted to generate HTML file instead of PDF.<br> <br> I think PHPExcel could be improved the way it handles images. For example, if you convert from <span style=\"font-family:Courier New\">.xlsx</span> to <span style=\"font-family:Courier New\">.html</span>, (plain read/write), I would expect that the images are extracted from the xlsx-file and saved to the disk in a directory next to the saved HTML-file. Just like Excel does when you save as HTML. Currently, this is not what happens in PHPExcel. Instead images are required to be pre-extracted which is not always ideal.</p>\r\n<p>In short, for now, use relative paths for the images. In the future we must try to improve the library so it can handle absolute paths, but that will need some adjustments.</p>",
+    "PostedDate": "2009-07-11T01:45:44.053-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "211588",
+    "ThreadId": "60592",
+    "Html": "<p>Thanks for the response! I will try to use your advice in future projects.</p>",
+    "PostedDate": "2009-07-13T23:28:54.213-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "262404",
+    "ThreadId": "60592",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>koyama wrote:</strong>\r\n<p>I think PHPExcel could be improved the way it handles images. For example, if you convert from <span style=\"font-family:Courier New\">.xlsx</span> to <span style=\"font-family:Courier New\">.html</span>, (plain read/write), I would expect that the images are extracted from the xlsx-file and saved to the disk in a directory next to the saved HTML-file. Just like Excel does when you save as HTML. Currently, this is not what happens in PHPExcel. Instead images are required to be pre-extracted which is not always ideal.</p>\r\n</blockquote>\r\n<p>This is a great idea.&nbsp; Is there a work item open for this enhancement?</p>",
+    "PostedDate": "2009-12-01T11:10:44.937-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "280386",
+    "ThreadId": "60592",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>MitchMcBride wrote:</strong><br>\r\n<p>This is a great idea.&nbsp; Is there a work item open for this enhancement?</p>\r\n</blockquote>\r\n<p>Currently not. But there are a couple of other related work items involving images. Once they are fixed we can bring this up.</p>",
+    "PostedDate": "2010-01-21T21:52:20.323-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

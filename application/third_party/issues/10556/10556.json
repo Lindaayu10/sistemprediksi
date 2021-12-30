@@ -1,0 +1,55 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel",
+      "DisplayName": "PHPExcel"
+    },
+    "ClosedComment": "Fixed in SVN",
+    "ClosedDate": "2009-08-28T14:26:38.407-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "This is caused by PHPExcel_Shared_Date::ExcelToPHP() using (timezone dependent) mktime instead of gmmktime\n \nBug apparently started showing up after bugfix in wi-9968:\nhttp://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=9968\n \nBefore that, two bugs were cancelling each other and the problem was not apparent.\n \nTest (plain read/write xls -> html):\n----\n$file = 'read.xls';\n$reader = new PHPExcel_Reader_Excel5;\n$excel = $reader->load($file);\n \n$writer = PHPExcel_IOFactory::createWriter($excel, 'HTML');\n$writer->save('write.html');\n \nExpected result:\n----\nOutput always looks the same as input no matter servers timezone setting.\n \nActual result:\n----\nTime value 21:10 has changed to 19:10 in my case. This is because I am in GMT+2. Result depends on servers timezone setting.\n \nEnvironment:\n----\nPHPExcel 1.7.0",
+    "LastUpdatedDate": "2013-05-16T05:42:27.393-07:00",
+    "PlannedForRelease": "PHPExcel 1.7.1 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-08-28T14:22:29.507-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Time value hour offset in output by HTML/PDF/CSV writers (system timezone problem)",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 10556
+  },
+  "FileAttachments": [
+    {
+      "FileId": 3326,
+      "FileName": "read.xls",
+      "DownloadUrl": ".\\3326"
+    },
+    {
+      "FileId": 3327,
+      "FileName": "write.html",
+      "DownloadUrl": ".\\3327"
+    },
+    {
+      "FileId": 3328,
+      "FileName": "wi-10556.patch",
+      "DownloadUrl": ".\\3328"
+    }
+  ],
+  "Comments": []
+}

@@ -1,0 +1,39 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "PHPExcel 1.7.9 and 1.7.8 Test on Framework Cakephp 2.3.10.\n\nCall to a member function cellExists() on a non-object in /hoge/app/Vendor/phpexcel179/PHPExcel/Calculation.php on line 3327\n\nIf this error is done, how is it repaired?\n\n==== source code ====\n\n$_read_sheet = EXCEL_SHEET_PATH . \"hoge.xlsx\";\n\n$objReader = PHPExcel_IOFactory::createReader('Excel2007');\n$objReader->setIncludeCharts(TRUE);\n$objPHPExcel = $objReader->load(\"$_read_sheet\");\n$objPHPExcel->setActiveSheetIndex(0);\n\n<<*** etc.... $objPHPExcel->getActiveSheet()->setCellValue(\"A1\", 'hoge'); ***>>\n\n$dataSeriesLabels = array(\n    new PHPExcel_Chart_DataSeriesValues('String', 'Worksheet!$A$1:$A$7', NULL, 1),\n);\n$xAxisTickValues = array(\n    new PHPExcel_Chart_DataSeriesValues('String', 'Worksheet!$B$1:$B$7', NULL, 4)\n);\n$dataSeriesValues = array(\n    new PHPExcel_Chart_DataSeriesValues('Number', 'Worksheet!$B$1:$B$7', NULL, 7)\n);\n\n$series = new PHPExcel_Chart_DataSeries(\n    PHPExcel_Chart_DataSeries::TYPE_BARCHART,\t\t// plotType\n    PHPExcel_Chart_DataSeries::GROUPING_CLUSTERED,\t// plotGrouping\n    range(0, count($dataSeriesValues)-1),\t\t\t// plotOrder\n    $dataSeriesLabels,\t\t\t\t\t\t\t\t// plotLabel\n    $xAxisTickValues,\t\t\t\t\t\t\t\t// plotCategory\n    $dataSeriesValues\t\t\t\t\t\t\t\t// plotValues\n);\n$series->setPlotDirection(PHPExcel_Chart_DataSeries::DIRECTION_BAR);\n\n$plotArea = new PHPExcel_Chart_PlotArea(NULL, array($series));\n$legend = new PHPExcel_Chart_Legend(PHPExcel_Chart_Legend::POSITION_RIGHT, NULL, false);\n\n$title = new PHPExcel_Chart_Title('Test Bar Chart');\n$yAxisLabel = new PHPExcel_Chart_Title('Value ($k)');\n\n//\tCreate the chart\n$chart = new PHPExcel_Chart(\n    'chart1',\t\t// name\n    $title,\t\t\t// title\n    $legend,\t\t// legend\n    $plotArea,\t\t// plotArea\n    true,\t\t\t// plotVisibleOnly\n    0,\t\t\t\t// displayBlanksAs\n    NULL,\t\t\t// xAxisLabel\n    $yAxisLabel\t\t// yAxisLabel\n);\n\n$chart->setTopLeftPosition('D1');\n$chart->setBottomRightPosition('D14');\n\n$objPHPExcel->getActiveSheet()->addChart($chart);\n\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');\n$objWriter->setUseDiskCaching(true, CACHE);\n$objWriter->setIncludeCharts(TRUE);\nheader(\"Pragma: public\");\nheader(\"Expires: 0\");\nheader(\"Cache-Control: must-revalidate, post-check=0, pre-check=0\");\nheader(\"Content-Type: application/force-download\");\nheader(\"Content-Type: application/octet-stream\");\nheader(\"Content-Type: application/download\");\nheader(\"Content-Disposition: attachment;filename=hoge.xlsx\");\nheader(\"Content-Transfer-Encoding: binary \");\n$objWriter->save('php://output');\n$objPHPExcel->disconnectWorksheets();\nunset($objPHPExcel);",
+    "LastUpdatedDate": "2014-04-15T01:32:51.49-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2013-12-15T20:25:14.147-08:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Call to a member function cellExists() on a non-object in /hoge/app/Vendor/phpexcel179/PHPExcel/Calculation.php on line 3327",
+    "Type": {
+      "Name": "Unassigned",
+      "Id": 5
+    },
+    "VoteCount": 2,
+    "Id": 20526
+  },
+  "FileAttachments": [],
+  "Comments": []
+}

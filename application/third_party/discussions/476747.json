@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "1140336",
+    "ThreadId": "476747",
+    "Html": "Hi,\r<br />\ni need to store in a variale the content of a cell area and after print the value.\r<br />\n<br />\nThe code that i use is<br />\n<pre><code>$type=$objPHPExcel-&gt;getActiveSheet()-&gt;setAutoFilter('C4:E4');\necho $type;</code></pre>\n\nbut it doesn't work..How  can i do?\r<br />\n<br />\nThanks<br />\n",
+    "PostedDate": "2013-12-20T08:49:05.403-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1140796",
+    "ThreadId": "476747",
+    "Html": "there's someone who can help me?<br />\n",
+    "PostedDate": "2013-12-23T01:37:58.357-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1140831",
+    "ThreadId": "476747",
+    "Html": "Perhaps...\r<br />\nsetAutofilter returns a Worksheet object, which is unlikely to match what you want, and that is not viewable (except by a var_dump or equivalent).\r<br />\nThe cells you want to display are selected by an automatic filter? If so, I advise you to read the documentation (PHPExcel AutoFilter Reference), you will find an example explaining how to apply a filter before saving the file (by default, the filter is applied at this time) and a sample display of filtered cells.\r<br />\n<br />\nOtherwise... Be more specific in your request.<br />\n",
+    "PostedDate": "2013-12-23T04:28:01.987-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1140842",
+    "ThreadId": "476747",
+    "Html": "in this case what i have to do is store the content of the range area C4:A4 in a variable and after print it. How can i do it? I can't find other example in a phpExcel documentation.\r<br />\n<br />\nthanks<br />\n",
+    "PostedDate": "2013-12-23T05:09:44.85-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1140853",
+    "ThreadId": "476747",
+    "Html": "You can use rangeToArray : <br />\n<pre><code>$arrayValues=$objPHPExcel-&gt;getActiveSheet()-&gt;rangeToArray('C4:E4');</code></pre>\n\n$arrayValue contains a simple array with your 3 values.<br />\n",
+    "PostedDate": "2013-12-23T05:40:36.91-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1140867",
+    "ThreadId": "476747",
+    "Html": "This is my code:<br />\n<br />\n$arrayValues=$objPHPExcel-&gt;getActiveSheet()-&gt;rangeToArray('C2:E2');<br />\n$total= count($arrayValues);<br />\n<br />\n<br />\nfor ($i=0 ; $i&lt;= $total ; $i++)<br />\n<pre><code>{\necho $arrayValues[$i];              \n}</code></pre>\n\n}<br />\n<br />\nbut i have this error<br />\n<br />\n<em>Notice: Array to string conversion in C:\\Program Files (x86)\\EasyPHP-12.1x2.... on line 93<br />\nArray<br />\nNotice: Undefined offset: 1 in C:\\Program Files (x86)\\EasyPHP-12.1x2.... on line 93</em><br />\n<br />\nwhat can i do?<br />\n",
+    "PostedDate": "2013-12-23T06:17:49.883-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1140887",
+    "ThreadId": "476747",
+    "Html": "ah, yes, you have an array by row, with an array with row cells (do a var_dump to see).<br />\n<pre><code>$F=$objPHPExcel-&gt;getActiveSheet();\n//values for test\n$F  -&gt;setCellValue('C2', 10)\n    -&gt;setCellValue('D2', 20)\n    -&gt;setCellValue('E2', 30);\n//extract values\n$arrayValues=$F-&gt;rangeToArray('C2:E2');\nif(is_array($arrayValues) &amp;&amp; array_key_exists(0, $arrayValues) &amp;&amp; is_array($arrayValues[0])){\n    foreach($arrayValues[0] as $aValue){\n        echo $aValue;\n    }\n}else{\n    echo 'something wrong...';\n}</code></pre>\n\n",
+    "PostedDate": "2013-12-23T08:05:31.003-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

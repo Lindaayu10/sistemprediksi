@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "211195",
+    "ThreadId": "62226",
+    "Html": "<p>Greetings friends of the community, my problem is: <br><br> I have an excel file with a format, when opened for writing in, in some cells with specific values brought from a mysql database, as you make some calculations and charts, once I save the changes, when revising loses all formatting. <br><br> I wish I could help and explain how to solve this problem, because I need to present the information in the format handled by the client.</p>",
+    "PostedDate": "2009-07-12T08:15:06.107-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "211698",
+    "ThreadId": "62226",
+    "Html": "<p>Ugg... we may need some more information to get this solved.</p>\r\n<p>For a start, can you try to do a plain read/write of the Excel template file you are using and see what output you get. I'm afraid your template contains column or row styles. These are not yet supported by PHPExcel which might explain why you are losing formatting.</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-07-14T05:52:16.363-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "211784",
+    "ThreadId": "62226",
+    "Html": "<p>ok, thanks for your prompt response. And if as you say, I wish to save the file where the values have a format with styles, forms and validations. When trying to insert a value in a cell I get the following error message:</p>\r\n<p><strong>Fatal error: Uncaught exception 'Exception' with message 'Syntax error: , lookahead: , current char: 0' in D:\\wamp\\www\\Excel\\PHPExcel\\Writer\\Excel5\\Parser.php:1406 Stack trace: #0 D:\\wamp\\www\\Excel\\PHPExcel\\Writer\\Excel5\\Parser.php(1312): PHPExcel_Writer_Excel5_Parser-&gt;_fact() #1 D:\\wamp\\www\\Excel\\PHPExcel\\Writer\\Excel5\\Parser.php(1272): PHPExcel_Writer_Excel5_Parser-&gt;_term() #2 D:\\wamp\\www\\Excel\\PHPExcel\\Writer\\Excel5\\Parser.php(1220): PHPExcel_Writer_Excel5_Parser-&gt;_expression() #3 D:\\wamp\\www\\Excel\\PHPExcel\\Writer\\Excel5\\Parser.php(1207): PHPExcel_Writer_Excel5_Parser-&gt;_condition() #4 D:\\wamp\\www\\Excel\\PHPExcel\\Writer\\Excel5\\Worksheet.php(965): PHPExcel_Writer_Excel5_Parser-&gt;parse(''1(1)'!$A$1') #5 D:\\wamp\\www\\Excel\\PHPExcel\\Writer\\Excel5\\Worksheet.php(484): PHPExcel_Writer_Excel5_Worksheet-&gt;_writeFormula(8, 1, '='1(1)'!$A$1', 16) #6 D:\\wamp\\www\\Excel\\PHPExcel\\Writer\\Excel5\\Workbook.php(492): PHPExcel_Writer_Excel5_Worksheet-&gt;close() #7 D:\\wamp\\www\\Excel\\PHPExcel\\Writer\\Excel5\\Workbook.php(233): PHPExcel_Writer_Excel5_ in D:\\wamp\\www\\Excel\\PHPExcel\\Writer\\Excel5\\Parser.php on line 1406</strong></p>\r\n<p>if you have any other suggestions in this regard I would appreciate that.</p>\r\n<p>PD. I work at a record on file with no single format and this is the code with which I am doing the test:</p>\r\n<p>&lt;?php<br>require (&quot;PHPExcel.php&quot;);<br>require (&quot;PHPExcel/Writer/Excel5.php&quot;);<br>require (&quot;PHPExcel/IOFactory.php&quot;);<br><br><br>$objReader = PHPExcel_IOFactory::createReader('Excel5');<br>$objReader-&gt;setReadDataOnly(true);<br><br>$objPHPExcel = $objReader-&gt;load(&quot;compresion.xls&quot;);<br>$objWorksheet = $objPHPExcel-&gt;getActiveSheet();<br><br>&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue('A6', 'Hello');&nbsp; &nbsp;<br>&nbsp;&nbsp; $objWriter = new PHPExcel_Writer_Excel5($objPHPExcel);&nbsp; &nbsp;<br>&nbsp;&nbsp; $objWriter-&gt;save(str_replace('', '', &quot;compresion.xls&quot;));<br><br>?&gt;</p>\r\n<p><strong><br></strong></p>",
+    "PostedDate": "2009-07-14T10:09:34.9-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "211825",
+    "ThreadId": "62226",
+    "Html": "<p>As for the problem with the fatal error. This is unfortunately a known bug with the formula parser used by PHPExcel_Writer_Excel5. It does not handle absolute cell references in formulas like <span style=\"font-family:Courier New\">$A$1</span><br> <br> You may vote for this work item:<br> <a href=\"../WorkItem/View.aspx?WorkItemId=7895\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=7895</a></p>",
+    "PostedDate": "2009-07-14T12:16:06.34-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "212642",
+    "ThreadId": "62226",
+    "Html": "<p>thanks again for your response Koyama. So in summary, I can not write the values you want in the cells of specific file format that handles the client?, And if so, there will be any other way to do this using phpexcel?</p>",
+    "PostedDate": "2009-07-16T08:13:32.59-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "213129",
+    "ThreadId": "62226",
+    "Html": "<p><em>&gt;&gt; So in summary, I can not write the values you want in the cells of specific file<br> &gt;&gt; format that handles the client?, And if so, there will be any other way to do this<br> &gt;&gt; using phpexcel?<br> </em><br> You can try to work around the problem by inspecting the formulas in your Excel template <span style=\"font-family:Courier New\">compresion.xls</span>, and see if you can change them to something Excel5 writer can handle, for example it may not hurt the formulas if you change <span style=\"font-family:Courier New\">$A$1</span> to <span style=\"font-family:Courier New\">A1</span>. Excel5 writer can handle the latter, but not the first.</p>",
+    "PostedDate": "2009-07-17T10:48:33.113-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

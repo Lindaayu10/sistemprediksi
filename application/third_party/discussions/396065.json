@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "914563",
+    "ThreadId": "396065",
+    "Html": "\r\n<p>Hello,</p>\r\n<p>Can anybody tell me if this is possible with PHPexcel?<br>\r\nI want to load an xls file, and change certain cell values (provided via an PHP form) so the output is calculated via PHP Excel.</p>\r\n<p>Something like this:</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><span style=\"color:blue\">require_once</span> <span style=\"color:#a31515\">'PHPExcel/Classes/PHPExcel/IOFactory.php'</span>;\r\n$<span style=\"color:blue\">file</span>=<span style=\"color:#a31515\">&quot;testfile.xlsx&quot;</span>;\r\n\r\n$Reader = PHPExcel_IOFactory::createReaderForFile($<span style=\"color:blue\">file</span>);\r\n$objXLS = $Reader-&gt;load($<span style=\"color:blue\">file</span>);\r\n\r\n<span style=\"color:green\">/* overwrite a cell value */</span>\r\n$objXLS-&gt;getSheet(0)-&gt;getCell(<span style=\"color:#a31515\">'C15'</span>)-&gt;setValue(46);\r\n<br>\r\n<span style=\"color:green\">/* a formula including c15 */</span>\r\necho $objXLS-&gt;getSheet(0)-&gt;getCell(<span style=\"color:#a31515\">'C32'</span>)-&gt;getCalculatedValue();\r\n\r\n</pre>\r\nBy doing this, i still get the original calculated value. Any way I can achieve this?</div>\r\n",
+    "PostedDate": "2012-09-19T05:28:03.773-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "914737",
+    "ThreadId": "396065",
+    "Html": "<p>You'd only get the original calculated value if you've already executed getCalculatedValue() for that cell prior to overriding cell values, because PHPExcel maintains a cell cache of previously calculated values for each cell and uses that if available. Either don't call getCalculatedValue() before populating your cells, or flush the cache using PHPExcel_Calculation::getInstance()-&gt;clearCalculationCache() before your subsequent call to getCalculatedValue();</p>\r\n<p>Take a look at the Quadratic.php example in /Tests which does pretty much what you're asking</p>",
+    "PostedDate": "2012-09-19T10:41:17.523-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

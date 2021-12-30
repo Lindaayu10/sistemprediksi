@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "213706",
+    "ThreadId": "62933",
+    "Html": "<p>Hello,</p>\r\n<p>After using the PHPExcel library for a little while, i had to create a quite big excel export (over 20000 rows). When trying to create this excel file, i ran into the php memory limit after about 5000 rows (memory-limit set at 256MB).<br>I thought this was quite strange because the exported file so far was only a few MB's.</p>\r\n<p>This was quite strange, since i was not using any styles or images in the excel (just plain text actually).</p>\r\n<p>&nbsp;</p>\r\n<p>After a little bit of searching and browsing through the source code, i noticed that the writer functionality, that writes to the output file, does not remove the exported rows from the PHPExcel object.</p>\r\n<p>I think the reason for this is because the formula support in PHPExcel. When not using this formula support (maybe a new setting?) it would be possible to keep the memory usage low.</p>",
+    "PostedDate": "2009-07-20T01:06:41.773-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "214105",
+    "ThreadId": "62933",
+    "Html": "<p><em>&gt;&gt; After a little bit of searching and browsing through the source code, i noticed<br> &gt;&gt; that the writer functionality, that writes to the output file, does not remove the<br> &gt;&gt; exported rows from the PHPExcel object.</em><br> <br> Yes, but if you for example need to export to several different formats then you would need those rows after the first export. Therefore, removing those rows may not be a good idea.<br> <br> We have been discussing some caching solutions which could drastically reduce memory usage. This may be the best solution.<br> <br> Have you been trying with PHPExcel 1.6.7 or latest source code?</p>",
+    "PostedDate": "2009-07-20T19:55:38.507-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "214147",
+    "ThreadId": "62933",
+    "Html": "<p>Perhaps if the removal of exported rows is an option you can set in the writer classes, there will not be an issue if someone wants to use the same PHPExcel object for multiple exports.</p>\r\n<p>I have been using both PHPExcel 1.6.7 and the latest source code and the problem occured in both versions.</p>",
+    "PostedDate": "2009-07-20T23:20:47.247-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "214629",
+    "ThreadId": "62933",
+    "Html": "<p><em>&gt;&gt; Perhaps if the removal of exported rows is an option you can set in the writer classes,<br> &gt;&gt; there will not be an issue if someone wants to use the same PHPExcel object for multiple<br> &gt;&gt; exports.</em><br> <br> I follow what you are saying, but I don't think it is the solution. The reason is as follows. At best it will reduce memory usage by approximately 50%, say from 100MB to 50MB. This is of course good, but this just postpones the memory problem until you need to generate a workbook that is twice as big.<br> <br> A caching mechanism would solve all problems once and for all. Memory usage would stay constant at around say 10-20MB no matter how many cells you have.</p>",
+    "PostedDate": "2009-07-21T22:51:05.98-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "214642",
+    "ThreadId": "62933",
+    "Html": "<p>That is true and i would really like to have such a feature,<br>but how will the memory usage be when exporting all the data at once to the excel export file?</p>",
+    "PostedDate": "2009-07-21T23:27:44.21-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "215927",
+    "ThreadId": "62933",
+    "Html": "<p><em>&gt;&gt; but how will the memory usage be when exporting all the data at once to the excel export file?</em><br> <br> With a caching mechanism (disk or database) in PHPExcel, PHP memory usage could probably drop to 10-20MB independent of workbook size, whereas today, without a caching mechanism, PHP memory usage is typically around 100MB per 100,000 cells in the workbook.</p>",
+    "PostedDate": "2009-07-24T19:59:42.863-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

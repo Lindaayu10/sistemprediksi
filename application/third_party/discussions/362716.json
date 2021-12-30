@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "859896",
+    "ThreadId": "362716",
+    "Html": "\r\n<p><strong>PHPExcel Info:</strong></p>\r\n<p>I've verified this bug for PHPExcel versions 1.7.6 and 1.7.7 with spreadsheet readers for xls, xlsx, and ods. My code uses the getFormattedValue() method to pull the data into PHP.</p>\r\n<p><strong>Description:</strong></p>\r\n<p>Any cell that contains a 10 digit phone number with the format code below will not get the expected formatted value when pulling the data with the getFormattedValue() method.</p>\r\n<p><strong>Formatting Code:</strong></p>\r\n<p>\\(000&quot;) &quot;000-0000<strong><br>\r\n</strong></p>\r\n<p><strong>Examples:</strong></p>\r\n<p><span style=\"color:#0000ff\">Open Document Format:</span> 5555555555 formats as\r\n<span><span>1260588259&nbsp;</span>instead of (555) 555-5555</span></p>\r\n<p><span style=\"color:#0000ff\">Excel 5:</span> 5555555555 formats as&nbsp;(<span>5555555555</span>) 5555555555-5555555555&nbsp;instead of (555) 555-5555</p>\r\n<p><span style=\"color:#0000ff\">Excel 2007:</span> 5555555555 formats as&nbsp;(5555555555) 5555555555-5555555555&nbsp;instead of (555) 555-5555</p>\r\n<p>&nbsp;</p>\r\n<p>Mark,</p>\r\n<p><span style=\"white-space:pre\">&nbsp;</span>Let me know when you get this fixed and what code I need to change in order to fix 1.7.6 which I will need to manually change myself.</p>\r\n<p>Thanks.</p>\r\n<p>- Christopher Mullins</p>\r\n",
+    "PostedDate": "2012-07-10T12:20:50.07-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "860648",
+    "ThreadId": "362716",
+    "Html": "\r\n<p>Here's a solution that correctly returns the formatted value for excel files. This code still does not fix the Open document file using the same format.</p>\r\n<p>File modified: PHPExcel/Style/NumberFormat.php</p>\r\n<p>Method modified: toFormattedString()</p>\r\n<p>Line number where following code is placed: 683</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre style=\"color:black\"><span style=\"color:blue\">// Begin insert of new code</span></pre>\r\n<pre style=\"color:black\"><span style=\"color:blue\">if</span> ($format == <span style=\"color:#a31515\">'(000) 000-0000'</span>) { <span style=\"color:green\">// phone number format</span>\n  $areacode = substr(<span style=\"color:#a31515\">&quot;{$value}&quot;</span>, 0, 3);\n  $exchange = substr(<span style=\"color:#a31515\">&quot;{$value}&quot;</span>, 3, 3);\n  $number   = substr(<span style=\"color:#a31515\">&quot;{$value}&quot;</span>, 6);\n  $value = <span style=\"color:#a31515\">&quot;({$areacode}) {$exchange}-{$number}&quot;</span>;\n} <span style=\"color:blue\">else</span> {</pre>\r\n<pre style=\"color:black\">// End insert of new code\n  <span style=\"color:green\">// Begin indent of existing code</span>\n  $n = <span style=\"color:#a31515\">&quot;/\\[[^\\]]&#43;\\]/&quot;</span>;\n  $m = preg_replace($n, <span style=\"color:#a31515\">''</span>, $format);\n  $number_regex = <span style=\"color:#a31515\">&quot;/(0&#43;)(\\.?)(0*)/&quot;</span>;\n  <span style=\"color:blue\">if</span> (preg_match($number_regex, $m, $matches)) {\n    $left = $matches[1];\n    $dec = $matches[2];\n    $right = $matches[3];\n\n    <span style=\"color:green\">// minimun width of formatted number (including dot)</span>\n    $minWidth = strlen($left) &#43; strlen($dec) &#43; strlen($right);\n\n    <span style=\"color:blue\">if</span> ($useThousands) {\n      $value = number_format(\n        $value\n        , strlen($right)\n        , PHPExcel_Shared_String::getDecimalSeparator()\n        , PHPExcel_Shared_String::getThousandsSeparator()\n      );\n    } <span style=\"color:blue\">else</span> {\n      $sprintf_pattern = <span style=\"color:#a31515\">&quot;%0$minWidth.&quot;</span> . strlen($right) . <span style=\"color:#a31515\">&quot;f&quot;</span>;\n      $value = sprintf($sprintf_pattern, $value);\n    }\n\n    $value = preg_replace($number_regex, $value, $format);\n  }\n  <span style=\"color:green\">// End indent of existing code</span></pre>\r\n<pre>// Begin insert of new code\n}</pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n<pre>// End insert of new code\n</pre>\r\n<p>&nbsp;</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>- Christpher Mullins</pre>\r\n</div>\r\n",
+    "PostedDate": "2012-07-11T21:51:09.3-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "915725",
+    "ThreadId": "362716",
+    "Html": "\r\n<p>For the OpenDocument issue, see this:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/discussions/265145\">Some Non-Excel Readers and Big Numbers</a></p>\r\n",
+    "PostedDate": "2012-09-21T07:42:46.283-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

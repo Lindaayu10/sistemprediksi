@@ -1,0 +1,126 @@
+Index: Excel5.php
+===================================================================
+--- Excel5.php	(revision 8907)
++++ Excel5.php	(working copy)
+@@ -124,25 +124,25 @@
+  */
+ class PHPExcel_Reader_Excel5 implements PHPExcel_Reader_IReader
+ {
+-	var $_boundsheets = array();
+-	var $_formatRecords = array();
+-	var $_sst = array();
+-	var $_sheets = array();
++	private $_boundsheets = array();
++	private $_formatRecords = array();
++	private $_sst = array();
++	private $_sheets = array();
+ 	// dvc: added list of names and their sheet associated indexes
+-	var $_namedcells = array();
+-	var $_data;
+-	var $_pos;
+-	var $_ole;
+-	var $_defaultEncoding;
+-	var $_codepage;
+-	var $_defaultFormat = XLS_DEF_NUM_FORMAT;
+-	var $_columnsFormat = array();
+-	var $_rowoffset = 1;
+-	var $_coloffset = 1;
++	private $_namedcells = array();
++	private $_data;
++	private $_pos;
++	private $_ole;
++	private $_defaultEncoding;
++	private $_codepage;
++	private $_defaultFormat = XLS_DEF_NUM_FORMAT;
++	private $_columnsFormat = array();
++	private $_rowoffset = 1;
++	private $_coloffset = 1;
+ 	// dvc: added for external sheets references
+-	var $_extshref = array();
++	private $_extshref = array();
+ 
+-	var $_dateFormats = array (
++	private $_dateFormats = array (
+ 		// dvc: fixed known date formats
+ 		0xe => 'd/m/Y',
+ 		0xf => 'd-M-y',
+@@ -159,13 +159,13 @@
+ 	);
+ 
+ 	// dvc: separated percent formats
+-	var $_percentFormats = array(
++	private $_percentFormats = array(
+ 		0x9 => '%1.0f%%',
+ 		0xa => '%1.2f%%'
+ 	);
+ 
+ 	// dvc: removed exponentials to format as default strings.
+-	var $_numberFormats = array(
++	private $_numberFormats = array(
+ 		0x1 => '%1.0f',
+ 		0x2 => '%1.2f',
+ 		0x3 => '%1.0f',
+@@ -202,7 +202,7 @@
+ 		$excel->removeSheetByIndex(0);
+ 
+ 		// Use ParseXL for the hard work.
+-		$this->_ole =& new PHPExcel_Shared_OLERead();
++		$this->_ole = new PHPExcel_Shared_OLERead();
+ 
+ 		$this->_rowoffset = $this->_coloffset = 0;
+ 		$this->_defaultEncoding = 'ISO-8859-1';
+@@ -213,7 +213,7 @@
+ 		$this->_read($pFilename);
+ 
+ 		foreach($this->_boundsheets as $index => $details) {
+-			$sheet = &$excel->createSheet();
++			$sheet = $excel->createSheet();
+ 			$sheet->setTitle((string) $details['name']);
+ 
+ 			// read all the columns of all the rows !
+@@ -221,8 +221,13 @@
+ 			$numcols = $this->_sheets[$index]['numCols'];
+ 			for ($row = 0; $row < $numrows; $row++) {
+ 				for ($col = 0; $col < $numcols; $col++) {
+-					@$cellcontent = $this->_sheets[$index]['cells'][$row][$col];
+-					@$cellinfo = $this->_sheets[$index]['cellsInfo'][$row][$col];
++					if (isset($this->_sheets[$index]['cells'][$row][$col])===true) {
++						$cellcontent = $this->_sheets[$index]['cells'][$row][$col];
++					} else {
++						continue;
++					}
++
++					if (isset($this->_sheets[$index]['cellsInfo'][$row][$col])===true) {
++						$cellinfo = $this->_sheets[$index]['cellsInfo'][$row][$col];
++					}
++					
+-					if(is_null($cellcontent)) continue;
+ 
+ 					$sheet->setCellValueByColumnAndRow($col, $row + 1,
+@@ -506,7 +511,7 @@
+ 
+ 				case XLS_Type_XF:
+ 					/**
+-					 * XF – Extended Format
++					 * XF - Extended Format
+ 					 *
+ 					 * This record contains formatting information for cells,
+ 					 * rows, columns or styles.
+@@ -955,7 +960,7 @@
+ 
+ 				case XLS_Type_MULRK:
+ 					/**
+-					 * MULRK – Multiple RK
++					 * MULRK - Multiple RK
+ 					 *
+ 					 * This record represents a cell range containing RK value
+ 					 * cells. All cells are located in the same row.
+@@ -1139,7 +1144,7 @@
+ 					 */
+ 				case XLS_Type_MULBLANK:
+ 					/**
+-					 * MULBLANK – Multiple BLANK
++					 * MULBLANK - Multiple BLANK
+ 					 *
+ 					 * This record represents a cell range of empty cells. All
+ 					 * cells are located in the same row

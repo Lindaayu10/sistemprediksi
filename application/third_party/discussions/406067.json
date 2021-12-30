@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "953310",
+    "ThreadId": "406067",
+    "Html": "\r\n<p>Im using PHPExcel v1.7.8; PHP v5.3.13 on a Windows7 maxchine with WAMP.</p>\r\n<p>What I would like to do is generate a pdf from a worksheet for download. Below is the code I'm using.</p>\r\n<div style=\"background-color:white; color:black\">\r\n<pre>$rendererName = PHPExcel_Settings::PDF_RENDERER_TCPDF;\r\n$rendererLibrary = <span style=\"color:#a31515\">'tcPDF5.9'</span>;\r\n$rendererLibraryPath = PHPWS_SOURCE_DIR . <span style=\"color:#a31515\">'mod/planning/Classes/tcpdf/'</span>;\r\n\r\n<span style=\"color:blue\">if</span> (!PHPExcel_Settings::setPdfRenderer($rendererName, $rendererLibraryPath))</pre>\r\n<pre>{\r\n<span style=\"color:blue\">die\t</span>(\r\n\t<span style=\"color:#a31515\">'NOTICE: Please set the $rendererName and $rendererLibraryPath values'</span> .\r\n\t<span style=\"color:#a31515\">'<br>'</span> .\r\n\t<span style=\"color:#a31515\">'at the top of this script as appropriate for your directory structure'</span>\r\n\t);\r\n}\r\n\r\n$inputFileName = PHPWS_SOURCE_DIR . [PathToMyFile]<span style=\"color:#a31515\">'</span>;\r\n$sheetname = <span style=\"color:#a31515\">&quot;myWorksheet&quot;</span>;\r\n$reader = <span style=\"color:blue\">new</span> PHPExcel_Reader_Excel2007;\r\n$reader-&gt;setLoadSheetsOnly($sheetname);\r\n$phpExcel = $reader-&gt;load($inputFileName);\r\n\r\n<span style=\"color:green\">// Redirect output to a client&rsquo;s web browser (PDF)</span>\r\nheader(<span style=\"color:#a31515\">'Content-Type: application/pdf'</span>);\r\nheader(<span style=\"color:#a31515\">'Content-Disposition: attachment;filename=&quot;myExportFile.pdf&quot;'</span>);\r\nheader(<span style=\"color:#a31515\">'Cache-Control: max-age=0'</span>);\r\n\r\n$objWriter = PHPExcel_IOFactory::createWriter($phpExcel, <span style=\"color:#a31515\">'PDF'</span>);\r\n$objWriter-&gt;save(<span style=\"color:#a31515\">'php://output'</span>);\r\n\r\nCode executes without errors. But it just doesn't generate a pdf.</pre>\r\n<pre>In the end I get an error that the memory is exhausted or that the maximum execution time has expired (which I extended to some 5 minutes).</pre>\r\n<pre>The Excel file is just one worksheet with a little bit of text in it.</pre>\r\n<pre>So what can I do aboput this? I read more of these issues on the forum but couldn't find a solution.</pre>\r\n<pre>Hope to hear from you.</pre>\r\n</div>\r\n",
+    "PostedDate": "2012-12-08T07:43:48.463-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "953505",
+    "ThreadId": "406067",
+    "Html": "\r\n<p>The PDF Writers are generally slow, though you will find different speeds and memory demands if you use different rendering libraries (e.g. mPDF, DomPDF). I test against a number of libraries at different versions, including tcPDF 5.9.</p>\r\n<p>We can't really control how efficiently 3rd party libraries run, but you could always try generating HTML instead, then running that through an external CLI PDF renderer to see if that is faster.</p>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2012-12-09T04:02:10.28-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

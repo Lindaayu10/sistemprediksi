@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "829065",
+    "ThreadId": "353736",
+    "Html": "\r\n<p>I have a workbook with many sheets, only one of which I need to alter the values in a few cells. Is it possible to do this without loading the entire workbook? The way I've tried seems to want to load everything and that causes memory and speed issues (seems\r\n a common issue here). I've resorted to using a two Excel files, one with the sheet in question and the other referencing the first.&nbsp;</p>\r\n",
+    "PostedDate": "2012-04-26T12:34:00.77-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "829631",
+    "ThreadId": "353736",
+    "Html": "<p>PHPExcel is not a file editor: it always reads the entire file (that's simply how it works). Have you tried caching or any of the other memory saving techniques: while there will always be a trade off between memory and performance, that's the best compromise option?</p>",
+    "PostedDate": "2012-04-28T03:05:55.183-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "829886",
+    "ThreadId": "353736",
+    "Html": "<p>That's a shame. If I were to start a project like PHPExcel that would be my first and highest priority goal because without it you're relegated to relatively small files.</p>\r\n<p>I've tried caching but that just increases the time it takes to execute to well beyond the 30 seconds allocated in php.ini, and this really needs to be quick. I think 2 or 3 seconds might be acceptable, but that time out happens when running on a 2011 Macbook Pro (2.2Ghz i7) with an SSD! The system this will eventually go on is much slower.</p>",
+    "PostedDate": "2012-04-29T06:12:14.28-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "830971",
+    "ThreadId": "353736",
+    "Html": "<blockquote style=\"padding-bottom: 0px; font-style: italic; margin: 0.25em 1em 0px; padding-left: 0.25em; padding-right: 0.25em; padding-top: 0px; border: #ccc 0.1em solid;\"><strong>Edit_A_Sheet wrote:</strong><br />\r\n<p>That's a shame. If I were to start a project like PHPExcel that would be my first and highest priority goal because without it you're relegated to relatively small files.</p>\r\n</blockquote>\r\n<p>The developers of PHPExcel apologise for not having the foresight to realise that they should have been developing a file editor, and sincerely regret that they've wasted 6+ years of their lives. We humbly request permission to commit hara kiri for not having your vision: feel free to continue our work when we're dead by writing your own Excel read/writer which, no doubt, will be the perfect combination of speed and efficiency... we look forward to testing it from the afterlife.</p>\r\n<p>Working with large workbooks is best done as a background process, and not within the scope of a browser request.</p>",
+    "PostedDate": "2012-05-02T00:59:53.937-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "830993",
+    "ThreadId": "353736",
+    "Html": "<p>what he said!</p>\r\n<p>&nbsp;</p>\r\n<p>You have some nerve, first asking for help, and then when the answer is not satisfactory, start ranting. if you don't like the library, use something else, or even better, write your own. Good luck with that!</p>",
+    "PostedDate": "2012-05-02T01:56:36.207-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "831073",
+    "ThreadId": "353736",
+    "Html": "<p><em>Seriously??? </em>You think it takes some significant foresight to see that it might be important to edit a single spreadsheet out of a much larger project? The web is littered with people trying to do this very thing and being told to try PHPExcel, only to report its failure. I cannot believe you haven't had <strong>many</strong> requests for this ability since PHPExcel's inception. If you don't want to add it, fine, but don't expect everyone to be happy with the product. They're not.</p>\r\n<p>Personally, I don't care. I've got my project working, although in a different manner than I wanted. If I ever have to write to Excel files again I probably will roll my own. I won't have the ability to add or alter conditional styles or graphics, but I will be able to alter values/formulas in individual sheets. Like it or not, that <strong><em>is</em></strong> more important.</p>\r\n<p>Now, since it's apparently verboten to offer even the slightest criticism of your glorious product I'll say my final goodbye here and unsubscribe.</p>",
+    "PostedDate": "2012-05-02T05:51:46.18-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "831332",
+    "ThreadId": "353736",
+    "Html": "<p>@Edit_A_Sheet</p>\r\n<p>The Open Source world is filled with dozens of failed PHP libraries for reading or writing Excel, to some degree or other. PHPExcel is the only such project that has survived.... and none were designed for editing Excel files... indeed, I can only think of one alternative library that is still (partly) supported and capable of reading and writing, but that only works with BIFF .xls files and requires a commercial (and Linux only) library.</p>\r\n<p>At the time when PHPExcel was started, it was intended as a simple library for reading and/or writing small workbooks within a single library. There was no alternative in a single library.&nbsp;Nor has anybody developed any alternative reader/writer that supports multiple formats in the intervening years. In fact, while many developers have released libraries that can read <em><strong>or </strong></em>write Excel files in one format <em><strong>or </strong></em>another in the intervening years, only one of those is still active. Over that time&nbsp;PHPExcel has grown in functionality, supporting more and more features of Excel (and other spreadsheet formats) with each release, and is now being used for working with much larger workbooks than was ever originally intended; but it is still an \"in memory\" library.</p>\r\n<p>The structure of Excel files of any format is not conducive to reading small parts or a workbook, editing and rewriting. Cell data might be distributed across several \"files\" (string content or formulae for example are spread across at least two different files, sometimes more depending on the actual data) while formatting information might be distributed across half a dozen files, given the inheritence of row and/or column formatting, default worksheet styling, etc. I'm not aware of any readers/writers for any language (including Microsoft's own offerings) that don't read the entirety of the workbook. The difference is that PHPExcel is restricted by available PHP memory limits.</p>\r\n<p>While we are more than happy to introduce new features that are requested, or accept constructive criticism that offers alternative ways of working, your post came across merely as criticism... if it had been you writing it, you'd have done it right first time and with a foresight that we didn't show. You're telling us that we were a bunch of short-sighted incompetents who lack your vision. Having spent much of my free time in the last 6 or more years developing a library that is freely available for anybody to use, I find that insulting. I'm probably more aware of the shortcomings of PHPExcel (and of its in-memory model) than most, and have invested a lot of time and effort in trying to overcome those problems.</p>\r\n<p>Can we bypass PHP's memory limitations without a high cost in performance? Yes we can, but only with a complete rewrite from scratch, and that will take many months or work, and won't be written in PHP. Nor will it be PHPExcel, but a new library. It's on my to-do list alongside a number of other OS projects that I assist with, and alonside a few new projects that I'm planning.</p>\r\n<p>Because PHPExcel can't handle reading and writing the largest of workbooks in seconds, there's obviously a demand for an alternative.&nbsp;PHPExcel's permissive license allows you to fork the project if you wish: there is nothing to stop you writing your own Excel reader/writer based on PHPExcel, or writing it from scratch yourself; and if that's what you want to do, I wish you luck.</p>",
+    "PostedDate": "2012-05-02T14:08:49.243-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

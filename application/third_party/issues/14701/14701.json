@@ -1,0 +1,161 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "Cannot be implemented in this manner without breaking a significant &#40;&#62;50&#37;&#41; proportion of the existing codebase. This is not a simple fix, but a complete rewrite of the library to suit a particular use case, at the expense of many other use cases.",
+    "ClosedDate": "2010-12-08T01:10:47.97-08:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Second file",
+    "LastUpdatedDate": "2013-05-16T05:41:50.707-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2010-11-16T07:21:07.52-08:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Exhausted memory problem - part 2",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 14701
+  },
+  "FileAttachments": [
+    {
+      "FileId": 5147,
+      "FileName": "0 8th November  AVAILABLES LINES ITEMS.xls",
+      "DownloadUrl": ".\\5147"
+    },
+    {
+      "FileId": 5152,
+      "FileName": "enableMemoryOptimization.patch",
+      "DownloadUrl": ".\\5152"
+    },
+    {
+      "FileId": 5154,
+      "FileName": "enableMemoryOptmizationExcel5.patch",
+      "DownloadUrl": ".\\5154"
+    },
+    {
+      "FileId": 5160,
+      "FileName": "memoryOptimization.patch",
+      "DownloadUrl": ".\\5160"
+    },
+    {
+      "FileId": 5161,
+      "FileName": "memusage.php",
+      "DownloadUrl": ".\\5161"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "I found solution for reading big Excel files ( my spreadsheet has 2 pages with more then 6300 rows.  I need only reading data from Excel2007 file. \r\nAs I've investigated problem and found that standard (good design ) way requires about 7K memory using per row,  It too more for only reading data.  \r\n\r\n7K per row  * 6300 rows * 2  pages  = 88M  for 5M file it too more.  \r\n\r\nSo as I've  already used in my project Spreadsheed_Excel_Reader then I've added to Excel2007 reader small hack - create cells in array instead registering Cell object. Now it works fine, I have 1k memory using per row, and I need only 1K per row:\r\n\r\n1K  per row * 6300 rows * 2  pages  = 12M for 5M file\r\n\r\nI think it's good result.\r\n\r\nI've attached patch  with new option. \r\nHow to use patch:\r\n\r\n$reader = PHPExcel_IOFactory::createReaderForFile($file);\r\n$reader->enableMemoryOptimization();\r\n$excel = $reader->load($file);\r\n$sheets = $excel->getAllSheets();\r\n\r\nforeach( $sheets as $sheet ) {\r\n /* @var $sheet PHPExcel_Worksheet */\r\n// get cells \r\n    print_r( $sheet->cells );\r\n}\r\n\r\n\r\nTo coordinators:  please add this feature to main trunk, may be need change design to  following component design.\r\n",
+      "PostedDate": "2010-11-18T12:26:02.89-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Have you actually looked at cell caching? There are a number of options already built in (and documented)",
+      "PostedDate": "2010-11-18T14:08:42.467-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-11-19T10:37:00.46-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Also patch for Excel5 reader. Same way works good but I've  refactored reader to exctract set value code to separated method.\r\n\r\nResult memory usage:\r\nWas ( ReadDataOnly = true )  -  18 MB\r\n\r\nNow with memory optimization -  6 MB\r\n\r\n",
+      "PostedDate": "2010-11-19T10:37:02.343-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "About caching:\r\n\r\nI have  Excel5 document, 700k  - 1060 rows, 7 columns\r\nI've added code from documentation:\r\n\r\n\t\t$cacheMethod = PHPExcel_CachedObjectStorageFactory:: cache_to_phpTemp;\r\n\t\t$cacheSettings = array( ' memoryCacheSize '  => '8MB');\r\n\t\tPHPExcel_Settings::setCacheStorageMethod($cacheMethod, $cacheSettings);\r\n\t\t$reader = PHPExcel_IOFactory::createReaderForFile($file);\r\n\t\t$reader->setReadDataOnly( true );\r\n\t\t$excel = $reader->load($file);\r\n\r\nResult:  12 Mb memory usage.  I think it's not good result for  700k file.  On another my file (previous my case (XLSX) - out of memory)\r\n\r\nWith my memory optimization: 6 MB and I got all what need - only data\r\n\r\nMy use case next:  read data from file,  store to database, and forget. The main problem is Object (Cell) which stores to sheet instead valuetype on  each cell. It to too expensive for \"read only data\" use case. \r\n\r\nI think will be good idea to using Cell class only as helper (or Facade ) for accessing to $sheet->cells, $sheet->types , $sheet->xf but not holding this object in result sheet.   I optimized memory usage up to 4-7 times by using valuetype instead Cell object as sheet content.\r\n\r\nWhen I wants to read all data as array then cache is not saves me. If I can make design more lightweight then I make it. If object design does not work then need change design. Facade pattern for Cell will good choice for current design.\r\n",
+      "PostedDate": "2010-11-19T11:20:00.773-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "The problem with this approach is that it \"breaks\" most other parts of the PHPExcel library. It introduces a second inconsistent method for accessing the cell data that will only work if enableMemoryOptimization() is set, and the existing methods won't work if enableMemoryOptimization() is set. dates can't be identified as dates, and the writers and calculation engine won't work if a file is loaded to an array using this method. As a solution, it works for you; but it can't work for the PHPExcel library because it introduces too many inconsistencies, and breaks too many features.",
+      "PostedDate": "2010-11-19T15:33:18.947-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "(proposal)\r\n\r\nYes my approach is breaks design. But I think will be good solution to use approach from Excel_Spreadsheet_Reader/Excel_Spreadsheet_Writer, this libraries holds different data in different arrays:\r\n\r\n- data values\r\n- data types\r\n- style information (xf)\r\n\r\n$sheet->getCell()  will returns only frontend for accessing to cells information arrays. And we can apply filters on each data level :\r\n- 1 level - read data only \r\n- 2 level - read data with type information ( type info must be stored only for not GENERAL type: formula, date, etc )\r\n- 3 level - read with style information\r\n\r\nI see then main problem to using this approach - need  completely refactor class Cell.  Setters and getters provides already all need functionality. We will spent execution time but get better memory usage. So as reading and writing Excel spreadsheets is not real-time task then this method will work.\r\n",
+      "PostedDate": "2010-11-20T04:33:00.44-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "It isn't just a case of refactoring the cell class.... it's a matter of a major refactoring for significantly more than half the PHPExcel code... it would be easier to simply scrap PHPExcel completely, and write a new Excel reader from scratch (or just to use Spreadsheed_Excel_Reader in the first place) while discarding much of PHPExcel's functionality. You're quite at liberty to fork PHPExcel and start using your array method of storage, but I don't believe that creating a second incompatible set of methods and structures to access data is a good direction for any project to follow... it leads to contradictions and confusion.",
+      "PostedDate": "2010-11-20T09:30:00.757-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-11-22T17:09:46.927-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I've tried to refactor Cell class , and found that my solution works fine without cache, my previous solutions with reader hack was with errors. \r\n\r\nMain ideas:\r\n1.  do not store objects it too expensive. Scalar data types in separated arrays (data streams) required less memory then objects..\r\n2.  do not store parsed objects, it too expensive. need to use lazy initialization from packed data (rich text is very compact before unpacking to object hierarchy)\r\n3.  do not store values which can be calculated by demand. (row and column numbers)\r\n\r\nMy results: \r\nwas:  > 240MB w/o cache, 100MB with cache,  readDataOnly=y\r\nnow: 44 MB w/o cache , readDataOnly=y\r\n\r\nMy Goals: \r\n1. Optimize memory usage on reading big spreadsheets.\r\n2. Do not scrap design. All methods Sheet::getCell*() now works also.\r\n\r\n(I said in my proposal:  Cell can play  Facade role. )\r\nI've attached:  memoryOptimization.patch\r\n\r\nps: I specially did not used cache subsystem because my solution requires direct access to cell members. I think cache subsystem need use under Cell but not under Worksheet. Cell can implements self storing and restoring methods transparently. Only Cell knows what need to store.\r\n\r\n",
+      "PostedDate": "2010-11-22T17:09:48.79-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-11-22T17:21:15.917-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I've created small tests for testing memory using for objects and scalar types.\r\n\r\n=====================================\r\ncolumns: 20\r\nrows: 7000\r\ncells: 140000\r\n===================== Single Value =================== \r\n          array row :      44,702,952\r\n    named array row :      45,820,192\r\n          named row :      46,678,560\r\n       stdclass row :      46,334,544\r\n cell class per item:     127,453,192\r\n===================== Value pairs =================== \r\n         two arrays :      83,804,744\r\n indexed array pair :     138,792,560\r\n   named array pair :     141,030,280\r\n    Cell class pair :     151,111,664\r\n===================== Cell 3 fields per cell =================== \r\n           3 arrays :     115,061,128\r\n     Proxy 3 members:     115,061,856\r\n      Cell 3 members:     179,106,248\r\n\r\n\r\nAs showed in test scalar data types requires less memory then object. If we have 100 cells it simple case and we can store object per cell, but if we have 100k cells, better way will be store only real data in separated arrays.(data streams model)\r\n\r\nattched: memusage.php\r\n",
+      "PostedDate": "2010-11-22T17:21:17.413-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-12-08T01:10:47.97-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "very helpful. i founded 1 mistake:\r\n\r\nenableMemoryOptmizationExcel5.patch, \r\nline 163:\r\n$this->_setCellExplicitValue( $row, $collumnString, $value, PHPExcel_Cell_DataType::TYPE_BOOL, $xfIndex );\r\nline 171:\r\n$this->_setCellExplicitValue( $row, $collumnString, $value, PHPExcel_Cell_DataType::TYPE_ERROR, $xfIndex );\r\n\r\nundefined variable $collumnString. must be $columnString\r\n\r\n ",
+      "PostedDate": "2011-01-28T08:50:17.173-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Please note that this is NOT included in PHPExcel, nor will it be. If you want to use these methods, feel free to fork PHPExcel, instead.",
+      "PostedDate": "2011-01-28T09:37:00.463-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "MemoryOptimization has really helped me\r\n\r\nPeak memory usage: 195 MB 15:01:32 Done. \r\nnow\r\nPeak memory usage: 15.5 MB 16:07:34 Done.",
+      "PostedDate": "2011-03-16T07:18:17.08-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "@perexod\r\nIf you have to make comments about how brilliant something that isn't included in PHPExcel is, then fork the bloody code.... and use it as the basis for your own project.\r\n\r\nI have no problems with you or anybody else forking PHPExcel. That's quite acceptable practise.\r\n\r\nWhat I do object to is telling everybody how brilliant a change it would be if there was a project/fork out there that used this method and that they could download... but there isn't!!\r\n\r\nFork PHPExcel and implement this method of optimization, and live with supporting it yourself; or stop posting comments here about how brilliant it is.",
+      "PostedDate": "2011-03-16T10:06:53.117-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:02:41.447-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:41:50.707-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

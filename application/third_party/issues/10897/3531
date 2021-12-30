@@ -1,0 +1,106 @@
+Index: PHPExcel/IOFactory.php
+===================================================================
+--- PHPExcel/IOFactory.php	(revision 1247)
++++ PHPExcel/IOFactory.php	(working copy)
+@@ -196,9 +196,55 @@
+ 	 *
+ 	 * @param 	string 		$pFileName
+ 	 * @return	PHPExcel_Reader_IReader
+-	 * @throws 	Exception
+ 	 */
+ 	public static function createReaderForFile($pFilename) {
++
++		// First, lucky guess by inspecting file extension
++		$pathinfo = pathinfo($pFilename);
++
++		if (isset($pathinfo['extension'])) {
++
++			switch ($pathinfo['extension']) {
++				case 'xlsx':
++					$reader = self::createReader('Excel2007');
++					break;
++
++				case 'xls':
++					$reader = self::createReader('Excel5');
++					break;
++
++				case 'ods':
++					$reader = self::createReader('OOCalc');
++					break;
++
++				case 'slk':
++					$reader = self::createReader('SYLK');
++					break;
++
++				case 'xml':
++					$reader = self::createReader('Excel2003XML');
++					break;
++
++				case 'csv':
++					// Do nothing
++					// We must not try to use CSV reader since it loads
++					// all files including Excel files etc.
++					break;
++
++				default:
++					break;
++
++			}
++
++			// Let's see if we are lucky
++			if ($reader->canRead($pFilename)) {
++				return $reader;
++			}
++
++		}
++
++		// If we reach here then "lucky guess" didn't give any result
++
+ 		// Try loading using self::$_autoResolveClasses
+ 		foreach (self::$_autoResolveClasses as $autoResolveClass) {
+ 			$reader = self::createReader($autoResolveClass);
+@@ -207,6 +253,5 @@
+ 			}
+ 		}
+ 
+-		throw new Exception("Could not automatically determine PHPExcel_Reader_IReader for file.");
+ 	}
+ }
+Index: PHPExcel/Reader/CSV.php
+===================================================================
+--- PHPExcel/Reader/CSV.php	(revision 1247)
++++ PHPExcel/Reader/CSV.php	(working copy)
+@@ -125,32 +125,7 @@
+ 		if (!file_exists($pFilename)) {
+ 			throw new Exception("Could not open " . $pFilename . " for reading! File does not exist.");
+ 		}
+-		
+-		// Read sample data (first 2 KB will do)
+-		$fh = fopen($pFilename, 'r');
+-		$data = fread($fh, 2048);
+-		fclose($fh);
+-		
+-		// Count delimiters in file
+-		$delimiterCount = array(
+-			',' => substr_count($data, ','),
+-			';' => substr_count($data, ';'),
+-			"\t" => substr_count($data, "\t"),
+-			'|' => substr_count($data, '|')
+-		);
+-		arsort($delimiterCount, SORT_NUMERIC);
+-		$probableDelimiter = array_shift(array_flip($delimiterCount));
+-		
+-		// Analyze first few lines and check if field count is equal
+-		$lines = explode("\n", $data);
+-		$fieldCount = null;
+-		for ($i = 0; $i < 5 && $i < count($lines); $i++) {
+-			if (is_null($fieldCount))
+-				$fieldCount = substr_count($lines[$i], $probableDelimiter);
+-			if ($fieldCount != substr_count($lines[$i], $probableDelimiter))
+-				return false;
+-		}
+-		
++
+ 		return true;
+ 	}
+ 

@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "1097014",
+    "ThreadId": "458571",
+    "Html": "ok I am surely doing something wrong, but whenever I try to delete the empty worksheet when I am done building my workbook, it crashes my apache.<br />\n<pre><code>the code I am using is this:\n foreach($objPHPExcel-&gt;getSheetNames() as $index=&gt;$name){\n      if($name=='Worksheet'){\n        $objPHPExcel-&gt;removeSheetByIndex($index);\n      }\n    }</code></pre>\n\nso that should be relatively straightforward. but for some reason no.<br />\n<br />\nUsing latest downloadable version<br />\n",
+    "PostedDate": "2013-09-20T08:59:00.677-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1097973",
+    "ThreadId": "458571",
+    "Html": "Hum... I tested your code and no problem, the script goes to the end without error (even if I destroy the last sheet... Here, it is Excel that really do not like).\r<br />\nThe methodology would be a problem in the case where multiple sheets would be destroyed (the index changes).<br />\n",
+    "PostedDate": "2013-09-23T04:31:21.02-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1097982",
+    "ThreadId": "458571",
+    "Html": "thanks, I assumed it should work, which is why I find it weird, and it is supposed to delete a single worksheet, though I modified my code and made it use worksheet for my wirst tab, before creating new ones.\r<br />\nI did a couple tries a any worksheet I delete crashes actually my apache,\r<br />\n<br />\nI'll try to get full logs from apache to see what else could be at play in this<br />\n",
+    "PostedDate": "2013-09-23T05:06:47.467-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1246923",
+    "ThreadId": "458571",
+    "Html": "It look to me that the problem of creating the an extra works (named &quot;Worksheet&quot;) by default when multiple sheets are created can be avoided if you can prevent the call to &quot;$objPHPExcel-&gt;createSheet()&quot;; for last sheet and for simplicity I used the below check at the top;<br />\n<pre><code>\n.....\n.....\n\n$sheetIndex = 0; // Initialize sheet index \n\nforeach($dataSheet as $key =&gt;$val) {\n\n     if (0 != $sheetIndex) $objPHPExcel-&gt;createSheet();  // NOTE: The &quot;if&quot; condition will simply do the same if it is at the bottom; also avoid calling for last sheet\n \n     $objPHPExcel-&gt;setActiveSheetIndex($sheetIndex++); // Increment $sheetIndex every time after setting the index \n\n     .....\n     .....\n\n     $objPHPExcel-&gt;getActiveSheet()-&gt;setTitle(&quot;Your sheetname&quot;);\n     // $objPHPExcel-&gt;createSheet(); --------&gt; This line has moved to top; &lt;---------------\n     // if the above live is here, it will always create the dummy sheet called &quot;Worksheet&quot; \n}</code></pre>\n\nPlease note that if we simply remove by comparing the name; what if the sheet is created by the user especially when creating dynamic sheets with user input.<br />\n<br />\nThanks<br />\n",
+    "PostedDate": "2014-05-19T06:39:24.47-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

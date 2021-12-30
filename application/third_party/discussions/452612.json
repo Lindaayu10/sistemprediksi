@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "1077448",
+    "ThreadId": "452612",
+    "Html": "Hi Everyone,\r<br />\n<br />\nI'm using PHPExcel 1.7.9 with PHP 5.4.17 and I've got a script which will generate a workbook from a MySQL query.  The script works fine and the browser returns an Excel file to download if I hit the script directly and pass values via GET but I've got checkboxes on a form which I need to pass values to the script via POST due to size.\r<br />\n<br />\nI've got jquery doing this &gt;<br />\n<pre><code>$(&quot;button#excel&quot;).click(function(event){\n        event.preventDefault();\n        var selectValues=&quot;range=&quot;;\n        $selections = $('input:checkbox:checked');\n        $selections.each(function(){\n            selectValues += '\\'' + $(this).val() +'\\',';\n        });\n        \n        $.ajax({\n            url: &quot;book.php&quot;,\n            data: selectValues.substr(0,selectValues.length-1),\n            method:'POST',\n            success: function(response){\n                window.location.href = response.url;\n            }\n        });\n    });</code></pre>\n\nData is basically a concatenated list of UUIDs provided by checkboxes on an HTML form.  The PHP script containts a MySQLI statement where data is bound as a parameter to an IN function in the query's where clause.\r<br />\n<br />\nSo what's supposed to happen is when a user clicks a button, all id's associated to a checked checkbox gets concatenated into a comma separated string.  The script executes the query and builds the workbook which then gets fed back to the browser as a file to download but I can't get it to work! I tried several approaches and none seem to be working out and I'm running out of ideas.  Would any of you have experience doing something like this?  Any advice would be appreciated.\r<br />\n<br />\nThanks in advance!<br />\n",
+    "PostedDate": "2013-08-06T14:30:30.82-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1077680",
+    "ThreadId": "452612",
+    "Html": "Can you determine more precisely where is the problem?\r<br />\nThe Excel's file is properly generated, recorded? From your script, I'm guessing that the target of the Ajax request returns an url that allows to obtain the file. Is the url correct?\r<br />\nIf you use it directly in the browser, you get the file?<br />\n",
+    "PostedDate": "2013-08-07T04:38:43.47-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1077807",
+    "ThreadId": "452612",
+    "Html": "LWol,\r<br />\n<br />\nCorrect, because im using $_REQUEST['range'] I can pass a few UUIDs to the PHP script generating the Excel file properly.  UUIDs are pretty long and if you provide several 100 you cap out via GET method.\r<br />\n<br />\nThe script I provide above in the $.ajax fails.  It doesn't retrieve anything but providing the same information via the $.post oddly enough works, the only problem is I'm not sure how to handle the data on callback, it's creating an object without a URL.\r<br />\n<br />\nI was able to create a workaround by adding a hidden form to the page with one hidden field &quot;range&quot; that I provide data to via jquery.  The button then submits the form directly to &quot;book.php&quot; and the browser returns the file to download.  It's totally hack and slash but the user can't tell the difference.  It would be nice to properly implement the AJAX thing though.\r<br />\n<br />\nI'll feedback if I find a solution, I think I just hit one of those walls after trying so many different approaches.<br />\n",
+    "PostedDate": "2013-08-07T09:03:53.11-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1078087",
+    "ThreadId": "452612",
+    "Html": "The problem could well be in the back. What answers book.php when it is called by the ajax? Your code suggests JSON. Is recognized as such by jQuery (no datatype in the request, unless a change in global settings by default, it is &quot;guessed&quot;)? Is it well formed?<br />\n",
+    "PostedDate": "2013-08-07T23:48:28.653-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

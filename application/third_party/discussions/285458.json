@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "722434",
+    "ThreadId": "285458",
+    "Html": "\r\n<p>Is there a way to cache built worksheets to be used in different excel documents?&nbsp;</p>\r\n<p>I noticed PHPExcel_Worksheet is dependent on the parent, a PHPExcel object. At least, that's been my experience. I've tried creating independent PHPExcel_Worksheet objects, but kept running into errors with formatters, etc, with undefined object ($this-&gt;getParent()-&gt;blah()).</p>\r\n<p>My dilemma:</p>\r\n<p>I have a list of about 50 or so users, with commission info. I'm generating a document, for each user, with their detailed info. The issue: some of these users are managers, and their document is to include people under them. An excel document is taking\r\n a good ~2 seconds *per person* to create. I'm trying to find a way to optimize this the best way I can. I'm looking for a way to create a document off cached, or previously generated, excel worksheets. But, I'm running into trouble. A worksheet is tied to\r\n a specifical PHPExcel parent, even though PHPExcel has an addSheet() option. There isn't any setParent() option in PHPExcel_Worksheet. I've tried overloading, and adding my own, but that actually didn't work too well, either.</p>\r\n<p>I need some way to cache generated Excel Worksheets. Is there any way to do this?</p>\r\n<p>I've tried all sorts of ways: saving $activeSheet to an array, saving it to a Zend_Cache repository, overloading PHPExcel_Worksheet to add setParent(). Nothing's working.</p>\r\n",
+    "PostedDate": "2012-01-09T05:31:13.98-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "722620",
+    "ThreadId": "285458",
+    "Html": "<p>No, Worksheets cannot exist independently of workbooks in MS Excel, nor in PHPExcel. A lot of information in Excel (such as formatting details) is held at workbook level, and only linked by a reference id from the individual worksheets or cells... and this behaviour is reflected in PHPExcel.</p>\r\n<p>Is it possible to create a worksheet \"standalone\" or clone&nbsp;a worksheet from&nbsp;a template&nbsp;workbook, and then attach it to another workbook using the addExternalSheet() method.</p>",
+    "PostedDate": "2012-01-09T09:45:35.15-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "722685",
+    "ThreadId": "285458",
+    "Html": "<div>\n<blockquote><strong>MarkBaker wrote:</strong><br />\n<p><em>then attach it to another workbook using the addExternalSheet() method.</em></p>\n</blockquote>\n</div>\n<p>&nbsp;</p>\n<p>You know, that may have actually worked for cached worksheets:</p>\n<p style=\"padding-left: 30px;\">if ( ($activeSheet = $this-&gt;cache-&gt;load($key)) == true ) {<br /> &nbsp; &nbsp; $excel-&gt;addExternalSheet($activeSheet);<br /> &nbsp; &nbsp; continue;&nbsp;<br /> }</p>\n<p>In my initial local tests, that actually worked. Running some larger scales now. Thanks!</p>",
+    "PostedDate": "2012-01-09T11:30:51.117-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

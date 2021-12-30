@@ -1,0 +1,122 @@
+[
+  {
+    "Id": "242968",
+    "ThreadId": "71247",
+    "Html": "<p>Hi,</p>\r\n<p>1. i got a problem, if i create a richtext-object. The output data change e.g. &amp;,&lt; and &gt; to html specials chars like &amp;amp; &amp;gt; &amp;lt, etc.</p>\r\n<p>2. I also have problems with richtext-objects, when 2 linefeeds (Chr(10) or \\n) follow-up -&gt; excel shows unvalid signs (2 squares) ...</p>\r\n<p>&nbsp;</p>\r\n<p>Any idea to fix that? :-(</p>\r\n<p>&nbsp;</p>\r\n<p>ps: i use UTF-8 charset.</p>",
+    "PostedDate": "2009-10-07T07:29:22.35-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "243349",
+    "ThreadId": "71247",
+    "Html": "<p><em>&gt;&gt; 1. i got a problem, if i create a richtext-object. The output data change e.g. &amp;,&lt; and &gt; to html specials chars like &amp;amp; &amp;gt; &amp;lt, etc.</em></p>\r\n<p>Yes, this has been fixed:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10455\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10455</a></p>\r\n<p>Use latest source code from here:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx\">http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx</a></p>\r\n<p><em>&gt;&gt; 2. I also have problems with richtext-objects, when 2 linefeeds (Chr(10) or \\n) follow-up -&gt; excel shows unvalid signs (2 squares) ...</em></p>\r\n<p>Not sure what the problem is. Do you have some code to reproduce this?</p>",
+    "PostedDate": "2009-10-08T03:04:59.197-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "243364",
+    "ThreadId": "71247",
+    "Html": "<p>thx for reply koyama! and sorry for 1. that i dont investigate more time about that topic!</p>\r\n<p>&nbsp;</p>\r\n<p>to 2:</p>\r\n<p>for example:</p>\r\n<p>$richtext_obj = new PHPExcel_RichText($worksheet_obj-&gt;getCellByColumnAndRow(1,1));</p>\r\n<p>$textrun1 = $richtext_obj-&gt;createTextRun(Chr(10));&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //i think this causes the problem...<br>$textrun2 = $richtext_obj-&gt;createTextRun(Chr(10).&quot;for testing...&quot;);</p>\r\n<p>&nbsp;</p>\r\n<p>this phenomenon really only appears with richtext-objects!</p>",
+    "PostedDate": "2009-10-08T03:47:37.847-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "243839",
+    "ThreadId": "71247",
+    "Html": "<p>I am trying this code with PHPExcel 1.7.0 as well as latest source code:</p>\r\n<p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$excel = <span style=\"color:Blue\">new</span> PHPExcel();\r\n\r\n$worksheet = $excel-&gt;getActiveSheet();\r\n\r\n$richtext_obj = <span style=\"color:Blue\">new</span> PHPExcel_RichText($worksheet-&gt;getCellByColumnAndRow(1,1));\r\n$textrun1 = $richtext_obj-&gt;createTextRun(Chr(10));\r\n$textrun2 = $richtext_obj-&gt;createTextRun(Chr(10).<span style=\"color:#A31515\">&quot;for testing...&quot;</span>);\r\n\r\n$objWriter = PHPExcel_IOFactory::createWriter($excel, <span style=\"color:#A31515\">'Excel2007'</span>);\r\n$objWriter-&gt;save(<span style=\"color:#A31515\">'write.xlsx'</span>);\r\n</pre>\r\n</div>\r\n</p>\r\n<p>But I don't see any squares? It looks ok?</p>\r\n<p><a href=\"http://img19.imageshack.us/img19/3690/ss20091009135444.png\"><img src=\"http://img19.imageshack.us/img19/3690/ss20091009135444.th.png\" border=0 alt=\"\"></a></p>",
+    "PostedDate": "2009-10-09T04:56:54.7-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "243841",
+    "ThreadId": "71247",
+    "Html": "<p>well you have to apply that the cell is wraptext!</p>\r\n<p>and i am using excel 2003 .xlsx with autoconverting...</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-10-09T05:00:21.083-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "243845",
+    "ThreadId": "71247",
+    "Html": "<p>Here it is with wraptext, still no squares:</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$excel = <span style=\"color:Blue\">new</span> PHPExcel();\r\n\r\n$worksheet = $excel-&gt;getActiveSheet();\r\n\r\n$worksheet-&gt;getStyle(<span style=\"color:#A31515\">'B1'</span>)-&gt;getAlignment()-&gt;setWrapText(true);\r\n\r\n$richtext_obj = <span style=\"color:Blue\">new</span> PHPExcel_RichText($worksheet-&gt;getCellByColumnAndRow(1,1));\r\n$textrun1 = $richtext_obj-&gt;createTextRun(Chr(10));<span style=\"color:Green\"></span>\r\n$textrun2 = $richtext_obj-&gt;createTextRun(Chr(10).<span style=\"color:#A31515\">&quot;for testing...&quot;</span>);\r\n\r\n$objWriter = PHPExcel_IOFactory::createWriter($excel, <span style=\"color:#A31515\">'Excel2007'</span>);\r\n$objWriter-&gt;save(<span style=\"color:#A31515\">'write.xlsx'</span>);\r\n</pre>\r\n</div>\r\n<p><a href=\"http://img94.imageshack.us/img94/9070/ss20091009140530.png\"><img src=\"http://img94.imageshack.us/img94/9070/ss20091009140530.th.png\" border=0 alt=\"\"></a></p>\r\n<p>Would it be possible for you to run the code and perhaps post a screen shot showing the error?</p>",
+    "PostedDate": "2009-10-09T05:10:41.43-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "243848",
+    "ThreadId": "71247",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>koyama wrote:</strong><br></blockquote>\r\n<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\">\r\n<p>Would it be possible for you to run the code and perhaps post a screen shot showing the error?</p>\r\n</blockquote>\r\n<p>&nbsp;</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre><span style=\"color:Green\">//format_array</span>\r\n\r\n$format_colheadtitle_kw = <span style=\"color:Blue\">array</span>(<span style=\"color:#A31515\">'alignment'</span> =&gt; <span style=\"color:Blue\">array</span>(<span style=\"color:#A31515\">'horizontal'</span> =&gt; PHPExcel_Style_Alignment::HORIZONTAL_LEFT,\r\n                                                     <span style=\"color:#A31515\">'vertical'</span>   =&gt; PHPExcel_Style_Alignment::VERTICAL_TOP)\r\n                               ,<span style=\"color:#A31515\">'borders'</span>   =&gt; <span style=\"color:Blue\">array</span>(<span style=\"color:#A31515\">'outline'</span>    =&gt; <span style=\"color:Blue\">array</span>(<span style=\"color:#A31515\">'style'</span> =&gt; PHPExcel_Style_Border::BORDER_MEDIUM,\r\n                                                                           <span style=\"color:#A31515\">'color'</span> =&gt; <span style=\"color:Blue\">array</span>(<span style=\"color:#A31515\">'argb'</span> =&gt; PHPExcel_Style_Color::COLOR_WHITE)))\r\n                               ,<span style=\"color:#A31515\">'fill'</span>      =&gt; <span style=\"color:Blue\">array</span>(<span style=\"color:#A31515\">'type'</span>       =&gt; PHPExcel_Style_Fill::FILL_SOLID,\r\n                                                     <span style=\"color:#A31515\">'color'</span>      =&gt; <span style=\"color:Blue\">array</span>(<span style=\"color:#A31515\">'rgb'</span> =&gt; $t_grau))\r\n                               ,<span style=\"color:#A31515\">'font'</span>      =&gt; <span style=\"color:Blue\">array</span>(<span style=\"color:#A31515\">'color'</span>      =&gt; <span style=\"color:Blue\">array</span>(<span style=\"color:#A31515\">'argb'</span> =&gt; PHPExcel_Style_Color::COLOR_WHITE)));\r\n\r\n$format_colheadtitle_kw[<span style=\"color:#A31515\">'borders'</span>][<span style=\"color:#A31515\">'bottom'</span>][<span style=\"color:#A31515\">'style'</span>] = PHPExcel_Style_Border::BORDER_NONE;\r\n\r\n$format_colheadtitle_info = $format_colheadtitle_kw;\r\n$format_colheadtitle_info[<span style=\"color:#A31515\">'borders'</span>][<span style=\"color:#A31515\">'top'</span>][<span style=\"color:#A31515\">'style'</span>] = PHPExcel_Style_Border::BORDER_NONE;\r\n$format_colheadtitle_info[<span style=\"color:#A31515\">'alignment'</span>][<span style=\"color:#A31515\">'vertical'</span>] = PHPExcel_Style_Alignment::VERTICAL_BOTTOM;\r\n$format_colheadtitle_info[<span style=\"color:#A31515\">'alignment'</span>][<span style=\"color:#A31515\">'wrap'</span>] = true;\r\n\r\n<span style=\"color:Green\">//testscript</span>\r\n\r\n$wks_container-&gt;getStyleByColumnAndRow($col,6)-&gt;applyFromArray($format_colheadtitle_info);\r\n\r\n$colheadtitle_info = <span style=\"color:Blue\">new</span> PHPExcel_RichText($wks_container-&gt;getCellByColumnAndRow($col,6));\r\n$colheadtitle_info-&gt;createTextRun(Chr(10));\r\n$colheadtitle_info-&gt;createTextRun(Chr(10).<span style=\"color:#A31515\">&quot;testing...&quot;</span>);\r\n<br><br><a href=\"http://www.photouploader.de/pic.php?type=png&f=42075\">Screenshot</a></pre>\r\n</div>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-10-09T05:17:32.087-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "244894",
+    "ThreadId": "71247",
+    "Html": "<p>grustardo, can you try to open this file in your Excel 2003 and post a screen shot?</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/Project/Download/AttachmentDownload.ashx?ProjectName=PHPExcel&WorkItemId=10749&FileAttachmentId=3428\">newlines-in-richtext.xlsx</a></p>\r\n<p>I would very much like to know if you are seeing those Unicode replacement characters.</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-10-12T19:44:23.267-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "247210",
+    "ThreadId": "71247",
+    "Html": "<p>yes, i can see it... that's what i mean... i guess it is only in EXCEL 2003</p>\r\n<p><a href=\"http://www.photouploader.de/pic.php?type=png&f=43013\">Screenshot</a></p>\r\n<p>ps. sry, for late reply</p>",
+    "PostedDate": "2009-10-19T01:55:43.607-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "247515",
+    "ThreadId": "71247",
+    "Html": "<p>Can you try to open this file and say what you see?</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/Project/Download/AttachmentDownload.ashx?ProjectName=PHPExcel&WorkItemId=10749&FileAttachmentId=3452\">newlines-in-richtext-2.xlsx</a></p>\r\n<p>What I have done is to change the line endings in xl/sharedString.xml from \\n to \\r\\n.</p>",
+    "PostedDate": "2009-10-19T18:28:59.723-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "247587",
+    "ThreadId": "71247",
+    "Html": "<p>no changing... :( same output as <a href=\"../Project/Download/AttachmentDownload.ashx?ProjectName=PHPExcel&WorkItemId=10749&FileAttachmentId=3428\">newlines-in-richtext.xlsx</a></p>",
+    "PostedDate": "2009-10-20T00:57:02.34-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "247922",
+    "ThreadId": "71247",
+    "Html": "<p>Ok, how about this file:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/Project/Download/AttachmentDownload.ashx?ProjectName=PHPExcel&WorkItemId=10749&FileAttachmentId=3453\">newlines-in-richtext-3.xlsx</a></p>\r\n<p>What I have done is to open newlines-in-richtext-2.xlsx and do a plain save in MS Office Excel 2007</p>",
+    "PostedDate": "2009-10-20T17:00:24.107-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "248012",
+    "ThreadId": "71247",
+    "Html": "<p>nope :-( , again...</p>\r\n<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>grustardo wrote:</strong><br></blockquote>\r\n<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\">\r\n<p>no changing... :( same output as <a href=\"../Project/Download/AttachmentDownload.ashx?ProjectName=PHPExcel&WorkItemId=10749&FileAttachmentId=3428\">newlines-in-richtext.xlsx</a></p>\r\n</blockquote>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-10-21T01:25:47.153-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "248750",
+    "ThreadId": "71247",
+    "Html": "<p>How about this file:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/Project/Download/AttachmentDownload.ashx?ProjectName=PHPExcel&WorkItemId=10749&FileAttachmentId=3459\">newlines-in-richtext-4.xlsx</a></p>\r\n<p>It was created in MS Office Excel 2007. No PHPExcel involved.</p>",
+    "PostedDate": "2009-10-22T13:23:24.733-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "248900",
+    "ThreadId": "71247",
+    "Html": "<p>always the same, but now we know it is the converter... :&gt;</p>\r\n<p>i just do a &lt;space&gt; after 2 x \\n in a row...</p>\r\n<p>&nbsp;</p>\r\n<p>thx 4 help</p>",
+    "PostedDate": "2009-10-23T00:58:57.43-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

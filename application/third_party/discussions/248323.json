@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "575111",
+    "ThreadId": "248323",
+    "Html": "<p>Hi,&nbsp;</p>\n<p>I have a program that writes a time on a cell and the following day a different time on the next cell.</p>\n<p>i am using PHPExcel_Cell::setValueBinder( new PHPExcel_Cell_AdvancedValueBinder() );</p>\n<p>On the first day, the time is saved OK.</p>\n<p>on the second day (and from then on) the time is saved the right way for the current column, but the time on the previous on changes from 00:06:37&nbsp;to&nbsp;0.004595 (excel time?)</p>\n<p>How can i avoid that?</p>\n<p>i use&nbsp;</p>\n<p>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue($this-&gt;columnName($current_month) . '1', '00:06:37');</p>\n<p>to write the time</p>\n<p>thanks</p>",
+    "PostedDate": "2011-03-03T08:40:38.277-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "575519",
+    "ThreadId": "248323",
+    "Html": "<p>I've tried to replicate this using the following code:</p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>$fileType = <span style=\"color: #a31515;\">'Excel2007'</span>;\r\n$fileName = <span style=\"color: #a31515;\">'testBinderTime.xlsx'</span>;\r\n\r\n$objReader = PHPExcel_IOFactory::createReader($fileType);\r\n$objPHPExcel = $objReader-&gt;load($fileName);\r\n\r\n$objPHPExcel-&gt;setActiveSheetIndex(0);\r\n$sheet = $objPHPExcel-&gt;getActiveSheet();\r\nPHPExcel_Cell::setValueBinder( <span style=\"color: blue;\">new</span> PHPExcel_Cell_AdvancedValueBinder() );\r\n\r\n$timeNow = date(<span style=\"color: #a31515;\">'H:i:s'</span>);\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(<span style=\"color: #a31515;\">'A'</span> . ($sheet-&gt;getHighestRow() + 1), $timeNow);\r\n\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, $fileType);\r\n$objWriter-&gt;save($fileName);\r\n</pre>\r\n</div>\r\n<p>but it is working exactly as I'd expect it to work.</p>\r\n<p>I've tried this with both Excel5 and Excel2007, without seeing any of the previous values changing format in any way.</p>\r\n<p>The only thing that I can think of is that you're reading the workbook with setReadDataOnly(true), which is telling PHPExcel not to read any format masking (which includes date masking).</p>\r\n<p>&nbsp;</p>\r\n<p>Is it possible for you to create a code snippet that demonstrates this problem?</p>",
+    "PostedDate": "2011-03-04T05:19:14.847-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "575554",
+    "ThreadId": "248323",
+    "Html": "<p>hi,&nbsp;</p>\r\n<p>you are right, i was using&nbsp;setReadDataOnly(true).</p>\r\n<p>once removed, everything works fine.</p>\r\n<p>&nbsp;</p>\r\n<p>thanks</p>",
+    "PostedDate": "2011-03-04T06:32:29.853-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

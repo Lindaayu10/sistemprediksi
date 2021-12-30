@@ -1,0 +1,74 @@
+[
+  {
+    "Id": "93876",
+    "ThreadId": "28138",
+    "Html": "Hello,<br>\r\n<br>\r\nWhen I add an image (with out resizing) it looses allot of quality it becomes really blurry....<br>\r\n<br>\r\nIf i insert or copy and paste the image file into an excel sheet on my own quality is nt lost, what is causing the quality to degrade using the PHPEcel class?<br>\r\n<br>\r\n<br>\r\nHere is code:<br>\r\n[code]<br>\r\n   $objDrawing = new PHPExcel_Worksheet_Drawing();<br>\r\n   $objDrawing-&gt;setName('logo');<br>\r\n   $objDrawing-&gt;setDescription('logo');<br>\r\n   $objDrawing-&gt;setPath(&quot;./images/logo.gif&quot;);<br>\r\n   //$objDrawing-&gt;setHeight(50);<br>\r\n   $objDrawing-&gt;setCoordinates('A1');<br>\r\n   $objDrawing-&gt;setWorksheet($objPHPExcel-&gt;getActiveSheet());<br>\r\n[/code]<br>\r\n<br>\r\nI have tried using a gif, jpg, png, and tif file formats all produce the same loss in quality...<br>\r\n<br>\r\n",
+    "PostedDate": "2008-05-21T04:18:07.453-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "93886",
+    "ThreadId": "28138",
+    "Html": "Are you creating XLS or XLSX files?\r\n",
+    "PostedDate": "2008-05-21T04:58:17.35-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "93900",
+    "ThreadId": "28138",
+    "Html": "<br>\r\n<div style=\"border-right:medium none;padding-right:0.2em;border-top:#aaa 0.1em dotted;padding-left:0.2em;padding-bottom:0.2em;margin:1em 0em 2.5em 3em;border-left:medium none;padding-top:0.2em;border-bottom:#aaa 0.1em dotted;font-style:italic\"><br>\r\nmaartenba wrote:<br>\r\nAre you creating XLS or XLSX files? <br>\r\n<br>\r\n</div>\r\n<br>\r\nI am using XLSX.  Also my test (not apples to apples I know) I am using Excel 2007 and can paste or insert the same image file no problems.<br>\r\n<br>\r\nThanks for the help.<br>\r\n<br>\r\nChris\r\n",
+    "PostedDate": "2008-05-21T06:12:19.057-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "94272",
+    "ThreadId": "28138",
+    "Html": "Is this a known issue?  would you like the files to duplicate the issue?  I really need to know about this,  I have looked through the source and I can't see where it would downgrade image quality....  I really need to get this one figured out,  as this whole thing in my project is well really cool (as a user can choose their export format) but in the end with out the logo we can't use it :(<br>\r\n<br>\r\nPlease let me know if this is a known issue,  or if you know how to fix it,  or where in the code it might cause the image to loose quality....<br>\r\n<br>\r\nThanks<br>\r\nChris\r\n",
+    "PostedDate": "2008-05-22T18:27:00.417-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "94301",
+    "ThreadId": "28138",
+    "Html": "Can you post an example to reproduce this?\r\n",
+    "PostedDate": "2008-05-22T22:41:02.827-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "94316",
+    "ThreadId": "28138",
+    "Html": "If you right click on googles logo and save it as &quot;GoogleLogo.gif&quot; to your images folder,  you can reproduce the problem with this code:<br>\r\n<br>\r\n<p>include(&quot;PHPExcel.php&quot;);<br>\r\n$objPHPExcel = new PHPExcel();<br>\r\n$objPHPExcel-&gt;setActiveSheetIndex(0);</p>\r\n<p>//add the logo to the excel file.<br>\r\n$objDrawing = new PHPExcel_Worksheet_Drawing();<br>\r\n$objDrawing-&gt;setName('Logo');<br>\r\n$objDrawing-&gt;setDescription('Logo');<br>\r\n$objDrawing-&gt;setPath(&quot;./images/GoogleLogo.gif&quot;);<br>\r\n$objDrawing-&gt;setCoordinates('A1');<br>\r\n$objDrawing-&gt;setWorksheet($objPHPExcel-&gt;getActiveSheet());<br>\r\n<br>\r\n//call the files needed and out put it to the client<br>\r\n include(&quot;PHPExcel/Writer/Excel2007.php&quot;);<br>\r\n $objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel);<br>\r\n $objWriter-&gt;save('php://output');</p>\r\n",
+    "PostedDate": "2008-05-22T23:53:11.72-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "103322",
+    "ThreadId": "28138",
+    "Html": "So is it fixible? :)<br>\r\n<br>\r\nIt seems like image resizing, type (gif, png, jpg, ...) or output format are not important. <br>\r\nI tried to use pure <strong>*.png</strong> image and then resized. Also I used Excel5 writer with <strong>*.xls</strong> file extension and Excel2007 writer with <strong>*.xlsx</strong> file extension and result was the same.<br>\r\n<br>\r\nWhen i open generated excel file and add the same image manually (<em>by going Insert-&gt;Picture-&gt;blah blah blah</em>) - quality seems to be ok.<br>\r\n<br>\r\nSomehow image is loosing quality :(. Maybe it is OpenXML API problem?<br>\r\n<br>\r\n",
+    "PostedDate": "2008-07-08T05:14:48.72-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "103538",
+    "ThreadId": "28138",
+    "Html": "OK, here it goes... (Part I)<br>\r\n<br>\r\nI generated *.xlsx file with image using excel writer Excel2007. Image was blurry (as usual). Then I inserted the same image again by hand using Excel. So in my *.xlsx document i had 1 blurry image and 1 normal image.<br>\r\n<br>\r\nThen i changed *.xlsx file extension to *.zip, opened it and tried to search for images. The only image i found was in <strong>archive.zip\\xl\\media</strong> folder. It was in its original quality.<br>\r\n<br>\r\nSo, i made a copy of the archive and opened it with excel, removed blurry image and checked <strong>archive.zip\\xl\\media</strong> folder again. Image was there.<br>\r\nI made another copy of the archive and opened it with excel, removed newly inserted image (not blurry one) and checked <strong>archive.zip\\xl\\media</strong> folder again. Image was there.<br>\r\nThen I made another copy of the archive and opened it with excel, removed both images and checked <strong>archive.zip\\xl\\media</strong> folder again. There were no images.<br>\r\n<em>Conclusion</em>: &quot;blurrisity&quot; was not the image's quality's fault, as the excel use the same normal quality image differently in the excel file. It is the excel, which was somehow instructed to show blurry image.<br>\r\n<br>\r\nHere we go again.... (Part II)<br>\r\n<br>\r\nThe only place where the name of the image was mentioned is the <strong>archive.zip\\xl\\drawings\\_rels\\drawing1.xml.rels</strong> file. Name of the image was assigned to some &quot;relationship&quot; variable there. &quot;Relationship&quot; variable's name was <em>rId1.</em><br>\r\nSo then i looked for a places where<em> rId1 </em>was mentioned in. Found two places, both in the same file <strong>archive.zip\\xl\\drawings\\drawing1.xml</strong>.<br>\r\nThen, by comparing found two nodes of code, i noticed, that by commenting &lt;a:scene3d&gt;...&lt;/a:scene3d&gt; section, blurry image become normal again :).<br>\r\n<br>\r\n....<br>\r\n<br>\r\nSo, i tried to comment those &lt;a:scene3d&gt; tags generating code and it worked fine then. Not sure what theese tags do, but i like my excel documents better without them ;). It were lines <strong>266-287</strong> in <strong>PHPExcel/Writer/Excel2007/Drawing.php</strong> file. PHPExcel version 1.6.2. Starting line text: <em>$objWriter-&gt;startElement('a:scene3d');</em><br>\r\n<br>\r\nDont know how to fix this in excel writer Excel5, but FlexIDX's project should be fine with this.. same as the mine ;)<br>\r\n<br>\r\n<br>\r\n",
+    "PostedDate": "2008-07-09T01:28:33.483-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "103579",
+    "ThreadId": "28138",
+    "Html": "Will be fixed in&nbsp;<a href=\"http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=6838\">http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=6838</a>&nbsp;(for Excel 2007)\r\n",
+    "PostedDate": "2008-07-09T05:31:05.283-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

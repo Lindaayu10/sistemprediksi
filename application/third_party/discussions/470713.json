@@ -1,0 +1,82 @@
+[
+  {
+    "Id": "1127492",
+    "ThreadId": "470713",
+    "Html": "Hello Everyone<br />\n<br />\nI want to load large file that is 90mb. when i am loading small file that is 4mb it work fine. but when large file is loaded it giving me <strong>Apache http server has stopped working</strong> <br />\n<br />\nmy code is:<br />\n<pre><code>&lt;?php\n\nrequire_once 'PHPExcel/Classes/PHPExcel.php';\n$inputFileType = PHPExcel_IOFactory::identify('mylarge.xlsx');\n\n                $objReader = PHPExcel_IOFactory::createReader($inputFileType);  \n\n                $objReader-&gt;setReadDataOnly(true);\n\n                /**  Load $inputFileName to a PHPExcel Object  **/  \n                $objPHPExcel = $objReader-&gt;load('mylarge.xlsx');\n\n                $total_sheets=$objPHPExcel-&gt;getSheetCount(); \n\n                $allSheetName=$objPHPExcel-&gt;getSheetNames(); \n                $objWorksheet = $objPHPExcel-&gt;setActiveSheetIndex(0); \n                $highestRow = $objWorksheet-&gt;getHighestRow(); \n                $highestColumn = $objWorksheet-&gt;getHighestColumn();  \n                $highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn);  \n                for ($row = 1; $row &lt;= $highestRow;++$row) \n                {  \n                    for ($col = 0; $col &lt;$highestColumnIndex;++$col)\n                    {  \n                        $value=$objWorksheet-&gt;getCellByColumnAndRow($col, $row)-&gt;getValue();  \n\n                              $arraydata[$row-1][$col]=$value; \n\n\n                    }  \n\n                }\n\n\n\n        print_r($arraydata);\n\n?&gt;\n</code></pre>\n\ni have changed my php.ini file memory_limit = -1  and also changed maximum execution time.<br />\n<br />\ncan any one tell me what was wrong.<br />\n<br />\nthank you<br />\n",
+    "PostedDate": "2013-11-21T04:37:23.783-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1127550",
+    "ThreadId": "470713",
+    "Html": "And no message from php about impossibility of having memory?\r<br />\nTry to adjust the memory limit on the basis of material resources, added spies to see the evolution, during course of the file, the occupation of memory (Mark considers that it takes about a KB per cell).\r<br />\nTry to implement cache techniques offered by PHPExcel (SQLite3 is one that saves the most)<br />\n",
+    "PostedDate": "2013-11-21T06:41:02.207-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1127780",
+    "ThreadId": "470713",
+    "Html": "Hello LWol,\r<br />\n<br />\nThank you for reply. i tried PHPExcel SQLite3 as following in my code:<br />\n<pre><code>\n&lt;?php\n\nrequire_once 'PHPExcel/Classes/PHPExcel.php';\n\n                 $cacheMethod = PHPExcel_CachedObjectStorageFactory::cache_to_sqlite3;  /* here i added */\n                $cacheEnabled = PHPExcel_Settings::setCacheStorageMethod($cacheMethod);\n                if (!$cacheEnabled)\n                {\n                    echo &quot;### WARNING - Sqlite3 not enabled ###&quot; . PHP_EOL;\n                }\n                $objPHPExcel = new PHPExcel();\n                     $inputFileType = PHPExcel_IOFactory::identify('mylarge.xlsx');\n\n                $objReader = PHPExcel_IOFactory::createReader($inputFileType);  \n\n                $objReader-&gt;setReadDataOnly(true);\n\n                /**  Load $inputFileName to a PHPExcel Object  **/  \n                $objPHPExcel = $objReader-&gt;load('mylarge.xlsx');\n\n                $total_sheets=$objPHPExcel-&gt;getSheetCount(); \n\n                $allSheetName=$objPHPExcel-&gt;getSheetNames(); \n                $objWorksheet = $objPHPExcel-&gt;setActiveSheetIndex(0); \n                $highestRow = $objWorksheet-&gt;getHighestRow(); \n                $highestColumn = $objWorksheet-&gt;getHighestColumn();  \n                $highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn);  \n                for ($row = 1; $row &lt;= $highestRow;++$row) \n                {  \n                    for ($col = 0; $col &lt;$highestColumnIndex;++$col)\n                    {  \n                        $value=$objWorksheet-&gt;getCellByColumnAndRow($col, $row)-&gt;getValue();  \n\n                              $arraydata[$row-1][$col]=$value; \n\n\n                    }  \n\n                }\n\n\n\n        print_r($arraydata);\n\n?&gt;\n\n\n</code></pre>\n\nBut i am getting same problem. can you please help me on this. where i am going wrong.\r<br />\n<br />\nthank you.<br />\n",
+    "PostedDate": "2013-11-21T21:33:36.59-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1127825",
+    "ThreadId": "470713",
+    "Html": "Your file contains multiple worksheets? If Yes, do you need all at the same time? One possibility would be to say to the reader the sheet to load, to do multiple passes if necessary.\r<br />\nFor a given worksheet, you can perhaps recover data in several times, through a readFilter, storing them in a temporary table (and not in memory).\r<br />\n<br />\nYou will find examples of implementation in document &quot;PHPExcel User Documentation - Reading Spreadsheet Files&quot;, chapters 4.2 and 4.3.\r<br />\nTo combine with the use of the cache as you did.\r<br />\n<br />\nAdd debugging information during the various stages for memory used<br />\n",
+    "PostedDate": "2013-11-22T01:40:47.633-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1127849",
+    "ThreadId": "470713",
+    "Html": "Hello LWol,\r<br />\n<br />\nIn my large file there is only one sheet. and tried all cache method which are <a href=\"https://github.com/PHPOffice/PHPExcel/blob/develop/Documentation/markdown/Overview/04-Configuration-Settings.md\" rel=\"nofollow\">here</a> but i am faceing same problem. \r<br />\n<br />\n refereed <a href=\"https://phpexcel.codeplex.com/discussions/242712\" rel=\"nofollow\">this</a> and tried all.\r<br />\n<br />\ni did cache technique but still not got.\r<br />\n<br />\nHere is code:<br />\n<pre><code>&lt;?php\n\nrequire_once 'PHPExcel/Classes/PHPExcel.php';\n\n$inputFileName = 'largefile.xlsx';\n\n$inputFileType = PHPExcel_IOFactory::identify($inputFileName);\n\n/**  Define a Read Filter class implementing PHPExcel_Reader_IReadFilter  */\n\nclass chunkReadFilter implements PHPExcel_Reader_IReadFilter\n{\n    private $_startRow = 0;\n\n    private $_endRow = 0;\n\n    /**  Set the list of rows that we want to read  */\n    public function setRows($startRow, $chunkSize) {\n        $this-&gt;_startRow    = $startRow;\n        $this-&gt;_endRow        = $startRow + $chunkSize;\n    }\n\n    public function readCell($column, $row, $worksheetName = '') {\n        //  Only read the heading row, and the rows that are configured in $this-&gt;_startRow and $this-&gt;_endRow\n        if (($row == 1) || ($row &gt;= $this-&gt;_startRow &amp;&amp; $row &lt; $this-&gt;_endRow)) {\n            return true;\n        }\n        return false;\n    }\n}\n\n\necho 'Loading file ',pathinfo($inputFileName,PATHINFO_BASENAME),' using IOFactory with a defined reader type of ',$inputFileType,'&lt;br /&gt;';\n/**  Create a new Reader of the type defined in $inputFileType  **/\n\n$objReader = PHPExcel_IOFactory::createReader($inputFileType);\n\n\n\necho '&lt;hr /&gt;';\n\n\n/**  Define how many rows we want to read for each &quot;chunk&quot;  **/\n$chunkSize = 20;\n/**  Create a new Instance of our Read Filter  **/\n$chunkFilter = new chunkReadFilter();\n\n/**  Tell the Reader that we want to use the Read Filter that we've Instantiated  **/\n$objReader-&gt;setReadFilter($chunkFilter);\n\n/**  Loop to read our worksheet in &quot;chunk size&quot; blocks  **/\n/**  $startRow is set to 2 initially because we always read the headings in row #1  **/\n\nfor ($startRow = 2; $startRow &lt;= 240; $startRow += $chunkSize) {\n    echo 'Loading WorkSheet using configurable filter for headings row 1 and for rows ',$startRow,' to ',($startRow+$chunkSize-1),'&lt;br /&gt;';\n    /**  Tell the Read Filter, the limits on which rows we want to read this iteration  **/\n    $chunkFilter-&gt;setRows($startRow,$chunkSize);\n    /**  Load only the rows that match our filter from $inputFileName to a PHPExcel Object  **/\n    $objPHPExcel = $objReader-&gt;load($inputFileName);\n\n    //    Do some processing here\n\n    $sheetData = $objPHPExcel-&gt;getActiveSheet()-&gt;toArray(null,true,true,true);\n    var_dump($sheetData);\n    echo '&lt;br /&gt;&lt;br /&gt;';\n}\n?&gt;</code></pre>\n\ncan you please tell me what is the problem. \r<br />\n<br />\n<br />\nand i also tried to convert this <strong>xlsx</strong> file  to CSV but that is also coming same error\r<br />\n<br />\nCode to convert xlsx to csv:<br />\n<pre><code>&lt;?php\nrequire_once 'PHPExcel/PHPExcel/IOFactory.php';\n$excel = PHPExcel_IOFactory::load(&quot;large.xlsx&quot;);\n$writer = PHPExcel_IOFactory::createWriter($excel, 'CSV');\n$writer-&gt;setDelimiter(&quot;;&quot;);\n$writer-&gt;setEnclosure(&quot;&quot;);\n$writer-&gt;save(&quot;test123.csv&quot;);\n?&gt;\n\n</code></pre>\n\nis any other way to read xlsx large file?\r<br />\n<br />\nThank you.<br />\n",
+    "PostedDate": "2013-11-22T03:13:49.063-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1128655",
+    "ThreadId": "470713",
+    "Html": "OK, there is the readfilter, but where is the cache?\r<br />\nAnd it is necessary to add logs to the evolution of the memory required.\r<br />\nPrior to that, how many cells are present in your workbook?\r<br />\nHow much memory can ask php? PHP version x86 or x64?\r<br />\nIf you beyond the limits of the 'possible'...<br />\n",
+    "PostedDate": "2013-11-25T05:02:48.117-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1129084",
+    "ThreadId": "470713",
+    "Html": "Hi LWol,\r<br />\n<br />\nThank you for your reply . \r<br />\n<br />\nI have added cache. even those it is not working. \r<br />\n<br />\nmy large file has 9260442 cells. \r<br />\n<br />\nand  PHP version x86.\r<br />\n<br />\nThank you.<br />\n",
+    "PostedDate": "2013-11-26T01:34:45.93-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1129199",
+    "ThreadId": "470713",
+    "Html": "Using the direct method (full load, no cache), you would need 9GB, that you can't get in x 86.<br />\nThe method of filtering can reduce the need, but after test, the script that you use does not free memory.<br />\nBut if you add<br />\n<pre><code>$objPHPExcel-&amp;gt; disconnectWorksheets();\nunset ($objPHPExcel);</code></pre>\n\nAfter having recovered data (you can also add some echo of memory_get_usage to give you an idea of what it uses as memory), you recover memory.<br />\nRemake a test as that and be patient: the file must be read as many times as it passes through the load().<br />\nThen, see if you can adjust the chunksize and if the final startrow is correct.<br />\nYou can try with and without cache to find the best compromise (time / memory).<br />\n(Note: test conducted with a workbook containing a sheet with 30 columns and ~ 30 k lines, representing more than 900 k cells - 1/10 of what you have, but on my small test machine, I can hardly go further - direct loading fails - it exceeds 128 MB allowed - but pieces loading is successful, memory_get_usage reports ~ 25 MB used, memory_get_peak_usage reported 45 MB. I could therefore double the size of the chunk. Edit : With SQLite3 cache, get_usage : ~5MB, peak : ~30MB<br />\nThe loading takes of course much time)<br />\n",
+    "PostedDate": "2013-11-26T07:15:09.993-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1261386",
+    "ThreadId": "470713",
+    "Html": "<a href=\"https://phpexcel.codeplex.com/\" rel=\"nofollow\">PHPExcel - </a> <a href=\"http://www.barcodelib.com/excel_barcode/barcodes/code128.html\" rel=\"nofollow\">downlad code 128 excel add in free</a>.\r<br />\nThank you.<br />\n",
+    "PostedDate": "2014-06-30T19:55:15.37-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1337571",
+    "ThreadId": "470713",
+    "Html": "Recently i am doing my work with barcode,I want read <a href=\"http://www.keepdynamic.com/office/barcode-excel-code-128.shtml\" rel=\"nofollow\">generated code128 in Excel file</a>.So i find the following method of reading xlsx file using PHPExcel.Now i'd like to share with you guys.\r<br />\nFirst, we need to create a reader for our file. PHP Excel makes this easy for us, as we can use PHPExcel_IOFactory::createReaderForFile() method. It will try to detect filetype by analyzing the extension of the provided file. It can read XLS, XLSX, CSV, PDF and probably even more file formats. So to create a reader, use this code:<br />\n<pre><code>1   require('PHPExcel.php'); // found when you download the PHPExcel\n2   $Reader = PHPExcel_IOFactory::createReaderForFile($file);\n3   $Reader-&gt;setReadDataOnly(true); // set this, to not read all excel properties, just data\n</code></pre>\n\nReader is ready and I’ve also specified setReadDataOnly() to read only data, not all the properties around it. Usually we don’t need all the properties and this API is quote memory expensive, so try to read as little as possible to get the job done.\r<br />\nNext step is to load the file – you do that by calling load() method:<br />\n<pre><code>1   $objXLS = $Reader-&gt;load($file);</code></pre>\n\nTo read a value from cell A1 in sheet 0 (first sheet) use this code:<br />\n<pre><code>1   $value = $objXLS-&gt;getSheet(0)-&gt;getCell('A1')-&gt;getValue();\n2   // or to get calculated value, if there is a formula, etc\n3   $value = $objXLS-&gt;getSheet(0)-&gt;getCell('A1')-&gt;getCalculatedValue();</code></pre>\n\nAPI is huge, so please check their not-so-well written documentation about it on their web page.\r<br />\n<br />\nAs I’ve written before, this API is using quite some memory to read in the Excel files, so if you have a long running script, it’s a good practice to unload it as soon as possible.\r<br />\nYou can do that by calling disconnectWorksheets() method.<br />\n<pre><code>1   $objXLS-&gt;disconnectWorksheets();\n2   unset($objXLS);</code></pre>\n\n",
+    "PostedDate": "2014-12-28T22:43:08.413-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

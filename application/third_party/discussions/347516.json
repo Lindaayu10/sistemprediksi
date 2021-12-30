@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "806301",
+    "ThreadId": "347516",
+    "Html": "<p>Hi all,</p>\n<p>I'm creating an Excel97/2003 file using PHPExcel and I add some fields and values. The idea is that this Excel file is treated using SQLserver 2005 data is extracted from it with a DTS scheme.</p>\n<p>When trying to do this with the PHPExcel generated file, the DTS transformation doesn't succeed as the first line and first column appear to be missing.</p>\n<p>When I open this PHPExcel generated file in Excel2007 (compatibilty mode is showing) and save the file directly (without touching any of the data) the file DOUBLES in file size, AND is perfectly accepted by the DTS transformation scheme in SQL Server 2005.</p>\n<p>What is Excel2007 adding to this file to make it double in size AND work in SQL Server DTS?</p>\n<p>[Edit]</p>\n<p>I have tested this with an older version of Excel2003 which I have here. The generated file is about 5kb, the saved version by Excel2007 and 2003 produce a file of about 15kb</p>\n<p>[Edit2]</p>\n<p>I have tested with Libreoffice, opening a file, saving: filesize doesn't double, but is accepted by the SQL DTS scheme....&nbsp;</p>\n<p>&nbsp;</p>\n<pre>$objPHPExcel = new PHPExcel();\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, \"Excel5\");\n\n$objSheet = $objPHPExcel-&gt;getActiveSheet();\n\t\t\n$objPHPExcel-&gt;getProperties()-&gt;setCreator(\"ApplyNow\");\n$objPHPExcel-&gt;getProperties()-&gt;setLastModifiedBy(\"ApplyNow\");\n$objPHPExcel-&gt;getProperties()-&gt;setTitle(\"ApplyNow application\");\n$objPHPExcel-&gt;getProperties()-&gt;setSubject(\"ApplyNow application\");\n$objPHPExcel-&gt;getProperties()-&gt;setDescription(\"ApplyNow application\");\n$objSheet-&gt;SetCellValue('A1', 'jobid');\n$objSheet-&gt;SetCellValue('B1', 'jobboardid');\n$objSheet-&gt;SetCellValue('C1', 'candidatefirstname');\n$objSheet-&gt;SetCellValue('D1', 'candidatelastname');\n$objSheet-&gt;SetCellValue('E1', 'candidatenationality');\n$objSheet-&gt;SetCellValue('F1', 'candidatesex');\n$objSheet-&gt;SetCellValue('G1', 'candidatedateofbirth');\n$objSheet-&gt;SetCellValue('H1', 'candidatestreet');\n$objSheet-&gt;SetCellValue('I1', 'candidatehousenumber');\n$objSheet-&gt;SetCellValue('J1', 'candidatepostalcode');\n$objSheet-&gt;SetCellValue('K1', 'candidatecity');\n$objSheet-&gt;SetCellValue('L1', 'candidatecountry');\n$objSheet-&gt;SetCellValue('M1', 'cv');\n$objSheet-&gt;SetCellValue('N1', 'candidatenationalnumber');\t\t\t\t\n$objSheet-&gt;SetCellValue('O1', 'candidatephone');\n$objSheet-&gt;SetCellValue('P1', 'candidatemobile');\n$objSheet-&gt;SetCellValue('Q1', 'candidateemail');\n$objSheet-&gt;SetCellValue('R1', 'subscriptiondatetime');\n$objSheet-&gt;SetCellValue('S1', 'candidatelanguage');\n<br /></pre>\n<pre>$objSheet-&gt;SetCellValue('A2', $formvars['jobid']);\n$objSheet-&gt;SetCellValue('B2', $formvars['jobboardid']);\n$objSheet-&gt;SetCellValue('C2', $formvars['firstname']);\n$objSheet-&gt;SetCellValue('D2', $formvars['lastname']);\n$objSheet-&gt;SetCellValue('E2', $formvars['nationality']);\n$objSheet-&gt;SetCellValue('F2', $formvars['sex']);\n$objSheet-&gt;SetCellValue('G2', formatDate($formvars['dateofbirth']));\n$objSheet-&gt;SetCellValue('H2', $formvars['street']);\n$objSheet-&gt;SetCellValue('I2', $formvars['number']);\n$objSheet-&gt;SetCellValue('J2', $formvars['postalcode']);\n$objSheet-&gt;SetCellValue('K2', $formvars['city']);\n$objSheet-&gt;SetCellValue('L2', $formvars['country']);\n$objSheet-&gt;SetCellValue('M2', $cvfilename);\n$objSheet-&gt;SetCellValue('N2', remove_non_numeric($formvars['nationalnumber']));\n$objSheet-&gt;SetCellValue('O2', remove_non_numeric($formvars['phone']));\n$objSheet-&gt;SetCellValue('P2', remove_non_numeric($formvars['mobile']));\n$objSheet-&gt;SetCellValue('Q2', $formvars['email']);\n$objSheet-&gt;SetCellValue('R2', $formvars['submitdate']);\n$objSheet-&gt;SetCellValue('S2', $formvars['language']);\n<br /></pre>\n<pre>$objWriter-&gt;save(\"c:/temp/uploads/xls/\".$excelfilename);</pre>\n<p>Windows XP</p>\n<p>PHP 5.3.5</p>\n<p>SQL Server 2005</p>\n<p>PHPEXcel 1.7.6</p>",
+    "PostedDate": "2012-03-06T09:13:17.197-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "806518",
+    "ThreadId": "347516",
+    "Html": "<p>Excel has a number of different ways of storing the same data/formatting/etc (For example, Excel may have a similar formula that appears in 100 cells, so it may store that formula just once as a shared formula and simply have a pointer to that shared formula against each cell where it appears). We don't use the whole host of options, but the easiest to write, which may not be as compact as Excel itself would choose (in the above case of the shared formula, we store the formula against every cell, which makes the file larger, but is faster to write).</p>",
+    "PostedDate": "2012-03-06T15:01:22.25-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "806688",
+    "ThreadId": "347516",
+    "Html": "<p>It's not the filesize which bothers me that much, that was purely an observation. What bothers me most is that the SQL DTS scheme messes up the generated file and that the opening the generated file (using Excel 2003, 2007, and Libreoffice) and saving it directly works perfeclty in the DTS Scheme.</p>\r\n<p>It seems like some header data or properties are missing....</p>",
+    "PostedDate": "2012-03-06T23:42:28.183-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "806773",
+    "ThreadId": "347516",
+    "Html": "<p>That I don't know, and can't easily test either. The files generated by the Excel2007 writer are valid according to the Open XML SDK for MS Office, and I don't use SQL Server</p>",
+    "PostedDate": "2012-03-07T03:49:17.747-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

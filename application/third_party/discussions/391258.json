@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "898605",
+    "ThreadId": "391258",
+    "Html": "\r\n<p>Hello,</p>\r\n<p>I've been developing something for my volleybal club. The commity's are working with Excel because most of these know how to work with this.</p>\r\n<p>There are different excel file's but there is one with a memberlist and there is a excel with all the teams.</p>\r\n<p>The memberlist has a column with birthdate/start membership date like: 15-1-1998</p>\r\n<p>The team excel has the start-/stoptime from the training like: 19:00</p>\r\n<p>I read this excel rows row by row and put them in a MySQL database. The reading of the text-/integer/float cells is working fine, but the cell with the date or time not. (btw. it goes already wrong by reading the value, it has nothing todo with the MySQL\r\n column definition! It's already wrong before I write it to the database)</p>\r\n<p>For example:</p>\r\n<p>Date value is something like:; 19098</p>\r\n<p>time value is something like: 0,81944444444444 and a few of them has also the value as I expected like: 22:00</p>\r\n<p>Here is a peace of the code:</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><span style=\"color:blue\">foreach</span> ($cellIterator <span style=\"color:blue\">as</span> $cell) {\n\t\t\t<span style=\"color:blue\">if</span> (!is_null($cell)) {\n\t\t\t\t<span style=\"color:green\">//echo '        Cell - ' , $cell-&gt;getCoordinate() , ' - ' , $cell-&gt;getCalculatedValue() , PHP_EOL;</span>\n\t\t\t\t<span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;td&gt;'</span>, $cell-&gt;getCalculatedValue(), <span style=\"color:#a31515\">'&lt;/td&gt;'</span> , PHP_EOL;\n\t\t\t\t<span style=\"color:green\">//echo '&lt;td&gt;', $worksheet-&gt;getCell('G2')-&gt;getCalculatedValue(), '&lt;/td&gt;' , PHP_EOL;</span>\n\t\t\t\t$imp_data[$ic] = $cell-&gt;getCalculatedValue();\n\t\t\t\t$ic = $ic &#43; 1;\n\t\t\t}\n\t\t}\n</pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n<p>I have also set: $objReader-&gt;setReadDataOnly(false); , and I have put it to true as well but it make's no difference. I have read the documentation but maybe this has nothing todo with the getCalculateValue() method?</p>\r\n<p><strong>Has anybody an idea how to read cell value's from cells with date or time masks?</strong> Or do I have todo it in a complete different way/solution?</p>\r\n",
+    "PostedDate": "2012-08-12T15:15:02.61-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "898655",
+    "ThreadId": "391258",
+    "Html": "<p>Either you use getFormattedValue() instead of getValue(), which will give you a string matching the format mask of that cell value; or you pass the result of getValue() to the date/time conversion methods in the PHPExcel_Shared_Date class (such as the ExcelToPHP() or ExcelToPHPObject() methods) which will convert 0.81944444444444 to its PHP equivalent timestamp value or DateTime object, and then you can use normal PHP date formatting methods.</p>\r\n<p>Thereis a whole section of the PHPExcel Function Reference documentation devoted to working with dates and times, which also explains how Excel uses a value like 0.81944444444444 as a time value.</p>",
+    "PostedDate": "2012-08-12T23:41:15.753-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "898671",
+    "ThreadId": "391258",
+    "Html": "<p>Hello Mark,</p>\r\n<p>Thanks&nbsp; a lot, with the getFormattedValue at least the time is working and all the other fields are also still right. The time is most important.</p>\r\n<p>The date is for this moment less important but is not correct due the format.</p>\r\n<p>The Excel value is for example: 14-04-1952. The getFormattedValue() is: 14 April 1952.. My database field is 'DATE' standard value: none --&gt; but all the values are 0000-00-00 in the database. So I have to format the value with the date statement. But this has nothing todo with PHPExcel itself.</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks so far.</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2012-08-13T01:15:30.52-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

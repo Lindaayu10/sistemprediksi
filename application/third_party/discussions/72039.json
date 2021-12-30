@@ -1,0 +1,202 @@
+[
+  {
+    "Id": "245852",
+    "ThreadId": "72039",
+    "Html": "<p>I am a new phpexcel.I have some problems. My application read data in excel file and display data in table on web.</p>\r\n<p>I have a problem it can not display when it have summary row in excel.if I remove it that is Ok.</p>\r\n<p>My excel have 58 columns and 250 rows I am not sure the error came from memory or not?</p>\r\n<p>I work with exel5.</p>\r\n<p>I use phpexcel 1.70.</p>\r\n<p>However I use phpexcel 1.6.7 that is OK but I face error about the formulas show wrong value. example</p>\r\n<p>&nbsp; in excel <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =(100000*12)</p>\r\n<p>&nbsp;read it show on table it display&nbsp;&nbsp; 60 it seem like&nbsp; 1.0E+5*12</p>\r\n<p>Could you please help me??</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-10-14T20:07:42.893-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "245980",
+    "ThreadId": "72039",
+    "Html": "<p>Can you try to run this test on your server:</p>\r\n<p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre><div style=\"color:Black;background-color:White\"><pre>&lt;?php\r\nini_set(<span style=\"color:#A31515\">'precision'</span>, 16);\r\n<span style=\"color:Blue\">echo</span> 10000;\r\n?&gt;\r\n</pre>\r\n</div>\r\n</pre>\r\n</div>\r\n</p>\r\n<p><strong><em>Question 1:</em></strong></p>\r\n<p>Do you get this?</p>\r\n<p>10000</p>\r\n<p>or this?</p>\r\n<p>1.0E+5</p>\r\n<p><strong><em>Question 2:</em></strong></p>\r\n<p>What version of PHP are you using and on which platform?</p>",
+    "PostedDate": "2009-10-15T04:54:12.253-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "246012",
+    "ThreadId": "72039",
+    "Html": "<p>Thank you for your response</p>\r\n<p>Answer1:&nbsp;</p>\r\n<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; I&nbsp; get the result is 10000.</p>\r\n<p>Answer2:</p>\r\n<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; I use The AppServ Open Project - 2.5.10 for Windows that use php version 5.2.6</p>\r\n<p>&nbsp;</p>\r\n<p>Please advise me?</p>",
+    "PostedDate": "2009-10-15T06:21:04.52-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "246031",
+    "ThreadId": "72039",
+    "Html": "<p>With the Excel file you are reading (read.xls), when you run this test:</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>&lt;?php<br>$<span style=\"color:blue\">file</span> = <span style=\"color:#a31515\">'read.xls'</span>;<br>$reader = PHPExcel_IOFactory::createReaderForFile($<span style=\"color:blue\">file</span>);<br>$excel = PHPExcel_IOFactory::load($<span style=\"color:blue\">file</span>);<br><br>$writer = PHPExcel_IOFactory::createWriter($excel, <span style=\"color:#a31515\">'HTML'</span>);<br>$writer-&gt;writeAllSheets();<br>$writer-&gt;save(<span style=\"color:#a31515\">'write.html'</span>);<br>?&gt;<br></pre>\r\n</div>\r\n<p>What do you get when you view <span style=\"font-family:Courier New\">write.html</span> in your browser? Still same kind of error?</p>",
+    "PostedDate": "2009-10-15T06:51:41.3-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "246058",
+    "ThreadId": "72039",
+    "Html": "<p>Hi Koyama san<br><br>&nbsp;&nbsp; I already tested your script I found other error as below<br><br>&nbsp;&nbsp; Fatal error: Class 'ZipArchive' not found in C:\\AppServ\\www\\npl\\Classes\\PHPExcel\\Reader\\Excel2007.php on line 217<br><br><br>&lt;?php<br>/** Error reporting */<br>error_reporting(E_ALL);<br>/** Include path **/<br>set_include_path(get_include_path() . PATH_SEPARATOR . './Classes/');<br>/** PHPExcel */<br>include 'PHPExcel.php';<br>/** PHPExcel_IOFactory */<br>include 'PHPExcel/IOFactory.php';<br><br>$file = 'test.xls';<br>$reader = PHPExcel_IOFactory::createReaderForFile($file);<br>$excel = PHPExcel_IOFactory::load($file);<br>$writer = PHPExcel_IOFactory::createWriter($excel, 'HTML');<br>$writer-&gt;writeAllSheets();<br>$writer-&gt;save('write.html');<br>?&gt;<br><br>Please advise me?</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-10-15T07:28:15.087-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "246061",
+    "ThreadId": "72039",
+    "Html": "<p>Oh, sorry, didn't know zip extension was missing on your server.</p>\r\n<p>Try this instead:</p>\r\n<p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>&lt;?php\r\n<span style=\"color:Green\">/** Error reporting */</span>\r\nerror_reporting(E_ALL);\r\n<span style=\"color:Green\">/** Include path **/</span>\r\nset_include_path(get_include_path() . PATH_SEPARATOR . <span style=\"color:#A31515\">'./Classes/'</span>);\r\n<span style=\"color:Green\">/** PHPExcel */</span>\r\n<span style=\"color:Blue\">include</span> <span style=\"color:#A31515\">'PHPExcel.php'</span>;\r\n<span style=\"color:Green\">/** PHPExcel_IOFactory */</span>\r\n<span style=\"color:Blue\">include</span> <span style=\"color:#A31515\">'PHPExcel/IOFactory.php'</span>;\r\n\r\n$reader = <span style=\"color:Blue\">new</span> PHPExcel_Reader_Excel5();\r\n$excel = $reader-&gt;load(<span style=\"color:#A31515\">'test.xls'</span>);\r\n$writer = PHPExcel_IOFactory::createWriter($excel, <span style=\"color:#A31515\">'HTML'</span>);\r\n$writer-&gt;writeAllSheets();\r\n$writer-&gt;save(<span style=\"color:#A31515\">'write.html'</span>);\r\n?&gt;\r\n</pre>\r\n</div>\r\n</p>",
+    "PostedDate": "2009-10-15T07:34:51.383-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "246074",
+    "ThreadId": "72039",
+    "Html": "<p>Hi Koyama san<br>&nbsp; <br>&nbsp; I still found the error as below.<br>&nbsp; <br>&nbsp;&nbsp; Fatal error: Class 'PHPExcel_Reader_Excel5' not found in C:\\AppServ\\www\\npl\\test3.php on line 11<br>&nbsp; &nbsp;<br>&nbsp; my script as<br><br>&nbsp; &lt;?php<br>/** Error reporting */<br>error_reporting(E_ALL);<br>/** Include path **/<br>set_include_path(get_include_path() . PATH_SEPARATOR . './Classes/');<br>/** PHPExcel */<br>include 'PHPExcel.php';<br>/** PHPExcel_IOFactory */<br>include 'PHPExcel/IOFactory.php';<br><br>$reader = new PHPExcel_Reader_Excel5();<br>$excel = $reader-&gt;load('test.xls');<br>$writer = PHPExcel_IOFactory::createWriter($excel, 'HTML');<br>$writer-&gt;writeAllSheets();<br>$writer-&gt;save('write.html');<br>?&gt;<br><br>Anyway,it may be help you to solve this problem. I use PHPexcel version 1.7.0 and update patch with 29032</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-10-15T07:55:33.22-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "246076",
+    "ThreadId": "72039",
+    "Html": "<p>Ups. Forgot to include the class, try this:</p>\r\n<p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>&lt;?php\r\n<span style=\"color:Green\">/** Error reporting */</span>\r\nerror_reporting(E_ALL);\r\n<span style=\"color:Green\">/** Include path **/</span>\r\nset_include_path(get_include_path() . PATH_SEPARATOR . <span style=\"color:#A31515\">'./Classes/'</span>);\r\n<span style=\"color:Green\">/** PHPExcel */</span>\r\n<span style=\"color:Blue\">include</span> <span style=\"color:#A31515\">'PHPExcel.php'</span>;\r\n<span style=\"color:Green\">/** PHPExcel_IOFactory */</span>\r\n<span style=\"color:Blue\">include</span> <span style=\"color:#A31515\">'PHPExcel/IOFactory.php'</span>;\r\n<span style=\"color:Blue\">include</span> <span style=\"color:#A31515\">'PHPExcel/Reader/Excel5.php'</span>;\r\n\r\n$reader = <span style=\"color:Blue\">new</span> PHPExcel_Reader_Excel5();\r\n$excel = $reader-&gt;load(<span style=\"color:#A31515\">'test.xls'</span>);\r\n$writer = PHPExcel_IOFactory::createWriter($excel, <span style=\"color:#A31515\">'HTML'</span>);\r\n$writer-&gt;writeAllSheets();\r\n$writer-&gt;save(<span style=\"color:#A31515\">'write.html'</span>);\r\n?&gt;\r\n</pre>\r\n</div>\r\n</p>",
+    "PostedDate": "2009-10-15T07:59:36.31-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "246098",
+    "ThreadId": "72039",
+    "Html": "<p>Hi koyama san<br><br>After I tested<br><br>in excel I use formulas<br><br>=1000000*5<br><br>&nbsp;when I run script&nbsp; write.html show&nbsp; 5.0E+6<br><br>Please advise me?</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-10-15T08:53:56.72-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "246307",
+    "ThreadId": "72039",
+    "Html": "<p><em><strong>Question 3:</strong></em></p>\r\n<p>What is result of this:</p>\r\n<p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>&lt;?php\r\nini_set(<span style=\"color:#A31515\">'precision'</span>, 16);\r\n<span style=\"color:Blue\">echo</span> (float)10000;\r\n?&gt;\r\n</pre>\r\n</div>\r\n</p>\r\n<p><em><strong>Question 4:</strong></em></p>\r\n<p>What is result of this:</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>&lt;?php<br><span style=\"color:Blue\">echo</span> (float)10000;<br>?&gt;<br></pre>\r\n</div>",
+    "PostedDate": "2009-10-15T17:30:12.06-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "246328",
+    "ThreadId": "72039",
+    "Html": "<p>Hi Koyama san</p>\r\n<p>&nbsp;&nbsp; Answer3:</p>\r\n<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; I get the result is 10000.</p>\r\n<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; However if I&nbsp;change from 10000 to 100000 that display 1.0E+5</p>\r\n<p>&nbsp; Answer4:</p>\r\n<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; it diplay 10000 if I change&nbsp; from 10000 to 10000 that display 100000</p>\r\n<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-10-15T18:40:47.723-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "246338",
+    "ThreadId": "72039",
+    "Html": "<p>My mistake, I meant 100000 and not 10000. Thanks for pointing this out.</p>\r\n<p>As far as I know this is a PHP-bug which was fixed in PHP 5.2.8. If you upgrade, the error should disappear.</p>\r\n<p>Alternatively, you can locate this line in PHPExcel/Calculation/Functions.php</p>\r\n<p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre><span style=\"color:Blue\">if</span> ($savedPrecision &lt; 16) {\r\n    ini_set(<span style=\"color:#A31515\">'precision'</span>,16);\r\n}\r\n</pre>\r\n</div>\r\n</p>\r\n<p>And simply comment it out like this:</p>\r\n<p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre><span style=\"color:Green\">//if ($savedPrecision &lt; 16) {</span>\r\n<span style=\"color:Green\">//    ini_set('precision',16);</span>\r\n<span style=\"color:Green\">//}</span>\r\n</pre>\r\n</div>\r\n</p>\r\n<p>Related thread:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=47242\">http://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=47242</a></p>",
+    "PostedDate": "2009-10-15T19:12:07.607-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "246358",
+    "ThreadId": "72039",
+    "Html": "<p>Hi Koyama san</p>\r\n<p>&nbsp;&nbsp; Thank you for your strong support.</p>\r\n<p>&nbsp;&nbsp; I already solve bug about the problem of formulas calculate display in web.</p>\r\n<p>&nbsp;&nbsp; My solution is&nbsp; comment in PHPExcel/Calculation/Functions.php.I still not upgrade PHP.</p>\r\n<p>&nbsp;&nbsp; However this way fix for phpexcel version 1.6.7 when I use this version is OK.</p>\r\n<p>&nbsp; but when I use this with phpexcel version1.7.0&nbsp; It can not render data to web page.It display</p>\r\n<p>&nbsp; &quot;The Page cannot be displayed&quot; I don't know that why can not use with this version.?</p>\r\n<p><span style=\"text-decoration:underline\">The detail as below</span></p>\r\n<p>&nbsp;&nbsp; My excel have colums A until BG and have 183 rows</p>\r\n<p>&nbsp; and last row (183) is summary data and use formulas example as below</p>\r\n<p>&nbsp; =SUM(R7:R182).........................&nbsp;&nbsp;,&nbsp; =SUM(BG7:BG182)</p>\r\n<p>&nbsp; When I run phpexcel version 1.6.7 after fixed that you suggest is OK.but I use version 1.70 it display</p>\r\n<p>&nbsp;&nbsp;&quot;The Page cannot be displayed&quot;&nbsp;</p>\r\n<p>&nbsp; However I remove summary line it can&nbsp;data on web.</p>\r\n<p>Please advise me? If I upgrade PHP. it is solve this problem isn't it?</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-10-15T21:20:27.703-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "246519",
+    "ThreadId": "72039",
+    "Html": "<p><em>&gt;&gt; but when I use this with phpexcel version1.7.0&nbsp; It can not render data to web page.It display<br>&gt;&gt;&nbsp; &quot;The Page cannot be displayed&quot; I don't know that why can not use with this version.?</em></p>\r\n<p>Using PHPExcel 1.7.0 and commenting the mentioned lines what do you get when you  run the code again from previous post:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=72039#Post246076\">http://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=72039#Post246076</a></p>\r\n<p>Is the HTML file generated OK?</p>",
+    "PostedDate": "2009-10-16T06:37:44.03-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "248488",
+    "ThreadId": "72039",
+    "Html": "<p>Hi Koyama san</p>\r\n<p>&nbsp;&nbsp; Sorry response late.After I try to use other webserver.I use wampserver2.0 instead appserv that&nbsp;use php version 5.2.9-2.</p>\r\n<p>The result not work! I try to test follow you suggest</p>\r\n<pre>&lt;?php\r\n<span style=\"color:green\">/** Error reporting */</span>\r\nerror_reporting(E_ALL);\r\n<span style=\"color:green\">/** Include path **/</span>\r\nset_include_path(get_include_path() . PATH_SEPARATOR . <span style=\"color:#a31515\">'./Classes/'</span>);\r\n<span style=\"color:green\">/** PHPExcel */</span>\r\n<span style=\"color:blue\">include</span> <span style=\"color:#a31515\">'PHPExcel.php'</span>;\r\n<span style=\"color:green\">/** PHPExcel_IOFactory */</span>\r\n<span style=\"color:blue\">include</span> <span style=\"color:#a31515\">'PHPExcel/IOFactory.php'</span>;\r\n<span style=\"color:blue\">include</span> <span style=\"color:#a31515\">'PHPExcel/Reader/Excel5.php'</span>;\r\n\r\n$reader = <span style=\"color:blue\">new</span> PHPExcel_Reader_Excel5();\r\n$excel = $reader-&gt;load(<span style=\"color:#a31515\">'test.xls'</span>);\r\n$writer = PHPExcel_IOFactory::createWriter($excel, <span style=\"color:#a31515\">'HTML'</span>);\r\n$writer-&gt;writeAllSheets();\r\n$writer-&gt;save(<span style=\"color:#a31515\">'write.html'</span>);\r\n?&gt;\r\n</pre>\r\n<pre>It display &quot;Internet Expoler cannot display the webpage&quot;</pre>\r\n<pre>Anyway It creat file &quot;write.html&quot; but it nothing to display any data!!! </pre>\r\n<pre>In case I remove summary row It's work.</pre>\r\n<pre>  =SUM(R7:R182)......................... =SUM(BG7:BG182) <span style=\"color:#ff0000\">--</span><span style=\"color:#ff0000\">If it have this line it not work!!</span></pre>\r\n<pre><span style=\"color:#0000ff\">But</span></pre>\r\n<pre><span style=\"color:#0000ff\">=SUM(R7:R182)............. =SUM(Q7:Q182) It's work?</span></pre>\r\n<pre>Please advise me</pre>",
+    "PostedDate": "2009-10-22T02:59:17.77-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "248719",
+    "ThreadId": "72039",
+    "Html": "<p>This is strange. Can you upload test.xls so we can check? You can upload the file here: <a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10749\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10749</a></p>",
+    "PostedDate": "2009-10-22T11:55:23.98-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "249265",
+    "ThreadId": "72039",
+    "Html": "<p>I've already uploaded file to you the file name is &quot;test.xls &quot; please check</p>",
+    "PostedDate": "2009-10-24T07:06:48.883-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "249330",
+    "ThreadId": "72039",
+    "Html": "<p>The problem has finally been identified. PHPExcel_Reader_Excel5 was at fault.</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10825\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10825</a></p>\r\n<p>Download latest source code tomorrow:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx\">http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx</a></p>",
+    "PostedDate": "2009-10-24T12:17:57.927-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "249579",
+    "ThreadId": "72039",
+    "Html": "<p>Thank you for&nbsp; your support.</p>\r\n<p>I've already download lastest source code phpexcel-29169 and copy to replace it.</p>\r\n<p>I face 2 problems</p>\r\n<p>Fist, when I call it show</p>\r\n<p><strong>Warning</strong>: Call-time pass-by-reference has been deprecated in <strong>C:\\wamp\\www\\npltest\\Classes\\PHPExcel\\Calculation.php</strong> on line <strong>2876</strong><br><strong>Warning</strong>: Call-time pass-by-reference has been deprecated in <strong>C:\\wamp\\www\\npltest\\Classes\\PHPExcel\\Calculation.php</strong> on line <strong>2883</strong></p>\r\n<p>Below&nbsp;is my code to call excel</p>\r\n<p>$objReader = PHPExcel_IOFactory::createReader('Excel5');<br>$objReader-&gt;setReadDataOnly(true);</p>\r\n<p>$objPHPExcel = $objReader-&gt;load(test.xls);<br>$objWorksheet = $objPHPExcel-&gt;getActiveSheet();<br>$highestRow = $objWorksheet-&gt;getHighestRow();</p>\r\n<p>$highestColumn = $objWorksheet-&gt;getHighestColumn(); // e.g 'F'<br>$highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn); // e.g. 5</p>\r\n<p>The second when I create excel by application the charecter is abnormal like below</p>\r\n<p>&#14;I&#14;&#8;&#14;H&#14;2&#14;&quot;&#14; &#1;#&#14;'&#14;!&#14; &#14;2&#14;#&#14;0&#14;+&#14;&#25;&#14;5&#14;I&#14; &#1;&#21;&#14;&#4;&#14;.-&#24;&#14;&#4;&#14; 2552&#3;&#1;#&#14;'&#14;!&#14; &#1;&quot;&#14;-&#14;&#20;&#14;&#4;&#14;&#7;&#14;@&#14;I&#14;+&#14;%&#14;7&#14;-&#14;&#6;&#1;@&#14;&#7;&#14;4&#14;&#25;&#14;*&#14;&#20;&#14;&#6;&#1;&#23;&#14;#&#14;1&#14;&#30;&#14;&quot;&#14;L&#14;</p>\r\n<p>Anyway I try to&nbsp;copy only folder <strong>Reader</strong> from&nbsp; <strong>phpexcel-29169\\Classes\\PHPExcel</strong> it 's OK.</p>\r\n<p>I'm not sure your lastest source code have some problems</p>",
+    "PostedDate": "2009-10-25T19:47:31.8-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "249591",
+    "ThreadId": "72039",
+    "Html": "<p>1)</p>\r\n<p>Bug report created:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10832\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10832</a></p>\r\n<p>2)</p>\r\n<p><em>&gt;&gt; The second when I create excel by application the charecter is abnormal like below</em></p>\r\n<p><em>&gt;&gt; &#14;I&#14;&#8;&#14;H&#14;2&#14;&quot;&#14; &#1;#&#14;'&#14;!&#14; &#14;2&#14;#&#14;0&#14;+&#14;&#25;&#14;5&#14;I&#14; &#1;</em></p>\r\n<p>Where do you see these characters? In HTML or in Excel? How can I test?</p>",
+    "PostedDate": "2009-10-25T20:33:12.023-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "249595",
+    "ThreadId": "72039",
+    "Html": "<p>1). Do you&nbsp;need my sample excel for test?</p>\r\n<p>2). I see in Excel 2003. sample script as below</p>\r\n<p><br>&lt;?php<br>/* Here there will be some code where you create $objPHPExcel */<br>// redirect output to client browser<br>header('Content-Type: application/vnd.ms-excel');<br>header('Content-Disposition: attachment;filename=&quot;myfile.xls&quot;');<br>header('Cache-Control: max-age=0');&nbsp; <br>//header('Content-Transfer-Encoding: binary');</p>\r\n<p><br>/** Error reporting */<br>error_reporting(E_ALL);<br>/** Include path **/<br>set_include_path(get_include_path() . PATH_SEPARATOR . './Classes/');<br>/** PHPExcel */<br>include 'PHPExcel.php';<br>/** PHPExcel_IOFactory */<br>include 'PHPExcel/IOFactory.php';</p>\r\n<p>$objPHPExcel = new PHPExcel();<br>$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');</p>\r\n<p>$objPHPExcel-&gt;getActiveSheet()-&gt;getDefaultStyle()-&gt;getFont()-&gt;setName('Arial');<br>$objPHPExcel-&gt;getActiveSheet()-&gt;getDefaultStyle()-&gt;getFont()-&gt;setSize(8);</p>\r\n<p>$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('A1')-&gt;getFont()-&gt;setBold(true);<br>$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('A2')-&gt;getFont()-&gt;setBold(true);&nbsp; <br>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('A1', 'Hello Phpexecl');</p>\r\n<p>$objWriter-&gt;save('php://output');</p>\r\n<p>?&gt;</p>\r\n<p>However I feeling if you can solve the first issue it may be fix second issue also</p>",
+    "PostedDate": "2009-10-25T21:23:13.113-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "249599",
+    "ThreadId": "72039",
+    "Html": "<p><em>&gt;&gt; 1). Do you&nbsp;need my sample excel for test?</em></p>\r\n<p>No, we just wait and see if MarkBaker responds to the bug report. He is calculation expert.</p>\r\n<p><em>&gt;&gt; 2). I see in Excel 2003. sample script as below</em></p>\r\n<p>Hmm... I tried your script, and it worked fine. Maybe you have saved as UTF-8 with BOM instead of without BOM. Look at this thread:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=71957\">http://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=71957</a></p>\r\n<p>Otherwise, try to download latest source code:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx\">http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx</a></p>\r\n<p>There you should find example: Tests/01simple-download-xls.php. Try to see if it works.</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-10-25T21:43:09.337-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "249600",
+    "ThreadId": "72039",
+    "Html": "<p>1). OK. I am waitting to your fix this problem</p>\r\n<p>2). The First time I think this cause from my file save the wrong type.After I check it's correct.It was saved as UTF-8 without BOM.</p>\r\n<p>Anyway It still not work. I already uploaded file for my the result.</p>",
+    "PostedDate": "2009-10-25T22:04:52.313-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "249640",
+    "ThreadId": "72039",
+    "Html": "<p>Re problem 1: <strong>Warning</strong>: Call-time pass-by-reference has been deprecated in <strong>C:\\wamp\\www\\npltest\\Classes\\PHPExcel\\Calculation.php</strong> on line <strong>2883</strong></p>\r\n<p>Fixed and should be available in tomorrows <a href=\"http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx\">SVN download</a>: see <a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10832\">Work Item</a> for details of how to fix it yourself if you want to remove the warnings before my change is available for download</p>",
+    "PostedDate": "2009-10-26T02:20:55.33-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "249964",
+    "ThreadId": "72039",
+    "Html": "<p><em>&gt;&gt; Anyway It still not work. I already uploaded file for my the result.</em></p>\r\n<p>I see the warning message in your uploaded file. I had misunderstood. In that case it should be working with latest source code after modifications by MarkBaker.</p>",
+    "PostedDate": "2009-10-26T15:44:02.55-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

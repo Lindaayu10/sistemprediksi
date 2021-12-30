@@ -1,0 +1,50 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": "2013-08-18T03:59:16.877-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "The code is simple, but when generate the xls, no show a string with space's obtained from a table in mysql... print FALSE.\n\nHere code:\n\n```\n<?php\n\n$dbhost= \"localhost\"; //your MySQL Server \n$dbuser = \"root\"; //your MySQL User Name \n$dbpass = \"\"; //your MySQL Password \n$dbname = \"secure_login\"; \n//your MySQL Database Name of which database to use this \n$tablename = \"prestamos\"; //your MySQL Table Name which one you have to create excel file \n// your mysql query here , we can edit this for your requirement \n$sql = \"Select * from prestamos \"; \n//create  code for connecting to mysql \n$Connect = @mysql_connect($dbhost, $dbuser, $dbpass) \nor die(\"Couldn't connect to MySQL:<br>\" . mysql_error() . \"<br>\" . mysql_errno()); \n//select database \n$Db = @mysql_select_db($dbname, $Connect) \nor die(\"Couldn't select database:<br>\" . mysql_error(). \"<br>\" . mysql_errno()); \n//execute query \n$result = @mysql_query($sql,$Connect) \nor die(\"Couldn't execute query:<br>\" . mysql_error(). \"<br>\" . mysql_errno()); \n\nerror_reporting(E_ALL);\n\n require_once '/Classes/PHPExcel.php';\n $objPHPExcel = new PHPExcel();\n\n // Set the active Excel worksheet to sheet 0 \n\n$objPHPExcel->setActiveSheetIndex(0);  \n\n// Initialise the Excel row number \n\n$rowCount = 1;  \n\n\n//start of printing column names as names of MySQL fields  \n\n $column = 'A';\n\nfor ($i = 1; $i < mysql_num_fields($result); $i++)  \n\n{\n    $objPHPExcel->getActiveSheet()->setCellValue($column.$rowCount, mysql_field_name($result,$i));\n    $column++;\n}\n\n//end of adding column names  \n//start while loop to get data  \n\n$rowCount = 2;  \n\nwhile($row = mysql_fetch_row($result))  \n\n{  \n    $column = 'A';\n\n   for($j=1; $j<mysql_num_fields($result);$j++)  \n    {  \n\t    \n        if(!isset($row[$j]))  \n\n            $value = NULL;  \n\n        elseif ($row[$j] != \"\") { \n\n            $value = strip_tags($row[$j]);  \n\t\t\t\n\t\t\t\n\t\t}\n        else  \n\n            $value = \"\";  \n\n        $objPHPExcel->getActiveSheet()->setCellValue($column.$rowCount, $value);\n        $column++;\n    }  \n\n    $rowCount++;\n} \n\n// Redirect output to a client’s web browser (Excel5) \nheader('Content-Type: application/vnd.ms-excel; charset=UTF-8'); \nheader(\"Content-type:   application/x-msexcel; charset=utf-8\");\nheader('Content-Disposition: attachment;filename=\"results.xls\"'); \n//header('Cache-Control: max-age=0');\nheader(\"Expires: 0\");\nheader(\"Cache-Control: must-revalidate, post-check=0, pre-check=0\");\nheader(\"Cache-Control: private\",false);\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');\n$objWriter->save('php://output');\n?>\n\n```\nMy db\n```\nName                        Carrera\nDiego Muñoz                 Ingeniería Civil en Computación\nCristian Valenzuela         Ingeniería en Computación\nCristian                    Ingeniería en computación.\n```\nAnd Print in excel.\n```\nName                      Carrera\nFALSE                      FALSE\nFALSE                      FALSE\nCristian                    FALSE\n```",
+    "LastUpdatedDate": "2013-08-18T03:59:16.877-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2013-07-17T13:28:42.373-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "A simple question",
+    "Type": {
+      "Name": "Unassigned",
+      "Id": 5
+    },
+    "VoteCount": 1,
+    "Id": 19977
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "solved.",
+      "PostedDate": "2013-07-17T14:14:55.68-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-08-18T03:59:16.877-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

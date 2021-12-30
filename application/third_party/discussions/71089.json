@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "242425",
+    "ThreadId": "71089",
+    "Html": "<p>Halp please! :s</p>\r\n<p>I'm trying to export to csv with 6,500+ rows and around 5 columns.. using upto this line of code here:<br><br>&nbsp;&nbsp;&nbsp; // [DATA VALUE ROWS] - place the row values<br>&nbsp;&nbsp;&nbsp; $rsData = clsDBManager::executeQuery(array('sql' =&gt; $strContentSQL, 'hostname' =&gt; $strHostname));<br>&nbsp;&nbsp;&nbsp; while($rowVal = assoc_data($rsData))<br>&nbsp;&nbsp;&nbsp; {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $col = 0;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; foreach($arrRowFields as $key)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$fieldprops = $arrFieldProperties[$key];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $value = $rowVal[$key];<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if(is_null($value) &amp;&amp; $fieldprops['t'] != 'text' &amp;&amp; $fieldprops['t'] != 'primary')<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $value = '--'; //if null<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if($key == 'datemonth' || $key == 'dateday' || !is_numeric($value))<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $value = '&quot; '.$value.'&quot;'; //rowtrend<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $value = utf8_encode($value); //TODO: UTF-8 support<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if('none' !== $fieldprops['d'] &amp;&amp; $fieldprops['d'] &gt; 0 )<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $value = sprintf('%0.'.$fieldprops['d'] . 'f', $value);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if($fieldprops['t'] == 'text' || $fieldprops['t'] == 'primary')<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $objActiveSheet-&gt;setCellValueExplicitByColumnAndRow($col++, $row, $value);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; setCellValue($objActiveSheet, $col++, $row, $value );<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $row++;<br>&nbsp;&nbsp;&nbsp; }<br>&nbsp;&nbsp; &nbsp;// Save Excel5 file - these 2 lines of code should always be in the end of the user of this<br>&nbsp;&nbsp; &nbsp;$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'CSV');<br>&nbsp;&nbsp; &nbsp;$objWriter-&gt;setDelimiter(',');<br>&nbsp;&nbsp; &nbsp;$objWriter-&gt;setEnclosure('');<br>&nbsp;&nbsp; &nbsp;$objWriter-&gt;setLineEnding(&quot;\\r\\n&quot;);<br>&nbsp;&nbsp; &nbsp;$objWriter-&gt;setSheetIndex(0);<br>&nbsp;&nbsp; &nbsp;$objWriter-&gt;save('php://output');</p>\r\n<p>I'm not sure if it's because of the way i coded it.. but i'm getting execution times of upto 20+ seconds for this.. which is alright, but not too good.<br>With intentionally removing the setCellValue( ) and setCellValueExplicitlyByColumnAndRow( ) i get 0.7+ seconds. <br>stopping right before the $objWriter-&gt;save( ) i get 9+ seconds.<br>stopping after $objWriter-&gt;save( ) i get 20+ seconds.</p>\r\n<p>currently running this on Windows XP<br>2.00 GHz CPU<br>1GB Ram<br>PHPExcel - 28930</p>\r\n<p>strongly need your advice/help :(</p>\r\n<p>please note that i believe phpexcel is by far the best export library i've seen. i'm not complaining about the above, i just need help on how i can improve on it :)</p>\r\n<p>thanks in advance.</p>",
+    "PostedDate": "2009-10-05T23:55:02.383-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "242473",
+    "ThreadId": "71089",
+    "Html": "<p>To be honest, if all you're trying to do is export data from a db query into a csv file, you'd be better advised to do this directly using fputcsv() rather than using PHPExcel.</p>",
+    "PostedDate": "2009-10-06T02:37:05.743-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "242483",
+    "ThreadId": "71089",
+    "Html": "<p>hi mark,</p>\r\n<p>thanks i'll try that. :)</p>\r\n<p>sadly, the export module i'm trying to do allows the user to export to Excel5 and csv.. i used the above code to test the csv simply for the performance (since csv's don't use styling).. i may use fputcsv( ) for the export to csv alone.. but problem is .. well the problem would still occur for the export to Excel5 since both of them use the &quot;$objActiveSheet-&gt;setCellValueExplicitByColumnAndRow($col++, $row, $value);&quot; part :(</p>\r\n<p>thanks for the tip though</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-10-06T02:59:12.047-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

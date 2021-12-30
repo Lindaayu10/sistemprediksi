@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "843513",
+    "ThreadId": "357977",
+    "Html": "\r\n<p>Hello! Help me, please, to find an error in my code</p>\r\n<p>My code is something like this:</p>\r\n<pre>$query = <span style=\"color:#a31515\">&quot;SELECT ... FROM ... WHERE ...&quot;</span>;\r\n$stmt = oci_parse( $conn, $query );\r\noci_execute( $stmt, OCI_DEFAULT )\r\n$nrows = oci_fetch_all( $stmt, $results );\r\n<span style=\"color:green\">//</span>\r\n<span style=\"color:green\">// At this point $nrows is 87784</span>\r\n<span style=\"color:green\">//</span>\r\n<span style=\"color:blue\">require_once</span> <span style=\"color:#a31515\">'PHPExcel/Classes/PHPExcel.php'</span>;\r\n<span style=\"color:blue\">require_once</span> <span style=\"color:#a31515\">'PHPExcel/Classes/PHPExcel/Cell.php'</span>;\r\n<span style=\"color:blue\">require_once</span> <span style=\"color:#a31515\">'PHPExcel/Classes/PHPExcel/Writer/Excel2007.php'</span>;\r\nPHPExcel_Settings::setCacheStorageMethod( PHPExcel_CachedObjectStorageFactory::cache_in_memory_gzip );\r\nPHPExcel_Settings::setLocale( <span style=\"color:#a31515\">'ru'</span> );\r\n$xls = <span style=\"color:blue\">new</span> PHPExcel();\r\n$sheet = $xls-&gt;getSheet(0);\r\n...\r\n<span style=\"color:blue\">for</span>( $i = 0; $i &lt; $nrows; $i&#43;&#43; )\r\n{\r\n<span style=\"color:green\">// put SELECTed row into spreadsheed row</span>\r\n}\r\n...\r\n$xlsWriter = <span style=\"color:blue\">new</span> PHPExcel_Writer_Excel2007( $xls );\r\n$fn = tempnam( <span style=\"color:#a31515\">''</span>, <span style=\"color:#a31515\">'stat'</span> );\r\n$xlsWriter-&gt;save( $fn );\r\n</pre>\r\n<p>When I open saved file by OpenOffice 3.1.1 - I see only 65536 rows in sheet, not 87000&#43;&nbsp; as expected. So where is an error in my code?</p>\r\n<p>Sorry, but I can't test this examlpe with MS Excel - I have LINUX on my computer.</p>\r\n",
+    "PostedDate": "2012-06-01T05:47:02.473-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "844335",
+    "ThreadId": "357977",
+    "Html": "<p>There is a 65536 limit to the number of rows in a sheet in the Excel5 Writer, but no such limit in the Excel2007 Writer, so I'm unsure why this is happening. Will conduct some tests to see if I can replicate it</p>\r\n<p>It is worth noting that your method of using oci_fetch_all( $stmt, $results ); will be incredibly memory hungry. It would probably be more efficient to use oci_num_rows to rerieve the value of $nrows, and then to fetch each row in turn using oci_fetch_array().</p>",
+    "PostedDate": "2012-06-04T05:13:17.54-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "844337",
+    "ThreadId": "357977",
+    "Html": "<p>perhaps the limitation is in &nbsp;openoffice? Have you tried opening the file with ms excel?</p>",
+    "PostedDate": "2012-06-04T05:19:01.707-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "844862",
+    "ThreadId": "357977",
+    "Html": "<blockquote style=\"border: solid .1em #ccc; font-style: italic; margin: .25em 1em 0 1em; padding: 0 .25em 0 .25em;\"><strong>MarkBaker wrote:</strong>\r\n<p>It is worth noting that your method of using oci_fetch_all( $stmt, $results ); will be incredibly memory hungry. It would probably be more efficient to use oci_num_rows to rerieve the value of $nrows, and then to fetch each row in turn using oci_fetch_array().</p>\r\n</blockquote>\r\n<p>Memory limit is set to be 512 Mbytes, so this is not a problem.</p>",
+    "PostedDate": "2012-06-05T01:34:01.9-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "844888",
+    "ThreadId": "357977",
+    "Html": "<p>could you try installing a more recent version of openoffice? 3.1 is really old. I remember having problems with large worksheets in older versions. The current version works fine with xlsx sheets up to 1M rows (I have tested this ;)</p>\r\n<p>&nbsp;</p>\r\n<p>Btw, 512MB is not a lot of memory when handling such large datasets (I've used as much as 24GiB for extremely large worksheets), so please check your logs for out of memory errors!</p>",
+    "PostedDate": "2012-06-05T02:30:30.377-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "845904",
+    "ThreadId": "357977",
+    "Html": "<blockquote style=\"border: solid .1em #ccc; font-style: italic; margin: .25em 1em 0 1em; padding: 0 .25em 0 .25em;\"><strong>borft wrote:</strong></blockquote>\r\n<blockquote style=\"border: solid .1em #ccc; font-style: italic; margin: .25em 1em 0 1em; padding: 0 .25em 0 .25em;\">Btw, 512MB is not a lot of memory when handling such large datasets (I've used as much as 24GiB for extremely large worksheets), so please check your logs for out of memory errors!</blockquote>\r\n<p>512 MB limitation is a result of failure of script with 128 MB limitation.</p>",
+    "PostedDate": "2012-06-07T01:12:20.183-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

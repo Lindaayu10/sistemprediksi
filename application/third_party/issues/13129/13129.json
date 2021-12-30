@@ -1,0 +1,39 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I has a problem in reading percentage cell,\nI found a quick workaround\nIn OOCalc.php, line 370 I replaced the code (PHPExcel version 1.7.2) with the following, just in order to add a default as string:\n \n\t\t\t\t\t\t\t\t\tif (isset($cellDataText->p)) {\n//\t\t\t\t\t\t\t\t\techo 'Value Type is '.$cellDataOfficeAttributes['value-type'].\"\\n\";\n\t\t\t\t\t\t\t\t\t\tswitch ($cellDataOfficeAttributes['value-type']) {\n\t\t\t\t\t\t\t\t\t\t\tcase 'boolean' :\n\t\t\t\t\t\t\t\t\t\t\t\t\t$type = PHPExcel_Cell_DataType::TYPE_BOOL;\n\t\t\t\t\t\t\t\t\t\t\t\t\t$dataValue = ($cellDataText->p == 'TRUE') ? True : False;\n\t\t\t\t\t\t\t\t\t\t\t\t\tbreak;\n\t\t\t\t\t\t\t\t\t\t\tcase 'float' :\n\t\t\t\t\t\t\t\t\t\t\t\t\t$type = PHPExcel_Cell_DataType::TYPE_NUMERIC;\n\t\t\t\t\t\t\t\t\t\t\t\t\t$dataValue = (float) $cellDataOfficeAttributes['value'];\n\t\t\t\t\t\t\t\t\t\t\t\t\tif (floor($dataValue) == $dataValue) {\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t$dataValue = (integer) $dataValue;\n\t\t\t\t\t\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t\t\t\t\t\t\tbreak;\n\t\t\t\t\t\t\t\t\t\t\tcase 'date' :\n\t\t\t\t\t\t\t\t\t\t\t\t\t$type = PHPExcel_Cell_DataType::TYPE_NUMERIC;\n\t\t\t\t\t\t\t\t\t\t\t\t\t$dataValue = PHPExcel_Shared_Date::PHPToExcel(strtotime($cellDataOfficeAttributes['date-value']));\n\t\t\t\t\t\t\t\t\t\t\t\t\tif ($dataValue != floor($dataValue)) {\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t$formatting = PHPExcel_Style_NumberFormat::FORMAT_DATE_XLSX15.' '.PHPExcel_Style_NumberFormat::FORMAT_DATE_TIME4;\n\t\t\t\t\t\t\t\t\t\t\t\t\t} else {\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t$formatting = PHPExcel_Style_NumberFormat::FORMAT_DATE_XLSX15;\n\t\t\t\t\t\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t\t\t\t\t\t\tbreak;\n\t\t\t\t\t\t\t\t\t\t\tcase 'time' :\n\t\t\t\t\t\t\t\t\t\t\t\t\t$type = PHPExcel_Cell_DataType::TYPE_NUMERIC;\n\t\t\t\t\t\t\t\t\t\t\t\t\t$dataValue = PHPExcel_Shared_Date::PHPToExcel(strtotime('01-01-1970 '.implode(':',sscanf($cellDataOfficeAttributes['time-value'],'PT%dH%dM%dS'))));\n\t\t\t\t\t\t\t\t\t\t\t\t\t$formatting = PHPExcel_Style_NumberFormat::FORMAT_DATE_TIME4;\n\t\t\t\t\t\t\t\t\t\t\t\t\tbreak;\n\t\t\t\t\t\t\t\t\t\t\tcase 'string' :\n\t\t\t\t\t\t\t\t\t\t\tdefault :\n\t\t\t\t\t\t\t\t\t\t\t\t\t$type = PHPExcel_Cell_DataType::TYPE_STRING;\n\t\t\t\t\t\t\t\t\t\t\t\t\t$dataValue = $cellDataText->p;\n\t\t\t\t\t\t\t\t\t\t\t\t\tif (isset($dataValue->a)) {\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t$dataValue = $dataValue->a;\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t$cellXLinkAttributes = $dataValue->attributes($namespacesContent['xlink']);\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t$hyperlink = $cellXLinkAttributes['href'];\n\t\t\t\t\t\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t\t\t\t\t\t\tbreak;\n\t\t\t\t\t\t\t\t\t\t}\n//\t\t\t\t\t\t\t\t\t\techo 'Data value is '.$dataValue.'<br />';\n//\t\t\t\t\t\t\t\t\t\tif (!is_null($hyperlink)) {\n//\t\t\t\t\t\t\t\t\t\t\techo 'Hyperlink is '.$hyperlink.'<br />';\n//\t\t\t\t\t\t\t\t\t\t}\n\t\t\t\t\t\t\t\t\t}",
+    "LastUpdatedDate": "2013-02-21T19:02:57.763-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2010-05-18T06:56:26.437-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "percentage styled cell in oocalc",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 13129
+  },
+  "FileAttachments": [],
+  "Comments": []
+}

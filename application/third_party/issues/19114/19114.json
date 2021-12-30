@@ -1,0 +1,66 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "The Excel5 writer fails to write characters from the supplementary planes (i.e. unicode characters that with a codepoint beyond 16-bit). For the example program attached, Excel 2010 reports \"unreadable content\" and then also issues a security warning. Open Office (version 3.3.0) messes up characters in the following cells or just shows no strings.\n\nThe issue can be fixed by changing the character count in String.php as:\n\tpublic static function UTF8toBIFF8UnicodeLong($value)\n\t{\n\t\t// option flags\n\t\t$opt = (self::getIsIconvEnabled() || self::getIsMbstringEnabled()) ?\n\t\t\t0x0001 : 0x0000;\n\n\t\t// characters\n\t\t$chars = self::ConvertEncoding($value, 'UTF-16LE', 'UTF-8');\n\t\t// character count: 1 for each 16-bit word, 2 for each 32-bit character from the supplementary planes\n\t\t$ln = strlen($chars) / 2;\n\n\t\t$data = pack('vC', $ln, $opt) . $chars;\n\t\treturn $data;\n\t}\n\nRegards,\nHanno",
+    "LastUpdatedDate": "2013-02-21T19:01:32.12-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2012-12-27T11:04:37.21-08:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "32-bit UTF-16 characters for Excel5 writer",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 2,
+    "Id": 19114
+  },
+  "FileAttachments": [
+    {
+      "FileId": 6748,
+      "FileName": "test_PHPExcel.php",
+      "DownloadUrl": ".\\6748"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "Can you please verify whether this problem has already been fixed in the latest develop branch code on github",
+      "PostedDate": "2013-01-02T05:31:28.45-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Hi Mark,\r\n\r\nI have now also checked with the development branch, and the problem is just the same.\r\n\r\nHanno\n",
+      "PostedDate": "2013-01-06T07:54:04.907-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-01-21T20:42:39.613-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:01:32.12-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

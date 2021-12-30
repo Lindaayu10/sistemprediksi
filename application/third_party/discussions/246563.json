@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "568235",
+    "ThreadId": "246563",
+    "Html": "\r\n<p>I can't seem to tell the difference when using setReadDataOnly(true), is there something I'm missing here?</p>\r\n<p>The object appears to have formatting information either way, so I still have to wade through the extra stuff I don't really need.</p>\r\n",
+    "PostedDate": "2011-02-17T15:40:37.98-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "568237",
+    "ThreadId": "246563",
+    "Html": "<p>Forgot to mention I'm using PHP 5.2.9 and PHPExcel 1.7.5</p>",
+    "PostedDate": "2011-02-17T15:41:48.953-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "568239",
+    "ThreadId": "246563",
+    "Html": "<p>It works</p>\r\n<p>&nbsp;</p>\r\n<p>What I can't do is guess why it isn't working in your script.</p>",
+    "PostedDate": "2011-02-17T15:55:34.817-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "568244",
+    "ThreadId": "246563",
+    "Html": "<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre><span style=\"color: blue;\">require_once</span>(<span style=\"color: #a31515;\">'Classes/PHPExcel.php'</span>);\r\n      \r\n$input_file_type = <span style=\"color: #a31515;\">'Excel2007'</span>;\r\n$input_file_path = <span style=\"color: #a31515;\">'tester.xlsx'</span>;\r\n\r\n<span style=\"color: blue;\">class</span> filter <span style=\"color: blue;\">implements</span> PHPExcel_Reader_IReadFilter\r\n{\r\n   <span style=\"color: blue;\">public</span> <span style=\"color: blue;\">function</span> readCell($column, $row, $worksheetName = <span style=\"color: #a31515;\">''</span>) {\r\n      <span style=\"color: blue;\">if</span>(in_array($column, range(<span style=\"color: #a31515;\">'A'</span>,<span style=\"color: #a31515;\">'A'</span>))) {\r\n         <span style=\"color: blue;\">return</span> true;\r\n      }\r\n      <span style=\"color: blue;\">else</span> {\r\n         <span style=\"color: blue;\">return</span> false;\r\n      }\r\n   }\r\n}\r\n      \r\n$filterSubset = <span style=\"color: blue;\">new</span> filter();\r\n\r\n$objReader = PHPExcel_IOFactory::createReader($input_file_type);\r\n$objReader-&gt;setReadDataOnly(true);\r\n$objReader-&gt;setReadFilter($filterSubset);\r\n</pre>\r\n</div>\r\n...hopefully the indents worked... never posted on this board before...</p>",
+    "PostedDate": "2011-02-17T16:06:56.517-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "568249",
+    "ThreadId": "246563",
+    "Html": "<p>Then i'm just doing a print_r:</p>\n<p>&nbsp;</p>\n<div style=\"color: black; background-color: white;\">\n<pre>$objReader = $objReader-&gt;load($input_file_path);\nprint_r($objReader);\n</pre>\n</div>",
+    "PostedDate": "2011-02-17T16:19:10.143-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "568258",
+    "ThreadId": "246563",
+    "Html": "<p>What are you expecting to see when you print_r()?</p>\r\n<p>Ensure that you have a cell set&nbsp;to bold, or with a cell alignment, or a number format mask. Then test to see if that formatting data is held against the cell once it's been loaded.</p>\r\n<p>Alternatively, test the memory usage after reading in the workbook both with and without setReadDataOnly(true).</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2011-02-17T16:28:23.66-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "568269",
+    "ThreadId": "246563",
+    "Html": "<p>Oh I see, it's just using default formatting and ignoring what's in the file. Sorry to bother you!</p>\r\n<p>I guess I was expecting to not see formatting properties at all or something...</p>",
+    "PostedDate": "2011-02-17T16:54:21.26-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

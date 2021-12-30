@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "251837",
+    "ThreadId": "73663",
+    "Html": "<p>PHP 5.2.8, PHPExcel 1.7.0, Vista</p>\r\n<p>Hello,</p>\r\n<p>I load <em>foo.xls</em>, then save it to <em>bar.xls</em>.&nbsp; Then, I test the highest row and column.&nbsp; They are not identical.</p>\r\n<p><em>foo.xls</em> is an extremely simple sample file, no formulas or formatting, with columns A-Z counting from 1 to 50.&nbsp; Text only.</p>\r\n<p>Here is the PHP code and output:</p>\r\n<p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>&lt;?PHP\r\n<span style=\"color:Blue\">require_once</span> <span style=\"color:#A31515\">'Classes/PHPExcel.php'</span>;\r\n<span style=\"color:Blue\">require_once</span> <span style=\"color:#A31515\">'Classes/PHPExcel/IOFactory.php'</span>;\r\n\r\n<span style=\"color:Green\">//Load foo.xls</span>\r\n$<span style=\"color:Blue\">file</span> = <span style=\"color:#A31515\">&quot;foo.xls&quot;</span>;\r\n$objPHPExcel    = <span style=\"color:Blue\">new</span> PHPExcel();\r\n$objReader      = PHPExcel_IOFactory::createReader(<span style=\"color:#A31515\">&quot;Excel5&quot;</span>);\r\n$objPHPExcel    = $objReader-&gt;load($<span style=\"color:Blue\">file</span>);\r\n\r\n<span style=\"color:Green\">//Echo dimensions</span>\r\n<span style=\"color:Blue\">echo</span>\r\n  $objPHPExcel-&gt;getActiveSheet()-&gt;getHighestColumn().<span style=\"color:#A31515\">&quot; &quot;</span>.\r\n  $objPHPExcel-&gt;getActiveSheet()-&gt;getHighestRow();    <span style=\"color:Green\">//Returns: Z 53</span>\r\n\r\n<span style=\"color:Green\">//Write foo.xls to bar.xls</span>\r\n$objWriter      = PHPExcel_IOFactory::createWriter($objPHPExcel,<span style=\"color:#A31515\">&quot;Excel5&quot;</span>);\r\n$objWriter-&gt;save(<span style=\"color:#A31515\">&quot;bar.xls&quot;</span>);\r\n\r\n<span style=\"color:Green\">//Load bar.xls</span>\r\n$objPHPExcel    = $objReader-&gt;load(<span style=\"color:#A31515\">&quot;../spreadsheets/bar.xls&quot;</span>);\r\n\r\n<span style=\"color:Green\">//Echo dimensions</span>\r\n<span style=\"color:Blue\">echo</span> <span style=\"color:#A31515\">&quot;&lt;br /&gt;&quot;</span>.\r\n  $objPHPExcel-&gt;getActiveSheet()-&gt;getHighestColumn().<span style=\"color:#A31515\">&quot; &quot;</span>.\r\n  $objPHPExcel-&gt;getActiveSheet()-&gt;getHighestRow();    <span style=\"color:Green\">//Returns: IU 1</span>\r\n\r\n?&gt;\r\n</pre>\r\n</div>\r\nThe dimensions of <em>foo.xls</em>&nbsp; are<em> Z, 53.&nbsp; </em>The dimensions of <em>bar.xls</em> are <em>IU, 1</em>.&nbsp; The filesize also jumped from 21k to 39k.</p>\r\n<p>What's going on?</p>",
+    "PostedDate": "2009-10-30T18:48:07.51-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "251850",
+    "ThreadId": "73663",
+    "Html": "<p>This has something to do with the way PHPExcel works with columns. Changes are needed to solve this bug and some other similar bugs having to do with columns.</p>\r\n<p>I have now posted this in the issue tracker so you can track when the problem is fixed. Not sure right now when this can be fixed. It is a bit harder to solve than it may seem.</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10861\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10861</a></p>",
+    "PostedDate": "2009-10-30T20:11:29.947-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "251857",
+    "ThreadId": "73663",
+    "Html": "<p>OK. BTW, I also tested it with a smaller worksheet, only fifteen cells, and the returns were &quot;C 5&quot; and &quot;IU 1&quot;.&nbsp; The consistent return on the re-read may be a clue, hope it helps.&nbsp;</p>\r\n<p>Thanks!</p>",
+    "PostedDate": "2009-10-30T20:42:30.66-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "251909",
+    "ThreadId": "73663",
+    "Html": "<p>IU is definitely an interesting column value A-IV is the range of columns in Excel 5, (1-256). Adjusted to 0-255, that would give IU.</p>",
+    "PostedDate": "2009-10-31T03:16:39.547-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

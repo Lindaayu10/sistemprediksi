@@ -1,0 +1,90 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": "2012-05-19T16:01:17.593-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "How can I set the directory where the cache files are stored? Right now hey are not in the actual /var/tmp, which is my actual tmp directory but it /tmp which is symbolic for /usr/tmpDSK.\n \nI've disabled Excel imports, they'll have to be done manually by conversion to tab-delimited, until I can get this worked out.",
+    "LastUpdatedDate": "2013-05-16T05:41:46.417-07:00",
+    "PlannedForRelease": "PHPExcel 1.7.7 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2011-02-11T14:24:30.297-08:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Caching and tmp partition exhaustion",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 15312
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "DiskISAM uses the temporary directory identified by a call to sys_get_temp_dir(). There is currently no method to set the temporary directory manually.\r\n\r\nThere are a few issues with this PHP function, that was only introduced in PHP 5.2.1, especially if PHP is being run with the suhosin patch.\r\n\r\nTo get round these issues, we do have a customised version of the function in the PHPExcel_Shared_File class. I've modified the DiskISAM class to use this customised version rather than the standard sys_get_temp_dir(). Hopefully this will resolve your problem.\r\n",
+      "PostedDate": "2011-02-11T14:24:50.54-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2011-02-11T14:28:27.493-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "If there are large files being created in that directory, then why is there not GC cleaning them up after they are done? Or how about reusing the files so there are not so many?\r\n\r\nThat would be the best way to handle this",
+      "PostedDate": "2011-02-12T09:53:17.97-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I need to be able to create fairly large Excel 2007 workbooks - lots of numbers, very little formatting.  I'd like to be able to create at least 64000 rows x 50 columns.  I'll be running on a Linux RedHat 64-bit environment with plenty of memory and timing is not an issue - this is essentially batch initiated from a web page.  Unfortunately we've been configured with only a 2GB /tmp file and that's set as our default temp directory - we've already crashed the dev server by filling that up (oops).\r\nBottom line - I have a couple of questions / requests:\r\n   1) How can I point the temporary file creation to a file system of my choice?  I've looked at the DiscISAM and PHPExcel_Shared_File classes and I just don't know enough to be able to fiddle :) (I could use an example, please)\r\n   2) I think it would be a Good Thing to be able to \"chunkify\" writing the output file - to write a few rows, save the file, write a few more ... and remove the inactive rows from memory.  I have no idea how difficult this would be, but it seems like a logical approach to the issue.   We just want to deliver a (barely) formatted Excel file which is essentially a dump of a bunch of records from our database for our users.",
+      "PostedDate": "2012-04-09T12:59:40.977-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-05-19T15:42:30.87-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-05-19T16:01:17.593-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Mark - thanks for the comment.  Can you give me an example of how to use that or update it? I tried simply editing that function to return another directory, but it doesn't seem to get called.\r\nWe're at 5.3.something of PHP and sys_get_temp_dir is alive and well.\r\nThe /tmp directory is cleared regularly, but PHPExcel is creating very very large files - as I said, enough to crash the system.\r\nAre there cache settings I can pass to point to the tmp directory we want to use?\r\n",
+      "PostedDate": "2012-05-22T09:04:34.797-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Never mind ... I just updated to 1.7.7 .... perfect! Thanks!",
+      "PostedDate": "2012-05-23T08:47:37.2-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:02:33.54-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:41:46.417-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

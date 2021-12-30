@@ -1,0 +1,558 @@
+<?php set_time_limit(3600);ini_set('memory_limit', '-1');
+static $registry = NULL;
+
+// Error Handler
+function error_handler_for_export($errno, $errstr, $errfile, $errline) {
+	global $registry;
+	
+	switch ($errno) {
+		case E_NOTICE:
+		case E_USER_NOTICE:
+			$errors = "Notice";
+			break;
+		case E_WARNING:
+		case E_USER_WARNING:
+			$errors = "Warning";
+			break;
+		case E_ERROR:
+		case E_USER_ERROR:
+			$errors = "Fatal Error";
+			break;
+		default:
+			$errors = "Unknown";
+			break;
+	}
+	
+	$config = $registry->get('config');
+	$url = $registry->get('url');
+	$request = $registry->get('request');
+	$session = $registry->get('session');
+	$log = $registry->get('log');
+	
+	if ($config->get('config_error_log')) {
+		$log->write('PHP ' . $errors . ':  ' . $errstr . ' in ' . $errfile . ' on line ' . $errline);
+	}
+
+	if (($errors=='Warning') || ($errors=='Unknown')) {
+		return true;
+	}
+
+	if (($errors != "Fatal Error") && isset($request->get['route']) && ($request->get['route']!='tool/export/download'))  {
+		if ($config->get('config_error_display')) {
+			echo '<b>' . $errors . '</b>: ' . $errstr . ' in <b>' . $errfile . '</b> on line <b>' . $errline . '</b>';
+		}
+	} else {
+		$session->data['export_error'] = array( 'errstr'=>$errstr, 'errno'=>$errno, 'errfile'=>$errfile, 'errline'=>$errline );
+		$token = $request->get['token'];
+		$link = $url->link( 'tool/export', 'token='.$token, 'SSL' );
+		header('Status: ' . 302);
+		header('Location: ' . str_replace(array('&amp;', "\n", "\r"), array('&', '', ''), $link));
+		exit();
+	}
+
+	return true;
+}
+
+
+function fatal_error_shutdown_handler_for_export()
+{
+	$last_error = error_get_last();
+	if ($last_error['type'] === E_ERROR) {
+		// fatal error
+		error_handler_for_export(E_ERROR, $last_error['message'], $last_error['file'], $last_error['line']);
+	}
+}
+
+class ModelToolExport extends Model {
+
+	private $error = array();
+
+	function clean( &$str, $allowBlanks=FALSE ) {
+		$result = "";
+		$n = strlen( $str );
+		for ($m=0; $m<$n; $m++) {
+			$ch = substr( $str, $m, 1 );
+			if (($ch==" ") && (!$allowBlanks) || ($ch=="\n") || ($ch=="\r") || ($ch=="\t") || ($ch=="\0") || ($ch=="\x0B")) {
+				continue;
+			}
+			$result .= $ch;
+		}
+		return $result;
+	}
+
+
+	function multiquery( &$database, $sql ) {
+		foreach (explode(";\n", $sql) as $sql) {
+			$sql = trim($sql);
+			if ($sql) {
+				$database->query($sql);
+			}
+		}
+	}
+
+
+	protected function getDefaultLanguageId( &$database ) {
+		$code = $this->config->get('config_language');
+		$sql = "SELECT language_id FROM `".DB_PREFIX."language` WHERE code = '$code'";
+		$result = $database->query( $sql );
+		$languageId = 1;
+		if ($result->rows) {
+			foreach ($result->rows as $row) {
+				$languageId = $row['language_id'];
+				break;
+			}
+		}
+		return $languageId;
+	}
+
+
+	protected function getDefaultWeightUnit() {
+		$weightUnit = $this->config->get( 'config_weight_class' );
+		return $weightUnit;
+	}
+
+
+
+	function storeManufacturersIntoDatabase( &$database, &$products, &$manufacturerIds ) {
+		// find all manufacturers already stored in the database
+		$sql = "SELECT `manufacturer_id`, `name` FROM `".DB_PREFIX."manufacturer`;";
+		$result = $database->query( $sql );
+		if ($result->rows) {
+			foreach ($result->rows as $row) {
+				$manufacturerId = $row['manufacturer_id'];
+				$name = $row['name'];
+				if (!isset($manufacturerIds[$name])) {
+					$manufacturerIds[$name] = $manufacturerId;
+				} else if ($manufacturerIds[$name] < $manufacturerId) {
+					$manufacturerIds[$name] = $manufacturerId;
+				}
+			}
+		}
+
+		// add newly introduced manufacturers to the database
+		$maxManufacturerId=0;
+		foreach ($manufacturerIds as $manufacturerId) {
+			$maxManufacturerId = max( $maxManufacturerId, $manufacturerId );
+		}
+		$sql = "INSERT INTO `".DB_PREFIX."manufacturer` (`manufacturer_id`, `name`, `image`, `sort_order`) VALUES "; 
+		$k = strlen( $sql );
+		$first = TRUE;
+		foreach ($products as $product) {
+			$manufacturerName = $product['Brand'];
+			if ($manufacturerName=="") {
+				continue;
+			}
+			if (!isset($manufacturerIds[$manufacturerName])) {
+				$maxManufacturerId += 1;
+				$manufacturerId = $maxManufacturerId;
+				$manufacturerIds[$manufacturerName] = $manufacturerId;
+				$sql .= ($first) ? "\n" : ",\n";
+				$first = FALSE;
+				$sql .= "($manufacturerId, '".$database->escape($manufacturerName)."', '', 0)";
+			}
+		}
+		$sql .= ";\n";
+		if (strlen( $sql ) > $k+2) {
+			$database->query( $sql );
+		}
+		
+		// populate manufacturer_to_store table
+		$storeIdsForManufacturers = array();
+		foreach ($products as $product) {
+			$manufacturerName = $product['Brand'];
+			if ($manufacturerName=="") {
+				continue;
+			}
+			$manufacturerId = $manufacturerIds[$manufacturerName];
+			$storeIds = $product['store_ids'];
+			if (!isset($storeIdsForManufacturers[$manufacturerId])) {
+				$storeIdsForManufacturers[$manufacturerId] = array();
+			}
+			foreach (@$storeIds as $storeId) {
+				if (!in_array($storeId,$storeIdsForManufacturers[$manufacturerId])) {
+					$storeIdsForManufacturers[$manufacturerId][] = $storeId;
+					$sql2 = "INSERT INTO `".DB_PREFIX."manufacturer_to_store` (`manufacturer_id`,`store_id`) VALUES ($manufacturerId,$storeId);";
+					$database->query( $sql2 );
+				}
+			}
+		}
+		return TRUE;
+	}
+
+
+	protected function getAvailableStoreIds( &$database ) {
+		$sql = "SELECT store_id FROM `".DB_PREFIX."store`;";
+		$result = $database->query( $sql );
+		$storeIds = array(0);
+		foreach ($result->rows as $row) {
+			if (!in_array((int)$row['store_id'],$storeIds)) {
+				$storeIds[] = (int)$row['store_id'];
+			}
+		}
+		return $storeIds;
+	}
+
+
+	function storeProductsIntoDatabase( &$database, &$products ) 
+	{ //$this->storeCategoriesIntoDatabase( $database, $categories );
+		// find the default language id
+		$languageId = $this->getDefaultLanguageId($database);
+		
+		// start transaction, remove products
+		$sql = "START TRANSACTION;\n";
+		$sql .= "DELETE FROM `".DB_PREFIX."product_to_category`;\n";
+		$sql .= "DELETE FROM `".DB_PREFIX."product_to_store`;\n";
+		$sql .= "DELETE FROM `".DB_PREFIX."manufacturer_to_store`;\n";
+		$this->multiquery( $database, $sql );
+		
+		
+		$availableStoreIds = $this->getAvailableStoreIds( $database );
+		
+		// store or update manufacturers
+		$manufacturerIds = array();
+		$ok = $this->storeManufacturersIntoDatabase( $database, $products, $manufacturerIds );
+		if (!$ok) {
+			$database->query( 'ROLLBACK;' );
+			return FALSE;
+		}
+		$sqlis="SELECT `category_id` FROM `".DB_PREFIX."category_description` ORDER BY `category_id` DESC LIMIT 1";
+		$resultis = $database->query( $sqlis );
+		foreach($resultis->rows as $row)
+	    {$categoryIds=$row['category_id'];
+		}
+		
+		
+		// generate and execute SQL for storing the products
+		foreach ($products as $product) {
+			$productId = $product['Sr No.'];
+			//$productName = $database->escape($product['name']);
+			$categories = $product['ProdName'];
+			
+			$quantity = $product['Qty'];
+			$model = $database->escape($product['DesignNo']);
+			$manufacturerName = $product['Brand'];
+			$manufacturerId = ($manufacturerName=="") ? 0 : $manufacturerIds[$manufacturerName];
+			//$im= stripslashes("\\");
+			$imageName = $database->escape($product['ImagePath']);
+			$imageName = $database->escape(str_replace("E:","data",$product['ImagePath']));
+			$imageName = str_replace("\\","/",$imageName);
+			$imageName = str_replace("//","/",$imageName);
+			//$shipping = $product['shipping'];
+			//$shipping = ((strtoupper($shipping)=="YES") || (strtoupper($shipping)=="Y") || (strtoupper($shipping)=="TRUE")) ? 1 : 0;
+			$price = trim($product['MRP']);
+			$points = $product['Sale Code'];
+			
+		
+			$weight = ($product['Size']=="") ? 0 : $product['Size'];
+			
+			$status=1;
+			$productDescription = $database->escape($product['Colour']);
+			$meta_description = $database->escape($product['Prod Type']);
+			$sku=$product['ItemId'];;
+			$storeIds = $product['store_ids'];
+			
+			$sqll = "SELECT `product_id` FROM `".DB_PREFIX."product` WHERE `sku`='$model' ";
+			$resultl = $database->query( $sqll );
+			if($resultl->num_rows==0){
+			$sql1 = "DELETE FROM `".DB_PREFIX."product` WHERE `product_id`=".$productId.";\n";
+			$sql1 .="DELETE FROM `".DB_PREFIX."product_description` WHERE `product_id`=".$productId.";\n";
+			$this->multiquery( $database, $sql );
+			
+			$sql  = "INSERT INTO `".DB_PREFIX."product` (`product_id`,`quantity`,";
+			$sql .= "`model`,`manufacturer_id`,`image`,`price`,`points`,`weight`,`status`,`sku`) VALUES ";
+			$sql .= "($productId,$quantity,";
+			$sql .= "'$sku',$manufacturerId,'$imageName',$price,$points,";
+			$sql .= "'$weight',$status,'$model')";
+			$database->query($sql);
+			$sql2 = "INSERT INTO `".DB_PREFIX."product_description` (`product_id`,`language_id`,`name`,`description`,`meta_description`) VALUES ";
+			$sql2 .= "($productId,$languageId,'$model','$productDescription','$meta_description');";
+            $database->query($sql2);
+			}
+			else{
+			foreach($resultl->rows as $row)
+			{
+			
+			$sql  = "UPDATE  `".DB_PREFIX."product` SET `product_id`='$productId',`quantity`='$quantity'";
+			$sql .= "`model`='$sku',`manufacturer_id`='$manufacturerId',`image`='$imageName',`price`='$price',`points`='$points',`weight`='$weight',`status`='$status',`sku`='$model') WHERE `sku`='$model'  ";
+			
+			$database->query($sql);
+			$sql2 = "UPDATE `".DB_PREFIX."product_description` SET (`product_id`='$productId',`language_id`='$languageId',`name`='$model',`description`='$productDescription',`meta_description`='$meta_description') WHERE `sku`='$model' ";
+			$database->query($sql2);
+			}
+			}
+			$sqln2 = "SELECT `category_id` FROM `".DB_PREFIX."category_description` WHERE `name`='$meta_description';";
+			$resultn2 = $database->query( $sqln2 );
+			
+			if($resultn2->num_rows==0)
+			{$categoryIds ++;
+			$sql8 ="INSERT INTO `".DB_PREFIX."category_to_store` (`category_id`,`store_id`) VALUES ($categoryIds,$storeIds);";
+					$database->query($sql8);
+			$sql10 = "INSERT INTO `".DB_PREFIX."category` (`category_id`,`status`,`top`) VALUES ";
+			$sql10 .= "( $categoryIds,1,1);";
+			$database->query( $sql10 );
+			$sql4 = "INSERT INTO `".DB_PREFIX."category_description` (`category_id`, `name`,`language_id`) VALUES ";
+			$sql4 .= "( $categoryIds,'$meta_description',$languageId );";
+			$database->query( $sql4 );
+			}
+			
+			//$pid=$categoryIds ;
+			
+			$sqln1 = "SELECT `category_id` FROM `".DB_PREFIX."category_description` WHERE `name`='$categories[0]';";
+			$resultn1 = $database->query( $sqln1 );
+			
+            if($resultn1->num_rows==0){$categoryIds ++;
+			$resultn2 = $database->query( $sqln2 );$pid=$resultn2->row['category_id'];
+			$sql5 = "INSERT INTO `".DB_PREFIX."category` (`category_id`,`status`,`top`,`parent_id`) VALUES ";
+			$sql5 .= "( $categoryIds,1,0,$pid);";
+			$database->query( $sql5 );
+			$sql3 = "INSERT INTO `".DB_PREFIX."category_description` (`category_id`, `name`,`language_id`) VALUES ";
+			$sql3 .= "( $categoryIds,'$categories[0]',$languageId );";
+			$database->query( $sql3 );
+			$sql7 ="INSERT INTO `".DB_PREFIX."category_to_store` (`category_id`,`store_id`) VALUES ($categoryIds,$storeIds);";
+					$database->query($sql7);
+			
+			}
+			
+			
+            
+			$sql6 = "INSERT INTO `".DB_PREFIX."product_to_store` (`product_id`,`store_id`) VALUES ($productId,$storeIds);";
+					$database->query($sql6);
+			
+			if (count($categories) > 0) {
+							
+				foreach ($categories as $categoryId) {
+				$sqln = "SELECT `category_id` FROM `".DB_PREFIX."category_description` WHERE `name`='$categoryId';";
+			$resultn = $database->query( $sqln );
+			foreach ($resultn->rows as $row) {
+			$categoryIds1 =$row['category_id'];
+			}
+			$sql = "INSERT INTO `".DB_PREFIX."product_to_category` (`product_id`,`category_id`) VALUES ";
+				$first = TRUE;
+					$sql .= ($first) ? "\n" : ",\n";
+					$first = FALSE;
+					$sql .= "($productId,$categoryIds1)";
+				}
+				$sql .= ";";
+				$database->query($sql);
+			}
+			
+		}
+		
+		// final commit
+		// restore category paths for faster lookups on the frontend
+		$this->load->model( 'catalog/category' );
+		$this->model_catalog_category->repairCategories(0);
+		$database->query("COMMIT;");
+		return TRUE;
+	}
+
+
+	protected function detect_encoding( $str ) {
+		// auto detect the character encoding of a string
+		return mb_detect_encoding( $str, 'UTF-8,ISO-8859-15,ISO-8859-1,cp1251,KOI8-R' );
+	}
+
+
+	// hook function for reading additional cells in class extensions
+	protected function moreProductCells( $i, &$j, &$worksheet, $product ) {
+		return $product;
+	}
+
+
+	function uploadProducts( &$reader, &$database ) {
+		// find the default language id and default units
+		$languageId = $this->getDefaultLanguageId($database);
+		
+		$data = $reader->getSheet(0);
+		$products = array();
+		$product = array();
+		$isFirstRow = TRUE;
+		$i = 0;
+		$k = $data->getHighestRow();
+		for ($i=0; $i<$k; $i+=1) {
+			$j = 1;
+			if ($isFirstRow) {
+				$isFirstRow = FALSE;
+				continue;
+			}
+			$productId = trim($this->getCell($data,$i,$j++));
+			if ($productId=="") {
+				continue;
+			}
+			$meta_description = $this->getCell($data,$i,$j++);
+			$meta_description = htmlentities( $meta_description, ENT_QUOTES, $this->detect_encoding($meta_description) );
+			$sku = $this->getCell($data,$i,$j++);
+			
+			$categories = $this->getCell($data,$i,$j++);
+			$manufacturer = $this->getCell($data,$i,$j++);
+			$model = $this->getCell($data,$i,$j++,'   ');
+			$description = $this->getCell($data,$i,$j++);
+			$description = htmlentities( $description, ENT_QUOTES, $this->detect_encoding($description) );
+			$weight = $this->getCell($data,$i,$j++);
+			$points = $this->getCell($data,$i,$j++);
+			$price = $this->getCell($data,$i,$j++);
+			$quantity = $this->getCell($data,$i,$j++);
+			
+			$imageName = $this->getCell($data,$i,$j++);
+			$status=1;
+			$storeIds =0;
+			$product = array();
+			$product['Sr No.'] = $productId;
+			$product['ItemId'] = $sku;
+			$product['ProdName'] = ($categories=="") ? array() : explode( ",", $categories );
+			if ($product['ProdName']===FALSE) {
+				$product['ProdName'] = array();
+			}
+			
+			$product['Qty'] = $quantity;
+			$product['DesignNo'] = $model;
+			$product['Brand'] = $manufacturer;
+			$product['ImagePath'] = $imageName;
+			//$product['shipping'] = $shipping;
+			$product['MRP'] = $price;
+			$product['Sale Code'] = $points;
+			$product['Size'] = $weight;
+			//$product['unit'] = $unit;
+			$product['status'] = $status;
+			$product['Colour'] = $description;
+			//$product['stock_status_id'] = $stockStatusId;
+			$product['Prod Type'] = $meta_description;
+			$product['store_ids'] =$storeIds;
+			$products[$productId] = $this->moreProductCells( $i, $j, $data, $product );
+		}
+		return $this->storeProductsIntoDatabase( $database, $products );
+	}
+
+
+	
+
+	function getCell(&$worksheet,$row,$col,$default_val='') {
+		$col -= 1; // we use 1-based, PHPExcel uses 0-based column index
+		$row += 1; // we use 0-based, PHPExcel used 1-based row index
+		return ($worksheet->cellExistsByColumnAndRow($col,$row)) ? $worksheet->getCellByColumnAndRow($col,$row)->getValue() : $default_val;
+	}
+
+
+	function validateHeading( &$data, &$expected ) {
+		$heading = array();
+		$k = PHPExcel_Cell::columnIndexFromString( $data->getHighestColumn() );
+		if ($k != count($expected)) {
+			return FALSE;
+		}
+		$i = 0;
+		for ($j=1; $j <= $k; $j+=1) {
+			$heading[] = $this->getCell($data,$i,$j);
+		}
+		$valid = TRUE;
+		for ($i=0; $i < count($expected); $i+=1) {
+			if (!isset($heading[$i])) {
+				$valid = FALSE;
+				break;
+			}
+			if (strtolower($heading[$i]) != strtolower($expected[$i])) {
+				$valid = FALSE;
+				break;
+			}
+		}
+		return $valid;
+	}
+
+
+
+
+	protected function expectedProductsHeading() {
+		return array( "SrNo", "ProdType","ItemId", "ProdName", "BrandName","DesignNo", "Colour", "SizeProd", "SaleCode", "MRP", "Quantity", "ImagePath" );
+	}
+
+
+	function validateProducts( &$reader )
+	{
+		$expectedProductsHeading = $this->expectedProductsHeading();
+		$data =& $reader->getSheet(0);
+		return $this->validateHeading( $data, $expectedProductsHeading );
+	}
+
+
+
+	protected function expectedWorkSheets() {
+		return array('Sheet1','Sheet2','Sheet3');
+	}
+
+
+	function validateUpload( &$reader )
+	{
+		$expectedWorksheets = $this->expectedWorksheets();
+		$sheetNames = $reader->getSheetNames();
+		foreach ($expectedWorksheets as $key=>$expectedWorksheet) {
+			if (!isset($sheetNames[$key]) || ($sheetNames[$key]!=$expectedWorksheet)) {
+				error_log(date('Y-m-d H:i:s - ', time()).$this->language->get( 'error_sheet_count' )."\n",3,DIR_LOGS."error.txt");
+				return FALSE;
+			}
+		}
+		
+		if (!$this->validateProducts( $reader )) {
+			error_log(date('Y-m-d H:i:s - ', time()).$this->language->get('error_products_header')."\n",3,DIR_LOGS."error.txt");
+			return FALSE;
+		}
+		
+		return TRUE;
+	}
+
+
+	function clearCache() {
+		$this->cache->delete('*');
+	}
+
+
+	function upload( $filename ) {
+		// we use our own error handler
+		global $registry;
+		$registry = $this->registry;
+		set_error_handler('error_handler_for_export',E_ALL);
+		register_shutdown_function('fatal_error_shutdown_handler_for_export');
+
+		try {
+			$database =& $this->db;
+			$this->session->data['export_nochange'] = 1;
+
+			// we use the PHPExcel package from http://phpexcel.codeplex.com
+			$cwd = getcwd();
+			chdir( DIR_SYSTEM.'PHPExcel' );
+			require_once( 'Classes/PHPExcel.php' );
+		    chdir( $cwd );
+			$inputFileType = PHPExcel_IOFactory::identify($filename);
+			//echo $inputFileType;
+			$objReader = PHPExcel_IOFactory::createReader($inputFileType);
+			//$objReader->canRead($filename);
+			//echo $true;
+			$objReader->setReadDataOnly(true);
+			$reader = $objReader->load($filename);
+            
+			// read the various worksheets and load them to the database
+			$ok = $this->validateUpload( $reader );
+			if (!$ok) {
+				return FALSE;}
+			
+			$this->clearCache();
+			$this->session->data['export_nochange'] = 0;
+			
+			$ok = $this->uploadProducts( $reader, $database );
+			if (!$ok) {
+				return FALSE;
+			}
+			
+			return $ok;//return $cwd;
+		} catch (Exception $e) {
+			$errstr = $e->getMessage();
+			$errline = $e->getLine();
+			$errfile = $e->getFile();
+			$errno = $e->getCode();
+			$this->session->data['export_error'] = array( 'errstr'=>$errstr, 'errno'=>$errno, 'errfile'=>$errfile, 'errline'=>$errline );
+			if ($this->config->get('config_error_log')) {
+				$this->log->write('PHP ' . get_class($e) . ':  ' . $errstr . ' in ' . $errfile . ' on line ' . $errline);
+			}
+			return FALSE;
+		}
+	}
+	
+	}

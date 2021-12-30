@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "215451",
+    "ThreadId": "63357",
+    "Html": "<p>I'm not sure if this is an intentional change or not, so I wanted to post it here first before entering in an issue into the issue tracker.&nbsp; I downloaded the latest committed version from SVN today because I'm running into memory issues and wanted to test out the new method of applying styles to columns as a whole rather than cell by cell - but unrelated to that, I noticed that in my generated Excel files, the row and column labels (A, B, C, ... and 1, 2, 3, ...) are printing in Calibri rather than Arial.&nbsp; The below sample prints the row and column labels in Arial in PHPExcel 1.6.7, but in the latest SVN version, it prints them in Calibri.&nbsp; Is this an intentional change?&nbsp; I am running Excel 2003.</p>\r\n<p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$workbook = <span style=\"color:Blue\">new</span> PHPExcel;\r\n$workbook-&gt;getActiveSheet()-&gt;getDefaultStyle()-&gt;getFont()-&gt;setName(<span style=\"color:#A31515\">'Arial'</span>);\r\n\r\n$writer = PHPExcel_IOFactory::createWriter($workbook, <span style=\"color:#A31515\">'Excel5'</span>);\r\n$writer-&gt;save(<span style=\"color:#A31515\">'write.xls'</span>);\r\n\r\n</pre>\r\n</div>\r\nThanks for your help.</p>\r\n<p>Ryan</p>",
+    "PostedDate": "2009-07-23T12:13:55.273-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "215506",
+    "ThreadId": "63357",
+    "Html": "<p><em>&gt;&gt; The below sample prints the row and column labels in Arial in PHPExcel 1.6.7,<br> &gt;&gt; but in the latest SVN version, it prints them in Calibri.&nbsp; Is this an intentional change?<br> </em><br> This was not an intentional change. Will be fixed in tomorrows source code release.<br> <br> <em>Some remarks:</em><br> <br> 1.</p>\r\n<p>It is intentional in PHPExcel 1.7.0 that Calibri 11 is used as the default font for (row/column labels and cells) for both the Excel2007 and Excel5 writer. In PHPExcel 1.6.7 Arial 10 was used by Excel5 writer and Calibri 10 was used by Excel2007 writer.<br> <br> 2.</p>\r\n<p>Another change in PHPExcel 1.7.0 compared to 1.6.7 is the default font (used for row/column lables and cells).<br> <br> In PHPExcel 1.7.0 you set the default font like this:</p>\r\n<p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$workbook-&gt;getDefaultStyle()-&gt;getFont()-&gt;setName(<span style=\"color:#A31515\">'Arial'</span>);\r\n$workbook-&gt;getDefaultStyle()-&gt;getFont()-&gt;setSize(10);\r\n\r\n</pre>\r\n</div>\r\n</p>\r\n<p>In MS Office Excel 2007, this corresponds to <span style=\"font-family:Courier New\">Excel Options &gt; Popular &gt; When creating new workbooks &gt; Use this font</span><br> <a href=\"http://www.learnthat.com/software/learn/1160/Microsoft_Excel_2007_Tutorial/page/6/\">http://www.learnthat.com/software/learn/1160/Microsoft_Excel_2007_Tutorial/page/6/</a><br> <br> In PHPExcel 1.6.7 there was a default style for each sheet. This concept has been dropped in PHPExcel 1.7.0. The reason for this is that the Excel file format does not support such a default sheet style and it was giving problems during further development of the library. In PHPExcel 1.7.0, when you try to set the default style for any sheet, it will be set for the entire workbook. (Therefore, I suggest that you update your code as shown above)</p>\r\n<p>3.</p>\r\n<p>When you generate Excel files from a template (xls or xlsx) using PHPExcel, default font should of course survive. That means if you for example read an xls template that has Verdana 20 as default workbook font, it will still have that default font after a plain read/write.</p>",
+    "PostedDate": "2009-07-23T15:27:58.51-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "216782",
+    "ThreadId": "63357",
+    "Html": "<p>Thanks for your help.&nbsp; I will update my code going forward to set the default font on the workbook as a whole, rather than a default style per sheet.&nbsp; I just downloaded the latest source code release 28250, but the row and column labels are still coming up in Calibri rather than Arial.&nbsp; Should your change be up now?&nbsp; The script I tried running was:</p>\r\n<p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$workbook = <span style=\"color:Blue\">new</span> PHPExcel;\r\n$workbook-&gt;getDefaultStyle()-&gt;getFont()-&gt;setName(<span style=\"color:#A31515\">'Arial'</span>);\r\n$workbook-&gt;getDefaultStyle()-&gt;getFont()-&gt;setSize(10);\r\n\r\n$writer = PHPExcel_IOFactory::createWriter($workbook, <span style=\"color:#A31515\">'Excel5'</span>);\r\n$writer-&gt;save(<span style=\"color:#A31515\">'write.xls'</span>);\r\n\r\n</pre>\r\n</div>\r\n</p>",
+    "PostedDate": "2009-07-28T06:43:22.627-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "216861",
+    "ThreadId": "63357",
+    "Html": "<p><em>&gt;&gt; but the row and column labels are still coming up in Calibri rather than Arial.</em><br> <br> I just tried your test with with latest source code, but it was working ok and showing Arial when I opened the file in Microsoft Office Excel 2007.<br> <br> Look at this screenshot:<br> <a href=\"http://img194.imageshack.us/img194/4249/microsoftexcelwritexlsk.png\">http://img194.imageshack.us/img194/4249/microsoftexcelwritexlsk.png</a><br> <br> Do you have any idea what is wrong?</p>",
+    "PostedDate": "2009-07-28T09:29:18.72-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "216916",
+    "ThreadId": "63357",
+    "Html": "<p>Sorry, yes, it is working correctly.&nbsp; I just realized my code was pulling in a different version of PHPExcel I had in my include path rather than the latest code I downloaded this morning.&nbsp; Thanks again for your help.</p>",
+    "PostedDate": "2009-07-28T11:24:29.91-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

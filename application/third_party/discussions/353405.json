@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "827996",
+    "ThreadId": "353405",
+    "Html": "<p>I am getting corrupted xlsx files when saving/pushing to browser.&nbsp; If I save the file locally on the disk and then ftp it to my PC, it works fine.&nbsp; Also have tested on a different server w/ same specs and works fine.&nbsp; I am totally stuck - have searched forum  and saw some posts on php zip being an issue but works on 1 server and not the other with same php and zip versions so not sure that is a problem.</p>\n<p>&nbsp;</p>\n<p>Server with corrupt files produced:</p>\n<p>RHEL 5.6</p>\n<p>PHP 5.2.12</p>\n<p>ZIP 1.8.11</p>\n<p>PHPExcel 1.7.6 AND tried SVN from a few days ago</p>\n<p>&nbsp;</p>\n<p>Server working:</p>\n<p>CentOS 5.4</p>\n<p>PHP 5.2.12</p>\n<p>ZIP 1.8.11</p>\n<p>PHPExcel 1.7.6 AND tried SVN from a few days ago</p>\n<p>&nbsp;</p>\n<p>Tried opening files in LibreOffice 3.5.2 and MS Office 2003 (don't think that matters either, since CSV file is totally corrupt)</p>\n<p>Here is my code:</p>\n<p>&nbsp;</p>\n<div style=\"color: black; background-color: white;\">\n<pre><span style=\"color: blue;\">if</span> ($output_type == <span style=\"color: #a31515;\">\"CSV\"</span>)\n{\n  $objWriter = <span style=\"color: blue;\">new</span> PHPExcel_Writer_CSV($xlsx);\n  $objWriter-&gt;setDelimiter(<span style=\"color: #a31515;\">','</span>);\n  $objWriter-&gt;setEnclosure(<span style=\"color: #a31515;\">''</span>);\n  $objWriter-&gt;setLineEnding(<span style=\"color: #a31515;\">\"\\r\\n\"</span>);\n  $objWriter-&gt;setSheetIndex(0);\n\n  header(<span style=\"color: #a31515;\">'Content-type: text/csv'</span>);\n  header(<span style=\"color: #a31515;\">'Content-Disposition: attachment;filename=\"'</span> . $filename . <span style=\"color: #a31515;\">'.csv\"'</span>);\n} <span style=\"color: green;\">//if ($output_type == \"CSV\")</span>\n<span style=\"color: blue;\">else</span>\n{\n  <span style=\"color: green;\">// Save Excel 2007 file</span>\n  $objWriter = PHPExcel_IOFactory::createWriter($xlsx, <span style=\"color: #a31515;\">'Excel2007'</span>);\n  $objWriter-&gt;setUseDiskCaching(true);\n  ob_end_clean();\n\n  header(<span style=\"color: #a31515;\">\"Last-Modified: \"</span> . gmdate(<span style=\"color: #a31515;\">\"D, d M Y H:i:s\"</span>) . <span style=\"color: #a31515;\">\" GMT\"</span>);\n  header(<span style=\"color: #a31515;\">\"Cache-Control: no-store, no-cache, must-revalidate\"</span>);\n  header(<span style=\"color: #a31515;\">\"Cache-Control: post-check=0, pre-check=0\"</span>, false);\n  header(<span style=\"color: #a31515;\">\"Pragma: no-cache\"</span>);\n  header(<span style=\"color: #a31515;\">'Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'</span>);\n  header(<span style=\"color: #a31515;\">'Content-Disposition: attachment;filename=\"'</span> . $filename . <span style=\"color: #a31515;\">'.xlsx\"'</span>);\n} <span style=\"color: green;\">//else</span>\n\n$objWriter-&gt;save(<span style=\"color: #a31515;\">'php://output'</span>);\n\n$xlsx-&gt;disconnectWorksheets();\n<span style=\"color: blue;\">unset</span>($xlsx);\n\n</pre>\n</div>\n<p>&nbsp;</p>\n<p>CSV file works fine!</p>\n<p>&nbsp;</p>\n<p>Please help.&nbsp; Really stuck here!!</p>",
+    "PostedDate": "2012-04-24T10:54:20.157-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "828042",
+    "ThreadId": "353405",
+    "Html": "<p>Just uploaded two xlsx files.&nbsp; One that is corrupt (report_corrupt.xlsx) which was pushed to the browser.&nbsp; The other (report_ok.xlsx) was saved locally then ftp'd back and opened fine.</p>",
+    "PostedDate": "2012-04-24T12:39:23.937-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "828097",
+    "ThreadId": "353405",
+    "Html": "<p>If you're getting a difference between pushing to the browser and saving to disk, then it's almost certain that the script is outputting additional characters to the browser: this is typically white space characters (space, tab, new lines, etc), or anything (new lines are often a problem here) following a ?&gt;. Check your script for anything that might add these characters.</p>",
+    "PostedDate": "2012-04-24T14:41:59.58-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "828146",
+    "ThreadId": "353405",
+    "Html": "<p>Mark<br /> <br /> Thanks for the reply.&nbsp; I have read a bunch of posts to that effect and  looked for those things and found nothing that would output additional characters.&nbsp; Since the code works fine on a second server, I  don't think its outputting anything additional.<br /> <span id=\"133c2812-2c49-4b0f-94a8-5c96bee4a17c\"><br />Regards,<br />Scott</span></p>",
+    "PostedDate": "2012-04-24T17:28:20.5-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "833040",
+    "ThreadId": "353405",
+    "Html": "<p>I was also experiencing the same problem as you. For some reason I kept getting the corrupted file message when opening up the excel files I sent to the browser. It did turn out to be that the file was sending out additional characters. Once I took them out, the messages stopped and everything worked correctly.</p>",
+    "PostedDate": "2012-05-07T10:32:19.973-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

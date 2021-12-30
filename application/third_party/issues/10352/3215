@@ -1,0 +1,23 @@
+Index: Classes/PHPExcel/Writer/Excel5/Worksheet.php
+===================================================================
+--- Classes/PHPExcel/Writer/Excel5/Worksheet.php	(revision 1046)
++++ Classes/PHPExcel/Writer/Excel5/Worksheet.php	(working copy)
+@@ -1088,12 +1088,14 @@
+ 		$options	 = pack("V", 0x08);
+ 
+ 		// Convert the URL type and to a null terminated wchar string
+-		$url		 = join("\0", preg_split("''", $url, -1, PREG_SPLIT_NO_EMPTY));
+-		$url		 = $url . "\0\0\0";
++		$url .= "\0";
+ 
+-		// Pack the length of the URL as chars (not wchars)
+-		$url_len	 = pack("V", floor(strlen($url)/2));
++		// character count
++		$url_len = PHPExcel_Shared_String::CountCharacters($url);
++		$url_len = pack('V', $url_len);
+ 
++		$url = PHPExcel_Shared_String::ConvertEncoding($url, 'UTF-16LE', 'UTF-8');
++
+ 		// Calculate the data length
+ 		$length	  = 0x24 + strlen($url);
+ 

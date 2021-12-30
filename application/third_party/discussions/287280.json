@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "730176",
+    "ThreadId": "287280",
+    "Html": "\r\n<p>While I am reading ods files (xls and xlsx are ok) using PHPExcel class and two cells are together and contain the same data, the second cell goes blank, Is it a bug? Here is my code:</p>\r\n<p></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>&lt;?php\r\n\tset_include_path(get_include_path() . PATH_SEPARATOR . <span style=\"color:#a31515\">'../../Librerias/phpexcel/Classes/'</span>);\r\n\t<span style=\"color:blue\">include</span> <span style=\"color:#a31515\">'PHPExcel/IOFactory.php'</span>;\r\n\r\n\t$input_fileName = dirname(<span style=\"color:blue\">__FILE__</span>) . <span style=\"color:#a31515\">'/bug.ods'</span>;\r\n\t$input_file_type = PHPExcel_IOFactory::identify($input_fileName);   \r\n\t$reader = PHPExcel_IOFactory::createReader($input_file_type);\r\n\t$reader-&gt;setReadDataOnly(true); \r\n\t$objPHPExcel = $reader-&gt;load($input_fileName);  \r\n\t$objPHPExcel-&gt;setActiveSheetIndex(0);\r\n\t$rowIterator = $objPHPExcel-&gt;getActiveSheet()-&gt;getRowIterator();\r\n\r\n\t$array_data = <span style=\"color:blue\">array</span>();\r\n\t<span style=\"color:blue\">foreach</span>($rowIterator <span style=\"color:blue\">as</span> $row){\r\n\t\t$cellIterator = $row-&gt;getCellIterator();\r\n\t\t$cellIterator-&gt;setIterateOnlyExistingCells(false);\r\n\t\t$rowIndex = $row-&gt;getRowIndex ();    \r\n\t\t<span style=\"color:blue\">foreach</span> ($cellIterator <span style=\"color:blue\">as</span> $cell) {\r\n\t\t\t\t$array_data[$rowIndex][$cell-&gt;getColumn()] = $cell-&gt;getCalculatedValue();\r\n\t\t}\r\n\t}\r\n\t<span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;pre&gt;'</span> ; print_r($array_data); <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;/pre&gt;'</span> ;\r\n?&gt;\r\n</pre>\r\n</div>\r\n<p></p>\r\n<p>Here is the content into bug.ods</p>\r\n<p></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>  | A   |   B   |   C   |   D   |   E   |   F\r\n<span style=\"color:gray\">--</span><span style=\"color:gray\">--</span><span style=\"color:gray\">--</span><span style=\"color:gray\">--</span><span style=\"color:gray\">--</span><span style=\"color:gray\">--</span><span style=\"color:gray\">--</span><span style=\"color:gray\">--</span><span style=\"color:gray\">--</span><span style=\"color:gray\">--</span><span style=\"color:gray\">--</span><span style=\"color:gray\">--</span><span style=\"color:gray\">--</span><span style=\"color:gray\">--</span><span style=\"color:gray\">--</span><span style=\"color:gray\">--</span><span style=\"color:gray\">--</span><span style=\"color:gray\">--</span><span style=\"color:gray\">--</span><span style=\"color:gray\">--</span><span style=\"color:gray\">--</span><span style=\"color:gray\">--</span><span style=\"color:gray\">--</span><span style=\"color:gray\">-</span>\r\n1 | 1   |   1   |   2   |   2   |   3   |   3\r\n2 | 2   |   2   |   1   |   1   |   3   |   3\r\n3 | 3   |   3   |   1   |   1   |   2   |   2\r\n4 | a   |   a   |   b   |   b   |   c   |   c\r\n5 | b   |   b   |   a   |   a   |   c   |   c\r\n6 | c   |   c   |   a   |   a   |   b   |   b\r\n</pre>\r\n</div>\r\n<p></p>\r\n<p>... and here is the print_r output.</p>\r\n<p></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>Array\r\n(\r\n    [1] =&gt; Array\r\n        (\r\n            [A] =&gt; 1\r\n            [B] =&gt; \r\n            [C] =&gt; 2\r\n            [D] =&gt; \r\n            [E] =&gt; 3\r\n        )\r\n\r\n    [2] =&gt; Array\r\n        (\r\n            [A] =&gt; 2\r\n            [B] =&gt; \r\n            [C] =&gt; 1\r\n            [D] =&gt; \r\n            [E] =&gt; 3\r\n        )\r\n\r\n    [3] =&gt; Array\r\n        (\r\n            [A] =&gt; 3\r\n            [B] =&gt; \r\n            [C] =&gt; 1\r\n            [D] =&gt; \r\n            [E] =&gt; 2\r\n        )\r\n\r\n    [4] =&gt; Array\r\n        (\r\n            [A] =&gt; a\r\n            [B] =&gt; \r\n            [C] =&gt; b\r\n            [D] =&gt; \r\n            [E] =&gt; c\r\n        )\r\n\r\n    [5] =&gt; Array\r\n        (\r\n            [A] =&gt; b\r\n            [B] =&gt; \r\n            [C] =&gt; a\r\n            [D] =&gt; \r\n            [E] =&gt; c\r\n        )\r\n\r\n    [6] =&gt; Array\r\n        (\r\n            [A] =&gt; c\r\n            [B] =&gt; \r\n            [C] =&gt; a\r\n            [D] =&gt; \r\n            [E] =&gt; b\r\n        )\r\n\r\n)\r\n\r\n</pre>\r\n</div>\r\n<p></p>\r\n<p>Am I doing something wrong? Is it a bug?</p>\r\n<p>Some idea?</p>\r\n",
+    "PostedDate": "2012-01-24T13:57:26.173-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "734715",
+    "ThreadId": "287280",
+    "Html": "<p>Some help?</p>\r\n<p>Regards.</p>",
+    "PostedDate": "2012-02-01T07:06:03.367-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "735323",
+    "ThreadId": "287280",
+    "Html": "<p>I've not been able to replicate this myself, do you have a \"test case\" workbook that you can upload?</p>",
+    "PostedDate": "2012-02-01T13:10:24.743-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "736594",
+    "ThreadId": "287280",
+    "Html": "<p>Hi,</p>\r\n<p>I'm having the same problem. I'm trying to read an .ods file with two consecutive cells containing the same date (2011-12-15) . This problem doesn't occur when I use .xlsx files, so this may be some issue with the OOCalc reader.</p>\r\n<p>Did you find any workaround?</p>",
+    "PostedDate": "2012-02-02T04:36:30.57-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "753705",
+    "ThreadId": "287280",
+    "Html": "<p>Try this: <a title=\"OOCalc and number-columns-repeated\" href=\"http://phpexcel.codeplex.com/discussions/270559\" target=\"_blank\">http://phpexcel.codeplex.com/discussions/270559</a></p>",
+    "PostedDate": "2012-02-10T10:58:20.483-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "798336",
+    "ThreadId": "287280",
+    "Html": "<blockquote style=\"border: solid .1em #ccc; font-style: italic; margin: .25em 1em 0 1em; padding: 0 .25em 0 .25em;\"><strong>ScottMSanders wrote:</strong><br />\r\n<p>Try this: <a title=\"OOCalc and number-columns-repeated\" href=\"http://phpexcel.codeplex.com/discussions/270559\" target=\"_blank\"> http://phpexcel.codeplex.com/discussions/270559</a></p>\r\n</blockquote>\r\n<p>Nice, but ... Is not working 100%, when there are three or more contigous cells with the repeated data.</p>\r\n<p>Thk for your response.<br />Regards.</p>",
+    "PostedDate": "2012-02-23T14:25:33.567-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "799015",
+    "ThreadId": "287280",
+    "Html": "This discussion has been copied to a work item. Click <a href=\"http://phpexcel.codeplex.com/workitem/17471\">here</a> to go to the work item and continue the discussion.",
+    "PostedDate": "2012-02-23T23:26:20.25-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

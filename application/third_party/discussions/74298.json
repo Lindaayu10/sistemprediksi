@@ -1,0 +1,98 @@
+[
+  {
+    "Id": "254166",
+    "ThreadId": "74298",
+    "Html": "<p>I have a worksheet where I only want the user to be able to modify certain columns.</p>\r\n<p>I protect the worksheet using;</p>\r\n<p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>\t$sheet-&gt;getProtection()-&gt;setPassword(<span style=\"color:#A31515\">'PHPExcel'</span>);\r\n\t$sheet-&gt;getProtection()-&gt;setSheet(true);</pre>\r\n</div>\r\n</p>\r\n<p>.. and then un-protect the 2 columns using;</p>\r\n<p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>\t$highestRow = $sheet-&gt;getHighestRow();\t\r\n\t$sheet-&gt;getStyle(<span style=\"color:#A31515\">'I2:J'</span> .$highestRow)-&gt;getProtection()-&gt;setLocked(PHPExcel_Style_Protection::PROTECTION_UNPROTECTED);\r\n</pre>\r\n</div>\r\nAny blank numeric cell types in the worksheet become zero.</p>\r\n<p>I do not want them to be zero I need the cells to be blank / empty unless the user enters data in the cell like when the worksheet is not protected.</p>\r\n<p>Is this a bug? I have done a manual test in EXCEL and when a numeric cell type is blank it remains blank, EXCEL does not convert it to zero.</p>",
+    "PostedDate": "2009-11-06T01:59:52.097-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "254170",
+    "ThreadId": "74298",
+    "Html": "<p>I am now not sure if this is related to the protecting of the cells or is something that has changed in the latest release??</p>",
+    "PostedDate": "2009-11-06T02:07:35.513-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "254182",
+    "ThreadId": "74298",
+    "Html": "<p>I have just confirmed it is not to do with the protection but is something that has changed between version 1.7 and 1.7.1</p>\r\n<p>I tested using 1.7 and the cells are blank, with 1.7.1 the cells are zero.</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-11-06T02:51:22.093-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "254392",
+    "ThreadId": "74298",
+    "Html": "<p>I am wondering what you mean by a &quot;blank numeric cell type&quot;.</p>\r\n<p>Do you have a complete example showing the problem?</p>",
+    "PostedDate": "2009-11-06T14:52:27.303-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "255023",
+    "ThreadId": "74298",
+    "Html": "<p>I meant a blank or empty cell which is formatted to numeric style.</p>\r\n<p>With version 1.7 it works as expected, in 1.7.1 the cell is populated with zero.</p>\r\n<p>Unfortunately I do not have an example, format a cell to numeric style and leave it blank, when opening in Excel the cell will have zero in it.</p>\r\n<p>This was using the Excel 2007 writer.</p>",
+    "PostedDate": "2009-11-09T04:51:26.753-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "255310",
+    "ThreadId": "74298",
+    "Html": "<p>The only situation I can think of where there could be a change from PHPExcel 1.7.0 to 1.7.1 is in a situation like this.<br> <br> Consider this line:</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>$worksheet-&gt;getCell(<span style=\"color:#a31515\">'A1'</span>)-&gt;setValueExplicit(<span style=\"color:#a31515\">''</span>, PHPExcel_Cell_DataType::TYPE_NUMERIC);<br></pre>\r\n</div>\r\n<p>In PHPExcel 1.7.0 you will probably see a blank cell when you open the generated Excel file, but in 1.7.1 you will see a 0.<br> <br> What is happening here? When you use <span style=\"font-family:Courier New\">PHPExcel_Cell_DataType::TYPE_NUMERIC</span>, the first argument is really expected to be a number. But <span style=\"font-family:Courier New\">''</span> is not a number, it is an empty string.<br> <br> In PHPExcel 1.7.0 such code <strong>could</strong> result in corrupt Excel files (xlsx). Try this with PHPExcel 1.7.0 and you will see that you get a corrupt xlsx file:</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>$worksheet-&gt;getCell(<span style=\"color:#a31515\">'A1'</span>)-&gt;setValueExplicit(<span style=\"color:#a31515\">'abc'</span>, PHPExcel_Cell_DataType::TYPE_NUMERIC);<br></pre>\r\n</div>\r\n<p>In PHPExcel 1.7.1 a mechanism was added to protect against such errors<br> <a href=\"../WorkItem/View.aspx?WorkItemId=10600\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10600</a><br> <br> That could explain why you get different results, but the above should explain why the approach of PHPExcel 1.7.1 is the correct.<br> <br> To summarize, you should only use <span style=\"font-family:Courier New\">PHPExcel_Cell_DataType::TYPE_NUMERIC</span> when you really want a number. A number cannot be blank. If you for some reason want a blank cell, use an empty string:</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>$worksheet-&gt;getCell(<span style=\"color:#a31515\">'A1'</span>)-&gt;setValueExplicit(<span style=\"color:#a31515\">''</span>, PHPExcel_Cell_DataType::TYPE_STRING);<br></pre>\r\n</div>\r\n<p><em>Note: Do not confuse data types and number formats. The above has to do with data types and not number formats.</em></p>",
+    "PostedDate": "2009-11-09T19:39:07.56-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "255402",
+    "ThreadId": "74298",
+    "Html": "<p>Hi Koyama,</p>\r\n<p>Is there any way that I can use 1.7.1 to export like version 1.7 did when it comes across an empty TYPE:NUMERIC?</p>\r\n<p>Thanks</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-11-10T01:16:42.777-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "255406",
+    "ThreadId": "74298",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>ale1981 wrote:</strong><br>\r\n<p>Hi Koyama,</p>\r\n<p>Is there any way that I can use 1.7.1 to export like version 1.7 did when it comes across an empty TYPE:NUMERIC?</p>\r\n<p>Thanks</p>\r\n<p>&nbsp;</p>\r\n</blockquote>\r\n<p>No, because as soon as you set the value PHPExcel converts the empty string to a zero internally.</p>\r\n<p>But why are you using TYPE:NUMERIC for the blank cells? If you can explain why this is necessary then we can better guide you to the correct solution.</p>",
+    "PostedDate": "2009-11-10T01:30:32.08-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "255409",
+    "ThreadId": "74298",
+    "Html": "<p>I have used PHPExcel to re-create an old program and it is basically to keep the spreadsheets looking the same, but if this is not possible then I would rather use the speed benefits of 1.7.1 over 1.7</p>\r\n<p>Will the reader read the cells as blank or as zero, is there a difference when reading the cell?</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-11-10T01:39:55.963-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "255416",
+    "ThreadId": "74298",
+    "Html": "<blockquote style=\"border:0.1em solid #cccccc;margin:0.25em 1em 0pt;padding:0pt 0.25em;font-style:italic\"><strong>ale1981 wrote:</strong><br>\r\n<p>I have used PHPExcel to re-create an old program and it is basically to keep the spreadsheets looking the same, but if this is not possible then I would rather use the speed benefits of 1.7.1 over 1.7</p>\r\n<p>Will the reader read the cells as blank or as zero, is there a difference when reading the cell?</p>\r\n</blockquote>\r\n<p>There are no differences with the readers in PHPExcel 1.7.0 and 1.7.1. A plain read/write must never convert blank cells to numeric zeros.</p>\r\n<p>Note that this issue only has to do with <span style=\"font-family:Courier New\">setValueExplicit()</span>. Using <span style=\"font-family:Courier New\">setValue()</span> may be more suitable in your case and you should not have the problem you describe.</p>",
+    "PostedDate": "2009-11-10T01:58:11.227-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "255417",
+    "ThreadId": "74298",
+    "Html": "<p>Hi Koyama,</p>\r\n<p>I will try and use SetValue() and let you know the outcome.</p>",
+    "PostedDate": "2009-11-10T02:01:22.997-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "255434",
+    "ThreadId": "74298",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>koyama wrote:</strong><br>\r\n<blockquote style=\"border:0.1em solid #cccccc;margin:0.25em 1em 0pt;padding:0pt 0.25em;font-style:italic\"><strong><span>ale</span><span title=\"Convert this amount\">1981</span><span> wrote:</span></strong><br>\r\n<p><span>I have used PHPExcel to re-create an old program and it is basically to keep the spreadsheets looking the same, but if this is not possible then I would rather use the speed benefits of </span><span title=\"Convert this amount\">1.7.1</span><span> over </span><span title=\"Convert this amount\">1.7</span></p>\r\n<p>Will the reader read the cells as blank or as zero, is there a difference when reading the cell?</p>\r\n</blockquote>\r\n<p><span>There are no differences with the readers in PHPExcel </span><span title=\"Convert this amount\">1.7.0</span><span> and </span><span title=\"Convert this amount\">1.7.1</span><span>. A plain read/write must never convert blank cells to numeric zeros.</span></p>\r\n<p>Note that this issue only has to do with <span style=\"font-family:Courier New\">setValueExplicit()</span>. Using <span style=\"font-family:Courier New\">setValue()</span> may be more suitable in your case and you should not have the problem you describe.</p>\r\n</blockquote>\r\n<p>&nbsp;</p>\r\n<p>I used setValue() only on the cells which were of type numeric and this worked, thanks for your help.</p>",
+    "PostedDate": "2009-11-10T03:21:47.507-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

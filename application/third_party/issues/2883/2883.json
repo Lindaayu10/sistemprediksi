@@ -1,0 +1,71 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "All",
+      "DisplayName": "All"
+    },
+    "ClosedComment": "Fixed in SVN",
+    "ClosedDate": "2007-07-25T07:34:33.28-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I created some basic excel files with some styles and saved them with Excel2003 and Microsoft Compatibility Pack to .xlsx format. Then I tried to read files (basically for-loop, which reads every cell within range and prints value, formula, background color, font color, etc), but I get bunch of errors and can't read all values.\n \nAfter some researching I found the bugs, which are basically in implementing Office Open XML Final draft. Here is the list:\n \nxl/worksheets/sheetX.xml, <cols> (only in reader):\n \nIf file doesn't contain <cols> tag, reader gives an error because foreach gets an empty array. However, <cols> tag is not required and default values should be used without it. (page 2049 in Office Open XML Part 4 - Markup language reference.pdf)\n \nBasically one if(isset...) before foreach and problem fixed.\n \n \nxl/worksheets/sheetX.xml, <c:s> (reader and writer):\n \nAttribute s should point to the index of cellXfs in styles.xml, not to index of cellStyles. This bug gives bunch of out of bounds errors and also reads wrong styles from excel-file.\n \n \nxl/styles.xml, <cellXfs> (reader and writer):\n \nThis should be the starting tag when cellstyles are readed and writed. This is the tag, where s attribute in c element points. (page 2108 in Office Open XML Part 4 - Markup language reference.pdf).\n \nThe xf:xfId points from here to cellStyles and xf:xfId from cellStyles to cellStyleXfs. So the chain is  <c s = \"X\"> ---> cellXfs[X], xfID=\"Y\" -------> cellStyles[Y], xfID = \"Z\" ---------> cellStyleXfs[Z]\n \n \nxl/styles.xml, <cellStyles> (reader and writer):\n \nThis should be used only with predefined styles, i.e. \"Title\", \"Heading1\", etc, Attributes name and builtinId should be defined. xfId points to the cellStylesXfs, which defines these named styles. (Page 2106)\n \nFor example: \n<cellStyles>\n<cellStyle name=\"Normal\" xfId=\"0\" builtinId=\"0\" /> // reference to default style, should be defined always\n</cellStyles>\n \n \nxl/styles.xml, <cellStylesXfs> (reader and writer):\n \nEnd of the chain. (Page 2107)\n \n<cellStyleXfs>\n<xf numFmtId=\"0\" fontId=\"0\" fillId=\"0\" borderId=\"0\" /> // style for \"Normal\" default-text\n</cellStyleXfs>\n \n \n***\n \nSo if there is no need (or time ;) to implement those built in styles, just use one default line in cellStyles and cellStyleXfs and write different styles in excel file directly to cellXfs and point from c:s to there. Use always xfId=0 in cellXfs, so only default named style will be used, which doesn't interfere with cellXfs custom style.\n \nAttached the Excel file (created with Excel2003 and compatibility pack), which I used to test the reader. There is content only in cell A1, text \"Hello\" written in red background with yellow text.",
+    "LastUpdatedDate": "2013-05-16T05:43:53.227-07:00",
+    "PlannedForRelease": "PHPExcel 1.4.5 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Medium",
+      "Severity": 100,
+      "Id": 2
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2007-07-24T07:46:39.913-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Excel2007 reader/writer not implementing OpenXML/SpreadsheetML styles 100% correct",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 2883
+  },
+  "FileAttachments": [
+    {
+      "FileId": 476,
+      "FileName": "test.xlsx",
+      "DownloadUrl": ".\\476"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "This will be fixed by 1.4.5, also adding indexed color reading support for non-PHPExcel xlsx files.",
+      "PostedDate": "2007-07-24T23:56:53.28-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2007-07-25T07:33:53.84-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2007-07-25T07:34:33.28-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:05:38.17-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:43:53.227-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

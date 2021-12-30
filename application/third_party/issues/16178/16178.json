@@ -1,0 +1,71 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "There is a small error in the array, the index nr 14 is set to the american system default 'mm/dd/yy'\nhowever it seems to me (after testing extensively) that excel uses this code to specify the systems default short date string (windows)\nmeaning that it is very depending on the machine its running on.\n \nthe main problem is that PHP does not have a way to read out system default DateFormat strings? or i can't seem to find a way.\nThe solution could be presented in the form of a static method as found in the attached edited PHPExcel_Style_NumberFormat class file\n \nlines added/edited\n<code>\nconst FORMAT_DEFAULT_SYSTEM_DATE_FORMAT = 'mm-dd-yy';\nprivate static $_systemDefaultDateFormat = self::FORMAT_DEFAULT_SYSTEM_DATE_FORMAT;\n \n/**\n* if dates are enetered into excel but no specific dateformat is used\n* excel defined the system format. because PHP has no access to system defaults\n* this method allows for setting this\n* @param string $format\n*/\npublic static function setDefaultDateFormatString($format=self::FORMAT_DEFAULT_SYSTEM_DATE_FORMAT){\nself::$_systemDefaultDateFormat = $format;\n}\n \n/**\n* retrieved the default system date format set\n*/\npublic static function getDefaultDateFormatString(){\nreturn self::$_systemDefaultDateFormat;\n}\n \n \nself::$_builtInFormats[14] = self::getExcelDefaultDateFormatString();\n<code/>\n \nI didnt submit it as a patch cause I wana see if you have rules and regulations first with regards to patches\n \ndoing it this way will for example Fix the issue where reading out and writing file will result in a different date formats then one might expect.\nand example of code\n<?php\n//$loc='classes';\n$loc='PHPExcel';\nrequire_once(\"$loc/PHPExcel.php\");\nrequire_once(\"$loc/PHPExcel/Cell/AdvancedValueBinder.php\"); \n \nPHPExcel_Cell::setValueBinder( new PHPExcel_Cell_AdvancedValueBinder() );\n// MySQL-like dates '2011-06-20' by default (if excel's default date format has been set)\nPHPExcel_Style_NumberFormat::setDefaultDateFormatString('yyyy-mm-dd');\n \n \n$excelObject = PHPExcel_IOFactory::load('rca_template.xlsx');\n \n$excelWriter = new PHPExcel_Writer_HTML($excelObject);\n$excelWriter->writeAllSheets();\n?>\n<html>\n<head>\n<?php \necho $excelWriter->generateHTMLHeader(true);\n?>\n</head>\n<body>\n<?php \necho $excelWriter->generateNavigation();\necho $excelWriter->generateSheetData();\necho $excelWriter->generateNavigation();\necho $excelWriter->generateHTMLFooter();\n?>\n</body>\n</html>",
+    "LastUpdatedDate": "2013-02-21T19:02:20.18-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2011-06-27T02:15:07-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "PHPExcel_Style_NumberFormat::$_builtInFormats array incorrect (possible fix provided)",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 16178
+  },
+  "FileAttachments": [
+    {
+      "FileId": 5730,
+      "FileName": "NumberFormat.php",
+      "DownloadUrl": ".\\5730"
+    },
+    {
+      "FileId": 5731,
+      "FileName": "NumberFormat.php",
+      "DownloadUrl": ".\\5731"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "I noticed this when setting an explicit (custom) date format, which happened to be the same as my System Default, which excel then automatically assigned the 14 code to and noticed that my 14 code was different from PHPExcel's code 14",
+      "PostedDate": "2011-06-27T02:20:24.57-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2011-06-27T03:57:38.21-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "sorry changed the naming convention last minute and forgot to apply the change to the assignment of index 14\r\nself::$_builtInFormats[14] = self::getExcelDefaultDateFormatString();\r\nshould be\r\nself::$_builtInFormats[14] = self::getDefaultDateFormatString();\r\n\r\nsee the second attachment for corrected version",
+      "PostedDate": "2011-06-27T03:57:40.347-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:02:20.18-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

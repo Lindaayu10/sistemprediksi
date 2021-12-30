@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "909447",
+    "ThreadId": "394719",
+    "Html": "\r\n<p>Hello<br>\r\n<br>\r\nI want to create charts with existing template excel file in my web server.<br>\r\nThis template file has many sheets. almost sheets have charts and empty data tables.<br>\r\nIn my program, the data from DB are plotted data tables and output into the directory in server.<br>\r\nSo, I expect that the chart has been drawn on the sheet comes out.<br>\r\nBut, some charts are lost. this is my problem.<br>\r\n<br>\r\nmy code is this:</p>\r\n<p></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><span style=\"color:blue\">public</span> <span style=\"color:blue\">function</span> write($filename, $savePath, <span style=\"color:blue\">array</span> $data, $fileType = <span style=\"color:#a31515\">'Excel2007'</span>){\n    App::import(<span style=\"color:#a31515\">'Vendor'</span>, <span style=\"color:#a31515\">'PHPExcel/component'</span>);\n\n    $reader = PHPExcel_IOFactory::createReader($fileType);\n    <span style=\"color:blue\">if</span> ($fileType === <span style=\"color:#a31515\">'Excel2007'</span>) $reader-&gt;setIncludeCharts(TRUE);\n    <span style=\"color:blue\">try</span> {\n        <span style=\"color:blue\">if</span> (!is_writable($filename)) {\n            <span style=\"color:blue\">throw</span> <span style=\"color:blue\">new</span> Exception(<span style=\"color:#a31515\">'File does not exits or is not writeable'</span>);\n        }\n        $phpExcel = $reader-&gt;load($filename);\n    } <span style=\"color:blue\">catch</span>(Exception $e) {\n        <span style=\"color:blue\">die</span>($e-&gt;getMessage() . <span style=\"color:#a31515\">&quot; {$filename}&quot;</span> . PHP_EOL);\n    }\n\n<span style=\"color:green\">/**\n * $data is like this...\n * array(\n *  'sheetNameA' =&gt; array(\n *      [0] =&gt; (col, row, value),\n *      ....\n *  ),\n *  'sheetNameB' =&gt; array(\n *      [0] =&gt; (col, row, value),\n *      ....\n *  ),\n * );\n */</span>\n    <span style=\"color:blue\">foreach</span> ($data <span style=\"color:blue\">as</span> $sheetName =&gt; $cell){\n        $phpExcel-&gt;setActiveSheetIndexByName($sheetName);\n        <span style=\"color:blue\">foreach</span>($cell <span style=\"color:blue\">as</span> $d){\n            $phpExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow($d[0], $d[1], $d[2]);\n        }\n    }\n\n    $writer = PHPExcel_IOFactory::createWriter($phpExcel, $fileType);\n    <span style=\"color:blue\">if</span> ($fileType === <span style=\"color:#a31515\">'Excel2007'</span>) $writer-&gt;setIncludeCharts(TRUE);\n    $writer-&gt;save($savePath);\n    $phpExcel-&gt;disconnectWorksheets();\n    <span style=\"color:blue\">unset</span>($phpExcel);\n\n    <span style=\"color:blue\">return</span> $savePath;\n}\n\n</pre>\r\n</div>\r\n<p></p>\r\n<p>my environment :</p>\r\n<p>&nbsp;&nbsp;&nbsp; PHP: ver5.4.5<br>\r\n&nbsp;&nbsp;&nbsp; PHPExcel: 1.7.7<br>\r\n&nbsp;&nbsp;&nbsp; OS: CentOS release 5.5 (Final)<br>\r\n<br>\r\n</p>\r\n<p>I apologize ugliy code and poor my english.<br>\r\nPlease help me.</p>\r\n",
+    "PostedDate": "2012-09-06T21:54:30.083-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "909448",
+    "ThreadId": "394719",
+    "Html": "\r\n<p>I uploaded using template excel file: <a href=\"http://www5.gigafile.nu/v3/?341baf65365d24882f16cbdd6ce6f6f7\">\r\nhttp://www5.gigafile.nu/v3/?341baf65365d24882f16cbdd6ce6f6f7</a></p>\r\n",
+    "PostedDate": "2012-09-06T22:00:24.87-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

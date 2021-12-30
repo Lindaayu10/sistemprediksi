@@ -1,0 +1,39 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hi,\n\nI am creating a excel file containing 3 worksheets and a graph in the first worksheet.\nAfter closing the file, I open it again, complete some tables in the first worksheet and:\n- First: the graph I had before disappeared\n- Second: I have no possibility to design and display a new graph (no error showing up)\n\nI must say that I read the information directly from the same page and edit at the same time. Meaning: I open my file, write the new informations, save them, write some others, save again and then make the work for the graph.\n\nI already used my code to generate graphs on other pages and it was working...\n\nThis is part of my code to add the graph:\n```\n// Reload sheet to work with\n$sheetInit = $objWorksheet->toArray(null, true, true, true);\n\n// Name of each serie on the graph\n$dataseriesLabels = array();\n$position = '';\nfor($i=1; $i<sizeof($sheetInit[1]); $i++) {\n\t$position = 'Worksheet!$'.$alpha[$i].'$2';\n\t$dataseriesLabels[$i-1] = new PHPExcel_Chart_DataSeriesValues('String', $position, NULL, 1);\n}\n\n// x Axis values\n$xAxisTickValues = array();\n\nfor($i=0; $i<sizeof($dataseriesLabels); $i++) {\n\t$xAxisTickValues[$i] = new PHPExcel_Chart_DataSeriesValues('String', 'Worksheet!$A$3:$A$8', NULL, 6);\n}\n\n\n// Series values\n$dataSeriesValues = array();\nfor($i=1; $i<sizeof($sheetInit[1]); $i++) {\n\t$position = 'Worksheet!$'.$alpha[$i].'$3:$'.$alpha[$i].'$8';\n\t$dataSeriesValues[$i-1] = new PHPExcel_Chart_DataSeriesValues('Number', $position, NULL, 6);\n}\n\n\n$series = new PHPExcel_Chart_DataSeries(\n\tPHPExcel_Chart_DataSeries::TYPE_SCATTERCHART,\t// plotType\n\tNULL,\t\t\t\t\t\t\t\t\t\t\t// plotGrouping (Scatter charts don't have any grouping)\n\trange(0, count($dataSeriesValues)-1),\t\t\t// plotOrder\n\t$dataseriesLabels,\t\t\t\t\t\t\t\t// plotLabel\n\t$xAxisTickValues,\t\t\t\t\t\t\t\t// plotCategory\n\t$dataSeriesValues,\t\t\t\t\t\t\t\t// plotValues\n\tNULL,\t\t\t\t\t\t\t\t\t\t\t// smooth line\n\tPHPExcel_Chart_DataSeries::STYLE_LINEMARKER\t\t// plotStyle\n);\n\n//\tSet the series in the plot area\n$plotarea = new PHPExcel_Chart_PlotArea(NULL, array($series));\n//\tSet the chart legend\n$legend = new PHPExcel_Chart_Legend(PHPExcel_Chart_Legend::POSITION_TOPRIGHT, NULL, false);\n\n$title = new PHPExcel_Chart_Title('Test Stacked Line Chart');\n$yAxisLabel = new PHPExcel_Chart_Title('Value ($k)');\n\n\n//\tCreate the chart\n$chart = new PHPExcel_Chart(\n\t'chart1',\t\t// name\n\t$title,\t\t\t// title\n\t$legend,\t\t// legend\n\t$plotarea,\t\t// plotArea\n\ttrue,\t\t\t// plotVisibleOnly\n\t0,\t\t\t\t// displayBlanksAs\n\tNULL,\t\t\t// xAxisLabel\n\t$yAxisLabel\t\t// yAxisLabel\n);\n\nvar_dump($chart);\n\n//\tSet the position where the chart should appear in the worksheet\n$chart->setTopLeftPosition('A7');\n$chart->setBottomRightPosition('P53');\n\n//\tAdd the chart to the worksheet\n$objWorksheet->addChart($chart);\n\n\n$objWriter = PHPExcel_IOFactory::createWriter($objWritePHPExcel, 'Excel5');\n$objWriter->setIncludeCharts(TRUE);\n$objWriter->save(\"init.xls\");\n```\nCan somebody help me?\n\nThank you!",
+    "LastUpdatedDate": "2014-12-05T03:56:20.003-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2014-12-05T03:56:20.003-08:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Updating excel file - Graph displaying fail",
+    "Type": {
+      "Name": "Unassigned",
+      "Id": 5
+    },
+    "VoteCount": 1,
+    "Id": 21598
+  },
+  "FileAttachments": [],
+  "Comments": []
+}

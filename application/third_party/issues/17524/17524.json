@@ -1,0 +1,50 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I apologise for the long title, but it's self-explanatory and will hopefully be helpful for others who are searching for solutions on the same issue. Anyway, here's how to replicate this bug:\n \n1. Install PHPExcel via PEAR, using the download instructions:\n \npear channel-discover pear.pearplex.net\npear install pearplex/PHPExcel\n \n2. Attempt to export a PDF file based on an Excel file created with PHPExcel:\n \n<?php\n$xls=[...]\n$file=PHPExcel_IOFactory::createWriter($xls, 'PDF');\n$file->save(\"foo,pdf\");\n?>\n \nExpected result: foo.pdf or an error\nActual result: Fatal error: Maximum execution time of 30 seconds exceeded in /usr/share/pear/PHPExcel/PHPExcel/Shared/PDF/tcpdf.php on line 4601",
+    "LastUpdatedDate": "2013-02-21T19:02:01.47-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2012-03-03T15:54:21.12-08:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "PDF export upon PEAR install: Maximum execution time exceeded in tcpdf.php on line 4601",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 17524
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "This bug is caused by three separate problems, two of which are related to the path returned by TCPDF::_getfontpath()\r\n\r\n1. TCPDF::_getfontpath() should ensure the path it returns exists; it doesn't;\r\n2. TCPDF::getFontsList() blindly tries to walk the directory returned by TCPDF::_getfontpath(); it times out because that directory doesn't exist in the first place\r\n3. The main reason this problem has ever surfaced is that the PEAR download doesn't include the fonts directory. Obviously, it should.",
+      "PostedDate": "2012-03-03T16:09:57.063-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:02:01.47-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

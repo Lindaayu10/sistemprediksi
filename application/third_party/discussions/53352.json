@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "179536",
+    "ThreadId": "53352",
+    "Html": "<p style=\"margin:0in 0in 0pt\"><span style=\"font-family:calibri\">The live link to my problem is </span><a href=\"http://www.go2boss.com/registrar/07reader.php\"><span style=\"font-family:calibri\">www.go2boss.com/registrar/07reader.php</span></a><span style=\"font-family:calibri\"> .  The page will load the example xlsx file fine, edit it, and save it correctly; however, when I change the file to a file I need opened, the page appears to time out and nothing gets done.  You can click on the link to see what the page prints out.  The code is exactly the same as the example in 07reader.php minus the file name difference.<br>\r\n<br>\r\nThe link to the excel file I am trying to open and edit is: <a href=\"http://www.go2boss.com/registrar/Grad.xlsx\">www.go2boss.com/registrar/Grad.xlsx</a> .  If someone could help me out it would be very much appreciated!  Thank you!<br>\r\n</span></p>\r\n<p style=\"margin:0in 0in 0pt\"><span style=\"font-family:calibri\"><br>\r\nThis is a code snippit from the 07reader.php:<br>\r\n </span></p>\r\n<p style=\"margin:0in 0in 0pt\"><span style=\"font-family:calibri;font-size:8pt\">echo date('H:i:s') . &quot; Load from Excel2007 file&lt;br&gt;&quot;;</span></p>\r\n<p style=\"margin:0in 0in 0pt\"><span style=\"font-family:calibri;font-size:8pt\">$objReader = PHPExcel_IOFactory::createReader('Excel2007');</span></p>\r\n<p style=\"margin:0in 0in 0pt\"><span style=\"font-family:calibri;font-size:8pt\">$objPHPExcel = $objReader-&gt;load(&quot;Grad.xlsx&quot;);</span></p>\r\n<p style=\"margin:0in 0in 0pt\"><span style=\"font-family:calibri;font-size:8pt\">echo date('H:i:s') . &quot; Write to Excel2007 format&lt;br&gt;&quot;;</span></p>\r\n<p style=\"margin:0in 0in 0pt\"><span style=\"font-family:calibri;font-size:8pt\"> </span></p>\r\n<p style=\"margin:0in 0in 0pt\"><span style=\"font-family:calibri;font-size:8pt\">$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('C13', 'Test Subject');</span></p>\r\n<p style=\"margin:0in 0in 0pt\"><span style=\"font-family:calibri;font-size:8pt\"> </span></p>\r\n<p style=\"margin:0in 0in 0pt\"><span style=\"font-family:calibri;font-size:8pt\">$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');</span></p>\r\n<p style=\"margin:0in 0in 0pt\"><span style=\"font-family:calibri;font-size:8pt\">$objWriter-&gt;save(str_replace('07reader.php', $s.'.xlsx', __FILE__));</span></p>\r\n",
+    "PostedDate": "2009-04-15T05:11:38.797-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "179609",
+    "ThreadId": "53352",
+    "Html": "<span style=\"font-family:tahoma;font-size:13px\">I changed the code to:<br>\r\n<span style=\"font-size:10px\">\r\n<p>echo date('H:i:s') . &quot; Load from Excel2007 file&lt;br&gt;&quot;;<br>\r\n$objReader = PHPExcel_IOFactory::createReader('Excel2007');<br>\r\n$objPHPExcel = $objReader-&gt;load(&quot;Grad.xlsx&quot;);</p>\r\n<p>echo date('H:i:s') . &quot; Write to Excel2007 format&lt;br&gt;&quot;;<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('C13', 'Test Subject');</p>\r\n<p>echo date('H:i:s') . &quot; Peak memory usage: &quot; . (memory_get_peak_usage(true) / 1024 / 1024) . &quot; MB\\r&lt;br&gt;&quot;;<br>\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');<br>\r\n$objWriter-&gt;save('test.xlsx');</p>\r\n</span>\r\n<p>The page takes a long time to load, still times out.  Here's what it prints:<br>\r\n<strong>10:38:55 Load from Excel2007 file<br>\r\n10:38:59 Write to Excel2007 format<br>\r\n10:38:59 Peak memory usage: 20 MB <br>\r\n</strong><br>\r\nPlease help!  Thank you, Frank.</p>\r\n</span>\r\n",
+    "PostedDate": "2009-04-15T07:43:17.19-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "179919",
+    "ThreadId": "53352",
+    "Html": "The script never finishes writing the file? Can you try to add one more line at the end?<br>\r\n<br>\r\n<code>echo date('H:i:s') . &quot; Peak memory usage: &quot; . (memory_get_peak_usage(true) / 1024 / 1024) . &quot; MB\\r&lt;br&gt;&quot;;<br>\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');<br>\r\n$objWriter-&gt;save('test.xlsx');<br>\r\n<br>\r\necho 'hello';<br>\r\n</code>\r\n<br>\r\nOtherwise, try this:<br>\r\n<code>\r\n<br>\r\n&lt;?php<br>\r\nerror_reporting(E_ALL);<br>\r\nini_set('display_errors', '1');<br>\r\nini_set('max_execution_time', 1000);<br>\r\nini_set('memory_limit', '512M');<br>\r\n<br>\r\necho date('H:i:s') . &quot; Load from Excel2007 file&lt;br&gt;&quot;;<br>\r\n$objReader = PHPExcel_IOFactory::createReader('Excel2007');<br>\r\n$objPHPExcel = $objReader-&gt;load(&quot;Grad.xlsx&quot;);<br>\r\n<br>\r\necho date('H:i:s') . &quot; Write to Excel2007 format&lt;br&gt;&quot;;<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('C13', 'Test Subject');<br>\r\n<br>\r\necho date('H:i:s') . &quot; Peak memory usage: &quot; . (memory_get_peak_usage(true) / 1024 / 1024) . &quot; MB\\r&lt;br&gt;&quot;;<br>\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');<br>\r\n$objWriter-&gt;save('test.xlsx');<br>\r\n<br>\r\necho 'Finished';<br>\r\n?&gt;<br>\r\n</code>\r\n<br>\r\n",
+    "PostedDate": "2009-04-15T20:31:37.39-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "180109",
+    "ThreadId": "53352",
+    "Html": "<span style=\"font-family:tahoma;font-size:14px\">The second solution seemed to fix the problem.  I'm guessing the key line of code was the:<br>\r\n<br>\r\nini_set('max_execution_time', 1000);<br>\r\n<br>\r\nThe memory still doesn't exceed 20MB, and it never did display an error after the new code was added so I think it was the execution time that was causing the application to time out before it was successful.  I will have to change that in the php.ini settings.  I appreciate all of your help, thank you!<br>\r\n<br>\r\nFrank</span> \r\n",
+    "PostedDate": "2009-04-16T05:26:36.863-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

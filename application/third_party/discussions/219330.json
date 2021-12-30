@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "466936",
+    "ThreadId": "219330",
+    "Html": "I am having a problem with the function getCalculatedValue() on multiple files.  Here is a small example:  I have 2 tables and 2 different excel files, they look like this: <br>\r\n <br>\r\n1.xlsx <br>\r\nA\t-\tB <br>\r\nTotal Tests\t-\t79 <br>\r\nSucceded\t-\t38  <br>\r\nTest Failed\t-\t3  <br>\r\nIncomplete\t-\t38  <br>\r\n\r\n\r\n <br>\r\n <br>\r\n2.xlsx <br>\r\nA\t-\tB <br>\r\nTotal Tests\t-\t23 <br>\r\nTests Succeded\t-\t15 <br>\r\nTest Failed\t-\t2 <br>\r\nIncomplete\t-\t6 <br>\r\n <br>\r\nThe value for &quot;Total Tests&quot; is actually a formula, [=SUM(B2:B4)].\r\n <br>\r\nWhat I want my program to do, is find the combined &quot;Total Tests&quot; value, which should be 79+23=102.  Here is the code i have:\r\n <br>\r\n\r\n<pre>\r\n&lt;?php\r\n/** Error reporting */\r\nerror_reporting(E_ALL);\r\n\r\n/** Include path **/\r\nini_set('include_path', ini_get('include_path').';library/phpexcel/Classes/');\r\n\r\n/** PHPExcel */\r\ninclude 'PHPExcel.php';\r\n\r\n/** PHPExcel_Writer_Excel2007 */\r\ninclude 'PHPExcel/Writer/Excel2007.php';\r\ninclude 'PHPExcel/Reader/Excel2007.php';\r\n\r\n$total = 0;\r\n\r\n$objReader = PHPExcel_IOFactory::createReader('Excel2007');\r\n$objReader-&gt;setReadDataOnly(true);\r\n$objPHPExcel = $objReader-&gt;load(&quot;library/phpexcel/Data/1.xlsx&quot;);\r\necho &quot;Formula: &quot; . $objPHPExcel-&gt;getSheetByName(&quot;Sheet1&quot;)-&gt;getCell(&quot;B1&quot;)-&gt;getValue() . &quot;<br>\\n&quot;;\r\necho &quot;Calculated Value: &quot; . $objPHPExcel-&gt;getSheetByName(&quot;Sheet1&quot;)-&gt;getCell(&quot;B1&quot;)-&gt;getCalculatedValue() . &quot;<br>\\n&quot;;\r\necho &quot;B2: &quot; . $objPHPExcel-&gt;getSheetByName(&quot;Sheet1&quot;)-&gt;getCell(&quot;B2&quot;)-&gt;getValue() . &quot;<br>\\n&quot;;\r\necho &quot;B3: &quot; . $objPHPExcel-&gt;getSheetByName(&quot;Sheet1&quot;)-&gt;getCell(&quot;B3&quot;)-&gt;getValue() . &quot;<br>\\n&quot;;\r\necho &quot;B4: &quot; . $objPHPExcel-&gt;getSheetByName(&quot;Sheet1&quot;)-&gt;getCell(&quot;B4&quot;)-&gt;getValue() . &quot;<br>\\n&quot;;\r\n$total += $objPHPExcel-&gt;getSheetByName(&quot;Sheet1&quot;)-&gt;getCell(&quot;B1&quot;)-&gt;getCalculatedValue() . &quot;<br>\\n&quot;;\r\necho &quot;Total: &quot; . $total . &quot;<br><br>\\n&quot;;\r\n\t\r\n\r\n$objPHPExcel = $objReader-&gt;load(&quot;library/phpexcel/Data/2.xlsx&quot;);\r\necho &quot;Formula: &quot; . $objPHPExcel-&gt;getSheetByName(&quot;Sheet1&quot;)-&gt;getCell(&quot;B1&quot;)-&gt;getValue() . &quot;<br>\\n&quot;;\r\necho &quot;Calculated Value: &quot; . $objPHPExcel-&gt;getSheetByName(&quot;Sheet1&quot;)-&gt;getCell(&quot;B1&quot;)-&gt;getCalculatedValue() . &quot;<br>\\n&quot;;\r\necho &quot;B2: &quot; . $objPHPExcel-&gt;getSheetByName(&quot;Sheet1&quot;)-&gt;getCell(&quot;B2&quot;)-&gt;getValue() . &quot;<br>\\n&quot;;\r\necho &quot;B3: &quot; . $objPHPExcel-&gt;getSheetByName(&quot;Sheet1&quot;)-&gt;getCell(&quot;B3&quot;)-&gt;getValue() . &quot;<br>\\n&quot;;\r\necho &quot;B4: &quot; . $objPHPExcel-&gt;getSheetByName(&quot;Sheet1&quot;)-&gt;getCell(&quot;B4&quot;)-&gt;getValue() . &quot;<br>\\n&quot;;\r\n$total += $objPHPExcel-&gt;getSheetByName(&quot;Sheet1&quot;)-&gt;getCell(&quot;B1&quot;)-&gt;getCalculatedValue();\r\necho &quot;Total: &quot; . $total . &quot;<br><br>\\n&quot;;\r\n?&gt;\r\n</pre>\r\n\r\n\r\nHere is the debug output:\r\n<pre>\r\n\r\nFormula: =SUM(B2:B4)\r\nCalculated Value: 79\r\nB2: 38\r\nB3: 3\r\nB4: 38\r\nTotal: 79\r\n\r\nFormula: =SUM(B2:B4)\r\nCalculated Value: 79\r\nB2: 15\r\nB3: 2\r\nB4: 6\r\nTotal: 158\r\n</pre>\r\n\r\nAs you can see, the result is NOT correct.  For some reason, the 2nd getCalculatedValue loads the numbers B2:B4 from the first excel file that was loaded, thus I get 79 again.  Even if I rename all the variables, to $objReader2 and $objPHPExcel2, the same output occurs.  Any help would be appreciated, thanks! P.S. Sorry, I'm not really sure how to format the code, if a mod could help that would be great too!\r\n\r\nPHP: 5.3\r\nPHPExcel: 1.73c\r\nExcel: 2007",
+    "PostedDate": "2010-07-13T12:01:35.183-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "466957",
+    "ThreadId": "219330",
+    "Html": "EDIT: Actually, this didn't fix the problem at all... The other getCalculatedValues still return a 79 as the value..\r\n\r\n------Old Post\r\nSorry to have wasted everyone's time.  Finally found the destructor method which was the cause of the problem. \r\n<pre>\r\n$objPHPExcel-&gt;disconnectWorksheets();\r\nunset($objPHPExcel);\r\n</pre>\r\n\r\nThanks for awesome library.\r\n",
+    "PostedDate": "2010-07-13T13:16:05.503-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "466962",
+    "ThreadId": "219330",
+    "Html": "<p>To improve performance when Formulae reference other calculated cells, the PHPExcel calculation engine caches the results of all calculations (by default).</p>\r\n<p>e.g</p>\r\n<pre>A10 Formula =SUM(A1:A9) \r\nA11 Formula =A10 / COUNT(A1:A9) </pre>\r\n<p>So if I request the calculated values of A10 and then of A11, the calculation engine will not recalculate the value of A10 a second time, because it has already performed that calculation once and stored the result.</p>\r\n<p>Most of the time, this is the preferred behaviour because it improves performance when repeatedly referencing calculated cells in different formulae.</p>\r\n<p>&nbsp;</p>\r\n<p>This cache is indexed by Worksheet name and cell reference.</p>\r\n<p>&nbsp;</p>\r\n<p>In your case, you have two workbooks, each with the same worksheet names and cells containing formulae, but which result in different values; but the second workbook will reference the same entry in the cache as the first workbook.</p>\r\n<p>What you'll need to do is clear the cache between completing your calculations for the first workbook, and starting the calculations for the second workbook. You can do this using:</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>PHPExcel_Calculation::getInstance()-&gt;clearCalculationCache(); \r\n</pre>\r\n</div>\r\n<p>You would also need to call this if you were getting the calculated value for B1; then modifying the values in B2, B3 or B4; then recalculating B1 to get the new sum.</p>\r\n<p>&nbsp;</p>\r\n<p>Note that the calculation cache also has an expiry, so it is sometimes possible that a previously calculated value wouldn't remain in cache, and might be recalculated subsequently.</p>",
+    "PostedDate": "2010-07-13T13:32:58.787-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "466982",
+    "ThreadId": "219330",
+    "Html": "Thank you Mark, that fixed the problem.  Would it be bad if I disabled the caching?\r\n\r\nPHPExcel_Calculation::getInstance()-&gt;setCalculationCacheEnabled(false)",
+    "PostedDate": "2010-07-13T14:28:48.26-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "466999",
+    "ThreadId": "219330",
+    "Html": "<p>If you disable calculation cacheing, then it will slow down any calculations that repeatedly reference other calculated cells, but have no other adverse effects.</p>",
+    "PostedDate": "2010-07-13T15:13:31.16-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,50 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel",
+      "DisplayName": "PHPExcel"
+    },
+    "ClosedComment": "Fixed in version 1.8.0",
+    "ClosedDate": "2014-03-04T03:18:45.01-08:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "array_shift is very slow. (see http://kb.ucla.edu/articles/performance-of-array_shift-and-array_pop-in-php)\n\nChanging this code in ReferenceHelper::insertNewBefore\n```\n// Loop through cells, bottom-up, and change cell coordinates\nwhile (($cellID = $remove ? array_shift($aCellCollection) : array_pop($aCellCollection))) {\n\n```\n\nto this (below) dramatically improved the speed of removing columns for large (>100,000 cell) workbooks. This reduced the runtime of one script from 3 hours to 45 mins.\n\n```\nif($remove) {\n\t$aCellCollection=array_reverse($aCellCollection);\n}\n\nwhile (($cellID = array_pop($aCellCollection))) {\n\n```",
+    "LastUpdatedDate": "2014-03-04T03:18:45.01-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Medium",
+      "Severity": 100,
+      "Id": 2
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2013-08-08T22:38:31.57-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Fixed"
+    },
+    "Summary": "remove array_shift in ReferenceHelper::insertNewBefore improves column delete speed",
+    "Type": {
+      "Name": "Task",
+      "Id": 2
+    },
+    "VoteCount": 1,
+    "Id": 20055
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "Thanks, I'd recently become aware of how slow array_shift()/unshift() could actually be while testing performance of basic arrays for queues compared with SPLQueue",
+      "PostedDate": "2013-08-18T04:37:08.17-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2014-03-04T03:18:45.01-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

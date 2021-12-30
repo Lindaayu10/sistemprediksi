@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "1062196",
+    "ThreadId": "448468",
+    "Html": "Hi, i hope to be in the right place, i have this php code for export data from sql to xlsx\r<br />\n<br />\n&lt;?php\r<br />\n \r<br />\n<br />\n \r<br />\n $conexion=odbc_connect(&quot;syb_master&quot;,&quot;sa&quot;,&quot;server&quot;);\r<br />\n \r<br />\n $sql = &quot;Here's the query&quot;;\r<br />\n \r<br />\n  $exec = odbc_exec($conexion,$sql);\r<br />\n \r<br />\n $resultado = odbc_result_all($exec);\r<br />\n $registros = odbc_num_rows ($resultado);\r<br />\n require_once '../Classes/PHPExcel.php';\r<br />\n \r<br />\n<br />\n if ($registros &gt; 0) {\r<br />\n <br />\n   $objPHPExcel = new PHPExcel();\r<br />\n  <br />\n   //Informacion del excel\r<br />\n   $objPHPExcel-&gt;<br />\n<pre><code>getProperties()\n    -&gt;setCreator(&quot;ingenieroweb.com.co&quot;)\n    -&gt;setLastModifiedBy(&quot;ingenieroweb.com.co&quot;)\n    -&gt;setTitle(&quot;Exportar excel desde mysql&quot;)\n    -&gt;setSubject(&quot;Ejemplo 1&quot;)\n    -&gt;setDescription(&quot;Documento generado con PHPExcel&quot;)\n    -&gt;setKeywords(&quot;ingenieroweb.com.co  con  phpexcel&quot;)\n    -&gt;setCategory(&quot;ciudades&quot;);    \n</code></pre>\n\n$i = 1;  <br />\n   while ($registro = odbc_fetch_object ($resultado)) {<br />\n<pre><code>  $objPHPExcel-&gt;setActiveSheetIndex(0)\n        -&gt;setCellValue('A'.$i, $registro-&gt;name);\n\n  $i++;\n</code></pre>\n\n}\r<br />\n   $objPHPExcel-&gt;getActiveSheet()-&gt;setTitle('Simple');\r<br />\n}\r<br />\n<br />\nheader('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');\r<br />\nheader('Content-Disposition: attachment;filename=&quot;ejemplo1.xlsx&quot;');\r<br />\nheader('Cache-Control: max-age=0');\r<br />\n<br />\n<br />\n \r<br />\n$objWriter=PHPExcel_IOFactory::createWriter($objPHPExcel,'Excel2007');\r<br />\n$objWriter-&gt;save('php://output');\r<br />\nexit;\r<br />\nodbc_close($conexion);\r<br />\n?&gt;\r<br />\n<br />\nit works exporting at xls but when i export to xls everything seems to be right expect for the fact that when the file is exported excel can't open the file &quot;excel can open the file because the file format or file extension is not valid&quot; i think that it's because the query has a lot of data, but i don't know, i'm new at phpexcel. I hope you can help me.<br />\n",
+    "PostedDate": "2013-06-27T14:55:19.157-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1062951",
+    "ThreadId": "448468",
+    "Html": "When you have that kind of message, the first thing to do is to open the guilty file by using a text editor: the probability is likely to find an error message... Which will tell you what is wrong.<br />\n<pre><code>/* .... */\nexit; // The script stop here.\nodbc_close($conexion); // &lt;=This line will never be executed.</code></pre>\n\n",
+    "PostedDate": "2013-06-30T10:29:05.977-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

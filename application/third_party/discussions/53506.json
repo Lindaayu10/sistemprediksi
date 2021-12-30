@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "180141",
+    "ThreadId": "53506",
+    "Html": "Hi.<br>\r\n<br>\r\nI got PHP error: <em>Uncaught exception 'Exception' with message 'Column string index can not be empty.'</em><br>\r\n<br>\r\nfunction <em><code>getExcelSheetByParams</code>()</em> is called through <em>AJAX</em> request. <em><code>getExcelSheetByParams</code>() </em>itself calls <em><code>FillExcelSheet()</code></em> which generates main content of <code>$objPHPExcel.&nbsp;</code> today's morning these two functions were still combined in one (they were like one function). and it all worked. but necessity of making multiple contents in one sheet appeared. so I decided to pass<code> $statTypeSelectedItems</code> array as parameter and to cycle through it filling <code>$objPHPExcel</code>. I divided setting sheet properties and generating main content. ....and after that an error appeared. It appears on <strong>lines that are bold.</strong> I really don't know how <em>column string index</em> can be connected with setting title and object saving. <br>\r\nI still looking through my code attempting to find some errors. But still without success.<br>\r\n<br>\r\n<br>\r\n<br>\r\nsome code:<br>\r\n<br>\r\n<code>\r\nfunction FillExcelSheet($stat_target, $stat_type, $dateStart, $dateEnd, $fileFormat, &amp;$prevRowsCount, &amp;$objPHPExcel)<br>\r\n{<br>\r\n... // <code>$objPHPExcel</code> is filling there<br>\r\n}<br>\r\n<br>\r\n<br>\r\nfunction getExcelSheetByParams($stat_target, $statTypeSelectedItems, $dateStart, $dateEnd, $fileFormat)<br>\r\n{<br>\r\n...<br>\r\n$objPHPExcel = new PHPExcel();<br>\r\n...<br>\r\n$objPHPExcel-&gt;getProperties()-&gt;setCreator(..);<br>\r\n$objPHPExcel-&gt;getProperties()-&gt;setTitle(..);<br>\r\n...<br>\r\n$objPHPExcel-&gt;setActiveSheetIndex(0);<br>\r\n...<br>\r\n$prevRowsCount = 0;<br>\r\nforeach ($statTypeSelectedItems as $stat_type_id =&gt; $stat_type)<br>\r\n{<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp; $this-&gt;FillExcelSheet($stat_target, $stat_type, $dateStart, $dateEnd, $fileFormat, $prevRowsCount, $objPHPExcel);<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp; // $<code>prevRowsCount</code> is almost a number of rows that have already been inserted.<br>\r\n}<br>\r\n...<br>\r\n<strong>$objPHPExcel-&gt;getActiveSheet()-&gt;setTitle($sheetName);</strong><br>\r\n...<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getPageMargins()-&gt;setLeft&nbsp; (..);<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getPageMargins()-&gt;setTop&nbsp; (..);<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getPageMargins()-&gt;setRight(..);<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getHeaderFooter()-&gt;setOddHeader(..)<br>\r\n// adding LOGO to the header<br>\r\n$objDrawing = new PHPExcel_Worksheet_HeaderFooterDrawing();<br>\r\n$objDrawing-&gt;setName('Logo');<br>\r\n...<br>\r\nob_start();<br>\r\n<strong>$objWriter-&gt;save('php://output'); </strong><br>\r\n$report_content = ob_get_contents();<br>\r\nob_end_clean();<br>\r\n...<br>\r\n}<br>\r\n</code>\r\n<br>\r\n<br>\r\n<br>\r\n<br>\r\nfull message: <br>\r\n<br>\r\nPHP Fatal error:&nbsp; Uncaught exception 'Exception' with\r\nmessage 'Column string index can not be empty.' in <br>\r\n...\\\\lib\\\\PHPExcel\\\\Cell.php:573\\nStack\r\ntrace:\\n#0 <br>\r\n...\\\\lib\\\\PHPExcel\\\\Worksheet.php(399):\r\nPHPExcel_Cell::columnIndexFromString('')\\n#1 <br>\r\n...\\\\lib\\\\PHPExcel\\\\Worksheet.php(371):\r\nPHPExcel_Worksheet-&gt;sortCellCollection()\\n#2\r\n<br>\r\n...\\\\lib\\\\PHPExcel\\\\Writer\\\\Excel2007\\\\StringTable.php(79):\r\nPHPExcel_Worksheet-&gt;getCellCollection()\\n#3\r\n<br>\r\n...\\\\lib\\\\PHPExcel\\\\Writer\\\\Excel2007.php(273):\r\nPHPExcel_Writer_Excel2007_StringTable-&gt;createStringTable(Object(PHPExcel_Worksheet),\r\nArray)\\n#4 <br>\r\n...\\\\lib\\\\common.lib.php(4183):\r\nPHPExcel_Writer_Excel2007-&gt;save('php://output')\\n#5\r\n<br>\r\n...\\\\lib\\\\ajax_chain.php(252):\r\nsite-&gt;getExcelSheetByParams('russia', Array, '07/2008', '02/2009',\r\n'excel2007')\\n#6 {main}\\n&nbsp; thrown in\r\n<br>\r\n...\\\\lib\\\\PHPExcel\\\\Cell.php on line 573,\r\nreferer: ...export_engine.php<br>\r\n",
+    "PostedDate": "2009-04-16T06:18:29.977-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "180154",
+    "ThreadId": "53506",
+    "Html": "I commented out all content of FillExcelSheet().<br>\r\nI will uncomment it part-by-part trying to find something.<br>\r\n",
+    "PostedDate": "2009-04-16T06:49:57.55-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "180158",
+    "ThreadId": "53506",
+    "Html": "well. i found an error in <em>fillExcelSheet()</em><br>\r\n...<br>\r\n<em>setCellValue('B'.($ind+$prevRowsCount), ...)</em><br>\r\n..<br>\r\n<br>\r\nI lost some braces and the string above was looked like <em>setCellValue('B'.$ind+$prevRowsCount, ...)</em><br>\r\nI had to add <em>$prevRowsCount</em> variable. I added it, and put braces everywhere. and I lost some&nbsp; there.<br>\r\n<br>\r\n",
+    "PostedDate": "2009-04-16T07:05:29.387-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

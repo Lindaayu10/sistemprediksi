@@ -1,0 +1,39 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Could this be added to the CSV class, it would not affect current functionality, just add to it.\n \n \n\t/**\n\t * Save PHPExcel to file\n\t *\n\t * @param\tstring\t\t$pFileName\n\t * @param\tarray\t\t$use_states (array of states to save to file)\n\t * @throws\tException\n\t */\n\tpublic function saveAllSheets($pFilename = null,$use_states=array('visible')) {\n\t\t$saveDebugLog = PHPExcel_Calculation::getInstance()->writeDebugLog;\n\t\tPHPExcel_Calculation::getInstance()->writeDebugLog = false;\n\t\t$saveArrayReturnType = PHPExcel_Calculation::getArrayReturnType();\n\t\tPHPExcel_Calculation::setArrayReturnType(PHPExcel_Calculation::RETURN_ARRAY_AS_VALUE);\n \n\t\t// Open file\n\t\t$fileHandle = fopen($pFilename, 'wb+');\n\t\tif ($fileHandle === false) {\n\t\t\tthrow new Exception(\"Could not open file $pFilename for writing.\");\n\t\t}\n \n\t\tif ($this->_useBOM) {\n\t\t\t// Write the UTF-8 BOM code\n\t\t\tfwrite($fileHandle, \"\\xEF\\xBB\\xBF\");\n\t\t}\n \n\t\tforeach ($this->_phpExcel->getWorksheetIterator() as $i=>$worksheet) {\n\t\t\t$wtitle = $worksheet->getTitle();\n\t\t\t//echo $i.' - ' . $wtitle . \"\\n<br/>\";\n\t\t\t$wstate = $worksheet->getSheetState();\n\t\t\t//echo '- ' . $wstate . \"\\n<br/>\";\n\t\t\tif(in_array($wstate,$use_states)){\n\t\t\t\t//echo \" - Processing\\n<br/>\";\n \n\t\t\t\t// get the worksheet.\n\t\t\t\t$sheet = $this->_phpExcel->getSheet($i);\n\t\t\t\t// Convert sheet to array\n\t\t\t\t$cellsArray = $sheet->toArray('', $this->_preCalculateFormulas);\n\t\t\t\t//var_dump($cellsArray);\n \n\t\t\t\t// Write rows to file\n\t\t\t\tforeach ($cellsArray as $row) {\n\t\t\t\t\t$this->_writeLine($fileHandle, $row);\n\t\t\t\t}\n \n\t\t\t} else {\n\t\t\t\t//echo \" - NOT using this sheet\\n<br/>\";\n\t\t\t}\n\t\t}\n\t\t// Close file\n\t\tfclose($fileHandle);\n \n\t\tPHPExcel_Calculation::setArrayReturnType($saveArrayReturnType);\n\t\tPHPExcel_Calculation::getInstance()->writeDebugLog = $saveDebugLog;\n\t}",
+    "LastUpdatedDate": "2013-02-21T19:02:23.54-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2011-05-10T12:37:48.37-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Parsing all sheets into csv (simple save to csv)",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 15853
+  },
+  "FileAttachments": [],
+  "Comments": []
+}

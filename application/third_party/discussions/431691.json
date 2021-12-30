@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "995252",
+    "ThreadId": "431691",
+    "Html": "Hello,\r<br />\n<br />\nI am trying to load specific worksheets from an xlsx workbook that has many formulas and references.\r<br />\n<br />\nBasically, this is the code I'm using.<br />\n<pre><code>$filename = &quot;/home/rob/Desktop/Testing_012213 XLSX.xlsx&quot;;\n$objReader = PHPExcel_IOFactory::createReader(&quot;Excel2007&quot;);\n$objReader-&gt;setLoadSheetsOnly( array(&quot;Mini Transfer&quot;) );\n$objPHPExcel = $objReader-&gt;load($filename);\n\n$objWorksheet = $objPHPExcel-&gt;getSheetByName(&quot;Mini Transfer&quot;);\n\n$cell = $objWorksheet-&gt;getCellByColumnAndRow(3, 23);\n\nif(PHPExcel_Shared_Date::isDateTime($cell)){\n    echo date('m/d/Y', PHPExcel_Shared_Date::ExcelToPHP($cell-&gt;getOldCalculatedValue())) . &quot;\\n&quot;;\n    echo PHPExcel_Style_NumberFormat::toFormattedString($cell-&gt;getOldCalculatedValue(), &quot;MM/DD/YYYY&quot;) . &quot;\\n&quot;;\n}else{\n    echo $cell-&gt;getOldCalculatedValue() . &quot;\\n&quot;;\n}</code></pre>\n\nBy using the getOldCalculatedValue() function, I can determine the referenced values without loading every worksheet.\r<br />\n<br />\nThe problem I'm having is with calculating dates.  When reading in a date of '2/11/2013' from an Excel2007, the above code prints out<br />\n<pre><code>02/06/2013\n02/07/2013</code></pre>\n\nI can try the same thing using an Excel 2003 xls file.  Reading in the date 2/1/2013 gives me a return value of<br />\n<pre><code>08/27/2012\n08/28/2012</code></pre>\n\nReading in all other calculated values apart from dates works great.\r<br />\n<br />\nAm I reading in the date values or formatting them incorrectly?<br />\n",
+    "PostedDate": "2013-02-01T07:50:04.77-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "996813",
+    "ThreadId": "431691",
+    "Html": "I did more tests and found that dates are not pulled from the workbook properly if the excel sheet is saved using 2013 and is a protected sheet.\r<br />\n<br />\nExcel 2007 protected sheet (good)\r<br />\n41296 : 01/22/2013 Should be 1/22/2013\r<br />\n41320 : 02/15/2013 Should be 2/15/2013\r<br />\n<br />\nExcel 2013 protected sheet (bad)\r<br />\n41296 : 01/22/2013 Should be 1/22/2013\r<br />\n<strong>41312 : 02/07/2013 Should be 2/15/2013</strong>  I confirmed here that the date number is '41320', but phpexcel is pulling back '41312'.\r<br />\n<br />\nExcel 2013 unprotected sheet (good)\r<br />\n41306 : 02/01/2013 Should be 2/1/2013\r<br />\n41320 : 02/15/2013 Should be 2/15/2013\r<br />\n<br />\nHas anybody else had problems date types in Excel 2013 protected worksheets?<br />\n",
+    "PostedDate": "2013-02-05T10:13:41.39-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "996918",
+    "ThreadId": "431691",
+    "Html": "I found my problem, nevermind about this question :)\r<br />\n<br />\nThe cell I was using had a formula of 'Today+10 days'. I was expecting to see one date, but the date saved by the other person some days ago was correct.<br />\n",
+    "PostedDate": "2013-02-05T13:40:19.787-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

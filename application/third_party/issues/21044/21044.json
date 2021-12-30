@@ -1,0 +1,45 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hi,\n\nThis is the issue I have. I'm trying to convert an excel file with a table in a pdf file.\n\n__Points to know:__\n\n* The excel file has borders in the name of the table fields.\n* I have tryied with domPDF and tcPDF as well, but they are very slow and I have other kind of problems.\n\n__Problem:__\n\nBefore create the writer I do the next:\n\n$this->excelObject->getActiveSheet()->setShowGridlines(FALSE);\n\nWith this I'm disabling gridlines, but I'm disabling borders of the name fields as well. I want to have borders in cells with name fields.\n\nWith other libraries like domPDF it works OK, only are hiden gridlines, but with mPDF gridlines and borders are hidden. WIth domPDF and tcPDF  I have problems if the xlsx have a lot of rows, I can't use them, but mPDF manage these files perfectly.\n\nThe exported pdf is OK, but borders are missing. This is my only problem.\n\n__Question:__\n\nIs it possible to keep borders and hide gridlines exporting an excel file to pdf using mPDF?\n\nThanks.",
+    "LastUpdatedDate": "2014-06-10T01:26:36.707-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2014-06-02T03:21:40.357-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Borders and Gridlines - Convert xlsx files to pdf using phpExcel and mPDF",
+    "Type": {
+      "Name": "Unassigned",
+      "Id": 5
+    },
+    "VoteCount": 1,
+    "Id": 21044
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "Fixed.\r\n\r\nThe problem was in the library mpdf in file mpdf.php.\r\n\r\nI have been trying with library phpExcel but it sends to pdf library exactly the same html.\r\n\r\nThe HTML, when a cell has borders, is a TD with declaration !important. mPDF Library is not able to match the style, for this reason is using the TABLE element borders (not gridlines not borders).\r\n\r\nBefore the next cases I have added the new code:\r\n\r\nLine 17619 --> case 'TH':\nLine 17620 --> case 'TD':\r\n\r\n    // When a TD comes from phpExcel without gridlines but with borders it style has !important CSS declaration.\n    // mPDF library is not able to match this style. For this reason TD elecments, in $description, don't have values.\n    // Replacing \" !important\" from \"\" in $attr['STYLE'] fix the problem:\n\t// $description = Array\n\t// (\n\t//     .......\n    // [BORDER-BOTTOM] => 3px solid #1f497d\n    // [BORDER-TOP] => 1px solid #000000\n    // [BORDER-LEFT] => 1px solid #000000\n    // [BORDER-RIGHT] => 1px solid #000000\n\t//     .......  \n\t// )\n\t// With this the pdf is created without gridlines but table has borders.\n\tif (isset($attr['STYLE'])) {\n\t\t$attr['STYLE'] = str_replace(\" !important\", \"\", $attr['STYLE']);\n\t}\r\n\r\nRegards.",
+      "PostedDate": "2014-06-10T01:26:36.707-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

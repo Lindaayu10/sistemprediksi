@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "176219",
+    "ThreadId": "52442",
+    "Html": "hi<br>\r\nbecause of my hosting's update, for a problem with permission the xls files weren't generated, but i've OLE_PPS_FileBBLHrH and XLSHEETfdxvXi files.<br>\r\nhow can i generate xls file? \r\n",
+    "PostedDate": "2009-04-06T10:33:19.62-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "177066",
+    "ThreadId": "52442",
+    "Html": "Not sure what the problem is. What kind of error message are you getting?<br>\r\n<br>\r\n",
+    "PostedDate": "2009-04-08T02:47:08.67-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "177136",
+    "ThreadId": "52442",
+    "Html": "i've reported an error in writing files due to a problem with permission of a directory, so' many users has used my script but it didn't work.<br>\r\n<br>\r\nso, i try to explain again hoping to be more clear :)<br>\r\nsorry for my english<br>\r\n<br>\r\nso...<br>\r\n<br>\r\n1) i have a /temp directory ( $objWriter-&gt;setTempDir($pValue = '/var/www/temp');<br>\r\n2) i have a /xls destination directory<br>\r\n<br>\r\ni have writing permission in /temp, but i hadn't in /xls<br>\r\nnow i have correct and all works, but in the past days it didn't (of course....)<br>\r\n<br>\r\notherwise, in /temp dir i have many files that weren't deleted beacuse xls wan't generated<br>\r\n<br>\r\nso i have many files like OLE_PPS_FileBBLHrH and XLSHEETfdxvXi<br>\r\n<br>\r\nmy question is: can i rebuild xls from these kind of files?<br>\r\n<br>\r\nthanks<br>\r\n",
+    "PostedDate": "2009-04-08T05:57:47.477-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "177179",
+    "ThreadId": "52442",
+    "Html": "You can restore the files using the <code>OLE_PPS_File*</code> files. <code>XLSHEET*</code> are not needed.<br>\r\n<br>\r\nThis snippet shows the technique:<br>\r\n<br>\r\n<code>\r\n&lt;?php<br>\r\nrequire_once '/PHPExcel/Classes/PHPExcel/Shared/OLE/OLE_File.php';<br>\r\n<br>\r\n$OLE = new PHPExcel_Shared_OLE_PPS_File(PHPExcel_Shared_OLE::Asc2Ucs('Book'));<br>\r\n$res = $OLE-&gt;init();<br>\r\n<br>\r\n$OLE-&gt;append(file_get_contents('OLE_PPS_FileBBLHrH'));<br>\r\n<br>\r\n$root = new PHPExcel_Shared_OLE_PPS_Root(time(), time(), array($OLE));<br>\r\n$res = $root-&gt;save('restore.xls');<br>\r\n?&gt;<br>\r\n</code>\r\n<br>\r\n",
+    "PostedDate": "2009-04-08T07:18:46.187-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "177515",
+    "ThreadId": "52442",
+    "Html": "it doesn't work. maybe ole_pps file is corrupted?<br>\r\nit generate a blank xls file<br>\r\n",
+    "PostedDate": "2009-04-09T02:21:49.16-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "177657",
+    "ThreadId": "52442",
+    "Html": "Can you try to open one of the OLE_PPS_File* in an ordinary text editor. You should be able to see some of the strings in the Excel file scattered in the file. Otherwise try to send me the file (erik at phpexcel dot net).<br>\r\n<br>\r\n",
+    "PostedDate": "2009-04-09T08:49:27.007-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "181994",
+    "ThreadId": "52442",
+    "Html": "Thanks, I received the sample OLE_PPS_File* files. Indeed the script didn't seem to work.<br>\r\n<br>\r\nWhat appears to be the problem is file corruption as a result of FTP ASCII mode transfer from Linux server to local Windows machine. This converts <code>\\n (0x0A)</code> to <code>\\r\\n (0x0D 0x0A)</code>in those OLE_PPS_File* files which is unfortunate. Can you try to grab those files again using FTP binary transfer mode and retry that script?<br>\r\n<br>\r\n",
+    "PostedDate": "2009-04-21T13:25:52.917-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

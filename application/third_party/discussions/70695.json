@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "240856",
+    "ThreadId": "70695",
+    "Html": "<p><strong>Environment:</strong> Ubuntu Linux, PHP 5.2.6-3ubuntu4.2, PHPEXcel 1.7.0</p>\r\n<p><strong>Test script 1:</strong></p>\r\n<p>&lt;?php<br> require_once('Classes/PHPExcel.php');<br> require_once('Classes/PHPExcel/Writer/Excel5.php');<br> <br> $xls = new PHPExcel();<br> $sheet = $xls-&gt;getActiveSheet();<br> for( $i = 1; $i &lt;= 10; $i++ )<br> {<br> $sheet-&gt;setCellValue( 'A'+ $i, $i * 2 );<br> }<br> $sheet-&gt;setCellValue( 'A11', '=SUM(A1:A10)' );<br> <br> for( $i = 1; $i &lt;= 10; $i++ )<br> {<br> $val = $sheet-&gt;getCell( 'A'+$i )-&gt;getValue();<br> echo 'i='.$i.' val='.$val.&quot;&lt;br&gt;\\n&quot;;<br> }<br> <br> echo $sheet-&gt;getCell( 'A11' )-&gt;getValue().'   ';<br> echo $sheet-&gt;getCell( 'A11' )-&gt;getCalculatedValue().&quot;&lt;br&gt;\\n&quot;;<br> <br> $xlsWriter = new PHPExcel_Writer_Excel5($xls);<br> $xlsWriter-&gt;save(&quot;mytable.xls&quot;);<br> <br> echo 'done';<br> ?&gt;</p>\r\n<p><span style=\"font-family:verdana,arial,helvetica;font-size:x-small\"><strong>Expected results:</strong> 1) 10 lines with text like &quot;i=5 val=10&quot;, then line with text '=SUM(A1:A10) 110'; 2) the same 11 rows in file &quot;mytable.xls&quot;</span></p>\r\n<p><span style=\"font-family:verdana,arial,helvetica;font-size:x-small\"><strong>Practical results:</strong> 10 lines with text like &quot;i=5 val=10&quot; - as expected. Then line with text &quot;=SUM(A1:A10) 0&quot; (than means formula was not calculated at all). And then an error message:</span></p>\r\n<p><span style=\"font-family:verdana,arial,helvetica;font-size:x-small\">Fatal error: Uncaught exception 'Exception' with message 'Column string index can not be empty.' in /......./Classes/PHPExcel/Cell.php:630&quot;</span></p>\r\n<p><span style=\"font-family:verdana,arial,helvetica;font-size:x-small\">related to string with call to $xlsWriter-&gt;save() method</span></p>\r\n<p><strong><span style=\"font-family:verdana,arial,helvetica;font-size:x-small\">Test script 2:</span></strong></p>\r\n<p>&lt;?php<br>require_once('Classes/PHPExcel.php');<br>require_once('Classes/PHPExcel/Writer/Excel5.php');<br><br>$xls = new PHPExcel();<br>$sheet = $xls-&gt;getActiveSheet();<br>for( $i = 1; $i &lt;= 10; $i++ )<br>{<br>&nbsp; $sheet-&gt;getCellByColumnAndRow( 0, $i )-&gt;setValue( $i * 2 );<br>}<br>$sheet-&gt;getCellByColumnAndRow( 0, 11 )-&gt;setValue( '=SUM(A1:A10)' );<br><br>for( $i = 1; $i &lt;= 10; $i++ )<br>{<br>&nbsp; $val1 = $sheet-&gt;getCellByColumnAndRow( 0, $i )-&gt;getValue();<br>&nbsp; echo 'i='.$i.' val1='.$val1.&quot;&lt;br&gt;\\n&quot;;<br>}<br><br>echo $sheet-&gt;getCellByColumnAndRow( 0, 11 )-&gt;getValue().'&nbsp;&nbsp; ';<br>echo $sheet-&gt;getCellByColumnAndRow( 0, 11 )-&gt;getCalculatedValue().&quot;&lt;br&gt;\\n&quot;;<br><br>$xlsWriter = new PHPExcel_Writer_Excel5($xls);<br>$xlsWriter-&gt;save(&quot;mytable1.xls&quot;);<br><br>echo 'done';<br>?&gt;</p>\r\n<p><strong>Note:</strong> calls to getCell() with excel-style cell coordinates (like 'A7') in script 1 were changed into calls to getCellByColumnAndRow with abcolute coordinates in script 2. All the rest is the same in both scripts.</p>\r\n<p><strong>Expected results:</strong> the same as in test script 1</p>\r\n<p><strong>Practical results:</strong> as expected.</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-10-01T04:29:46.333-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "240863",
+    "ThreadId": "70695",
+    "Html": "<p>'A'+ $i</p>\r\n<p>or</p>\r\n<p>'A' . $i</p>\r\n<p>??</p>",
+    "PostedDate": "2009-10-01T04:53:47.857-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "240872",
+    "ThreadId": "70695",
+    "Html": "<p>Original &quot;test script 1&quot; contained &quot; 'A'+$i &quot; expression. After I replaced them to &quot; 'A' . $i &quot; - script work as expected.</p>\r\n<p>So it seems to be not a bug but my brain failure. :-(</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-10-01T05:09:00.683-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "240880",
+    "ThreadId": "70695",
+    "Html": "<p>My brain has failed, but situation is really a bug.</p>\r\n<p>Let's think (for example) $i=3. In this case result of expression 'A'+$i is 3. So when script executes function call '$sheet-&gt;getCell( 'A'+$i)' it will execute function call '$cell-&gt;coordinateFromString(3)' and (as I think ) must throw an exception because parameter does not match coordinate string format.</p>",
+    "PostedDate": "2009-10-01T05:32:53.273-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "241549",
+    "ThreadId": "70695",
+    "Html": "<p><em>&gt;&gt; (as I think ) must throw an exception because parameter does not match coordinate string format.</em></p>\r\n<p>Should now be fixed.</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10721\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10721</a></p>",
+    "PostedDate": "2009-10-02T17:03:14.917-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

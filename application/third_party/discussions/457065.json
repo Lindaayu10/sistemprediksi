@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "1093159",
+    "ThreadId": "457065",
+    "Html": "Hi,\r<br />\n<br />\nI've something like this into my xls file:\r<br />\n(i hope function are right, i've translated them from my french excel):\r<br />\n<br />\n=IF(ISEMPTY('Feuil1'!$A$25:$A$150);&quot;&quot;;SEARCHV('Feuil1'!$A$25:$A$150;'Feuil2)'!$A$1:$E$940;2;FALSE))\r<br />\n<br />\nExcel give me a result, PHPExcel no (an empty string).\r<br />\nIf i test dummy formula (=1+1 or =&quot;toto&quot;), i read the right result.\r<br />\nSo, the problem is formula and not my php code.\r<br />\n<br />\nIs it a PHPExcel bug ? Maybe PHPExcel can calculate my formula ?\r<br />\n<br />\nThanks for help.<br />\n",
+    "PostedDate": "2013-09-16T08:36:29.143-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1093164",
+    "ThreadId": "457065",
+    "Html": "SEARCHV is a bad translation, understand VLOOKUP instead.<br />\n",
+    "PostedDate": "2013-09-16T08:43:41.073-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1093278",
+    "ThreadId": "457065",
+    "Html": "Unless you've set a locale for formulae, then you need to use English language function names and a comma (,) as a function argument separator rather than a semi-colon (;), as described in section 4.6.4 of the developer documentation. You can use non-English language and locale argument separator only if you've set the locale language for the calculation engine as described in section 4.6.5 of the developer documentation.<br />\n",
+    "PostedDate": "2013-09-16T12:14:08.48-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1093406",
+    "ThreadId": "457065",
+    "Html": "I want to read a file written with Excel software. So my script doesn't write formulae.\r<br />\nI understood setlocale was only for writes. Am I wrong ?\r<br />\n<br />\nIn spite of, i tested it:<br />\n<pre><code>$x = new PHPExcel_Reader_Excel5();\nPHPExcel_Settings::setLocale('fr');\n$o = $x-&gt;load($my_id);\n$xls_sheet = $o-&gt;getSheetByName('Feuil1');\n$value = $xls_sheet-&gt;getCell('A1')-&gt;getCalculatedValue('A1');</code></pre>\n\n$value is still empty.\r<br />\n<br />\nAny idea ?\r<br />\n<br />\nThanks<br />\n",
+    "PostedDate": "2013-09-17T00:28:51.353-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1093442",
+    "ThreadId": "457065",
+    "Html": "I have a feeling that I'm misunderstanding your question.\r<br />\n<br />\nInternally in Excel, formulae are held in English (BIFF holds tokenised, but OfficeOpenXML actually holds the English language version of the formula): it's the MS Excel GUI that translates it into function names and separators appropriate to your locale.\r<br />\n<br />\nSo your cell should contain a value of the English language version of that formula if you load it into PHPExcel (which you should be able to see if you use PHPExcel's getValue() to retrieve the value of the cell. That is, it should contain a English language names for functions, and use a comma separator for function arguments.\r<br />\n<br />\nYou only need to use locale settings if you are setting/changing a formula and wish to use French language names for functions and a ; argument separator, that's what I thought you were trying to do.\r<br />\n<br />\nLooking at your formula though, it looks as though it should be an array formula, which isn't supported yet by PHPExcel<br />\n",
+    "PostedDate": "2013-09-17T03:08:55.793-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1093500",
+    "ThreadId": "457065",
+    "Html": "Thanks for the tip in order to get formula with getvalue().<br />\nI've this formula:<br />\n<br />\n=IF(ISBLANK(<strong>'Feuill1'!$A$25:$A$150</strong>),&quot;&quot;,VLOOKUP(<strong>'Feuill1'!$A$25:$A$150</strong>,'Feuill2'!$A$1:$E$940,2,FALSE))<br />\n<br />\n<br />\nThe problem was located into bold part.<br />\nI hope PHPExcel will support it soon :)<br />\n<br />\nThanks for help.<br />\n",
+    "PostedDate": "2013-09-17T05:26:13.263-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

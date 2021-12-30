@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "796686",
+    "ThreadId": "342611",
+    "Html": "\r\n<p>When i compare two cell with same format and value (h:mm, 08:00) then conditional formatting assume they are not equal. One is writen with PHPExcel_Style_NumberFormat::FORMAT_DATE_TIME3 and second is inserted manually. Solution is use function Text, but\r\n in Conditional formatting i can't write it without error.</p>\r\n<p>$objConditional = new PHPExcel_Style_Conditional();<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $objConditional-&gt;setConditionType(PHPExcel_Style_Conditional::CONDITION_EXPRESSION);<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $objConditional-&gt;setOperatorType(PHPExcel_Style_Conditional::OPERATOR_EQUAL);<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $objConditional-&gt;addCondition('TEXT($'.PHPExcel_Cell::stringFromColumnIndex($targetColumn).'$'.($targetRow-1).';&quot;h:mm&quot;)&lt;&gt;TEXT($'.PHPExcel_Cell::stringFromColumnIndex($targetColumn).'$'.$targetRow.';&quot;h:mm&quot;)');<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $objConditional-&gt;getStyle()-&gt;getFill()-&gt;setFillType(PHPExcel_Style_Fill::FILL_SOLID)-&gt;getEndColor()-&gt;setRGB('FF0000');<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $conditionalStyles = $this-&gt;sheet-&gt;getStyle(PHPExcel_Cell::stringFromColumnIndex($sourceColumn).$sourceRow.':'.PHPExcel_Cell::stringFromColumnIndex($sourceColumn).$sourceRow)-&gt;getConditionalStyles();<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; array_push($conditionalStyles, $objConditional);<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $this-&gt;sheet-&gt;getStyle(PHPExcel_Cell::stringFromColumnIndex($sourceColumn).$sourceRow.':'.PHPExcel_Cell::stringFromColumnIndex($sourceColumn).$sourceRow)-&gt;setConditionalStyles($conditionalStyles);<br>\r\n&nbsp;&nbsp; <br>\r\n</p>\r\n",
+    "PostedDate": "2012-02-22T19:08:22.75-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "799203",
+    "ThreadId": "342611",
+    "Html": "<p>It might be better to test against the underlying value rather than the formatted value, and use OPERATOR_BETWEEN with a margin of error to allow for seconds either side</p>",
+    "PostedDate": "2012-02-24T01:48:46.003-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "800903",
+    "ThreadId": "342611",
+    "Html": "<p>I changed script. Conditional formatting is now proper, but not working. I must manually try to change it in excel file, click, don't change anything and after this procedure is working. It seems that excel have some strange problem with accepting him.</p>\r\n<p>$objConditional = new PHPExcel_Style_Conditional();<br />$objConditional-&gt;setConditionType(PHPExcel_Style_Conditional::CONDITION_CONTAINSTEXT);<br /> $objConditional-&gt;setOperatorType(PHPExcel_Style_Conditional::OPERATOR_NOTCONTAINS);<br />$objConditional-&gt;setText('=$'.PHPExcel_Cell::stringFromColumnIndex($targetColumn).'$'.$targetRow);</p>\r\n<p><br /> $objConditional-&gt;getStyle()-&gt;getFill()-&gt;setFillType(PHPExcel_Style_Fill::FILL_SOLID)-&gt;getEndColor()-&gt;setRGB('FF0000');<br /> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br />$conditionalStyles =  $this-&gt;sheet-&gt;getStyle(PHPExcel_Cell::stringFromColumnIndex($sourceColumn).$sourceRow.':'.PHPExcel_Cell::stringFromColumnIndex($sourceColumn).$sourceRow)-&gt;getConditionalStyles();<br /> array_push($conditionalStyles, $objConditional);<br />$this-&gt;sheet-&gt;getStyle(PHPExcel_Cell::stringFromColumnIndex($sourceColumn).$sourceRow.':'.PHPExcel_Cell::stringFromColumnIndex($sourceColumn).$sourceRow)-&gt;setConditionalStyles($conditionalStyles);<br /> &nbsp;&nbsp; <br /></p>",
+    "PostedDate": "2012-02-26T14:39:56.52-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

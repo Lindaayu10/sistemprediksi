@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "517557",
+    "ThreadId": "233602",
+    "Html": "\r\n<p>Hello!</p>\r\n<p>I'm generating a XLS2007-File by reading a template, filling it with data and write it back. This is working well. Now I'm trying to add the conditional-formats of the template to other cells.</p>\r\n<p>Basically I want to have the conditional-format of the template-row (e.g. row 4) on row 5..x.&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>$conditionalStyle = $objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(<span style=\"color:#a31515\">'K4'</span>)-&gt;getConditionalStyles();\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(<span style=\"color:#a31515\">'K5'</span>)-&gt;setConditionalStyles($conditionalStyle);\r\n</pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n<p>The condition is set correctly. So I have the same condition on row 5 as on the (template-) row nr. 4.</p>\r\n<p>Unfortunately my condition looks like:</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>[0] =&gt;PHPExcel_Style_Conditional(\r\n_conditionType =<span style=\"color:#a31515\">'expression'</span>\r\n_operatorType =\r\n_text = NULL\r\n_condition =<span style=\"color:blue\">array</span>(\r\n[0] =&gt; <span style=\"color:#a31515\">'AND(EXACT(K4,Y4),VALUE(LEN(Y4))&gt;0)'</span>\r\n)\r\n</pre>\r\n</div>\r\n<div>\r\n<div id=\"x_x_x_b82b3e7ce840e4136fbfc5db0620d591v\">\r\n<div>As you can see I need to manipulate the _condition to match the row-number. In fact every occurance of &quot;4&quot; needs to be changed to the actual row-number (e.g. 5).</div>\r\n<div></div>\r\n<div>I have somthing like the following in mind:</div>\r\n<div>Read content of _condition -&gt; manipulate it -&gt; write it back to the object</div>\r\n<div></div>\r\n<div>Could this be done? How?</div>\r\n<div></div>\r\n<div>PHPExcel 1.7.4 - PHP 5.2.6-1 on debian</div>\r\n<div></div>\r\n<div>Thanks</div>\r\n<div>Tim</div>\r\n</div>\r\n</div>\r\n",
+    "PostedDate": "2010-11-05T01:26:25.14-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "517940",
+    "ThreadId": "233602",
+    "Html": "\r\n<p>Methods to read and set conditions are described in the API documentation and include:</p>\r\n<ul>\r\n<li>getCondition() </li><li>setCondition() </li><li>getConditions() </li><li>setConditions() </li><li>addCondition() </li></ul>\r\n<p>To change the references within the condition, the updateFormulaReferences() method in the PHPExcel_ReferenceHelper class should allow you to adjust the references within the formula itself.</p>\r\n",
+    "PostedDate": "2010-11-05T14:14:55.97-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "518743",
+    "ThreadId": "233602",
+    "Html": "\r\n<p>Hi Mark,</p>\r\n<p>thank you for your answer. Is there an example available how to use updateFormulaReferences() ?</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks</p>\r\n<p>Tim</p>\r\n",
+    "PostedDate": "2010-11-08T06:09:04.16-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "519910",
+    "ThreadId": "233602",
+    "Html": "\r\n<div style=\"color:black; background-color:white\">\r\n<pre>$helper = PHPExcel_ReferenceHelper::getInstance();\r\n\r\n$conditionFormula = <span style=\"color:#a31515\">'AND(EXACT(K4,Y4),VALUE(LEN(Y4))&gt;0)'</span>;</pre>\r\n<pre>\r\n<span style=\"color:blue\">for</span> ($i = 1; $i &lt;=10; $i&#43;&#43;) {\r\n   $adjustedConditionFormula = $helper-&gt;updateFormulaReferences($conditionFormula,<span style=\"color:#a31515\">'A1'</span>,0,$i);\r\n   <span style=\"color:blue\">echo</span> $adjustedConditionFormula,<span style=\"color:#a31515\">'&lt;br /&gt;'</span>;\r\n}\r\n</pre>\r\n</div>\r\n<p>OR PERHAPS</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><div style=\"color:black; background-color:white\"><pre>$helper = PHPExcel_ReferenceHelper::getInstance();</pre>\r\n<pre> \r\n$conditionFormula = <span style=\"color:#a31515\">'AND(EXACT(K4,Y4),VALUE(LEN(Y4))&gt;0)'</span>;</pre>\r\n<pre> \r\n<span style=\"color:blue\">for</span> ($i = 1; $i &lt;=10; $i&#43;&#43;) { \r\n   $conditionFormula = $helper-&gt;updateFormulaReferences($conditionFormula,<span style=\"color:#a31515\">'A1'</span>,0,1); \r\n   <span style=\"color:blue\">echo</span> $conditionFormula,<span style=\"color:#a31515\">'&lt;br /&gt;'</span>; \r\n}\r\n</pre>\r\n</div>\r\n</pre>\r\n</div>\r\n",
+    "PostedDate": "2010-11-10T04:45:18.647-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,66 @@
+[
+  {
+    "Id": "1049890",
+    "ThreadId": "445267",
+    "Html": "Hi,\r<br />\n<br />\nI wonder if it's possible to add more functions to PHPExcel using some kind of extension or plugin? If the function is standard Excel function, I guess I can just modify the source code, but I'm thinking there may be custom functions implemented in VBA which I want to run under PHPExcel by re-implement it in PHP extension, is this possible?\r<br />\n<br />\nThanks.<br />\n",
+    "PostedDate": "2013-05-28T20:40:44.493-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1049922",
+    "ThreadId": "445267",
+    "Html": "It's perfectly possible to do this by editing the calculation engine code, though it isn't extensible (the rewrite currently in progress for version 2.0 will support extending the function list). Details of all Excel functions are held in a large array in Calculation.php, which includes the class/method names for an implementation of that function.<br />\n",
+    "PostedDate": "2013-05-28T23:35:29.867-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1050014",
+    "ThreadId": "445267",
+    "Html": "Ok, thanks for the clarification. I assume version 2.0 is still in early phase and not an option for new project using PHPExcel?<br />\n",
+    "PostedDate": "2013-05-29T03:26:51.257-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1080463",
+    "ThreadId": "445267",
+    "Html": "<strong>jrao wrote:</strong><br />\n<blockquote>\nHi,<br />\n<br />\nI wonder if it's possible to add more functions to PHPExcel using some kind of extension or plugin? If the function is standard Excel function, I guess I can just modify the source code, but I'm thinking there may be custom functions implemented in VBA which I want to run under PHPExcel by re-implement it in PHP extension, is this possible?<br />\n<br />\nThanks.<br />\n</blockquote>\nactually you can do that but will eat your days :P\r<br />\n<br />\nstep1: go into calculation.php\r<br />\nstep2: find _calculateFormulaValue function and after it get the formula trimmed you can start to implement your code with a regex for start\r<br />\nfor example: <br />\n<pre><code>\nif(strpos($formula,'ABRACADABRA(')!==false)\n{\n            preg_match_all(&quot;/ABRACADABRA(\\((?:[^()]++|(?1))+\\))/&quot;, $formula, $matches);\n            for($v=0;$v&lt;sizeof($matches[0]);$v++)\n            {\n                                here comes your code\n                        }\n}</code></pre>\n\nstep3: be pacient...it takes a lot to understand how the system works...\r<br />\n<br />\nhope that helped<br />\n",
+    "PostedDate": "2013-08-14T04:25:44.423-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1080586",
+    "ThreadId": "445267",
+    "Html": "Ok, thanks for the explanation. I'm looking at 2.0 right now, it seems to be much easier to extend, not sure how stable it is though.<br />\n",
+    "PostedDate": "2013-08-14T08:11:59.883-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1080717",
+    "ThreadId": "445267",
+    "Html": "It's pretty stable but it need some fixes from what I saw...\r<br />\n<br />\nand also works pretty ok with sheets of 2Mb =&gt; the only thing I don't like is that they didn't fixed : \r<br />\nspace+9 -&gt; phpexcel: #VALUE! -&gt; msexcel: 9\r<br />\nrange functions bassed on postions(ie index) - this should go 1st to find what it will return and after that to calculate the elements -&gt; to not get into a cyclic trap...\r<br />\n<br />\nI posted some fixed around here but I'm to lazy to fork them...<br />\n",
+    "PostedDate": "2013-08-14T13:25:02.987-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1080757",
+    "ThreadId": "445267",
+    "Html": "\r\n<div>On 14/08/2013 16:12, jrao wrote:<br>\r\n</div>\r\n<blockquote type=\"cite\">\r\n<p>From: jrao</p>\r\n<div id=\"ThreadNotificationPostBody\">Ok, thanks for the explanation. I'm looking at 2.0 right now, it seems to be much easier to extend, not sure how stable it is though\r\n</div>\r\n</blockquote>\r\n2.0 should not be considered stable. It's still very much ongoing work... part of that is using an object factory to instantiate objects (which will help extensibility, because the internal code will look for extended classes and use those where appropriate);\r\n and the calculation engine is also undergoing complete rewrite (currently working on simplifying the logic for calling Excel functions in a way that allows User-defined functions to be added easily).... neither of these changes are yet in github.<br>\r\n<br>\r\n<br>\r\nTimescale estimates? I'm not making any yet; but suspect that there'll probably be at least one 1.x branch release before version 2 is stable enough for anything more than evaluation<br>\r\n<br>\r\n<pre cols=\"72\">-- \r\nMark Baker</pre>\r\n",
+    "PostedDate": "2013-08-14T15:39:46.74-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1080781",
+    "ThreadId": "445267",
+    "Html": "Ok, thanks for the heads up, Mark, this is very useful information.<br />\n",
+    "PostedDate": "2013-08-14T18:22:53.503-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

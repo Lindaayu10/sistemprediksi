@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "226229",
+    "ThreadId": "66585",
+    "Html": "<div style=\"color:Black;background-color:White\">\r\n<p>Hi Guys,</p>\r\n<p>i have a small problem like you see in the Code i have one thing left from Spreedsheet_Excel_Reader (Pear) ( &quot;$this-&gt;sheets[0][<span style=\"color:#A31515\">'cells'</span>][$row]&quot; ) but i don't know how i can access this in&nbsp; PHPExcel</p>\r\n<p>Can someone please help me?</p>\r\n<p>thanks Max</p>\r\n<br><br>\r\n<pre>                $objReader = PHPExcel_IOFactory::createReader(<span style=\"color:#A31515\">'Excel2007'</span>);\r\n\t\t$objReader-&gt;setReadDataOnly(true);\r\n\r\n\t\t<span style=\"color:Blue\">&nbsp;</span>$objPHPExcel = $objReader-&gt;load(<span style=\"color:#A31515\">&quot;test.xlsx&quot;</span>))\t\t\t\r\n\t        $objWorksheet = $objPHPExcel-&gt;getActiveSheet();\r\n\r\n\t\t$highestRow = $objWorksheet-&gt;getHighestRow(); <span style=\"color:Green\">// e.g. 10</span>\r\n\t\t$highestColumn = $objWorksheet-&gt;getHighestColumn(); <span style=\"color:Green\">// e.g 'F'</span>\r\n\r\n\t\t$highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn); <span style=\"color:Green\">// e.g. 5</span>\r\n\t\t\t\r\n    \t\t<span style=\"color:Blue\">for</span> ($row = 1; $row &lt;= $highestRow; ++$row) {\r\n\r\n<span style=\"color:Green\">                     //.... some code</span>\r\n\r\n                     $objWorksheet-&gt;setCellValueByColumnAndRow($spaltenno, $row, $this-&gt;import_check_modify_fpointer-&gt;$fufuname($objWorksheet-&gt;getCellByColumnAndRow($spaltenno, $row)-&gt;getValue(),$this-&gt;sheets[0][<span style=\"color:#A31515\">'cells'</span>][$row]));\r\n\r\n<span style=\"color:Green\">                     //... some code</span>\r\n\r\n<span style=\"color:Blue\">                     for</span> ($col = 0; $col &lt;= $highestColumnIndex; ++$col) {\r\n                          $this-&gt;import_erg_arr[$i_erg][$ansp] = $objWorksheet-&gt;getCellByColumnAndRow($col, $row)-&gt;getValue();\r\n                     }\r\n                }</pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-08-21T02:34:23.34-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "226238",
+    "ThreadId": "66585",
+    "Html": "<p>Can you take a look at this method in PHPExcel</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$cells = $objWorksheet-&gt;toArray();<br></pre>\r\n</div>\r\n<p>This is close to what corresponds to</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$cells = $this-&gt;sheets[0][<span style=\"color:#A31515\">'cells'</span>];<br></pre>\r\n</div>\r\n<p>in PEAR::Spreedsheet_Excel_Reader (SourceForge PHP-ExcelReader)</p>\r\n<p>Note: There are some differences depending whether there are formulas in the sheet you are reading.</p>",
+    "PostedDate": "2009-08-21T02:51:07.99-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "226250",
+    "ThreadId": "66585",
+    "Html": "<p>thank you <a id=\"ctl00_ctl00_MasterContent_Content_PostRepeater_ctl02_UserNameLink\" href=\"http://www.codeplex.com/site/users/view/koyama\">koyama</a> for this fast and very helpfull answer.</p>\r\n<p>&nbsp;</p>\r\n<p>Bu now i have the problem that i have an excel with&nbsp; 3 row':</p>\r\n<p>String&nbsp;&nbsp;&nbsp;&nbsp; Float&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Date</p>\r\n<p>aaa&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 17.76&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 31.07.2009</p>\r\n<p>&nbsp;</p>\r\n<p>And when i var_dump the array i get these values:</p>\r\n<p>aaa&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 17.76&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 40025</p>\r\n<p>&nbsp;</p>\r\n<p>How can i get the the real Date in the same Format?</p>\r\n<p>&nbsp;</p>\r\n<p>best regards max</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-08-21T03:36:23.67-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "226292",
+    "ThreadId": "66585",
+    "Html": "<p>Excel holds dates as a floating point timestamp, the number of days since basedate (where basedate is 1/1/1900 for the Windows 1900 calendar).</p>\r\n<p>A number of functions are built into PHP to allow for conversion of dates between Excel format and PHP format, and these can be found in Shared/Date.php. Once a date has been converted to a PHP date using a call to PHPExcel_Shared_Date::ExcelToPHP(), you can use the standard PHP date() function to format it as you wish.</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-08-21T05:53:08.22-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "226308",
+    "ThreadId": "66585",
+    "Html": "<p>thanks you are the best.</p>\r\n<p>&nbsp;</p>\r\n<p>Great support!</p>\r\n<p>&nbsp;</p>\r\n<p>You can close this discussion.</p>\r\n<p>&nbsp;</p>\r\n<p>Problem solved :-)</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-08-21T06:20:07.43-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

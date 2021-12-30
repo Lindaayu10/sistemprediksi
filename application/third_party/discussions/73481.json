@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "251139",
+    "ThreadId": "73481",
+    "Html": "<p>Hi Guys,</p>\r\n<p>I'm experiencing really weird error when opening generated file...</p>\r\n<p>I'm fetching data from MySQL DB and inserting them into the worksheet. For given rows I change their background color.</p>\r\n<p>To illustrate it better please look at the code below:</p>\r\n<p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>&lt;?php\r\nsession_start();\r\n<span style=\"color:Blue\">include</span>(<span style=\"color:#A31515\">'db.php'</span>);\r\n\r\n$date = date(<span style=\"color:#A31515\">&quot;Y-m-d&quot;</span>);\r\nheader(<span style=\"color:#A31515\">'Content-Type: application/vnd.openXMLformats-officedocument.spreadsheetml.sheet'</span>);\r\nheader(<span style=\"color:#A31515\">&quot;Content-Disposition: attachment; filename=\\&quot;&quot;</span> . $date . <span style=\"color:#A31515\">&quot;.xlsx\\&quot;&quot;</span>);\r\nheader(<span style=\"color:#A31515\">'Cache-Control: max-age=0'</span>);\r\n\r\n<span style=\"color:Green\">/** Include path **/</span>\r\nini_set(<span style=\"color:#A31515\">'include_path'</span>, ini_get(<span style=\"color:#A31515\">'include_path'</span>).<span style=\"color:#A31515\">';../Classes/'</span>);\r\n<span style=\"color:Blue\">include</span> <span style=\"color:#A31515\">'PHPExcel.php'</span>;\r\n<span style=\"color:Blue\">include</span> <span style=\"color:#A31515\">'PHPExcel/Writer/Excel2007.php'</span>;\r\n<span style=\"color:Blue\">include</span> <span style=\"color:#A31515\">'PHPExcel/Writer/Excel5.php'</span>;\r\n<span style=\"color:Blue\">include</span> <span style=\"color:#A31515\">'PHPExcel/IOFactory.php'</span>;\r\n\r\n$excel = <span style=\"color:Blue\">new</span> PHPExcel();\r\n$excel-&gt;getProperties()-&gt;setTitle($date);\r\n\r\n<span style=\"color:Green\">// Set column names first</span>\r\n$headers = <span style=\"color:Blue\">array</span> (<span style=\"color:#A31515\">&quot;Id&quot;</span>, <span style=\"color:#A31515\">&quot;Comment&quot;</span>);\r\n\r\n<span style=\"color:Blue\">for</span> ($i = 0; $i &lt; count($headers); $i++) {\r\n    $excel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow($i, 1, $headers[$i]);\r\n    $excel-&gt;getActiveSheet()-&gt;getStyleByColumnAndRow($i, 1)-&gt;getFont()-&gt;setBold(true);\r\n    $excel-&gt;getActiveSheet()-&gt;getStyleByColumnAndRow($i, 1)-&gt;getFont()-&gt;setSize(11);\r\n    $excel-&gt;getActiveSheet()-&gt;getStyleByColumnAndRow($i, 1)-&gt;getFont()-&gt;getColor()-&gt;setARGB(PHPExcel_Style_Color::COLOR_RED);\r\n}\r\n\r\n<span style=\"color:Green\">// Set rows</span>\r\n$query = <span style=\"color:#A31515\">&quot;SELECT * FROM cases&quot;</span>;\r\n$result = mysql_query($query) <span style=\"color:Blue\">or</span> <span style=\"color:Blue\">die</span>(mysql_error());\r\n$row = 2;\r\n<span style=\"color:Blue\">while</span> ($<span style=\"color:Blue\">case</span> = mysql_fetch_array($result)) {\r\n    <span style=\"color:Blue\">for</span> ($col = 0; $col &lt; count($<span style=\"color:Blue\">case</span>); $col++) {\r\n        $excel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow($col, $row, $<span style=\"color:Blue\">case</span>[$col]);\r\n        <span style=\"color:Blue\">if</span> ($<span style=\"color:Blue\">case</span>[result] == <span style=\"color:#A31515\">&quot;Won&quot;</span>) {\r\n            $excel-&gt;getActiveSheet()-&gt;getStyleByColumnAndRow($col, $row)-&gt;getFill()-&gt;setFillType(PHPExcel_Style_Fill::FILL_SOLID);\r\n            $excel-&gt;getActiveSheet()-&gt;getStyleByColumnAndRow($col, $row)-&gt;getFill()-&gt;getStartColor()-&gt;setARGB(PHPExcel_Style_Color::COLOR_GREEN);\r\n        }\r\n        <span style=\"color:Blue\">if</span> ($<span style=\"color:Blue\">case</span>[result] == <span style=\"color:#A31515\">&quot;Spec not met&quot;</span>) {\r\n            $excel-&gt;getActiveSheet()-&gt;getStyleByColumnAndRow($col, $row)-&gt;getFill()-&gt;setFillType(PHPExcel_Style_Fill::FILL_SOLID);\r\n            $excel-&gt;getActiveSheet()-&gt;getStyleByColumnAndRow($col, $row)-&gt;getFill()-&gt;getStartColor()-&gt;setARGB(PHPExcel_Style_Color::COLOR_YELLOW);\r\n        }\r\n        <span style=\"color:Blue\">if</span> ($<span style=\"color:Blue\">case</span>[result] == <span style=\"color:#A31515\">&quot;Canceled&quot;</span>) {\r\n            $excel-&gt;getActiveSheet()-&gt;getStyleByColumnAndRow($col, $row)-&gt;getFill()-&gt;setFillType(PHPExcel_Style_Fill::FILL_SOLID);\r\n            $excel-&gt;getActiveSheet()-&gt;getStyleByColumnAndRow($col, $row)-&gt;getFill()-&gt;getStartColor()-&gt;setARGB(<span style=\"color:#A31515\">'FFFF6600'</span>);\r\n        }\r\n        <span style=\"color:Green\">/*if ($case[result] == &quot;Lost&quot;) {\r\n            $excel-&gt;getActiveSheet()-&gt;getStyleByColumnAndRow($col, $row)-&gt;getFill()-&gt;setFillType(PHPExcel_Style_Fill::FILL_SOLID);\r\n            $excel-&gt;getActiveSheet()-&gt;getStyleByColumnAndRow($col, $row)-&gt;getFill()-&gt;getStartColor()-&gt;setARGB('FFFF6600');\r\n        }*/</span>\r\n    }\r\n    $row++;\r\n}\r\n\r\n<span style=\"color:Green\">// Set up autofilter</span>\r\n$excel-&gt;getActiveSheet()-&gt;setAutoFilter(<span style=\"color:#A31515\">'A1:'</span> . $excel-&gt;getActiveSheet()-&gt;getHighestColumn().$excel-&gt;getActiveSheet()-&gt;getHighestRow());\r\n\r\n<span style=\"color:Green\">// Set up autowidth of cells</span>\r\n$highestColumn = $excel-&gt;getActiveSheet()-&gt;getHighestColumn(); <span style=\"color:Green\">//e.g., 'G'</span>\r\n$highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn); <span style=\"color:Green\">//e.g., 6</span>\r\n<span style=\"color:Blue\">for</span>($column = 0; $column &lt; $highestColumnIndex; $column++)\r\n    $excel-&gt;getActiveSheet()-&gt;getColumnDimension(PHPExcel_Cell::stringFromColumnIndex($column))-&gt;setAutoSize(true);\r\n\r\n<span style=\"color:Green\">// Prepare the file</span>\r\n$excel = PHPExcel_IOFactory::createWriter($excel, <span style=\"color:#A31515\">'Excel2007'</span>);\r\n$excel-&gt;save(<span style=\"color:#A31515\">'php://output'</span>);\r\n?&gt;\r\n</pre>\r\n</div>\r\n</p>\r\n<p>Everything is OK if I leave the part</p>\r\n<p>/*if ($case[result] == &quot;Lost&quot;) {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $excel-&gt;getActiveSheet()-&gt;getStyleByColumnAndRow($col, $row)-&gt;getFill()-&gt;setFillType(PHPExcel_Style_Fill::FILL_SOLID);<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $excel-&gt;getActiveSheet()-&gt;getStyleByColumnAndRow($col, $row)-&gt;getFill()-&gt;getStartColor()-&gt;setARGB('FFFF6600');<br>}*/</p>\r\n<p>commented. If I uncomment that part, then I get the error when opening excel file saying something about &quot;invalid file format or file extension&quot;.</p>\r\n<p>I'm trying to fix this for the whole day now but no luck...</p>\r\n<p>Maybe somebody here has an idea?</p>\r\n<p>&nbsp;</p>\r\n<pre><br></pre>",
+    "PostedDate": "2009-10-29T05:53:56.943-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "251678",
+    "ThreadId": "73481",
+    "Html": "<p>Can you upload the defect file here so we can inspect? You may upload the file here:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10749\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10749</a></p>",
+    "PostedDate": "2009-10-30T10:43:48.537-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "252323",
+    "ThreadId": "73481",
+    "Html": "<p>Here it is:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/Project/Download/AttachmentDownload.ashx?ProjectName=PHPExcel&WorkItemId=10749&FileAttachmentId=3487\">Defected excel file</a><a></a></p>",
+    "PostedDate": "2009-11-02T01:45:46.74-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "252365",
+    "ThreadId": "73481",
+    "Html": "<p>If you try to open the file in a text editor, you'll see the problem:</p>\r\n<p>&nbsp;</p>\r\n<pre><strong>Fatal error</strong>:  Maximum execution time of 30 seconds exceeded in <strong>/home/asus-polska/ftp/tender/PHPExcel/Style/Borders.php</strong> on line <strong>536</strong>\r\n</pre>\r\n<p>Solution is to set max_execution_time to something higher</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>ini_set(<span style=\"color:#A31515\">'max_execution_time'</span>, 120);\r\n</pre>\r\n</div>\r\n<p>Or you can try reduce execution time. I don't know how many rows you have, but it is faster to style many cells at a time. You may even try to use column styles which is even faster. E.g.</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$excel-&gt;getActiveSheet()-&gt;getStyle(<span style=\"color:#A31515\">'A'</span>)-&gt;getFill()-&gt;setFillType(PHPExcel_Style_Fill::FILL_SOLID);\r\n$excel-&gt;getActiveSheet()-&gt;getStyle(<span style=\"color:#A31515\">'A'</span>)-&gt;getFill()-&gt;getStartColor()-&gt;setARGB(<span style=\"color:#A31515\">'FFFF6600'</span>);\r\n</pre>\r\n</div>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-11-02T04:21:12.483-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "252370",
+    "ThreadId": "73481",
+    "Html": "<p>Thanks koyama.</p>\r\n<p>I would like to color all rows at once (outside the loop). Is that possible? For example: &quot;Color all rows to yellow where value of cell B = &quot;xxx&quot;&quot;. Can you tell me how to do it please?</p>",
+    "PostedDate": "2009-11-02T04:26:31.103-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "252381",
+    "ThreadId": "73481",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>matino wrote:</strong><br>\r\n<p>Thanks koyama.</p>\r\n<p>I would like to color all rows at once (outside the loop). Is that possible? For example: &quot;Color all rows to yellow where value of cell B = &quot;xxx&quot;&quot;. Can you tell me how to do it please?</p>\r\n</blockquote>\r\n<p>Ugg... I had not noticed that you were coloring cells based on value. In that case your code is fine.</p>\r\n<p>The real solution would be to use a conditional style for the whole worksheet, but right now conditional styles are not working optimally when you have &quot;many&quot; cells so I wouldn't recommend that method at the moment.</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-11-02T05:07:18.46-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "252735",
+    "ThreadId": "73481",
+    "Html": "<pre>ini_set(<span style=\"color:#a31515\">'max_execution_time'</span>, 120) in .htaccess file worked just fine, thank you for this solution :)<br></pre>",
+    "PostedDate": "2009-11-03T03:01:44.073-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

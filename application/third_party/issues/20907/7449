@@ -1,0 +1,55 @@
+<?php
+set_include_path(get_include_path() . PATH_SEPARATOR . 'PHPExcel-1.8.0/Classes/');
+/** PHPExcel */
+require_once 'PHPExcel-1.8.0/Classes/PHPExcel.php';
+/** PHPExcel_IOFactory */
+require_once 'PHPExcel-1.8.0/Classes/PHPExcel/IOFactory.php';
+class MyReadFilter implements PHPExcel_Reader_IReadFilter
+{
+
+        public function readCell($column, $row, $worksheetName = '') {
+//              if ( ($column == 'C') || ($column == 'D') || ($column == 'E')  && ($worksheetName == 'Agents')    ) {
+		$col_range = array('C','D','E');
+		//echo $column." ".$row;
+                if ( in_array($column, $col_range))  {
+                        return true;
+                } else {
+                
+                	return false;
+		}
+                //return true;
+        }
+}
+$nume_fisier = $argv[1];
+try {
+//$cacheMethod = PHPExcel_CachedObjectStorageFactory::cache_to_phpTemp;
+//$cacheSettings = array( 'memoryCacheSize' => '128MB');
+//$cacheEnabled = PHPExcel_Settings::setCacheStorageMethod($cacheMethod, $cacheSettings);
+$inputFileType = PHPExcel_IOFactory::identify($nume_fisier);
+}  catch(PHPExcel_IOFactory_Exception $e) {
+    die('Error loading file: '.$e->getMessage());
+
+}
+echo $inputFileType."\n";
+
+try {
+$filterSet = new MyReadFilter();
+$objReader = PHPExcel_IOFactory::createReader($inputFileType);
+$objReader->setReadFilter( $filterSet );
+$objReader->setReadDataOnly(true);
+$objPHPExcel = $objReader->load($nume_fisier);
+} catch(Exception $e) {
+echo "PARSER ERROR: ".$e->getMessage()."<br />\n";
+
+    echo '<b>Parser Stack :-</b><pre>';
+    print_r($tokens);
+    echo '</pre>';
+    die('Error loading file: '.$e->getMessage());
+
+}
+$objWorksheet = $objPHPExcel->getActiveSheet();
+echo "Rows: ".$objWorksheet->getHighestRow()."\n"; // e.g. 10
+echo "Columns: ".$objWorksheet->getHighestColumn()."\n";
+
+
+?>

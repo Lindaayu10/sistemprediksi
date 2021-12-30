@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "742691",
+    "ThreadId": "295323",
+    "Html": "\r\n<p>Hi all,</p>\r\n<p>I have been looking for a few days and still haven't found an answer to my problem, so now I have registered to ask directly...<br>\r\nI have a formula that is not inserting into the spreadsheet and a couple of others that are causeing it to error..</p>\r\n<p>the formula that is not inserting (the whole line of code) is...</p>\r\n<p>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow($Col, $Row, '=IF(ISNA(VLOOKUP(&quot;HeadShot80&quot;,B2:I26,1,FALSE)=&quot;HeadShot80&quot;),SUM(I2:I26),SUM(I2:I26)-(VLOOKUP(&quot;HeadShot80&quot;,B2:I26,8,FALSE)))');</p>\r\n<p>&nbsp;</p>\r\n<p>The lines and formulas that are erroring are..<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow($Col, $Row, '=IF(J29=&quot;NOT REQUIRED&quot;,0,(C29*D29)&#43;(D29*G29))');</p>\r\n<p>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow($Col, $Row, '=IF((J29&lt;&gt;0),(((C29&#43;G29)/F29)*J29),H29)');</p>\r\n<p>&nbsp;</p>\r\n<p>Hopeing someone can help.&nbsp; I have other formulas that are working fine with the $Col, $Row so I know these are referenced ok.</p>\r\n<p>HeadShot80</p>\r\n",
+    "PostedDate": "2012-02-06T01:30:34.67-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "742698",
+    "ThreadId": "295323",
+    "Html": "<p>what is going wrong? are there errors in php? are there errors in excel? or is the data in the resulting spreadsheet not as you would have liked? what have you tried? Could you be a little more specific?</p>",
+    "PostedDate": "2012-02-06T01:36:32.78-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "742716",
+    "ThreadId": "295323",
+    "Html": "<p>hi borft,</p>\n<p>this line is not inserting the value into excel</p>\n<p>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow($Col, $Row, '=IF(ISNA(VLOOKUP(\"HeadShot80\",B2:I26,1,FALSE)=\"HeadShot80\"),SUM(I2:I26),SUM(I2:I26)-(VLOOKUP(\"HeadShot80\",B2:I26,8,FALSE)))');</p>\n<p>&nbsp;</p>\n<p>These line cause an error</p>\n<p>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow($Col, $Row, '=IF((J29&lt;&gt;0),(((C29+G29)/F29)*J29),H29)');</p>\n<p>Error appears in excel:-</p>\n<p>----------------------------------------------------------</p>\n<table border=\"0\" cellspacing=\"0\" cellpadding=\"0\" width=\"894\" height=\"226\">\n<tbody>\n<tr height=\"20\">\n<td width=\"64\" height=\"20\">&lt;br /&gt;</td>\n</tr>\n<tr height=\"20\">\n<td height=\"20\">&lt;b&gt;Fatal error&lt;/b&gt;: Uncaught exception 'Exception' with message 'GibCalc!H29 -&amp;gt; GibCalc!J29 -&amp;gt; GibCalc!J29 -&amp;gt; Cyclic Reference in Formula' in /home/website/public_html/PHPExcel/Cell.php:288</td>\n</tr>\n<tr height=\"20\">\n<td height=\"20\">Stack trace:</td>\n</tr>\n<tr height=\"20\">\n<td height=\"20\">#0 /home/website/public_html/PHPExcel/Writer/Excel5/Worksheet.php(441): PHPExcel_Cell-&amp;gt;getCalculatedValue()</td>\n</tr>\n<tr height=\"20\">\n<td height=\"20\">#1 /home/website/public_html/PHPExcel/Writer/Excel5.php(171): PHPExcel_Writer_Excel5_Worksheet-&amp;gt;close()</td>\n</tr>\n<tr height=\"20\">\n<td height=\"20\">#2 /home/website/public_html/e107_files/downloads/download_xls2.php(907): PHPExcel_Writer_Excel5-&amp;gt;save('php://output')</td>\n</tr>\n<tr height=\"20\">\n<td height=\"20\">#3 {main}</td>\n</tr>\n<tr height=\"20\">\n<td height=\"20\">&nbsp; thrown in &lt;b&gt;/home/website/public_html/PHPExcel/Cell.php&lt;/b&gt; on line &lt;b&gt;288&lt;/b&gt;&lt;br /&gt;</td>\n</tr>\n</tbody>\n</table>\n<p>-------------------------------------------------------------------------------</p>\n<p>This line seams to have fixed itself (not sure what I did to fix it)<br /> $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow($Col, $Row, '=IF(J29=\"NOT REQUIRED\",0,(C29*D29)+(D29*G29))');</p>",
+    "PostedDate": "2012-02-06T01:49:15.967-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "743759",
+    "ThreadId": "295323",
+    "Html": "<p>Cyclic references are when a formula in one cell references a cell containing another formula which contains a reference to the first cell, though the chain can be across several cells. MS Excel has two different ways of handling such formulas, as does PHPExcel. Try setting cell A1 in a worksheet to formula =B1+1, and cell B1 to a formula =A1+1; then change the calculation options to Enable Iterative Calculation&nbsp;and play with the Maximum Iterations Count (File/Options/Formulas/Calculation options in MS Excel 2010) to see the alternative effect.</p>\n<p>The first (default) option is to throw an exception. This is what's happening here; and mirrors MS Excel's default option of displaying an error message if you try to enter a cyclic formula. To process in this way, use a try/catch block to identify such errors when a formula is calculated (such as when you save a file), and use your own error handling.</p>\n<p>The second option, is to calculate the formula through 1 or more iterations of the cycle. To enable this, use:</p>\n<p>PHPExcel_Calculation::getInstance()-&gt;cyclicFormulaCount=n;</p>\n<p>where n is the number of iterations to allow ( n &gt;= 1)</p>\n<p>&nbsp;</p>",
+    "PostedDate": "2012-02-06T13:14:12.05-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "744667",
+    "ThreadId": "295323",
+    "Html": "<p>Thanks Mark,</p>\r\n<p>I am still relativly new to the php world and newer still to PHPExcel.&nbsp; <br /><br />What I am trying to do is simply convert an existing excel file which has minor updates to a few cells.&nbsp; The above formulas work in the original excel file<em>&nbsp;</em></p>\r\n<p>I am assuming that you are refering to the 2nd formula that is throwing the error.&nbsp;</p>\r\n<p>Is there anything that you can advise regarding the first formula that isn't being inserted into the cell?</p>\r\n<p>In the mean time i'll see if I can find another way of composing the formula to get the result i need.</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks</p>",
+    "PostedDate": "2012-02-07T00:55:13.037-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "744915",
+    "ThreadId": "295323",
+    "Html": "<p>Simply set</p>\r\n<p>PHPExcel_Calculation::getInstance()-&gt;cyclicFormulaCount=1;</p>\r\n<p>before calling the Writer's save() method, and this should fix your problem.</p>",
+    "PostedDate": "2012-02-07T03:54:50.393-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "745103",
+    "ThreadId": "295323",
+    "Html": "<p>Fantastic, Thanks Mark,</p>\r\n<p>&nbsp;</p>\r\n<p>As it turned out i did have a cyclic error (I forgot to incremt the columns enough)<br />I have also refined the formula too.</p>\r\n<p>I must say though Mark, I probably would have taken a lot longer finding the error if it wasn't for that line.</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks all Problem resolved.</p>\r\n<p>HeadShot</p>",
+    "PostedDate": "2012-02-07T06:02:33.607-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

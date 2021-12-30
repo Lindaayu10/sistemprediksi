@@ -1,0 +1,98 @@
+[
+  {
+    "Id": "202442",
+    "ThreadId": "59796",
+    "Html": "<p>Hi, the spreadsheet I am creating has 12 columns and around 11,000 rows, the different time / memory useage is displayed below;</p>\r\n<p>Original Spreadsheet_Writer;</p>\r\n<p>Duration 125s</p>\r\n<p>Memory 35.25MB</p>\r\n<p>PHPExcel Build 27870 (Excel 2007)</p>\r\n<p>Duration 570s</p>\r\n<p>Memory 423MB</p>\r\n<p>PHPExcel Build 27960 (Excel 2007)</p>\r\n<p>Duration 540s</p>\r\n<p>Memory 423.25MB</p>\r\n<p>Will the speed / memory of the class be improved with the next stable build??</p>",
+    "PostedDate": "2009-06-17T05:14:40.473-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "202467",
+    "ThreadId": "59796",
+    "Html": "<p>With large workbooks, there are some techniques for reducing execution time.</p>\r\n<p>For example, set cell values explicitly:</p>\r\n<p style=\"font-family:Courier New\">$cell-&gt;setValueExplicit(...)</p>\r\n<p style=\"font-family:Courier New\">$objWorksheet-&gt;setCellValueExplicit(...)</p>\r\n<p>The above is always faster than using the below methods because PHPExcel can then skip data type detection</p>\r\n<p style=\"font-family:Courier New\">$cell-&gt;setValue(...)</p>\r\n<p style=\"font-family:Courier New\">$objWorksheet-&gt;setCellValue(...)</p>\r\n<p>Whenever you can, always set cell values explicitly. For a start, you may try these kind of optimizations and post back the results.</p>\r\n<p>The PEAR::Spreadsheet_Excel_Writer using disk caching which explains the low memory usage. Next release of PHPExcel (1.7.0) is only a couple of week away and we can not implement caching in such short time. Once caching is implemented, memory usage of PEAR::Spreadsheet_Excel_Writer and PHPExcel will probably be similar.</p>\r\n<p>We are regularly improving speed in PHPExcel. There are a few percent to save here and there, and in the end these may add up to many seconds saved. This is an ongoing process.</p>",
+    "PostedDate": "2009-06-17T06:03:50.32-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "202495",
+    "ThreadId": "59796",
+    "Html": "<p>I changed the SetCellValue to use explicit, this drastically improved the speed, from around 500s to under 60s.</p>\r\n<p>The problem I now have is with formulas, the formulas are appearing as text, if I use the PHPExcel_Cell_DataType::TYPE_FORMULA on a couple of columns it seems to extend the time to around 900s.</p>\r\n<p>Also numbers are appearing as text.</p>",
+    "PostedDate": "2009-06-17T07:30:51.787-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "202509",
+    "ThreadId": "59796",
+    "Html": "<p>You need to use the correct data type for each cell.</p>\r\n<p>Formulas:<br> <span style=\"font-family:Courier New\">&nbsp;&nbsp;&nbsp; PHPExcel_Cell_DataType::TYPE_FORMULA</span><br> <br> Strings:<br> <span style=\"font-family:Courier New\">&nbsp;&nbsp;&nbsp; PHPExcel_Cell_DataType::TYPE_STRING</span><br> <br> Numbers:<br> <span style=\"font-family:Courier New\">&nbsp;&nbsp;&nbsp; PHPExcel_Cell_DataType::TYPE_NUMERIC</span><br> <br> <br>It sounds like most of the execution time has to do with formulas being calcualted.</p>\r\n<p>You may consider disabling precalculation of formulas:<br> <br> <span style=\"font-family:Courier New\">$writer = PHPExcel_IOFactory::createWriter($excel, 'Excel2007');</span><br style=\"font-family:Courier New\"> <span style=\"font-family:Courier New\">$writer-&gt;setPreCalculateFormulas(false);</span><br style=\"font-family:Courier New\"> <span style=\"font-family:Courier New\">$writer-&gt;save('write.xlsx');</span><br style=\"font-family:Courier New\"></p>",
+    "PostedDate": "2009-06-17T08:18:23.107-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "202800",
+    "ThreadId": "59796",
+    "Html": "<p>Thanks for your help so far, I am getting used to this class more and more and is proving very good.</p>\r\n<p>What are the restrictions of the TYPE_NUMERIC?</p>\r\n<p>Does this allow decimal places, if so how many? I ask because most of my columns have numbers in them, when i set them to be TYPE_NUMERIC i get a conversion error when trying to open the file in 2003.</p>",
+    "PostedDate": "2009-06-18T00:37:33.44-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "202879",
+    "ThreadId": "59796",
+    "Html": "<p><em>&gt;&gt; What are the restrictions of the TYPE_NUMERIC? Does this allow<br>&gt;&gt; decimalplaces, if so how many? <br></em></p>\r\n<p>Generally you should use <span style=\"font-family:Arial\">PHPExcel_Cell_DataType::TYPE_NUMERIC <span style=\"font-family:Arial\">whenever you are storing plain</span> numbers. This has really nothing to with decimal places. Number formatting is controlled via the style.</span></p>\r\n<p><em><span style=\"font-family:Arial\">&gt;&gt; </span>when i set them to be TYPE_NUMERIC i get a conversion error when trying to<br> &gt;&gt; open the file in 2003.</em></p>\r\n<p>This should really not be happening. Do you have a samle line of code where you are using <em>TYPE_NUMERIC ?</em></p>",
+    "PostedDate": "2009-06-18T05:23:13.853-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "202920",
+    "ThreadId": "59796",
+    "Html": "<p>Thanks for your help so far, it was a problem with the data i was outputting with a TYPE_NUMERIC, it now works great.</p>\r\n<p>I have a problem with the reader reading cells incorrectly now!</p>\r\n<p>In a cell i have a figure 80.76, when i get the cells value using ;</p>\r\n<p>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $col_data = $sheet-&gt;getCellByColumnAndRow($col, $row)-&gt;getCalculatedValue();</p>\r\n<p>when i echo the value to the screen, the value is 80.76000000000001, in another instance, 77.21 is returned as 77.20999999999999</p>\r\n<p>What could be causing this?</p>\r\n<p><br>EDIT: $col_data = $sheet-&gt;getCellByColumnAndRow($col, $row)-&gt;getValue(); does the same.</p>",
+    "PostedDate": "2009-06-18T06:44:53.6-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "203014",
+    "ThreadId": "59796",
+    "Html": "<p>In part, this is down to the way computers store real (floating point numbers), which can lead to a degree of inaccuracy when using them in mathematical formulae. Typically, errors of this nature are likely to give identical results in both Excel and PHPExcel, although this isn't guaranteed.</p>\r\n<p>In a very few functions (particularly some of the Engineering or Statistical functions&nbsp;like ERF, ERFC or GAMMALN), PHPExcel actually uses more accurate methods of calculation (albeit slightly less efficient)&nbsp;and so can give different results. Typically, I would expect accuracy to 14 significant digits for most functions in the PHPExcel calculation library - I run my own tests to this precision, but these few exceptions will normally only match Excel's more efficient but less accurate calculation to 8 or 9 significant digits.</p>\r\n<p>It could also be down to the degree of accuracy of the equations being used. In PHPExcel, you can modify this to a degree by setting the precision value at the top of Functions.php. PHP's default is (I believe) 14 decimal places. PHPExcel increases this to 16. I believe there's a similar setting in Excel, though I can't recall where it's set: I think it's Tools/Options/Calculation/Precision as displayed.</p>\r\n<p>You can mask the cell to indicate how many decimal places should be displayed.This is controlled by the number format mask. You may well find that if you increase the number of decimals displayed in Excel for these cells, then you will get identical values at the same masking.</p>",
+    "PostedDate": "2009-06-18T10:18:27.647-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "203301",
+    "ThreadId": "59796",
+    "Html": "<p>Hi Mark</p>\r\n<p>I am retrieving these figures from a database then using PHPExcel to write them. The figure in the database is as its displaying in Excel e.g. 77.21.</p>\r\n<p>The problem is when i retrieve the cell value using the PHPExcel reader, this value is float(77.209999999999), this is only happening on a few cells not all in the column.</p>\r\n<p>I could round this to 2 decimal places using PHP but I would rather it return the correct figure as is displayed in Excel.</p>",
+    "PostedDate": "2009-06-19T04:30:28.67-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "204689",
+    "ThreadId": "59796",
+    "Html": "<p>If I understand Mark's answer correctly, you could try to comment out this line in <span style=\"font-family:Courier New\">Classes/PHPExcel/Calculation/Functions.php</span> to reduce precision</p>\r\n<p style=\"font-family:Courier New\">ini_set('precision',16);</p>\r\n<p>I tried it, and it seemed to remove the problem. Would this have any serious side effects, Mark?</p>",
+    "PostedDate": "2009-06-23T15:26:50.913-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "204843",
+    "ThreadId": "59796",
+    "Html": "<p>&gt;&gt; Would this have any serious side effects, Mark?</p>\r\n<p>&quot;precision&quot; doesn't affect the accuracy of the mathematics in any way, simply the <span>number of significant digits displayed in floating point numbers when they are echoed without any additional formatting. It's the display precision rather than the calculation precision, so it should have no adverse effects unless you're using number masks with a large number of decimal places&nbsp;.</span></p>",
+    "PostedDate": "2009-06-24T00:30:58.257-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "205042",
+    "ThreadId": "59796",
+    "Html": "<p>Thanks guys, commenting out ini_set('precision', 16); has worked, the figures are now correct as they are in the spreadsheet.</p>",
+    "PostedDate": "2009-06-24T08:42:31.967-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

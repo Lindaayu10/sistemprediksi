@@ -1,0 +1,74 @@
+[
+  {
+    "Id": "47198",
+    "ThreadId": "14518",
+    "Html": "\r\nHi,<br /><br />I've created a sheet, that's sent as a strem directly to the browser:<br /><br />header(\"Content-type: application/vnd.ms-txt\");<br />header(\"Content-disposition: attachment; filename=mySheet-\" . date(\"d-m-Y\").\".xls\");<br /><br />$objWriter = new PHPExcel<i>Writer</i>Excel5($this-&gt;sheet);<br />$objWriter-&gt;save('php://output');<br /><br />When hosted locally it works perfectly, but when uploaded to my webhots the excel file only contains this line:<br /><br />\"Can't create temporary file\"<br /><br />I have a pretty good idea what the problem is (/tmp isn't writable - but it seems to be though). Anyway to debug this further? Is there anyway to change where this temporary file is saved?<br /><br />Any help is appreciated greatly!<br />",
+    "PostedDate": "2007-08-30T02:58:53.93-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "47203",
+    "ThreadId": "14518",
+    "Html": "\r\nNo idea on that one... Perhaps you can output to file first, and then stream the file to the browser?<br />",
+    "PostedDate": "2007-08-30T04:23:43.293-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "48135",
+    "ThreadId": "14518",
+    "Html": "\r\nHi,<br /><br />Unfortunately that doesn't seem to work either. I get the same error message.<br /><br />I've been looking into it, and it seems to be a problem with the script (/Excel5/Workbook.php and OLE_file.php) assuming that I have permissions to write in files created in /tmp - my webhost doesn't agree in this assumption. Yes; I'm using shared hosting :(<br /><br />In Workbook.php on line 574 the init() handle is called on an instance of PHPExcel<i>Writer</i>Excel5<i>OLE</i>PPS<i>File (OLE</i>file.php) which raises the exception 'Can't create temporary file'. As $this-&gt;<i>tmp</i>dir is set to '' in the constructor, tempnam creates the file in /var/tmp (which is the default tmp dir on my host). The file is actually created, but fopen() fails and the exception is thrown. My webhost claims that this is the normal behavior - i.e. php (and not me) owns files created by php.<br /><br />I know that there is an easy (but not exactly portable) fix for this (setting up a dir outside my webscope and hardcode it in the files mentioned above), but maybe a better solution could be found? Furthermore I not convinced, that my webhost is right, but I'm not that much into file permissions and ownership ;)<br /><br />Any suggestions?<br />",
+    "PostedDate": "2007-09-06T15:42:24.963-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "48199",
+    "ThreadId": "14518",
+    "Html": "\r\nNormally if user \"apache\" (under which PHP usually runs) can create a file in /var/tmp, it should also be able to read there...<br /><br />Tempnam usually tries writing in the current directory first, that is the directory where your script runs. Try chmodding that directory to 0644.<br /><br />Is safe mode enabled on your server?<br />",
+    "PostedDate": "2007-09-07T01:12:39.627-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "48202",
+    "ThreadId": "14518",
+    "Html": "\r\nHmm, <br /><br />I this case the script doesn't just try to open the file for reading it tries to open it for writing i.e. fopen(..., 'w+b'). But it turns out, that it can't even read it (tried fopen(... 'r')).<br /><br />Warning: fopen() <a href=\"http://www.codeplex.com/PHPExcel/Wiki/View.aspx?title=function.fopen\">function.fopen</a>: SAFE MODE Restriction in effect. The script whose uid/gid is 65534/65533 is not allowed to access /var/tmp/OLE<i>PPS</i>Fileh3igk8 owned by uid/gid 80/0 in /usr/home/customers/&lt;domain&gt;/wwwroot/www/analyse/classes/PHPExcel/Writer/Excel5/OLE_File.php on line 89<br /><br />This clearly is a safe mode issue, and since my webhost insists that I do not have permissions to access files in /var/tmp I guess there is no other option than to set up my own tmp dir and hardcode it in OLE_File.php.<br /><br />As for tempnam() I'm not sure that you are right. The docs does states, that if the first argument i empty or not a valid directory it will default to the system tmp dir. It doesn't say anything about writing the file in the working directory.<br />",
+    "PostedDate": "2007-09-07T03:29:20.087-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "48519",
+    "ThreadId": "14518",
+    "Html": "\r\nTrue, true.<br />I think setting a hard-coded path should do the trick then?<br />",
+    "PostedDate": "2007-09-09T23:05:01.737-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "48718",
+    "ThreadId": "14518",
+    "Html": "\r\nSure.<br /><br />My point being. Maybe it would be an idea to add a configuration file in the distribution - most people wouldn't need to edit it, but it would make the user experience a bit more straight forward ;)<br /><br />Thanks for helping me out!<br />",
+    "PostedDate": "2007-09-11T04:05:17.217-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "48856",
+    "ThreadId": "14518",
+    "Html": "\r\nThe OLE library actually is a wrapped PEAR class, we never thought it would be necessary to make that configurable :-)<br /><br />Anyway, a work item is on its way to the next release!<br />",
+    "PostedDate": "2007-09-11T22:33:16.53-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "48857",
+    "ThreadId": "14518",
+    "Html": "\r\nThis discussion has been copied to a work item. Click here to <a href=\"http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=3300\">go to the work item and continue the discussion</a>.<br />",
+    "PostedDate": "2007-09-11T22:35:01.657-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

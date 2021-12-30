@@ -1,0 +1,36 @@
+From 34782b194fca5831be4af5e48ed7139e3966ed84 Mon Sep 17 00:00:00 2001
+From: Igor Tarasov <tarasov.igor@gmail.com>
+Date: Fri, 8 Mar 2013 14:18:43 +0400
+Subject: [PATCH] Optimize PHPExcel_Shared_String::Substring() execution().
+
+As profiling shows, mb_substr outperforms iconv_substr by more than 10 times. So, try using mb_substr if available.
+---
+ PHPExcel/Shared/String.php |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/PHPExcel/Shared/String.php b/PHPExcel/Shared/String.php
+index a62a681..a8ce00e 100644
+--- a/PHPExcel/Shared/String.php
++++ b/PHPExcel/Shared/String.php
+@@ -572,14 +572,14 @@ class PHPExcel_Shared_String
+ 	 */
+ 	public static function Substring($pValue = '', $pStart = 0, $pLength = 0)
+ 	{
+-		if (self::getIsIconvEnabled()) {
+-			return iconv_substr($pValue, $pStart, $pLength, 'UTF-8');
+-		}
+-
+ 		if (self::getIsMbstringEnabled()) {
+ 			return mb_substr($pValue, $pStart, $pLength, 'UTF-8');
+ 		}
+ 
++		if (self::getIsIconvEnabled()) {
++			return iconv_substr($pValue, $pStart, $pLength, 'UTF-8');
++		}
++
+ 		// else substr
+ 		return substr($pValue, $pStart, $pLength);
+ 	}
+-- 
+1.7.10.4
+

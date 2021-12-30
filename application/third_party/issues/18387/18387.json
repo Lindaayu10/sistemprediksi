@@ -1,0 +1,75 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "The problem is in the PEAR Spreadsheet_Excel_Writer package, which you are including in your script.",
+    "ClosedDate": "2012-07-21T08:43:04.557-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "This is being thrown on lines 180 adn 189 of Writer/Workbook.php\nPHPExcel Versions 1.7.6 & 1.7.7\nPHP 5.3.3\n \nThis causes processing to throw an exception and die.  If there is a work around I'd love to hear about it quickly. I am nearing deadline on the current project.",
+    "LastUpdatedDate": "2013-05-16T05:41:31.957-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2012-07-19T14:57:56.657-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Assigning the return value of new by reference is deprecated",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 18387
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "Any particular Writer? or all of them?\r\nCan you provide an actual stack dump, because I've checked those lines in 1.7.7 for both Writer/Excel5/Workbook.php and Writer/Excel2007/Workbook.php and neither contains anything that could throw an exception",
+      "PostedDate": "2012-07-20T12:33:01.687-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Thanks for the reply.  I'm using PHPExcel_Writer_Excel2007.  The issue seems to be the assignment with reference:  =&  on the lines I cited above.  The output file is invalid:  the following message is the whole content of the file (html markup included):\r\n\r\n<div style=\"border:1px solid #990000;padding-left:20px;margin:0 0 10px 0;\">\r\n<h4>A PHP Error was encountered</h4>\r\n<p>Severity: 8192</p>\r\n<p>Message:  Assigning the return value of new by reference is deprecated</p>\r\n<p>Filename: Writer/Workbook.php</p>\r\n<p>Line Number: 180</p>\r\n\r\n</div><div style=\"border:1px solid #990000;padding-left:20px;margin:0 0 10px 0;\">\r\n<h4>A PHP Error was encountered</h4>\r\n<p>Severity: 8192</p>\r\n<p>Message:  Assigning the return value of new by reference is deprecated</p>\r\n<p>Filename: Writer/Workbook.php</p>\r\n<p>Line Number: 189</p>\r\n</div>\r\n\r\nBelow is the entire script used to produce this:\r\n[code]\r\n<?php\r\nif(!empty($sw))\r\n{\r\n    $this->load->library('phpexcel/PHPExcel');\r\n    include_once 'Spreadsheet/Excel/Writer.php';\r\n\r\n    // PHP 5+ requires default timezone to be explicitly defined, in script or in php.ini\r\n    date_default_timezone_set('America/Vancouver');\r\n    setlocale(LC_MONETARY, 'en_US');\r\n\r\n    $objPHPExcel = new PHPExcel();  // object workspace\r\n    $filename = '/tmp/inventory-excel.xlsx';\r\n    if( file_exists($filename)) { unlink($filename); }\r\n\r\n    $sheets = array();\r\n\r\n    $sheets[0] = $objPHPExcel->createSheet();\r\n    $sheets[0]->setTitle('Page 1');\r\n\r\n    $scol = 0;\r\n    $srow = 1;\r\n\r\n    foreach($sw['all']->result() as $row)\r\n    {\r\n        //log_message('info','Row: '.$srow);\r\n\r\n        $sheets[0]->setCellValueByColumnAndRow($scol++,$srow, trim($row->softwarename));\r\n        $sheets[0]->setCellValueByColumnAndRow($scol++,$srow, trim($row->source));\r\n        $sheets[0]->setCellValueByColumnAndRow($scol++,$srow, trim($row->totalcost));\r\n        $sheets[0]->setCellValueByColumnAndRow($scol++,$srow, trim($row->purchasedlics));\r\n        $sheets[0]->setCellValueByColumnAndRow($scol++,$srow, trim($row->usedlics));\r\n        $sheets[0]->setCellValueByColumnAndRow($scol++,$srow, trim($row->inactive));\r\n        $sheets[0]->setCellValueByColumnAndRow($scol++,$srow, trim($row->doclocation));\r\n        $sheets[0]->setCellValueByColumnAndRow($scol++,$srow, trim($row->notes));\r\n\r\n        $scol = 0;\r\n        $srow++;\r\n    }\r\n\r\n    header(\"Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet\");\r\n    header('Content-Disposition: attachment;filename=\"'.$filename.'\"');\r\n    header('Cache-Control: max-age=0');\r\n\r\n    $objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel);\r\n    $objWriter->save($filename);\r\n}\r\n[/code]\r\n\r\n",
+      "PostedDate": "2012-07-20T14:07:18.99-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Are you actually using PHPExcel or the PEAR Spreadsheet_Excel_Writer package?\r\n\r\nIt looks like you're including both libraries, but no file Writer/Workbook.php exists in PHPExcel, I suspect that's part of the Spreadsheet_Excel_Writer (though I haven't checked).\r\n",
+      "PostedDate": "2012-07-21T04:21:27.827-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-07-21T08:43:04.557-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Thank you Mark. I had missed that I still had the other library in code I copied from an older project. \r\n\r\nFinal detail I was missing was in creating the writer instance:  code which actually works is here:\r\n\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel,'Excel2007');\r\n$objWriter->save('php://output');",
+      "PostedDate": "2012-07-23T09:19:10.44-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:01:49.933-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:41:31.957-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

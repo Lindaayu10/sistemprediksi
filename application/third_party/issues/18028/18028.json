@@ -1,0 +1,116 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "Calculation_Engine",
+      "DisplayName": "Calculation_Engine"
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hi,\nI found a problem on latest SVN code (89095).\nI load a XLSX file (test.xslx).\nI read A4 cell with $sheet->getCell('A4')->getCalculatedValue().\nPHPExcel returns #VALUE.\nI did some tests and I noted that:\nA number format empty cell (here D3) used in a formula makes problems.\nIf I put zero in D3 cell, problem is resolved.\nCould you correct it please ?\nThanks.",
+    "LastUpdatedDate": "2013-10-02T08:12:14.953-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2012-05-10T01:40:42.69-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "formula on an empty number cell return #VALUE",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 5,
+    "Id": 18028
+  },
+  "FileAttachments": [
+    {
+      "FileId": 6403,
+      "FileName": "test.xlsx",
+      "DownloadUrl": ".\\6403"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "Hi,\r\nI resolved this problem with this line code before return value in funtion PHPExcel_Cell::getCalculatedValue (Cell.php file):\r\n$this->_value = ($this->_value===''?0:$this->_value);",
+      "PostedDate": "2012-05-21T02:18:29.837-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-05-24T00:43:27.587-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Hello,\r\n\r\nI think we should test if the cell is numeric format so if we get '' value we should return 0 !",
+      "PostedDate": "2012-06-18T01:20:09.49-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Thanks Vivian, your solution works to me also a similar case.",
+      "PostedDate": "2012-07-29T20:23:09.17-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-09-18T04:29:14.52-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Vivian solution works. I think bug impact should be high as this is a serious issue. It might need some more research because but X/0 should still result in a #VALUE.",
+      "PostedDate": "2013-02-18T08:29:49.3-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:01:57.42-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-07-25T12:19:17.98-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I still have this issue in 1.7.9 and continue to use Vivian's solution.\r\n\r\nThis solution is not technically correct however. The cell value should be returned as blank, then interpreted as 0 only if used in a mathematical formula.\r\n\r\nWith Vivian's solution, the following _new_ problem arises with blank cells and text comparisons:\r\n\r\nCell => Value\nA1 => (blank)\nA2 => =IF(A1=\"X\", 10, 20)\r\n\r\nPHPExcel will return the value 20 for A2 before Vivan's fix, but 10 after.\r\n\r\nI have found that I can \"double fudge\" this bug by tweaking Vivian's fudge thusly:\r\n\r\n$this->_value = ($this->_value===''?'0':$this->_value);\r\n\r\n(note single quotes around '0' ... must do some typecasting goodness)",
+      "PostedDate": "2013-07-25T12:28:22.1-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "this isn't a fix at all...best option is to check if a parameter from the parse formula is a empty space and to replace it with 0 if you really need it ",
+      "PostedDate": "2013-08-14T05:41:21.43-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "The final solving will be to add in Caculation.php:\r\n\r\n```\nif($this->_showValue($operand1)==''||$this->_showValue($operand1)=='#VALUE!')\n{\n\t\t$operand1=0;\n}\nif($this->_showValue($operand2)==''||$this->_showValue($operand2)=='#VALUE!')\n{\n\t$operand2=0;\n}\n```\r\n\r\n-> in the _processTokenStack function after: \n```\n$operand1 = self::_dataTestReference($operand1Data);\t\t\t\t\n$operand2 = self::_dataTestReference($operand2Data);\r\n\r\n```\nthis will cover most of cases...\r\n\r\nhappy codding!",
+      "PostedDate": "2013-08-14T07:08:58.753-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-08-22T04:08:55.55-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I tried Kordosoft fix on 1.7.9 but didn't work in my case (maybe because I'm using named ranges on the formulas).\r\n\r\nI'm voting this issue as phpExcel should mimic Excel behaviour.\r\n\r\nRegards,\nDavid",
+      "PostedDate": "2013-08-22T04:31:34.01-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Hi,\r\n\r\nI use the 2013-10-02 version from develop branch of github.\nThis problem is still running.\r\n\r\nMy temporary solution works but a real correction should be better.\r\n\r\nThank's",
+      "PostedDate": "2013-10-02T08:12:14.953-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

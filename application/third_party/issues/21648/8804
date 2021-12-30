@@ -1,0 +1,89 @@
+<?php
+	class ExcelAdapter_PHPExcel_Worksheet extends PHPExcel_Worksheet {
+	
+		public function __construct(PHPExcel $pParent = null, $pTitle = 'Worksheet') {
+			parent::__construct($pParent, $pTitle);
+		}
+
+		/**
+		 * Fill worksheet from values in array
+		 *
+		 * @param	array	$source					Source array
+		 * @param	mixed	$nullValue				Value in source array that stands for blank cell
+		 * @param	string	$startCell				Insert array starting from this cell address as the top left coordinate
+		 * @param	boolean	$strictNullComparison	Apply strict comparison when testing for null values in the array
+		 * @throws Exception
+		 * @return ExcelAdapter_PHPExcel_Worksheet
+		 */
+		public function fromArray($source = null, $nullValue = null, $startCell = 'A1', $strictNullComparison = false) {
+			if (is_array($source)) {
+				//	Convert a 1-D array to 2-D (for ease of looping)
+				if (!is_array(end($source))) {
+					$source = array($source);
+				}
+
+				// start coordinate
+				list ($startColumn, $startRow) = PHPExcel_Cell::coordinateFromString($startCell);
+
+				if($strictNullComparison) {
+					$this->strictFromArray($source, $nullValue, $startColumn, $startRow);
+				} else {
+					$this->looseFromArray($source, $nullValue, $startColumn, $startRow);
+				}
+			} else {
+				throw new Exception("Parameter \$source should be an array.");
+			}
+
+			return $this;
+		}
+
+		/**
+		 * Set cell values based on non-strict null comparison
+		 * 
+		 * @param array $source
+		 * @param mixed $nullValue
+		 * @param string $startColumn
+		 * @param string $startRow
+		 * @return void
+		 * @author dnate
+		 */
+		private function looseFromArray($source, $nullValue, $startColumn, $startRow) {
+			// Loop through $source
+			foreach ($source as $rowData) {
+				$currentColumn = $startColumn;
+				foreach($rowData as $cellValue) {
+					if ($cellValue != $nullValue) {
+						// Set cell value
+						$this->getCell($currentColumn . $startRow)->setValue($cellValue);
+					}
+					++$currentColumn;
+				}
+				++$startRow;
+			}
+		}
+
+		/**
+		 * Set cell values based on strict null comparison
+		 * 
+		 * @param array $source
+		 * @param mixed $nullValue
+		 * @param string $startColumn
+		 * @param string $startRow
+		 * @return void
+		 * @author dnate
+		 */
+		private function strictFromArray($source, $nullValue, $startColumn, $startRow) {
+			// Loop through $source
+			foreach ($source as $rowData) {
+				$currentColumn = $startColumn;
+				foreach($rowData as $cellValue) {
+					if ($cellValue !== $nullValue) {
+						// Set cell value
+						$this->getCell($currentColumn . $startRow)->setValue($cellValue);
+					}
+					++$currentColumn;
+				}
+				++$startRow;
+			}
+		}
+	}

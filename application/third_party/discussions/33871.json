@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "112252",
+    "ThreadId": "33871",
+    "Html": "OS : Ubuntu Linux 8.04<br>\r\nPHPExcel : 1.6.2<br>\r\n<br>\r\nI have switched from a windows apache server to a linux apache server (Wamp to Lamp). After several permission problem that i have met and resolved to configure my personal network website, I have encounter a problem with PHPExcel. When my webserver was under windows, the resulting Excel file appeared with all the calculated value cells. when I wrote something like :\r\n<p style=\"padding:0.04cm 0.14cm;background:rgb(243, 243, 243) none repeat scroll 0% 0%;margin-bottom:0cm\" align=left lang=en-GB>\r\n<span style=\"color:rgb(51, 51, 51)\"><span style=\"font-family:Courier New,monospace\"><span style=\"font-size:9pt\">$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('B8',\r\n'=SUM(B2:C5)');</span></span></span></p>\r\n<br>\r\nI didn't need to specify anything else to see the cell with the calculated value, even without the 'getCalculatedValue' function. <br>\r\nNow even if I am on a windows terminal and require the Excel file from the Linux webserver, the resulting excel file appear properly but the cells with formula are not calculated.<br>\r\nI have so added <br>\r\n<p style=\"padding:0.04cm 0.14cm;background:rgb(243, 243, 243) none repeat scroll 0% 0%;margin-bottom:0cm\" align=left lang=en-GB>\r\n<span style=\"color:rgb(51, 51, 51)\"><span style=\"font-family:Courier New,monospace\"><span style=\"font-size:9pt\">$objPHPExcel-&gt;getActiveSheet()-&gt;getCell('B8')-&gt;getCalculatedValue();</span></span></span></p>\r\n<br>\r\nBut nothing has changed... The formula still written and is not caculated<br>\r\n<br>\r\nDoes anyone has an idea to help ?<br>\r\n<br>\r\n",
+    "PostedDate": "2008-08-20T00:50:12.067-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "112509",
+    "ThreadId": "33871",
+    "Html": "Hmm... I have no idea what the problem is. What component are you using? Excel2007 writer or Excel5 writer?<br>\r\n",
+    "PostedDate": "2008-08-20T17:26:42.29-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "112572",
+    "ThreadId": "33871",
+    "Html": "Thanx to reply koyama,<br>\r\n<br>\r\nI am using Excel5 writer since I don't have Office 2007. Do you think the <span style=\"color:rgb(51, 51, 51)\"><span style=\"font-family:Courier New,monospace\"><span style=\"font-size:9pt\">getCalculatedValue </span></span></span>doesn't work with Excel5 writer ? When my webserver was under Windows, i didn't even need to specify the cell calculation. When the Excel was built, it simply deliver it with everything calculated and not visible formulas.<br>\r\n<br>\r\nSince I still have the Windows webserver, i have tried to get the Excel report from the Linux computer (I have so 2 identical web portals : one under Linux and another one under Windows, the current official one). Everything works : The cells are calculated without even specify it in the code.<br>\r\n<br>\r\n<br>\r\nSo to resume : <br>\r\n- From Windows Webserver ------&gt; to Linux or Windows workstation, cell calculation works well even if i don't mention the <span style=\"color:rgb(51, 51, 51)\"><span style=\"font-family:Courier New,monospace\"><span style=\"font-size:9pt\">getCalculatedValue </span></span></span>function<br>\r\n- From Linux Webserver ------&gt; to Windows or Linux workstation, cell calculation doesn't work even if I specify the <span style=\"color:rgb(51, 51, 51)\"><span style=\"font-family:Courier New,monospace\"><span style=\"font-size:9pt\">getCalculatedValue </span></span></span>function<br>\r\n<br>\r\nI really need some lights on it, because that's the real important feature that I use with PHPExcel...<span style=\"color:rgb(51, 51, 51)\"><span style=\"font-family:Courier New,monospace\"><span style=\"font-size:9pt\"></span></span></span>\r\n",
+    "PostedDate": "2008-08-21T01:21:05.677-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "112587",
+    "ThreadId": "33871",
+    "Html": "I don't think I have the answer to this, but others may know. Is it a complex spreadsheet?<br>\r\n<br>\r\nCan you please try out as simple test with the absolute simplest example and see if there are still no formulas showing up?<br>\r\n<br>\r\n<code>\r\n$PHPExcel = new PHPExcel();<br>\r\n$ws = $PHPExcel-&gt;getActiveSheet();<br>\r\n$ws-&gt;getCell('A1')-&gt;setValue('1');<br>\r\n$ws-&gt;getCell('A2')-&gt;setValue('2');<br>\r\n$ws-&gt;getCell('A3')-&gt;setValue('=SUM(A1:A2)');<br>\r\n$writer = new PHPExcel_Writer_Excel5($PHPExcel);<br>\r\n$writer-&gt;save('test.xls');<br>\r\n</code>\r\n<br>\r\nPlease try with both the Excel2007 writer and the Excel5 writer and see if there are differences.<br>\r\n<br>\r\nThis thread could be related to this recent one:<br>\r\n<a href=\"http://www.codeplex.com/PHPExcel/Thread/View.aspx?ThreadId=33773\">http://www.codeplex.com/PHPExcel/Thread/View.aspx?ThreadId=33773</a><br>\r\n<br>\r\n",
+    "PostedDate": "2008-08-21T02:17:13.05-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "113001",
+    "ThreadId": "33871",
+    "Html": "Your simple example works !... Why didn't I try the simple way before the hard way?...<br>\r\nI realized that the calculation is not the problem. The real problem seems to come from a style line for the cell that follow the calculation.<br>\r\n<p style=\"padding:0.04cm 0.14cm;background:rgb(243, 243, 243) none repeat scroll 0% 0%;margin-bottom:0cm\" align=left lang=en-GB><span style=\"color:rgb(51, 51, 51)\"><span style=\"font-family:Courier New,monospace\"><span style=\"font-size:9pt\">$ws-&gt;getStyle('</span></span></span><span style=\"color:rgb(51, 51, 51)\"><span style=\"font-family:Courier New,monospace\"><span style=\"font-size:9pt\">B8</span></span></span><span style=\"color:rgb(51, 51, 51)\"><span style=\"font-family:Courier New,monospace\"><span style=\"font-size:9pt\">')-&gt;getNumberFormat()-&gt;setFormatCode('[h]&quot;h&quot;mm&quot;m&quot;');</span></span></span></p>\r\n<br>\r\nMy purpose is to apply a style such like &quot;328h32m&quot; on the cell. Again from windows server, no problem; only from Linux server. I have tried to remove this format line and then the calculation works... Funny to notice the interpretations differences between Linux and Windows. Without the format line, windows workstations doesn't interpret the result at all (&quot;16.6666...&quot;); Linux (or OpenOffice) decides that it's a time cell and display &quot;328:32:26&quot;. Again that's not what I want but the last one is better, even if he decides without me...<br>\r\n<br>\r\nSo my problem still, because i really need to be sure of the format cell whatever the OS. I really don't see what could be the problem with the setFormatCode function... Did I make any mistake ?<br>\r\n<br>\r\nThanx koyama for your help.<br>\r\nAnd... if somebody else has something interesting to tell, please help me ! :)<br>\r\n<br>\r\n<br>\r\n",
+    "PostedDate": "2008-08-22T09:50:59.337-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,10 @@
+[
+  {
+    "Id": "1243385",
+    "ThreadId": "544781",
+    "Html": "Hi. I'm using PHPExcel 1.8.0, 2014-03-02; PHP5.4.6 on LinuxMint14<br />\n<br />\nWhile creating Excel Sheet and adding text in cells some of them are automatically changed into date.<br />\n<br />\nFirst I was using such code :<br />\n<pre><code>$objPHPExcel = new PHPExcel();\n    \n$objPHPExcel-&gt;setActiveSheetIndex(0);\n    \n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('A1', 'v11');\n//this value is set harcoded, in actual script this value is from parsed html;</code></pre>\n\nAfter writing xls to file and opening in LibreOffice the value is altered to date '01.05.2011';<br />\n<br />\nSo I've altered my script to:<br />\n<pre><code>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueExplicit('A1', 'v11', PHPExcel_Cell_DataType::TYPE_STRING2);</code></pre>\n\nIt didn't helped at all.<br />\n<br />\nSo I've added such line just before  'setCellValueExplicit();<br />\n<pre><code>$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('A')-&gt;getNumberFormat()-&gt;setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_TEXT);</code></pre>\n\nThis helped .. not much. All I got was value : 40664<br />\n<br />\nI've no idea what to do NEXT.<br />\n<br />\nEDIT:<br />\nI've foud solution myself.<br />\nI was writing excel as 'Excel2007'<br />\n<pre><code>$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');</code></pre>\n\nwhen I changed this to 'Excel5'<br />\n<pre><code>$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');</code></pre>\n\neverything was OK.<br />\n",
+    "PostedDate": "2014-05-09T00:23:24.683-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

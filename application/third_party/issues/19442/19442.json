@@ -1,0 +1,80 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Fatal error: Class 'PHPExcel_Calculation' not found in /Library/WebServer/Documents/Classes/PHPExcel/Worksheet.php on line 1101",
+    "LastUpdatedDate": "2013-04-27T06:59:49.69-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2013-03-06T13:19:43.417-08:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Class not found",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 2,
+    "Id": 19442
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "Helpful issue. Some code might help.... this is not an issue with the library, otherwise it wouldn't work for anybody anywhere in the world.\r\n\r\nCheck you don't have any autoloaders that conflict with PHPExcel's autoloader.\n",
+      "PostedDate": "2013-03-06T15:27:39.71-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Here is the offending code:\r\n\r\n\n\t// Named range?\n\t\tif ((!preg_match('/^'.PHPExcel_Calculation::CALCULATION_REGEXP_CELLREF.'$/i', $pCoordinate, $matches)) &&\n\t\t\t(preg_match('/^'.PHPExcel_Calculation::CALCULATION_REGEXP_NAMEDRANGE.'$/i', $pCoordinate, $matches))) {\n\t\t\t$namedRange = PHPExcel_NamedRange::resolveRange($pCoordinate, $this);\n\t\t\tif ($namedRange !== NULL) {\n\t\t\t\t$pCoordinate = $namedRange->getRange();\n\t\t\t\treturn $namedRange->getWorksheet()->getCell($pCoordinate);\n\t\t\t}\r\n\r\nwhat autoloaders should I be searching for?  I don't even see any for PHPExcel",
+      "PostedDate": "2013-03-06T16:38:27.107-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "How are you including PHPExcel in your own script? That's the code I'm interested in, rather than the code in the Worksheet class. Somehow, you're managing to include the worksheet class without using the PHPExcel autoloader. \r\n\r\nThe Autoloader is in the Classes/PHPExcel/ folder, in a file called PHPExcel_Autoloader.php",
+      "PostedDate": "2013-03-06T23:37:32.577-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "The scripts are the demos that came with PHPExcel.  I haven't written any yet.",
+      "PostedDate": "2013-03-07T06:16:15.01-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "If I manually launch the auto start, I get the same error in line 2286",
+      "PostedDate": "2013-03-07T06:49:38.713-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-04-27T06:38:40.423-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Also happening here, 1.7.8 my code:\r\n\r\n```\nerror_reporting(E_ALL);\n\t\t\tini_set('display_errors', TRUE);\n\t\t\tini_set('display_startup_errors', TRUE);\n\t\t\tdate_default_timezone_set('Europe/London');\n\t\t\t\n\t\t\tif (PHP_SAPI == 'cli')\n\t\t\t\tdie('This example should only be run from a Web Browser');\n\t\t\t\n\t\t\t/** Include PHPExcel */\n\t\t\trequire_once 'vendors/phpexcel/PHPExcel.php';\n\t\t\t\n\t\t\t$objPHPexcel = PHPExcel_IOFactory::load('/var/www/vhosts/website/httpdocs/app/vendors/phpexcel/templates/template_full.xlsx');\r\n\r\n\t\t\t$objWorksheet = $objPHPexcel->getActiveSheet();\n\t\t\t$objWorksheet->getCell('A3')->setValue('1');\n\t\t\t$objWorksheet->getCell('A4')->setValue('1000');\n\t\t\t$objWorksheet->getCell('A5')->setValue('El Col');\n\t\t\t$objWorksheet->getCell('A6')->setValue('The Col');\n\t\t\t\n\t\t\t$objWriter = PHPExcel_IOFactory::createWriter($objPHPexcel, 'Excel5');\n\t\t\t$objWriter->save('php://output');\n\t\t\texit;\n```",
+      "PostedDate": "2013-04-27T06:40:16.213-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "The current download is missing files, that's why this is popping up. I originally downloaded \"PHPExcel 1.7.8 - with Documentation in MS Office format\" and had this issue everywhere I lookedeven with the \"as is\" examples and tests.\r\n\r\nI got the download \"PHPExcel 1.7.8 - Code only (no Documentation)\" and it works just fine. The PHPExcel folder is missing files in other downloads.",
+      "PostedDate": "2013-04-27T06:59:49.69-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

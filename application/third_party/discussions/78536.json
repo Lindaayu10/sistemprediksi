@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "268829",
+    "ThreadId": "78536",
+    "Html": "<p>Hi! I'm from Russia, sorry for my English. I use PHExcel to read .xml file and i have problrm: &quot;The filename /site/web/www/obr.xls is not recognised as an OLE file&quot;? What does it mean? How can i solve this problem?</p>\r\n<p>My script: http://6550101.ru/managers/test.php</p>\r\n<p>My code:</p>\r\n<p>&nbsp;</p>\r\n<p>/** PHPExcel */<br>include 'Classes/PHPExcel.php';<br><br>include 'Classes/PHPExcel/Reader/Excel5.php';<br><br><br>$excelFileName =&quot;/site/web/www/obr.xls&quot;;<br>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br>$objReader = new PHPExcel_Reader_Excel5();<br>$objPHPExcel = $objReader-&gt;load($excelFileName);<br><br><br>$objWorksheet = $objPHPExcel-&gt;getActiveSheet();<br><br>echo '&lt;table&gt;' . &quot;\\n&quot;;<br>foreach ($objWorksheet-&gt;getRowIterator() as $row) {<br>&nbsp; echo '&lt;tr&gt;' . &quot;\\n&quot;;<br>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br>&nbsp; $cellIterator = $row-&gt;getCellIterator();<br>&nbsp; $cellIterator-&gt;setIterateOnlyExistingCells(false); // This loops all cells,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // even if it is not set.<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // By default, only cells<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // that are set will be<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // iterated.<br>&nbsp; foreach ($cellIterator as $cell) {<br>&nbsp;&nbsp;&nbsp; echo '&lt;td&gt;' . $cell-&gt;getValue() . '&lt;/td&gt;' . &quot;\\n&quot;;<br>&nbsp; }<br>&nbsp; <br>&nbsp; echo '&lt;/tr&gt;' . &quot;\\n&quot;;<br>}<br>echo '&lt;/table&gt;' . &quot;\\n&quot;;</p>",
+    "PostedDate": "2009-12-18T01:25:41.253-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "279404",
+    "ThreadId": "78536",
+    "Html": "<p>This is strange. To find the problem, can you change this in PHPExcel\\Shared\\OLERead.php</p>\r\n<p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>     <span style=\"color:Green\">// Check OLE identifier</span>\r\n        <span style=\"color:Blue\">if</span> (substr($this-&gt;data, 0, 8) != self::IDENTIFIER_OLE) {\r\n            <span style=\"color:Blue\">throw</span> <span style=\"color:Blue\">new</span> Exception(<span style=\"color:#A31515\">'The filename '</span> . $sFileName . <span style=\"color:#A31515\">' is not recognised as an OLE file'</span>);\r\n        }\r\n</pre>\r\n</div>\r\n</p>\r\n<p>to this</p>\r\n<p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>     <span style=\"color:Green\">// Check OLE identifier</span>\r\n        var_dump(base64_encode(substr($this-&gt;data, 0, 8)));\r\n        <span style=\"color:Blue\">if</span> (substr($this-&gt;data, 0, 8) != self::IDENTIFIER_OLE) {\r\n            <span style=\"color:Blue\">throw</span> <span style=\"color:Blue\">new</span> Exception(<span style=\"color:#A31515\">'The filename '</span> . $sFileName . <span style=\"color:#A31515\">' is not recognised as an OLE file'</span>);\r\n        }\r\n</pre>\r\n</div>\r\n</p>\r\n<p>Post back the result you see on the screen.</p>",
+    "PostedDate": "2010-01-20T03:45:40.16-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "418990",
+    "ThreadId": "78536",
+    "Html": "<p>Hi, I have the same problem and I see on the screen</p>\r\n<p>&nbsp;</p>\r\n<p>string(12) &quot;PGh0bWw+DQo=&quot;</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks Mary</p>",
+    "PostedDate": "2010-03-16T20:06:41.133-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "419007",
+    "ThreadId": "78536",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>marymarymary wrote:</strong><br>\r\n<p>Hi, I have the same problem and I see on the screen</p>\r\n<p>&nbsp;</p>\r\n<p>string(12) &quot;PGh0bWw+DQo=&quot;</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks Mary</p>\r\n</blockquote>\r\n<p>Although the file may have an xls extension, this is a &quot;fake&quot; Excel file. If you open the file in a text editor you will notice that it is actually an HTML file.</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-03-16T21:40:19.18-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "419515",
+    "ThreadId": "78536",
+    "Html": "<p>Thank you very much Kayoma.</p>\r\n<p>That was exactly the problem.</p>\r\n<p>Mary</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-03-17T19:52:28.277-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1014464",
+    "ThreadId": "78536",
+    "Html": "Hi.. I am having some problem regarding PHP Excel reader. Though the file has .xls extension ...I am getting \r<br />\n<br />\nFatal error: Uncaught exception 'PHPExcel_Reader_Exception' with message 'The filename C:\\xampp\\tmp\\phpB8EC.tmp is not recognised as an OLE file'<br />\n",
+    "PostedDate": "2013-03-13T03:10:23.757-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1015086",
+    "ThreadId": "78536",
+    "Html": "@Reeti\r<br />\n<br />\nThe message is pretty self-explanatory, PHPExcel doesn't believe that the file you'e trying to load is a correctly formatted Excel BIFF file. All that has an .xls extension isn't necessarily a real .xls file; a lot of script writers who don't know any better will write a csv file or html markup but give it an extension of .xls instead, and believe that it automagically creates a real Excel BIFF file from that.\r<br />\n<br />\nEither use the IO Factory's identify() method to see what PHPExcel thinks the file is, and then use the reader that it recommends; or open the file ina text editor and see what it contains for yourself. If it's obviously a csv, or html instead of a BIFF binary filestream, then you'll need to select the appropriate Reader.<br />\n",
+    "PostedDate": "2013-03-14T02:28:30.687-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

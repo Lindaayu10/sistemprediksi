@@ -1,0 +1,80 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel",
+      "DisplayName": "PHPExcel"
+    },
+    "ClosedComment": "Production Release 1.7.7",
+    "ClosedDate": "2012-05-20T03:08:48.44-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hello all,\n \nI'm trying to apply a default style in my worksheet. Everything works except borders... Here is my code :\n \n$worksheet->getDefaultStyle()->applyFromArray(array(\n\t\t\t'font'=>array(\n\t\t\t\t'name'      =>  'Arial',\n\t\t\t\t'size'      =>  12,\n\t\t\t\t'bold'      => true\n\t\t\t),\n\t\t\t'borders' => array(\n\t\t\t\t'allborders' => array('style' => PHPExcel_Style_Border::BORDER_DASHDOT, 'color' => array('rgb' => PHPExcel_Style_Color::COLOR_RED))\n\t\t\t),\n\t\t\t'alignment' => array(\n\t\t\t\t'wrap' => true\n\t\t\t)\n\t\t));\n \nI get bold Arial fonts, wrapped texts, but all the borders remain thin and gray... Any idea of what I'm doing wrong ?\n \n \nThis appears to be an error in PHPExcel: the code identifies left, right, top, bottom, diagonal and diagonaldirection when applying from array, but not allborders (even though this is documented behaviour).",
+    "LastUpdatedDate": "2013-10-22T03:27:29.39-07:00",
+    "PlannedForRelease": "PHPExcel 1.7.7 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2010-12-06T04:19:53.983-08:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Style : applyFromArray() for 'allborders' not working",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 14831
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "Even with top, bottom, left and right, I can't get borders... \r\nI used my debugger, and I found that in PHPExcel/Style.php, line 521, something is strange with this code :\r\n$this->getBorders()->applyFromArray($pStyles['borders']);\r\n\r\nInto the method applyFromArray, the _argb variable of each border is correctly filled. When the PHPExcel_Style_Borders object is returned (so we are back to Style.php), browsing the content of _borders shows that each border has a _color variable, but it only contains a CLASSNAME, no color code.\r\n",
+      "PostedDate": "2010-12-06T05:35:05.903-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-05-20T03:01:50.42-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-05-20T03:08:48.44-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:02:40.233-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:41:49.907-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Hi,\r\n\r\nI have this issue with 1.7.9:\r\n\r\n```\nrequire_once(\"../../include/classes/PHPExcel/PHPExcel.php\");\n$xlsx = new PHPExcel();\r\n\r\n\t$xlsx->getDefaultStyle()->applyFromArray(array(\n\t\t\"borders\" => array(\n\t\t\t\"allborders\" => array(\n\t\t\t\t\"style\" => PHPExcel_Style_Border::BORDER_THIN\n\t\t\t)\n\t\t)\n\t));\n$xlsx->getActiveSheet()->setCellValueByColumnAndRow($cur_col+5, $cur_row, $art);\n$xlsx_writer = PHPExcel_IOFactory::createWriter($xlsx, 'Excel2007');\n$xlsx_writer->save('php://output');\r\n\r\n```\r\n\r\nThis does not set any border on the output file :(\r\n\r\nWhats wrong?",
+      "PostedDate": "2013-10-21T05:16:03.253-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "```\n$xlsx->getActiveSheet()->getStyle('A1:'.$xlsx->getActiveSheet()->getHighestColumn().$xlsx->getActiveSheet()->getHighestRow())->applyFromArray(array(\n\t\t\"borders\" => array(\n\t\t\t\"allborders\" => array(\n\t\t\t\t\"style\" => PHPExcel_Style_Border::BORDER_THIN\n\t\t\t)\n\t\t)\n\t));\n```\r\n\r\ndid it for me :)",
+      "PostedDate": "2013-10-22T01:22:11.99-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Trying to set allborders for a default throws a very specific exception that basicall says that it isn't possible. This isn't a bug so much as a deliberate restriction",
+      "PostedDate": "2013-10-22T03:27:29.39-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

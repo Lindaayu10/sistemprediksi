@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "1144570",
+    "ThreadId": "479283",
+    "Html": "Hi,\r<br />\n<br />\nI developed a little export function by using PHPExcel latest version 1.7.9\r<br />\nThe problem is that I have in a column data values which looks like<br />\n<pre><code>12345.10\n12345.B</code></pre>\n\nGenerating the excel table by using <strong>SetCellValue()</strong> setting the format by <strong>getStyle()-&gt;getNumberFormat()-&gt;setFormatCode()</strong> seems to convert the dot to comma, so when opening the generated file the values are looking that way:<br />\n<pre><code>12345,10\n12345,B</code></pre>\n\nI used the IOFactory.php and also the PHPExcel_Writer_Excel2007 to instanciate a writer for excel 2007 but open it in Excel 2010.\r<br />\nIs this a possible failure or do I something wrong?\r<br />\n<br />\nMany thanks<br />\n",
+    "PostedDate": "2014-01-02T04:02:30.103-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1144637",
+    "ThreadId": "479283",
+    "Html": "I do not think either PHPExcel making change, but rather Excel.\r<br />\nTwo solutions: set these values to a string (by setCellValueExplicit) or achieve with Excel a whole little workbook with a value formatted as you want, watch how Excel notes this format internally (*) and use it with PHPExcel.\r<br />\n(*) You can determine this by directly reading the xml files or by loading this file with PHPExcel and then asking to show you the format of the affected cell.<br />\n",
+    "PostedDate": "2014-01-02T07:34:32.18-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1144651",
+    "ThreadId": "479283",
+    "Html": "Hi, thank you for answers.<br />\nBy reading the file generated with excel the Format type of the cell is &quot;General&quot;. When I'm Using setCellValueExplicit(), I can't choose TYPE_GENERAL, so it has to be TYPE_STRING I think?!<br />\nBut by using this variation, I get an error by opening the PHPExcel file in Excel 2010, that sounds like that:<br />\n<pre><code>Excel detected unreadable content in 'file.xlsx' ...</code></pre>\n\nand I can't open my file.<br />\n<br />\nBy using<br />\n<pre><code>getStyle(...)-&gt;getNumberFormat()-&gt;setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_GENERAL);</code></pre>\n\ninstead, I have the same problem as described above.<br />\n<br />\nWhat can I do wrong?!<br />\nFor better understanding, here the method, which fills the cells by using setCellValueExplicit:<br />\n<pre><code>    public function process() {\n\n        $iRowNumber = 2;\n        $oSheet = $this-&gt;Excel-&gt;getActiveSheet();\n\n        while ( $dsRow = $this-&gt;Statement-&gt;fetch(PDO::FETCH_OBJ) ) {\n\n            $oSheet-&gt;setCellValueExplicit( 'A' . $iRowNumber, $dsRow-&gt;Reference, PHPExcel_Cell_DataType::TYPE_STRING);\n            $oSheet-&gt;setCellValueExplicit( 'B' . $iRowNumber, $dsRow-&gt;EAN, PHPExcel_Cell_DataType::TYPE_NUMERIC);\n            $oSheet-&gt;setCellValueExplicit( 'C' . $iRowNumber, $dsRow-&gt;Condition, PHPExcel_Cell_DataType::TYPE_STRING);\n            $oSheet-&gt;setCellValueExplicit( 'D' . $iRowNumber, $dsRow-&gt;Stock, PHPExcel_Cell_DataType::TYPE_STRING);\n            $oSheet-&gt;setCellValueExplicit( 'E' . $iRowNumber, $dsRow-&gt;Price, PHPExcel_Cell_DataType::TYPE_STRING);\n            $oSheet-&gt;setCellValueExplicit( 'F' . $iRowNumber, $dsRow-&gt;DeliveryCode, PHPExcel_Cell_DataType::TYPE_STRING);\n            $oSheet-&gt;setCellValueExplicit( 'G' . $iRowNumber, $dsRow-&gt;OfferDescription, PHPExcel_Cell_DataType::TYPE_STRING);\n\n            $iRowNumber++;\n\n        }\n        \n        return $this;\n\n    }</code></pre>\n\nbtw.: same problem by using TYPE_INLINE...<br />\nI don't see any mistake.<br />\n",
+    "PostedDate": "2014-01-02T08:07:01.743-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1144887",
+    "ThreadId": "479283",
+    "Html": "Ok, it seems to be an error occuring by opening in excel.\r<br />\nThe generated file has dots in it and when opening in excel 2007 or 2010, the dots are converted to comma.\r<br />\n<br />\nNo big help for my problem, but thats not an error by the PHPExcel class.\r<br />\n<br />\nSorry and thanks.<br />\n",
+    "PostedDate": "2014-01-02T22:25:18.743-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1144918",
+    "ThreadId": "479283",
+    "Html": "Check your MS Excel locale settings, it's likely that they're set to a &quot;continental&quot; format, which shows a decimal point as a comma<br />\n",
+    "PostedDate": "2014-01-03T00:09:25.19-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1144970",
+    "ThreadId": "479283",
+    "Html": "'General' is a number format, the String type is a data type.\r<br />\nHowever, for setCellValueExplicit, it is the String type to which I thought. And in this case, there is no number to indicate format: Excel displays the data literally. And it will not seek to change the display depending on the locale.\r<br />\nI don't see any obvious errors in your code, but something bothers Excel. It 'just' to identify the problem. For example by generating the problem field with a number reduced records to analyze the result.\r<br />\n<br />\nIf Excel transforms the points by commas (by applying a locale, probably), is that the relevant values are considered as numbers by Excel, which certainly generates errors if this is not the case.<br />\n",
+    "PostedDate": "2014-01-03T03:59:38.3-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

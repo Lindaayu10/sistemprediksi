@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "519794",
+    "ThreadId": "234120",
+    "Html": "\r\n<p>I am writing a date to a cell in an excel sheet. The excel datevalue is correctly written to the cell. But the format of the cell is displayed as General and not as date. Given below is the piece of my code that does this:&nbsp;&nbsp;&nbsp;</p>\r\n<p>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('C3', PHPExcel_Shared_Date::PHPToExcel(strtotime($curdate_export)));<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('C3')-&gt;getNumberFormat()-&gt;setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_DATE_DDMMYYYY);&nbsp;&nbsp;&nbsp;</p>\r\n<p>$curdate_export has a value of 2010-11-10. When I open the excel sheet, the cell has a value of 40492 (which is the excel value of 2010-11-10) and the format is general. When I change the format to dd-mm-yyyy in excel, the date is displayed correctly.</p>\r\n<p>How do I make my code to change the format of the cell to date? Is there anything wrong with my setFormatCode? I am using this code within my drupal application. Would that be the cause? But all other data is getting written correcly onto the excel sheet.</p>\r\n<p>I am using PHPExcel 1.7.4 and creating a xls document. Please help me in finding out where I am going wrong.</p>\r\n<p>Thanks in advance</p>\r\n",
+    "PostedDate": "2010-11-09T22:52:47.273-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "520804",
+    "ThreadId": "234120",
+    "Html": "\r\n<p>I can't see where you're going wrong. I've tried running your code myself, cut-and-pasting the lines from your message, and it's generating the xls file correctly. What version of Excel are you using to open the file?</p>\r\n",
+    "PostedDate": "2010-11-11T14:42:12.873-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "525170",
+    "ThreadId": "234120",
+    "Html": "\r\n<p>Thanks MarkBaker. I figured out finally why it was not setting the format of&nbsp; the cell. I was defining the style of the cell after setting the format to date. Now I moved the style before the statement which sets the format and it is working perfectly\r\n fine.</p>\r\n<p>Now I have got an other issue. I am trying to set the following formula for a cell.</p>\r\n<p>=COUNTIFS(E:E,&quot;Major&quot;,D:D,&quot;Documentation&quot;)</p>\r\n<p>But it gives me an error. When I put the same in the excel sheet, it is accepted properly. Please let me know if PHPExcel is alright with using COUNTIFS for formulas.</p>\r\n<p>Given below is the piece of code (in PHP) that writes the formula to the excel sheet.</p>\r\n<p>&nbsp;&nbsp;&nbsp; $major_formula = '=COUNTIFS(E:E,&quot;Major&quot;,D:D,&quot;Testing&quot;)';&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\r\n<br>\r\n&nbsp;&nbsp;&nbsp; $objWorksheet-&gt;setCellValue('M1', $major_formula);</p>\r\n<p>Looking forward for your help.</p>\r\n<p>Thanks in advance</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2010-11-21T23:55:59.253-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "525733",
+    "ThreadId": "234120",
+    "Html": "\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<strong>kdeepala wrote:</strong><br>\r\n<p>Now I have got an other issue. I am trying to set the following formula for a cell.</p>\r\n<p>=COUNTIFS(E:E,&quot;Major&quot;,D:D,&quot;Documentation&quot;)</p>\r\n<p>But it gives me an error. When I put the same in the excel sheet, it is accepted properly. Please let me know if PHPExcel is alright with using COUNTIFS for formulas.</p>\r\n</blockquote>\r\n<p>The&nbsp;COUNTIFS() function is not currently supported. There are two files in the /Documentation folder -- FunctionListByName.txt and FunctionListByCategory.txt -- that list all of the Excel functions, and whether or not they are currently implemented.</p>\r\n<p>At present, when saving a file using the Excel2007 or Excel5 Writers, PHPExcel saves both the formula and the calculated result... so calculating the result for a formula that contains a function that isn't implemented will result in an error. You can disable\r\n this pre-calculation&nbsp;by setting $objWriter-&gt;setPreCalculateFormulas(false); befor eyou save. When the saved file is then opened in Excel, it may automatically recalcuate all formulae, might prompt the user to recalculate, or (worst case) not let the\r\n user know that a recalculation is necessary and display invalid values in those cells (that's why we try to precalculate when we can).</p>\r\n<p>Other writers, such as CSV, HTML and PDF require formulas to be calculated within PHPExcel so that the correct result can be rendered; so disabling precalculation is not an option.</p>\r\n<p>Note also that the Excel5 Writer doesn't allow formulae containing functions that aren't part of the Excel5 core set, so Analysis Toolkit functions are not supported.</p>\r\n",
+    "PostedDate": "2010-11-23T01:23:48.25-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "525775",
+    "ThreadId": "234120",
+    "Html": "\r\n<p>Thank you again. I will substitue COUNTIFS with equivalent IF statements. Does phpexcel support &amp; (ampersand) in formulas. For example can I define something like following:</p>\r\n<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -&gt;setCellValue('G16', '=&quot;Effort (Hrs)&quot;&amp; ROUND(IF(J18=0,0,K17/J18)*100,0)&amp;&quot;%&nbsp;&nbsp;&nbsp; &quot; &amp;&quot;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Variance&nbsp;&nbsp;&nbsp;&nbsp;\r\n &quot;')</p>\r\n<p>Thanks in advance</p>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2010-11-23T03:26:02.237-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "527749",
+    "ThreadId": "234120",
+    "Html": "\r\n<p>The &amp; operator is not supported in the 1.7.4 Excel5 Writer, although it is supported in the Excel2007 Writer, and in the latest SVN code for the Excel5 Writer. See\r\n<a href=\"http://phpexcel.codeplex.com/workitem/7895\">Work Item 7895</a>.</p>\r\n",
+    "PostedDate": "2010-11-27T14:57:19.447-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

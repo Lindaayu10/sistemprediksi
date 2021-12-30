@@ -1,0 +1,101 @@
+Index: PHPExcel/Writer/HTML.php
+===================================================================
+--- PHPExcel/Writer/HTML.php	(revision 1379)
++++ PHPExcel/Writer/HTML.php	(working copy)
+@@ -322,9 +322,29 @@
+ 	    	$dimension[1] = PHPExcel_Cell::coordinateFromString($dimension[1]);
+ 	    	$dimension[1][0] = PHPExcel_Cell::columnIndexFromString($dimension[1][0]) - 1;
+ 
+-	    	// Loop through cells
++	    	// row min,max
++			$rowMin = $dimension[0][1];
++			$rowMax = $dimension[1][1];
++			
++			// calculate start of <tbody>, <thead>
++			$tbodyStart = $rowMin;
++	    	$tbodyEnd   = $rowMax;
++			$theadStart = 0; // default: no <thead>
++			$theadEnd   = 0; // default: no </thead>
++			if ($sheet->getPageSetup()->isRowsToRepeatAtTopSet()) {
++				$rowsToRepeatAtTop = $sheet->getPageSetup()->getRowsToRepeatAtTop();
++				
++				// we can only support repeating rows that start at top row
++				if ($rowsToRepeatAtTop[0] == 1) {
++					$theadStart = $rowsToRepeatAtTop[0];
++					$theadEnd   = $rowsToRepeatAtTop[1];
++					$tbodyStart = $rowsToRepeatAtTop[1] + 1;
++				}
++			}
++			
++			// Loop through cells
+ 	    	$rowData = null;
+-	    	for ($row = $dimension[0][1]; $row <= $dimension[1][1]; ++$row) {
++	    	for ($row = $rowMin; $row <= $rowMax; ++$row) {
+ 				// Start a new row
+ 				$rowData = array();
+ 
+@@ -338,10 +358,30 @@
+ 	    			}
+ 	    		}
+ 
+-	    		// Write row if there are HTML table cells in it
++	    		// <thead> ?
++				if ($row == $theadStart) {
++					$html .= '        <thead>' . "\r\n";
++				}
++
++	    		// <tbody> ?
++				if ($row == $tbodyStart) {
++					$html .= '        <tbody>' . "\r\n";
++				}
++
++				// Write row if there are HTML table cells in it
+ 				if ( !isset($this->_isSpannedRow[$sheet->getParent()->getIndex($sheet)][$row]) ) {
+ 					$html .= $this->_generateRow($sheet, $rowData, $row - 1);
+ 				}
++
++	    		// </thead> ?
++				if ($row == $theadEnd) {
++					$html .= '        </thead>' . "\r\n";
++				}
++
++	    		// </tbody> ?
++				if ($row == $tbodyEnd) {
++					$html .= '        </tbody>' . "\r\n";
++				}
+ 	    	}
+ 
+ 			// Write table footer
+@@ -835,12 +875,12 @@
+ 
+ 			// Write row start
+ 			if (!$this->_useInlineCss) {
+-				$html .= '        <tr class="row' . $pRow . '">' . "\r\n";
++				$html .= '          <tr class="row' . $pRow . '">' . "\r\n";
+ 			} else {
+ 				$style = isset($this->_cssStyles['table.sheet' . $sheetIndex . ' tr.row' . $pRow])
+ 					? $this->_assembleCSS($this->_cssStyles['table.sheet' . $sheetIndex . ' tr.row' . $pRow]) : '';
+ 
+-				$html .= '        <tr style="' . $style . '">' . "\r\n";
++				$html .= '          <tr style="' . $style . '">' . "\r\n";
+ 			}
+ 
+ 			// Write cells
+@@ -959,7 +999,7 @@
+ 				// Write
+ 				if ($writeCell) {
+ 					// Column start
+-					$html .= '          <td';
++					$html .= '            <td';
+ 						if (!$this->_useInlineCss) {
+ 							$html .= ' class="' . $cssClass . '"';
+ 						} else {
+@@ -1007,7 +1047,7 @@
+ 			}
+ 
+ 			// Write row end
+-			$html .= '        </tr>' . "\r\n";
++			$html .= '          </tr>' . "\r\n";
+ 
+ 			// Return
+ 			return $html;

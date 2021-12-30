@@ -1,0 +1,10 @@
+[
+  {
+    "Id": "607200",
+    "ThreadId": "256335",
+    "Html": "\r\n<p>I have a problem concerning the ExcelToPHP method in Date.php. The excel cell has the following:&nbsp;29/04/2011 &nbsp;15:24:00</p>\r\n<p>This date is in DST time. &nbsp;The function returns a timestamp that equates to 15:24:00 UTC, not 14:24:00 UTC.</p>\r\n<p>In the PHPExcel code $dateValue is not less than 1 so the gmmktime cannot do its magic:</p>\r\n<p></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><span style=\"color:blue\">if</span> ($dateValue &gt;= 1) {\r\n\t$utcDays = $dateValue - $myExcelBaseDate;\r\n\t$returnValue = round($utcDays * 24 * 60 * 60);\r\n\t<span style=\"color:blue\">if</span> (($returnValue &lt;= PHP_INT_MAX) &amp;&amp; ($returnValue &gt;= -PHP_INT_MAX)) {\r\n\t\t$returnValue = (integer) $returnValue;\r\n\t}\r\n} <span style=\"color:blue\">else</span> {\r\n\t$hours = round($dateValue * 24);\r\n\t$mins = round($dateValue * 24 * 60) - round($hours * 60);\r\n\t$secs = round($dateValue * 24 * 60 * 60) - round($hours * 60 * 60) - round($mins * 60);\r\n\t$returnValue = (integer) gmmktime($hours, $mins, $secs);\r\n}\r\n\r\n</pre>\r\n</div>\r\n<p></p>\r\n<p>My quick fix was to change:</p>\r\n<p></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><span style=\"color:blue\">if</span> (($returnValue &lt;= PHP_INT_MAX) &amp;&amp; ($returnValue &gt;= -PHP_INT_MAX)) {\r\n\t$returnValue = (integer) $returnValue;\r\n}\r\n</pre>\r\n</div>\r\n<p></p>\r\n<p>to</p>\r\n<p></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><span style=\"color:blue\">if</span> (($returnValue &lt;= PHP_INT_MAX) &amp;&amp; ($returnValue &gt;= -PHP_INT_MAX)) {\r\n\t$returnValue = (integer) $returnValue;\r\n\t<span style=\"color:blue\">if</span>(date(<span style=\"color:#a31515\">'I'</span>, $returnValue) == 1) $returnValue -= 3600;\r\n}\r\n</pre>\r\n</div>\r\n<p></p>\r\n<p>This returns the correct UTC time.</p>\r\n<p>Andrew Taylor</p>\r\n",
+    "PostedDate": "2011-05-04T08:35:08.17-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

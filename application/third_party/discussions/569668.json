@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "1312794",
+    "ThreadId": "569668",
+    "Html": "Hi, here is my configuration <br />\n<br />\nServer : Local (Windiws 7) and IIS 6<br />\nPhp : 5.3.13<br />\n<br />\nHere is my code :<br />\n<pre><code>    $filetype = 'Excel2007';\n    PHPExcel_Settings::setZipClass(PHPExcel_Settings::PCLZIP);\n    $writer = PHPExcel_IOFactory::createWriter($fichier, $filetype); \n    $writer-&gt;setIncludeCharts(TRUE);\n\n    $filename = 'Projets_' .date(&quot;d-m-Y&quot;). '.xlsx';\n    \n    header('Content-type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');\n    header('Content-Disposition:inline;filename='.$filename);\n    \n    $writer-&gt;save('php://output');</code></pre>\n\nHere is the error thrown :<br />\n<blockquote>\nPHP Fatal error:  Uncaught exception 'PHPExcel_Writer_Exception' with message 'Error zipping files : PCLZIP_ERR_MISSING_FILE (-4) : File 'C:/Windows/Temp/[Content_Types].xml' does not exist' in C:\\wamp\\www\\blabla\\library\\phpexcel\\PHPExcel\\Shared\\ZipArchive.php:108<br />\n</blockquote>\nAnalysis :<br />\nWhen I use Excel5, the file can be generated. The problem is that I'm also generating charts and I need them with Excel2007.<br />\nWhen I use WAMP, the file is generated so I suppose the problem is coming from IIS but can somebody tell me why ? <br />\n<br />\nI didn't find any information on<br />\n<blockquote>\n'Error zipping files : PCLZIP_ERR_MISSING_FILE (-4) : File 'C:/Windows/Temp/[Content_Types].xml' <br />\n</blockquote>\n",
+    "PostedDate": "2014-10-13T08:21:57.127-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1312802",
+    "ThreadId": "569668",
+    "Html": "First question:\r<br />\n<br />\nWhy are you using <code>PHPExcel_Settings::setZipClass(PHPExcel_Settings::PCLZIP);</code>?<br />\n",
+    "PostedDate": "2014-10-13T08:53:30.08-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1313044",
+    "ThreadId": "569668",
+    "Html": "Hi Mark,<br />\n<br />\nI can't find the php_zip.dll in my php.ini or in my &quot;/ext&quot; folder. This DLL has to be enabled in order to use ZIPARCHIVE, am I right ? <br />\n<br />\nI rode on <a href=\"http://stackoverflow.com/a/17606516\" rel=\"nofollow\">SO</a> that previous versions of PHP shipped with separate php_zip.dll file in ext folder. And we needed to enable (comment out the ;extension=php_zip.dll line in php.ini) the zip extension manually. Latest version, since PHP 5.3.0, includes this zip support in core and it is enabled by default.<br />\n<br />\nI rode <a href=\"http://phpexcel.codeplex.com/wikipage?title=FAQ\" rel=\"nofollow\">here</a> that since 1.7.6 the PCLZip library has been bundled with PHPExcel as an alternative to the ZipArchive class, that's why I used it.<br />\n<br />\nEverything works fine on WAMP. I only have this error with IIS : /<br />\n",
+    "PostedDate": "2014-10-14T00:22:34.287-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1313052",
+    "ThreadId": "569668",
+    "Html": "<code>Latest version, since PHP 5.3.0, includes this zip support in core and it is enabled by default.</code>\r<br />\nIf you're using PHP &gt; 5.3, the ZipArchive class should be built into PHP core.\r<br />\n<br />\nIt's easy enough to check, just try to instantiate a ZipArchive in a script and if it succeeds then there is no need to use the external PCLZip class (which is a slow and memory-hungry alternative to that built-in ZipArchive class)<br />\n",
+    "PostedDate": "2014-10-14T00:37:41.473-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": "2014-10-14T00:57:52.393-07:00"
+  },
+  {
+    "Id": "1313054",
+    "ThreadId": "569668",
+    "Html": "Yeah I'm using php 5.3.13. <br />\nI'm gonna try with ZIPARCHIVE and see what happens :)<br />\n<br />\n<strong>EDIT :</strong><br />\nOk great, it works !<br />\n<br />\nThis is what I've done :<br />\nFirst, I changed <code>PHPExcel_Settings::setZipClass(PHPExcel_Settings::PCLZIP);</code> for <code>PHPExcel_Settings::setZipClass(PHPExcel_Settings::ZIPARCHIVE);</code><br />\n<br />\nAfter that, I got a new error : <br />\n<blockquote>\nCould not close zip file<br />\n</blockquote>\nSo I checked some topic on internet and the problem was coming from user right on the temp folder. After changing them, everything works fine.<br />\n<br />\nMark, thanks for your help :) (Excuse my english, I'm french so I try to do my best in order to be understood !)<br />\n",
+    "PostedDate": "2014-10-14T00:39:33.14-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "210494",
+    "ThreadId": "62010",
+    "Html": "<p>http://www.mediafire.com/file/juiughiowy5/referror2.xls</p>\r\n<p>The formula in E6 is: =IF($D6=&quot;X&quot;,&quot;No&quot;,&quot;Yes&quot;)</p>\r\n<p>D6: Formula to another sheet that was originally a zero</p>\r\n<p>D7: 0</p>\r\n<p>D8: X</p>\r\n<p>D9: 1</p>\r\n<p>D43: Formula to another sheet that was originally an X</p>\r\n<p>With this file, in Excel for Mac and Open Office:&nbsp; E6, E7, E9 all show 'Yes'.&nbsp; E8, E43, E44 all show 'No'.</p>\r\n<p>With PHPExcel: E9 shows 'Yes', the rest show 'No'.</p>\r\n<p>The behavior of Excel and OO are what I expect to happen</p>\r\n<p>I'm using the latest version in the SVN as of this morning, July 9.</p>\r\n<p>The code I'm using to test with:</p>\r\n<p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>&lt;?php\r\n\terror_reporting(E_ALL);\r\n    <span style=\"color:Blue\">require_once</span>(<span style=\"color:#A31515\">&quot;PHPExcel.php&quot;</span>);\r\n\t<span style=\"color:Blue\">require_once</span>(<span style=\"color:#A31515\">&quot;PHPExcel/Reader/Excel5.php&quot;</span>);\r\n\t<span style=\"color:Blue\">require_once</span>(<span style=\"color:#A31515\">&quot;PHPExcel/Shared/Date.php&quot;</span>);\r\n\r\n\t$excelReader = <span style=\"color:Blue\">new</span> PHPExcel_Reader_Excel5();\r\n\t$excelReader-&gt;setReadDataOnly(true);\r\n\t<span style=\"color:Blue\">echo</span> <span style=\"color:#A31515\">&quot;Loading referror2.xls\\n&quot;</span>;\r\n\t$excelDoc = $excelReader-&gt;load(<span style=\"color:#A31515\">'referror2.xls'</span>);\r\n\t$activeWorksheet = $excelDoc-&gt;getActiveSheet();\r\n\t$value = $activeWorksheet-&gt;getCellByColumnAndRow(3,6)-&gt;getCalculatedValue();\r\n\tvar_dump($value);\r\n\t$value = $activeWorksheet-&gt;getCellByColumnAndRow(4,6)-&gt;getCalculatedValue();\r\n\tvar_dump($value);\r\n\t$value = $activeWorksheet-&gt;getCellByColumnAndRow(3,7)-&gt;getCalculatedValue();\r\n\tvar_dump($value);\r\n\t$value = $activeWorksheet-&gt;getCellByColumnAndRow(4,7)-&gt;getCalculatedValue();\r\n\tvar_dump($value);\r\n\t$value = $activeWorksheet-&gt;getCellByColumnAndRow(3,8)-&gt;getCalculatedValue();\r\n\tvar_dump($value);\r\n\t$value = $activeWorksheet-&gt;getCellByColumnAndRow(4,8)-&gt;getCalculatedValue();\r\n\tvar_dump($value);\r\n\t$value = $activeWorksheet-&gt;getCellByColumnAndRow(3,9)-&gt;getCalculatedValue();\r\n\tvar_dump($value);\r\n\t$value = $activeWorksheet-&gt;getCellByColumnAndRow(4,9)-&gt;getCalculatedValue();\r\n\tvar_dump($value);\r\n\t$value = $activeWorksheet-&gt;getCellByColumnAndRow(3,43)-&gt;getCalculatedValue();\r\n\tvar_dump($value);\r\n\t$value = $activeWorksheet-&gt;getCellByColumnAndRow(4,43)-&gt;getCalculatedValue();\r\n\tvar_dump($value);\r\n\r\n</pre>\r\n</div>\r\n</p>",
+    "PostedDate": "2009-07-09T09:43:49.29-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "210518",
+    "ThreadId": "62010",
+    "Html": "<p>I'm having problems with the download link, it says I should enter a password. Can you examine that?</p>",
+    "PostedDate": "2009-07-09T10:34:57.173-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "216759",
+    "ThreadId": "62010",
+    "Html": "<p>Oh, jeez, sorry.&nbsp; I never saw your message.&nbsp; I don't know why it was passworded, but I removed the password and you should be able to download it now.&nbsp; Thanks for looking at this.</p>",
+    "PostedDate": "2009-07-28T06:02:39.627-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "216969",
+    "ThreadId": "62010",
+    "Html": "<p>I can verify this issue. Seems to be a bug in the calculation engine.</p>\r\n<p>Posted in the issue tracker:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10362\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10362</a></p>\r\n<p>If this is urgent, you may consider reading the cached calculated values in the Excel workbook (using latest source code).</p>\r\n<p>Example:</p>\r\n<p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$objPHPExcel-&gt;getActiveSheet()-&gt;getCell(<span style=\"color:#A31515\">'E7'</span>)-&gt;getOldCalculatedValue(); \r\n</pre>\r\n</div>\r\n</p>\r\n<p><span id=\"ctl00_ctl00_MasterContent_Content_CommentsRepeater_ctl00_MessageLabel\" style=\"display:inline-block;width:99%\"></span></p>",
+    "PostedDate": "2009-07-28T14:57:55.78-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "217257",
+    "ThreadId": "62010",
+    "Html": "<p>Thanks Koyama.&nbsp; Using the 'getOldCalculatedValue' does work as a workaround for the code I submitted, but my original document still has other issues that I believe are related.&nbsp; I will look into figuring out how to reproduce the problem with a document I can share.</p>",
+    "PostedDate": "2009-07-29T10:02:46.22-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

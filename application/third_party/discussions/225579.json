@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "487408",
+    "ThreadId": "225579",
+    "Html": "<p>Good day,</p>\r\n<p>I have a question regarding PHP Excels memory usage. I know this topic has come up in the past, but it mainly seems to deal with caching.</p>\r\n<p>My question is more on 'why' each cell needs so much memory. I get that you'll want to give the user the ability to set a whole range of options (formatting, colour, borders, etc...), which i understand needs memory, but for people like me, who only use PHPExcel for mass up- and download of plain text data, this seems unnecessary. I'm sure I'm not the only one who uses PHP Excel but doesn't use any of the more advanced options. I don't need to merge cells, i don't need special colours, fonts or anything. Just plain text.</p>\r\n<p>If you could please answer me these questions: Am i correct in this assumption on in how PHPExcel saves cell data? And if so, are there any plans for a 'no-formatting' means of saving excel data that might reduce memory load?</p>\r\n<p>Thank you for your time,</p>\r\n<p>-Maurits</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-09-01T00:48:25.673-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "487417",
+    "ThreadId": "225579",
+    "Html": "<p>I guess PHPExcel implements all those styling options, because when you do not need to style, merge etc you can easily&nbsp;</p>\r\n<ul>\r\n<li>Send Excel-specific headers</li>\r\n<li>echo your data as a table structure</li>\r\n</ul>\r\n<p>(With some work [&lt;td cellspan=&quot;x&quot;&gt;] you can also &quot;merge&quot; cells)</p>\r\n<p>Only when you start to need more advanced features you have to rely on Libraries like PHPExcel.</p>",
+    "PostedDate": "2010-09-01T01:01:30.917-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "487510",
+    "ThreadId": "225579",
+    "Html": "<p>@Mkersten</p>\r\n<p>PHPExcel is written for a wide range of people who have different requirements when working with spreadsheets in PHP, which is why it&nbsp; tries to provide facilities for manipulating all aspects of cells. Cell Caching is just&nbsp;one mechanism that allows us to make better use of restricted memory available to many user, but it is just one among many methods. You say that you don't need formatting information when reading your worksheets, so you could take advantage of the ReadDataOnly switch when loading a workbook into a PHPExcel object:</p>\r\n<p><code><span>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>$objReader = PHPExcel_IOFactory::createReader(<span style=\"color:#a31515\">'Excel2007'</span>); \r\n$objReader-&gt;setReadDataOnly(true); \r\n$objPHPExcel = $objReader-&gt;load(<span style=\"color:#a31515\">&quot;test.xlsx&quot;</span>); \r\n</pre>\r\n</div>\r\n</span></code></p>\r\n<p><span>When using this option, no formatting data is read from the workbook, so it won't use as much memory. </span><span>The only drawback with this is that the only method to distinguish between a number and a date/time in Excel is the formatting... so PHPExcel can't automatically determine if a cell contains a number or a date if this option is used. (One day, I'll get round to modifying the loader logic to provide this date/number differentiation even when ReadDataOnly is used, but nobody has ever asked for it yet).</span></p>\r\n<p><span>Other techniques are available within the loader for saving memory, such as reading in only the worksheets that you're interested in rather than every worksheet in the workbook, or only reading the cells you want from a worksheet using a read filter.</span></p>\r\n<p><span><code><span>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>$objReader = PHPExcel_IOFactory::createReader(<span style=\"color:#a31515\">'Excel2007'</span>); \r\n$objReader-&gt;setLoadSheetsOnly( <span style=\"color:blue\">array</span>(<span style=\"color:#a31515\">&quot;Worksheet1&quot;</span>, <span style=\"color:#a31515\">&quot;Worksheet2&quot;</span>) ); \r\n$objPHPExcel = $objReader-&gt;load(<span style=\"color:#a31515\">&quot;test.xlsx&quot;</span>); \r\n</pre>\r\n</div>\r\n</span></code></span></p>\r\n<p><span><span><code><span>or</span></code></span></span></p>\r\n<p><span><span><code><span>\r\n<div style=\"color:black;background-color:white\">\r\n<pre><span style=\"color:blue\">class</span> MyReadFilter <span style=\"color:blue\">implements</span> PHPExcel_Reader_IReadFilter \r\n{ \r\n    <span style=\"color:blue\">public</span> <span style=\"color:blue\">function</span> readCell($column, $row, $worksheetName = <span style=\"color:#a31515\">''</span>) { \r\n        <span style=\"color:green\">// Read title row and rows 20 - 30 </span>\r\n        <span style=\"color:blue\">if</span> ($row == 1 || ($row &gt;= 20 &amp;&amp; $row &lt;= 30)) { \r\n            <span style=\"color:blue\">return</span> true; \r\n        } \r\n \r\n        <span style=\"color:blue\">return</span> false; \r\n    } \r\n} \r\n \r\n$objReader = PHPExcel_IOFactory::createReader(<span style=\"color:#a31515\">'Excel2007'</span>); \r\n$objReader-&gt;setReadFilter( <span style=\"color:blue\">new</span> MyReadFilter() ); \r\n$objPHPExcel = $objReader-&gt;load(<span style=\"color:#a31515\">&quot;test.xlsx&quot;</span>); \r\n</pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n&nbsp;</span><span></span></code></span></span></p>\r\n<p><span><code><span>&nbsp;</span></code></span></p>",
+    "PostedDate": "2010-09-01T04:34:24.32-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "487526",
+    "ThreadId": "225579",
+    "Html": "<p>Hey Time, Mark,</p>\r\n<p>Thank you both for your replies. The setReadDataOnly sounds tailor-made for my needs. I ran some initial tests and the results look good.</p>\r\n<p>Can i use this option for Writers too?</p>",
+    "PostedDate": "2010-09-01T04:57:22.657-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "487533",
+    "ThreadId": "225579",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>Mkersten wrote:</strong><br>\r\n<p>Hey Time, Mark,</p>\r\n<p>Thank you both for your replies. The setReadDataOnly sounds tailor-made for my needs. I ran some initial tests and the results look good.</p>\r\n<p>Can i use this option for Writers too?</p>\r\n</blockquote>\r\n<p>&nbsp;The option isn't available for writers. If there is no formatting for cells in the PHPExcel object, then the writers will only write the minimum needed for the appropriate format (e.g. CSV, no formatting anyway; Excel 5 and Excel2007, just the basic defaults that are required by the MS Excel file format; HTML, minimal styling; etc). None of the writers should do any unnecessary writing if they can help it.</p>",
+    "PostedDate": "2010-09-01T05:12:34.723-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

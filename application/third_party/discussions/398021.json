@@ -1,0 +1,82 @@
+[
+  {
+    "Id": "921833",
+    "ThreadId": "398021",
+    "Html": "\r\n<p>Hi, I am a new user and seem to be unable to get anything other than landscape output, I am unable to set portrait, or to set the print range or set fit to page.</p>\r\n<p>I am sure I am doing something wrong, but have been trying pretty much all of day and have made no progress whatsoever, the output is still identical - landscape printed on portrait paper with the right half cut off by the edge of the page.</p>\r\n<p>I am using the latest code from github and are using dompdf as pdf output is essential, here's the code, I appreciate any help:</p>\r\n<p>[code]</p>\r\n<p>&lt;?<br>\r\n&nbsp;&nbsp;&nbsp; //error_reporting(E_ALL);<br>\r\n&nbsp;&nbsp;&nbsp; date_default_timezone_set('Asia/Singapore');<br>\r\n&nbsp;&nbsp;&nbsp; <br>\r\n&nbsp;&nbsp;&nbsp; require_once 'phpexcel.new/Classes/PHPExcel/IOFactory.php';<br>\r\n&nbsp;&nbsp;&nbsp; require_once 'phpexcel.new/Classes/PHPExcel.php';<br>\r\n<br>\r\n&nbsp;&nbsp;&nbsp; $file = &quot;pcash.xlsx&quot;;<br>\r\n&nbsp;&nbsp;&nbsp; if(isset($_GET['file'])) $file = $_GET['file'];<br>\r\n&nbsp;&nbsp;&nbsp; echo $file.&quot;&lt;br&gt;&quot;;&nbsp;&nbsp;&nbsp; <br>\r\n<br>\r\n&nbsp;&nbsp;&nbsp; define('EOL',(PHP_SAPI == 'cli') ? PHP_EOL : '&lt;br /&gt;');<br>\r\n<br>\r\n<br>\r\n&nbsp;&nbsp;&nbsp; echo date('H:i:s') , &quot; Create new PHPExcel object&quot; , PHP_EOL;<br>\r\n&nbsp;&nbsp;&nbsp; $objPHPExcel = new PHPExcel();<br>\r\n<br>\r\n&nbsp;&nbsp;&nbsp; $rendererName = PHPExcel_Settings::PDF_RENDERER_DOMPDF;<br>\r\n&nbsp;&nbsp;&nbsp; $rendererLibrary = 'dompdf';<br>\r\n&nbsp;&nbsp;&nbsp; $rendererLibraryPath = '' . $rendererLibrary;<br>\r\n&nbsp;&nbsp;&nbsp; if (!PHPExcel_Settings::setPdfRenderer(<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $rendererName,<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $rendererLibraryPath<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; )) {<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; die(<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; 'NOTICE: Please set the $rendererName and $rendererLibraryPath values' .<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; EOL .<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; 'at the top of this script as appropriate for your directory structure'<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; );<br>\r\n&nbsp;&nbsp;&nbsp; }<br>\r\n<br>\r\n&nbsp;&nbsp;&nbsp; $objPHPExcel = PHPExcel_IOFactory::createReader('Excel2007');<br>\r\n&nbsp;&nbsp;&nbsp; $objPHPExcel = $objPHPExcel-&gt;load($file); // Load Template<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>\r\n&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;setActiveSheetIndex(0);<br>\r\n&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; -&gt;setCellValue('B10', '100')<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; -&gt;setCellValue('B11', '200')&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\r\n<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; -&gt;setCellValue('B12', '300');<br>\r\n<br>\r\n<br>\r\n&nbsp;&nbsp;&nbsp; // Set page orientation, size, Print Area and Fit To Pages<br>\r\n&nbsp;&nbsp;&nbsp; $objPageSetup = new PHPExcel_Worksheet_PageSetup();<br>\r\n&nbsp;&nbsp;&nbsp; $objPageSetup-&gt;setPaperSize(PHPExcel_Worksheet_PageSetup::PAPERSIZE_A4);<br>\r\n&nbsp;&nbsp;&nbsp; $objPageSetup-&gt;setOrientation(PHPExcel_Worksheet_PageSetup::ORIENTATION_PORTRAIT);<br>\r\n&nbsp;&nbsp;&nbsp; //$objPageSetup-&gt;setPrintArea(&quot;E5:H7&quot;);<br>\r\n&nbsp;&nbsp;&nbsp; $objPageSetup-&gt;setFitToWidth(1);<br>\r\n&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setPageSetup($objPageSetup);<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>\r\n&nbsp;&nbsp;&nbsp; $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'PDF');<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>\r\n&nbsp;&nbsp;&nbsp; //$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');<br>\r\n&nbsp;&nbsp;&nbsp; $pdf = str_replace(&quot;.xlsx&quot;,&quot;.pdf&quot;,$file);<br>\r\n&nbsp;&nbsp;&nbsp; $objWriter-&gt;save($pdf);<br>\r\n&nbsp;&nbsp;&nbsp; <br>\r\n&nbsp;&nbsp;&nbsp; // Echo memory peak usage<br>\r\n&nbsp;&nbsp;&nbsp; echo date('H:i:s') . &quot; Peak memory usage: &quot; . (memory_get_peak_usage(true) / 1024 / 1024) . &quot; MB\\r\\n&quot;;<br>\r\n&nbsp;&nbsp;&nbsp; <br>\r\n&nbsp;&nbsp;&nbsp; echo &quot;&lt;br&gt;&lt;br&gt;&lt;a target='_blank' href='$pdf'&gt;$pdf&lt;/a&gt;&quot;;<br>\r\n<br>\r\n?&gt;</p>\r\n<p>[/code]</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2012-10-04T05:14:31.383-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "922298",
+    "ThreadId": "398021",
+    "Html": "\r\n<p>OK, spent another day trying to resolve this, I have tried both DOMPDF and mPDF both give completely different results and neither appear to respond to setting page size, orientation, or to fit to page.</p>\r\n<p>Out of the 2 mPDFis closest to what it should look like, but unfortunately not close enough, dompdf tries to print everything at 100% scale without any scaling or attempt to fit to the page, even though the document it is reading is already set to fit to\r\n page and portrait mode.</p>\r\n<p>Is there a later BETA which fixes any of this ??</p>\r\n<p>I have also tried saving as xlsx and use openoffiice / jodconverter to print to PDF, this works on Ubuntu 10, but does not work on Ubuntu 12 in headless mode. I also have a posting regarding that on another forum, and with google have found others with the\r\n same problem but no solution.</p>\r\n<p>I have also searched for other solutions but drawn a blank, so are really not having very much luck at the moment !!</p>\r\n<p>Here's links to the 3 different outputs</p>\r\n<p><a href=\"http://home.peter-c.net:8088/forums/direct.pdf\">Direct from Excel</a></p>\r\n<p><a href=\"http://home.peter-c.net:8088/forums/dompdf.pdf\">DOMPDF</a></p>\r\n<p><a href=\"http://home.peter-c.net:8088/forums/mpdf.pdf\">MPDF</a></p>\r\n<p>&nbsp;</p>\r\n<p>Thanks</p>\r\n",
+    "PostedDate": "2012-10-05T00:40:09.31-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "923927",
+    "ThreadId": "398021",
+    "Html": "<p>Hello - Anybody there ????</p>",
+    "PostedDate": "2012-10-09T03:35:14.59-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "924619",
+    "ThreadId": "398021",
+    "Html": "<p>I've just pushed a fix to github that sets the page orientation for DomPDF... still trying to figure out why mPDF is ignoring the page orientation setting.</p>",
+    "PostedDate": "2012-10-10T05:09:35.38-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "934693",
+    "ThreadId": "398021",
+    "Html": "<p>Hi,</p>\r\n<p>i was experiencing the same problem when trying to export a excel document to pdf in landscape mode using mPDF. I'm using PHPEXCEL 1.7.8</p>\r\n<p>I have found a workaround, but you have to modify the mPDF.php file in the directory PDFPHPExcel\\Writer\\PDF at line 110.</p>\r\n<p>The original block of code is:</p>\r\n<p>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $pdf = new mpdf();<br />&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $pdf-&gt;_setPageSize(strtoupper($paperSize), $orientation);<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $pdf-&gt;DefOrientation = $orientation;</p>\r\n<p>The modified (working) block of code is:</p>\r\n<p>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $pdf = new mpdf();<br />&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $ortmp = $orientation;<br />&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $pdf-&gt;_setPageSize(strtoupper($paperSize), $ortmp);<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $pdf-&gt;DefOrientation = $orientation;<br />&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $pdf-&gt;AddPage($orientation);</p>\r\n<p>it seems like the problematic line is the setPageSize function line which overrides the chosen orientation.</p>\r\n<p>I have not investigated further on the problem, and I know this workaround is not the ideal solution, but it works.</p>\r\n<p>Hopefully the PHPExcel team will provide a better solution.</p>\r\n<p>&nbsp;</p>\r\n<p>Regards</p>",
+    "PostedDate": "2012-10-31T05:13:34.193-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "934878",
+    "ThreadId": "398021",
+    "Html": "<p>I can't understand why using the $ortmp variable should make any difference at all to the code; so the only thing I really see that you're doing differently is the call to $pdf-&gt;AddPage()</p>",
+    "PostedDate": "2012-10-31T10:22:52.32-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "934898",
+    "ThreadId": "398021",
+    "Html": "<p>Actually not. I found out that the variable $orientation changes value after the call to setPageSize() function.</p>\r\n<p>I agree with you it makes no sense, but I have printed out this variable before and after the call and found the strange behavior. Thus the $ortmp variable, which is used only for the call to SetPageSize().</p>\r\n<p>Actually, strictly speaking, calling or not the setPageSize with the variable copy in regards to page orientation in my test made no real difference. Even if you leave the original code and add only AddPage('L') (as I did first), it will create the document in landscape mode. I have then tried to use the $orientation variable, so the pdf page orientation would correctly reflect the excel one. I found it was not working, until I found the previously mentioned problem.</p>\r\n<p>I have no idea why this happens, AFAIK a variable passed to a function in PHP should not be changed by the function itself, does it?</p>",
+    "PostedDate": "2012-10-31T10:54:38.94-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "934906",
+    "ThreadId": "398021",
+    "Html": "<p>Certainly a variable passed to a function shouldn't be changed unless the API explicitly declares it as pass by reference, and it should really explain why it's changed and what you should expect back as well, but mPDF isn't particularly well documented. In this case (having read through the relevant mPDF code) it seems like an arbitrary decision by the developers of mPDF, and totally unnecessary.</p>\r\n<p>But thanks for the investigative work</p>",
+    "PostedDate": "2012-10-31T11:11:36.497-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "948311",
+    "ThreadId": "398021",
+    "Html": "\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<strong>hafler wrote:</strong><br>\r\n<p>Hi,</p>\r\n<p>i was experiencing the same problem when trying to export a excel document to pdf in landscape mode using mPDF. I'm using PHPEXCEL 1.7.8</p>\r\n<p>I have found a workaround, but you have to modify the mPDF.php file in the directory PDFPHPExcel\\Writer\\PDF at line 110.</p>\r\n<p>The original block of code is:</p>\r\n<p>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $pdf = new mpdf();<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $pdf-&gt;_setPageSize(strtoupper($paperSize), $orientation);<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $pdf-&gt;DefOrientation = $orientation;</p>\r\n<p>The modified (working) block of code is:</p>\r\n<p>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $pdf = new mpdf();<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $ortmp = $orientation;<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $pdf-&gt;_setPageSize(strtoupper($paperSize), $ortmp);<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $pdf-&gt;DefOrientation = $orientation;<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $pdf-&gt;AddPage($orientation);</p>\r\n<p>it seems like the problematic line is the setPageSize function line which overrides the chosen orientation.</p>\r\n<p>I have not investigated further on the problem, and I know this workaround is not the ideal solution, but it works.</p>\r\n<p>Hopefully the PHPExcel team will provide a better solution.</p>\r\n<p>&nbsp;</p>\r\n<p>Regards</p>\r\n</blockquote>\r\n<p>Hi,</p>\r\n<p>I still had trouble printing my spreadsheet to landscape even doing all this however I came up with the answer and another solution.&nbsp; The Main problem is that mPDF requires the papersize to be appended with '-L' for landscape pages.</p>\r\n<p>in mPDF.php if you replace</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><span style=\"color:green\">// Create PDF</span>\r\n$pdf = <span style=\"color:blue\">new</span> mpdf();\r\n$pdf-&gt;_setPageSize(strtoupper($paperSize), $orientation);\r\n$pdf-&gt;DefOrientation = $orientation;\r\n</pre>\r\n</div>\r\n<p>with</p>\r\n<p></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><span style=\"color:green\">// Crete PDF</span>\r\n<span style=\"color:blue\">if</span>($orientation == <span style=\"color:#a31515\">'L'</span>){\r\n    $paperSize  .= <span style=\"color:#a31515\">&quot;-L&quot;</span>;\r\n}\r\n\r\n$pdf = <span style=\"color:blue\">new</span> mpdf(<span style=\"color:#a31515\">''</span>,    <span style=\"color:green\">// mode - default ''</span>\r\n\t        strtoupper($paperSize),    <span style=\"color:green\">// format - A4, for example, default ''</span>\r\n        \t0,     <span style=\"color:green\">// font size - default 0</span>\r\n        \t<span style=\"color:#a31515\">''</span>,    <span style=\"color:green\">// default font family</span>\r\n        \t$printMargins-&gt;getLeft() * 72,    <span style=\"color:green\">// margin_left</span>\r\n        \t$printMargins-&gt;getRight() * 72,    <span style=\"color:green\">// margin right</span>\r\n        \t$printMargins-&gt;getTop() * 72,     <span style=\"color:green\">// margin top</span>\r\n        \t$printMargins-&gt;getBottom() * 72,    <span style=\"color:green\">// margin bottom</span>\r\n        \t0,     <span style=\"color:green\">// margin header</span>\r\n        \t0,     <span style=\"color:green\">// margin footer</span>\r\n        \t$orientation         <span style=\"color:green\">// L - landscape, P - portrait</span>\r\n            );\r\n\t   \r\n           <span style=\"color:green\">// $pdf-&gt;_setPageSize(strtoupper($paperSize), strtolower($orientation));</span>\r\n           <span style=\"color:green\">// $pdf-&gt;DefOrientation = $orientation;</span>\r\n</pre>\r\n</div>\r\n<p></p>\r\n<p>This allows you to use the regular pagesetup options to control papersize, orientation and margins.</p>\r\n",
+    "PostedDate": "2012-11-28T06:24:05.98-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1028718",
+    "ThreadId": "398021",
+    "Html": "Thanks Scott, your solution definitely helped.<br />\nHOWEVER, the margins are incorrect. The print margins in PHPExcel are specified in inches, while the print margins in mPDF are specified in millimeters. This simple change fixes it:<br />\n<pre><code>    $printMargins-&gt;getLeft() * 25.4,    // margin_left\n    $printMargins-&gt;getRight() * 25.4,    // margin right\n    $printMargins-&gt;getTop() * 25.4,     // margin top\n    $printMargins-&gt;getBottom() * 25.4,    // margin bottom</code></pre>\n\n",
+    "PostedDate": "2013-04-10T15:21:48.46-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

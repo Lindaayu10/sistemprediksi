@@ -1,0 +1,45 @@
+Index: PHPExcel/Shared/Excel5.php
+===================================================================
+--- PHPExcel/Shared/Excel5.php	(revision 1028)
++++ PHPExcel/Shared/Excel5.php	(working copy)
+@@ -33,6 +33,9 @@
+ /** PHPExcel_Cell */
+ require_once PHPEXCEL_ROOT . 'PHPExcel/Cell.php';
+ 
++/** PHPExcel_Shared_Drawing */
++require_once PHPEXCEL_ROOT . 'PHPExcel/Shared/Drawing.php';
++
+ /**
+  * PHPExcel_Shared_Excel5
+  *
+@@ -53,6 +56,9 @@
+ 	*/
+ 	public static function sizeCol($sheet, $col = 'A')
+ 	{
++		// default font size of workbook
++		$fontSize = $sheet->getParent()->getDefaultStyle()->getFont()->getSize();
++
+ 		$columnDimensions = $sheet->getColumnDimensions();
+ 
+ 		// first find the true column width in pixels (uncollapsed and unhidden)
+@@ -61,17 +67,17 @@
+ 			// then we have column dimension with explicit width
+ 			$columnDimension = $columnDimensions[$col];
+ 			$width = $columnDimension->getWidth();
+-			$pixelWidth = (int) ceil(7 * $width); // here we assume Arial 10
++			$pixelWidth = PHPExcel_Shared_Drawing::cellDimensionToPixels($width, $fontSize);
+ 
+ 		} else if ($sheet->getDefaultColumnDimension()->getWidth() != -1) {
+ 
+ 			// then we have default column dimension with explicit width
+ 			$defaultColumnDimension = $sheet->getDefaultColumnDimension();
+ 			$width = $defaultColumnDimension->getWidth();
+-			$pixelWidth = (int) ceil(7 * $width); // here we assume Arial 10
++			$pixelWidth = PHPExcel_Shared_Drawing::cellDimensionToPixels($width, $fontSize);
+ 
+ 		} else {
+-			$pixelWidth = 64; // here we assume Arial 10
++			$pixelWidth = (int) 64 * $fontSize / 11; // here we interpolate from Calibri 11
+ 		}
+ 
+ 		// now find the effective column width in pixels

@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "817092",
+    "ThreadId": "350467",
+    "Html": "\r\n<p>I am kinda new to this library and I am making a simple script that imports data from xlsx file into a db and then display them in a page. I am testing a sample script which iterates through the file and display them in a table. The issue is it doesn't detect\r\n the new line character so the result is, all words in the cell are in one line. How do I make it detect a new line charater?</p>\r\n<p>Here's the code:</p>\r\n<p></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>&lt;?php\r\n<span style=\"color:blue\">include</span> <span style=\"color:#a31515\">'PHPExcel.php'</span>;\r\n\r\n$objReader = PHPExcel_IOFactory::createReader(<span style=\"color:#a31515\">'Excel2007'</span>);\r\n<span style=\"color:green\">//$objReader-&gt;setReadDataOnly(true);</span>\r\n\r\n$objPHPExcel = $objReader-&gt;load(<span style=\"color:#a31515\">&quot;test.xlsx&quot;</span>);\r\n$objWorksheet = $objPHPExcel-&gt;getActiveSheet();\r\n\r\n?&gt;\r\n&lt;html&gt;\r\n  &lt;head&gt;\r\n      &lt;meta http-equiv=<span style=\"color:#a31515\">&quot;Content-Type&quot;</span> content=<span style=\"color:#a31515\">&quot;text/html; charset=utf-8&quot;</span>&gt;\r\n  &lt;/head&gt;\r\n  &lt;body&gt;\r\n&lt;?php\r\n<span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;table&gt;'</span> . <span style=\"color:#a31515\">&quot;\\n&quot;</span>;\r\n<span style=\"color:blue\">foreach</span> ($objWorksheet-&gt;getRowIterator() <span style=\"color:blue\">as</span> $row) {\r\n  <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;tr&gt;'</span> . <span style=\"color:#a31515\">&quot;\\n&quot;</span>;\r\n\t\t\r\n  $cellIterator = $row-&gt;getCellIterator();\r\n  $cellIterator-&gt;setIterateOnlyExistingCells(false); <span style=\"color:green\">// This loops all cells,</span>\r\n                                                     <span style=\"color:green\">// even if it is not set.</span>\r\n                                                     <span style=\"color:green\">// By default, only cells</span>\r\n                                                     <span style=\"color:green\">// that are set will be</span>\r\n                                                     <span style=\"color:green\">// iterated.</span>\r\n  <span style=\"color:blue\">foreach</span> ($cellIterator <span style=\"color:blue\">as</span> $cell) {\r\n    <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;td&gt;'</span> . $cell-&gt;getValue() . <span style=\"color:#a31515\">'&lt;/td&gt;'</span> . <span style=\"color:#a31515\">&quot;\\n&quot;</span>;\r\n  }\r\n  \r\n  <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;/tr&gt;'</span> . <span style=\"color:#a31515\">&quot;\\n&quot;</span>;\r\n}\r\n<span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;/table&gt;'</span> . <span style=\"color:#a31515\">&quot;\\n&quot;</span>;\r\n?&gt;\r\n  &lt;/body&gt;\r\n&lt;/html&gt;\r\n</pre>\r\n</div>\r\n<p></p>\r\n<p>Any help would be appreciated...</p>\r\n",
+    "PostedDate": "2012-03-29T04:50:12.323-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "817687",
+    "ThreadId": "350467",
+    "Html": "<p>Try this...</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre><span style=\"color: blue;\">echo</span> <span style=\"color: #a31515;\">'&lt;td&gt;'</span> . nl2br( $cell-&gt;getValue() ) . <span style=\"color: #a31515;\">'&lt;/td&gt;'</span> . <span style=\"color: #a31515;\">\"\\n\"</span>;\r\n</pre>\r\n</div>\r\n</p>",
+    "PostedDate": "2012-03-30T05:10:19.133-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "817706",
+    "ThreadId": "350467",
+    "Html": "<p>It works but is there a way to wrap them with appropriate html tags? nl2br abuses &lt;br&gt; which is not semantic. &nbsp;Thanks a lot!</p>",
+    "PostedDate": "2012-03-30T05:48:46.41-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "817728",
+    "ThreadId": "350467",
+    "Html": "<p>how about str_replace(\"\\n\", \"&lt;br /&gt;\\n\", $cell-&gt;getValue())</p>",
+    "PostedDate": "2012-03-30T06:46:14.69-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

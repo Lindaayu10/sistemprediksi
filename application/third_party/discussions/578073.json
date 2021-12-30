@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "1343295",
+    "ThreadId": "578073",
+    "Html": "Hi,\r<br />\n<br />\nI am trying to zebra stripe some rows, so I've set up a conditional style and when I view the document in Excel I can see that the conditional rule is applied to all of the rows, but the fill color has not been applied.  (I can then in Excel tweak the rule to the correct background colour and all of the rows get coloured as I would expect.)\r<br />\n<br />\nThe code snippet looks like this:<br />\n<pre><code>        $zebra = new PHPExcel_Style_Conditional();\n        $zebra-&gt;setConditionType(PHPExcel_Style_Conditional::CONDITION_EXPRESSION)\n            -&gt;setOperatorType(PHPExcel_Style_Conditional::OPERATOR_NONE)\n            -&gt;setConditions(['MOD(ROW(),2)=0'])\n            -&gt;getStyle()\n            -&gt;applyFromArray([\n                'fill' =&gt; [\n                    'type'  =&gt; PHPExcel_Style_Fill::FILL_SOLID,\n                    'color' =&gt; ['rgb' =&gt; 'DDE8F7']\n                ]\n            ]);\n        $condStyles = $sheet-&gt;getStyle(&quot;A2:{$highCol}{$highRow}&quot;)-&gt;getConditionalStyles();\n        array_push($condStyles, $zebra);\n        $sheet-&gt;getStyle(&quot;A2:{$highCol}{$highRow}&quot;)-&gt;setConditionalStyles($condStyles)</code></pre>\n\nAlong with the applyFromArray as above, I've tried narrowing that down so I first getStyle()-&gt;getFill() and so on, but still no luck.\r<br />\n<br />\nAny clues?  Am I doing something wrong or is this not supported?  I've tried this on PHPExcel 1.7.9 and 1.8.0.\r<br />\n<br />\nAny help appreciated, thanks!\r<br />\n<br />\nAndy<br />\n",
+    "PostedDate": "2015-01-19T09:45:22.49-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1343451",
+    "ThreadId": "578073",
+    "Html": "OK, I've figured this out.  It's simply that it didn't like 'color' but does work with 'endcolor' specified (I had previously tried 'color' and 'startcolor').  So just tweaking the fill to be:<br />\n<pre><code>'fill' =&gt; [\n    'type'  =&gt; PHPExcel_Style_Fill::FILL_SOLID,\n    'endcolor' =&gt; ['rgb' =&gt; 'DDE8F7']\n]</code></pre>\n\nworked without changing anything else.<br />\n",
+    "PostedDate": "2015-01-20T02:16:38.05-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": "2015-01-20T02:16:45.957-08:00"
+  }
+]

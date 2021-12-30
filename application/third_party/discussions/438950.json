@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "1024851",
+    "ThreadId": "438950",
+    "Html": "Hi, \r<br />\n<br />\nI have an issue with some formulas in my excel file (2007).\r<br />\nI am reading the cells with getValue() and getCalculatedValue().\r<br />\ngetValue() gives me the following formula =IF(OR(N23&lt;&gt;=4,0.46,IF(AO23=&quot;S&quot;,0.42,&quot;&quot;))))) but the fomula in excel file is =IF(OR(N23&lt;T23,O23&lt;T23,P23&lt;T23),&quot;&quot;,IF(T23&lt;=1,0.42,IF(T23&lt;=3,0.44,IF(T23&gt;=4,0.46,IF(AO23=&quot;S&quot;,0.42,&quot;&quot;))))).\r<br />\nSo, the calculated value is incorrect.\r<br />\nI tried to use the getOldCalculatedValue(), but it gives all values with 0. Is there a way to force excel to calculate the values (like manual open, save and close)? When I open the file manually, saves it and close it and use getOldCalculatedValue(), the values I get are correct.\r<br />\n<br />\nAny idea? It can be how to fix the read of the formula so PhpExcel calculates the value or force MS Excel to open, save and close so it calculates the value and use getOldCalculatedValue() function.\r<br />\n<br />\nThanks!\r<br />\n<br />\nSaludos,<br />\n",
+    "PostedDate": "2013-04-03T07:05:18.33-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1024865",
+    "ThreadId": "438950",
+    "Html": "<strong>ocraw wrote:</strong><br />\n<blockquote>\nI have an issue with some formulas in my excel file (2007).<br />\nI am reading the cells with getValue() and getCalculatedValue().<br />\ngetValue() gives me the following formula =IF(OR(N23&lt;&gt;=4,0.46,IF(AO23=&quot;S&quot;,0.42,&quot;&quot;))))) but the fomula in excel file is =IF(OR(N23&lt;T23,O23&lt;T23,P23&lt;T23),&quot;&quot;,IF(T23&lt;=1,0.42,IF(T23&lt;=3,0.44,IF(T23&gt;=4,0.46,IF(AO23=&quot;S&quot;,0.42,&quot;&quot;))))).<br />\nSo, the calculated value is incorrect.<br />\n</blockquote>\nThat's very strange. The PHPExcel Reader should read any formula from an OfficeOpenXML file <strong>exactly</strong> &quot;as is&quot;. BIFF is more complex because it's tokenised in the file, and needs converting, but OfficeOpenXML formulae are stored as plain text. Can you upload an example file so that I can see what might be happening.<br />\n<blockquote>\nI tried to use the getOldCalculatedValue(), but it gives all values with 0. Is there a way to force excel to calculate the values (like manual open, save and close)? When I open the file manually, saves it and close it and use getOldCalculatedValue(), the values I get are correct.<br />\n</blockquote>\nThe getOldCalculatedValue() method reads the result from the last time MS Excel itself executed its calculation of the formula, but this can be wrong for any number of reasons (formula calculation disabled in MS Excel, dependencies on external workbooks that have subsequently changed.)\r<br />\nThe only way to be recalculate the formula is using the getCalculatedValue() function.<br />\n<blockquote>\nAny idea? It can be how to fix the read of the formula so PhpExcel calculates the value or force MS Excel to open, save and close so it calculates the value and use getOldCalculatedValue() function.<br />\n</blockquote>\nThis isn't the way PHPExcel works. For PHPExcel to force MS Excel to do anything would be to create a dependency on MS Excel being available (and if that was the case you could use PHP's COM extension instead). The whole point of PHPExcel is that it should work without any dependency on MS Excel itself.<br />\n",
+    "PostedDate": "2013-04-03T07:24:40.603-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1024867",
+    "ThreadId": "438950",
+    "Html": "Hi Mark,\r<br />\n<br />\nWhere can I upload the file?<br />\n",
+    "PostedDate": "2013-04-03T07:28:21.16-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1024875",
+    "ThreadId": "438950",
+    "Html": "<a href=\"http://phpexcel.codeplex.com/workitem/10749?ProjectName=phpexcel\" rel=\"nofollow\">http://phpexcel.codeplex.com/workitem/10749?ProjectName=phpexcel</a><br />\n",
+    "PostedDate": "2013-04-03T07:36:51.777-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1024900",
+    "ThreadId": "438950",
+    "Html": "Mark,\r<br />\n<br />\nThis is the name of the uploaded file. Copy of FORMATO PEDIDO.xlsx and this is my code.\r<br />\nThe cells that are not being read correctly is U22 and K22\r<br />\n<br />\ntry \r<br />\n{<br />\n<pre><code>$objPHPexcel = PHPExcel_IOFactory::load('../Documentos/Copy of FORMATO PEDIDO.xlsx');\n$objWorksheet = $objPHPexcel-&gt;setActiveSheetIndex(0);\n$objWorksheet = $objPHPexcel-&gt;getActiveSheet(); \necho $descripcion = $objWorksheet-&gt;getCell('U22')-&gt;getValue(); // Display what the formula is.\n//echo $precio = $objWorksheet-&gt;getCell('J22')-&gt;getValue();\n$objWorksheet-&gt;getCell('B22')-&gt;setValue('9135187'); \n$objWorksheet-&gt;getCell('F22')-&gt;setValue('80');\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPexcel,'Excel2007'); \n$objWriter-&gt;setPreCalculateFormulas(false);\n$objWriter-&gt;save('../Documentos/Copy of FORMATO PEDIDO.xlsx'); \n\n$objPHPexcel = PHPExcel_IOFactory::load('../Documentos/Copy of FORMATO PEDIDO.xlsx');\n$objWorksheet = $objPHPexcel-&gt;setActiveSheetIndex(0);\n$objWorksheet = $objPHPexcel-&gt;getActiveSheet();\n\necho '&lt;/br&gt;Clave '.$clave = $objWorksheet-&gt;getCell('B22')-&gt;getValue();\necho '&lt;/br&gt;Cantidad '.$cantidad = $objWorksheet-&gt;getCell('F22')-&gt;getValue();\necho '&lt;/br&gt;Litros '.$litros = $objWorksheet-&gt;getCell('G22')-&gt;getCalculatedValue();\necho '&lt;/br&gt;Pallets '.$pallets = $objWorksheet-&gt;getCell('H22')-&gt;getCalculatedValue();\necho '&lt;/br&gt;Validacion '.$validacion = $objWorksheet-&gt;getCell('I22')-&gt;getCalculatedValue();\necho '&lt;/br&gt;Precio '.$precio = $objWorksheet-&gt;getCell('J22')-&gt;getCalculatedValue();\necho '&lt;/br&gt;Descuento '.$descuento = $objWorksheet-&gt;getCell('K22')-&gt;getCalculatedValue();\necho '&lt;/br&gt;Descuento Referencia '.$descuento = $objWorksheet-&gt;getCell('U22')-&gt;getCalculatedValue();\necho '&lt;/br&gt;Importe Unitario '.$importe_unitario_descuento = $objWorksheet-&gt;getCell('L22')-&gt;getCalculatedValue();\necho '&lt;/br&gt;Importe '.$importe = $objWorksheet-&gt;getCell('M22')-&gt;getCalculatedValue();\n</code></pre>\n\n} catch(Exception $e) \r<br />\n{<br />\n<pre><code>die('Error loading file: '.$e-&gt;getMessage());</code></pre>\n\n}<br />\n",
+    "PostedDate": "2013-04-03T07:58:58.933-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

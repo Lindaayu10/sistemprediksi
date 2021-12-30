@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "1203118",
+    "ThreadId": "529038",
+    "Html": "I have spent an hour searching online, no solution works, I even defined a new constant\r<br />\n<br />\nI need to make certain cells with the Dollar sign aligned left and the numbers aligned on the right.\r<br />\n<br />\nIs this possible?  If yes, please provide exact complete code and instructions on what page to add it to<br />\n",
+    "PostedDate": "2014-02-05T09:53:05.073-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1203457",
+    "ThreadId": "529038",
+    "Html": "I found it out.<br />\n<br />\nfirst open  PHPExcel_1 &gt; Classes &gt; PHPExcel &gt; Style &gt;  NumberFormat.php<br />\n<br />\nand within this class  \n<br />\n<pre><code>class PHPExcel_Style_NumberFormat extends PHPExcel_Style_Supervisor implements PHPExcel_IComparable\n{\n\n// Add this\nconst FORMAT_ACCOUNTING                 = '_(&quot;$&quot;* #,##0.00_);_(&quot;$&quot;* \\(#,##0.00\\);_(&quot;$&quot;* &quot;-&quot;??_);_(@_)';\n\n}\n</code></pre>\n\nthen when exporting your excel sheet you now have a new number format<br />\n<pre><code>  $objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('D'.$current_row.':E'.$current_row.'')-&gt;getNumberFormat()-&gt;applyFromArray(\n         array(\n             'code' =&gt; PHPExcel_Style_NumberFormat::FORMAT_ACCOUNTING\n         )\n         \n );</code></pre>\n\n<strong>One very important Item to Note!!!</strong><br />\n<br />\n<strong>This only works in Excel iteself, not open office</strong><br />\n<br />\nIf you are using open office, it will not display the number format like excel does.... so dont do what I did going in cricles thinking it wasn't working, once I opended my document in excel, I saw that the format was correct<br />\n",
+    "PostedDate": "2014-02-06T07:09:39.647-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": "2014-02-06T07:11:38.893-08:00"
+  }
+]

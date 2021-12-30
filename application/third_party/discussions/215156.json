@@ -1,0 +1,82 @@
+[
+  {
+    "Id": "452357",
+    "ThreadId": "215156",
+    "Html": "<p>Hi there,</p>\r\n<p>I want to use PHPExcel for reading/writing values to an xlsx file.</p>\r\n<p>I copied the 01simple.xlsx file from de test folder and edited some text and saved the file again. After this I get strange values from PHPExcel.</p>\r\n<p>In cell a1 i have the value 'Hello' but I get the value 'P!b'.</p>\r\n<p>The code I use is:</p>\r\n<p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>&lt;?php\r\n<span style=\"color:blue\">require_once</span>(<span style=\"color:#a31515\">&quot;Classes/PHPExcel/IOFactory.php&quot;</span>);\r\n\r\n$objPHPexcel = PHPExcel_IOFactory::load(<span style=\"color:#a31515\">&quot;01simple.xlsx&quot;</span>);\r\n<span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">&quot;A1 is now: &quot;</span> . $objPHPexcel-&gt;getActiveSheet()-&gt;getCell(<span style=\"color:#a31515\">'A1'</span>)-&gt;getValue().<span style=\"color:#a31515\">&quot;\\n&quot;</span>;\r\n</pre>\r\n</div>\r\n</p>\r\n<p>I use PHP 5.2.4-2ubuntu5.10 with Suhosin-Patch 0.9.6.2 (cli) (built: Jan&nbsp; 6 2010 21:59:29) and the modules I have enabled are:</p>\r\n<p>root@server:~/phpexcel# php5 -m<br>[PHP Modules]<br>bcmath<br>bz2<br>calendar<br>ctype<br>date<br>dba<br>dom<br>exif<br>filter<br>ftp<br>gettext<br>hash<br>iconv<br>json<br>ldap<br>libxml<br>mbstring<br>mime_magic<br>mysql<br>mysqli<br>ncurses<br>openssl<br>pcntl<br>pcre<br>PDO<br>pdo_mysql<br>posix<br>readline<br>Reflection<br>session<br>shmop<br>SimpleXML<br>soap<br>sockets<br>SPL<br>standard<br>sysvmsg<br>sysvsem<br>sysvshm<br>tokenizer<br>wddx<br>xml<br>xmlreader<br>xmlwriter<br>zip<br>zlib<br><br>[Zend Modules]</p>\r\n<p>I hope you can help me with this strange problem and tell me what I am doing wrong.</p>",
+    "PostedDate": "2010-06-07T02:22:15.287-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "452359",
+    "ThreadId": "215156",
+    "Html": "<p>By the way, I use PHPExcel <span style=\"font-size:10pt\" lang=EN-GB>1.7.3</span></p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-06-07T02:25:56.93-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "454299",
+    "ThreadId": "215156",
+    "Html": "Is there nobody who know's the answer?",
+    "PostedDate": "2010-06-11T00:34:49.72-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "454307",
+    "ThreadId": "215156",
+    "Html": "<p>Without a bit more information, there's not much that we can do.</p>\r\n<p>I've just taken 01simple.xlsx, edited it in Excel and saved, then reloaded in PHPExcel; and everything works as I'd expect.</p>\r\n<p>Can you perhaps upload your modified version of 01simple.xlsx so we can at least see what you changed.</p>",
+    "PostedDate": "2010-06-11T01:01:04.487-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "454316",
+    "ThreadId": "215156",
+    "Html": "Thanks for your reply MarkBaker.\r\n\r\nI uploaded the file: http://phpexcel.codeplex.com/Project/Download/AttachmentDownload.ashx?ProjectName=PHPExcel&WorkItemId=10749&FileAttachmentId=4564\r\n\r\nHope you can find something.",
+    "PostedDate": "2010-06-11T01:42:01.343-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "455161",
+    "ThreadId": "215156",
+    "Html": "<p>I'm still having problems identifying any issue with this:</p>\r\n<p>I've used the following script to load your file</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>error_reporting(E_ALL);\r\ndate_default_timezone_set(<span style=\"color:#a31515\">'Europe/London'</span>);</pre>\r\n<pre>\r\nset_include_path(get_include_path() . PATH_SEPARATOR . <span style=\"color:#a31515\">'./Classes/'</span>);\r\n<span style=\"color:blue\">include</span> <span style=\"color:#a31515\">'PHPExcel/IOFactory.php'</span>;</pre>\r\n<pre>\r\n?&gt;\r\n&lt;html&gt;\r\n&lt;head&gt;\r\n    &lt;meta http-equiv=<span style=\"color:#a31515\">&quot;Content-Type&quot;</span> content=<span style=\"color:#a31515\">&quot;text/html; charset=UTF-8&quot;</span> /&gt;\r\n    &lt;title&gt;Worksheet Bug Test&lt;/title&gt;\r\n&lt;/head&gt;\r\n&lt;body&gt;\r\n&lt;?php\r\n$fileType = <span style=\"color:#a31515\">'Excel2007'</span>;\r\n$fileName = <span style=\"color:#a31515\">'wesselkranenborg-01simple.xlsx'</span>;\r\n\r\n<span style=\"color:blue\">try</span> {\r\n $objPHPExcel = PHPExcel_IOFactory::load($fileName);\r\n} <span style=\"color:blue\">catch</span> (Exception $e) {\r\n <span style=\"color:blue\">die</span>(<span style=\"color:#a31515\">&quot;Error loading file: &quot;</span>.$e-&gt;getMessage().<span style=\"color:#a31515\">&quot;&lt;br /&gt;\\n&quot;</span>);\r\n}\r\n\r\n$sheet = $objPHPExcel-&gt;getActiveSheet();\r\n$cells = <span style=\"color:blue\">array</span>(<span style=\"color:#a31515\">'A1'</span>,<span style=\"color:#a31515\">'B2'</span>,<span style=\"color:#a31515\">'C1'</span>,<span style=\"color:#a31515\">'D2'</span>,<span style=\"color:#a31515\">'A4'</span>,<span style=\"color:#a31515\">'A5'</span>);\r\n<span style=\"color:blue\">foreach</span>($cells <span style=\"color:blue\">as</span> $cell) {\r\n   $value = $sheet-&gt;getCell($cell)-&gt;getValue();\r\n<span style=\"color:blue\">   echo</span> <span style=\"color:#a31515\">'&lt;b&gt;'</span>.$cell.<span style=\"color:#a31515\">' Value is &lt;/b&gt;'</span>.$value.<span style=\"color:#a31515\">&quot;&lt;br /&gt;\\n&quot;</span>;\r\n}</pre>\r\n<pre>?&gt;</pre>\r\n<pre>&lt;/body&gt;</pre>\r\n<pre>&lt;/html&gt;<br></pre>\r\n</div>\r\n<p>And I'm getting the following results:</p>\r\n<p><strong>A1 Value is </strong>Hello<br><strong>B2 Value is </strong>world!<br><strong>C1 Value is </strong>Hello<br><strong>D2 Value is </strong>world!<br><strong>A4 Value is </strong>Miscellaneous glyphs<br><strong>A5 Value is </strong>&eacute;&agrave;&egrave;&ugrave;&acirc;&ecirc;&icirc;&ocirc;&ucirc;&euml;&iuml;&uuml;&yuml;&auml;&ouml;&uuml;&ccedil;</p>\r\n<p>The only thing I can think of that might change &quot;Hello&quot; to &quot;P!b&quot; is your display page charset, although even then it should only affect the value of cell A5</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-06-14T05:46:26.373-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "455197",
+    "ThreadId": "215156",
+    "Html": "Thanks for your reply.<br>\r\n<br>\r\nI tried your script and the result I get is:<br>\r\nA1 Value is PK&#3;&#4;&#20;�&#6;�&#8;���!�b<br>\r\nB2 Value is<br>\r\nC1 Value is<br>\r\nD2 Value is<br>\r\nA4 Value is &#7;&#16;<br>\r\nA5 Value is &$<br>\r\n<br>\r\nI use the following script for this which is the script which is called from the browser. We use this because our server can't use de php5 apache2-module or cgi version but only the cli version.<br>\r\n&lt;?php<br>\r\npassthru('php5 phpexcel.php');<br>\r\n<br>\r\nThe content of the phpexcel.php is exactly the script you mentioned above.<br>\r\n<br>\r\nWhen I run the php5 phpexcel.php from the command line of my unix server I get the same output.<br>\r\n",
+    "PostedDate": "2010-06-14T06:46:02.153-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "458848",
+    "ThreadId": "215156",
+    "Html": "<p>Has anybody an idea what I do wrong?</p>",
+    "PostedDate": "2010-06-23T01:20:12.983-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "463644",
+    "ThreadId": "215156",
+    "Html": "<p>Pls correct me if I am wrong. What I suspect on this issue is Language setting. I think, &nbsp;you guys are having different language settings.&nbsp;<a href=\"http://www.codeplex.com/site/users/view/wesselkranenborg\">wesselkranenborg</a>, if possible, can you try again after changing your language setting.</p>",
+    "PostedDate": "2010-07-06T00:44:16.027-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "463951",
+    "ThreadId": "215156",
+    "Html": "<p>Hi <a id=\"ctl00_ctl00_MasterContent_Content_PostRepeater_ctl14_UserNameLink\" href=\"http://www.codeplex.com/site/users/view/wesselkranenborg\">wesselkranenborg</a>!</p>\r\n<p>You have coding problem.</p>\r\n<p>You must use &quot;iconv&quot; function.</p>\r\n<p>example -</p>\r\n<p>$value = $sheet-&gt;getCell($cell)-&gt;getValue();</p>\r\n<p>$vv=iconv(&quot;UTF-8&quot;,&quot;CP1252&quot;,&quot;$value&quot;);</p>\r\n<p>&nbsp;</p>\r\n<p>read about &quot;iconv&quot; if you don't know what it is....&nbsp;&nbsp; :)</p>\r\n<p>good luck!</p>",
+    "PostedDate": "2010-07-06T14:22:52.283-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

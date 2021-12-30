@@ -1,0 +1,39 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel_Writer_CSV",
+      "DisplayName": "PHPExcel_Writer_CSV"
+    },
+    "ClosedComment": "Fixed in SVN",
+    "ClosedDate": "2008-09-02T00:49:42.453-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Very Slow PHPExcel_Writer_CSV with 100% CPU during 17min to create 2000 lines\n \nWriter_CSV is 17 times longer than Writer_Excel5\n \n\t\t$titres = array(\n\t\t\t\"A\",\n\t\t\t\"B\",\n\t\t\t\"C\",\n\t\t\t...\n\t\t\t\"Z\",\n\t\t\t\"AA\",\n\t\t\t\"AB\",\n\t\t\t\"AC\",\n\t\t\t\"AD\",\n\t\t\t\"AE\",\n\t\t\t\"AF\"\n\t\t\t);\n \n\t\tfor( $iCol = 0; $iCol<count($titres); $iCol++) {\n\t\t\t$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($iCol,$iRow,$titres[$iCol]);\n\t\t}\n\t\t\n\t\twhile($row = mysql_fetch_assoc($result)) {\n\t\t\n\t\t\t$iCol = 0;\n\t\t\t$iRow++;\n\t\t\t\n\t\t\tforeach( $row as $key => $val ) {\n\t\t\t\t$objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow($iCol,$iRow,$val,PHPExcel_Cell_DataType::TYPE_STRING);\t\t\t\t\n\t\t\t\t$iCol++;\t\t\t\t\t\t\t\t\n\t\t\t}\n \n\t\t}\t\n \n \nPHPExcel_Writer_CSV : SAVING in 17 min\n18:11:59 PHPExcel START\n18:11:59 PHPExcel End Of Query.\n18:12:05 PHPExcel is load whith objPHPExcel.\n18:12:05 PHPExcel objWriter is instanciate.\n18:12:05 PHPExcel saving... to file.\n18:29:11 PHPExcel saved.\nwith source :\n$objWriter = new PHPExcel_Writer_CSV($objPHPExcel);\necho date('H:i:s') . \" PHPExcel objWriter is instanciate.\\r\\n\";\n$objWriter->setDelimiter(';');\n$objWriter->setEnclosure('\"');\n$objWriter->setLineEnding(\"\\r\\n\");\n$objWriter->setSheetIndex(0);\n$objWriter->setPreCalculateFormulas(false);\necho date('H:i:s') . \" PHPExcel saving... to file.\\r\\n\";\n$objWriter->save(\"/tmp/csv.csv\");\necho date('H:i:s') . \" PHPExcel saved.\\r\\n\";\n \nPHPExcel_Writer_Excel5 : SAVING in 1 min\n18:29:56 PHPExcel START\n18:29:57 PHPExcel End Of Query.\n18:30:03 PHPExcel is load whith objPHPExcel.\n18:30:03 PHPExcel objWriter is instanciate.\n18:30:03 PHPExcel saving... to file.\n18:31:02 PHPExcel saved... to file.\nwith source : \n$objWriter = new PHPExcel_Writer_Excel5($objPHPExcel);\necho date('H:i:s') . \" PHPExcel objWriter is instanciate.\\r\\n\";\necho date('H:i:s') . \" PHPExcel saving... to file.\\r\\n\";\n$objWriter->save(\"/tmp/csv.xls\");\necho date('H:i:s') . \" PHPExcel saved.\\r\\n\";\n \nUsing PHPExcel-1.6.3 and same problem with PHPExcel-1.6.1\nCPU is Intel(R) Xeon(TM) CPU 2.80GHz\n \nI do not understand why it's so long...",
+    "LastUpdatedDate": "2013-05-16T05:43:22.883-07:00",
+    "PlannedForRelease": "PHPExcel 1.6.4 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2008-08-28T09:48:55.91-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Improve speed and memory consumption of PHPExcel_Writer_CSV",
+    "Type": {
+      "Name": "Feature",
+      "Id": 1
+    },
+    "VoteCount": 1,
+    "Id": 7445
+  },
+  "FileAttachments": [],
+  "Comments": []
+}

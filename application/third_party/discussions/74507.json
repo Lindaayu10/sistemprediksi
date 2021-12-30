@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "254904",
+    "ThreadId": "74507",
+    "Html": "<p>I am creating excel files with no problem and only have issues with the pdf output.</p>\r\n<p>I am generating output using csv files, I don't know if this makes any difference when generating pdf output</p>\r\n<p>writer being used with version&nbsp;1.7.0:</p>\r\n<pre><pre>\t\t\t// redirect output to client browser\r\n    \t\theader(&quot;Pragma: public&quot;);\r\n    \t\theader(&quot;Expires: 0&quot;);\r\n    \t\theader(&quot;Cache-Control: must-revalidate, post-check=0, pre-check=0&quot;);\r\n\t\theader(&quot;Content-type: application/pdf&quot;);\r\n    \t\theader(&quot;Pragma: public&quot;);\r\n    \t\theader(&quot;Cache-Control: must-revalidate, post-check=0, pre-check=0&quot;);\t\t\r\n    \t\theader(&quot;Content-Disposition: attachment;filename=$report.pdf&quot;);\r\n    \t\theader(&quot;Content-Transfer-Encoding: binary &quot;);\r\n\r\n\t\t$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcelFromCSV, 'PDF');\r\n\t\t$objWriter-&gt;save('php://output'); \r\n</pre>\r\n</pre>\r\n<p>The first problem is when trying to use an image in the pdf.&nbsp; tcpdf throws an error that it is unable to find the image.&nbsp; I am using the full path to the image file (same for excel output).&nbsp; Is there anything different I should do with respect to the image path for pdf output?</p>\r\n<p>The second problem is that the number format FORMAT_USD_SIMPLE is not working.&nbsp; Looks fine on excel but with pdf output the decimal is missing so $5,687.52 ends up being $568752</p>\r\n<p>The last problem&nbsp;I is that the pdf output is apparently not using the column widths that were set and is wrapping text.&nbsp; I am setting column widths with:</p>\r\n<pre>\t\t$objPHPExcelFromCSV-&gt;getActiveSheet()-&gt;getColumnDimension('A')-&gt;setWidth(10);\r\n\t\t$objPHPExcelFromCSV-&gt;getActiveSheet()-&gt;getColumnDimension('B')-&gt;setWidth(10);\r\n\t\t$objPHPExcelFromCSV-&gt;getActiveSheet()-&gt;getColumnDimension('C')-&gt;setWidth(15);\r\n\t\t$objPHPExcelFromCSV-&gt;getActiveSheet()-&gt;getColumnDimension('D')-&gt;setWidth(15);\r\n\tetc...</pre>\r\n<pre>Is there something different I should do to get the pdf to follow the widths I set?</pre>",
+    "PostedDate": "2009-11-08T21:57:52.7-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "254912",
+    "ThreadId": "74507",
+    "Html": "<p>Can you upload 2 files:</p>\r\n<p>1. Sample Excel file that you generated</p>\r\n<p>2. Corresponding PDF file that you generated showing broken number format and wrong column width</p>\r\n<p>Please bundle the two files in a zip archive and upload here:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10749\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10749</a></p>",
+    "PostedDate": "2009-11-08T22:30:10.543-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "255009",
+    "ThreadId": "74507",
+    "Html": "<p>Hi tomdchi, can you check if you forgot to upload the file?</p>",
+    "PostedDate": "2009-11-09T04:21:39.953-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "255343",
+    "ThreadId": "74507",
+    "Html": "<p>I can reproduce the problem. Let's deal with one thing at a time.</p>\r\n<p>Decimal and thousands separator problem:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10913\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10913</a></p>",
+    "PostedDate": "2009-11-09T21:52:37.037-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "256193",
+    "ThreadId": "74507",
+    "Html": "<p>With latest source code tomorrow:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx\">http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx</a></p>\r\n<p>Try to put this before the export and see if the problem with decimal/thousands separators disappears.</p>\r\n<p><span id=\"ctl00_ctl00_MasterContent_Content_CommentsRepeater_ctl00_MessageLabel\" style=\"display:inline-block;width:99%\">\r\n<div style=\"color:Black;background-color:White\">\r\n<pre><span style=\"color:Blue\">require_once</span> <span style=\"color:#A31515\">'PHPExcel/Shared/String.php'</span>\r\nPHPExcel_Shared_String::setDecimalSeparator(<span style=\"color:#A31515\">'.'</span>);\r\nPHPExcel_Shared_String::setThousandsSeparator(<span style=\"color:#A31515\">','</span>);\r\n</pre>\r\n</div>\r\n</span></p>",
+    "PostedDate": "2009-11-11T19:44:32.023-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "256605",
+    "ThreadId": "74507",
+    "Html": "\r\n\r\n<div class=Section1>\r\n\r\n<p class=MsoNormal><span style=\"font-size:11.0pt;font-family:'Calibri','sans-serif';color:#1F497D\">Thousands separator and decimal are now working with latest svn. \r\nI did notice  that in excel output the double underline shows properly but in\r\npdf it shows as a single line.  Not a big deal at all though.</span></p>\r\n\r\n<p class=MsoNormal><span style=\"font-size:11.0pt;font-family:'Calibri','sans-serif';color:#1F497D\"> </span></p>\r\n\r\n<p class=MsoNormal><span style=\"font-size:11.0pt;font-family:'Calibri','sans-serif';color:#1F497D\">Awesome work!!</span></p>\r\n\r\n<p class=MsoNormal><span style=\"font-size:11.0pt;font-family:'Calibri','sans-serif';color:#1F497D\"> </span></p>\r\n\r\n<p class=MsoNormal><span style=\"font-size:11.0pt;font-family:'Calibri','sans-serif';color:#1F497D\">Tom</span></p>\r\n\r\n<p class=MsoNormal><span style=\"font-size:11.0pt;font-family:'Calibri','sans-serif';color:#1F497D\"> </span></p>\r\n\r\n<p class=MsoNormal><span style=\"font-size:11.0pt;font-family:'Calibri','sans-serif';color:#1F497D\"> </span></p>\r\n\r\n<div>\r\n\r\n<div style=\"border:none;border-top:solid #B5C4DF 1.0pt;padding:3.0pt 0in 0in 0in\">\r\n\r\n<p class=MsoNormal><b><span style=\"font-size:10.0pt;font-family:'Tahoma','sans-serif'\">From:</span></b><span style=\"font-size:10.0pt;font-family:'Tahoma','sans-serif'\"> koyama\r\n[mailto:notifications@codeplex.com] <br>\r\n<b>Sent:</b> Friday, November 13, 2009 12:07 AM<br>\r\n<b>To:</b> tom@rapidach.com<br>\r\n<b>Subject:</b> Re: Issues with pdf image and number format [PHPExcel:74507]</span></p>\r\n\r\n</div>\r\n\r\n</div>\r\n\r\n<p class=MsoNormal> </p>\r\n\r\n<p><span style=\"font-size:9.0pt;font-family:'Verdana','sans-serif'\">From:\r\nkoyama</span></p>\r\n\r\n<div style=\"margin-bottom:24.0pt\" id=ThreadNotificationPostBody>\r\n\r\n<p><span style=\"font-size:9.0pt;font-family:'Verdana','sans-serif'\">With latest\r\nsource code tomorrow:</span></p>\r\n\r\n<p><span style=\"font-size:9.0pt;font-family:'Verdana','sans-serif'\"><a href=\"http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx\">http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx</a></span></p>\r\n\r\n<p><span style=\"font-size:9.0pt;font-family:'Verdana','sans-serif'\">Try to put\r\nthis before the export and see if the problem with decimal/thousands separators\r\ndisappears.</span></p>\r\n\r\n<div><pre style=\"background:white\"><span style=\"font-size:11.5pt;color:blue\">require_once</span><span style=\"font-size:11.5pt;color:black\"> </span><span style=\"font-size:11.5pt;color:#A31515\">'PHPExcel/Shared/String.php'</span><span style=\"font-size:11.5pt;color:black\"></span></pre><pre style=\"background:white\"><span style=\"font-size:11.5pt;color:black\">PHPExcel_Shared_String::setDecimalSeparator(</span><span style=\"font-size:11.5pt;color:#A31515\">'.'</span><span style=\"font-size:11.5pt;color:black\">);</span></pre><pre style=\"background:white\"><span style=\"font-size:11.5pt;color:black\">PHPExcel_Shared_String::setThousandsSeparator(</span><span style=\"font-size:11.5pt;color:#A31515\">','</span><span style=\"font-size:11.5pt;color:black\">);</span></pre></div>\r\n\r\n</div>\r\n\r\n<div style=\"border:none;border-top:solid #CCCCCC 1.0pt;padding:0in 0in 0in 0in\" id=ThreadNotificationFooter>\r\n\r\n<p><span style=\"font-size:9.0pt;font-family:'Verdana','sans-serif';color:gray\">Read\r\nthe <a href=\"http://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=74507&ANCHOR#Post256193\">full\r\ndiscussion online</a>.</span></p>\r\n\r\n<p><span style=\"font-size:9.0pt;font-family:'Verdana','sans-serif';color:gray\">To\r\nadd a post to this discussion, reply to this email (<a href=\"mailto:PHPExcel@discussions.codeplex.com?subject=[PHPExcel:74507]\">PHPExcel@discussions.codeplex.com</a>)</span></p>\r\n\r\n<p><span style=\"font-size:9.0pt;font-family:'Verdana','sans-serif';color:gray\">To\r\nstart a new discussion for this project, email <a href=\"mailto:PHPExcel@discussions.codeplex.com\">PHPExcel@discussions.codeplex.com</a></span></p>\r\n\r\n<p><span style=\"font-size:9.0pt;font-family:'Verdana','sans-serif';color:gray\">You\r\nare receiving this email because you subscribed to this discussion on CodePlex.\r\nYou can <a href=\"http://www.codeplex.com/site/discussions/thread/unsubscribe/74507\">unsubscribe</a>\r\non codePlex.com.</span></p>\r\n\r\n<p><span style=\"font-size:9.0pt;font-family:'Verdana','sans-serif';color:gray\">Please\r\nnote: Images and attachments will be removed from emails. Any posts to this\r\ndiscussion will also be available online at codeplex.com</span></p>\r\n\r\n</div>\r\n\r\n</div>\r\n\r\n",
+    "PostedDate": "2009-11-12T23:14:34.657-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,82 @@
+[
+  {
+    "Id": "239619",
+    "ThreadId": "70352",
+    "Html": "<p>I'm using version 1.6.6 and everything is cool :-)</p>\r\n<p>Today I've updated to the latest version of PHPExcel and found that this construction doesn't work:</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre><span style=\"color:Blue\">foreach</span> ($worksheet-&gt;getDrawingCollection() <span style=\"color:Blue\">as</span> $i =&gt; $drawing) {\r\n\r\n}\r\n</pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>Point me pls what I've got to do to use the new version of PHPExcel?</p>",
+    "PostedDate": "2009-09-28T10:32:45.233-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "239778",
+    "ThreadId": "70352",
+    "Html": "<p>This is strange, to my knowledge it should still be working in PHPExcel 1.7.0. Are you getting any error messages?</p>\r\n<p>Can you provide some information about the situation you are using the code in, e.g. are you reading xls/xlsx file ?</p>",
+    "PostedDate": "2009-09-28T19:45:34.64-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "239846",
+    "ThreadId": "70352",
+    "Html": "<p>I'm reading Excel 2007 (.xlsx) file, no error messages (set error_reporting(6143)), just $worksheet-&gt;getDrawingCollection is empty.</p>",
+    "PostedDate": "2009-09-28T22:54:53.823-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "240022",
+    "ThreadId": "70352",
+    "Html": "<p>Do you have several sheets in the workbook? There was a bug in PHPExcel 1.6.6 where it was not reading the active sheet index. The active sheet was always the first sheet.</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=9743\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=9743</a></p>\r\n<p>When you open the xlsx file in Microsoft Office Excel, what sheet do you see? This is the active sheet.</p>\r\n<p>My guess is that  the active sheet is something else that you expect.</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$objPHPExcel-&gt;setActiveSheetIndex(0); &lt;--- insert this line\r\n<br>$worksheet = $objPHPExcel-&gt;getActiveSheet();\r\n<span style=\"color:Blue\">foreach</span> ($worksheet-&gt;getDrawingCollection() <span style=\"color:Blue\">as</span> $i =&gt; $drawing) {\r\n\r\n}\r\n\r\n\r\n</pre>\r\n</div>",
+    "PostedDate": "2009-09-29T08:11:04.903-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "240030",
+    "ThreadId": "70352",
+    "Html": "<p>No no no! When I'm using a 1.6.6 version - everything works perfect, I know about this bug.</p>\r\n<p>But when I'm using version 1.7.0 - my script doesn't see any images in .xlsx file.</p>",
+    "PostedDate": "2009-09-29T08:29:56.673-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "240039",
+    "ThreadId": "70352",
+    "Html": "<p>&nbsp;</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre><span style=\"color:Green\">// Here is the part of my code.</span>\r\n\r\n<span style=\"color:Green\">// with 1.6.6 it works, with 1.7.0 - doesn't (((</span>\r\n\r\nerror_reporting(6143);\r\n\r\nini_set(<span style=\"color:#A31515\">'include_path'</span>, <span style=\"color:#A31515\">'./Classes/'</span>);\r\n\r\n<span style=\"color:Blue\">include</span>(<span style=\"color:#A31515\">&quot;PHPExcel.php&quot;</span>);\r\n<span style=\"color:Blue\">include</span> (<span style=\"color:#A31515\">&quot;PHPExcel/Reader/Excel2007.php&quot;</span>);\r\n\r\n$reader = <span style=\"color:Blue\">new</span> PHPExcel_Reader_Excel2007();\r\n$reader-&gt;setReadDataOnly(true);\r\n\r\n$PHPExcel = $reader-&gt;load(@$excel);<span style=\"color:Green\">//открываем экселевский файл</span>\r\n\r\n$worksheet = $PHPExcel-&gt;getActiveSheet();\r\n\r\n<span style=\"color:Blue\">foreach</span> ($worksheet-&gt;getDrawingCollection() <span style=\"color:Blue\">as</span> $i =&gt; $drawing) {\r\n\r\n    <span style=\"color:Blue\">echo</span> <span style=\"color:#A31515\">&quot;Bingo!&quot;</span>;\r\n\r\n}\r\n\r\n\r\n</pre>\r\n</div>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-09-29T08:37:51.247-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "240041",
+    "ThreadId": "70352",
+    "Html": "<p>P.S. The problem happens only with images, with cell values etc. it works great!</p>",
+    "PostedDate": "2009-09-29T08:39:28.623-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "240048",
+    "ThreadId": "70352",
+    "Html": "<p>But you have this line?</p>\r\n<pre>$reader-&gt;setReadDataOnly(true);<br><br></pre>\r\n<p>It makes the reader skip images. Can you try to take that line out?</p>",
+    "PostedDate": "2009-09-29T08:49:07.537-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "240114",
+    "ThreadId": "70352",
+    "Html": "<p>But it works in 1.6.6.</p>\r\n<p>Is this a new feature of 1.7.0 or bug of 1.6.6 ?</p>\r\n<p>There are too much memory usage without this line :-( But it works! Thanks!</p>",
+    "PostedDate": "2009-09-29T11:16:57.367-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "240117",
+    "ThreadId": "70352",
+    "Html": "<p><em>&gt;&gt; There are too much memory usage without this line</em></p>\r\n<p>Starting with PHPExcel 1.7.0 memory usage from styles have been practically  eliminated. Therefore <span style=\"font-family:Courier New\">setReadDataOnly(true)</span> should no longer be necessary for saving memory.</p>",
+    "PostedDate": "2009-09-29T11:23:47.437-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

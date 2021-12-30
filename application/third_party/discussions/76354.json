@@ -1,0 +1,66 @@
+[
+  {
+    "Id": "260998",
+    "ThreadId": "76354",
+    "Html": "<p>Hi,</p>\r\n<p>I have the same problem as posted by Urkman <span id=\"ctl00_ctl00_MasterContent_Content_PostRepeater_ctl00_Timestamp\">Oct 14 at 10:58 AM.</span></p>\r\n<p><span>My generated file is valid on localhost using XAMP but the same code from server bring me broken xls file. I checked iconv and works fine in my case. I'm using latest (1.7.1) version of library. I alsow check if any errors will occur by using:</span></p>\r\n<p>error_reporting(E_ALL);<br>ini_set('display_errors', '1');</p>\r\n<p><span> but nothing showed. </span></p>\r\n<p><span>I used </span>Tests\\01simple-download-xls.php to generate both files. Localhost PHP 5.2.9, server PHP 5.2.4</p>\r\n<p>&nbsp;</p>\r\n<p><span>If i save file on serwer and then download everything works fine and file is valid but encoding fails.<br></span></p>",
+    "PostedDate": "2009-11-26T14:10:29.803-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "261000",
+    "ThreadId": "76354",
+    "Html": "<p>I posted files in generateErrors.zip</p>",
+    "PostedDate": "2009-11-26T14:14:20.727-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "261021",
+    "ThreadId": "76354",
+    "Html": "<p>Somehow a line break got inserted at the beginning of the file called 76354-01simple(server).xls as seen when opened in a text editor<br><br><a href=\"http://img28.imageshack.us/img28/3651/ss20091127033849.png\"><img src=\"http://img28.imageshack.us/img28/3651/ss20091127033849.th.png\" border=0 alt=\"\"></a><br> <br>It should look like in 76354-01simple(local).xls<br><br><a href=\"http://img28.imageshack.us/img28/2686/ss20091127033859.png\"><img src=\"http://img28.imageshack.us/img28/2686/ss20091127033859.th.png\" border=0 alt=\"\"></a></p>\r\n<p>Perhaps you have a newline before the opening <span style=\"font-family:Courier New\">&lt;?php</span> in your script?</p>",
+    "PostedDate": "2009-11-26T18:46:47.367-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "261086",
+    "ThreadId": "76354",
+    "Html": "<p>Thank you for fast replay. You were right, that was empty line in my application. I have another question about speed. My code:</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>\t\t$objPHPExcel = <span style=\"color:Blue\">new</span> PHPExcel();\r\n\t\r\n\t\t<span style=\"color:Green\">// Set properties</span>\r\n\t\t$objPHPExcel-&gt;getProperties()-&gt;setCreator(<span style=\"color:#A31515\">&quot;System&quot;</span>);\r\n\t\t\t\r\n\t\t<span style=\"color:Green\">// Add some data</span>\r\n\t\t$objPHPExcel-&gt;setActiveSheetIndex(0);\r\n\t\t\r\n\t\t$styleHeaderArray = <span style=\"color:Blue\">array</span>(\r\n\t\t\t<span style=\"color:#A31515\">'font'</span> =&gt; <span style=\"color:Blue\">array</span>(\r\n\t\t\t\t<span style=\"color:#A31515\">'bold'</span> =&gt; true,\r\n\t\t\t),\r\n\t\t\t<span style=\"color:#A31515\">'alignment'</span> =&gt; <span style=\"color:Blue\">array</span>(\r\n\t\t\t\t<span style=\"color:#A31515\">'horizontal'</span> =&gt; PHPExcel_Style_Alignment::HORIZONTAL_CENTER,\r\n\t\t\t\t<span style=\"color:#A31515\">'vertical'</span> =&gt; PHPExcel_Style_Alignment::HORIZONTAL_CENTER,\r\n\t\t\t),\r\n\t\t\t<span style=\"color:#A31515\">'borders'</span> =&gt; <span style=\"color:Blue\">array</span>(\r\n\t\t\t\t<span style=\"color:#A31515\">'allborders'</span> =&gt; <span style=\"color:Blue\">array</span>(\r\n\t\t\t\t\t<span style=\"color:#A31515\">'style'</span> =&gt; PHPExcel_Style_Border::BORDER_THIN,\r\n\t\t\t\t),\r\n\t\t\t\t<span style=\"color:#A31515\">'color'</span> =&gt; <span style=\"color:Blue\">array</span>(\r\n\t\t\t\t\t<span style=\"color:#A31515\">'rgb'</span> =&gt; PHPExcel_Style_Color::COLOR_BLACK,\t\t\t \r\n\t\t\t\t),\r\n\t\t\t),\r\n\t\t\t<span style=\"color:#A31515\">'fill'</span> =&gt; <span style=\"color:Blue\">array</span>(\r\n\t\t\t\t<span style=\"color:#A31515\">'type'</span> =&gt; PHPExcel_Style_Fill::FILL_SOLID,\r\n\t\t\t\t<span style=\"color:#A31515\">'startcolor'</span> =&gt; <span style=\"color:Blue\">array</span>(\r\n\t\t\t\t\t<span style=\"color:#A31515\">'rgb'</span> =&gt; <span style=\"color:#A31515\">'FFFFCC'</span>,\r\n\t\t\t\t),\r\n\t\t\t),\r\n\t\t);\r\n\t\t\r\n\t\t<span style=\"color:Green\">// Set headers &amp; autosize</span>\r\n\t\t<span style=\"color:Blue\">foreach</span>($this-&gt;headers <span style=\"color:Blue\">as</span> $key =&gt; $val){\r\n\t\t\t$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueExplicitByColumnAndRow($key, 1, $val);\r\n\t\t\t$objPHPExcel-&gt;getActiveSheet()-&gt;getStyleByColumnAndRow($key, 1)-&gt;applyFromArray($styleHeaderArray);\r\n\t\t\t$objPHPExcel-&gt;getActiveSheet()-&gt;getColumnDimensionByColumn($key)-&gt;setAutoSize(true);\r\n\t\t}\r\n\t\r\n\t\t$objPHPExcel-&gt;getActiveSheet()-&gt;getRowDimension(<span style=\"color:#A31515\">'1'</span>)-&gt;setRowHeight(25);\r\n\t\t\r\n\t\t<span style=\"color:Blue\">foreach</span>($this-&gt;result <span style=\"color:Blue\">as</span> $row =&gt; $rowData){\r\n\t\t\t<span style=\"color:Green\">//set values </span>\r\n\t\t\tset_time_limit(20);\r\n\t\t\t<span style=\"color:Blue\">foreach</span>($rowData <span style=\"color:Blue\">as</span> $column =&gt; $cellValue){\r\n\t\t\t\t$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueExplicitByColumnAndRow($column, ($row+2), $cellValue);\r\n\t\t\t}\r\n\t\t\t\r\n\t\t\t<span style=\"color:Green\">//row height</span>\r\n\t\t\t$objPHPExcel-&gt;getActiveSheet()-&gt;getRowDimension(($row+2))-&gt;setRowHeight(15);\r\n\t\t}\r\n\t\t\r\n\t\t<span style=\"color:Green\">// Rename sheet</span>\r\n\t\t$objPHPExcel-&gt;getActiveSheet()-&gt;setTitle(<span style=\"color:#A31515\">'Simple'</span>);\t\r\n\t\t\r\n\t\t\r\n\t\t<span style=\"color:Green\">// Redirect output to a client&rsquo;s web browser (Excel5)</span>\r\n\t\theader(<span style=\"color:#A31515\">'Content-Type: application/vnd.ms-excel'</span>);\r\n\t\theader(<span style=\"color:#A31515\">'Content-Disposition: attachment;filename=&quot;test.xls&quot;'</span>);\r\n\t\theader(<span style=\"color:#A31515\">'Cache-Control: max-age=0'</span>);\r\n\t\t\r\n\t\t$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, <span style=\"color:#A31515\">'Excel5'</span>);\r\n\t\t$objWriter-&gt;save(<span style=\"color:#A31515\">'php://output'</span>); \r\n\r\n\t\t<span style=\"color:Blue\">exit</span>;\r\n</pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>9 columns and 7245 rows generation time is about 34s. Is there any way to speed up this process?</p>",
+    "PostedDate": "2009-11-27T01:35:02.117-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "280413",
+    "ThreadId": "76354",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>pawaroti wrote:</strong><br>\r\n<p>9 columns and 7245 rows generation time is about 34s. Is there any way to speed up this process?</p>\r\n</blockquote>\r\n<p>AutoSize columns is known to slow down the process.</p>",
+    "PostedDate": "2010-01-21T23:25:25.38-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1096829",
+    "ThreadId": "76354",
+    "Html": "Hello all,\r<br />\n<br />\nI have the same proble. When I open a generated file i have`t a empty line. Can you help me?<br />\n",
+    "PostedDate": "2013-09-20T02:01:26.89-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1096851",
+    "ThreadId": "76354",
+    "Html": "I FIND THE SOLUTION OF MY PROBLEM!!!!! \r<br />\n<br />\nJust must clean the buffer before settin the header part like this: \r<br />\n<br />\nif (ob_get_contents()) ob_end_clean();<br />\n",
+    "PostedDate": "2013-09-20T02:51:09.25-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1096858",
+    "ThreadId": "76354",
+    "Html": "Cleaning the output buffer is hiding the problem: somewhere in your script, there is still something that's generating output, whether that output is whitespace, a BOM header, an error message or whatever<br />\n",
+    "PostedDate": "2013-09-20T03:03:33.44-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

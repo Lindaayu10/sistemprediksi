@@ -1,0 +1,202 @@
+[
+  {
+    "Id": "216873",
+    "ThreadId": "63779",
+    "Html": "<p>I'm trying to write data into excel file with looping method, everything seem fine...no errors, able to download the excel file. However, it prompt up a message &quot;Excel found unreadable content in...Do you want to recover the contents for this workbook?...&quot;. Here is the code:</p>\r\n<p>error_reporting(E_ALL);<br><br>/** Include path **/<br>set_include_path(get_include_path() . PATH_SEPARATOR . '../Classes/');<br><br>/** PHPExcel */<br>include 'PHPExcel.php';<br><br>/** PHPExcel_IOFactory */<br>include 'PHPExcel/IOFactory.php';<br><br>// Create new PHPExcel object<br>$objPHPExcel = new PHPExcel();</p>\r\n<p>&nbsp;</p>\r\n<pre>for($i=0; $i&lt;20; $i++){\r\n\t  $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('A'.($i+4), 'A'.($i+4));\r\n\t  $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('B'.($i+4), 'B'.($i+4));\r\n\t  $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('C'.($i+4), 'C'.($i+4));\r\n\t  $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('D'.($i+4), 'D'.($i+4));\r\n\t  $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('E'.($i+4), 'E'.($i+4));\r\n\t  $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('F'.($i+4), 'F'.($i+4));\r\n\t  $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('G'.($i+4), 'G'.($i+4));\r\n\t  $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('H'.($i+4), 'H'.($i+4));\r\n\t  $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('I'.($i+4), 'I'.($i+4));\r\n}<br>$objPHPExcel-&gt;getActiveSheet()-&gt;setTitle('Simple');<br>$objPHPExcel-&gt;setActiveSheetIndex(0);<br><br>header('Content-Type: application/vnd.ms-excel');<br>header('Content-Disposition: attachment;filename=&quot;test-'.date('dMY').'.xls&quot;');<br>header('Cache-Control: max-age=0');<br>$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');<br>$objWriter-&gt;save('php://output');<br><br>Any ideas??</pre>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-07-28T10:00:40.203-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "216919",
+    "ThreadId": "63779",
+    "Html": "<p>This is usually happening because there is some newlines or spaces before your opening &lt;?php tag of after your closing ?&gt; tag.</p>\r\n<p>There should not be any because this space will be prepended / appended to the file contents. In turn file will be considered corrupt by Microsoft Office Excel when you try to open it.</p>",
+    "PostedDate": "2009-07-28T11:33:17.167-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "217017",
+    "ThreadId": "63779",
+    "Html": "<p>I am sure there is no spaces or newlines before or after the &lt;?php and ?&gt; tag. It works perfectly if without the looping and the format set on each cell shown properly.</p>\r\n<p>I just found out it works perfectly on Excel 2007 with the following codes:</p>\r\n<p>header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');<br>header('Content-Disposition: attachment;filename=&quot;fuso-'.date('dMY').'.xlsx&quot;');<br>header('Cache-Control: max-age=0');<br>$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');<br>$objWriter-&gt;save('php://output');</p>\r\n<p>Any helps will be greatly appreciated. Thanks.</p>",
+    "PostedDate": "2009-07-28T18:32:14.077-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "217076",
+    "ThreadId": "63779",
+    "Html": "<p>Then I don't know what the problem is. I'm afraid I will have to see the corrupt Excel file. Can you send the corrupt file to me? (erik at phpexcel dot net)</p>",
+    "PostedDate": "2009-07-29T00:08:02.137-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "217248",
+    "ThreadId": "63779",
+    "Html": "<p>[file received]</p>\r\n<p>I just tried to open the xls file in MS Office Excel 2007, and it opened with no problems. Can you try to save it with a different filename? I have observed that if one opens a corrupt file in MS Office Excel then it somehow remembers this, so even after I fix the file, the program still says it is corrupt. Maybe that is what happened.</p>",
+    "PostedDate": "2009-07-29T09:45:35.61-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "217272",
+    "ThreadId": "63779",
+    "Html": "<p>Nope, it still the same problem after i renamed the file with different filename...just weired.</p>\r\n<p>The only solution for me right now is to use Excel2007 instead of Excel5, and save it as xls...it works although it prompt up the message &quot;the file you trying to open , test.xls, is in a different format than specified by the file extension. Verify that the file is not corrupted....&quot;</p>\r\n<p>Anyway, thanks for your helps. I really appreciated.</p>",
+    "PostedDate": "2009-07-29T10:21:56.773-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "217298",
+    "ThreadId": "63779",
+    "Html": "<p>Hello, i have the same problem.</p>",
+    "PostedDate": "2009-07-29T11:35:24.963-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "217471",
+    "ThreadId": "63779",
+    "Html": "<p>Can you provide some information what platform / program you are opening the xls file on?</p>\r\n<p>Also, check if it is happening with latest source code. Plus, is this happening with all generated xls files, no matter content?</p>",
+    "PostedDate": "2009-07-29T23:57:15.917-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "217496",
+    "ThreadId": "63779",
+    "Html": "<p>I'm using MS Office 2007 that running on Windows 7. Xampp 1.7.1 with PHP5.2.9.</p>\r\n<p>Okay, i had downloaded the latest source code 28266 and i do a test run on those sample scripts with Excel5 inside the Tests folder. And here are the result i get:</p>\r\n<pre>14excel5.php, corrupt Excel file<br>27imagesexcel5.php, corrupt Excel file</pre>\r\n<p>And, yes this only happen with all generated xls files.</p>",
+    "PostedDate": "2009-07-30T00:54:24.427-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "217620",
+    "ThreadId": "63779",
+    "Html": "<p><em>&gt;&gt; I'm using MS Office 2007 that running on Windows 7. Xampp 1.7.1 with PHP5.2.9.</em></p>\r\n<p>I'm beginning to think this is specific to Windows 7. One other user had reported problems with corrupt Excel files by Excel5 writer on Windows 7.</p>\r\n<p>Maarten, do you have access to Windows 7 to test output by Excel5 writer?</p>",
+    "PostedDate": "2009-07-30T08:20:02.08-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "238943",
+    "ThreadId": "63779",
+    "Html": "<p>I am using Windows 7 with Office 2003 and my PHP and excel generator script is running on a Debian server. When I download the file in Excel5 format, I receive a corrupt file warning. If I try in 2007 format, my Excel 2003 can convert and display it without issue.</p>\r\n<p>Is the Windows 7 problem specific to generating the file on IIS within Windows 7 or just opening the file on Windows 7? I am gonna run a virtual machine booting to XP and see if the result is the same.</p>",
+    "PostedDate": "2009-09-25T12:53:28.81-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "238947",
+    "ThreadId": "63779",
+    "Html": "<p>I can in fact confirm that this error occurs when running Windows 7 (in this case, build 7100) and using Office 2003 (although by reports, 2007 is also affected).</p>\r\n<p>The file can be generated on ANY computer, running either linux or windows as a web server and the outcome will be Excel reporting the file is corrupt JUST BY TRYING TO OPEN IT WHEN RUNNING EXCEL IN WINDOWS 7.</p>\r\n<p>I used the exact same test file on Windows 7 with Office 2003 and Windows XP with Office 2003. The Windows XP version opened the file without any error message. The Windows 7 version displays a message about the file being corrupt.</p>\r\n<p>I wonder if this might have something to do with quirky MIME type settings or maybe a registry / permissions issue? At this point, practically anything that has changed between XP and 7 could be causing it. I wonder if anyone is able to reproduce the problem on a build of 7 closer to the final release version? My version (7100) is the release candidate, rather than the final build.</p>",
+    "PostedDate": "2009-09-25T13:04:40-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "238985",
+    "ThreadId": "63779",
+    "Html": "<p>@coolbloke1324:</p>\r\n<p>This is really bad news. Your post has convinced me that  there <strong>is</strong> a problem with xls files generated by PHPExcel_Writer_Excel5. There is also this issue talking about problems when opening the files in Excel on Windows 7:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10059\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10059</a></p>\r\n<p>If others can verify this problem I would like to hear. I don't have access to a Windows 7 machine so I can't do any tests which is really annoying me. I must try to find a solution.</p>",
+    "PostedDate": "2009-09-25T14:31:49.543-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "239964",
+    "ThreadId": "63779",
+    "Html": "<p>I do not believe this to be a problem with PHPExcel Writer... other users of Windows 7 have also been experiencing this problem with files not generated with this script: http://www.google.com/support/forum/p/affiliatenetwork/thread?tid=2b5983fcbe55ea27&amp;hl=en</p>",
+    "PostedDate": "2009-09-29T06:16:20.62-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "239995",
+    "ThreadId": "63779",
+    "Html": "<p>@coolbloke1324:</p>\r\n<p>Thanks for the link. Can you say if this is happening with all Excel files generated by PHPExcel? Or is it only with some files? Can you for example try to generate an empty file with PHPExcel and see if it can be opened on Windows 7.</p>",
+    "PostedDate": "2009-09-29T07:20:43.053-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "240020",
+    "ThreadId": "63779",
+    "Html": "<p>I can indeed. Give me a few minutes and I'll run the tests for you. Would you like to have logmein access to a windows 7 virtual machine? That way you can run all the tests you need?</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-09-29T08:08:55.48-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "240027",
+    "ThreadId": "63779",
+    "Html": "<p><em>&gt;&gt; Would you like to have logmein access to a windows 7 virtual machine?</em></p>\r\n<p>If possible, this will be a great help! I would like to try to open Excel files in Microsoft Office Excel on Windows 7, making gradual changes to the file in a HEX editor until the error is found.</p>\r\n<p>I will send you a message with my IP address. Thank you for your offer.</p>",
+    "PostedDate": "2009-09-29T08:24:54.55-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "240028",
+    "ThreadId": "63779",
+    "Html": "<p>Hey ya,</p>\r\n<p>OK, I'll create a logmein account and load it onto the Windows 7 VM... after that if I can email you the U&amp;P to access the logmein account that will be the best way to proceed.</p>\r\n<p>Could you drop me a message with your email?</p>\r\n<p>Thanks.</p>",
+    "PostedDate": "2009-09-29T08:27:02.073-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "240031",
+    "ThreadId": "63779",
+    "Html": "<p>Great! I sent you PM.</p>",
+    "PostedDate": "2009-09-29T08:30:52.85-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "240053",
+    "ThreadId": "63779",
+    "Html": "<p>I'm installing the virtual machine for you now... gonna take about an hour... Will email you when ready!</p>",
+    "PostedDate": "2009-09-29T08:56:43.587-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "240186",
+    "ThreadId": "63779",
+    "Html": "<p>Using the environment Windows 7 / MS Office Excel 2003 environment you set up for me, I can verify the bug.<br><br>All files by PHPExcel_Writer_Excel5 are corrupt when opening in Windows 7 so this is a critical issue.<br><br>For reference, here are some screen shots:<br><br>When trying to open the xls file, the error message says:<br><br><em>&quot;The document is corrupt and cannot be opened. To try and repair it, use the Open and Repair command in the Open dialog (File menu) and select Extract Data when prompted.&quot;</em></p>\r\n<p><br> <img src=\"http://img5.imageshack.us/img5/2948/ss20090929224732.png\" alt=\"\"></p>\r\n<p>After clicking ok, you see the message:<br><br><em>&quot;Errors were detected in '42.xls', but Microsoft Office Excel was able to open the file by making the repairs listed below. Save the file to make these repairs permanent.&quot;</em></p>\r\n<p><img src=\"http://img5.imageshack.us/img5/520/ss20090929224811.png\" alt=\"\"></p>\r\n<p>Apart from that, everything look ok in the file.</p>\r\n<p>Some tests indicate that the PEAR::OLE package is responsible for the errors. PHPExcel_Writer_Excel5 is based on PEAR::Spreadsheet_Excel_Writer which uses PEAR::OLE, so PEAR::Spreadsheet_Excel_Writer is probably also affected.<br><br>Will re-open work item 10059<br><a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10059\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10059</a></p>",
+    "PostedDate": "2009-09-29T15:38:25.98-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "240201",
+    "ThreadId": "63779",
+    "Html": "<p>Should now be fixed. See patch at</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10059\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10059</a></p>\r\n<p>Or just download source code tomorrow from here:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx\">http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx</a></p>\r\n<p>&nbsp;</p>\r\n<p><strong>Special thanks to @coolbloke1324 for providing the test environment via virtual machine!</strong></p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-09-29T16:21:48.543-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "276600",
+    "ThreadId": "63779",
+    "Html": "<p>Hi koyama,</p>\r\n<p>Is it possible that this issue is still not fixed when generating excels in format Excel2007 ?</p>\r\n<p>We were using a old version of PHPExcel, and I detected that there was a problem with generating excels in Excel5 and Excel2007 on a Windows 7 machine.</p>\r\n<p>I saw this post and upgraded to the latest version, and now I can create my excels in Excel5 but still not in Excel2007. I tried also with the simple example tests and the problem is the same.</p>\r\n<p>My configuration: php 5.2.8, windows 7 build 7600</p>\r\n<p>&nbsp;</p>\r\n<p>Thx</p>",
+    "PostedDate": "2010-01-13T01:58:24.727-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "276921",
+    "ThreadId": "63779",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>mgx wrote:</strong><br>\r\n<p>Hi koyama,</p>\r\n<p>Is it possible that this issue is still not fixed when generating excels in format Excel2007 ?</p>\r\n<p>We were using a old version of PHPExcel, and I detected that there was a problem with generating excels in Excel5 and Excel2007 on a Windows 7 machine.</p>\r\n<p>I saw this post and upgraded to the latest version, and now I can create my excels in Excel5 but still not in Excel2007. I tried also with the simple example tests and the problem is the same.</p>\r\n<p>My configuration: php 5.2.8, windows 7 build 7600</p>\r\n<p>&nbsp;</p>\r\n<p>Thx</p>\r\n</blockquote>\r\n<p>Your issue is different from the one discussed here.</p>\r\n<p>The problem you are experiencing is because of this:</p>\r\n<p>PHP 5.2.8 on Windows has a bug in php_zip.dll. There is no bug with PHP 5.2.6, PHP 5.2.9 and later work. Users have reported that one can replace php_zip.dll from e.g. PHP 5.2.6 and things should be working.</p>\r\n<p>There is a long thread here:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=42854\">http://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=42854</a></p>\r\n<p>Look at posts by tamaskoczka and JLoima. I have not tried myself.</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-01-13T17:02:27.64-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "277053",
+    "ThreadId": "63779",
+    "Html": "<p>Thx koyama. The solution in the thread works!</p>",
+    "PostedDate": "2010-01-14T02:24:18.963-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

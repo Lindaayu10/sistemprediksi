@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "648932",
+    "ThreadId": "266906",
+    "Html": "\r\n<p>Hi,</p>\r\n<p>I have some very simplistic code which I am using to save an Excel 2007 file as a CSV. I am using PHPExcel 1.7.6.</p>\r\n<p>It seems that any field with a long number in it is written to the CSV as&nbsp;2147483647. I have tried increaing the PHP precision value to 30 but this doesn't seem to make any difference.</p>\r\n<p>Can someone please give me any pointers as to errors/workarounds.</p>\r\n<p>Thanks</p>\r\n<p></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>&lt;?php\r\n\r\n<span style=\"color:green\">//phpinfo();</span>\r\n<span style=\"color:green\">//require_once 'PHPExcel/PHPExcel/IOFactory.php';</span>\r\n<span style=\"color:blue\">require_once</span> <span style=\"color:#a31515\">'PHPExcel/PHPExcel.php'</span>;\r\n\r\nset_time_limit(2400);\r\nerror_reporting(E_ALL);\r\nini_set(<span style=\"color:#a31515\">'precision'</span>, 30);\r\n\r\n  $filename = <span style=\"color:#a31515\">&quot;myfile.xlsx&quot;</span>;\r\n  \r\n  $outFile = dirname($filename).<span style=\"color:#a31515\">&quot;/&quot;</span>.basename(basename($filename, <span style=\"color:#a31515\">&quot;.xls&quot;</span>), <span style=\"color:#a31515\">&quot;.xlsx&quot;</span>).<span style=\"color:#a31515\">&quot;.csv&quot;</span>;\r\n\r\n  <span style=\"color:green\">// get the number of the excel sheet to read</span>\r\n  $excel_sheet = 0;\r\n\r\n  <span style=\"color:green\">// open the Excel file in the reader</span>\r\n  <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">&quot;Load from Excel file : $filename&quot;</span>;\r\n  $objReader = PHPExcel_IOFactory::createReaderForFile($filename);\r\n  $worksheetNames = $objReader-&gt;listWorksheetNames($filename);\r\n\r\n  <span style=\"color:green\">// only read the required worksheet</span>\r\n  <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">&quot;Loading Worksheet : $worksheetNames[$excel_sheet]&quot;</span>;\r\n  $objReader-&gt;setLoadSheetsOnly(<span style=\"color:blue\">array</span>($worksheetNames[$excel_sheet])) \r\n            -&gt;setReadDataOnly(true);\r\n  \r\n  <span style=\"color:green\">// load the filena</span>\r\n  $objPHPExcel = $objReader-&gt;load($filename);\r\n  \r\n  $objReader-&gt;setActiveSheetIndex($excel_sheet);\r\n\r\n  <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">&quot;Write to CSV format : $outFile&quot;</span>;\r\n  $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, <span style=\"color:#a31515\">'CSV'</span>);\r\n  $objWriter-&gt;setDelimiter(<span style=\"color:#a31515\">&quot;,&quot;</span>)\r\n            -&gt;setPreCalculateFormulas(false);\r\n  $objWriter-&gt;save($outFile);\r\n\r\n  <span style=\"color:green\">// Echo memory peak usage</span>\r\n  <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">&quot;Peak memory usage: &quot;</span> . (memory_get_peak_usage(true) / 1024 / 1024) . <span style=\"color:#a31515\">&quot; MB&quot;</span>;\r\n\r\n  <span style=\"color:green\">// Echo done</span>\r\n  <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">&quot;Done writing files.&quot;</span>;\r\n?&gt;\r\n\r\n</pre>\r\n</div>\r\n<p></p>\r\n",
+    "PostedDate": "2011-07-28T06:12:25.193-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "648940",
+    "ThreadId": "266906",
+    "Html": "<p>By the way, this behaviour isn't evident in an Excel 97 file (*.xls)</p>",
+    "PostedDate": "2011-07-28T06:21:20.087-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "651027",
+    "ThreadId": "266906",
+    "Html": "<p>*bump* Anyone any ideas, please??</p>",
+    "PostedDate": "2011-08-02T02:07:18.21-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "651118",
+    "ThreadId": "266906",
+    "Html": "<p>I get this too. As great as PHPExcel is, there is some flaw with it where the other readers automatically set these values as integers on read, 32-bit systems (as many are) somehow cannot handle \"large\" integers, and there seems no way to access these values raw at present with PHPExcel so that we can at least set them as strings and/or do something smarter with them...</p>",
+    "PostedDate": "2011-08-02T05:15:03.577-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "651139",
+    "ThreadId": "266906",
+    "Html": "<p>I'm actually running PHPExcel on a 64bit system so it shouldn't be an issue!</p>\r\n<p>Bear in mind that if you convert the file to an Excel 97 file format then the number 'overflow' doesn't occur. So it must be something internal to the Excel2007 reader.</p>",
+    "PostedDate": "2011-08-02T05:55:37.88-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

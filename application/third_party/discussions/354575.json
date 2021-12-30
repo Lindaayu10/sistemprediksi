@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "832333",
+    "ThreadId": "354575",
+    "Html": "<p>I have read a lot about the performance issues on large spreadsheets so I know there will be overhead, but my question is:<br /> <br /> <strong>What is the most efficient way to READ large files? CPU load is out of control.<br /> </strong></p>\n<p>The file can potentially be any type of supported spreadsheet. I don't need formatting, I'm only interested in getting the cell's calculated value. I want to make sure I'm using as many best practices as possible and disabling as many unneeded functions  as possible.</p>\n<p>Thanks in advance for your help.&nbsp; Mark you have done an amazing job, keep up the great work!</p>\n<p>&nbsp;</p>\n<p>**EDIT 5.7.12: I'm running into extremely high CPU load (90%+) when trying to import a large XLSX doc.&nbsp; The memory is very low at around 10-15%.&nbsp; I didn't have this issue with previous versions of PHPExcel. Any ideas?</p>\n<p>--------------------</p>\n<p>Here is my current code:<br /> - Detects File<br /> - Loads file in chunks<br /> - Imports into DB (omitted)</p>\n<p>&nbsp;</p>\n<p>&nbsp;</p>\n<div style=\"color: black; background-color: white;\">\n<pre>$inputFileType = PHPExcel_IOFactory::identify($file_path);\n<span style=\"color: green;\">/**  Create a new Reader of the type that has been identified  **/</span>\n$objReader = PHPExcel_IOFactory::createReader($inputFileType);\n\n\n$total_sheet_rows = 500000;\n\n<span style=\"color: green;\">/**  Define how many rows we want to read for each \"chunk\"  **/</span> \n$chunkSize = 1000; \n<span style=\"color: green;\">/**  Create a new Instance of our Read Filter  **/</span> \n$chunkFilter = <span style=\"color: blue;\">new</span> chunkReadFilter(); \n\n<span style=\"color: green;\">/**  Tell the Reader that we want to use the Read Filter  **/</span> \n\n$objReader-&gt;setReadFilter($chunkFilter); \n\n$row_count = 0;\n\n<span style=\"color: green;\">/**  Loop to read our worksheet in \"chunk size\" blocks  **/</span> \n<span style=\"color: blue;\">for</span> ($startRow = 1; $startRow &lt;= $total_sheet_rows; $startRow += $chunkSize) { \n\t<span style=\"color: green;\">//sleep(60);</span>\n    <span style=\"color: green;\">/**  Tell the Read Filter which rows we want this iteration  **/</span> \n    $chunkFilter-&gt;setRows($startRow,$chunkSize); \n\t\n    <span style=\"color: green;\">/**  Load only the rows that match our filter  **/</span> \n    $objPHPExcel = $objReader-&gt;load($file_path); \n\t\n\t$objWorksheet = $objPHPExcel-&gt;getActiveSheet();\n\t\n\t<span style=\"color: green;\">/////////////////////////////////////////////</span>\n\t<span style=\"color: green;\">///////////////DO PROCESSING/////////////////</span>\n\n\t<span style=\"color: green;\">//$row_count = $startRow; //was 0</span>\n\t<span style=\"color: blue;\">foreach</span> ($objWorksheet-&gt;getRowIterator() <span style=\"color: blue;\">as</span> $row) {\n\t\t\n\t\t\t\t\n\t  \t$cellIterator = $row-&gt;getCellIterator();\n\t\t$cellIterator-&gt;setIterateOnlyExistingCells(false); \n\t\t$col_count = 0;\t\t\n\t\t$row_data_flag = 0;\n\t\t$cells_array = <span style=\"color: blue;\">array</span>();\n\t\t\n\t\t<span style=\"color: green;\">//move through columns</span>\n\t\t<span style=\"color: blue;\">foreach</span> ($cellIterator <span style=\"color: blue;\">as</span> $cell) {\n\t\t\t   $col_count++; \n\t\t\t   $row_data_flag = <span style=\"color: #a31515;\">'1'</span>;\n\t\t\t   \n\t\t\t\t\n\t\t\t\t$temp_value = returnAscii($cell-&gt;getCalculatedValue());\n\t\t\t\t\n\t\t\t\t\n\t\t\t\n\t\t\t\n\t\t\t} <span style=\"color: green;\">//end of foreach going through columns</span>\n</pre>\n</div>\n<p>&nbsp;</p>\n<p>&nbsp;</p>\n<p>&nbsp;</p>\n<div style=\"color: black; background-color: white;\">\n<pre>\t\t<span style=\"color: green;\">///Free up some of the memory </span>\n\t\tmysql_free_result($query_part_lookup);\n\t\t$objPHPExcel-&gt;disconnectWorksheets(); \n\t\t<span style=\"color: blue;\">unset</span>($objPHPExcel, $objWorksheet, $cellIterator); \n\t\n\t<span style=\"color: green;\">///////////////DO PROCESSING/////////////////</span>\n\t<span style=\"color: green;\">/////////////////////////////////////////////</span>\n\n} <span style=\"color: green;\">///end of for going through chunks</span>\n</pre>\n</div>",
+    "PostedDate": "2012-05-04T13:19:08.143-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "834654",
+    "ThreadId": "354575",
+    "Html": "<p>I solved my issue:&nbsp; Sessions were enabled on this script, which killed performance.&nbsp; Turning them off reduced the CPU usage dramatically.</p>",
+    "PostedDate": "2012-05-10T08:41:29.78-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1307525",
+    "ThreadId": "354575",
+    "Html": "it is reading row by row how i insert it into database?<br />\nI want to insert half row in 1 table and half in another<br />\n",
+    "PostedDate": "2014-09-23T11:42:44.35-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

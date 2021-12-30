@@ -1,0 +1,39 @@
+Index: Classes/PHPExcel/Cell/DataType.php
+===================================================================
+--- Classes/PHPExcel/Cell/DataType.php	(revision 629)
++++ Classes/PHPExcel/Cell/DataType.php	(working copy)
+@@ -69,7 +69,7 @@
+ 			return PHPExcel_Cell_DataType::TYPE_FORMULA;
+ 		} elseif (is_bool($pValue)) {
+ 			return PHPExcel_Cell_DataType::TYPE_BOOL;
+-		} elseif (preg_match('/^\-?[0-9]*\.?[0-9]*$/', $pValue)) {
++		} elseif (is_numeric($pValue)) {
+ 			return PHPExcel_Cell_DataType::TYPE_NUMERIC;
+ 		} elseif (array_key_exists($pValue, self::$_errorCodes)) {
+ 			return PHPExcel_Cell_DataType::TYPE_ERROR;
+Index: Classes/PHPExcel/Writer/Excel2007/StringTable.php
+===================================================================
+--- Classes/PHPExcel/Writer/Excel2007/StringTable.php	(revision 629)
++++ Classes/PHPExcel/Writer/Excel2007/StringTable.php	(working copy)
+@@ -81,7 +81,7 @@
+ 	        	if (!is_object($cell->getValue()) &&
+ 	        		!isset($aFlippedStringTable[$cell->getValue()]) &&
+ 	        		!is_null($cell->getValue()) &&
+-	        		$cell->getValue() != '' &&
++	        		$cell->getValue() !== '' &&
+ 	        		($cell->getDataType() == PHPExcel_Cell_DataType::TYPE_STRING || $cell->getDataType() == PHPExcel_Cell_DataType::TYPE_NULL)
+ 	        	) {
+ 	        			$aStringTable[] = $cell->getValue();
+@@ -134,7 +134,11 @@
+ 					$objWriter->startElement('si');
+ 					
+ 						if (! $textElement instanceof PHPExcel_RichText) {
+-							$objWriter->writeElement('t', PHPExcel_Shared_String::ControlCharacterPHP2OOXML( $textElement ));
++							$safe_text = PHPExcel_Shared_String::ControlCharacterPHP2OOXML( $textElement );
++							$safe_text = htmlspecialchars($safe_text, ENT_NOQUOTES);
++							$objWriter->startElement('t');
++							$objWriter->writeRaw($safe_text);
++							$objWriter->endElement();
+ 						} else if ($textElement instanceof PHPExcel_RichText) {
+ 							$this->writeRichText($objWriter, $textElement);
+ 						}

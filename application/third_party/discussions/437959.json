@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "1020960",
+    "ThreadId": "437959",
+    "Html": "I have a simple program that generates a file with 11 columns and more than 1100 rows (so more than 121,000 cells). A simple formatting (bottom border) and that's it. But I have a memory exhausted on my host. On my workstation I can raise memory limit but not at my host.\r<br />\n<br />\nHow can I solve my problem? Can I write the file &quot;on-the-fly&quot;? Can I write the file while adding rows?<br />\n",
+    "PostedDate": "2013-03-25T19:04:10.01-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1021621",
+    "ThreadId": "437959",
+    "Html": "For the last two questions, the answer is no.\r<br />\nYou can solve the problem by using one of the cache methods offered by PHPExcel, see section 4.2.1 of the documentation, a search in the discussions will give you many examples.<br />\n",
+    "PostedDate": "2013-03-27T01:46:14.073-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1021709",
+    "ThreadId": "437959",
+    "Html": "Nope, nothing happened... :(<br>\r\n<br>\r\nI have tried several different cache methods. All gave me the same result:<br>\r\n<br>\r\ncache_in_memory (default): 67108864 bytes PHPExcel/Style/Supervisor.php on line 123<br>\r\ncache_in_memory_gzip: 67108864 bytes PHPExcel/Style/Supervisor.php on line 123<br>\r\ncache_to_discISAM (@/tmp): 67108864 bytes PHPExcel/Style/Supervisor.php on line 123<br>\r\ncache_to_sqlite: 67108864 bytes PHPExcel/Style/Supervisor.php on line 123\r\n<div><br>\r\n</div>\r\n<div>As you can see, I've got the same amount of memory exhausted with four different cache methods. I was expecting, at least, different memory amounts or different break points...</div>\r\n<div><br>\r\n</div>\r\n<div>As far as I understood, all I need to do is write down the cache method I want at the head of my program, am I right?</div>\r\n<div><br>\r\n</div>\r\n<div>\r\n<div>$this-&gt;load-&gt;library('excel');</div>\r\n<div>PHPExcel_CachedObjectStorageFactory::cache_to_sqlite;</div>\r\n</div>\r\n<div><br>\r\n</div>\r\nIt seems right. I used var_dump with the line above and PHP returned: string(6) &quot;SQLite&quot;. So, it seems PHPExcel applied this cache method, but I still get the error.\r\n<div><br>\r\n</div>\r\n<div>My program is writing the output to php://output but it doesn't matter right now because the program stops before reaching the output...</div>\r\n<div><br>\r\n</div>\r\n<div>So, what now?</div>\r\n<div><br>\r\n</div>\r\n<div>Thanks!</div>\r\n",
+    "PostedDate": "2013-03-27T04:51:49.287-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1021866",
+    "ThreadId": "437959",
+    "Html": "You need to call setCacheStorageMethod : <br />\n<br />\n$cacheMethod = PHPExcel_CachedObjectStorageFactory::cache_in_memory;<br />\nPHPExcel_Settings::setCacheStorageMethod($cacheMethod);<br />\n<br />\nAdditionally, you can test the return value of the method (a boolean, true=&gt;Ok, false=&gt;can't use).<br />\n<br />\nEdit : Replace cache_in_memory with the desired cache. You can have a second parameter (an array) for additional settings like a directory to use, a port to connect, etc. See the documentation for more infos. Check if you have the related extension enabled.<br />\n",
+    "PostedDate": "2013-03-27T09:28:49.08-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

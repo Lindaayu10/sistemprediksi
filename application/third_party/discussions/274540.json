@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "679146",
+    "ThreadId": "274540",
+    "Html": "<p>Working perfect for me for csv, but having problems with excel 2007.</p>\n<p>Donated 50 euros - as it is working for me sort of but would like some help to eliminate the corruption.</p>\n<p>Suspecting php_zip going by what I have read of others recieving the \"corrupt file attempt repair\" message when opening the file in excel. The file will open and repair incidentally! After saving in excel the binary files are different of course. After the  test code I have included relevant phpinfo output below.</p>\n<p>Renaming the saved file with a zip extension won't open, however letting excel repair the corrupt file then saving and renaming as zip will open of course.</p>\n<pre>&lt;!--?php\nini_set('include_path', ini_get('include_path').PATH_SEPARATOR.'includes/PHPExcel');\ninclude 'PHPExcel.php';\ninclude 'PHPExcel/Writer/Excel2007.php';\n\n$objPHPExcel = new PHPExcel();\n\n$objPHPExcel---&gt;&lt;?php</pre>\n<pre>ini_set('include_path', ini_get('include_path').PATH_SEPARATOR.'includes/PHPExcel');</pre>\n<pre>include 'PHPExcel.php';include 'PHPExcel/Writer/Excel2007.php';</pre>\n<pre><br />// Create new PHPExcel object$objPHPExcel = new PHPExcel();<br />getProperties()-&gt;setCreator(\"Maarten Balliauw\");\n$objPHPExcel-&gt;getProperties()-&gt;setLastModifiedBy(\"Maarten Balliauw\");\n$objPHPExcel-&gt;getProperties()-&gt;setTitle(\"Office 2007 XLSX Test Document\");\n$objPHPExcel-&gt;getProperties()-&gt;setSubject(\"Office 2007 XLSX Test Document\");\n$objPHPExcel-&gt;getProperties()-&gt;setDescription(\"Test document for Office 2007 XLSX, generated using PHP classes.\");\n\n$objPHPExcel-&gt;setActiveSheetIndex(0);\n$objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue('A1', 'Hello');\n$objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue('B2', 'world!');\n$objPHPExcel-&gt;getActiveSheet()-&gt;setTitle('Simple');\n\n$objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel);\n$objWriter-&gt;save(str_replace('.php', '.xlsx', __FILE__));\n?&gt;</pre>\n<p>&nbsp;</p>\n<p>&nbsp;</p>\n<p>zip<br /> Zip<span> </span>enabledExtension Version<span> </span>$Id: php_zip.c 308107 2011-02-07 16:20:16Z pajoye $Zip version<span> </span>1.9.1Libzip version<span> </span>0.9.0<br /> <br /> xml<br /> XML Support<span> </span>activeXML Namespace Support<span> </span>activelibxml2 Version<span> </span>2.6.32</p>",
+    "PostedDate": "2011-10-02T13:50:01.893-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "679148",
+    "ThreadId": "274540",
+    "Html": "<p>Forgot to state php 5.3.6 on LAMP.</p>\n<p>Also have tested the file generated in my WAMP test&nbsp;environment&nbsp;and works perfectly - php 5.3.0.</p>\n<p>There are differences in the good file from WAMP to bad file on LAMP when comparing with a hex editor - also LAMP file is 1 byte larger.</p>\n<p>Have just tried upgrading php on lamp in order to get updated php_zip and still same problem even with updated php_zip now.</p>\n<p>Is there a php setting that could be causing this? It is hard to belive that the zip utilitity would be buggy in two different versions on lamp.</p>\n<h2><a name=\"module_zip\">zip</a></h2>\n<table border=\"0\" cellpadding=\"3\" width=\"600\">\n<tbody>\n<tr>\n<td class=\"e\">Zip</td>\n<td class=\"v\">enabled</td>\n</tr>\n<tr>\n<td class=\"e\">Extension Version</td>\n<td class=\"v\">$Id: php_zip.c 313665 2011-07-25 11:42:53Z felipe $</td>\n</tr>\n<tr>\n<td class=\"e\">Zip version</td>\n<td class=\"v\">1.9.1</td>\n</tr>\n<tr>\n<td class=\"e\">Libzip version</td>\n<td class=\"v\">0.9.0</td>\n</tr>\n</tbody>\n</table>\n<p>&nbsp;</p>",
+    "PostedDate": "2011-10-02T13:57:44.413-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "680137",
+    "ThreadId": "274540",
+    "Html": "<p>&nbsp;</p>\r\n<p>Is there anybody than can help with this? I don't mind making another small donation - donated 50 euros so far.</p>\r\n<p>Kind regards</p>\r\n<p>Andrew</p>",
+    "PostedDate": "2011-10-04T23:24:15.443-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "680195",
+    "ThreadId": "274540",
+    "Html": "<p>try opening a working and corrupt file in a hex editor. I suspect that a BOM (Byte-order-mark) may be the cause of your problems. Check the first byte in the xlsx files.</p>",
+    "PostedDate": "2011-10-05T02:39:19.567-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "680490",
+    "ThreadId": "274540",
+    "Html": "<p>Hi Borft, thanks for the reponse - I will google BOM now!</p>\r\n<p>Differences are</p>\r\n<table>\r\n<tbody>\r\n<tr>\r\n<td><strong>Offset</strong></td>\r\n<td><strong>Bad file (linux)</strong></td>\r\n<td><strong>Good file (windows)</strong></td>\r\n</tr>\r\n<tr>\r\n<td>0A 0B</td>\r\n<td>82 5D</td>\r\n<td>25 65</td>\r\n</tr>\r\n<tr>\r\n<td>19003 19004 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;</td>\r\n<td>82 5D</td>\r\n<td>25 65</td>\r\n</tr>\r\n<tr>\r\n<td>2A005 2A006</td>\r\n<td>82 5D</td>\r\n<td>25 65</td>\r\n</tr>\r\n<tr>\r\n<td>3c006 3c007</td>\r\n<td>82 5D</td>\r\n<td>25 65</td>\r\n</tr>\r\n<tr>\r\n<td>5700d 5700e</td>\r\n<td>82 5d</td>\r\n<td>25 65</td>\r\n</tr>\r\n<tr>\r\n<td>58001 -</td>\r\n<td>13 e6 90 8e a3 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</td>\r\n<td>df c6 e1 86 a2</td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n<p>and then heaps of differences, but the first few bytes are actually the same - write until byte ten.  I notice that most these problems are with a bad php_zip in windows where &nbsp;my windows one is fine but something going wrong on my linux. Could there be a php setting behind this? Its unlikely that 2 different copies of php_zip would be wrong for linux - coming compiled into the latest versions of php on debian.</p>",
+    "PostedDate": "2011-10-05T13:31:19.473-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

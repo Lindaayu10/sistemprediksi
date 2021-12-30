@@ -1,0 +1,82 @@
+[
+  {
+    "Id": "563199",
+    "ThreadId": "245253",
+    "Html": "\r\n<p>Hi I've been following this guide:</p>\r\n<p>http://bakery.cakephp.org/articles/melgior/2010/01/26/simple-excel-spreadsheet-helper#comment4d5247cb-b344-4b55-bde4-281eadcbdab8</p>\r\n<p>and after all is done, as I trigger the action and supposing to download/open an excel file, I managed to do both except that the file opened is empty with the error box:</p>\r\n<p>&quot;Excel cannot open the file 'Groups list .xlsx' because the file format or file extension is not valid. Verify that the file has not been corrupted and that the file extension matches the format of the file.&quot;</p>\r\n<p>I'm not sure if this problem was similar: http://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=53274</p>\r\n<p>But it sounds like the same problem, the last one. Not sure though, but does anyone here care to share what's going on?</p>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2011-02-09T02:34:12.12-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "563216",
+    "ThreadId": "245253",
+    "Html": "\r\n<p>If you open the file in a text editor, what are the first few characters (including any white space characters such as tabs, new lines, etc?</p>\r\n",
+    "PostedDate": "2011-02-09T03:00:00.443-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "563257",
+    "ThreadId": "245253",
+    "Html": "\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<strong>MarkBaker wrote:</strong><br>\r\n<p>If you open the file in a text editor, what are the first few characters (including any white space characters such as tabs, new lines, etc?</p>\r\n</blockquote>\r\n<p>Hi Mark,</p>\r\n<p>Here's what I find in my first line when I open the downloaded file:</p>\r\n<p></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>1. &lt;pre <span style=\"color:blue\">class</span>=<span style=\"color:#a31515\">&quot;cake-debug&quot;</span>&gt;&lt;a href=<span style=\"color:#a31515\">&quot;javascript:void(0);&quot;</span> onclick=<span style=\"color:#a31515\">&quot;document.getElementById('cakeErr1-trace').style.display = (document.getElementById('cakeErr1-trace').style.display == 'none' ? '' : 'none');&quot;</span>&gt;&lt;b&gt;Warning&lt;/b&gt; (2)&lt;/a&gt;: Invalid argument supplied <span style=\"color:blue\">for</span> foreach() [&lt;b&gt;APP\\views\\helpers\\excel.php&lt;/b&gt;, line &lt;b&gt;35&lt;/b&gt;]&lt;div id=<span style=\"color:#a31515\">&quot;cakeErr1-trace&quot;</span> <span style=\"color:blue\">class</span>=<span style=\"color:#a31515\">&quot;cake-stack-trace&quot;</span> style=<span style=\"color:#a31515\">&quot;display: none;&quot;</span>&gt;&lt;a href=<span style=\"color:#a31515\">&quot;javascript:void(0);&quot;</span> onclick=<span style=\"color:#a31515\">&quot;document.getElementById('cakeErr1-code').style.display = (document.getElementById('cakeErr1-code').style.display == 'none' ? '' : 'none')&quot;</span>&gt;Code&lt;/a&gt; | &lt;a href=<span style=\"color:#a31515\">&quot;javascript:void(0);&quot;</span> onclick=<span style=\"color:#a31515\">&quot;document.getElementById('cakeErr1-context').style.display = (document.getElementById('cakeErr1-context').style.display == 'none' ? '' : 'none')&quot;</span>&gt;Context&lt;/a&gt;&lt;div id=<span style=\"color:#a31515\">&quot;cakeErr1-code&quot;</span> <span style=\"color:blue\">class</span>=<span style=\"color:#a31515\">&quot;cake-code-dump&quot;</span> style=<span style=\"color:#a31515\">&quot;display: none;&quot;</span>&gt;&lt;pre&gt;&lt;code&gt;&lt;span style=<span style=\"color:#a31515\">&quot;color: #000000&quot;</span>&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;<span style=\"color:blue\">function</span>&amp;nbsp;_headers()&amp;nbsp;{\r\n2. &lt;/span&gt;&lt;/code&gt;\r\n3. &lt;code&gt;&lt;span style=<span style=\"color:#a31515\">&quot;color: #000000&quot;</span>&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;$i=0;\r\n4. &lt;/span&gt;&lt;/code&gt;\r\n<br><br>It's the first 4 lines I copied from the file in my text editor. It's in .xlsx extension. It looks fine from the appearance. <br><br></pre>\r\n</div>\r\n<p></p>\r\n",
+    "PostedDate": "2011-02-09T04:44:45.16-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "563271",
+    "ThreadId": "245253",
+    "Html": "\r\n<p>how do you mean it looks fine?&nbsp; Apparantly cake is throwing a warning about a foreach! ;) My hunch would be that you are trying to foreach over a non array. Although lowering your error_Reporting may solve the symptoms, I would take a closer look at\r\n the foreach if I were you ;)</p>\r\n",
+    "PostedDate": "2011-02-09T05:18:40.393-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "563281",
+    "ThreadId": "245253",
+    "Html": "\r\n<div>@JohnMaxim</div>\r\n<div>The first few characters of an xlsx file should look something like</div>\r\n<div>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>PK&#3;&#4;&#20; &#6; &#8;   ! � j��&#1;  �&#7;  &#19; �&#1;[Content_Types].xml ��&#1;(  &#2;\r\n</pre>\r\n</div>\r\n</div>\r\n<p>But as borft says, this is cake displaying a warning before the actual xlsx output... by an attempt to iterate over a non-array at line 35 of APP\\views\\helpers\\excel.php</p>\r\n<p>I don't use cake, so I can't tell you how easy it is to debug... but the backtrace suggests where the error is being generated.</p>\r\n<p><strong>Warning</strong> (2): Invalid argument supplied for foreach() <br>\r\n[<strong>APP\\views\\helpers\\excel.php</strong>, line <strong>35</strong>]</p>\r\n",
+    "PostedDate": "2011-02-09T05:34:17.79-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "563312",
+    "ThreadId": "245253",
+    "Html": "\r\n<p>&nbsp;</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>&lt;pre <span style=\"color:blue\">class</span>=<span style=\"color:#a31515\">&quot;cake-debug&quot;</span>&gt;&lt;a href=<span style=\"color:#a31515\">&quot;javascript:void(0);&quot;</span> onclick=<span style=\"color:#a31515\">&quot;document.getElementById('cakeErr1-trace').style.display = (document.getElementById('cakeErr1-trace').style.display == 'none' ? '' : 'none');&quot;</span>&gt;&lt;b&gt;Notice&lt;/b&gt; (8)&lt;/a&gt;: Undefined offset: 0 [&lt;b&gt;APP\\views\\helpers\\excel.php&lt;/b&gt;, line &lt;b&gt;35&lt;/b&gt;]&lt;div id=<span style=\"color:#a31515\">&quot;cakeErr1-trace&quot;</span> <span style=\"color:blue\">class</span>=<span style=\"color:#a31515\">&quot;cake-stack-trace&quot;</span> style=<span style=\"color:#a31515\">&quot;display: none;&quot;</span>&gt;&lt;a href=<span style=\"color:#a31515\">&quot;javascript:void(0);&quot;</span> onclick=<span style=\"color:#a31515\">&quot;document.getElementById('cakeErr1-code').style.display = (document.getElementById('cakeErr1-code').style.display == 'none' ? '' : 'none')&quot;</span>&gt;Code&lt;/a&gt; | &lt;a href=<span style=\"color:#a31515\">&quot;javascript:void(0);&quot;</span> onclick=<span style=\"color:#a31515\">&quot;document.getElementById('cakeErr1-context').style.display = (document.getElementById('cakeErr1-context').style.display == 'none' ? '' : 'none')&quot;</span>&gt;Context&lt;/a&gt;&lt;div id=<span style=\"color:#a31515\">&quot;cakeErr1-code&quot;</span> <span style=\"color:blue\">class</span>=<span style=\"color:#a31515\">&quot;cake-code-dump&quot;</span> style=<span style=\"color:#a31515\">&quot;display: none;&quot;</span>&gt;&lt;pre&gt;&lt;code&gt;&lt;span style=<span style=\"color:#a31515\">&quot;color: #000000&quot;</span>&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;<span style=\"color:blue\">function</span>&amp;nbsp;_headers()&amp;nbsp;{\r\n&lt;/span&gt;&lt;/code&gt;\r\n&lt;code&gt;&lt;span style=<span style=\"color:#a31515\">&quot;color: #000000&quot;</span>&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;$i=0;\r\n&lt;/span&gt;&lt;/code&gt;\r\n<br>Ok, so I changed the display to only one item which is using findById($id), (just to test where went wrong). <br>But I'm still getting the same error from excel except now the content in the file has changed as pasted above. <br>I simply fix the id value a number = '1' just for testing. <br><br>Here's my cake's debug code:<br><div style=\"color:black; background-color:white\"><pre>Array\r\n(\r\n    [0] =&gt; Array\r\n        (\r\n            [User] =&gt; Array\r\n                (\r\n                    [id] =&gt; 1<br>                   &nbsp;[username] =&gt; JohnMaxim<br>                   &nbsp;[password] =&gt; ...<br>                    ................<br>                    ................<br></pre>\r\n</div>\r\nOriginally, I'm trying to get all the usernames printed on excel. The codes are here:(after modifying so only 1 username can be printed)<br><br>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><span style=\"color:blue\">function</span> member($id = '1') {\r\n        $this-&gt;layout = <span style=\"color:#a31515\">'ajax'</span>;\r\n        $this-&gt;set(<span style=\"color:#a31515\">'members'</span>, $this-&gt;User-&gt;findById($id));\r\n    }\r\n</pre>\r\n</div>\r\n<br><br>and display page:<br><br>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>&lt;?php $excel-&gt;generate($members[<span style=\"color:#a31515\">'User'</span>], <span style=\"color:#a31515\">'Members list '</span>.$members[<span style=\"color:#a31515\">'User'</span>][<span style=\"color:#a31515\">'username'</span>]); ?&gt;\r\n</pre>\r\n</div>\r\n<br>I'm not sure where is wrong. Is it still in array now? But I tested with only 1 (result) username that is JohnMaxim but the excel file doesn't open, still showing the <br>same error. I supposed there's a username: JohnMaxim in the excel file?  <br><br>But it's still either corrupted or wrong extension. If someone knows Cake, can you show me how to output the usernames properly, e.g. for a list of usernames? since <br>the example shown from the link is only what I currently know. I tried <br>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>&lt;?php <span style=\"color:blue\">foreach</span> ($members <span style=\"color:blue\">as</span> $member): ?&gt;   \r\n&lt;?php $excel-&gt;generate($member[<span style=\"color:#a31515\">'User'</span>], <span style=\"color:#a31515\">'Members list '</span>.$member[<span style=\"color:#a31515\">'User'</span>][<span style=\"color:#a31515\">'username'</span>]); ?&gt;<br>&lt;?php <span style=\"color:blue\">endforeach</span>; ?&gt;\r\n<br></pre>\r\n</div>\r\n</pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>It doesn't work. Only 1 username is printed as the excel's filename but it can't be opened, prompting the same error as invalid extension or corrupted.</pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2011-02-09T06:25:08.777-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "563417",
+    "ThreadId": "245253",
+    "Html": "\r\n<p>You still haven't solved the initial problem ;) first you tried to iterate over a variable that wasn't iterable (meaning it wasn't an array or object). Now you've just changed the code to only use the first element of a variable that still isn't an array\r\n ;)</p>\r\n<p>&nbsp;</p>\r\n<p>I suggest you try vardumping or print_ring the variable that is causing the notice.</p>\r\n",
+    "PostedDate": "2011-02-09T09:54:52.753-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "563715",
+    "ThreadId": "245253",
+    "Html": "\r\n<p>sorry but what are you talking about?? the current output I have for testing isn't supposed to be an array. Why are you asking me to make an array ?? I only require to test if a single output is to display,</p>\r\n<p>whether the excel can be opened. And it still can't be opened although 1 output is to be printed. About the vardumping do you mean print debug?? if so, I have already shown above.</p>\r\n",
+    "PostedDate": "2011-02-09T20:21:38.95-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "563787",
+    "ThreadId": "245253",
+    "Html": "\r\n<p>If you look at the error message, it tells you that you are trying to refer to a non existing element of an array:</p>\r\n<pre>&lt;b&gt;Notice&lt;/b&gt; (8)&lt;/a&gt;: Undefined offset: 0 [&lt;b&gt;APP\\views\\helpers\\excel.php&lt;/b&gt;, line &lt;b&gt;35&lt;/b&gt;<br><br>I'm guessing (but I might be wrong ofcourse), that you changed your foreach to only processing the first element by something like the following:<br><br>foreach ( $array as $element ){ doSomething($element); }<br><br>to<br><br>doSomething($array[0]);<br><br>But because $array is not an array, php and cake are still throwing an error.</pre>\r\n",
+    "PostedDate": "2011-02-10T00:44:39.287-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1008347",
+    "ThreadId": "245253",
+    "Html": "For those who wonders, setting your debug level to 0 in core.php will take away this &quot;offset&quot; error and render a valid xls file.<br />\n",
+    "PostedDate": "2013-02-28T09:59:28.61-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,76 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hi,\nI tried to load and read the content of the enclosed file, containing 2 rows.\nI'm facing a strange behaviour with the PHPExcel_Worksheet::getHighestDataRow() method. This method returns 1 although there is a data in cell S2. I would expect the method returns 2 (the API documentation mentions 'Get highest worksheet row that contains data').\nMoreover, if I insert a value in a cell before S2, such as R2, the method then returns the correct value 2.\n\nNOTE: using the method PHPExcel_Worksheet::getHighestRow instead returns the correct value in both cases. I can see different implementations for getHighestRow and getHighestDataRow, but neither the API documentation nor the code is enough clear so as I can understand what's happening here, and what are the differences between the 2 methods.\n\nThanks in advance for your clarifications, and your help.",
+    "LastUpdatedDate": "2013-04-19T14:16:51.003-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2012-12-13T15:14:21.473-08:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Invalid value returned by getHighestDataRow",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 2,
+    "Id": 19054
+  },
+  "FileAttachments": [
+    {
+      "FileId": 6728,
+      "FileName": "IO001.xlsx",
+      "DownloadUrl": ".\\6728"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "Hi, i found the matter of this problem. It is in the caching. The last cell stored into cache is not synced until the getCacheData() on the cache storage is called. And this can be too late for some other functionalities, like this getHighestDataRow().\r\n\r\nI made a quick&dirty fix for this. Into cache storage objects (almost all files in CachedObjectStorage dir) add \r\n\r\n```\npublic function syncCache() {$this->_storeData();}\n```\r\n\r\nInto Worksheet.php add\r\n\r\n```\npublic function syncCache() {\n  if (method_exists($this->_cellCollection, 'syncCache')) $this->_cellCollection->syncCache();\n}\n```\r\n\r\nand then call the syncCache() on the sheet just before use\r\n\r\n```\n$objPHPExcel = $objReader->load($this->data_file);\n$sheet = $objPHPExcel->getSheet(0);\n$sheet->syncCache();\n$range = $sheet->calculateWorksheetDataDimension();\n```\r\n\r\nI know that this is a bit dirty, but it works. I someone is able to fix it better and commit that into the sources...",
+      "PostedDate": "2013-04-12T02:28:08.293-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-04-12T02:48:25.913-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Have you checked whether the latest develop branch code on github has actually fixed this problem already?",
+      "PostedDate": "2013-04-12T03:01:42.51-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Firstly no (mea culpa), but now, after you comment, i checked that, and there is no difference in that code or behavior. Therefore, it's not fixed yet.",
+      "PostedDate": "2013-04-12T03:34:09.193-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Running the following\n```\n$cacheMethod = PHPExcel_CachedObjectStorageFactory::cache_to_sqlite3;\nPHPExcel_Settings::setCacheStorageMethod($cacheMethod);\necho \"Enables Cell Caching using $cacheMethod method\" , PHP_EOL;\r\n\r\n$objPHPExcel = new PHPExcel();\r\n\r\n$objPHPExcel->getActiveSheet()->setCellValue('C3', 'PHPExcel');\r\n\r\necho 'Cell Range: ',$objPHPExcel->getActiveSheet()->calculateWorksheetDataDimension(), PHP_EOL;\n```\r\n\r\ngives 'A1:C3' as I'd expect, same with SQLite\nTrying with a load.",
+      "PostedDate": "2013-04-19T14:10:55.24-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Loading your test workbook also gives me a result of 'A1:S2' using memory, SQLite and sqlite3 caching methods",
+      "PostedDate": "2013-04-19T14:16:51.003-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

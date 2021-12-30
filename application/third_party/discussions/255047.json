@@ -1,0 +1,66 @@
+[
+  {
+    "Id": "601915",
+    "ThreadId": "255047",
+    "Html": "\r\n<p>The Excel 2007 reader I used miscalculated some cell values I extracted from an Excel file.<br>\r\nI cut the formulas into parts and it seems that the parser doesn't work well with named references (to other sheets) and booleans (if a formula returns TRUE/FALSE)</p>\r\n<p>Am I right?</p>\r\n",
+    "PostedDate": "2011-04-23T10:22:23.64-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "601932",
+    "ThreadId": "255047",
+    "Html": "<p>Generally speaking, the parser should work perfectly well with named references to other sheets (though it won't work with references to other workbooks), and works perfectly well with booleans as well. Without knowing the specifics of your formula, it's very difficult to diagnose any problem. When debugging formulae, there's a simple function that I use to display the parser stack, and a detailed log of every step within the evaluation.</p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>$sheet = $objPHPExcel-&gt;getActiveSheet();\r\nPHPExcel_Calculation::getInstance()-&gt;writeDebugLog = true;\r\n\r\n<span style=\"color: blue;\">function</span> testFormula($sheet,$cell) {\r\n   $formulaValue = $sheet-&gt;getCell($cell)-&gt;getValue();\r\n   <span style=\"color: blue;\">echo</span> <span style=\"color: #a31515;\">'&lt;b&gt;'</span>.$cell.<span style=\"color: #a31515;\">' Value is &lt;/b&gt;'</span>.$formulaValue.<span style=\"color: #a31515;\">\"&lt;br /&gt;\\n\"</span>;\r\n   $expectedValue = $sheet-&gt;getCell($cell)-&gt;getOldCalculatedValue();\r\n   <span style=\"color: blue;\">echo</span> <span style=\"color: #a31515;\">'&lt;b&gt;'</span>.$cell.<span style=\"color: #a31515;\">' Expected Value is &lt;/b&gt;'</span>.$expectedValue.<span style=\"color: #a31515;\">\"&lt;br /&gt;\\n\"</span>;\r\n\r\n   $calculate = false;\r\n   <span style=\"color: blue;\">try</span> {\r\n      $tokens = PHPExcel_Calculation::getInstance()-&gt;parseFormula($formulaValue,$sheet-&gt;getCell($cell));\r\n      <span style=\"color: blue;\">echo</span> <span style=\"color: #a31515;\">'&lt;b&gt;Parser Stack :-&lt;/b&gt;&lt;pre&gt;'</span>;\r\n      print_r($tokens);\r\n      <span style=\"color: blue;\">echo</span> <span style=\"color: #a31515;\">'&lt;/pre&gt;'</span>;\r\n      $calculate = true;\r\n   } <span style=\"color: blue;\">catch</span> (Exception $e) {\r\n      <span style=\"color: blue;\">echo</span> <span style=\"color: #a31515;\">\"PARSER ERROR: \"</span>.$e-&gt;getMessage().<span style=\"color: #a31515;\">\"&lt;br /&gt;\\n\"</span>;\r\n      <span style=\"color: blue;\">echo</span> <span style=\"color: #a31515;\">'&lt;b&gt;Parser Stack :-&lt;/b&gt;&lt;pre&gt;'</span>;\r\n      print_r($tokens);\r\n      <span style=\"color: blue;\">echo</span> <span style=\"color: #a31515;\">'&lt;/pre&gt;'</span>;\r\n   }\r\n   <span style=\"color: blue;\">if</span> ($calculate) {\r\n      <span style=\"color: blue;\">try</span> {\r\n         $cellValue = $sheet-&gt;getCell($cell)-&gt;getCalculatedValue();\r\n         <span style=\"color: blue;\">echo</span> <span style=\"color: #a31515;\">'&lt;b&gt;'</span>.$cell.<span style=\"color: #a31515;\">' Calculated Value is &lt;/b&gt;'</span>.$cellValue.<span style=\"color: #a31515;\">\"&lt;br /&gt;\\n\"</span>;\r\n         <span style=\"color: blue;\">echo</span> <span style=\"color: #a31515;\">'&lt;h3&gt;Evaluation Log:&lt;/h3&gt;&lt;pre&gt;'</span>;\r\n         print_r(PHPExcel_Calculation::getInstance()-&gt;debugLog);\r\n         <span style=\"color: blue;\">echo</span> <span style=\"color: #a31515;\">'&lt;/pre&gt;'</span>;\r\n      } <span style=\"color: blue;\">catch</span> (Exception $e) {\r\n         <span style=\"color: blue;\">echo</span> <span style=\"color: #a31515;\">\"CALCULATION ENGINE ERROR: \"</span>.$e-&gt;getMessage().<span style=\"color: #a31515;\">\"&lt;br /&gt;\\n\"</span>;\r\n         <span style=\"color: blue;\">echo</span> <span style=\"color: #a31515;\">'&lt;h3&gt;Evaluation Log:&lt;/h3&gt;&lt;pre&gt;'</span>;\r\n         print_r(PHPExcel_Calculation::getInstance()-&gt;debugLog);\r\n         <span style=\"color: blue;\">echo</span> <span style=\"color: #a31515;\">'&lt;/pre&gt;'</span>;\r\n      }\r\n   }\r\n}\r\n\r\ntestFormula($sheet,<span style=\"color: #a31515;\">'A5'</span>);\r\n</pre>\r\n</div>\r\n<p>to test the formula in cell A5 of $sheet.</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2011-04-23T11:29:17.497-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "602291",
+    "ThreadId": "255047",
+    "Html": "<p>Thanks. Using this function I can actually pinpoint the error:</p>\n<p>First the Reference:<br /> [0] =&gt; SF.MCR_G!G13 -&gt; Evaluating Cell D10 in current worksheet<br /> &nbsp;&nbsp;&nbsp; [1] =&gt; SF.MCR_G!G13 -&gt; SF.MCR_G!D10 -&gt; Evaluating Function INDIRECT() with 1 argument<br /> &nbsp;&nbsp;&nbsp; [2] =&gt; SF.MCR_G!G13 -&gt; SF.MCR_G!D10 -&gt; Evaluating INDIRECT( \"SF.SCR_G!SCR\" )<br /> &nbsp;&nbsp;&nbsp; [3] =&gt; SF.MCR_G!G13 -&gt; SF.MCR_G!D10 -&gt; Evaluation Result for INDIRECT() function call is a #REF! error<br /> <br /> In Excel this isn't a #REF! error. It just&nbsp;gets the value from the cell named SCR on sheet SF.SCR_G.</p>\n<p>Then the boolean, which is also caused by a reference error:</p>\n<p>&nbsp;[0] =&gt; SF.MCR_G!F13 -&gt; Evaluating Cell D13 in current worksheet<br /> &nbsp;&nbsp;&nbsp; [1] =&gt; SF.MCR_G!F13 -&gt; SF.MCR_G!D13 -&gt; Evaluating Cell J100 in current worksheet<br /> &nbsp;&nbsp;&nbsp; [2] =&gt; SF.MCR_G!F13 -&gt; SF.MCR_G!D13 -&gt; SF.MCR_G!J100 -&gt; Evaluating Cell J94 in current worksheet<br /> &nbsp;&nbsp;&nbsp; [3] =&gt; SF.MCR_G!F13 -&gt; SF.MCR_G!D13 -&gt; SF.MCR_G!J100 -&gt; SF.MCR_G!J94 -&gt; Evaluating Cell K94 in current worksheet<br /> &nbsp;&nbsp;&nbsp; [4] =&gt; SF.MCR_G!F13 -&gt; SF.MCR_G!D13 -&gt; SF.MCR_G!J100 -&gt; SF.MCR_G!J94 -&gt; Evaluation Result for cell SF.MCR_G!K94 is a string with a value of D.Dataset!Start<br /> &nbsp;&nbsp;&nbsp; [5] =&gt; SF.MCR_G!F13 -&gt; SF.MCR_G!D13 -&gt; SF.MCR_G!J100 -&gt; SF.MCR_G!J94 -&gt; Evaluating Function INDIRECT() with 1 argument<br /> &nbsp;&nbsp;&nbsp; [6] =&gt; SF.MCR_G!F13 -&gt; SF.MCR_G!D13 -&gt; SF.MCR_G!J100 -&gt; SF.MCR_G!J94 -&gt; Evaluating INDIRECT( D.Dataset!Start )<br /> &nbsp;&nbsp;&nbsp; [7] =&gt; SF.MCR_G!F13 -&gt; SF.MCR_G!D13 -&gt; SF.MCR_G!J100 -&gt; SF.MCR_G!J94 -&gt; Evaluation Result for INDIRECT() function call is a #REF! error<br /> &nbsp;&nbsp;&nbsp; [8] =&gt; SF.MCR_G!F13 -&gt; SF.MCR_G!D13 -&gt; SF.MCR_G!J100 -&gt; SF.MCR_G!J94 -&gt; Evaluating Function ISERROR() with 1 argument<br /> &nbsp;&nbsp;&nbsp; [9] =&gt; SF.MCR_G!F13 -&gt; SF.MCR_G!D13 -&gt; SF.MCR_G!J100 -&gt; SF.MCR_G!J94 -&gt; Evaluating ISERROR( #REF! )</p>\n<p>The conclusion is: PHPExcel seems to be unable to evaluate an INDIRECT(\"SHEET!LOCALNAME\") function.&nbsp;</p>",
+    "PostedDate": "2011-04-24T23:36:50.727-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "603183",
+    "ThreadId": "255047",
+    "Html": "<p>I've checked the the code for the INDIRECT() function in PHPExcel, and it's only designed to work with cell references, not with named ranges: the values that you are passing through to INDIRECT() in these cases are Named Ranges. I'm working out the changes necessary in the code to handle a named range.</p>",
+    "PostedDate": "2011-04-26T13:39:21.103-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "603186",
+    "ThreadId": "255047",
+    "Html": "This discussion has been copied to a work item. Click <a href=\"http://phpexcel.codeplex.com/workitem/15762\">here</a> to go to the work item and continue the discussion.",
+    "PostedDate": "2011-04-26T13:40:09.003-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "604941",
+    "ThreadId": "255047",
+    "Html": "<p>Fixed in SVN</p>",
+    "PostedDate": "2011-04-29T09:42:41.287-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "671755",
+    "ThreadId": "255047",
+    "Html": "<p>I have a possibly related issue with formulas and booleans.</p>\n<p>If I simply set a cell as text \"TRUE\", the value results in a formula \"=TRUE()\".</p>\n<p>This is how Excel seems to work too (?!), but PHPExcel will not set the cell's format code to text (@) either or seem able to override this in any other direct way.</p>\n<p>Even if I load an existing XLS with the target cell set as @, PHPExcel will write the formula =TRUE() and set the format code to \"General.\"</p>",
+    "PostedDate": "2011-09-14T08:15:15.18-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "671772",
+    "ThreadId": "255047",
+    "Html": "<p>I just discovered that if I simply...</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>setCellValueExplicit($cell, $data);\r\n</pre>\r\n</div>\r\n...in such cases, it will work just peachy.</p>",
+    "PostedDate": "2011-09-14T08:35:06.467-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

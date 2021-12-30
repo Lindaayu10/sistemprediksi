@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "894543",
+    "ThreadId": "389959",
+    "Html": "\r\n<p>I'm working on grouping/outlining rows with phpexcel. Below is a representation of my excel sheet. For each unique value in the first column, there has to be a total line. And each block has to be collapsable. All the rows together have to be collapsable\r\n to a grand total.</p>\r\n<table>\r\n<tbody>\r\n<tr>\r\n<td>A</td>\r\n<td>10</td>\r\n</tr>\r\n<tr>\r\n<td>A</td>\r\n<td>50</td>\r\n</tr>\r\n<tr>\r\n<td>A</td>\r\n<td>60</td>\r\n</tr>\r\n<tr>\r\n<th>Total</th>\r\n<th>120</th>\r\n</tr>\r\n<tr>\r\n<td>B</td>\r\n<td>10</td>\r\n</tr>\r\n<tr>\r\n<td>B</td>\r\n<td>30</td>\r\n</tr>\r\n<tr>\r\n<th>Total</th>\r\n<th>40</th>\r\n</tr>\r\n<tr>\r\n<th>Grand Total</th>\r\n<th>160</th>\r\n</tr>\r\n</tbody>\r\n</table>\r\n<p>I added a Total line for each block like so:<br>\r\n</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>$sheet-&gt;setCellValue(<span style=\"color:#a31515\">&quot;A$row&quot;</span>, <span style=\"color:#a31515\">&quot;Total &quot;</span> . $previous);\r\n$sheet-&gt;setCellValue(<span style=\"color:#a31515\">&quot;B$row&quot;</span>, <span style=\"color:#a31515\">&quot;=SUBTOTAL(9,B$startrow:B$endrow)&quot;</span>); <span style=\"color:green\">//9 means sum</span>\r\n</pre>\r\n</div>\r\n<p></p>\r\n<p>Where $startrow en $endrow are the start respectively the end of a block. I then created the outline/group:</p>\r\n<p></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><span style=\"color:blue\">foreach</span>(range($startrow,$endrow) <span style=\"color:blue\">as</span> $rrow) {\r\n\t$sheet-&gt;getRowDimension($rrow)-&gt;setOutlineLevel(1);\r\n}\r\n</pre>\r\n</div>\r\n<p></p>\r\n<p>This works well. I now have the possibility to collapse each individual block to just the total rows.</p>\r\n<p>Inserting a Grand Total line isn't all that hard either. I simply add: </p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>$sheet-&gt;setCellValue(<span style=\"color:#a31515\">&quot;A&quot;</span>.($lastrow&#43;1),<span style=\"color:#a31515\">&quot;SUBTOTAL(9,B1:B$lastrow)&quot;</span>);\r\n</pre>\r\n</div>\r\n<p></p>\r\n<p>Now, to add the outline on all the rows in total I tried:</p>\r\n<p></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><span style=\"color:blue\">foreach</span>(range(1,$lastrow) <span style=\"color:blue\">as</span> $rrow) {\r\n\t$sheet-&gt;getRowDimension($rrow)-&gt;setOutlineLevel(1);\r\n}\r\n</pre>\r\n</div>\r\nBut this doesn't work. My first outline disappears. I am only able to collapse rows 1 to the last one.\r\n<p></p>\r\n<p>If I change the outlinelevel to 2 I simply get a second line that collapses rows 1 tot the last one.</p>\r\n<p>Am I doing something wrong? Or is this simply not possible for now? The documentation is a bit blurry about this.</p>\r\n<p><br>\r\nThanks for the help</p>\r\n<p>Matthias</p>\r\n",
+    "PostedDate": "2012-08-02T02:41:27.433-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1138714",
+    "ThreadId": "389959",
+    "Html": "Set the outer level FIRST to 1. Then your second set of groupings to 2.\r<br />\n<br />\nYou first loop could look like this:<br />\n<pre><code>foreach(range($startrow,$endrow) as $rrow) {\n    $sheet-&gt;getRowDimension($rrow)-&gt;setOutlineLevel(1)-&gt;setOutlineLevel(2);\n}</code></pre>\n\n",
+    "PostedDate": "2013-12-19T14:14:39.09-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

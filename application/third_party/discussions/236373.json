@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "528217",
+    "ThreadId": "236373",
+    "Html": "\r\n<p>I use the following code in order to change the value of only one cell on a very large file (about 4 MB) including 18 worksheets:</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><span style=\"color:blue\">require_once</span> <span style=\"color:#a31515\">'Classes/PHPExcel/IOFactory.php'</span>;\r\n$Piano = <span style=\"color:#a31515\">&quot;file.xls&quot;</span>;\r\n$objPHPExcel = PHPExcel_IOFactory::load($Piano);\r\n$objPHPExcel-&gt;setActiveSheetIndex(1);\r\n$objWorksheet = $objPHPExcel-&gt;getActiveSheet();\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(<span style=\"color:#a31515\">'B3'</span>, <span style=\"color:#a31515\">'ABCDE'</span>);\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, <span style=\"color:#a31515\">'Excel5'</span>);\r\n$objWriter-&gt;save(str_replace(<span style=\"color:#a31515\">&quot;.xls&quot;</span>,<span style=\"color:#a31515\">&quot;_copy.xls&quot;</span>,$Piano));\r\n</pre>\r\n</div>\r\n<p>after 1200 seconds I can see the following error: <strong>Fatal error</strong>: Maximum execution time of 1200 seconds exceeded in\r\n<strong>Classes\\PHPExcel\\Calculation.php</strong> on line <strong>2927</strong>.</p>\r\n<p>How can it be possible? Any suggestion?</p>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2010-11-29T05:29:46.067-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "528323",
+    "ThreadId": "236373",
+    "Html": "\r\n<p>This is possible because the php.ini variable max_execution_time is set to 1200 and it probably takes longer than that to process this code.</p>\r\n",
+    "PostedDate": "2010-11-29T08:20:27.137-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "528435",
+    "ThreadId": "236373",
+    "Html": "\r\n<p>If you're working with large files, they do take a long time to read and/or write. The physical size of the file (4MB) isn't a good measure of the workbook size. The number of workbooks, and the number of cells (rows * columns) is more important.</p>\r\n<p>The latest SVN code does speed up writing quite significantly: twice as fast as the 1.7.4 release for Excel5 files. However, even that may not be fast enough for very large workbooks, and the only way to avoid a timeout is to increase the PHP timeout setting.</p>\r\n",
+    "PostedDate": "2010-11-29T11:57:36.717-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "805352",
+    "ThreadId": "236373",
+    "Html": "<p>So how to increase the PHP timeout setting ?</p>",
+    "PostedDate": "2012-03-04T23:13:13.103-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "805357",
+    "ThreadId": "236373",
+    "Html": "<div style=\"color: black; background-color: white;\">\r\n<pre>set_time_limit(3000);\r\n</pre>\r\n</div>",
+    "PostedDate": "2012-03-04T23:36:05.69-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

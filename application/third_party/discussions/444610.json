@@ -1,0 +1,74 @@
+[
+  {
+    "Id": "1047193",
+    "ThreadId": "444610",
+    "Html": "I am using PHPExcel for batch processing of data, exporting from a Postgres database into a spreadsheet and importing that spreadsheet back into postgres  (presumably after it has been changed).\r<br />\n<br />\nI am seeing substantial differences in the behavior of the application when running on Linux verses Windows.\r<br />\n<br />\nThe Linux platform is Centos 6.4    Windows 8.\r<br />\nIn both cases the version of phpexcel is 1.7.8 and PHP is 5.4\r<br />\n<br />\nMy development case reads 1993 records from postgres (version 9.2 btw)\r<br />\nIn the development, Windows always works and does so quickly.\r<br />\nOn Linux, if I format the cells, the job never completes.  If I do not format the cells, it does complete but runs slowly.\r<br />\n<br />\nI've placed debugging code into the program and memory use does not get about 34 megs.\r<br />\nWith formatting, the program stops after processing 1557 records and at that point has used 25 megs of memory.\r<br />\n<br />\n$obj-&gt;getActiveSheet()-&gt;getStyle($col . $row)-&gt;getAlignment()-&gt;setVertical(PHPExcel_Style_Alignment::VERTICAL_TOP);<br />\n<pre><code>    $obj-&gt;getActiveSheet()-&gt;getColumnDimension($col)-&gt;setWidth(42);\n\n</code></pre>\n\nDoes anyone have any theories on this behavior or where/how to proceed from here?<br />\n",
+    "PostedDate": "2013-05-22T09:10:53.647-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1055419",
+    "ThreadId": "444610",
+    "Html": "I really could you some help on this.  Anyone???<br />\n",
+    "PostedDate": "2013-06-11T07:41:54.61-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1056839",
+    "ThreadId": "444610",
+    "Html": "Very difficult to assess... PHPExcel is developed as a cross-platform library, though there can easily be performance differences as a result of PHP version and configuration (memory, available modules, xdebug, etc), speed of filesystem (reading/writing to shared folders can be incredibly slow).\r<br />\n<br />\nThere's also a couple of &quot;kludges&quot; in the code for problematic Operating systems such as AIX with iconv(), but nothing specific for Centos.<br />\n",
+    "PostedDate": "2013-06-14T05:18:15.763-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1056843",
+    "ThreadId": "444610",
+    "Html": "Mark.  Thanks.  Is there any info I can provide that would make this easier to assess?\r<br />\n<br />\nThe hardware in question is an 8-core 12 Gigs of memory platform.  It should be blowing through this work.\r<br />\n<br />\n<br />\nRogers<br />\n",
+    "PostedDate": "2013-06-14T05:24:22.667-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1056847",
+    "ThreadId": "444610",
+    "Html": "Not really, I write code that should work across all platforms, I test it on a variety of platforms; but debugging at that level could easily be a case of looking at how PHP itself works internally on certain platforms which is outside my experience. \r<br />\n<br />\nI've mentioned shared drives (e.g. Samba) that I know are slow anyway.\r<br />\n<br />\nIs anything being written to PHP logs, warnings or errors of any kind that might indicate problems? Even the overhead of handling/suppressing warnings is a pretty big PHP overhead.<br />\n",
+    "PostedDate": "2013-06-14T05:37:06.06-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1056851",
+    "ThreadId": "444610",
+    "Html": "Samba isn't a factor and the only logging is when I've created debug statements to figure out what is going on.\r<br />\nIs there a way to limit the memory in play to only 8 columns max? <br />\n\r<br />\n<br />\nRogers<br />\n",
+    "PostedDate": "2013-06-14T05:43:32.53-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1056859",
+    "ThreadId": "444610",
+    "Html": "Mark:\r<br />\n<br />\nHere is the code in question, in case that helps:\r<br />\n<br />\nfunction writedata($obj, $info) {<br />\n<pre><code>$obj-&gt;setActiveSheetIndex(0);\n$row = 2;\nforeach ($info as $key =&gt; $info) {\n    $col = 'A';\n    $generic = $info['generic'];\n    $name = $info['name'];\n    $ingredients = $info['ingredients'];\n    $form = $info['form'];\n    $admin = $info['admin'];\n    $dosage = $info['dosage'];\n    $maker = $info['maker'];\n    $ctry = $info['ctry'];\n\n    $obj-&gt;getActiveSheet()-&gt;setCellValue($col . $row, $maker);\n    $obj-&gt;getActiveSheet()-&gt;getStyle($col . $row)-&gt;getAlignment()-&gt;setVertical(PHPExcel_Style_Alignment::VERTICAL_TOP);\n    $obj-&gt;getActiveSheet()-&gt;getColumnDimension($col)-&gt;setWidth(42);\n    $col++;\n\n    $obj-&gt;getActiveSheet()-&gt;setCellValue($col . $row, $ctry);\n    $obj-&gt;getActiveSheet()-&gt;getStyle($col . $row)-&gt;getAlignment()-&gt;setVertical(PHPExcel_Style_Alignment::VERTICAL_TOP);\n    $obj-&gt;getActiveSheet()-&gt;getColumnDimension($col)-&gt;setWidth(9);\n    $col++;\n\n    $obj-&gt;getActiveSheet()-&gt;setCellValue($col . $row, $generic);\n    $obj-&gt;getActiveSheet()-&gt;getStyle($col . $row)-&gt;getAlignment()-&gt;setVertical(PHPExcel_Style_Alignment::VERTICAL_TOP);\n    $obj-&gt;getActiveSheet()-&gt;getColumnDimension($col)-&gt;setWidth(20);\n    $col++;\n\n    $obj-&gt;getActiveSheet()-&gt;setCellValue($col . $row, $name);\n    $obj-&gt;getActiveSheet()-&gt;getStyle($col . $row)-&gt;getAlignment()-&gt;setVertical(PHPExcel_Style_Alignment::VERTICAL_TOP);\n    $obj-&gt;getActiveSheet()-&gt;getColumnDimension($col)-&gt;setWidth(40);\n    $col++;\n\n    $obj-&gt;getActiveSheet()-&gt;setCellValue($col . $row, $form);\n    $obj-&gt;getActiveSheet()-&gt;getStyle($col . $row)-&gt;getAlignment()-&gt;setVertical(PHPExcel_Style_Alignment::VERTICAL_TOP);\n    $obj-&gt;getActiveSheet()-&gt;getColumnDimension($col)-&gt;setWidth(25);\n    $col++;\n\n    $obj-&gt;getActiveSheet()-&gt;setCellValue($col . $row, $dosage);\n    $obj-&gt;getActiveSheet()-&gt;getStyle($col . $row)-&gt;getAlignment()-&gt;setVertical(PHPExcel_Style_Alignment::VERTICAL_TOP);\n    $obj-&gt;getActiveSheet()-&gt;getColumnDimension($col)-&gt;setWidth(14);\n    $col++;\n\n    $obj-&gt;getActiveSheet()-&gt;setCellValue($col . $row, $admin);\n    $obj-&gt;getActiveSheet()-&gt;getStyle($col . $row)-&gt;getAlignment()-&gt;setVertical(PHPExcel_Style_Alignment::VERTICAL_TOP);\n    $obj-&gt;getActiveSheet()-&gt;getColumnDimension($col)-&gt;setWidth(14);\n    $col++;\n\n    $obj-&gt;getActiveSheet()-&gt;setCellValue($col . $row, $ingredients);\n    $obj-&gt;getActiveSheet()-&gt;getStyle($col . $row)-&gt;getAlignment()-&gt;setVertical(PHPExcel_Style_Alignment::VERTICAL_TOP);\n    $obj-&gt;getActiveSheet()-&gt;getColumnDimension($col)-&gt;setWidth(67);\n    $row++;\n\n}</code></pre>\n\n}<br />\n",
+    "PostedDate": "2013-06-14T05:51:53.103-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1056904",
+    "ThreadId": "444610",
+    "Html": "Don't set the column dimensions for every row (inside the loop); you only need to set a column dimension once.<br />\n<br />\nDon't set the alignment for each individual cell; it's much more efficient to set style features for a range of cells:<br />\n<br />\ne.g.<br />\n<div style=\"color:Black;background-color:White;\"><pre>\r\n$obj-&gt;getActiveSheet()\n    -&gt;getStyle(<span style=\"color:#A31515;\">&quot;A2:H250&quot;</span>)\n    -&gt;getAlignment()\n    -&gt;setVertical(PHPExcel_Style_Alignment::VERTICAL_TOP);\r\n</pre></div>Look at using the fromArray() method to set a row (or block) of cells in a single call rather than setting the cells individually<br />\n<br />\nThat's not Windows/*nix specific; just a general performance improvement, and should speed things up on both platforms<br />\n",
+    "PostedDate": "2013-06-14T06:58:11.4-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1057106",
+    "ThreadId": "444610",
+    "Html": "Thanks.  Got incredibly busy and didn't have a chance to try this yet.  On tap for tomorrow.\r<br />\n<br />\nRgoers<br />\n",
+    "PostedDate": "2013-06-14T15:17:23.45-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

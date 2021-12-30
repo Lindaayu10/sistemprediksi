@@ -1,0 +1,75 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I am using the latest version of this library, but still the unicode data are not showing correctly. The data are not read from the XLS file however they are directly written to CSV file. It is noticed that using open office, this issue is not reproducible but this is an issue when using MS office. If the exported file is opened using notepad, its clear that the encoding used is UTF-8. However, if the file is saved using the Unicode encoding and opened via MS Excel as CSV file, the unicode data are shown correctly but each row show all data within one column. \nNote that I also used setUseBOM but this is still an issue. \nPlease this is crutial and I am in need to know if there is a way to fix it.\n \nThanks!",
+    "LastUpdatedDate": "2013-02-21T19:02:41.93-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2010-10-25T14:41:59.487-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Unicode data in CSV",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 14541
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "Can you please show your code for writing the CSV file, and perhaps upload an example (strip out anything sensitive) to demonstrate the problem.",
+      "PostedDate": "2010-10-26T01:57:20.43-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "sure:\r\n\r\n$phpExcelObj = new PHPExcel();\r\n$sheet =& $phpExcelObj->getActiveSheet();\r\n\r\n$current_col = 0;\r\n$current_row =1;\r\nforeach($record as $_reckey=>$_recvalue)\r\n{\r\n\t$sheet->setCellValueByColumnAndRow($current_col, $current_row, $record[$col_name] );\r\n\t$current_col++;\r\n\tbreak;\t\r\n}\r\n\r\n$phpExcelWriterObj = new PHPExcel_Writer_CSV($phpExcelObj);\r\n$phpExcelWriterObj->setUseBOM(true);\r\n$filename .= '.csv';\r\n\r\nheader('Content-Description: File Transfer');\r\nheader('Cache-Control: public, must-revalidate, max-age=0'); // HTTP/1.1\r\nheader('Pragma: public');\r\nheader('Expires: Sat, 26 Jul 1997 05:00:00 GMT'); // Date in the past\r\nheader('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT');\r\nheader('Content-Type: application/force-download');\r\nheader('Content-Type: application/octet-stream', false);\r\nheader('Content-Type: application/download', false);\r\nheader( 'Content-Type: text/csv ; encoding=UTF-8');\r\nheader('Content-Disposition: attachment; filename=\"'. $filename . '\";');\r\nheader('Content-Transfer-Encoding: binary');\r\n$phpExcelWriterObj->save('php://output');\r\nexit();\r\n\r\nas for the attachment, please refer to the attached file in http://phpexcel.codeplex.com/workitem/8245, called:  Competency_Rating_by_Employee_Report_2010-10-25_11_12_46.csv\r\n\r\nThanks.",
+      "PostedDate": "2010-10-26T06:48:57.953-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "any update about this?",
+      "PostedDate": "2010-10-30T10:41:19.05-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I'm still not sure that I understand this problem, or that it is a problem with PHPExcel. It seems that the problem is with MS Excel reading a CSV file. If you are storing the data in PHPExcel using UTF-8, and setting a UTF BOM, and the resulted generated file is correct when viewed in a text editor (notepad), then PHPExcel is doing everything correctly.",
+      "PostedDate": "2010-11-01T16:14:11.583-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Before using PHPExcel, I was using tab delimiter and pack function within the code. The exported CSV file was showing all data correctly. But snce I need to have comma delimiter I prefered to use PHPExcel. Below is a sample of the code that I used to make use of and it was working fine with openOffice as well as MS Excel.\r\n\r\nI am putting the code here hoping it may help in getting a resolve for this issue within PHPExcel. \r\n\r\n\theader( 'Cache-Control: private' );\r\n\theader( 'Pragma: private' );\r\n\r\n\theader( 'Content-Type: text/csv' );\r\n\theader( 'Content-Disposition: attachment; filename=\"test_file.csv\" ');\r\n\t\r\n\t$buf = '';\r\n\t\tforeach( $_columns as $col_name )\r\n\t\t{       \t\t\r\n\t\t\tif( $iteration != 1 )\r\n\t\t\t{\r\n\t\t\t\t $buf .=\"\\t\";\r\n\t\t\t}\r\n\t\t\t$buf .= $col_name ;\r\n\t\t\t$iteration++;\r\n\t\t}\r\n\t\t$buf .=\"\\n\";\r\n\r\n\t\tforeach( $results as $result_row)\r\n\t\t{\r\n\t\t\t$title_1 = 1;\r\n\t\t\t$title_2 = 1;\r\n\t\t\t\r\n\t\t\t$buf .= $result_row['x_title'] . \"\\t\";\r\n\r\n\t\t\tforeach($result_row['result_1'] as $result_row)\r\n\t\t\t{\r\n\t\t\t\tif ($title_1)\r\n\t\t\t\t{\r\n\t\t\t\t\t$buf .= \"result_1\" .\"\\t\";\r\n\t\t\t\t\t$title_1 = 0;\r\n\t\t\t\t}\r\n\t\t\t\telse\r\n\t\t\t\t{\r\n\t\t\t\t\t$buf .= \"\\t\";\r\n\t\t\t\t}\r\n\t\t\t\t\r\n\t\t\t\t$buf .= $result_row['name'] . \"\\t\"\r\n\t\t\t\t\t\t. $result_row['count'] . \"\\t\" \r\n\t\t\t\t\t\t. $result_row['total'] . \"% \\n\";\r\n\t\t\t}\r\n\r\n\t\t\tforeach($result_row['result_2'] as $result_2_row)\r\n\t\t\t{\r\n\t\t\t\tif ($title_2)\r\n\t\t\t\t{\r\n\t\t\t\t\t$buf .= \"header\" .\"\\t\";\r\n\t\t\t\t\t$title_2 = 0;\r\n\t\t\t\t}\r\n\t\t\t\telse\r\n\t\t\t\t{\r\n\t\t\t\t\t$buf .=\"\\t\";\r\n\t\t\t\t}\r\n\t\t\t\t\r\n\t\t\t\t$buf .= $result_2_row['name'] . \"\\t\"\r\n\t\t\t\t\t\t. $result_2_row['count'] . \"\\t\" \r\n\t\t\t\t\t\t. $result_2_row['total'] . \"% \\n\";\r\n\t\t\t}\r\n\t\t\t\r\n\t\t\t$buf .= $result_row['total_completed']) .\"\\t\"\r\n\t\t\t\t\t.$result_row['percentage']\r\n\t\t\t\t\t.\"% \\n \\n\";\r\n\r\n\t\t}\r\n\t\t$buf = pack('CCCC', 0xFF, 0xFE, 0x00, 0x00). mb_convert_encoding($buf, 'UTF-32LE','UTF-8');\r\n\t\tprint $buf;\r\n\r\nThanks.",
+      "PostedDate": "2010-11-02T12:05:33.153-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "The only thing that I can think of to suggest is $phpExcelWriterObj->setLineEnding(\"\\r\\n\"); to force Windows line breaks rather than *nix line breaks",
+      "PostedDate": "2010-11-02T16:40:54.623-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:02:41.93-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

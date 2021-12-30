@@ -1,0 +1,95 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "All",
+      "DisplayName": "All"
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "It can be a bit confusing to work with images in PHPExcel. This has to do with the various readers and writers, Excel2007, Excel5, HTML, PDF dealing differently with the images.\n \nWhat we have now in PHPExcel:\n \n- Excel2007 reader does not create a copy of the image for the loaded workbook. I.e. the in-memory Excel file does not have its own copy of the image, it only has a path to the images, e.g. zip://read.xlsx#xl/media/image1.png.\nAs a consequence, if the Excel file is loaded with PHPExcel_Reader_Excel2007 and the original Excel file is afterwards unlinked, the images are lost.\n \n- Excel5 reader converts images to memory images (PHPExcel_Worksheet_MemoryDrawing objects) (this is true for PHPExcel 1.6.7). This means that copies are made. The process is expensive.\n \n- HTML writer has a method setImagesRoot(). This is a third storage solution for images different from the previous two. To succesfully save HTML documents from Excel templates one is required to copy the images manually from either of two locations to the images root, or to do this in advance if one already knows what images one will be using.\n \nIdeal solution?\n \nStore images directly as strings in memory. This seems possible with both the way Excel5 and Excel2007 stores images.\n \nAdvantages:\n- It becomes easier to add images to a workbook retrieving from e.g. MySQL BLOB.\n \n- Excel source files are completely decoupled from the in-memory representation.\n \n- Need for PHPExcel_Worksheet_MemoryDrawing is eliminated\n \n- PHPExcel_Reader_Serialized and PHPExcel_Writer_Serialized jobs will become easier because images need no extra treatment.\n \n \nDisadvantages:\n \n- Images will occupy more space in memory. \n \nThis could give worries. But probably it shouldn't. Judging from the Excel files that have been posted during the time, images would rarely occupy more than 10MB in total. But, if it turns out that this may give problems anyway, then a caching mechanism would seem to be the right solution to this.",
+    "LastUpdatedDate": "2014-12-12T01:01:33.28-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-05-15T18:37:33.03-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Image storage location / method inconsistencies in PHPExcel",
+    "Type": {
+      "Name": "Feature",
+      "Id": 1
+    },
+    "VoteCount": 5,
+    "Id": 9990
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "Problem when storing this in memory is that, for example with JPEG, you will also lose quality when doing a GD save. I like the idea, but memory and quality issues seem imminent...",
+      "PostedDate": "2009-05-18T02:16:30.603-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I had in mind storing the image as a plain (binary) string like the result of file_get_contents().\r\n\r\nThe JPEG quality loss you are mentioning is exactly the thing I would like to avoid. It is present now with Excel5 reader which uses the (GD) memory image object. With a plain string the GD memory image would not be needed for Excel5 reader.",
+      "PostedDate": "2009-05-18T03:07:31.427-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Note:\r\nAbility to add images via URL, e.g.\r\n$objDrawing->setPath('http://somedoma.in/test.php?arg1=val1&arg2=val2&arg3=val3')\r\n\r\nwas suggested by azriman in thread:\r\nhttp://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=82022",
+      "PostedDate": "2010-01-27T02:22:57.46-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-02-22T17:29:03.593-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2011-07-21T10:55:49.223-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-03-26T22:38:52.713-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "@koyama  I created an Excel 2007 document and looked at the differences between an image that is stored in the workbook archive and one that was external and only loaded when the workbook was opened.\r\nIn the xl\\drawings\\_rels\\drawing1.xml.rels the only difference was the image that was sourced externally to the workbook had TargetMode=\"External\" in the Relationship element.\r\nThe externally sourced image also allowed the additional parameters/arguments that azriman was after. http://somedoma.in/test.php?arg1=val1&arg2=val2&arg3=val3\r\nWould it be possible to to have an option on the $objDrawing->setPath() function to tell it to create an TargetMode=\"External\" image? Then it would know not to attempt to find the file and attach it but rather just create the entry with the TargetMode=\"External\" parameter.\r\nThis is all new to me but hopefully this is a valid suggestion. :)",
+      "PostedDate": "2012-03-27T15:42:27.38-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I am a little confused. \r\nIf the \"image\" is able to be added to the Excel workbook by specifying a URL and the actual image is only sourced by Excel when the workbook is opened then there should be no need for phpExcel to store or handle the actual image. The \"image\" entry in the workbook would be like the img element in a html document, just a placeholder for an image that is later retrieved by the client.\r\nUsing the TargetMode=\"External\" that i mentioned in an earlier post we could then add URL image paths that allowed for the passing of arguments.\r\n ",
+      "PostedDate": "2012-06-13T19:31:11.353-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "After i posted the last comment i realised i made a noob mistake. I was reading the oldest post as if it was the most recent post. That was why i was confused as to the talk about JPEG quality issues. Doh.",
+      "PostedDate": "2012-06-13T19:34:18.253-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:04:01.247-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2014-12-12T01:01:33.28-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

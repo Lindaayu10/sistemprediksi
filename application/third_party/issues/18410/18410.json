@@ -1,0 +1,156 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "No evidence of any problem forthcoming&#59; all supposed examples simply do not work",
+    "ClosedDate": "2012-09-18T04:58:05.947-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I am not able to set styles using the applyFromArray() function. When I trace through the code I notice that the cell range I provide somehow gets converted to A1, but even that is not applying the style changes I wish to make.\n \nI am starting with a copy of a template workbook from which I make a copy of the template worksheet:\n \n\t$objXLTmpl\t\t\t= $objReader->load($rTmpl);\n\t$objXL\t\t\t\t= $objXLTmpl->copy();\n \nI then make a copy of the worksheet:\n \n\t\t\t$objSheet\t\t= $objXL->getSheetByName(Template)->copy();\n\t\t\t$objSheet->setTitle($tabLabel);\n\t\t\t$objXL->addExternalSheet($objSheet);\n\t\t\t$objXL->setActiveSheetIndex($objXL->getIndex($objXL->getSheetByName($tabLabel)));\n \nNow I want to apply some style changes:\n \n\t\t\t$sumRange\t= begCol . $dRow . ':' . endCol . $dRow;\n\t\t\t$styleArray\t= array(\n\t\t\t\t\t\t\t'font' => array(\n\t\t\t\t\t\t\t'color'\t=> PHPExcel_Style_Color::COLOR_RED,\n\t\t\t\t\t\t\t'size'\t=> '20',\n\t\t\t\t\t\t\t)\n\t\t\t\t\t\t  );\n \n\t\t\tthis works:\n\t\t\t$xl->getActiveSheet()->getRowDimension($dRow)->setRowHeight(25.5);\n \n\t\t\tthese do not:\n\t\t\t$xl->getActiveSheet()->getStyle($sumRange)->applyFromArray($styleArray);\n\t\t\t$xl->getActiveSheet()->getStyle($sumRange)->getFont()->setSize('20');\n \nI don't get any error messages, but there is no change in the style attributes either.\n \nDoes anyone have any ideas why?\n \nThanks in advance.",
+    "LastUpdatedDate": "2013-05-16T05:41:31.003-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2012-07-26T14:24:13.63-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "applyFromArray() does not work",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 18410
+  },
+  "FileAttachments": [
+    {
+      "FileId": 6551,
+      "FileName": "excel style array sample.php",
+      "DownloadUrl": ".\\6551"
+    },
+    {
+      "FileId": 6582,
+      "FileName": "CostList example.xlsx",
+      "DownloadUrl": ".\\6582"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "I'm surprised you're not seeing:\r\nException: Invalid style array passed. in /PHPExcel/Classes/PHPExcel/Style/Color.php on line 229\r\n\r\n$styleArray = array(\r\n\t'font' => array(\r\n\t\t'color' => array( 'rgb' => PHPExcel_Style_Color::COLOR_RED ),\r\n\t\t'size' => '20',\r\n\t)\r\n);\r\n",
+      "PostedDate": "2012-07-26T15:49:30.467-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "correction:\r\n\r\n$styleArray = array(\r\n 'font' => array(\r\n 'color' => array( 'argb' => PHPExcel_Style_Color::COLOR_RED ),\r\n 'size' => '20',\r\n )\r\n);",
+      "PostedDate": "2012-07-26T15:54:56.427-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Sorry, should be argb, not rgb:\r\n\r\n$styleArray = array(\r\n 'font' => array(\r\n 'color' => array( 'argb' => PHPExcel_Style_Color::COLOR_RED ),\r\n 'size' => '20',\r\n )\r\n);",
+      "PostedDate": "2012-07-26T16:16:52.837-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-07-26T16:19:33.16-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Hi Mark;\r\n\r\nI tried the change you suggested, but still no difference.\r\n\r\nI was getting an error like that earlier in my attempts to use applyFromArray(), but I don not remember the conditions that were causing it.\r\n\r\nI have also tried:\r\n\r\n$xl->getActiveSheet()->getStyle($sumRange)->getFont()->getColor()->setARGB(PHPExcel_Style_Color::COLOR_RED);\r\n\r\nBut this does not have any effect either.\r\n\r\nSome additional information that way help. The file format I am generating is Excel2007 and I am using both Excel 2007 and Excel 2010 to open my file. I've tried both versions of Excel and no difference.\r\n\r\nAs I mentioned above I am able to set the rowHeight, but style related options do not seem to be affected.\r\n\r\nThanks again.",
+      "PostedDate": "2012-08-03T11:50:02.98-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Used properly, applyFromArray() works correctly.\r\nUnable to replicate user code without getting a thrown exception\r\n\r\n\n\n** Closed by MarkBaker 7/26/2012 4:19 PM",
+      "PostedDate": "2012-08-03T11:58:00.987-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Hi Mark;\r\n\r\nI tried the change you suggested, but still no difference.\r\n\r\nI was getting an error like that earlier in my attempts to use applyFromArray(), but I do not remember the conditions that were causing it.\r\n\r\nI have also tried:\r\n\r\n$xl->getActiveSheet()->getStyle($sumRange)->getFont()->getColor()->setARGB(PHPExcel_Style_Color::COLOR_RED);\r\n\r\nBut this does not have any effect either.\r\n\r\nSome additional information that may help. The file format I am generating is Excel2007 and I am using both Excel 2007 and Excel 2010 to open my file. I've tried both versions of Excel and no difference.\r\n\r\nAs I mentioned in my original post I am able to set the rowHeight, but style related options do not seem to be affected.\r\n\r\nThanks again.\r\n",
+      "PostedDate": "2012-08-03T11:58:01.62-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Can you please give me a full working copy of the code that does not work, i.e. the cell range because\r\n$sumRange = begCol . $dRow . ':' . endCol . $dRow;\r\nwould be invalid PHP unless begCol and endCol were defined as constants;\r\nThe style array that you are using\r\n\r\nThis works for me, so I need to know exactly what you are doing to identify any difference",
+      "PostedDate": "2012-08-03T13:56:24.803-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-08-09T08:04:12.947-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Hi Mark;\r\n\r\nHere is a condensed version of the code I am working with.\r\n\r\n\r\nI hope this provides you with enough detail.\r\n\r\n",
+      "PostedDate": "2012-08-09T08:04:15.857-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Is anyone still working in this issue?",
+      "PostedDate": "2012-08-17T13:19:41.843-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Is anyone still working on this issue?",
+      "PostedDate": "2012-08-17T13:20:54.423-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Not without a costList.xlsx file that's required by your example.\r\n",
+      "PostedDate": "2012-08-18T01:15:31.617-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I also suspect I'll get other errors running because I can't see anywhere that $sReport is defined",
+      "PostedDate": "2012-08-18T01:18:12.917-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-08-31T08:32:56.7-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Here is CostList example.xlsx",
+      "PostedDate": "2012-08-31T08:32:58.95-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Example fails to run with an error on the line\r\nFatal error: Call to a member function getRange() on a non-object\r\non the line\r\n$rBounds = PHPExcel_Cell::getRangeBoundaries($objXL->getNamedRange(\"A12\")->getRange());\r\nbecause A12 is a cell reference, not a named range.\r\n\r\nFixing that first error, I get \r\nUndefined variable: sReport\r\nTrying to get property of non-object\r\nwhich I'd anticipated in a previous message\r\n\r\n\r\nFinally, I get an error\r\nActive sheet index is out of bounds\r\nfrom\r\n\t$objXL->removeSheetByIndex(0);\r\n\t$objXL->setActiveSheetIndex(0);\r\nYou remove sheet 0, then try to set sheet 0 as the active sheet\r\n\r\n\r\n\r\nTo try and identify any problem, I really need a working example",
+      "PostedDate": "2012-09-01T04:44:44.097-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "There are also a myriad of other issues and foibles in your code:\r\ne.g.\r\n\r\nfunction ccDetail($xl, $schemID, $name, $col, $row) {\r\n\t$xl = (object) $xl;\r\n\r\nas $xl is already an object, casting it to an object is pretty meaningless. I don't know if it will have any adverse effects, but at best it's meaningless and at worst it might be doing a shallow clone",
+      "PostedDate": "2012-09-01T04:51:53.24-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-09-18T04:58:05.947-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:01:48.523-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:41:31.003-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

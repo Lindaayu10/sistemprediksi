@@ -1,0 +1,82 @@
+[
+  {
+    "Id": "459950",
+    "ThreadId": "217318",
+    "Html": "<p>Hello,</p>\r\n\r\n<p>I have an Excel document (.xlsx) that has a single worksheet. When I open this worksheet with PHPExcel, the Excel object has two worksheets. 'Site Input', which is the original, and 'Site Input 1', which is created by PHPExcel. Any ideas why or how I can fix this?</p>\r\n\r\nrequire_once('./third_party/PHPExcel/Reader/Excel2007.php');<br>\r\n$excel_reader = new PHPExcel_Reader_Excel2007();<br>\r\n$excel_reader-&gt;setLoadSheetsOnly( array(&quot;Site Input&quot;) );<br>\r\n$excel = $excel_reader-&gt;load($full_filename);",
+    "PostedDate": "2010-06-25T07:18:35.78-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "461093",
+    "ThreadId": "217318",
+    "Html": "<p>I&nbsp;was the person who posted the above issue. I wasn't able to register the other day. Is anyone there? Hello...</p>",
+    "PostedDate": "2010-06-29T03:22:28.547-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "483525",
+    "ThreadId": "217318",
+    "Html": "<p>It's a shame there's no support with this. I'll have to struggle on.</p>",
+    "PostedDate": "2010-08-23T03:29:32.153-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "483564",
+    "ThreadId": "217318",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>charlesbeau wrote:</strong><br>\r\n<p>It's a shame there's no support with this. I'll have to struggle on.</p>\r\n</blockquote>\r\n<p>&nbsp;My apologies for having been distracted with trivia. However, I have been totally unable to replicate your problem.</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>$objPHPExcelReader = <span style=\"color:blue\">new</span> PHPExcel_Reader_Excel2007();\r\n$objPHPExcelReader-&gt;setLoadSheetsOnly( <span style=\"color:blue\">array</span>(<span style=\"color:#a31515\">&quot;Site Input&quot;</span>) );\r\n$objPHPExcel = $objPHPExcelReader-&gt;load($inputFileName);\r\n<span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'Sheet Count = '</span>.$objPHPExcel-&gt;getSheetCount().<span style=\"color:#a31515\">'&lt;br /&gt;'</span>;\r\n<span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'Sheet Names =&lt;br /&gt;'</span>;\r\n$sheetNames = $objPHPExcel-&gt;getSheetNames();\r\n<span style=\"color:blue\">foreach</span>($sheetNames <span style=\"color:blue\">as</span> $sheetName) {\r\n   <span style=\"color:blue\">echo</span> $sheetName.<span style=\"color:#a31515\">'&lt;br /&gt;'</span>;\r\n}\r\n</pre>\r\n<pre>gives me a result of</pre>\r\n<pre><div style=\"color:black;background-color:white\"><pre>Sheet Count = 1\r\nSheet Names =\r\nSite Input\r\n</pre>\r\n</div>\r\n</pre>\r\n</div>\r\n<p>I've tested this now against all release versions of PHPExcel going back to 1.6.6 (as well as against the latest SVN code) and have completely failed to create a second worksheet that doesn't exist in the loaded workbook.</p>\r\n<p>Note that, if your original workbook only contains a single sheet, then $objPHPExcelReader-&gt;setLoadSheetsOnly( <span style=\"color:blue\">array</span>(<span style=\"color:#a31515\">&quot;Site Input&quot;</span>) ); is unnecessary: it is only required if you have several worksheets in the workbook, but only want to load a selected subset of them.</p>",
+    "PostedDate": "2010-08-23T05:35:48.27-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "484661",
+    "ThreadId": "217318",
+    "Html": "<p>Hi Mark,</p>\r\n<p>Thank you, thank you, thank you for your response!</p>\r\n<p>I'm currently using version 1.7c, and I'll continue to use the latest and greatest.</p>\r\n<p>I've been doing some more tests and the error is only occurring for me when I email the spreadsheet to my website, and not when I upload the file, so I'm going to assume that it's an error in my code. I'll update this when I've figured it out, to let you know either way.</p>\r\n<p>Many thanks once again,</p>\r\n<p>Charles</p>",
+    "PostedDate": "2010-08-25T07:02:56.54-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "485694",
+    "ThreadId": "217318",
+    "Html": "<p>There's something I don't like about this feature:</p>\r\n<p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>$objPHPExcelReader-&gt;setLoadSheetsOnly( <span style=\"color:blue\">array</span>(<span style=\"color:#a31515\">&quot;Site Input&quot;</span>) );\r\n</pre>\r\n</div>\r\nI have two sheets in my Excel document, '<strong>Site Input</strong>' and '<strong>Site Input 1</strong>'. '<strong>Site Input 1</strong>' is a rogue sheet and I don't want to load it, but unfortunately the code above loads both.</p>\r\n<p>I don't know if this is intended or a bug, but I'd prefer it to only load exact matches to the whole name.</p>",
+    "PostedDate": "2010-08-27T07:17:37.77-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "485710",
+    "ThreadId": "217318",
+    "Html": "<p>OK, I can now confirm that this is a bug. It occurs when loading a specific spreadsheet. I think it's something in the formatting that's causing the problem to occur. I've stripped my spreadsheet down to just coloured cells. If I remove any more rows or columns the error stops occurring. It's a really odd bug.</p>\r\n<p>Here's the code I'm using the replicate the issue:</p>\r\n<p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>&lt;?php\r\n<span style=\"color:blue\">require_once</span>(<span style=\"color:#a31515\">'./PHPExcel/Reader/Excel2007.php'</span>);\r\n$excel_reader_2007 = <span style=\"color:blue\">new</span> PHPExcel_Reader_Excel2007();\r\n$excel = $excel_reader_2007-&gt;load(<span style=\"color:#a31515\">'Kings Place.xlsx'</span>);\r\n<span style=\"color:blue\">echo</span> count($excel-&gt;getSheetNames());\r\n<span style=\"color:blue\">die</span>();\r\n?&gt;\r\n</pre>\r\n</div>\r\nAnd you'll see the result as 2, instead of what it should be, which is 1. It's creating a duplicate sheet somehow.</p>\r\n<p>Please download the test spreadsheet from here: http://www.mediafire.com/?5bsuldb8rut5mwe</p>\r\n<p>I'll keep checking back here regularly. If you need anything else from me please let me know.</p>",
+    "PostedDate": "2010-08-27T07:56:59.713-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "485719",
+    "ThreadId": "217318",
+    "Html": "<p>&nbsp;</p>\r\n<p>hi,</p>\r\n<p>can anyone say to me how can i add image to header?</p>\r\n<p>&nbsp;</p>\r\n<p>regards.</p>",
+    "PostedDate": "2010-08-27T08:44:38.123-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "487560",
+    "ThreadId": "217318",
+    "Html": "<p>@charlesbeau</p>\r\n<p>I've tried loading your worksheet, but still cannot replicate this error</p>",
+    "PostedDate": "2010-09-01T05:55:30.047-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "497504",
+    "ThreadId": "217318",
+    "Html": "<p>I had the same issue here.</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/workitem/14261\">http://phpexcel.codeplex.com/workitem/14261</a></p>\r\n<p>I could not find another solution, but to check the sheet names. For the duplicated ones an extra &quot; 1&quot; or &quot; 2&quot; is added, so you may implement an extra check and ignore those.</p>",
+    "PostedDate": "2010-09-23T05:45:15.953-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

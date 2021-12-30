@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "271333",
+    "ThreadId": "79243",
+    "Html": "<p>Hi, I am new to this. When I tried GAMMAINV function, the result was not even close to that of with Excel 2007! I am not sure the reason. GAMMADIST is correct but its inverse is not working.</p>\r\n<p>Ex:</p>\r\n<p>GAMMAINV(.5,8,9)=37.200833451847</p>\r\n<p>GAMMAINV(.5,8,9)=69.02325 (excel)</p>\r\n<p>&nbsp;</p>\r\n<p>GAMMAINV(1,8,9)=69.63217023903</p>\r\n<p>GAMMAINV(1,8,9)=340.4438 (excel)</p>\r\n<p>Thanks in advance for any solution :)</p>",
+    "PostedDate": "2009-12-28T21:46:29.493-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "272103",
+    "ThreadId": "79243",
+    "Html": "<p>Will take a look at this. I'm not happy with the algorithm used to calculate GAMMAINV anyway, but there's very little documented about how Excel itself calculates the function.</p>",
+    "PostedDate": "2009-12-31T17:47:01.81-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "273995",
+    "ThreadId": "79243",
+    "Html": "<p>Improved version of the Newton-Raphson for the GAMMAINV() function</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre> <span style=\"color:Blue\">public</span> <span style=\"color:Blue\">static</span> <span style=\"color:Blue\">function</span> GAMMAINV($probability,$alpha,$beta) {\r\n  $probability = self::flattenSingleValue($probability);\r\n  $alpha   = self::flattenSingleValue($alpha);\r\n  $beta   = self::flattenSingleValue($beta);\r\n  <span style=\"color:Blue\">if</span> ((is_numeric($probability)) &amp;&amp; (is_numeric($alpha)) &amp;&amp; (is_numeric($beta))) {\r\n   <span style=\"color:Blue\">if</span> (($alpha &lt;= 0) || ($beta &lt;= 0) || ($probability &lt; 0) || ($probability &gt; 1)) {\r\n    <span style=\"color:Blue\">return</span> self::$_errorCodes[<span style=\"color:#A31515\">'num'</span>];\r\n   }\r\n   $xLo = 0;\r\n   $xHi = $alpha * $beta * 5;\r\n   $x = $xNew = 1;\r\n   $error = $pdf = 0;\r\n   $dx = 1024;\r\n   $i = 0;\r\n   <span style=\"color:Blue\">while</span> ((abs($dx) &gt; PRECISION) &amp;&amp; ($i++ &lt; MAX_ITERATIONS)) {\r\n    <span style=\"color:Green\">// Apply Newton-Raphson step</span>\r\n    $error = self::GAMMADIST($x, $alpha, $beta, True) - $probability;\r\n    <span style=\"color:Blue\">if</span> ($error &lt; 0.0) {\r\n     $xLo = $x;\r\n    } <span style=\"color:Blue\">else</span> {\r\n     $xHi = $x;\r\n    }\r\n    $pdf = self::GAMMADIST($x, $alpha, $beta, False);\r\n    <span style=\"color:Green\">// Avoid division by zero</span>\r\n    <span style=\"color:Blue\">if</span> ($pdf != 0.0) {\r\n     $dx = $error / $pdf;\r\n     $xNew = $x - $dx;\r\n    }\r\n    <span style=\"color:Green\">// If the NR fails to converge (which for example may be the</span>\r\n    <span style=\"color:Green\">// case if the initial guess is too rough) we apply a bisection</span>\r\n    <span style=\"color:Green\">// step to determine a more narrow interval around the root.</span>\r\n    <span style=\"color:Blue\">if</span> (($xNew &lt; $xLo) || ($xNew &gt; $xHi) || ($pdf == 0.0)) {\r\n     $xNew = ($xLo + $xHi) / 2;\r\n     $dx = $xNew - $x;\r\n    }\r\n    $x = $xNew;\r\n   }\r\n   <span style=\"color:Blue\">if</span> ($i == MAX_ITERATIONS) {\r\n    <span style=\"color:Blue\">return</span> self::$_errorCodes[<span style=\"color:#A31515\">'na'</span>];\r\n   }\r\n   <span style=\"color:Blue\">return</span> $x;\r\n  }\r\n  <span style=\"color:Blue\">return</span> self::$_errorCodes[<span style=\"color:#A31515\">'value'</span>];\r\n } <span style=\"color:Green\">// function GAMMAINV()</span>\r\n</pre>\r\n</div>\r\n<p>This is more accurate than the current version, even with higher values of $alpha and $beat; but I'm not yet satisfied with the value of the initial value of $xHi, so I won't check it into SVN just yet.</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-01-06T13:30:06.85-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "275205",
+    "ThreadId": "79243",
+    "Html": "<p>Hi Mark,</p>\r\n<p>Appreciate your efforts! I am not sure if I got it right but still I am getting weird values compared to Excel 2007.</p>\r\n<p>Here are some examples!!!</p>\r\n<p>GAMMAINV(0.5, 1, 5)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =2.02209606038503</p>\r\n<p>GAMMAINV(0.5, 1, 5) Excel&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =3.46573594</p>\r\n<p>&nbsp;</p>\r\n<p>GAMMAINV(0.5, 10, 5)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =10</p>\r\n<p>GAMMAINV(0.5, 10, 5)Excel&nbsp;&nbsp;&nbsp;&nbsp; =48.34357557</p>\r\n<p>&nbsp;</p>\r\n<p>GAMMAINV(0.7, 10, 5)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; =10</p>\r\n<p>GAMMAINV(0.7, 10, 5)Excel&nbsp;&nbsp; =56.93636269</p>\r\n<p>&nbsp;</p>\r\n<p>I am really sorry I tried to fix this but have no clue what so ever!! Will keep trying tho :) Will let you know if I could figure it out :)</p>\r\n<p>Again I really appreciate your efforts on this :)</p>\r\n<p>Thanks :)</p>",
+    "PostedDate": "2010-01-09T11:43:57.04-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "275290",
+    "ThreadId": "79243",
+    "Html": "<p>I've just run your three examples through my test suite, and am getting the following results:</p>\r\n<p><strong>Formula&nbsp;is </strong>=GAMMAINV(0.5,1,5)<br><strong>Excel Value is </strong>: 3.4657359402240715<br><strong>PHPExcel&nbsp;Calculated Value is </strong>: 3.465735902799727</p>\r\n<p><strong>Formula&nbsp;is </strong>=GAMMAINV(0.5,10,5)<br><strong>Excel Value is </strong>: 48.34357456828873<br><strong>PHPExcel&nbsp;Calculated Value is </strong>: 48.34357307358031</p>\r\n<p><strong>Formula&nbsp;is </strong>=GAMMAINV(0.7,10,5)<br><strong>Excel Value is </strong>: 56.936362687231991<br><strong>PHPExcel&nbsp;Calculated Value is </strong>: 56.93636268416658</p>\r\n<p>Not perfect results, but all accurate to at least 7 significant digits I've checked the code that produced those results into SVN</p>",
+    "PostedDate": "2010-01-10T00:22:37.29-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "275378",
+    "ThreadId": "79243",
+    "Html": "<p>Oh great!! in that case there must be some problem from my side. Will look in to it :)</p>\r\n<p>Thank you so much for such a wonderful information :)</p>\r\n<p>And thanks for the confirmation :)</p>\r\n<p>Will be in touch!!</p>\r\n<p>&nbsp;</p>\r\n<p>You ROCK !. .!</p>\r\n<p>Cheers</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-01-10T10:24:14.55-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "275437",
+    "ThreadId": "79243",
+    "Html": "<p>My modified code should be available now in the latest SVN downloads, and I believe that Maarten is planning a 1.7.2 release for sometime in the coming week that will include the change</p>",
+    "PostedDate": "2010-01-10T13:46:44.48-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

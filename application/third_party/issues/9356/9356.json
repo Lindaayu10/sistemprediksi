@@ -1,0 +1,96 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "All",
+      "DisplayName": "All"
+    },
+    "ClosedComment": "Fixed in SVN",
+    "ClosedDate": "2009-02-27T06:57:06.817-08:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "From thread:\nhttp://www.codeplex.com/PHPExcel/Thread/View.aspx?ThreadId=48508\n \nI'm using setTextRotation(90) on some columns and then setAutoSize, but when doing this setAutoSize calculates the column size like it weren't rotated. Happens in Writer Excel 2007 and Writer Excel 5",
+    "LastUpdatedDate": "2013-05-16T05:42:52.133-07:00",
+    "PlannedForRelease": "PHPExcel 1.6.6 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-02-25T22:20:59.187-08:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "setAutoSize not taking into account text rotation",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 9356
+  },
+  "FileAttachments": [
+    {
+      "FileId": 2782,
+      "FileName": "rotated-width.png",
+      "DownloadUrl": ".\\2782"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "For a start, as for the math, check attached screen shot. Rotated width must depend on rotation angle (alpha), normal cell width (x) and font size (y):\r\nrotated-width = x * cos(alpha) + y * sin(alpha)\r\n\r\nThere are some units and signs to watch out for.",
+      "PostedDate": "2009-02-25T22:39:18.64-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-02-25T22:39:19.61-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-02-25T23:52:42.863-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-02-26T07:04:51.57-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Works like a charm!\r\n\r\ninclude 'PHPExcel.php';\r\ninclude 'PHPExcel/IOFactory.php';\r\n\r\n$objPHPExcel = new PHPExcel();\r\n\r\n$objPHPExcel->setActiveSheetIndex(0);\r\n$objPHPExcel->getActiveSheet()->setCellValue('A1', 'Hello this is a long string, yeah!');\r\n$objPHPExcel->getActiveSheet()->getStyle('A1')->getAlignment()->setTextRotation(45);\r\n$objPHPExcel->getActiveSheet()->getColumnDimension('A')->setAutoSize(true);\r\n\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');\r\n$objWriter->save(str_replace('.php', '.xlsx', __FILE__));",
+      "PostedDate": "2009-02-27T06:55:30.88-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-02-27T06:56:06.347-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-02-27T06:57:06.817-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Yup, looks like this is the way to do it! Did some further enhancements for stacked text plus some corrections for units and for negative rotation angles.",
+      "PostedDate": "2009-02-27T15:38:26.69-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:04:18.32-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:52.133-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

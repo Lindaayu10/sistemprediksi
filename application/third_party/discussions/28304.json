@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "94427",
+    "ThreadId": "28304",
+    "Html": "I have formulas and by default the doc says that it will pre-calculate the formula... only problem is it always returns a 0.<br>\r\n<br>\r\nI tried adding: <br>\r\n  $objWriter = new PHPExcel_Writer_PDF($objPHPExcel);<br>\r\n  $objWriter-&gt;setPreCalculateFormulas(true);<br>\r\n     $objWriter-&gt;save('php://output');<br>\r\n<br>\r\nto see if maybe it was false by defualt,  but no luck I still get 0 ??  it works perfect in Excel2007 and Excel_5 just not the other 3...<br>\r\n<br>\r\nChris\r\n",
+    "PostedDate": "2008-05-23T10:02:48.363-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "94692",
+    "ThreadId": "28304",
+    "Html": "Does example 21pdf.php write formulas out?\r\n",
+    "PostedDate": "2008-05-25T23:22:49.33-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "96531",
+    "ThreadId": "28304",
+    "Html": "Hey,<br>\r\n<br>\r\nI'm running into this same problem. I tested 21pdf.php and it output everything correctly. The only differences i could see in the example file were the createTextRun and getText attributes.<br>\r\n<br>\r\nAny help would be awesome. Thanks in advance,<br>\r\nThom<br>\r\n",
+    "PostedDate": "2008-06-03T10:38:06.103-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "96719",
+    "ThreadId": "28304",
+    "Html": "Can you guys post a sample snippet here + info on PHP version and PHPExcel version?\r\n",
+    "PostedDate": "2008-06-04T06:18:30.783-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "96737",
+    "ThreadId": "28304",
+    "Html": "PHPExcel - 1.6.1<br>\r\nPHP - PHP Version 5.2.0-8<br>\r\n<br>\r\nAlright, keep in mind these all function perfectly in any Excel output.<br>\r\n&nbsp;So there are roughly 6 Cells like this with SUMs that total to 0 in the PDF<br>\r\n&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('C'.(2+$Increment))-&gt;getFont()-&gt;setName('Arial');<br>\r\n&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('C'.(2+$Increment))-&gt;getFont()-&gt;setSize(12);<br>\r\n&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('C'.(2+$Increment))-&gt;getAlignment()-&gt;setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);<br>\r\n&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('C'.(2+$Increment), '=SUM(C1:C'.(1+$Increment).')');<br>\r\nTotaling the $Increment cells above it<br>\r\n<br>\r\nIn the row below there is a static value applied for a multiplication cell beneath:<br>\r\n&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('C'.(3+$Increment))-&gt;getFont()-&gt;setName('Arial');<br>\r\n&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('C'.(3+$Increment))-&gt;getFont()-&gt;setSize(12);<br>\r\n&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('C'.(3+$Increment))-&gt;getAlignment()-&gt;setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);<br>\r\n&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('C'.3+$Increment), '0.55');<br>\r\n<br>\r\n<br>\r\nAnd here's the multiplication formula which totals to 0:<br>\r\n&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('C'.(4+$Increment))-&gt;getFont()-&gt;setName('Arial');<br>\r\n&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('C'.(4+$Increment))-&gt;getFont()-&gt;setSize(12);<br>\r\n&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('C'.(4+$Increment))-&gt;getAlignment()-&gt;setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);<br>\r\n&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('C'.(4+$Increment), '=C'.(2+$Increment).'*C'.(3+$Increment));<br>\r\n<br>\r\nAnd the writer object<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; $objWriter = new PHPExcel_Writer_PDF($objPHPExcel);<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$objWriter-&gt;setSheetIndex(0);<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$objWriter-&gt;setPreCalculateFormulas(true);<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$objWriter-&gt;save(&quot;reports/PHPExcelPDF.pdf&quot;);<br>\r\n<br>\r\nanything stand out? \r\n",
+    "PostedDate": "2008-06-04T07:13:47.557-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "97089",
+    "ThreadId": "28304",
+    "Html": "There is a slight chance this is the PHP version... Would it be possible to test this on 5.2.5, for example?\r\n",
+    "PostedDate": "2008-06-05T12:13:51-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "97117",
+    "ThreadId": "28304",
+    "Html": "I'll give it a shot soon, but .. why would the test PDF render properly?<br>\r\nI'll let you know the results.&nbsp;&nbsp;&nbsp;  <br>\r\n",
+    "PostedDate": "2008-06-05T14:29:48.947-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

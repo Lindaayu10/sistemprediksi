@@ -1,0 +1,39 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hi\n\nMy database have some japanese character. I need to write japanese character. But I couldn't.\n\nPHPExcel version 1.8.0 and I tried to write Excel2007.\n\nMy database is MySQL.\n\nTable example,\n```\nid    label     loca        shape        color        dname\n1       11        11         3            1        &#33465;&#28580;\n2        3          3          1           10       &#22823;&#37326;\n3        6          3          9            5        &#29577;&#30000;\n```\n\nJapanese character is dname field. ( for examle first row dname 芹澤)\n\n```\ninclude(\"conn.php\");\nset_time_limit(0);\nerror_reporting(E_ALL);\n$old_limit = ini_set(\"memory_limit\", \"1000M\"); \n$old_time = ini_set('max_execution_time','1000');\nini_set('display_errors', 1);\n\nrequire_once 'excel_spread/PHPExcel.php';\n\n$objPHPExcel = new PHPExcel();\n$objPHPExcel->getProperties()->setCreator(\"xxxxx\")\n\t\t\t\t\t\t\t ->setLastModifiedBy(\"xxxxx\")\n\t\t\t\t\t\t\t ->setTitle(\"xxxxxx\")\n\t\t\t\t\t\t\t ->setSubject(\"xxx\")\n\t\t\t\t\t\t\t ->setDescription(\"xxxx\")\n\t\t\t\t\t\t\t ->setKeywords(\"office openxml php\")\n\t\t\t\t\t\t\t ->setCategory(\"xxxxxxx\");\n$objPHPExcel->getDefaultStyle()->getFont()->setName('MS PMincho');\n$objPHPExcel->getDefaultStyle()->getFont()->setSize(10);\n\n$sheet = $objPHPExcel->getActiveSheet();\n$sheet->setCellValueByColumnAndRow(0, 1, \"#\");\n$sheet->setCellValueByColumnAndRow(1, 1, \"Label\");\n$sheet->setCellValueByColumnAndRow(2, 1, \"Location\");\n$sheet->setCellValueByColumnAndRow(3, 1, \"Shape\");\n$sheet->setCellValueByColumnAndRow(4, 1, \"Color\");\n$sheet->setCellValueByColumnAndRow(5, 1, \"Name\");\n\n$aa = 2;\n$sq1 = $baglan -> query(\"SELECT id, label, loca, shape, color, dname FROM table_x\");\nwhile($rw = $sq1 -> fetch_array()){\n        $sheet->setCellValueByColumnAndRow(0, $aa, $rw['id']);\n        $sheet->setCellValueByColumnAndRow(1, $aa, $rw['label']);\n        $sheet->setCellValueByColumnAndRow(2, $aa, $rw['loca']);\n        $sheet->setCellValueByColumnAndRow(3, $aa, $rw['shape']);\n        $sheet->setCellValueByColumnAndRow(4, $aa, $rw['color']);\n        $sheet->setCellValueByColumnAndRow(5, $aa, $rw['dname']);\n        $aa++;\n}\n\n$sitil1 = array(\n  'borders' => array(\n    'inside' => array('style' => PHPExcel_Style_Border::BORDER_THIN),\n    'outline' => array('style' => PHPExcel_Style_Border::BORDER_THIN)\n  )\n);\n$sheet->getStyle('A1:'.$sheet->getHighestColumn().$sheet->getHighestRow())->applyFromArray($sitil1);\n\nheader(\"Pragma: public\");\nheader('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=windows-1254');\nheader('Content-Disposition: attachment;filename=\"filename_x.xlsx\"');\nheader('Cache-Control: max-age=0');\nheader(\"Content-Transfer-Encoding: binary\");\n\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');\n$objWriter->save('php://output');\n```\n\nI tried to charset => UTF-8, ISO-8859-9, EUC-JP, SHIFT_JIS, CP932, ISO-2022-JP\n\nand\n\nI tried to this line =>  $sheet->setCellValueByColumnAndRow(5, $aa, $rw['dname']);\n\n__for example__\n\niconv(\"UTF-8\", \"ISO-8859-9\", $rw['dname']);\niconv(\"ISO-8859-9\", \"UTF-8\", $rw['dname']);\niconv(\"ASCII\", \"UTF-8\", $rw['dname']);\niconv(\"UTF-8\", \"ASCII\", $rw['dname']);\niconv(\"ASCII\", \"CP932\", $rw['dname']);\niconv(\"CP932\", \"ASCII\", $rw['dname']);\n\nplease help me!",
+    "LastUpdatedDate": "2014-09-08T05:38:22.32-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2014-09-08T05:35:17.857-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Japanese character problem",
+    "Type": {
+      "Name": "Unassigned",
+      "Id": 5
+    },
+    "VoteCount": 1,
+    "Id": 21278
+  },
+  "FileAttachments": [],
+  "Comments": []
+}

@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "494836",
+    "ThreadId": "227580",
+    "Html": "<p>Hi everyone,</p>\r\n<p>I've just used phpexcel to read data from an excel file. But the error occurs when load that excel file. I wrote log below. My excel file's &nbsp;about 130KB.</p>\r\n<p><em>loading file....</em><br><em>file name: ..../public_html/demo/administrator/components/com_datareport/tempdata/201009172022358.xls</em><br><em>path : ...../public_html/demo/administrator/tempdata/2010082311112936.xls</em><br><em><strong>Fatal error</strong>: Allowed memory size of 67108864 bytes exhausted (tried to allocate 114 bytes) in&nbsp;<strong>...../public_html/demo/administrator/includes/PHPExcel/Style.php</strong>&nbsp;on line&nbsp;<strong>468</strong></em></p>\r\n<p>Please help me to solve this problem.</p>\r\n<p>Thank you a lot!</p>",
+    "PostedDate": "2010-09-17T01:28:41.72-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "494974",
+    "ThreadId": "227580",
+    "Html": "<p>Yes, PHPExcel is memory hungry.</p>\r\n<p>File size isn't a good measure for workbook files when working with PHPExcel. The number of rows and columns (ie cells) is more important.</p>\r\n<p>The PHPExcel code itself has a footprint of between 10 and 25MB, depending on which components are being accessed.</p>\r\n<p>At present, each cell in a workbook takes on average 1k of memory (without any caching) or 1.6k on 64-bit PHP - I'll assume 32-bit PHP for the moment - so (for example) a worksheet of 8000 lines with 31 columns (248,000 cells) will be about 242MB. With cell cacheing (such as php://temp or DiskISAM), that can be reduced to about a third, so the 8000 lines by 31 columns will require about 80MB.</p>\r\n<p>As a typical rule of thumb, I'll double that value if you need to write the workbook as well, so that 80MB would become 160MB, plus the code footprint of 10-25M... giving an expected memory requirement of 185MB.</p>\r\n<p>There are a number of options available to help you reduce the memory usage:</p>\r\n<p>Are you using cell caching with PHPExcel?</p>\r\n<p>\r\n<p><code><span>\r\n<div style=\"color:black;background-color:white\">\r\n<pre><span style=\"color:blue\">require_once</span> <span style=\"color:#a31515\">'./Classes/PHPExcel.php'</span>; \r\n \r\n$cacheMethod = PHPExcel_CachedObjectStorageFactory:: cache_to_phpTemp; \r\n$cacheSettings = <span style=\"color:blue\">array</span>( <span style=\"color:#a31515\">' memoryCacheSize '</span> =&gt; <span style=\"color:#a31515\">'8MB'</span>); \r\nPHPExcel_Settings::setCacheStorageMethod($cacheMethod, $cacheSettings); \r\n \r\n$objReader = PHPExcel_IOFactory::createReader(<span style=\"color:#a31515\">'Excel2007'</span>); \r\n$objPHPExcel = $objReader-&gt;load(<span style=\"color:#a31515\">&quot;test.xlsx&quot;</span>); \r\n</pre>\r\n</div>\r\n</span></code></p>\r\n<p>Additionally, there are a host of other techniques for reducing memory usage described in <a href=\"http://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=225579\">this thread</a></p>\r\n</p>",
+    "PostedDate": "2010-09-17T06:55:31.6-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

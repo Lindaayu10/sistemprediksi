@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "64514",
+    "ThreadId": "19513",
+    "Html": "\r\nhello<br /><br /><br />I have the errors<br /><br />   12:16:26 Create new PHPExcel object 12:16:26 Set properties 12:16:26 Add some data 12:16:26 Rename sheet 12:16:26 Write to Excel2007 format<br />   Fatal error: Class 'XMLWriter' not found in /home/www/68afc86ce58286d751238a5ae9b8de61/web/intranet/fonctions/export/Classes/PHPExcel/Shared/XMLWriter.php on line 62<br /><br />when I try 01simple.php example and<br /><br />   Warning: tempnam() <a href=\"http://www.codeplex.com/PHPExcel/Wiki/View.aspx?title=function.tempnam\">function.tempnam</a>: open<i>basedir restriction in effect. File() is not within the allowed path(s): (/home/www/68afc86ce58286d751238a5ae9b8de61:/tmp:/opt/php/lib/php) in  /home/www/68afc86ce58286d751238a5ae9b8de61/web/intranet/fonctions/export/Classes/PHPExcel/Shared/OLE/OLE</i>File.php on line 87<br /><br />   Fatal error: Uncaught exception 'Exception' with message 'Can't create temporary file' in /home/www/68afc86ce58286d751238a5ae9b8de61/web/intranet/fonctions/export/Classes/PHPExcel/Shared/OLE/OLE<i>File.php:90 Stack trace: #0   /home/www/68afc86ce58286d751238a5ae9b8de61/web/intranet/fonctions/export/Classes/PHPExcel/Writer/Excel5/Workbook.php(573): PHPExcel</i>Shared<i>OLE</i>PPS<i>File-&gt;init() #1  /home/www/68afc86ce58286d751238a5ae9b8de61/web/intranet/fonctions/export/Classes/PHPExcel/Writer/Excel5/Workbook.php(541): PHPExcel</i>Writer<i>Excel5</i>Workbook-&gt;<i>storeOLEFile() #2 /home/www/68afc86ce58286d751238a5ae9b8de61/web/intranet/fonctions/export/Classes/PHPExcel/Writer/Excel5/Workbook.php(225): PHPExcel</i>Writer<i>Excel5</i>Workbook-&gt;<i>storeWorkbook() #3 /home/www/68afc86ce58286d751238a5ae9b8de61/web/intranet/fonctions/export/Classes/PHPExcel/Writer/Excel5.php(240): PHPExcel</i>Writer<i>Excel5</i>Workbook-&gt;close() #4 /home/www/68afc86ce58286d751238a5ae9b8de61/web/intranet/fonctions/export/Tests/14excel5.php(33): PHPExcel<i>Writer</i>Excel5-&gt;save('/home/www/68afc in /home/www/68afc86ce58286d751238a5ae9b8de61/web/intranet/fonctions/export/Classes/PHPExcel/Shared/OLE/OLE_File.php on line 90<br /><br />when I try 14excel5.php<br /><br /><br />I understood that it's an open_basedir restrictions but how can I fix that (i use a shared hosting)<br />open_basedir\t= /home/www/68afc86ce58286d751238a5ae9b8de61:/tmp:/opt/php/lib/php<br /><br />Check Excel5 writer's setTempDir() method, this is introduced to specify an alternative temp location. I guess this should solve your problem.<br />=&gt; i tried like this<br /><br />_public function setTempDir($pValue = '/home/www/68afc86ce58286d751238a5ae9b8de61/web/intranet/fonctions/export') {<br />\t\tif (is_dir($pValue)) {<br />\t\t\t$this-&gt;_tempDir = $pValue;<br />\t\t} else {<br />\t\t\tthrow new Exception(\"Directory does not exist: $pValue\");<br />\t\t}<br />\t}_<br /><br />but it doesn't work<br /><br /><br />have you an idea to solve this ?<br /><br /><br />thank you<br />",
+    "PostedDate": "2007-12-21T03:23:07.637-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "64816",
+    "ThreadId": "19513",
+    "Html": "\r\nI assume you have coded the following:<br /><br />$writer = new PHPExcel<i>Writer</i>Excel5();<br />$writer-&gt;save(...);<br /><br />Make this like the following:<br />$writer = new PHPExcel<i>Writer</i>Excel5();<br />$writer-&gt;setTempDir($pValue = '/home/www/68afc86ce58286d751238a5ae9b8de61/web/intranet/fonctions/export');<br />$writer-&gt;save(...);<br />",
+    "PostedDate": "2007-12-24T04:01:42.137-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "65881",
+    "ThreadId": "19513",
+    "Html": "\r\nthank you, it works<br />",
+    "PostedDate": "2008-01-03T08:59:33.883-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "65882",
+    "ThreadId": "19513",
+    "Html": "\r\nthank you, it works<br /><br /><br />and thank you for your job, phpexcel is very usefull !<br />",
+    "PostedDate": "2008-01-03T09:01:52.677-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

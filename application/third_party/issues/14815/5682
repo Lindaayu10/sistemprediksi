@@ -1,0 +1,267 @@
+<?php
+
+if ($_GET['table']=='studenti') {
+	ob_start();
+	require_once ('sar-el.inc.php');
+	$xls = new DB_Sarel;
+	if ('embed'==$_GET['images']) {
+		$photos[] = 'picture';
+		QueryAndExport ("SELECT id, corso AS course, nazionalita AS nationality, foto AS picture FROM studenti WHERE id IN (115, 125, 71, 52, 43)", $xls, $_GET['format'], false, 'My export', 'Some students', $photos);
+		}
+	else
+		QueryAndExport ("SELECT id, corso AS course, nazionalita AS nationality, CONCAT('https://www.accomazzi.net/spd/',foto) AS picture FROM studenti WHERE id IN (115, 125, 71, 52, 43)", $xls, $_GET['format'], false, 'My export', 'Some students');
+	}
+
+function QueryAndExport ($query, $xls, $format='Excel5', $stripTags = true, $title='Sar-At', $subject='Sar-At', $listOfImageColumns=NULL) {
+// Esegue una query ed esporta il risultato su file scaricato dal browser
+// $xsl è una istanza di DB_Sarel
+// exportFormat può valere: PDF, Excel2007, HTML, Excel5 (qualsiasi altro valore viene convertito in Excel5).
+// $stripTags vale true se vanno rimosse le formattazioni HTML dal file
+// $title è il nome del file
+// $subject è il nome che viene impartito al foglio elettronico
+// $listOfImageColumns è un vettore coi nomi dei campi che contengono immagini
+	require_once ('PHPExcel/PHPExcel.php');
+	/** Include path **/
+	ini_set('include_path', ini_get('include_path').';../Classes/');
+	require_once 'PHPExcel/Classes/PHPExcel/IOFactory.php';
+	chdir ($xls->SaratGetSiteDir); // PHPExcel non accetta path assoluti, vedi http://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=60592
+
+	// Create new PHPExcel object
+	$objPHPExcel = new PHPExcel();
+	
+	// Set properties
+	$objPHPExcel->getProperties()->setCreator("Sar-At ".SarelVersioneCompleta(true, $xls->versioneSarel))
+											->setLastModifiedBy("Sar-At ".SarelVersioneCompleta(true, $xls->versioneSarel))
+											->setTitle($title)
+											->setSubject($subject);
+	// Add some data
+	$objPHPExcel->setActiveSheetIndex(0);
+	$sheet = $objPHPExcel->getActiveSheet();
+	$sheet->getPageSetup()->setOrientation(PHPExcel_Worksheet_PageSetup::ORIENTATION_LANDSCAPE);
+	$sheet->setTitle(substr($subject,0,31));
+	
+	$doHeader = true;
+	$row = 2; // Prima riga che verrà riempita di dati
+	if (! is_array($listOfImageColumns))
+		$listOfImageColumns = array();
+
+	$xls->query ($query);
+	while ($xls->next_record()) {
+		$col='';
+		
+		if ($doHeader) { // Riga di intestazione
+			$doHeader = false;
+			$colonne = array_keys($xls->Record); // Titoli delle colonne
+			while (list($key,$value) = each($colonne)) {
+				ExcelInc($col);
+				if ('on'==$_GET['setAutoSizeHeader'])
+					$sheet->SetCellValue($col.'1', $value)
+						->getColumnDimension($col)->setAutoSize(true);
+				else
+					$sheet->SetCellValue($col.'1', $value);
+				}
+			$sheet->getStyle("A1:$col".'1')->applyFromArray(
+				array('fill' 	=> array(
+											'type'		=> PHPExcel_Style_Fill::FILL_SOLID,
+											'color'		=> array('argb' => 'FFD7D7E7')
+										),
+					 )
+				);
+			$col='';
+			}
+
+		reset ($colonne);
+		while (list($key,$value) = each($colonne)) {
+			ExcelInc($col);
+			if (in_array ($value, $listOfImageColumns) && $xls->f($value) && is_file($xls->f($value))) {
+				$immagine = new PHPExcel_Worksheet_Drawing();
+				$immagine->setName($value);
+				$immagine->setDescription($value);
+				$immagine->setPath($xls->f($value));
+				if ('prop'==$_GET['setWidthAndHeight']) {
+					$dim = getimagesize($xls->f($value));
+					$dim[0] = $dim[0] / $dim[1] * 80;
+					}
+				else {
+					$dim[0] = 90; 
+					}
+				$dim[1] = 80;
+				if ('no'!=$_GET['setWidthAndHeight']) {
+					$immagine->setWidthAndHeight($dim[0], $dim[1]);
+					$sheet->getRowDimension($row)->setRowHeight($dim[1]);
+					}
+				$immagine->setCoordinates($col.$row);
+				$immagine->setWorksheet($sheet);
+				unset($immagine);
+				}
+			else { // Normale campo testuale o numerico
+				$theField = html_entity_decode($xls->f($value), ENT_QUOTES, 'UTF-8');
+				if ($stripTags)
+					$theField = strip_tags($theField);
+				$sheet->SetCellValue($col.$row, $theField);
+				if (strlen($theField)>80) // Deve andare su più righe
+					$sheet->getStyleByColumnAndRow($col, $row)->getAlignment()->setWrapText(true); // text wrapping enabled
+				}
+			}
+			$row++;
+		}
+				
+	// Save file
+	ob_end_clean();
+	switch ($format) {
+		case 'PDF':
+			header('Content-Type: application/pdf');
+			header("Content-Disposition: attachment;filename=\"$title.pdf\"");
+			break;
+		case 'Excel2007':
+			header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+			header("Content-Disposition: attachment;filename=\"$title.xlsx\"");
+			break;
+		case 'CSV':
+			header('Content-Type: text/plain');
+			header("Content-Disposition: attachment;filename=\"$title.csv\"");
+			break;
+		case 'HTML':
+			header('Content-Type: text/html');
+			header("Content-Disposition: attachment;filename=\"$title.html\"");
+			break;
+		default: // case 'Excel5':
+			header('Content-Type: application/vnd.ms-excel');
+			header("Content-Disposition: attachment;filename=\"$title.xls\"");
+			$format = 'Excel5';
+			break;
+		}
+	header('Cache-Control: max-age=0');
+	
+	$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, $format);
+	$objWriter->save('php://output');
+	return $row-1; // Restituisce numero di record esportati
+	}
+
+function ExcelInc (&$designazioneColonna) {
+	$letteraDestra = substr($designazioneColonna,-1);
+	if ('Z'==$letteraDestra) {
+		if (1==strlen($designazioneColonna))
+			$designazioneColonna = 'AA';
+		else
+			$designazioneColonna = chr(ord(substr($designazioneColonna,0,1))+1).'A';
+		}
+	elseif (empty($letteraDestra))
+		$designazioneColonna = 'A';
+	else {
+		$letteraDestra=chr(ord($letteraDestra)+1);
+		if (1==strlen($designazioneColonna))
+			$designazioneColonna = $letteraDestra;
+		else
+			$designazioneColonna = substr($designazioneColonna,0,1) . $letteraDestra;
+		}
+	}
+?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns='http://www.w3.org/1999/xhtml'>
+<head lang='en'>
+	<meta http-equiv='content-type' content='text/html; charset=utf-8' />
+	<meta http-equiv='Content-language' content='en' />
+	<title>spd - Exporting all data from a section</title>
+	<meta name='generator' content='Sar-At 9.3.3 di Accomazzi.net, 02.00615556' />
+	<script src='JQUERY/jquery.min.js' type='text/javascript' language='javascript'></script>
+
+	<link href='css/classic.css' type='text/css' media='screen' rel='stylesheet' />
+	<link href='css/typocolors.css' type='text/css' media='screen' rel='stylesheet' />
+	<script type='text/javascript' src='JQUERY/jquery-ui/js/jquery-ui.min.js'></script>
+	<link href='JQUERY/jquery-ui/css/humanity/jquery-ui.css' type='text/css' media='screen' rel='stylesheet' />
+	<link href='JQUERY/jquery-ui/css/humanity/jquery.ui.theme.css' type='text/css' media='screen' rel='stylesheet' />
+	<script type='text/javascript' language='javascript' charset='utf-8'>
+// <![CDATA[
+$(document).ready(function(){
+	$('.sarat9button, input[type=submit]').button();
+	$('.sarat9button').addClass('ui-priority-secondary');
+	$('.noflyzone:not(.ui-state-disabled)')
+		.hover(
+			function(){ 
+				$(this).addClass('ui-state-hover');
+				$(this).addClass('ui-state-highlight');
+			},
+			function(){ 
+				$(this).removeClass('ui-state-hover'); 
+				$(this).removeClass('ui-state-highlight');
+			}
+		)
+
+});
+// ]]>
+	</script>
+  	<script language='javascript' type='text/javascript'>
+	</script>
+
+</head>
+<body>
+
+
+
+<div id='saratHeader'>
+<h1><span>Sar-At</span></h1>
+<p><a href='#sarat_main_content' id='sarat_skip'>Jump to content</a> | Logged in as: <span>nobody</span> | Sar-At version: <span>9.3.3 | <a href="http://www.sar-at.it/showPage.php?template=manuale8&amp;masterPage=cap.html&amp;search=I2#4" target="_blank" style="cursor: help;"><img border="0" alt="online Help" src="img/info.png" /></a></span></p>
+<p id='stlogout'><a href='logout.php'><span>Logout</span></a></p>
+
+</div>
+
+	<div id='menu_container' class='ui-widget-header ui-corner-all ui-helper-clearfix'>
+	Menubar has been hidden
+	</div>
+<a name='sarat_main_content'></a>
+
+<div id='saratSpacer' style='padding: 12px'>
+	<div id='tabber' class='ui-tabs ui-widget ui-widget-content ui-corner-all'>
+		<ul class='ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-widget-header ui-corner-all'>
+				<li class='tab-current ui-state-default'><a href='masterPages.php?table=studenti'><span>Data</span></a></li>
+				<li class='ui-state-default'><a href='handleMasters.php?table=studenti'><span>Master pages</span></a></li>
+
+				<li class='ui-state-default'><a href='modSection.php?table=studenti'><span>Schema</span></a></li>
+				<li class='ui-state-default'><a href='masterQueries.php?table=studenti'><span>Queries</span></a></li>
+				<li class='ui-state-default'><a href='addDisplay.php?table=studenti'><span>Display</span></a></li>
+				<li class='ui-state-default'><a href='editSection.php?table=studenti'><span>Form</span></a></li>
+				<li class='ui-state-default'><a href='masterAdmins.php?table=studenti'><span>Admins</span></a></li>
+				<li class='ui-state-default'><a href='sectionInfo.php?table=studenti'><span>Properties</span></a></li>
+
+		</ul><div id='saratAddquery' style='margin-top: 15px; padding: 5px 15px 10px 15px; border: 1px solid #cdcdcd; text-align: justify;'>
+		<h3 align='center'>Exporting   <em>students spreadsheet</em> <a href="http://www.sar-at.it/showPage.php?template=manuale8&amp;masterPage=cap.html&amp;search=M2#Esportazione_di_pagine" target="_blank" style="cursor: help;"><img border="0" alt="online Help" src="img/info.png" /></a></h3>
+		<form method='get'>
+			<input name='table' type='hidden' value='studenti' />
+			<fieldset><legend>File format</legend>
+				<label><input name='format' type='radio' value='Excel5' /> Excel 5.0, 95, 97, 2003, 2004</label><br />
+
+				<label><input name='format' type='radio' value='Excel2007' checked='checked' /> Excel 2007, 2008, 2010</label><br />
+				<label><input name='format' type='radio' value='CSV' disabled='disabled' /> CSV (<em>comma separated values</em>)</label><br />
+				<label><input name='format' type='radio' value='HTML' /> HTML</label><br />
+				<label><input name='format' type='radio' value='PDF' /> PDF</label><br /><br />
+
+			</fieldset>
+
+			<fieldset><legend>Fine tuning</legend>
+<label><input name='setAutoSizeHeader' type='checkbox' checked='checked' /> Call setAutoSize on header row</label><br /><br />
+			
+
+<strong>Pictures</strong>:<br />
+					<input name='images' id='embed' type='radio' value='embed' checked='checked' />
+					<label for='embed'>Embed them into the spreadsheet</label><br />
+					<input name='images' id='path' type='radio' value='path'  />
+					<label for='path'>Just print out their URL, so I can check on the JPEG source files</label><br /><br />
+
+<strong>Call setWidthAndHeight on pictures</strong>:<br />
+					<input name='setWidthAndHeight' id='prop' type='radio' value='prop' checked='checked' />
+					<label for='prop'>Yes, and try to keep proportions</label><br />
+					<input name='setWidthAndHeight' id='yes' type='radio' value='yes' />
+					<label for='yes'>Yes, stretching them to 80*90</label><br />
+					<input name='setWidthAndHeight' id='no' type='radio' value='no' />
+					<label for='no'>No, leave them alone</label><br />
+			</fieldset>
+
+		<input type='submit' value='Download' class='saratButton' />
+		</form>
+	</div>
+
+	</div>
+</div></body>
+</html>

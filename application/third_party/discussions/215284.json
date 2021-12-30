@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "452854",
+    "ThreadId": "215284",
+    "Html": "<p>Hi folks,<br><br>Just run into some strange problem, trying to use</p>\r\n<pre>=HYPERLINK()</pre>\r\n<p>In order to make this happen, I set</p>\r\n<pre>setPreCalculateFormulas(false);<br>setOffice2003Compatibility(true);</pre>\r\n<p>but then these two formulars still get broken</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(<span style=\"color:#a31515\">'F'</span>.$i, <span style=\"color:#a31515\">'=HYPERLINK($INFO.B$1&amp;D'</span>.$i.<span style=\"color:#a31515\">'&amp;&quot;&quot;&quot;&quot;&amp;D6&amp;&quot;&quot;&quot;&quot; ; &quot;Art&quot;)'</span>);<br>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(<span style=\"color:#a31515\">'G'</span>.$i, <span style=\"color:#a31515\">'=HYPERLINK($INFO.D$1&amp;D'</span>.$i.<span style=\"color:#a31515\">' ; &quot;ArtS&quot;)'</span>);<br></pre>\r\n</div>\r\n<p>They show up in Excel and OO as</p>\r\n<pre>=HYPERLINK($info.b$1&amp;D2&amp;&quot;&quot;&quot;&quot;&amp;D6&amp;&quot;&quot;&quot;&quot; <span style=\"color:#ff0000\"><strong>|</strong></span> &quot;Art&quot;)<br>=HYPERLINK($info.d$1&amp;D2 <strong><span style=\"color:#ff0000\">|</span></strong> &quot;ArtS&quot;)</pre>\r\n<p>which breaks the formular, of course, as <span style=\"color:#008000\"><strong>;</strong></span> is swaped for <strong><span style=\"color:#ff0000\">|</span></strong></p>\r\n<p>Any chance this can be fixed?<br><br>Thanks for the good work &amp; and any help regarding this<br><br>Cheers</p>\r\n<p>(1.7.2 on IIS7.5)</p>",
+    "PostedDate": "2010-06-08T01:23:01.913-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "452863",
+    "ThreadId": "215284",
+    "Html": "<p>Formulae should be defined using English format, so ; isn't valid as a separator because English Excel uses a , instead</p>\r\n<p>Otherwise, that's exactly what I'd expect to see from your formulae. What were you expecting?</p>",
+    "PostedDate": "2010-06-08T01:55:24.64-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "453261",
+    "ThreadId": "215284",
+    "Html": "<p>Thanks Mark,<br><br>I was thinking&nbsp;</p>\r\n<pre>setPreCalculateFormulas(false);</pre>\r\n<p>would leave the formula alone altogether&mdash;wrong assumption on my part, I guess.<br> <br> I also expected it to leave the&nbsp;</p>\r\n<pre><span style=\"color:#a31515\">$INFO.B$1</span></pre>\r\n<p>as such and not lower case it to</p>\r\n<pre>$info.b$1</pre>\r\n<p>which I can fix if I have to, but would break our naming convention for this workbook.</p>\r\n<p>Cheers<br><br><strong>Edit:</strong><br>Just read the new relase notes:</p>\r\n<pre>- Feature:  (MBaker) Work Item  2346 - Implement more Excel calculation functions\r\n            -    Implemented the HYPERLINK() Lookup and Reference function</pre>\r\n<p>Does that mean I can use&nbsp;</p>\r\n<pre>HYPERLINK()</pre>\r\n<p>without\r\n<pre>setPreCalculateFormulas(false);\r\nsetOffice2003Compatibility(true);</pre>\r\n</p>",
+    "PostedDate": "2010-06-08T18:06:44.247-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "453377",
+    "ThreadId": "215284",
+    "Html": "<p>I'm not completely sure what $INFO is in your formulae because it doesn't match anything I know about Excel formulae.</p>\r\n<p>&nbsp;</p>\r\n<p>But yes, it should be possible for you to use a formula like <code>=HYPERLINK(&quot;http://example.microsoft.com/report/budget report.xls&quot;, &quot;Click for report&quot;)</code> to quote an example from the online help without worrying about setPreCalculateFormulas() and setOffice2003Compatibility();</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-06-09T00:49:37.793-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "453831",
+    "ThreadId": "215284",
+    "Html": "<p>Yes, things are a bit different in OpenOffice.org ;-)</p>\r\n<pre>OO=HYPERLINK(<span style=\"color:#ff0000\">$</span>INFO<span style=\"color:#ff0000\">.</span>B$1&quot;&amp;D15&amp;&quot;&quot;&quot;&quot;&amp;D6&amp;&quot;&quot;&quot;&quot;<span style=\"color:#ff0000\">&nbsp;</span> ,&quot;CL&quot;)<br>MS=HYPERLINK(INFO!B$1&amp;&quot;&quot;&quot;&quot;&amp;D6&amp;&quot;&quot;&quot;&quot;, &quot;CL-MS&quot;)</pre>\r\n<p>So it's just a Ref to Work Sheet <strong>INFO</strong>.<br><br>As we only work with OO, I tend to do it their way and never had any real problems. <br>And as said&mdash;wrong assumption on my part</p>\r\n<pre>setPreCalculateFormulas(false);</pre>\r\n<p>would leave the formula alone altogether.<br><br>So anyway, upgraded to 1.7.3 and HYPERLINK() works like charm without setPreCalculateFormulas() and  setOffice2003Compatibility();<br>Just not in Excel5, but that was to be expected.<br><br>Thanks</p>\r\n<p><strong>Edit:</strong><br>I'll have to take that back &quot;works like charm without setPreCalculateFormulas()&quot;<br><br>This is only true for OO. When I went to a machine with MS Excel 2007 I got heaps of problems, not using setPreCalculateFormulas(false)<br><br></p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-06-09T23:44:40.227-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

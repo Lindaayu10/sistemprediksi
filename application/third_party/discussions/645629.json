@@ -1,0 +1,74 @@
+[
+  {
+    "Id": "1446482",
+    "ThreadId": "645629",
+    "Html": "&lt;html&gt;<br />\n<pre><code>&lt;head&gt;\n    &lt;title&gt;select some columns&lt;/title&gt;\n&lt;/head&gt;</code></pre>\n\n&lt;body&gt;<br />\n<pre><code>&lt;table border=&quot;3&quot; align=&quot;center&quot;&gt;</code></pre>\n\n&lt;?php\r<br />\n$dir=mkdir(date('Y-M-D'));\r<br />\n<br />\nheader(&quot;Cache-Control: must-revalidate, post-check=0, pre-check=0&quot;);\r<br />\nheader('Content-Description: File Transfer');\r<br />\nheader('Content-Type: text/csv/xls');\r<br />\nheader( &quot;Content-Type: application/vnd.ms-excel&quot; );\r<br />\nheader( &quot;Content-disposition: attachment; filename=compare.xls&quot; );\r<br />\n//header(&quot;Content-type:application/json&quot;); \r<br />\n$objWriter-&gt;save(&quot;/opt/lampp/htdocs/workplace/1stwork/2015-Sep-Wed&quot;);\r<br />\n$handle1 = fopen(&quot;new.csv&quot;, &quot;r&quot;); \r<br />\n$data1=fgetcsv($handle1,1000);\r<br />\n$dat= array('0' =&gt;$data1[0],'1'=&gt;$data1[1],'2'=&gt;$data1[2]);\r<br />\n//print_r($dat);\r<br />\n$handle = fopen(&quot;others.csv&quot;, &quot;r&quot;); \r<br />\n$data=fgetcsv($handle,1000);\r<br />\n$dat1 = array('0' =&gt;$data[0],'1'=&gt;$data[1],'2'=&gt;$data[2],'3' =&gt;$data[3],'4'=&gt;$data[4],'5'=&gt;$data[5]);\r<br />\n//print_r($dat1);\r<br />\n<br />\n$result = array_intersect($dat1, $dat);\r<br />\n<br />\n//print_r($result);\r<br />\n$mykey=array();\r<br />\nforeach($result as $key =&gt; $value)\r<br />\n{\r<br />\n  $mykey[] = $key;\r<br />\n}\r<br />\n//print_r($mykey);\r<br />\n//exit;\r<br />\n$row = 1;\r<br />\n<br />\n<br />\n $wantedColumns =$mykey;\r<br />\n<br />\n<br />\n//print_r($wantedColumns);\r<br />\n<br />\n if (($handle = fopen(&quot;others.csv&quot;, &quot;r&quot;)) !== FALSE) {<br />\n<pre><code>  while (($data = fgetcsv($handle, 1000, &quot;,&quot;)) !== FALSE) {\n\n$num = count($data);\nif ($row == 1) {\n    echo '&lt;tr&gt;';\n}else{\n    echo '&lt;tr&gt;';\n}\n\nfor ($c=0; $c &lt; $num; $c++) {</code></pre>\n\nif (!in_array($c,$wantedColumns)) continue;<br />\n<pre><code>    if(empty($data[$c])) {\n       $value = &quot;&amp;nbsp;&quot;;\n    }else{\n       $value = $data[$c];\n    }\n    if ($row == 1) {\n\n         echo '&lt;td style=&quot;border-top: 1px solid rgb(111,180,224); border-left: 1px solid rgb(111,180,224); border-bottom: 1px solid rgb(111,180,224);&quot;  align=&quot;left&quot; bgcolor=&quot;#0066cc&quot; height=&quot;36&quot; valign=&quot;middle&quot; &gt;&lt;b&gt;&lt;font color=&quot;#ffffff&quot; size=&quot;2&quot;&gt;&amp;nbsp;&amp;nbsp;'.$value.'&amp;nbsp;&amp;nbsp;&lt;/font&gt;&lt;/b&gt;&lt;/td&gt;';\n    }else{\n\n\n        echo '&lt;td&gt;&amp;nbsp;&amp;nbsp;'.$value.'&amp;nbsp;&amp;nbsp;&lt;/td&gt;';\n    }\n}\n\nif ($row == 1) {\n    echo '&lt;/tr&gt;';\n}else{\n    echo '&lt;/tr&gt;';\n}\n$row++;</code></pre>\n\n}\r<br />\n<br />\n  echo '&lt;/tbody&gt;&lt;/table&gt;';\r<br />\necho '&lt;/center&gt;';  \r<br />\n<pre><code>fclose($handle);</code></pre>\n\n}\r<br />\n<br />\n<br />\n//json_encode($mykey);\r<br />\n//echo json_encode($value);\r<br />\n ?&gt;\r<br />\n \r<br />\n &lt;/table&gt;\r<br />\n &lt;/body&gt;\r<br />\n &lt;/html&gt;<br />\n",
+    "PostedDate": "2015-09-30T01:03:32.203-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1446484",
+    "ThreadId": "645629",
+    "Html": "Are you sure you want PHPExcel for any of this?<br />\n<blockquote>\nhow can i save compare.xls to my directory(specified folder) <br />\nand also i want to convert these convert.cls to csv format <br />\n</blockquote>\nYou're reading csv files (not xls files) using fgetcsv, and you don't seem to be doing anything to write them to any file format at all, just generating HTML markup.\r<br />\n<br />\nYou're also sending a mass of contradictory content-type headers to the browser, so that it will have no idea what to do with that generated markup.\r<br />\n<code>text/csv/xls</code> is completely invalid, and you're also sending <code>application/vnd.ms-excel</code> and <code>application/json</code> (which has nothing to do with any spreadsheet format).... only one content type header will actually be sent, and the last you're setting is <code>application/json</code>, which will be the content type header that's actually sent.\r<br />\n<br />\n<br />\nIf all you're doing is working with csv files, then stick to fgetcsv() and fputcsv().\r<br />\n<br />\nIf you do want to work with spreadsheets, and use PHPExcel, then I suggest you start by reading the documentation, and looking through the examples<br />\n",
+    "PostedDate": "2015-09-30T01:24:40.003-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1446496",
+    "ThreadId": "645629",
+    "Html": "\r\n<div dir=\"ltr\">Sir,\r\n<div>I want to save that file to my desired location please help me<br clear=\"all\">\r\n<div><br>\r\n</div>\r\n-- <br>\r\n<div>\r\n<div dir=\"ltr\">\r\n<div>\r\n<div dir=\"ltr\">\r\n<div style=\"text-align:right\"><b style=\"font-family:garamond,serif; font-size:large\"><i>Deena Babu<br>\r\n</i></b></div>\r\n<div style=\"text-align:right\"><b style=\"font-family:garamond,serif; font-size:large\"><i><font size=\"1\">Software Developer@axeltechnologies pvt ltd</font><br>\r\n</i></b></div>\r\n</div>\r\n</div>\r\n</div>\r\n</div>\r\n</div>\r\n</div>\r\n",
+    "PostedDate": "2015-09-30T02:59:56.347-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1446501",
+    "ThreadId": "645629",
+    "Html": "Are you using PHPExcel in any way? This is a site to support the PHPExcel library, not a general PHP tutorial site<br />\n",
+    "PostedDate": "2015-09-30T04:05:19.48-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1446502",
+    "ThreadId": "645629",
+    "Html": "\r\n<div dir=\"ltr\">Sir,\r\n<div>I try to use phpexcel but i got following error,</div>\r\n<div>require_once(Excel/reader.php): failed to open stream: Permission denied in ,how can i solve it?<br>\r\n</div>\r\n</div>\r\n<div><br>\r\n<div></div>\r\n</div>\r\n",
+    "PostedDate": "2015-09-30T04:17:07.497-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1446503",
+    "ThreadId": "645629",
+    "Html": "\r\n<div dir=\"ltr\">\r\n<div><br>\r\n</div>\r\n<div>error_reporting(E_ALL | E_STRICT);</div>\r\n<div>require_once 'Excel/reader.php';</div>\r\n<div>include 'Excel/Writer.php';</div>\r\n<div>// ExcelFile($filename, $encoding);</div>\r\n<div>$data = new Spreadsheet_Excel_Reader();</div>\r\n<div>// Set output Encoding.</div>\r\n<div>$data-&gt;setOutputEncoding('CP1251');</div>\r\n<div><br>\r\n</div>\r\n<div>$file_1 = 'Excel/new.xls';</div>\r\n<div>$data-&gt;read($file_1);</div>\r\n<div><br>\r\n</div>\r\n<div><br>\r\n</div>\r\n<div>$data2 = new Spreadsheet_Excel_Reader();</div>\r\n<div>$data2-&gt;setOutputEncoding('CP1251');</div>\r\n<div><br>\r\n</div>\r\n<div>//move_uploaded_file($_FILES['file1']['tmp_name'],'Excel/'.$_FILES['file1']['name']);</div>\r\n<div><br>\r\n</div>\r\n<div>$file_2 = 'Excel/others.xls';</div>\r\n<div>$data2-&gt;read($file_2);</div>\r\n<div><br>\r\n</div>\r\n<div>$excel = new Spreadsheet_Excel_Writer('Excel/res.xls');</div>\r\n<div>$sheet =& $excel-&gt;addWorksheet('Class I');</div>\r\n<div><br>\r\n</div>\r\n<div>//looping with the data of upload file</div>\r\n<div>$data_res = array();</div>\r\n<div><br>\r\n</div>\r\n<div>for ($i = 2; $i &lt;= $data2-&gt;sheets[0]['numRows']; $i&#43;&#43;) </div>\r\n<div>{</div>\r\n<div><span style=\"white-space:pre\"></span>$sku = isset($data2-&gt;sheets[0]['cells'][$i][1])?$data2-&gt;sheets[0]['cells'][$i][1]:'';</div>\r\n<div><span style=\"white-space:pre\"></span>$qnt = isset($data2-&gt;sheets[0]['cells'][$i][2])?$data2-&gt;sheets[0]['cells'][$i][2]:'';</div>\r\n<div><span style=\"white-space:pre\"></span>if($sku != ''){</div>\r\n<div><span style=\"white-space:pre\"></span>for ($j = 2; $j &lt;= $data-&gt;sheets[0]['numRows']; $j&#43;&#43;)\r\n</div>\r\n<div><span style=\"white-space:pre\"></span>{</div>\r\n<div><span style=\"white-space:pre\"></span>$sku_primary = isset($data-&gt;sheets[0]['cells'][$j][1])?$data-&gt;sheets[0]['cells'][$j][1]:'';</div>\r\n<div><span style=\"white-space:pre\"></span>$sku1 = isset($data-&gt;sheets[0]['cells'][$j][6])?$data-&gt;sheets[0]['cells'][$j][6]:'';</div>\r\n<div><span style=\"white-space:pre\"></span>if($sku == $sku1){</div>\r\n<div><span style=\"white-space:pre\"></span>$data_res[] = array($sku_primary,$qnt);</div>\r\n<div><span style=\"white-space:pre\"></span>$sheet-&gt;write($i - 2, 0, $sku_primary);\r\n</div>\r\n<div><span style=\"white-space:pre\"></span>$sheet-&gt;write($i - 2, 1, $qnt); </div>\r\n<div><span style=\"white-space:pre\"></span>}</div>\r\n<div><span style=\"white-space:pre\"></span></div>\r\n<div><span style=\"white-space:pre\"></span>}</div>\r\n<div><span style=\"white-space:pre\"></span></div>\r\n<div><span style=\"white-space:pre\"></span>}</div>\r\n<div><span style=\"white-space:pre\"></span></div>\r\n<div>}</div>\r\n<div><span style=\"white-space:pre\"></span></div>\r\n<div>// save file to disk</div>\r\n<div>if ($excel-&gt;close() === true) {</div>\r\n<div>echo 'Spreadsheet successfully saved!'; </div>\r\n<div>} else {</div>\r\n<div>echo 'ERROR: Could not save spreadsheet.';</div>\r\n<div>}</div>\r\n<div><br>\r\n</div>\r\n</div>\r\n<div><br>\r\n<div></div>\r\n</div>\r\n",
+    "PostedDate": "2015-09-30T04:18:12.613-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1446533",
+    "ThreadId": "645629",
+    "Html": "The code you've posted here doesn't use PHPExcel, it uses Spreadsheet_Excel_Reader<br />\n",
+    "PostedDate": "2015-09-30T07:10:49.593-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1446626",
+    "ThreadId": "645629",
+    "Html": "\r\n<div dir=\"ltr\">ok fine,then you should tell how to compare two excel files and take common values by using phpexcel ?\r\n<div>thank you</div>\r\n</div>\r\n<div><br>\r\n<div></div>\r\n</div>\r\n",
+    "PostedDate": "2015-09-30T22:04:55.873-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1446639",
+    "ThreadId": "645629",
+    "Html": "A good starting point is the <a href=\"https://github.com/PHPOffice/PHPExcel/wiki/User%20Documentation\" rel=\"nofollow\">PHPExcel Documentation</a><br />\n",
+    "PostedDate": "2015-10-01T00:09:17.37-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

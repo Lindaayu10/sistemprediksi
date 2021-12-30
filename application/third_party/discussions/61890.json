@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "210090",
+    "ThreadId": "61890",
+    "Html": "<p>I'm using PHPExcel for the first time to read/load files. In this application, I may get Excel2007 files, or I may get older files. So I'm using PHPExcel_IOFactory::load() so that it will figure out the file type and handle it appropriately. However, it doesn't look like I can set any options on the reader it uses. For example, I cannot add a ReadFilter or use setReadDataOnly(). Am I correct in this?</p>\r\n<p>&nbsp;</p>\r\n<p>If I add the ability to set these in the PHPExcel_IOFactory::load() method, would anyone else be interested? I could also create a PHPExcel_IOFactory::getReader($pFilename) method to find and return the reader without loading the file. These, especially the latter, would be pretty simple derivations of the load() method.</p>",
+    "PostedDate": "2009-07-08T10:54:33.28-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "210095",
+    "ThreadId": "61890",
+    "Html": "<p>I went ahead and tried it out, and it's working for me. Perhaps it wouldn't work for CSV or Serialized readers since they don't have the same interface?</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre><span style=\"color:Green\">/**\r\n * Create PHPExcel_Reader_IReader for file using automatic PHPExcel_Reader_IReader resolution\r\n *\r\n * @param \tstring \t\t$pFileName\r\n * @return\tPHPExcel_Reader_IReader\r\n * @throws \tException\r\n */</span>\t\r\n<span style=\"color:Blue\">public</span> <span style=\"color:Blue\">static</span> <span style=\"color:Blue\">function</span> createReaderForFile($pFilename) {\r\n\t<span style=\"color:Green\">// Try loading using self::$_autoResolveClasses</span>\r\n\t<span style=\"color:Blue\">foreach</span> (self::$_autoResolveClasses <span style=\"color:Blue\">as</span> $autoResolveClass) {\r\n\t\t$reader = self::createReader($autoResolveClass);\r\n\t\t<span style=\"color:Blue\">if</span> ($reader-&gt;canRead($pFilename)) {\r\n\t\t\t<span style=\"color:Blue\">return</span> $reader;\r\n\t\t}\r\n\t}\r\n\t\t\r\n\t<span style=\"color:Blue\">throw</span> <span style=\"color:Blue\">new</span> Exception(<span style=\"color:#A31515\">&quot;Could not automatically determine PHPExcel_Reader_IReader for file.&quot;</span>);\r\n}\r\n</pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n<p>Usage:</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre><span style=\"color:Blue\">try</span> \r\n{\r\n\t$reader = PHPExcel_IOFactory::createReaderForFile($filename);\r\n\t$reader-&gt;setReadDataOnly(true);\r\n\t$spreadsheet = $reader-&gt;load($filename);\r\n}\r\n<span style=\"color:Blue\">catch</span> (Exception $e)\r\n{\r\n\t<span style=\"color:Blue\">die</span>(<span style=\"color:#A31515\">'no load'</span>);\r\n}\r\n</pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-07-08T11:05:10.357-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "210535",
+    "ThreadId": "61890",
+    "Html": "<p>This looks good! I have created a work item for this:<br> <a href=\"../WorkItem/View.aspx?WorkItemId=10292\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10292</a></p>",
+    "PostedDate": "2009-07-09T11:31:30.753-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

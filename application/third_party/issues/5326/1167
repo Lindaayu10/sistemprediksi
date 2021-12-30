@@ -1,0 +1,94 @@
+<?php
+/**
+ * PHPExcel
+ *
+ * Copyright (C) 2006 - 2007 PHPExcel
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ * 
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * @category   PHPExcel
+ * @package    PHPExcel
+ * @copyright  Copyright (c) 2006 - 2007 PHPExcel (http://www.codeplex.com/PHPExcel)
+ * @license    http://www.gnu.org/licenses/lgpl.txt	LGPL
+ * @version    1.5.5, 2007-12-24
+ */
+
+//set_include_path(get_include_path() . PATH_SEPARATOR . '/path/to/PHPExcel/');
+
+//include "05featuredemo.inc.php";
+require_once 'PHPExcel.php';
+echo date('H:i:s') . " Create new PHPExcel object\n";
+$objPHPExcel = new PHPExcel();
+
+// Create a first sheet, representing sales data
+echo date('H:i:s') . " Add some data\n";
+$objPHPExcel->setActiveSheetIndex(0);
+//$objPHPExcel->getActiveSheet()->setCellValue('B1', 'Invoice');
+//$objPHPExcel->getActiveSheet()->setCellValue('D1', time());
+//$objPHPExcel->getActiveSheet()->getStyle('D1')->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_DATE_YYYYMMDDSLASH);
+//$objPHPExcel->getActiveSheet()->setCellValue('E1', '#12566');
+//
+//$objPHPExcel->getActiveSheet()->setCellValue('A3', 'Product Id');
+//$objPHPExcel->getActiveSheet()->setCellValue('B3', 'Description');
+//$objPHPExcel->getActiveSheet()->setCellValue('C3', 'Price');
+//$objPHPExcel->getActiveSheet()->setCellValue('D3', 'Amount');
+//$objPHPExcel->getActiveSheet()->setCellValue('E3', 'Total');
+
+$var = 'Test 1001;1002 et ""cotes" && TestEof';
+
+$objPHPExcel->getActiveSheet()->setCellValue('A4', $var);
+$objPHPExcel->getActiveSheet()->setCellValue('B4', 'PHP for dummies');
+//$objPHPExcel->getActiveSheet()->setCellValue('C4', '20');
+//$objPHPExcel->getActiveSheet()->setCellValue('D4', '2');
+//$objPHPExcel->getActiveSheet()->setCellValue('E4', '=C4*D4');
+
+
+
+
+include 'PHPExcel/Writer/CSV.php';
+//include 'PHPExcel/Reader/CSV.php';
+//include 'PHPExcel/Writer/Excel2007.php';
+
+echo date('H:i:s') . " Write to CSV format\n";
+$objWriter = new PHPExcel_Writer_CSV($objPHPExcel);
+$objWriter->setDelimiter(';');
+$objWriter->setEnclosure('"');
+$objWriter->setLineEnding("\r\n");
+$objWriter->setSheetIndex(0);
+$objWriter->save(str_replace('.php', '.csv', __FILE__));
+$objWriter->save("php://output");
+
+/*
+4.3.28.	Redirect output to a client’s web browser
+Sometimes, one really wants to output a file to a client’s browser, especially when creating spreadsheets on-the-fly. There are some easy steps that can be followed to do this:
+1.	Create your PHPExcel spreadsheet
+2.	Output HTTP headers for the type of document you wish to output
+3.	Use the PHPExcel_Writer_* of your choice, and save to “php://output”
+*/
+
+//echo date('H:i:s') . " Read from CSV format\n";
+//$objReader = new PHPExcel_Reader_CSV();
+//$objReader->setDelimiter(';');
+//$objReader->setEnclosure('');
+//$objReader->setLineEnding("\r\n");
+//$objReader->setSheetIndex(0);
+//$objPHPExcelFromCSV = $objReader->load(str_replace('.php', '.csv', __FILE__));
+//
+//echo date('H:i:s') . " Write to Excel2007 format\n";
+//$objWriter2007 = new PHPExcel_Writer_Excel2007($objPHPExcelFromCSV);
+//$objWriter2007->save(str_replace('.php', '.xlsx', __FILE__));
+
+echo date('H:i:s') . " Done writing files.\r\n";
+?>

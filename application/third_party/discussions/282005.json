@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "708269",
+    "ThreadId": "282005",
+    "Html": "\r\n<p>Hi,</p>\r\n<p>&nbsp;</p>\r\n<p>I'm trying to setup conditional formatting using the excel2007 writer so that for example Cell B1 will be Yellow is C6=1, B2 will be Yellow is C6=2, etc., etc.</p>\r\n<p>&nbsp;</p>\r\n<p>The only examples I've found so far for conditional formatting are based on the cell itself, ie. Set B1 to a colour based on the value of B1.</p>\r\n<p>&nbsp;</p>\r\n<p>Is this possible, or has someoone for an example</p>\r\n<p>&nbsp;</p>\r\n<p>Rgds</p>\r\n<p>Chris</p>\r\n",
+    "PostedDate": "2011-12-06T10:08:36.777-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "708712",
+    "ThreadId": "282005",
+    "Html": "<p>I have this working using the EQUAL operator, but now the final conditional formatting I am trying to acheive it is repilcate this</p>\r\n<p>For Cell B218 if the formula below is true then it highlights the cell yellow.</p>\r\n<p>=AND(H218&gt;0,H218&lt;=10)</p>\r\n<p>&nbsp;</p>\r\n<p>How can this be acheived in PHPExcel?</p>",
+    "PostedDate": "2011-12-07T03:39:26.287-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "708792",
+    "ThreadId": "282005",
+    "Html": "<div style=\"background-color: white; color: black;\">\n<pre> $objConditional = <span style=\"color: blue;\">new</span> PHPExcel_Style_Conditional();\r\n $objConditional-&gt;setConditionType(PHPExcel_Style_Conditional::CONDITION_EXPRESSION);\r\n $objConditional-&gt;setOperatorType(PHPExcel_Style_Conditional::OPERATOR_EQUAL);\r\n $objConditional-&gt;addCondition(<span style=\"color: #a31515;\">'AND(H218&gt;0,H218&lt;=10)'</span>);\r\n $objConditional-&gt;addCondition(TRUE);\r\n $objConditional-&gt;getStyle()-&gt;getFont()-&gt;getColor()-&gt;setARGB(PHPExcel_Style_Color::COLOR_YELLOW);\r\n $objConditional-&gt;getStyle()-&gt;getFont()-&gt;setBold(true);\r\n $objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(<span style=\"color: #a31515;\">'B218'</span>)-&gt;setConditionalStyles(<span style=\"color: blue;\">array</span>($objConditional));\r\n</pre>\n</div>\n<p>&nbsp;</p>\n<p>Note that you'll have to set rules individually for a range of cells, as</p>\n<div>\n<div style=\"background-color: white; color: black;\">\n<pre>$objPHPExcel-&gt;getActiveSheet()-&gt;duplicateStyle( $objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(<span style=\"color: #a31515;\">'B2'</span>), <span style=\"color: #a31515;\">'B3:B7'</span> );\r\n</pre>\n</div>\n<p class=\"Code\">will not work with conditional styles using expressions or referencing other cells</p>\n<p class=\"Code\">&nbsp;</p>\n<p class=\"Code\">Using \"between\" would probably be better in&nbsp;your case (though I've not tested it with cell references), but the formula-based example shown above is useful as a reference for others that might want to use more complex formulae in conditional formatting.</p>\n<div style=\"background-color: white; color: black;\">\n<pre><div style=\"color: black; background-color: white;\"><pre> $objConditional = <span style=\"color: blue;\">new</span> PHPExcel_Style_Conditional();\r\n $objConditional-&gt;setConditionType(PHPExcel_Style_Conditional::CONDITION_EXPRESSION);\r\n $objConditional-&gt;setOperatorType(PHPExcel_Style_Conditional::OPERATOR_BETWEEN);\r\n $objConditional-&gt;addCondition(<span style=\"color: #a31515;\">'H218'</span>);\r\n $objConditional-&gt;addCondition(0);\r\n $objConditional-&gt;addCondition(10); </pre>\n<pre> $objConditional-&gt;getStyle()-&gt;getFont()-&gt;getColor()-&gt;setARGB(PHPExcel_Style_Color::COLOR_YELLOW);\r\n $objConditional-&gt;getStyle()-&gt;getFont()-&gt;setBold(true);\r\n $objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(<span style=\"color: #a31515;\">'B218'</span>)-&gt;setConditionalStyles(<span style=\"color: blue;\">array</span>($objConditional));\r\n</pre>\n</div>\n&nbsp;</pre>\n</div>\n</div>",
+    "PostedDate": "2011-12-07T06:33:32.877-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "708850",
+    "ThreadId": "282005",
+    "Html": "Thanks for this.<br>\r\n<br>\r\nIts working a charm.<br>\r\n<br>\r\nRgds<br>\r\nChris<br>\r\n<br>\r\nOn 07/12/2011 02:33 PM, MarkBaker wrote:\r\n<blockquote type=\"cite\">\r\n<p>From: MarkBaker</p>\r\n<div id=\"ThreadNotificationPostBody\">\r\n<div style=\"color:black; background-color:white\">\r\n<pre> $objConditional = <span style=\"color:blue\">new</span> PHPExcel_Style_Conditional();\r\n $objConditional-&gt;setConditionType(PHPExcel_Style_Conditional::CONDITION_EXPRESSION);\r\n $objConditional-&gt;setOperatorType(PHPExcel_Style_Conditional::OPERATOR_EQUAL);\r\n $objConditional-&gt;addCondition(<span style=\"color:#a31515\">'AND(H218&gt;0,H218&lt;=10)'</span>);\r\n $objConditional-&gt;addCondition(TRUE);\r\n $objConditional-&gt;getStyle()-&gt;getFont()-&gt;getColor()-&gt;setARGB(PHPExcel_Style_Color::COLOR_YELLOW);\r\n $objConditional-&gt;getStyle()-&gt;getFont()-&gt;setBold(true);\r\n $objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(<span style=\"color:#a31515\">'B218'</span>)-&gt;setConditionalStyles(<span style=\"color:blue\">array</span>($objConditional));\r\n</pre>\r\n</div>\r\n<p></p>\r\n<p>Note that you'll have to set rules individually for a range of cells, as</p>\r\n<div>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>$objPHPExcel-&gt;getActiveSheet()-&gt;duplicateStyle( $objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(<span style=\"color:#a31515\">'B2'</span>), <span style=\"color:#a31515\">'B3:B7'</span> );\r\n</pre>\r\n</div>\r\n<p>will not work with conditional styles using expressions</p>\r\n</div>\r\n</div>\r\n</blockquote>\r\n",
+    "PostedDate": "2011-12-07T07:52:33.603-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

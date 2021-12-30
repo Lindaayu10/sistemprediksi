@@ -1,0 +1,65 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel_Writer_HTML",
+      "DisplayName": "PHPExcel_Writer_HTML"
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I have a large sheet (415x314) which i import without styles using cache_to_apc to workaound my 128MB limit.\n \nI check several values and add a green background for all checked and a red for all errorous cells.\nThen i hide some rows and cols and output that to html.\n \nNow i see following. Using\n$xlsWriter = new PHPExcel_Writer_HTML($xls);\n$xlsWriter->save('php://output');\nor\n$xlsWriter = new PHPExcel_Writer_HTML($xls);\necho $xlsWriter->generateStyles();\necho $xlsWriter->generateSheetData();\n \ndoesn't work. Processing stops at the styles section without error (its no timeout, TO is set to 90s, processing stops around 70s. Sometimes elsewere within, sometimes at the end of the styles:\n[...]\ntable.sheet0 tr.row411 { height:15pt; display:none; visibility:hidden }\ntable.sheet0 tr.row412 { height:15pt; display:none; visibility:hidden }\n</style>\n \nBUT, if i use following:\n$xlsWriter = new PHPExcel_Writer_HTML($xls);\necho $xlsWriter->generateSheetData(); \t\necho $xlsWriter->generateStyles();\n \nthe code works like a charm.\n \nAny hints?\nDaniel",
+    "LastUpdatedDate": "2013-02-21T19:02:47.63-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2010-08-26T01:59:11.627-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "HTML Writer stops processing without error message",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 14090
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "Hi, an update.\r\nSame bug in 1.7.4 without caching. I \"top\"ed a little and see, that this problem is even worse:\r\nThe httpd-process dont' get back to normal operation. My worker threads eats about 8-10k idling around. When the script finish normally, they come back from around 230MB to 8-10K.\r\nBUT When i get only blank screen the process return to 10-70MB and don't answer any more so masterthread forking a new workerthread.\r\nThey're no zombies in top and no entries in any log. :-(\r\nVersions: \r\nPHPexcel 173c or 174\r\nPHP 5.2.4\r\non Linux\r\n\r\nWhat can i do?\r\nThanks\r\nDaniel",
+      "PostedDate": "2010-08-31T06:18:44.927-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Not sure if this is sigificant: the apache works with Suhosin Patch...",
+      "PostedDate": "2010-08-31T06:21:25.463-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-09-09T04:46:41.247-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Trawling back through the PHP bug list, I found the following: http://bugs.php.net/bug.php?id=40479\r\nThis bug affects most PHP5.2 and above, and __can__ (albeit not always consistently) affect any application that works with large numbers of objects (such as PHPExcel), particularly when the server is heavily loaded; but does leave a \"zend_mm_heap corrupted\" message in the apache logs.\r\n\r\nOne possible solution is to add the line:\r\nexport USE_ZEND_ALLOC=0\r\nto the apache envvars file\r\n\r\n\r\n",
+      "PostedDate": "2010-09-18T04:47:11.787-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:02:47.63-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

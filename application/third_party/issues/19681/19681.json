@@ -1,0 +1,101 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "SUMIF formula ranges are not updating after insertNewRowBefore.  Is that normal activity?\n\nThanks,\nGannon\n\n$objPHPExcel->getActiveSheet()->setCellValue('C25', 'AGS141');   \n$objPHPExcel->getActiveSheet()->insertNewRowBefore(26,1); \n$objPHPExcel->getActiveSheet()->setCellValue('C26', 'AGS144');\n$objPHPExcel->getActiveSheet()->insertNewRowBefore(26,1); \n$objPHPExcel->getActiveSheet()->setCellValue('C26', 'AGS143');\n$objPHPExcel->getActiveSheet()->insertNewRowBefore(26,1); \n$objPHPExcel->getActiveSheet()->setCellValue('C26', 'AGS142');\n\n\nFormula in G29 before\n=SUMIF($F$25:$F$26,$F29,G$25:G$26)\n\n=SUMIF($F$25:$F$26,$F32,G$25:G$26)",
+    "LastUpdatedDate": "2013-05-15T18:31:15.18-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2013-05-07T19:34:39.503-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "SUMIF formula ranges are not updating after insertNewRowBefore",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 19681
+  },
+  "FileAttachments": [
+    {
+      "FileId": 6955,
+      "FileName": "myfile.xlsx",
+      "DownloadUrl": ".\\6955"
+    },
+    {
+      "FileId": 6965,
+      "FileName": "ReferenceHelper.php",
+      "DownloadUrl": ".\\6965"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "Note that if you're going to be inserting multiple rows, it's more efficient to insert them all in one call \n```php\n$objPHPExcel->getActiveSheet()->insertNewRowBefore(26,3); \n```\nbecause PHPExcel only needs to do the expensive test/update formulas once rather than three times",
+      "PostedDate": "2013-05-07T23:44:20.93-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I mean if you are in Excel and you manually do an insert of a new row at line 26.\r\n\r\nFormula in G29 before\n=SUMIF($F$25:$F$26,$F29,G$25:G$26)\r\n\r\nAfter\n=SUMIF($F$25:$F$27,$F30,G$25:G$27)\r\n\r\nSo, I thought it would work like it does in Excel.",
+      "PostedDate": "2013-05-08T14:09:22.837-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "It does work as in MS Excel. But absolute row references like G$26 should not change in MS Excel, and should not change in PHPExcel either, likewise absolute column references such as $F30 if you're inserting columns.\r\n\r\n ",
+      "PostedDate": "2013-05-08T15:31:06.15-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "It doesn't work as it does in MS Excel.  Try it.  I think Excel is assuming that since you are adding a line within its absolute range that you would like that line added into the calculations (increasing it range).\r\n\r\n",
+      "PostedDate": "2013-05-09T18:48:01.65-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Can I change my own \"ReferenceHelper.php\" to increment the range of the absolute range?  I really don't want to have to look for each instance of absolute range and increment them as a work around. ",
+      "PostedDate": "2013-05-09T20:05:58.66-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Absolute references (Using the $ before the row or column reference) don't change (same as they don't change in MS Excel), but as $F29 has changed to $F32 (absolute column, relative row) I'm satisfied that your example has updated correctly\n\n** Closed by MarkBaker 07/05/2013 23:42",
+      "PostedDate": "2013-05-09T23:33:25.823-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-09T23:33:25.97-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Alright, I've reopened this as an issue.\r\n\r\nFeel free to fix it yourself, that's the beauty of open source.\r\n\r\nit's something I won't even look at until my rewrite of the calculation engine because that will entail changes to the reference helper anyway.",
+      "PostedDate": "2013-05-09T23:35:21.467-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-15T18:31:14.01-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Patched it to work for me.  Here is the updated ReferenceHelper.php, if anyone wanted it to work this way.\r\n\r\nThanks for the tip about inserting multiple rows at once.  :)",
+      "PostedDate": "2013-05-15T18:31:15.18-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

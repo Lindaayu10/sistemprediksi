@@ -1,0 +1,76 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "SVN code has already been modified for PHP 5.4 ",
+    "ClosedDate": "2012-04-25T23:31:18.257-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "After upgrading to PHP 5.4, I received the following warning:\n\"Warning: Illegal string offset 'value' in /var/www/html/PHPExcel/Calculation.php on line 2976\"\n \nThe issue is that PHP 5.4 is more strict with array operations. Therefore, it is necessary to first confirm that $opCharacter is indeed an array before running the statement on line 2976: \nif ($opCharacter['value'] == '(') return $this->_raiseFormulaError(\"Formula Error: Expecting ')'\");\n \nProposed fix starting at line 2975 of PHPExcel/Calculation.php:\nwhile (!is_null($op = $stack->pop())) {\t// pop everything off the stack and push onto output\n\t\t\t// PHP 5.4 patch - check to see if $opCharacter is an array first\n\t\t\tif (is_array($opCharacter)) {\n\t\t\t\tif ($opCharacter['value'] == '(') return $this->_raiseFormulaError(\"Formula Error: Expecting ')'\");\t// if there are any opening braces on the stack, then braces were unbalanced\n\t\t\t}\t\t\t\n\t\t\t$output[] = $op;\n\t\t}\n\t\treturn $output;",
+    "LastUpdatedDate": "2013-05-16T05:41:35.12-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2012-04-24T22:26:19.297-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "PHP 5.4 \"Illegal String Offset\" Warning",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 17923
+  },
+  "FileAttachments": [
+    {
+      "FileId": 6381,
+      "FileName": "Calculation.php",
+      "DownloadUrl": ".\\6381"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "The latest SVN code has been tested against PHP5.4 and a number of changes made to resolve these stricter warnings.",
+      "PostedDate": "2012-04-24T23:25:47.647-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Oh, ok. Thanks. I didn't think to check the SVN. I just started modifying code. I'm kind of new to contributing to open source projects. I'll check the SVN first next time.",
+      "PostedDate": "2012-04-25T15:45:15.637-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Is there a way for me to mark this as \"resolved\"?",
+      "PostedDate": "2012-04-25T15:46:12.713-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-04-25T23:31:18.257-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:01:57.92-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:41:35.12-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

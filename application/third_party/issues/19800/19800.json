@@ -1,0 +1,60 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Try to save result to Excel5.\nI have a recursion like:\nin lib/PHPExcel/Style/NumberFormat.php: getBuiltInFormatCode() at 226\nin lib/PHPExcel/Style/NumberFormat.php: getBuiltInFormatCode() at 226\nin lib/PHPExcel/Style/NumberFormat.php: getBuiltInFormatCode() at 226\nin lib/PHPExcel/Style/NumberFormat.php: getBuiltInFormatCode() at 226\nin lib/PHPExcel/Style/NumberFormat.php: getBuiltInFormatCode() at 226\nin lib/PHPExcel/Style/NumberFormat.php: getBuiltInFormatCode() at 226\nin lib/PHPExcel/Style/NumberFormat.php: getBuiltInFormatCode() at 226\nin lib/PHPExcel/Style/NumberFormat.php: getBuiltInFormatCode() at 226\nin lib/PHPExcel/Style/NumberFormat.php: getBuiltInFormatCode() at 226\nin lib/PHPExcel/Style/NumberFormat.php: getBuiltInFormatCode() at 226\nin lib/PHPExcel/Style/NumberFormat.php: getBuiltInFormatCode() at 226\nin lib/PHPExcel/Writer/Excel5/Workbook.php: addXfWriter() at 293\nin lib/PHPExcel/Writer/Excel5.php: save() at 159\n\nconfirm?\nPHP 5.4.7 (Windows)",
+    "LastUpdatedDate": "2013-06-05T06:56:54.58-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2013-06-03T07:01:32.817-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "getBuiltInFormatCode() recursion in 1.7.9",
+    "Type": {
+      "Name": "Unassigned",
+      "Id": 5
+    },
+    "VoteCount": 1,
+    "Id": 19800
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "Unable to recreate....\r\n\r\nCan you confirm that line 293 of PHPExcel/Writer/Excel5/Workbook.php is\n```php\n$xfIndex = count($this->_xfWriters) - 1;\n```\nbecause I'm struggling to see how a simple count() call can trigger execution of getBuiltInFormatCode() ",
+      "PostedDate": "2013-06-03T09:07:20.573-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Here is test code with errors like: Fatal error: Allowed memory size of 134217728 bytes exhausted\n```\n<?\n\tinclude 'lib/PHPExcel.php';\n\tinclude 'lib/PHPExcel/IOFactory.php';\n\t$objPHPExcel = new PHPExcel();\n\t$worksheet = $objPHPExcel->getActiveSheet();\r\n\r\n\t$style = $worksheet->getStyleByColumnAndRow(0, 2);\n\t$style->getNumberFormat()->setFormatCode( PHPExcel_Style_NumberFormat::FORMAT_NUMBER );\n\t$worksheet->duplicateStyle($style, \"A2:A3\");\r\n\r\n\t$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5'); // Excel2007 (xlsx), Excel5 (xls), OOCalc (odx)\n\t$objWriter->save(\"php://output\");\n?>\n```",
+      "PostedDate": "2013-06-04T08:42:02.413-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "plus code like\n```\n$style = $worksheet->getStyleByColumnAndRow(1, 2);\n$style->getNumberFormat()->setFormatCode( \"@\" );\n$worksheet->duplicateStyle($style, \"B3:B3\");\n```\r\n\r\nduplicate number format to all columns after row 2 :/ if you will not repeat this problem, I'll write new sample code.\r\n\r\nLooks like duplicateStyle() is broken :(\n",
+      "PostedDate": "2013-06-04T08:57:27.433-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "confirm?\nCan we wait patch release? :) Or only 2.x?",
+      "PostedDate": "2013-06-05T06:56:54.58-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

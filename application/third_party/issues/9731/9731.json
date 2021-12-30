@@ -1,0 +1,65 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "All",
+      "DisplayName": "All"
+    },
+    "ClosedComment": "Fixed in SVN",
+    "ClosedDate": "2009-04-14T00:00:31.787-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "In 05featuredemo.inc.php the 3rd image \"PHPExcel\" is positioned using negative offset in cell D24. \n \n$objDrawing->setCoordinates('D24');\n$objDrawing->setOffsetX(-10);\n \nThis works fine with Excel2007 writer in 05featuredemo.php, but with Excel5 writer in 14excel5.php there is some weirdness with 14excel5.xls when one compares rendering in MS Office Excel 2007 and OpenOffice.org 3.0\n \nScreen shot 14excel5.xls in MS Office Excel 2007\nhttp://img17.imageshack.us/img17/7562/14ms.png\n \nScreen shot 14excel5.xls in OpenOffice.org 3.0\nhttp://img104.imageshack.us/img104/8469/14ooo.png\n \nIn MS Office Excel 2007 it looks ok, but in OpenOffice.org 3.0 it is squeezed. The problem seems to be that OpenOffice.org 3.0 reads the offset as an unsigned integer while it should really read as a signed. The same error occurs with Excel5 reader in 20readexcel5.php which does a plain/read write of 14excel5.xls. The net-effect is 20readexcel5.xlsx having offsets out of bound leading to corruptness in MS Office Excel 2007.\n \nSuggestion:\n \n1. Update 05featuredemo.inc.php not using negative offset so test will run fine and users will not be confused. See patch.\n \n2. Investigate whether negative offsets are \"legal\". I.e. does MS Office Excel ever use negative offsets. Using PHPExcel it is possible to position an image so it \"sticks out\" towards the left or the top of the sheet, but how does one do this in MS Office Excel?\n \n3. If 2) is possible, OpenOffice.org 3.0 and PHPExcel_Reader_Excel5 contain bugs which need to be fixed.",
+    "LastUpdatedDate": "2013-05-16T05:42:46.71-07:00",
+    "PlannedForRelease": "PHPExcel 1.6.7 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-04-11T07:18:10.103-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Negative image offset causes defects in 14excel5.xls and 20readexcel5.xlsx",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 9731
+  },
+  "FileAttachments": [
+    {
+      "FileId": 2953,
+      "FileName": "14excel5.xls",
+      "DownloadUrl": ".\\2953"
+    },
+    {
+      "FileId": 2954,
+      "FileName": "20readexcel5.xlsx",
+      "DownloadUrl": ".\\2954"
+    },
+    {
+      "FileId": 2955,
+      "FileName": "14-ms.png",
+      "DownloadUrl": ".\\2955"
+    },
+    {
+      "FileId": 2956,
+      "FileName": "14-ooo.png",
+      "DownloadUrl": ".\\2956"
+    },
+    {
+      "FileId": 2957,
+      "FileName": "wi-9731.patch",
+      "DownloadUrl": ".\\2957"
+    }
+  ],
+  "Comments": []
+}

@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "1044331",
+    "ThreadId": "443864",
+    "Html": "Hi,<br />\n<br />\nI open an XLS in order to convert it to CSV.<br />\n<pre><code>    $objReader = PHPExcel_IOFactory::createReader(&quot;Excel5&quot;);\n    $objReader-&gt;setLoadSheetsOnly(&quot;Description&quot;);\n    $objPHPExcel = $objReader-&gt;load('file.xls');\n\n    $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'CSV')-&gt;setDelimiter(';');\n    $objWriter-&gt;save('out.csv');</code></pre>\n\nHowever, I have encoding problem in the csv, accented character are lost. <br />\nBut more importantly, some date formats have been converted to strange patterns, on some row it's m-d-y, on others it's m/d/y. All the line in the XLS are in format d/m/y, and I need to keep them like that.<br />\n<br />\nI am using the lastest code downloaded on GitHub.<br />\n<br />\nAny idea how to resolve this ?<br />\n",
+    "PostedDate": "2013-05-16T01:30:47.623-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1044337",
+    "ThreadId": "443864",
+    "Html": "Accented characters should not be lost, check the CSV file in a text editor that will show UTF-8 characters cleanly.\r<br />\n<br />\nCheck the number format masking of your date cells in MS Excel (or check whether they are simply string values). PHPExcel should use the appropriate format masking for those cells<br />\n",
+    "PostedDate": "2013-05-16T01:42:21.003-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1044350",
+    "ThreadId": "443864",
+    "Html": "Accented characters are actually present when opened with Notepad++, so it's just Excel who don't read the CSV correctly.<br />\n<br />\nThe dates looks like strings in Excel.<br />\nEDIT : Cells format menu shows it's in date type.<br />\n<br />\nWhen I directly read the date cells with PHPExcel, getValue() returns a float.<br />\nEDIT : On Notepad++, looks like all dates are in m-d-y format, so the m/d/y is another Excel joke. Can I change the output format of dates in PHPExcel ?<br />\n",
+    "PostedDate": "2013-05-16T01:57:23.29-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1044355",
+    "ThreadId": "443864",
+    "Html": "Re. the UTF-8 characters in the CSV, try setting a BOM marker in the CSV file using<br />\n<div style=\"color:Black;background-color:White;\"><pre>\r\n    $objWriter-&gt;setUseBOM(TRUE);\r\n</pre></div>before saving<br />\n<br />\nRe. the dates: Excel dates are a numeric timestamp value, and it's only the number format mask that renders them in a date-type format. When writing to CSV, PHPExcel will use that format mask to render the cell as a formatted date string. When MS Excel reads such a date string, it will convert it back to a float internally, and apply its default format mask, so you can get the format changing. You can try to change the Excel default mask (not sure how, but it's locale specific as well, or use the Excel import wizard which (IIRC) allows you to control how date columns are formatted... but otherwise MS Excel is kinda limited when reading CSV files. You can apply a new format mask to those columns in PHPExcel, but you can't control how MS Excel will reformat those dates subsequently when it's loading a CSV, only when it's loading an actual spreadsheet format (e.g. xls, xlsx).<br />\n",
+    "PostedDate": "2013-05-16T02:12:51.117-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1044358",
+    "ThreadId": "443864",
+    "Html": "The CSV will be imported into PostgresSQL database, so the render in Excel don't actually matters.\r<br />\n<br />\nThe CSV date format is not accepted by our actual server, so I will look to change the format mask in PHPExcel.\r<br />\n<br />\nThanks for the fast support. :)<br />\n",
+    "PostedDate": "2013-05-16T02:17:05.467-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1044527",
+    "ThreadId": "443864",
+    "Html": "How can I change the PHPExcel output date format, to save my CSV with wanted date format ?\r<br />\n<br />\nThanks.<br />\n",
+    "PostedDate": "2013-05-16T06:11:35.677-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1044543",
+    "ThreadId": "443864",
+    "Html": "<div style=\"color:Black;background-color:White;\"><pre>\r\n$objPHPExcel-&gt;getActiveSheet()\n    -&gt;getStyle(<span style=\"color:#A31515;\">&#39;E1:E99&#39;</span>)\n    -&gt;getNumberFormat()\n    -&gt;setFormatCode(\n        PHPExcel_Style_NumberFormat::FORMAT_DATE_YYYYMMDD2\n    );\r\n</pre></div>",
+    "PostedDate": "2013-05-16T07:00:06.28-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

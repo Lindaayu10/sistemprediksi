@@ -1,0 +1,70 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": "2016-01-19T05:56:38.043-08:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hi guys,\n\nI am pretty new to PHP and PHPExcel, and I am wondering how I can fill some data to a xls file and then save it as a pdf? I've been able to fill in data to xls and save it as xls.. but I would like to save it as a pdf.\n\nI've downloaded domPDF but I'm not sure on how to use it..\n\nThis is my code so far (loadSummary.php):\n\n```\n    include 'PHPExcel.php';\n    include 'PHPExcel/Writer/PDF.php';\n\n   $rendererName = PHPExcel_Settings::PDF_RENDERER_DOMPDF;\n    $rendererLibraryPath = dirname(__FILE__). '\\dompdf';\n    PHPExcel_Settings::setPdfRenderer($rendererName, $rendererLibraryPath);\n    if (!PHPExcel_Settings::setPdfRenderer($rendererName, $rendererLibraryPath)) {\n        die('Please set the $rendererName and $rendererLibraryPath values as appropriate for your directory structure');\n    }\n\n    $template = '../templates/template.xls';\n    $objPHPExcel = PHPExcel_IOFactory::load($template);\n    $today = date('dmyHi');\n    $newFilename = 'test_' . $today . '.pdf';\n\n    $objWorksheet = $objPHPExcel->getSheet(0);\n    $objPHPExcel->setActiveSheetIndex(0);\n\n    /*\n    Fill in data here...\n    */\n    $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'PDF'); \n    $objWriter->save(\"../\".$newFilename);\n```\n\nHere is my folder structure:\n\nclasses\n       dompdf (folder)\n       PHPExcel (folder)\n       loadSummary.php\n       PHPExcel.php",
+    "LastUpdatedDate": "2016-03-02T14:17:44.117-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2016-01-01T07:23:00.32-08:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Fill in data to xls and save as pdf",
+    "Type": {
+      "Name": "Unassigned",
+      "Id": 5
+    },
+    "VoteCount": 2,
+    "Id": 22128
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "Same problem. Have you been able to solve this? If yes please, tell me how. I think some files are missing.\r\n\r\n:_(\r\n\r\nRegards.",
+      "PostedDate": "2016-01-19T05:16:43.637-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "If you're using PDF, then you need to install your choice of PDF Renderer (in your case, looks like you've chosen DomPDF) separately..... PDF renderers do __not__ come bundled with PHPExcel...... you need to install DomPDF and then set `$rendererLibraryPath` to point to the filesystem path where you've installed that Renderer.\n",
+      "PostedDate": "2016-01-19T05:51:36.877-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2016-01-19T05:56:38.043-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Thanks. It's already running (I had to rename a lot of classes in DomPDFLib/include but it finally works.",
+      "PostedDate": "2016-01-19T07:35:12.813-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "@Danmaster, how did you get it to work? Are you able to lend a hand? \r\n\r\nI've downloaded the dompdf folder and put it on my server. Do I need do run a certain script or anything to install it?\r\n\r\nthis is my folder structure:\n* - classes\n* - - php\n* - - - dompdf (folder)\n* - - - loadsummary.php\n*\nthis is my current code snippet:\n```\ninclude 'PHPExcel.php';\n    include 'PHPExcel/Writer/PDF.php';\r\n\r\n   $rendererName = PHPExcel_Settings::PDF_RENDERER_DOMPDF;\n    $rendererLibraryPath = dirname(__FILE__). '\\dompdf';\n    PHPExcel_Settings::setPdfRenderer($rendererName, $rendererLibraryPath);\n    if (!PHPExcel_Settings::setPdfRenderer($rendererName, $rendererLibraryPath)) {\n        die('Please set the $rendererName and $rendererLibraryPath values as appropriate for your directory structure');\n    }\r\n\r\n    $template = '../templates/template.xls';\n    $objPHPExcel = PHPExcel_IOFactory::load($template);\n    $today = date('dmyHi');\n    $newFilename = 'test_' . $today . '.pdf';\r\n\r\n    $objWorksheet = $objPHPExcel->getSheet(0);\n    $objPHPExcel->setActiveSheetIndex(0);\r\n\r\n    /*\n    Fill in data here...\n    */\n    $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'PDF'); \n    $objWriter->save(\"../\".$newFilename);\n```",
+      "PostedDate": "2016-03-02T11:31:50.46-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Hi ovj92,\r\n\r\nThe first thing is to download all necessary files in order to the library works. PHPExcel only brings \"a kind of interface file\" but doesn't bring all the necessary files. \r\n\r\nAs far as I understand the style guide PHP, the file names must be built using the same name of the class is declared within. In the version of this library that I donwloaded, the files are different from those of the class containing names. Sometimes it was simply change capitalization in file names to match. \r\n\r\nI was using PHP with the Yii framework. I don't know how far Yii influenced the problem.\r\n\r\nLet me know if you want the library that I edited and used. I can not send it here (7 MB). I can send my library (corrected by myself) to your mail if you want.\r\n\r\nPlease excuse my limited English (¿are you spaniard?). \r\n\r\nRegards.",
+      "PostedDate": "2016-03-02T14:17:44.117-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

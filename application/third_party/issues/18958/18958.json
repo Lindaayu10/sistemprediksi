@@ -1,0 +1,126 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel_Reader_Excel5",
+      "DisplayName": "PHPExcel_Reader_Excel5"
+    },
+    "ClosedComment": "Fixed in version 1.8.0",
+    "ClosedDate": "2014-03-04T03:25:29.1-08:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "We wanted to process an XLS, around 5MB is size, ~3500 rows, 10-20 columns,  some cells with long text (around a kilobyte). Even identify peaked around ~100MB, and we wanted to hunt down what causes it, and we could actually fix the code, so it turned out to be faster and eats less memory:OLERead.php, line 156, there is an assignment:$this->smallBlockChain[$index] = self::_GetInt4d($this->data, $pos);Where we measured how $index will be, and it reached about 750k. In a flat C array, the memory consumption would be exactly 3M, but in PHP, every array is associative, so it builds a search-tree, not using pointer-arithmetic. The consumption is about O(n*log(n)), which the following code will show:$ php -r '$array = array(); for($i = 0; $i < 750000; ++$i) $array[$i] = NULL; echo memory_get_peak_usage(true).\"\\n\";'111149056That's 106MB.Our fix is pretty straightforward: emulate the C array in PHP, which means use string, pack, and unpack, instead of a PHP array. Would be still slower than C, but faster and with less memory than PHP arrays.So the change would be in OLERead.php:Line 150:$this->smallBlockChain = \"\"; //instead of arrayLine 156:$this->smallBlockChain .= pack(\"l\",self::_GetInt4d($this->data, $pos)); //pack gives back a 4 byte string, with small-L it's a 32-bit signed integer, machine byte order.Line 193:$block = unpack('l',substr($this->smallBlockChain,$block*4,4));$block = $block[1]; //you can write this in one line in PHP 5.4, not in 5.3",
+    "LastUpdatedDate": "2014-03-04T03:25:29.1-08:00",
+    "PlannedForRelease": "PHPExcel 1.7.9 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2012-11-21T01:45:52.27-08:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Fixed"
+    },
+    "Summary": "Found a fixable memory and time hog in PHPExcel",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 2,
+    "Id": 18958
+  },
+  "FileAttachments": [
+    {
+      "FileId": 6714,
+      "FileName": "a.zip",
+      "DownloadUrl": ".\\6714"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "Interesting idea, and sounds like it should work well - running some tests now",
+      "PostedDate": "2012-11-21T15:05:20.137-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Logically, I can see that this should reduce memory usage: As not all workbooks use smallBlockChains, I've also applied the same logic to bigBlockChains and run a number of tests against different files\r\n\r\nThe largest workbook is a 12.5MB file (though I never hold much store by physical filesize alone), a single worksheet with data in the range A1:GZ9611 (so nearly 2 million cells). The smallBlockChain count is 256, and 25088 bigBlockChains... memory usage after reading the file is 861,696k and peak is 861,696k, so it doesn't seem to make much difference to the memory used when reading the file at all.\r\n\r\nIt does seem a bit faster, though I've not run enough times to measure timings accurately (each run is about 8 minutes to simply read the large workbook); so I'll need to run some more iterations to see if it's a real speed difference or just a blip.\r\n\r\nI was also running those tests using PHP 5.4.7, so I'll run against other versions and see if there's any differences then.\n",
+      "PostedDate": "2012-11-22T13:47:28.83-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-11-23T05:16:53.29-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-11-26T03:20:56.497-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Uploading a test case. The \"a.zip\" contains a simple xls file, running identify on the spreadsheet takes a few seconds, and eats over 100MB of memory. But it does not contain a lot of data. With the modification I proposed, it's improved drastically.",
+      "PostedDate": "2012-11-26T03:21:01.197-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Oh, I'm very sorry, forgot to mention an important detail, we don't have the memory to read the whole Excel file, so we read it in ~1000 row chunks (via implementing PHPExcel_Reader_IReadFilter). But we noticed we could reduce the memory consumption in that case.",
+      "PostedDate": "2012-11-26T03:30:29.933-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Having run some more detailed tests, I concur that the memory saving is visible with certain reader methods, such as canRead(), listWorksheetNames() and listWorksheetInfo(); and when applying a filter or a worksheet list to avoid reading the entire workbook data. However, it's still noticeably slower as it stands.\r\n\r\nHowever, having thought about the change as you've implemented it, I've done some additional modifications. Instead of calling self::_GetInt4d and packing the result back into 4 bytes when reading the blocks, then unpacking when actually using the block; I've simply written the raw 4 bytes to the small and large block chains, and only call self::_GetInt4d when actually using the block. That gives both the memory saving, __and__ a big speed increase. \nInitial tests on your sample workbook show canRead() reduced from 7.3792 seconds to 2.1081 seconds; listWorksheetNames() from 7.3875 seconds to 2.1373 seconds; listWorksheetInfo() from 12.0217 seconds to 6.9037 seconds; and loading the entire workbook from 38.3982 to 34.1938 seconds.\r\n\r\nNext step is to eliminate the looping, because (having eliminated the array) and storing the chain as raw data, I can store the entire block chain in a simple call, just substring the bytes that are needed.... it won't improve your memory saving any further; but should give another performance boost.",
+      "PostedDate": "2012-11-26T05:46:53.227-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-11-26T05:47:53.457-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Oh yeah, I wanted to submit such a change, it seems I forgot to send it. Be careful though. _GetInt4d works with signed 32-bit little endian numbers, but unpack cannot decode something like that (no idea why). It can however process signed 32-bit _machine byte order_ (small-L) numbers (or _unsigned_ 32-bit little endian ones, no idea if those would suffice), which happen to be same on little endian systems like i386 and amd64. Might would cause some headaches in big endian systems. Just for the heads up.",
+      "PostedDate": "2012-11-27T14:06:57.183-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I've tested the code against a variety of worksheets, and it seems to work without issue... if bigendian/littleendian was a problem with chain block entries using this method, it would have been a problem already.\r\n\r\nI pushed to github develop branch on Monday before going offline for a day.\r\n\r\nMy final test results had been pretty good overall:\ncanRead() time - 8.7164s (old method) 0.1244s (new method);\ncanRead() memory - 4608kb (old method) 1536kb (new method);\nlistWorksheetNames() time - 8.3652s (old method) 0.2129s (new method);\nlistWorksheetNames()memory - 7424kb (old method) 4096kb (new method);\nlistWorksheetInfo() time - 13.4329s (old method) 5.6414s (new method);\nlistWorksheetInfo() memory -9984kb (old method) 4352kb (new method);\nfull load() time -46.8507s (old method) 37.3614s (new method);\nfull load() memory -57088kb (old method) 57088kb (new method);\nPeak memory -57088kb (old method) 57088kb (new method).\r\n\r\nAll tests using your example file, all conducted as average of 16 iterations",
+      "PostedDate": "2012-11-28T05:19:11.427-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-11-28T05:22:07.56-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:01:34.563-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:41:26.183-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:41:26.33-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-06-14T00:36:24.053-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2014-03-04T03:25:29.1-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

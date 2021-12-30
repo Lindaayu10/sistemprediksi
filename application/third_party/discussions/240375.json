@@ -1,0 +1,90 @@
+[
+  {
+    "Id": "543573",
+    "ThreadId": "240375",
+    "Html": "\r\n<p>Hi</p>\r\n<p>&nbsp;</p>\r\n<p>I am new to PHPExcel...</p>\r\n<p>I have run tests on files up to 2MB and have had no troubles...</p>\r\n<p>I now have a very large file - 10 MB, and growing</p>\r\n<p>I have managed to load bits and bobs by $objReader-&gt;setLoadSheetsOnly($sheetname);</p>\r\n<p>This works really well</p>\r\n<p>&nbsp;</p>\r\n<p>However, when I need to set a cell value, then read the calculated value, I need to load most (probably all) sheets. PHP runs out of memory and the script fails.</p>\r\n<p>I am wondering if adding LOADS of RAm would resolve the issue. If so, how much for a 10-15 MB file ?</p>\r\n<p>Or is ther a coding solution ?</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks in advance to anyone who can provide info</p>\r\n<p>Best</p>\r\n<p>Jason</p>\r\n",
+    "PostedDate": "2011-01-04T00:52:50.627-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "544575",
+    "ThreadId": "240375",
+    "Html": "\r\n<p>Filesize doesn't have any real meaning: what matters more is the number of cells in the worksheets. My&nbsp;rule of thumb estimate is an average of 1k/cell.</p>\r\n<p>A coding solution is to use cell caching. See the documentation for details. With cell caching, you can reduce that 1k/cell to about 300 bytes/cell; albeit at a cost in speed.</p>\r\n",
+    "PostedDate": "2011-01-05T15:08:13.963-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "544663",
+    "ThreadId": "240375",
+    "Html": "\r\n<p>Hi Mark</p>\r\n<p>Thanks for the reply.</p>\r\n<p>I have opted to exclude the heavy sheets when I can.</p>\r\n<p>However, two worksheets with about 60,000 cells, come in at 1.5 MB each. They contain cells with ormulae like this</p>\r\n<p>=IF(AND(AG1312&lt;45),R1312,IF(AND(AG1312&gt;=45,AG1312&lt;100),S1312,IF(AND(AG1312&gt;=100,AG1312&lt;300),T1312,IF(AND(AG1312&gt;=300,AG1312&lt;500),U1312,IF(AND(AG1312&gt;=500,AG1312&lt;1000),V1312,W1312)))))</p>\r\n<p>Two questions - am aussiming that sort of forumla adds loads of overhead to loading / calculating ?</p>\r\n<p>When in Excel 2010, the cells return calculations fine, but in PHP Excel, I am getting a Fatal error: Call to a member function cellExists() on a non-object in /usr/lib/php/PHPExcel/PHPExcel/Calculation.php on line 3150</p>\r\n<p>I have seen on this board that can come from faulty formulae (not the case since it works in Excel) or non-standard characters in cell references (shouldn't be the case as the only non-standard character used in sheet naming are spaces). ANy other reasons\r\n possible ?</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks</p>\r\n<p>&nbsp;</p>\r\n<p>Jason</p>\r\n",
+    "PostedDate": "2011-01-05T22:45:56.31-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "544686",
+    "ThreadId": "240375",
+    "Html": "\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<strong>clipclicmusic wrote:</strong><br>\r\n<p>Two questions - am aussiming that sort of forumla adds loads of overhead to loading / calculating ?</p>\r\n</blockquote>\r\n<p>PHPExcel performs no calculation on loading a workbook.</p>\r\n<p>It will calculate the results of formulae when explicitly requested (eg. a call to getCalculatedValue(), or functions that themselves call it such as toArray()). It will also execute all formulae calculations on a save (the result is saved as well as the\r\n formula) unless you instruct the writer to setPreCalculateFormulas(false). Note that cells containing formulae are always calculated on a save if they are in (or nested from) an autofit column.</p>\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<strong>clipclicmusic wrote:</strong><br>\r\n<p>Two questions - am aussiming that sort of forumla adds loads of overhead to loading / calculating ?</p>\r\n<p>When in Excel 2010, the cells return calculations fine, but in PHP Excel, I am getting a Fatal error: Call to a member function cellExists() on a non-object in /usr/lib/php/PHPExcel/PHPExcel/Calculation.php on line 3150</p>\r\n<p>I have seen on this board that can come from faulty formulae (not the case since it works in Excel) or non-standard characters in cell references (shouldn't be the case as the only non-standard character used in sheet naming are spaces). ANy other reasons\r\n possible ?</p>\r\n</blockquote>\r\n<p>You may also have noticed a number of issues and threads regarding problems with formulae that include references to other worksheets, or nested function calls. The latest version of Calculation.php in the SVN repository fixes these.</p>\r\n",
+    "PostedDate": "2011-01-06T00:37:51.22-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "544704",
+    "ThreadId": "240375",
+    "Html": "\r\n<p>Hi Mark</p>\r\n<p>Thanks for the extra info.</p>\r\n<p>Am 'starting' to see how this works. LONG way to go !</p>\r\n<p>Am downloading Wednesday's version...</p>\r\n<p>I actually installed using PEAR. Is there a simple way to upgrade to this latest version using PEAR</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks</p>\r\n<p>&nbsp;</p>\r\n<p>Jason</p>\r\n",
+    "PostedDate": "2011-01-06T01:45:53.513-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "545481",
+    "ThreadId": "240375",
+    "Html": "\r\n<p>@clipclipmusic</p>\r\n<p>To enable the cache Mark is talking about add theese lines after require/include the PHPExcel library:</p>\r\n<p>// Initiate cache<br>\r\n$cacheMethod = PHPExcel_CachedObjectStorageFactory::cache_to_phpTemp;<br>\r\n$cacheSettings = array( 'memoryCacheSize' =&gt; '32MB');<br>\r\nPHPExcel_Settings::setCacheStorageMethod($cacheMethod, $cacheSettings);</p>\r\n<p>Regards,</p>\r\n<p>Kim Steinhaug, <a href=\"mailto:kim@steinhaug.com\">kim@steinhaug.com</a>, <a href=\"http://www.easywebshop.no/\">\r\nwww.easywebshop.no</a></p>\r\n",
+    "PostedDate": "2011-01-07T09:02:33.727-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "545671",
+    "ThreadId": "240375",
+    "Html": "\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<strong>clipclicmusic wrote:</strong><br>\r\n<p>I actually installed using PEAR. Is there a simple way to upgrade to this latest version using PEAR</p>\r\n</blockquote>\r\n<p>&nbsp;There is no simple way to upgrade to the latest SVN code, or to update individual files using PEAR. The PEAR build is only created as part of the automated process when we do a full production release.</p>\r\n",
+    "PostedDate": "2011-01-07T13:57:06.52-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "545791",
+    "ThreadId": "240375",
+    "Html": "Thanks !<br>\r\n<br>\r\nOn 07/01/2011 21:02, kimss wrote:\r\n<blockquote type=\"cite\">\r\n<p>From: kimss</p>\r\n<div id=\"x_x_ThreadNotificationPostBody\">\r\n<p>@clipclipmusic</p>\r\n<p>To enable the cache Mark is talking about add theese lines after require/include the PHPExcel library:</p>\r\n<p>// Initiate cache<br>\r\n$cacheMethod = PHPExcel_CachedObjectStorageFactory::cache_to_phpTemp;<br>\r\n$cacheSettings = array( 'memoryCacheSize' =&gt; '32MB');<br>\r\nPHPExcel_Settings::setCacheStorageMethod($cacheMethod, $cacheSettings);</p>\r\n<p>Regards,</p>\r\n<p>Kim Steinhaug, <a href=\"mailto:kim@steinhaug.com\">kim@steinhaug.com</a>, <a href=\"http://www.easywebshop.no/\">\r\nwww.easywebshop.no</a></p>\r\n</div>\r\n</blockquote>\r\n",
+    "PostedDate": "2011-01-07T20:52:27.517-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "545952",
+    "ThreadId": "240375",
+    "Html": "Hi Mark<br>\r\n<br>\r\nOK. I installed a second copy. I should really have done that from the off. <br>\r\nGood advice for novices &quot; install the stable version using PEAR (easy as pie)<br>\r\nTHen download the unstable versions and simply install them in a directory on the webserver.\r\n<br>\r\n<br>\r\nSwitch the script from one to the other by changing the include path<br>\r\nAlso, make sure the relative path to the 'webserver' version is NOT 'PHPExcel/PHPExcel' !<br>\r\n<br>\r\n<br>\r\nI just ran a test on a tiny file with 5 cells on one sheet and ran this code:<br>\r\n<br>\r\n&lt;?php<br>\r\nrequire_once 'php/PHPExcelSVN/PHPExcel/IOFactory.php';<br>\r\n$objPHPExcel = PHPExcel_IOFactory::load(&quot;php/tinytest.xlsx&quot;);<br>\r\n$objPHPExcel-&gt;setActiveSheetIndex(0);<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('D2', 50);<br>\r\necho $objPHPExcel-&gt;getActiveSheet()-&gt;getCell('D8')-&gt;getCalculatedValue() . &quot;<br>\r\n&quot;;<br>\r\necho date('H:i:s') . &quot; Peak memory usage: &quot; . (memory_get_peak_usage(true) / 1024 / 1024) . &quot; MB\\r\\n&quot;;<br>\r\n?&gt;<br>\r\n<br>\r\nI get 6MB of memory usage.<br>\r\n<br>\r\n12 cells<br>\r\nPeak memory usage: 6144 KB <br>\r\n<br>\r\nSo there is a 6MB 'cost' to load PHPExcel at the start... and from thereon, for any list readers who want some figures to show mem usage :<br>\r\n<br>\r\n1000 cells<br>\r\n01:07:54 Peak memory usage: 9216 KB <br>\r\n3000 cells<br>\r\n01:08:34 Peak memory usage: 12544 KB <br>\r\n10000 cells<br>\r\nPeak memory usage: 26368 KB <br>\r\n20000 cells<br>\r\nPeak memory usage: 46848 KB <br>\r\n40000 cells<br>\r\nPeak memory usage: 87296 KB <br>\r\n80000 cells<br>\r\nPeak memory usage: 167936 KB <br>\r\n<br>\r\nAlso, thanks to the list for the caching suggestion.<br>\r\nSlows things down, but allows for dealing with the larger files better<br>\r\n<br>\r\nStill not at the end of my 'travails' with this, but getting a better understanding<br>\r\n<br>\r\nJjust curious : I've seen discussions about it, but are there any improvements in the memory usage likely to be released in the next month or two ?<br>\r\n<br>\r\nOn 08/01/2011 01:57, MarkBaker wrote:\r\n<blockquote type=\"cite\">\r\n<p>From: MarkBaker</p>\r\n<div id=\"x_x_ThreadNotificationPostBody\">\r\n<blockquote style=\"border:0.1em solid rgb(204,204,204); font-style:italic; margin:0.25em 1em 0pt; padding:0pt\r\n          0.25em\">\r\n<strong>clipclicmusic wrote:</strong><br>\r\n<p>I actually installed using PEAR. Is there a simple way to upgrade to this latest version using PEAR</p>\r\n</blockquote>\r\n<p>There is no simple way to upgrade to the latest SVN code, or to update individual files using PEAR. The PEAR build is only created as part of the automated process when we do a full production release.</p>\r\n</div>\r\n</blockquote>\r\n",
+    "PostedDate": "2011-01-08T07:22:47.307-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "545994",
+    "ThreadId": "240375",
+    "Html": "\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<strong>clipclicmusic wrote:</strong><br>\r\n<br>\r\nJust curious : I've seen discussions about it, but are there any improvements in the memory usage likely to be released in the next month or two</blockquote>\r\n<p>&nbsp;No plans. I spent most of the last few months working on performance and memory improvements; and with the lazy loader and cell caching, we're probably close to the limits of what can reasonably be done to improve memory any further. The only way I\r\n can think of to make further significant reductions, is to break with coding in PHP... and at that point PHPExcel ceases to exist.</p>\r\n<p>Focus for the next couple of months is integrating the code for Charts (for the Excel2007 Reader and Writer); basic writers for OOCalc, Gnumeric and Excel2003XML, an initial HTML Reader; and a complete rewrite of the PHPOLE code (so that it can handle workbook\r\n properties and some of the other features not yet supported by the Excel5 Writer).</p>\r\n",
+    "PostedDate": "2011-01-08T10:14:55.943-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "546001",
+    "ThreadId": "240375",
+    "Html": "Hi Mark<br>\r\n<br>\r\nThanks again for the clear and complete reply<br>\r\n<br>\r\nI'll work on making the the Excel file easier for PHPExcel to run with<br>\r\n<br>\r\nbest<br>\r\n<br>\r\nJason<br>\r\n<br>\r\nOn 08/01/2011 22:14, MarkBaker wrote:\r\n<blockquote type=\"cite\">\r\n<p>From: MarkBaker</p>\r\n<div id=\"x_x_ThreadNotificationPostBody\">\r\n<blockquote style=\"border:0.1em solid rgb(204,204,204); font-style:italic; margin:0.25em 1em 0pt; padding:0pt\r\n          0.25em\">\r\n<strong>clipclicmusic wrote:</strong><br>\r\n<br>\r\nJust curious : I've seen discussions about it, but are there any improvements in the memory usage likely to be released in the next month or two</blockquote>\r\n<p>No plans. I spent most of the last few months working on performance and memory improvements; and with the lazy loader and cell caching, we're probably close to the limits of what can reasonably be done to improve memory any further. The only way I can think\r\n of to make further significant reductions, is to break with coding in PHP... and at that point PHPExcel ceases to exist.</p>\r\n<p>Focus for the next couple of months is integrating the code for Charts (for the Excel2007 Reader and Writer); basic writers for OOCalc, Gnumeric and Excel2003XML, an initial HTML Reader; and a complete rewrite of the OLE code for the Excel5 Writer.</p>\r\n</div>\r\n</blockquote>\r\n",
+    "PostedDate": "2011-01-08T10:27:47.22-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,60 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "when creating documents with large number of rows this functions kills the process with high memory usage.\ndo you really nead to store all the row and column names in an array an then retrieve the highest ones?\n \nwouldn't it be simpler and less memory costly just to compare the the next value with the previous one and store the max of those two, after all iterations you will be left with the largest column and row:\n \nthis is what i mean:\npublic function getHighestRowAndColumn()\n\t{\n\t\t// Lookup highest column and highest row\n\t\t$col = '1A';\n\t\t$row = 1;\n\t\tforeach ($this->getCellList() as $coord) {\n\t\t\tlist($c,$r) = sscanf($coord,'%[A-Z]%d');\n\t\t\t$row = max($row, $r);\n\t\t\t$col = max($col, strlen($c).$c);\n\t\t}\n\t\tif (!empty($row)) {\n\t\t\t// Determine highest column and row\n\t\t\t$highestRow = max($row);\n\t\t\t$highestColumn = substr($col, 1);\n\t\t}\n\t\treturn array( 'row'\t   => $highestRow,\n\t\t\t\t\t  'column' => $highestColumn\n\t\t\t\t\t);\n\t}",
+    "LastUpdatedDate": "2013-02-21T19:01:43.013-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2012-09-04T05:00:10.737-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "getHighestRowAndColumn hight memory usage",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 18584
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "Possibly, I'll run some tests against large worksheets and see.",
+      "PostedDate": "2012-09-04T05:39:57.573-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Initial testing against a 8769 row x 6 column worksheet gives 0.25MB memory usage for using max, and 1MB for the array build; but building the array is about 20% faster than calling max() for every row/column",
+      "PostedDate": "2012-09-04T09:39:52.003-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Tests against a larger worksheet: 14,609 row x 6 column - memory using the array is 1.5MB, timing is 0.78 seconds; memory using max() is 0.25MB, timing is 1.12 seconds. This is very much a trade-off between speed and memory usage.",
+      "PostedDate": "2012-09-04T12:46:20.72-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:01:43.013-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

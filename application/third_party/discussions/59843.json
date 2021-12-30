@@ -1,0 +1,66 @@
+[
+  {
+    "Id": "202573",
+    "ThreadId": "59843",
+    "Html": "<p>Hello,</p>\r\n<p>I have users who need to upload .csv files to a web app I've developed. They inevitable are not saving their Excel files correctly to .csv. In order to improve their experience I wanted to allow them to simply upload their .xls files and do the conversion myself with PHPExcel. Can someone point me in the right direction to get this accomplished? This seems like a very useful tool, but it is somewhat intimidating getting started with it. Any help is greatly appreciated!</p>",
+    "PostedDate": "2009-06-17T10:32:49.75-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "202574",
+    "ThreadId": "59843",
+    "Html": "<p><span style=\"font-family:Courier New\">$reader = PHPExcel_IOFactory::createReader('Excel5');</span><br style=\"font-family:Courier New\"> <span style=\"font-family:Courier New\">$reader-&gt;setReadDataOnly(true);</span><br style=\"font-family:Courier New\"> <br style=\"font-family:Courier New\"> <span style=\"font-family:Courier New\">$excel = $reader-&gt;load('read.xls');</span><br style=\"font-family:Courier New\"> <br style=\"font-family:Courier New\"> <span style=\"font-family:Courier New\">$writer = PHPExcel_IOFactory::createWriter($excel, 'CSV');</span><br style=\"font-family:Courier New\"> <span style=\"font-family:Courier New\">$writer-&gt;save('write.csv');</span><br style=\"font-family:Courier New\"></p>",
+    "PostedDate": "2009-06-17T10:40:43.173-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "202578",
+    "ThreadId": "59843",
+    "Html": "<p>Wow! Thanks for the quick reply!! Saved me a lot of time digging. I'm going to try this get back to you. Thanks again!!</p>",
+    "PostedDate": "2009-06-17T10:49:55.06-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "203614",
+    "ThreadId": "59843",
+    "Html": "<p>Just some pointers that might help you along the way:</p>\r\n<p>You might want to check the file extension to save the time of users who do upload it correctly.</p>\r\n<p>You could use the excel itself and not bother converting it to CSV as the excel format will be much more reliable - your script might break if any of the columns had a comma in it for instance.</p>\r\n<p>Just my $0.02.</p>",
+    "PostedDate": "2009-06-20T00:10:37.29-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "204090",
+    "ThreadId": "59843",
+    "Html": "<p>Hey - thanks for the tips!</p>\r\n<p>I am running into a problem, though. It seems that PHPExcel thinks there is data in far more columns than those that actually contain data. For example, I only have data through column D, but this:</p>\r\n<p>\r\n<pre>$objPHPExcel-&gt;getActiveSheet()-&gt;getHighestColumn(); </pre>\r\n</p>\r\n<p>Is returning column IE - which is way more than I have!</p>\r\n<p>Is this a bug, or am I doing something wrong?</p>",
+    "PostedDate": "2009-06-22T08:54:31.59-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "204125",
+    "ThreadId": "59843",
+    "Html": "<p>My files are being read just fine - one thing I noticed though, even if a cell has formatting information (and no data), php-excel will still read that as having data (and rightly so!) - set  <span style=\"font-family:Courier New\">$reader-&gt;setReadDataOnly(true); and then echo </span></p>\r\n<pre>$objPHPExcel-&gt;getActiveSheet()-&gt;getHighestColumn(); <br><br>to see if any cells have formatting information you're missing (if this echo returns 4, then you know there's no data beyond D).<br><br>If you already have <span style=\"font-family:Courier New\">$reader-&gt;setReadDataOnly(true); set then it certainly means that there's data in column IE - one quick<br>and easy way to find out is to go to cell IE1 (first cell in the column) and pressing Ctrl + down arrow. This will take<br>you to the first cell with data in it. If it goes to 65536, that means there's no data in that column - not even white<br>spaces.<br><br>Sorry about the long post - wanted to make sure it was clear!</span></pre>",
+    "PostedDate": "2009-06-22T10:01:25.507-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "204680",
+    "ThreadId": "59843",
+    "Html": "<p><em>&gt;&gt; Is returning column IE - which is way more than I have!</em></p>\r\n<p><em>&gt;&gt; Is this a bug, or am I doing something wrong?</em></p>\r\n<p>Is it returning IE or IV ? I am noticing this behavior for some other sample xls files that I have.</p>\r\n<p>karpar is correct that <span style=\"font-family:Courier New\">setReadDataOnly(true)</span> may be the solution for now.</p>\r\n<p>The problem has to do with the way column information is stored in xls files. It is a bit tricky. Will see if I can do something about it and post back here.</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-06-23T15:02:12.157-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "206126",
+    "ThreadId": "59843",
+    "Html": "<p>Problem with too many columns may have been fixed with this:<br> <a href=\"../WorkItem/View.aspx?WorkItemId=10204\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10204</a></p>",
+    "PostedDate": "2009-06-26T19:31:13.637-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

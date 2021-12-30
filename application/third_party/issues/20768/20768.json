@@ -1,0 +1,55 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I've a file without nothing of special.  It's part of a serie of 4 identical files (they changes only in cell data, internally they are indetical)\n\nBut When I create the reader I got\n\n    [error] [php] Undefined offset:  0 (/var/www/... /PHPExcel/Reader/Excel5.php:3245)\n\nActually I've latest version, I think.\n\nThis is the row\n\n    $this->_phpSheet->getColumnDimensionByColumn($i)->setXfIndex($this->_mapCellXfIndex[$xfIndex]);\n\nWhat does it do ?\nAnd how can I debug and/or workaround this issue?",
+    "LastUpdatedDate": "2014-04-28T08:51:18.63-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2014-02-25T06:59:42.107-08:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Undefined offset:  0 in Reader/Excel5.php:3245",
+    "Type": {
+      "Name": "Unassigned",
+      "Id": 5
+    },
+    "VoteCount": 1,
+    "Id": 20768
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "I tried a 'brute-force patch way', but ... please, reply to me and tell me about SIDE effects of doing this:\r\n\r\nAt row: (about) 3243\n\t\t\t\t// REALTEBO PATCH\n\t\t\t\tif ($xfIndex) {\n\t\t\t\t\t$this->_phpSheet->getColumnDimensionByColumn($i)->setXfIndex($this->_mapCellXfIndex[$xfIndex]);\n\t\t\t\t}\r\n\r\nIdem at row (about) 3837\r\n\r\n    if ($xfIndex) {\n\t\t\t\t\t\t$this->_phpSheet->getCell($columnString . ($row + 1))->setXfIndex($this->_mapCellXfIndex[$xfIndex]);\n\t\t\t\t\t}\r\n\r\nThis keep away the error, but really, I DON'T KNOW WHAT I AM DOING.",
+      "PostedDate": "2014-02-26T02:47:59.393-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I'm looking to this doc: \r\n\r\n    http://www.openoffice.org/sc/excelfileformat.pdf\r\n\r\nAt page 146, it speaks about the 2 bytes PHPExcel is trying to read.\r\n\r\n> This record also specifies a default XF record (➜5.115) to use for cells in the columns that are not described by any cell record (which contain the XF index for that cell).\r\n\r\nSo, If I omit to set cell default record, what could happen? Probably I'll miss only eventually default column styles. \r\n\r\nBut It's a problem of Excel file, not a problem of PHPExcel, right?.\n__But what's the right way to handle this kind of defects IN THE LIBRARY?__ \r\n\r\nPlease, help, this problem is really blocking my development",
+      "PostedDate": "2014-02-26T03:03:07.323-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "This issue is still here in 1.8.0.\nWhy ?",
+      "PostedDate": "2014-04-28T08:51:18.63-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

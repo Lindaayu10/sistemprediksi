@@ -1,0 +1,51 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "It is found: with Excel2007,  if cell format in XSLX sheet is ($1,234) or ($1,234) with red color, the getFormatCode() function will return \"General\" .\n\nHere is the test php script. It can be used to test Cell format code.\n1. plaese change path and file name in line //******Change it to your test path and file name, \n2. The program only display forst 7 row data in XSLX file. If you want show more rows, please comment out the line marked as //*****Comment out this line if you want show all rows\n\n\n<?php //ShowFormatCode.php\n\nsession_start(); \n\t\n   $shnum =0;\n   set_include_path(get_include_path() . PATH_SEPARATOR . 'Classes/');\n    include 'PHPExcel/IOFactory.php';\n     \t\n\t\n    $inputFileName = \"./upload/TestExcel5.xls\";  //******Change it to your test path and file name, \n\techo \"inputFileName***\" .$inputFileName .\"***<br>\";\n\tdisplay_format($inputFileName,$shnum);\n\t\nfunction display_format($inputFileName,$shnum){\t\n           try {\n                 $inputFileType = PHPExcel_IOFactory::identify($inputFileName);\n                  $objReader = PHPExcel_IOFactory::createReader($inputFileType);\n                  $objPHPExcel = $objReader->load($inputFileName);\n                   if (!$objPHPExcel){\n\t     echo 'objPHPExcel is null<br>';\n\t}\n\telse{\n\t     echo 'Excel type:***' .$inputFileType .'***<br>';\n\t}\t\n            } catch(Exception $e) {\n\t  $er = 'Error loading file \"'.pathinfo($inputFileName,PATHINFO_BASENAME).'\": '.$e->getMessage();\n\t  echo $er; \n             }\n            $objPHPExcel->setActiveSheetIndex($shnum);\n            $highestColumm = $objPHPExcel->getActiveSheet()->getHighestColumn();\n            echo 'highestColumm***' .$highestColumm .'***<br>';\n            $highestRow = $objPHPExcel->getActiveSheet()->getHighestRow(); \n            echo 'highestRow***' .$highestRow .'***<br>';\n\t\n             $highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumm);  \n\t\n            echo 'highestColumnIndex***' .$highestColumnIndex .'***<br>';\n     \n             $highestRow = 8; //*****Comment out this line if you want show all rows\n            echo 'Only show first 7 rows---------------------<br>';\n\n           for($row =2; $row < $highestRow; $row++) {\t \n                 for ($i = 0; $i < $highestColumnIndex; $i++) {\t\n\t      $cell = $objPHPExcel->getActiveSheet()->getCellByColumnAndRow($i, $row);\n                         $lt = get_col_letter($i+1);\t\n\t      $range = $lt .$row;\n\t\t\t \n    \t     $frmcod = $objPHPExcel->getActiveSheet()->getCellByColumnAndRow($i, $row)->getStyle()->getNumberFormat()->getFormatCode();\n\t \n\t      $v = $cell->getValue();\n\t      echo $range .'**' .$frmcod .'**value**' .$v  .'**<br>';  //check formatcode \n\t}//for in loop\t\n\techo  'End ' .$row .'th row-----------------------------------------------------<br>';\n             }//for out loop\n}//end \tfunction display_format\n\n function get_col_letter($num){\n    $comp=0;    \n    $pre='';\n    $letters=array('A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z');\n    \n    //if the number is greater than 26, calculate to get the next letters\n    if($num > 26){\n        //divide the number by 26 and get rid of the decimal\n        $comp=floor($num/26);\n        \n        //add the letter to the end of the result and return it\n       if($comp!=0)\n        // don't subtract 1 if the comparative variable is greater than 0\n          return get_col_letter($comp).$letters[($num-$comp*26)];\n       else\n            return get_col_letter($comp).$letters[($num-$comp*26)-1];\n    }\n    else\n    //return the letter\n     $num = $num -1;\n    return $letters[$num];\n} \n\n?>",
+    "LastUpdatedDate": "2015-04-27T12:24:03.393-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2015-04-27T12:10:35.877-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "PHPExcel Excel2007 getFormatCode return \"General\" for cell ecurency format with\"()\" symbles",
+    "Type": {
+      "Name": "Unassigned",
+      "Id": 5
+    },
+    "VoteCount": 1,
+    "Id": 21826
+  },
+  "FileAttachments": [
+    {
+      "FileId": 8849,
+      "FileName": "TestExcel2007.xlsx",
+      "DownloadUrl": ".\\8849"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "Please use attached TestExcel2007.xlsx to test it \nChange \n$inputFileName = \"./upload/TestExcel5.xls\";  \nto\n$inputFileName = \"realpath/TestExcel2007.xlsx\";  ",
+      "PostedDate": "2015-04-27T12:24:03.393-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

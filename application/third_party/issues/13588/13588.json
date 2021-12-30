@@ -1,0 +1,75 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": "2010-07-25T06:18:11.907-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hi.\n \nI'm testing a PHPExcel under a Linux web server and I cannot fix a PHPZip error!.  The code has been tested under Windows and it's working great!, same code NOT working at Linux, please help! already tried googleing the issue with no results, here are the details:\n \nLinux: Ubuntu Lucid Lynx\nPHP: 5.3.2.1-ubuntu4\nZip library: 1.9.1\nWeb server: Apache\n \nI'm just trying to open a Excel 2007 file and display it in a web browser.\n \nThe error that throws is:\nWarning: ZipArchive::getFromName() [ziparchive.getfromname]: Invalid or unitialized Zip object in /var/www/wss/PHPExcel/Reader/Excel2007.php on line 269\nWarning: ZipArchive::getFromName() [ziparchive.getfromname]: Invalid or unitialized Zip object in /var/www/wss/PHPExcel/Reader/Excel2007.php on line 272\nWarning: Invalid argument supplied for foreach() in /var/www/wss/PHPExcel/Reader/Excel2007.php on line 310\nFatal error: Call to a member function getDrawingCollection() on a non-object in /var/www/wss/index.php on line 20\n \nI'm sure it's not a problem in my code since it works at Windows. This is the code:\n \n<?php\t\n\trequire_once 'PHPExcel/IOFactory.php';\t\n\t\t$objPHPExcel = new PHPExcel();\n\t\t$objReader = PHPExcel_IOFactory::createReader('Excel2007');\n \n\t\t$objPHPExcel = $objReader->load(\"temp.xlsx\");\t\t\n\t\t\n\t\t$objWorksheet = $objPHPExcel->getActiveSheet();\n \n\t\tforeach ($objWorksheet->getDrawingCollection() as $i=>$objImagen){\n\t\t\t$filename = $objImagen->getPath();\t\n\t\t\t$filename = substr($filename, strrpos($filename,\"/\")+1);\n\t\t\n\t\t\t @copy($objImagen->getPath(), 'images/' . $filename);\n\t\t\t $objImagen->setPath('images/' . $filename);\n\t\t}\n\t\t\n\t\t$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'HTML');\t\t\n\t\t$objWriter->setSheetIndex(0);\t\t\n\t\t\n\t\techo $objWriter->generateHTMLHeader();\t\n\t\techo $objWriter->generateStyles();\n\t\techo $objWriter->generateSheetData();\n\t\techo $objWriter->generateHTMLFooter();\t\t\t\t\t\t\n?>",
+    "LastUpdatedDate": "2013-05-16T05:41:56.313-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2010-06-21T14:59:04.12-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "ZipArchive not working on Linux!",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 2,
+    "Id": 13588
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "I think you might be bumping into a problem that I've been dealing with for a few months now.  Try simply commenting out line 78 in /Shared/File.php.  The line \"$returnValue = realpath($pFilename);\".    I'm not sure why I'm the only one running into this problem, but until now I seemed to be.",
+      "PostedDate": "2010-06-28T15:14:11.1-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-06-28T15:14:45.97-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "This fix worked - commenting out line 78 in /Shared/File.php.  Is there any reason we couldn't get this change made in the source? ",
+      "PostedDate": "2010-07-21T23:02:26.867-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Duplicate of Work Item 11488",
+      "PostedDate": "2010-07-25T06:17:27.757-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-07-25T06:18:11.907-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:02:52.813-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:41:56.313-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

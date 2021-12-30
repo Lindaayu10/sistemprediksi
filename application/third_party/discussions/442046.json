@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "1037509",
+    "ThreadId": "442046",
+    "Html": "hi,\r<br />\n<br />\ni have 150 rows and 40 columns in a sql table..i am displaying the entire table  in  a web page..now,what i want to do is create a link on that web page that will take the entire table and insert it in an excel file(dosn't matters if it creates a new excel file,or modifies sum exisiting one)...now i can do it manually by using(PHPExcel library),&quot; <strong><em>objPHPExcel-&gt;setCellValue('C5', $v)</em></strong> &quot;...but i would have to write this like 40 times(change '$v' variable in every statment) nd its inside a loop that will run 150 times..hence i dont wanna do it this way..\r<br />\n<br />\nnow i wanted to know if i can insert the table,row by row in the excel sheet..like when i insert a row,it will insert the entire cells of d row..that way it will be pretty easy..so i wanted to know if there any specific commands for doing this..\r<br />\n<br />\nif not,wat other alternatives do i have of doing this..all i want to do is to export the entire sql table to an excel file using php..<br />\n",
+    "PostedDate": "2013-04-29T23:54:39.003-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1037532",
+    "ThreadId": "442046",
+    "Html": "Use the <code>fromArray()</code> method<br />\n",
+    "PostedDate": "2013-04-30T01:16:00.327-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1037543",
+    "ThreadId": "442046",
+    "Html": "can u give an example...i tried looking in PHPExcel developer documentation..but thn dats not enuf..<br />\n",
+    "PostedDate": "2013-04-30T01:51:51.377-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1037547",
+    "ThreadId": "442046",
+    "Html": "<div style=\"color:Black;background-color:White;\"><pre>\r\n$dataArray = <span style=\"color:Blue;\">array</span>(\n    $year,\n    $period,\n    $country,\n    $eDate,\n    $income,\n    $expenditure,\n);\n$objPHPExcel-&gt;getActiveSheet()-&gt;fromArray($dataArray, NULL, <span style=\"color:#A31515;\">&#39;A&#39;</span>.$row++);\r\n</pre></div>or<br />\n<div style=\"color:Black;background-color:White;\"><pre>\r\n$mysqli-&gt;real_query(<span style=\"color:#A31515;\">&quot;SELECT id FROM test ORDER BY id ASC&quot;</span>);\n$res = $mysqli-&gt;use_result();\n\n$r = 0;\n<span style=\"color:Blue;\">while</span> ($row = $res-&gt;fetch_assoc()) {\n    $objPHPExcel-&gt;getActiveSheet()-&gt;fromArray($row, NULL, <span style=\"color:#A31515;\">&#39;A&#39;</span>.$r++);\n}\r\n</pre></div>",
+    "PostedDate": "2013-04-30T02:02:43.38-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1037736",
+    "ThreadId": "442046",
+    "Html": "here is what i am using..problem is its showing every value(value coming from database) twice in the excel sheet...and secondly some of the values are 0 in database,for all those values its shows an empty cell in excel...\r<br />\n<br />\nwhile($rows = sqlsrv_fetch_array( $tsql ) )<br />\n<pre><code>{\n\n    $objPHPExcel-&gt;getActiveSheet()-&gt;fromArray($rows, NULL, 'A'.$rowCNT);\n\n    $rowCNT++;</code></pre>\n\n}  \r<br />\n",
+    "PostedDate": "2013-04-30T10:32:41.423-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1037803",
+    "ThreadId": "442046",
+    "Html": "For fetching the results from your database, use<br />\n<div style=\"color:Black;background-color:White;\"><pre>\r\n<span style=\"color:Blue;\">while</span>($rows =sqlsrv_fetch_array($tsql, SQLSRV_FETCH_ASSOC))\r\n</pre></div>or<br />\n<div style=\"color:Black;background-color:White;\"><pre>\r\n<span style=\"color:Blue;\">while</span>($rows =sqlsrv_fetch_array($tsql, SQLSRV_FETCH_NUMERIC))\r\n</pre></div>otherwise <code>sqlsrv_fetch_array()</code> defaults to returning both associative and enumerated keys.\r<br />\n<br />\nCheck how the database is set to handle NULL returns; but using <br />\n<pre><code>$objPHPExcel-&gt;getActiveSheet()-&gt;fromArray($rows, 0, 'A'.$rowCNT);</code></pre>\n\nshould set all NULL values from the database result to 0 value in PHPExcel<br />\n",
+    "PostedDate": "2013-04-30T13:22:16.26-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

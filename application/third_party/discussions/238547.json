@@ -1,0 +1,130 @@
+[
+  {
+    "Id": "536512",
+    "ThreadId": "238547",
+    "Html": "\r\n<p>Hi all<br>\r\nAfter upgrading to 1.7.5 my worksheets started giving me 500 server errors and I think I've tracked it down to a problem with a preg_match function in Worksheet.php<br>\r\nLooking at the PHP error log I was finding this:<br>\r\n&#65279;&#65279;<br>\r\n</p>\r\n<pre>[Thu Dec 16 13:51:14 2010] [error] [client xxx] PHP Warning: preg_match() [function.preg-match]: Compilation failed: PCRE does not support \\\\L, \\\\l, \\\\N, \\\\P, \\\\p, \\\\U, \\\\u, or \\\\X at offset 8 in /httpsdocs/PHPExcel/Worksheet.php on line 940\r\nPHP Fatal error: Uncaught exception 'Exception' with message 'Worksheet!N11 -&gt; Formula Error: An unexpected error occured' in /httpsdocs/PHPExcel/Cell.php:284\\nStack trace:\\n#0 /httpsdocs/functions.php(4075): PHPExcel_Cell-&gt;getCalculatedValue()\\n#1 /httpsdocs/reports_xls.php(1570): report_weekly_sales('33', '2010', 'xxx', '15th August 201...', Array, '137')\\n#2 {main}\\n thrown in /httpsdocs/PHPExcel/Cell.php on line 284</pre>\r\n<p></p>\r\n<p>I couldn't see what was wrong with cell N11, it had the same sort of numbers as other rows in column N</p>\r\n<p>I wondered if the preg_match error relating to \\\\N might be the problem.</p>\r\n<p>Worksheet.php rows 940-945 are:</p>\r\n<p></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><span style=\"color:blue\">if</span> ((!preg_match(<span style=\"color:#a31515\">'/^'</span>.PHPExcel_Calculation::CALCULATION_REGEXP_CELLREF.<span style=\"color:#a31515\">'$/i'</span>, $pCoordinate, $matches)) &amp;&amp;\r\n\t\t\t(preg_match(<span style=\"color:#a31515\">'/^'</span>.PHPExcel_Calculation::CALCULATION_REGEXP_NAMEDRANGE.<span style=\"color:#a31515\">'$/i'</span>, $pCoordinate, $matches))) {\r\n\t\t\t$namedRange = PHPExcel_NamedRange::resolveRange($pCoordinate, $this);\r\n\t\t\t<span style=\"color:blue\">if</span> (!is_null($namedRange)) {\r\n\t\t\t\t$pCoordinate = $namedRange-&gt;getRange();\r\n\t\t\t\t<span style=\"color:blue\">return</span> $namedRange-&gt;getWorksheet()-&gt;getCell($pCoordinate);\r\n\t\t\t}\r\n\t\t}\r\n</pre>\r\n</div>\r\n<p></p>\r\n<p>So I pulled out the relevant code into a test.php file like this:</p>\r\n<p></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>&lt;?\r\nini_set(<span style=\"color:#a31515\">'display_errors'</span>, true);\r\nini_set(<span style=\"color:#a31515\">'error_reporting'</span>, E_ALL);\r\n$pCoordinate=<span style=\"color:#a31515\">'N11'</span>;\r\n$PHPExcel_Calculation_CALCULATION_REGEXP_CELLREF=<span style=\"color:#a31515\">'((((?:\\P{M}\\p{M}*)&#43;?)|(\\'[^\\']*\\')|(\\&quot;[^\\&quot;]*\\&quot;))!)?\\$?([a-z]{1,3})\\$?(\\d&#43;)'</span>;\r\n$PHPExcel_Calculation_CALCULATION_REGEXP_NAMEDRANGE=<span style=\"color:#a31515\">'((((?:\\P{M}\\p{M}*)&#43;?)|(\\'[^\\']*\\')|(\\&quot;[^\\&quot;]*\\&quot;))!)?([_A-Z][_A-Z0-9]*)'</span>;\r\n<span style=\"color:blue\">if</span> ((!preg_match(<span style=\"color:#a31515\">'/^'</span>.$PHPExcel_Calculation_CALCULATION_REGEXP_CELLREF.<span style=\"color:#a31515\">'$/i'</span>, $pCoordinate, $matches)) &amp;&amp;\r\n\t\t\t(preg_match(<span style=\"color:#a31515\">'/^'</span>.$PHPExcel_Calculation_CALCULATION_REGEXP_NAMEDRANGE.<span style=\"color:#a31515\">'$/i'</span>, $pCoordinate, $matches))) {\r\n}\r\n?&gt;\r\n</pre>\r\n</div>\r\n<p></p>\r\n<p>and got this error:</p>\r\n<p></p>\r\n<pre>Warning: preg_match() [function.preg-match]: Compilation failed: PCRE does not support \\L, \\l, \\N, \\P, \\p, \\U, \\u, or \\X at offset 8 in /httpsdocs/test.php on line 7\r\n\r\nWarning: preg_match() [function.preg-match]: Compilation failed: PCRE does not support \\L, \\l, \\N, \\P, \\p, \\U, \\u, or \\X at offset 8 in /httpsdocs/test.php on line 8</pre>\r\n<p></p>\r\n<p>So am I right in thinking there's a problem with the code in Worksheet.php?</p>\r\n",
+    "PostedDate": "2010-12-15T18:58:55.03-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "536513",
+    "ThreadId": "238547",
+    "Html": "\r\n<p>btw this doesn't happen with 1.7.4</p>\r\n",
+    "PostedDate": "2010-12-15T19:05:29.377-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "536691",
+    "ThreadId": "238547",
+    "Html": "\r\n<p>This was a change to support UTF-8 sheet names in formulae. The regexp should be valid for most recent versions of PHP. What version of PHP are you using?</p>\r\n",
+    "PostedDate": "2010-12-16T04:28:15.72-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "536938",
+    "ThreadId": "238547",
+    "Html": "\r\n<p>HI Mark</p>\r\n<p>Our hosting server is running PHP 5.2.8 Should I ask our hosting company to upgrade?</p>\r\n<p>In the meantime is there a workaround I can use?</p>\r\n<p>&nbsp;</p>\r\n<p>Cheers</p>\r\n<p>&nbsp;</p>\r\n<p>Lucas</p>\r\n",
+    "PostedDate": "2010-12-16T12:11:40.45-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "539008",
+    "ThreadId": "238547",
+    "Html": "\r\n<p>I don't think upgrading PHP itself would help. Version 5.2.8 should be running against PCRE 7.8 (which should support \\P) unless PHP was explicitly built against an earlier version of PCRE that didn't support this feature. I can't come up with a simple solution\r\n that doesn't break functionality for other users. However, if you aren't using Multibyte names for worksheets, you can replace the&nbsp;CALCULATION_REGEXP_CELLREF&nbsp;and CALCULATION_REGEXP_NAMEDRANGE&nbsp;constants in Calculation.php with the versions from\r\n the 1.7.4 version.</p>\r\n",
+    "PostedDate": "2010-12-21T14:37:51.017-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "539043",
+    "ThreadId": "238547",
+    "Html": "\r\n<div style=\"font-family:Arial; font-size:12pt; color:#000000\">\r\n<p>I ran into a similar preg_match problem today. My php reve was 5.1.6. (or something like that). I upgraded</p>\r\n<p>to 5.2x and it worked like a charm.</p>\r\n<p></p>\r\n<p>-wk<br>\r\n----- Original Message -----<br>\r\nFrom: &quot;MarkBaker&quot; &lt;notifications@codeplex.com&gt;<br>\r\nTo: [email removed]<br>\r\nSent: Tuesday, December 21, 2010 5:38:00 PM<br>\r\nSubject: Re: preg_match bug in 1.7.5 - Compilation failed: PCRE does not support \\\\L, \\\\l, \\\\N, \\\\P, \\\\p, \\\\U,... [PHPExcel:238547]<br>\r\n<br>\r\n</p>\r\n<p>From: MarkBaker</p>\r\n<div id=\"x_x_ThreadNotificationPostBody\">\r\n<p>I don't think upgrading PHP itself would help. Version 5.2.8 should be running against PCRE 7.8 (which should support \\P) unless PHP was explicitly built against an earlier version of PCRE that didn't support this feature. I can't come up with a simple solution\r\n that doesn't break functionality for other users. However, if you aren't using Multibyte names for worksheets, you can replace the CALCULATION_REGEXP_CELLREF and CALCULATION_REGEXP_NAMEDRANGE constants in Calculation.php with the versions from the 1.7.4 version.</p>\r\n</div>\r\n</div>\r\n",
+    "PostedDate": "2010-12-21T15:42:10.053-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "539290",
+    "ThreadId": "238547",
+    "Html": "\r\n<p>I've get the same warnings using FreeBSD 6.2 using PHP 5.3.3 and pcre 8.00</p>\r\n<p>php -r 'print phpversion() . &quot;\\n&quot; . PCRE_VERSION . &quot;\\n&quot;;'<br>\r\n5.3.3<br>\r\n8.00 2009-10-19</p>\r\n<p>If this really is a pcre version problem, then shouldn't the regexp consts be defined in a &quot;if (version_compare(PCRE_VERSION, ...) { } else {}&quot; block?</p>\r\n<p>This is my warning:</p>\r\n<p>[Wed Dec 22 11:58:25 2010] [error] [client 127.0.0.1] PHP Warning:&nbsp; preg_match() [&lt;a href='function.preg-match'&gt;function.preg-match&lt;/a&gt;]: Compilation failed: support for \\\\P, \\\\p, and \\\\X has not been compiled at offset 8 in /PHPExcel/Worksheet.php\r\n on line 940</p>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2010-12-22T04:00:25.397-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "539310",
+    "ThreadId": "238547",
+    "Html": "\r\n<p>I'm puzzled as to why this should be occurring... I've double-checked the PHP and PCRE version documentation, and it's pretty conclusive that this shouldn't be a problem, and I've tested it against PHP from 5.2.8 to 5.3.2; but it looks like I'm screwballed.\r\n PCRE 8.0.0 should certainly support the multibyte expressions, but it may be that PCRE was built without the --enable-unicode-properties or --enable-utf8 configuration switches</p>\r\n<p>I'll need to put in some additional tests to try and identify if these settings are available, and revert back to the version 1.7.4 regexps if the PCRE doesn't support this feature.</p>\r\n<p>This is already raised as <a href=\"http://phpexcel.codeplex.com/workitem/14898\">\r\nWork Item 14898</a>&nbsp;so I'll post any further details of code change against that.</p>\r\n",
+    "PostedDate": "2010-12-22T04:41:32.643-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "539417",
+    "ThreadId": "238547",
+    "Html": "\r\n<p>If you're suffering from this problem, can you please check to see whether the\r\n<code>PREG_BAD_UTF8_OFFSET constant is defined. Thanks.</code></p>\r\n",
+    "PostedDate": "2010-12-22T08:47:22.473-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "539761",
+    "ThreadId": "238547",
+    "Html": "\r\n<p>Mark,</p>\r\n<p>It doesn't seem to be defined if you meant in PHP:</p>\r\n<p>php -r 'print PREG_BAD_UTF8_OFFSET . &quot;\\n&quot;;'<br>\r\nPHP Notice:&nbsp; Use of undefined constant PREG_BAD_UTF8_OFFSET - assumed 'PREG_BAD_UTF8_OFFSET' in Command line code on line 1</p>\r\n",
+    "PostedDate": "2010-12-22T23:24:49.73-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "539772",
+    "ThreadId": "238547",
+    "Html": "\r\n<p>Mark,</p>\r\n<p>Just to be sure and because you were very baffled, I checked the Apache PHP module to see which pcre version it was using and to my surprise it is a different version which explains the why I'm having that problem:</p>\r\n<p>PCRE_VERSION: 5.0 13-Sep-2004</p>\r\n<p>Now I'm just baffled as to why the Apache PHP module uses a different pcre version to the cli PHP executable.</p>\r\n<p>Anyway, is it possible to use some kind of &quot;if else&quot; construct based on the PCRE_VERSION to make the regexps work for everyone? Defining them as class const's won't be possible then, they'll have to be static class variables initialized on 1st constructor\r\n call.</p>\r\n",
+    "PostedDate": "2010-12-22T23:48:31.453-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "539798",
+    "ThreadId": "238547",
+    "Html": "\r\n<p>Yes, I did mean the PHP PREG_BAD_UTF8_OFFSET constant, thanks.</p>\r\n<p>If PHP is configured with --with-pcre-regex=DIR pointing to a PCRE built without the multibyte options, then you can get this type of situation, and a command-line pcretest can then subsequently report a different version.</p>\r\n<p>The idea is that I can wrap&nbsp;a (global) constant definition within an &quot;if test&quot; outside of the Calculation class, then use that &quot;global&quot; constant to set the class constant.</p>\r\n<p>Unfortunately, I can't simply rely on the value of PCRE_VERSION in my if test, because it's possible to have PCRE v8 with the utf-8 disabled (the --enable-unicode-properties or --enable-utf8 configuration switches)... so I need a method to identify that.\r\n My fallback option is to execute a preg_match using \\P, then test for the error... but its possible that PREG_BAD_UTF8_OFFSET won't be defined unless the multibyte constructs are enabled, and that would be a much cleaner (and more efficient) &quot;if test&quot; than\r\n preg_match with an error trap. However, I need to build a PCRE from source, then&nbsp;rebuild PHP on top of that to test it myself. Hopefully, those of you having the problem may be able to save me that effort.</p>\r\n",
+    "PostedDate": "2010-12-23T00:58:04.597-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "540231",
+    "ThreadId": "238547",
+    "Html": "\r\n<p>Hopefully, this issue is resolved with the latest changes to Calculation.php. The code can be found in the\r\n<a href=\"http://phpexcel.codeplex.com/SourceControl/changeset/view/65727#1602991\">\r\nSVN Repository</a></p>\r\n",
+    "PostedDate": "2010-12-24T03:32:59.653-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "540928",
+    "ThreadId": "238547",
+    "Html": "\r\n<p>I grabbed the latest version of Calculation.php, and it solved the issue. &nbsp;Thanks!</p>\r\n",
+    "PostedDate": "2010-12-27T12:54:46.55-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "552109",
+    "ThreadId": "238547",
+    "Html": "\r\n<p>We started out with a PHP error, &quot;Multibyte function overloading in PHP must be disabled for string functions (2),&quot; just for Tests/01simple.php.</p>\r\n<p>The solution to that was to set mbstring.func_overload = 0 in php.ini. (Ideally you'd set this in .htaccess perdir, but this functionality has been removed from PHP?)</p>\r\n<p>Then I received the error from this discussion, so using Calculation.php from SVN fixed it.</p>\r\n<p>This is just a note for anyone else who may have such trouble. :)</p>\r\n",
+    "PostedDate": "2011-01-19T11:51:14.54-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "552227",
+    "ThreadId": "238547",
+    "Html": "\r\n<p>The &quot;Multibyte function overloading in PHP must be disabled for string functions (2)&quot; error is actually an exception thrown by PHPExcel itself, which tests for the mbstring.func_overload within the autoloader.</p>\r\n<p>I should probably add something to the documentation to explain this, and how to resolve it.</p>\r\n",
+    "PostedDate": "2011-01-19T15:16:42.917-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

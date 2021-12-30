@@ -1,0 +1,74 @@
+[
+  {
+    "Id": "226009",
+    "ThreadId": "66530",
+    "Html": "<p>Hope someone can help me with this.&nbsp; Cell C7 contains 56 1/2</p>\r\n<p>Cell G14 includes a formula like =C7-3.125</p>\r\n<p>&nbsp;</p>\r\n<p>$sourceSheet-&gt;getCell('G14')-&gt;getCalculatedValue();</p>\r\n<p>Returns #VALUE!.&nbsp; rather than calculating the formula since C7 doesn't appear to be a number I suppose. Is there a way to resolve this sort of problem?</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks,</p>",
+    "PostedDate": "2009-08-20T12:55:16.443-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "226014",
+    "ThreadId": "66530",
+    "Html": "<p>I cannot recreate the problem. Now, are you reading from an existing Excel file, or are you creating one from scratch using PHPExcel. What is your full code?</p>",
+    "PostedDate": "2009-08-20T13:04:13.213-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "226024",
+    "ThreadId": "66530",
+    "Html": "<p>Hi,</p>\r\n<p>The spreadsheet was created with PHPExcel but you can create one with Excel too as long as the cell format is not numeric. (In other words it looks like C7 has a non numeric format (text))</p>\r\n<p>&lt;?php<br><br>include 'PHPExcel.php';<br>include 'PHPExcel/IOFactory.php';<br><br>#create reader<br>$objReader=PHPExcel_IOFactory::createReader('Excel5');<br><br>#load spreadsheet<br>$sourceBook = $objReader-&gt;load(&quot;/home/products/Estimating/Book1.xls&quot;);<br><br>#define source workbook worksheet<br>$sourceSheet = $sourceBook-&gt;setActiveSheetIndex(0);<br><br>echo $sourceSheet-&gt;getCell('G14')-&gt;getCalculatedValue();<br>?&gt;</p>\r\n<p>Last line returns #VALUE! even though G14 evaluates to a number in the spreadsheet.&nbsp; I was hoping for a way around this since it appears all these spreadsheets contain a text format for the cells containing the fractions.</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-08-20T13:22:05.21-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "226038",
+    "ThreadId": "66530",
+    "Html": "<p>I can recreate the problem now. Number-like text is a big problem in Excel when there are calculations involved. I have reported your case:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10490\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10490</a></p>\r\n<p>Let's wait for MarkBaker to comment on the issue and tells us whether there is a solution to this.</p>",
+    "PostedDate": "2009-08-20T13:56:35.233-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "226040",
+    "ThreadId": "66530",
+    "Html": "<p>Ok, thanks for your help.</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-08-20T13:59:01.783-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "226293",
+    "ThreadId": "66530",
+    "Html": "<p>koyama,</p>\r\n<p>Is there a cell datatype that will work with a fraction that could be set explicit when writing the spreadsheet?</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-08-21T05:57:42.35-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "226383",
+    "ThreadId": "66530",
+    "Html": "<p><em>&gt;&gt; Is there a cell datatype that will work with a fraction that could be set explicit when writing the spreadsheet?</em></p>\r\n<p>Correctly entered fractions have numeric data type with a number format for fractions: <span style=\"font-family:Courier New\"># ?/?</span></p>\r\n<p>The problem is with fractions in an Excel workbook that are incorrectly entered as text.</p>\r\n<p>Example how to do it correctly in Excel:</p>\r\n<p>There are some guidelines here if you look at section &quot;Typing a Fraction&quot;:</p>\r\n<p><a href=\"http://support.microsoft.com/kb/214233\">http://support.microsoft.com/kb/214233</a></p>\r\n<p>The problem is with users changing the cell format to &quot;Text&quot; before typing the fraction in Excel. That way Excel will store the fraction as text which is not good.</p>\r\n<p>Correctly entered fraction looks like this:</p>\r\n<p><a href=\"http://img149.imageshack.us/img149/7885/ss20090821173309.png\">http://img149.imageshack.us/img149/7885/ss20090821173309.png</a></p>\r\n<p>Incorrectly fraction looks like this:</p>\r\n<p><a href=\"http://img149.imageshack.us/img149/5139/ss20090821173432.png\">http://img149.imageshack.us/img149/5139/ss20090821173432.png</a></p>",
+    "PostedDate": "2009-08-21T08:53:12.297-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "226416",
+    "ThreadId": "66530",
+    "Html": "<p>I've created a helper method in PHPExcel_Shared_String that returns a boolean identifying whether a string contains a valid fractional value or not, and that actively converts the passed-in value to a numeric if it is</p>\r\n<p>I've also modified the basic tests perfomed against non-matrix operands to call this helper method when used for basic arithmetic functions, so simple mathematical formulae such as =&quot;1 1/2&quot;+2 will now work correctly (valid Excel result of 3.5 rather than OO Calc result of 0 or previous PHPExcel result of #VALUE!). It will take more work to replicate this when applied to matrices or&nbsp;named ranges, or when passing fractional string values to functions.</p>",
+    "PostedDate": "2009-08-21T10:08:49.913-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "226465",
+    "ThreadId": "66530",
+    "Html": "<p>Koyama &amp; Mark,</p>\r\n<p>thanks for the help.&nbsp; Will wait for it to be available!</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-08-21T11:37:48.38-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

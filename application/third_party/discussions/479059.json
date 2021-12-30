@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "1143811",
+    "ThreadId": "479059",
+    "Html": "I'm new to PHPExcel and somehow I got the same data duplicated in the Excel spreadsheet using the following code:\r<br />\n$roster_sql = &quot;SELECT * FROM EMPLOYEE&quot;;\r<br />\n$roster_result = mysql_query($roster_sql) or die(mysql_error());\r<br />\n<br />\n//Populate 2D Array\r<br />\n$kcount = 0;\r<br />\nwhile($sheet_array = mysql_fetch_array($roster_result)) \r<br />\n{<br />\n<pre><code>$sheet[$kcount] = $sheet_array;\n$kcount++ ;</code></pre>\n\n}\r<br />\n$rowID = 1;\r<br />\nforeach($sheet as $rowArray) \r<br />\n{\r<br />\n   $columnID = 'A';\r<br />\n   foreach($rowArray as $columnValue) \r<br />\n   {<br />\n<pre><code>  $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue($columnID.$rowID, $columnValue);\n  $columnID++;</code></pre>\n\n}\r<br />\n   $rowID++;\r<br />\n}\r<br />\n<br />\nThe generated spreadsheet has each cell value duplicated in the column. Did I populate the array incorrectly or is there something wrong when I write out the array?\r<br />\n<br />\nFurther, how do I write the header row in the same spreadsheet without hard coding the column names from the SQL?\r<br />\n<br />\nThanks for your help.<br />\n",
+    "PostedDate": "2013-12-29T22:55:44.317-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1143818",
+    "ThreadId": "479059",
+    "Html": "<pre><code>mysql_fetch_array($roster_result)</code></pre>\n\nThis return a array with string keys (fields name) AND numeric keys. Use MYSQL_ASSOC or MYSQL_NUM as 2nd param, not the default MYSQL_BOTH.\r<br />\nWith MYSQL_ASSOC, you have the names for yours column headers...\r<br />\n<br />\nNote : MySQL extension isn't recommended for writing new code.<br />\n",
+    "PostedDate": "2013-12-29T23:42:59.683-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1143820",
+    "ThreadId": "479059",
+    "Html": "Thank you so much, LWol! The duplicate data issue is resolved right away!\r<br />\nCould you help me on getting the header row info and how to write it to the same spreadsheet?<br />\n",
+    "PostedDate": "2013-12-30T00:02:24.663-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1143852",
+    "ThreadId": "479059",
+    "Html": "There are several ways to do this...\r<br />\nConsidering that you ask mysql_fetch_array you return an associative array, you can retrieve the field names using array_keys then iterate in this array to write your headers.\r<br />\nUse a flag to do so only once when you course records.<br />\n<pre><code>$rowID=2//header in row 1, so first data in row 2\n$writeHeader=true;\nforeach($sheet as $rowArray)\n{\n    if($writeHeader){\n        $hArray=array_keys($rowArray);\n        $ColumnIdx=0; //column A, row for header hardcoded to 1\n        foreach($hArray as $aHeader){\n            $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueExplicitByColumnAndRow($ColumnIdx++, 1, $aHeader);\n        }\n        $writeHeader=false;\n    }\n    $columnID = 'A';\n    foreach($rowArray as $columnValue)\n    {\n      $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue($columnID.$rowID, $columnValue);\n      $columnID++;//Warning: if you go after Z, this don't work\n    }\n    $rowID++;\n}</code></pre>\n\nNot tested :-)\r<br />\nI use setCellValueExplicitByColumnAndRow for two reasons:\r<br />\n-Explicit because I consider that the header is composed only of strings (which is the implicit type of explicit ;-)\r<br />\n-ByColumnAndRow: to avoid (bad) calculations on the column.\r<br />\nAs I indicated in note in the code, increment the column when it is in the form of letter can lead to errors. If it is necessary to have as well, use the functions of support of PHPExcel (PHPExcel_Cell::columnIndexFromString and PHPExcel_Cell::stringFromColumnIndex) to convert the string to integer, make operations, convert the integer to string.\r<br />\n<br />\nIn doing so, if the table is empty, there is not any header.<br />\n",
+    "PostedDate": "2013-12-30T04:41:28.937-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1143951",
+    "ThreadId": "479059",
+    "Html": "LWol: \r<br />\nMany thanks again for your great help. It works beautifully!\r<br />\nAs for the $columnID++ increment, it actually works for me. I'm able to save all my data in the proper columns beyond &quot;Z&quot;, up to column &quot;AO&quot; in my case.<br />\n",
+    "PostedDate": "2013-12-30T09:36:08.823-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,106 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "All",
+      "DisplayName": "All"
+    },
+    "ClosedComment": "Fixed in SVN",
+    "ClosedDate": "2009-05-04T06:18:45.237-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "From thread:\nhttp://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=54909\n \nInvalid UTF-8 input results in corrupt Excel files. Would it be possible to sanitize the input somehow?\n \nTest (generating corrupt files):\n----\n$excel = new PHPExcel();\n \n$sheet = $excel->getActiveSheet();\n$sheet->getCell('A1')->setValue('hello' . chr(220)); // invalid UTF-8 input\n \n$writer = PHPExcel_IOFactory::createWriter($excel, 'Excel2007');\n$writer->save('corrupt.xlsx');\n \n$writer = PHPExcel_IOFactory::createWriter($excel, 'Excel5');\n$writer->save('corrupt.xls');\n \nExpected result:\n----\nValid Excel files are generated, or some warning of some kind is received\n \nActual result:\n----\nInvalid Excel files are generated",
+    "LastUpdatedDate": "2013-05-16T05:42:42.213-07:00",
+    "PlannedForRelease": "PHPExcel 1.7.0 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-04-30T13:24:11.933-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Sanitization of UTF-8 input for cell values",
+    "Type": {
+      "Name": "Feature",
+      "Id": 1
+    },
+    "VoteCount": 1,
+    "Id": 9902
+  },
+  "FileAttachments": [
+    {
+      "FileId": 3039,
+      "FileName": "corrupt.xlsx",
+      "DownloadUrl": ".\\3039"
+    },
+    {
+      "FileId": 3040,
+      "FileName": "corrupt.xls",
+      "DownloadUrl": ".\\3040"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "We have the PHPExcel_Shared_String::ControlCharacterPHP2OOXML which we can abuse to do this?",
+      "PostedDate": "2009-05-03T23:55:19.447-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Unfortunately, that won't work. For example, the single-byte string chr(220) is neither a control character nor a real character, but completely outside the allowed space of UTF-8. There is some discussion I'm looking at:\r\nhttp://www.sitepoint.com/forums/showthread.php?t=602738\r\n\r\n>> We have the PHPExcel_Shared_String::ControlCharacterPHP2OOXML which we can abuse to do this?\r\nUgg... This _xHHHH_ thing looks really nasty, and I'm now finding more bugs related to control characters. Also, how does one now insert the literal sequence '_x0008_' ? It looks like OOXML uses this: '_x005F_x0008_', but where has this been described?\r\n\r\nNow, in PHPExcel, what should this do?\r\n$cell->setValue('_x0008_');\r\n\r\nShould it insert the literal '_x0008_' or the control character ?",
+      "PostedDate": "2009-05-04T04:42:25.053-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-05-04T06:09:30.943-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Fixing this for cell value input using mb_convert_encoding / iconv, when available. There is room for improvement using better method, but it will clean-up strings in by far the most cases.",
+      "PostedDate": "2009-05-04T06:16:19.097-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-05-04T06:16:38.237-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Fixed in SVN\r\n\r\n** Closed by koyama 5/4/2009 6:16 AM",
+      "PostedDate": "2009-05-04T06:17:57.923-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-05-04T06:17:59-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-05-04T06:18:24.423-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-05-04T06:18:45.237-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:04:04.47-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:42.213-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "224465",
+    "ThreadId": "66113",
+    "Html": "<p>Hi guys,</p>\r\n<p>I'm doing some reports in PHPExcel, and one of them has to create a lot of sheets (about 120) and I noticed that this takes lots of time. More time in proportion than creating 10 or 20 sheets.</p>\r\n<p>Every sheet contains about 200 lines of data and 15 rows in width.</p>\r\n<p>When I push all the data on one sheet, performance is really fast. But this is not what the customer wants.</p>\r\n<p>Is there some way I can speed up this process?</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-08-17T07:46:01.2-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "224570",
+    "ThreadId": "66113",
+    "Html": "<p>Can you run the following test:</p>\r\n<p>Take your generated file (containing 120 sheets). Do a plain save in MS Office Excel 2007 (or OpenOffice.org 3). Save the file as read.xls. Then run this code (plain read/write):</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre><div style=\"color:Black;background-color:White\"><div style=\"color:Black;background-color:White\"><pre>$tstartRead = time();\r\n\r\n$<span style=\"color:Blue\">file</span> = <span style=\"color:#A31515\">'read.xls'</span>;\r\n$reader = PHPExcel_IOFactory::createReaderForFile($<span style=\"color:Blue\">file</span>);\r\n$excel = $reader-&gt;load($<span style=\"color:Blue\">file</span>);\r\n\r\n$tendRead = time();\r\n\r\n$tstartWrite = time();\r\n\r\n<span style=\"color:Green\">//$writer = PHPExcel_IOFactory::createWriter($excel, 'Excel5');</span>\r\n<span style=\"color:Green\">//$writer-&gt;save('write.xls');</span>\r\n\r\n$writer = PHPExcel_IOFactory::createWriter($excel, <span style=\"color:#A31515\">'Excel2007'</span>);\r\n<span style=\"color:Green\">//$writer-&gt;setPreCalculateFormulas(false);</span>\r\n$writer-&gt;save(<span style=\"color:#A31515\">'write.xlsx'</span>);\r\n\r\n$tendWrite = time();\r\n<span style=\"color:Blue\">echo</span> <span style=\"color:#A31515\">'read took: '</span> . ($tendRead - $tstartRead) . <span style=\"color:#A31515\">' seconds&lt;br&gt;'</span>;\r\n<span style=\"color:Blue\">echo</span> <span style=\"color:#A31515\">'write took: '</span> . ($tendWrite - $tstartWrite) . <span style=\"color:#A31515\">' seconds&lt;br&gt;'</span>;\r\n<span style=\"color:Blue\">echo</span> date(<span style=\"color:#A31515\">'H:i:s'</span>) . <span style=\"color:#A31515\">&quot; Peak memory usage: &quot;</span> . (memory_get_peak_usage(true) / 1024 / 1024) . <span style=\"color:#A31515\">&quot; MB\\r\\n&quot;</span>;\r\n<span style=\"color:Blue\">exit</span>;\r\n\r\n\r\n</pre>\r\n</div>\r\n</div>\r\n<br></pre>\r\n</div>\r\n<p>It will give you the fastest possible generation time that can be achieved with PHPExcel currently. If the &quot;write&quot; time it is lower than your current figures, then it means your code can be optimized. You can perhaps post the result here so we can discuss.</p>",
+    "PostedDate": "2009-08-17T11:25:24.407-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

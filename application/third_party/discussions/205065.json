@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "418526",
+    "ThreadId": "205065",
+    "Html": "<p>Hi Guys,</p>\r\n<p>I am trying to insert multiple images in a worksheet. I was trying to place them one below another. setOffsetX is working fine but setOffsetY seems to have no affect on moving any image down. Here is what I am using:</p>\r\n<p>I am using PHPExcel v1.7.2, XAMPP on WIN with PHP 5.3,&nbsp;Excel5 Writer</p>\r\n<p>$excel = new PHPExcel();</p>\r\n<p>\r\n<p>$excel-&gt;getDefaultStyle()-&gt;getFont()-&gt;setName('Arial');</p>\r\n<p>$excel-&gt;getDefaultStyle()-&gt;getFont()-&gt;setSize(10);</p>\r\n<p>$sheet = $excel-&gt;getActiveSheet();</p>\r\n<p>$objDrawing = new PHPExcel_Worksheet_Drawing();</p>\r\n</p>\r\n<p>\r\n<p>$objDrawing-&gt;setName('Picture1');</p>\r\n<p>$objDrawing-&gt;setDescription('Picture1');</p>\r\n<p>$objDrawing-&gt;setPath('c:/images/1.jpg');</p>\r\n<p>$objDrawing-&gt;setOffsetX(30); &nbsp; &nbsp;// setOffsetX works properly</p>\r\n<p>$objDrawing-&gt;setOffsetY(300); &nbsp;//setOffsetY has no effect</p>\r\n<p>$objDrawing-&gt;setCoordinates('B1');</p>\r\n<p>$objDrawing-&gt;setWorksheet($sheet);</p>\r\n</p>\r\n<p>\r\n<p>$writer = new PHPExcel_Writer_Excel5($excel);</p>\r\n<p>$writer-&gt;save('c:/write.xls');</p>\r\n</p>\r\n<p>&nbsp;</p>\r\n<p>What am I doing wrong here? I even tried setting the font to Arial 10 but it still didn't work. Kind of stuck at the moment. :)</p>\r\n<p>- Ananth</p>\r\n<div id=\"_mcePaste\" style=\"left:-10000px;top:0px;width:1px;height:1px;overflow-x:hidden;overflow-y:hidden\">$objDrawing = new PHPExcel_Worksheet_Drawing();</div>\r\n<div id=\"_mcePaste\" style=\"left:-10000px;top:0px;width:1px;height:1px;overflow-x:hidden;overflow-y:hidden\"><span style=\"white-space:pre\"> </span>$objDrawing-&gt;setName('Logo');</div>\r\n<div id=\"_mcePaste\" style=\"left:-10000px;top:0px;width:1px;height:1px;overflow-x:hidden;overflow-y:hidden\"><span style=\"white-space:pre\"> </span>$objDrawing-&gt;setDescription('Logo');</div>\r\n<div id=\"_mcePaste\" style=\"left:-10000px;top:0px;width:1px;height:1px;overflow-x:hidden;overflow-y:hidden\"><span style=\"white-space:pre\"> </span>$objDrawing-&gt;setPath('c:/images/1.jpg');</div>\r\n<div id=\"_mcePaste\" style=\"left:-10000px;top:0px;width:1px;height:1px;overflow-x:hidden;overflow-y:hidden\"><span style=\"white-space:pre\"> </span>$objDrawing-&gt;setOffsetX(30);</div>\r\n<div id=\"_mcePaste\" style=\"left:-10000px;top:0px;width:1px;height:1px;overflow-x:hidden;overflow-y:hidden\"><span style=\"white-space:pre\"> </span>$objDrawing-&gt;setOffsetY(300);</div>\r\n<div id=\"_mcePaste\" style=\"left:-10000px;top:0px;width:1px;height:1px;overflow-x:hidden;overflow-y:hidden\"><span style=\"white-space:pre\"> </span>$objDrawing-&gt;setCoordinates('B1');</div>\r\n<div id=\"_mcePaste\" style=\"left:-10000px;top:0px;width:1px;height:1px;overflow-x:hidden;overflow-y:hidden\"><span style=\"white-space:pre\"> </span>$objDrawing-&gt;setWorksheet($sheet);</div>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-03-15T21:24:44.667-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "418528",
+    "ThreadId": "205065",
+    "Html": "<p>I just noticed &nbsp;that if I increase the OffsetX value beyond 65 it ignores shifting the picture &nbsp;with respect to the B1 cell and places it exactly at the starting of the B1 cell.</p>\r\n<p>So now my problem is how do I calculate how many cells does a picture span across width wise/ height wise and then place the next one? Ideally I wanted to place pictures one below another.</p>",
+    "PostedDate": "2010-03-15T21:45:13.24-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "418529",
+    "ThreadId": "205065",
+    "Html": "<p>Excel5 writer still has problems if offsets exceed pixel dimensions of the anchor cell.</p>\r\n<p>The unique position of a drawing in a worksheet is determined as follows:<br><br>1) Coordinates: The anchor cell which the upper left corner of the drawing falls into e.g. 'A1'<br>2) OffsetX: Pixel offset to the right<br>3) OffsetY: Pixel offset downwards</p>\r\n<p>Instead of this:</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$objDrawing-&gt;setOffsetX(30);\r\n$objDrawing-&gt;setOffsetY(300);\r\n$objDrawing-&gt;setCoordinates(<span style=\"color:#A31515\">'B1'</span>);\r\n</pre>\r\n</div>\r\n<p>Use the anchor cell which the upper-left corner of the drawing falls into. Maybe something like this:</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$objDrawing-&gt;setOffsetX(30);\r\n$objDrawing-&gt;setOffsetY(11);\r\n$objDrawing-&gt;setCoordinates(<span style=\"color:#A31515\">'B18'</span>);\r\n</pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-03-15T21:54:13.423-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "418534",
+    "ThreadId": "205065",
+    "Html": "<p>Hi Koyama,</p>\r\n<p>Thanks for your explanation. I understood that OffsetX and OffsetY are specific to the cell. So in my case I won't be using those. The trouble is that once I insert the picture (Height: 200pixels x &nbsp;Width: 300pixels) in an anchor cell e.g. B1, then I need to calculate the anchor cell to be used for the next picture in this case lets say B11 (assuming all cells have same height of 20pixels).</p>\r\n<p>I know it is tough for you to calculate what the cell height will be, as it changes with the font and font size used.</p>\r\n<p>Is there any way of returning the cell height if there is a default font and default font size being used for the whole sheet?&nbsp;</p>\r\n<p>Thanks!</p>\r\n<p>Regards,</p>\r\n<p>Ananth</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-03-15T22:23:13.467-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "418539",
+    "ThreadId": "205065",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>ananthdeodhar wrote:</strong><br>\r\n<p>Is there any way of returning the cell height if there is a default font and default font size being used for the whole sheet?&nbsp;</p>\r\n</blockquote>\r\n<p>If you already now know that you are going to use Arial 10 for the whole workbook, then the default row height is 17px as you see in Excel by clicking between to rows.</p>\r\n<p><a href=\"http://img683.imageshack.us/img683/9793/ss20100316063239.png\"><img src=\"http://img683.imageshack.us/img683/9793/ss20100316063239.th.png\" border=0 alt=\"\"></a></p>\r\n<p>If you are asking about arbitrary fonts and sizes, then it is complicated. We have a function that returns the default row height in points for some of the common Excel fonts Arial (up to 10pt), Calibri (up to 11), Verdana (up to 10).</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$pt = PHPExcel_Shared_Font::getDefaultRowHeightByFont(PHPExcel_Style_Font $font); // default row height in pt</pre>\r\n</div>\r\n<p>This value can then be converted from points to pixels</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$px = PHPExcel_Shared_Drawing::pointsToPixels($pt); // convert to pixels\r\n\r\n</pre>\r\n</div>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-03-15T22:44:44.39-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "418552",
+    "ThreadId": "205065",
+    "Html": "<p>Thanks Koyama, I was thinking along the same lines. I had figured out the height difference the same way. So, will have to write out a function to figure this out.</p>\r\n<p>I came across the row height explanation at &nbsp;<a href=\"http://office.microsoft.com/en-us/excel/HA010346241033.aspx\">http://office.microsoft.com/en-us/excel/HA010346241033.aspx</a></p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-03-15T23:58:07.343-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

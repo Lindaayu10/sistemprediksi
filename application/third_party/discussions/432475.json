@@ -1,0 +1,66 @@
+[
+  {
+    "Id": "998476",
+    "ThreadId": "432475",
+    "Html": "Hi.<br />\n<br />\nI have an Excel2007 (xlsx) document and try to read the rich text value from a cell, but only receive the plaintext. Here's the Code:<br />\n<pre><code>        $reader = new PHPExcel_Reader_Excel2007();\n        $reader-&gt;setReadDataOnly(true); // already tried without this..\n        $objPHPExcel = $reader-&gt;load('descriptions.xlsx');\n        $cell = $objPHPExcel-&gt;setActiveSheetIndex(0)-&gt;getCell(&quot;C3&quot;);\n\n        $str = '';\n        $elements = $cell-&gt;getRichTextElements();\n        foreach ($elements as $item) {\n            $str .= '&lt;font style=&quot;color: #'.$item-&gt;getFont()-&gt;getColor()-&gt;getRGB().'; font-weight: '.($item-&gt;getFont()-&gt;getColor() ? 'bold' : 'normal').'&quot;&gt;'.$item-&gt;getText().'&lt;/font&gt;';\n        }</code></pre>\n\nAnd this ends in a php error:<br />\n Fatal error: Call to undefined method PHPExcel_Cell::getRichTextElements() in /index.php on line 96<br />\n<br />\nLine 96 is $elements = $cell-&gt;getRichTextElements();<br />\n<br />\n<br />\nOther Code i've tried from <a href=\"http://phpexcel.codeplex.com/discussions/69719\" rel=\"nofollow\">this post</a>:<br />\n<pre><code>        $objReader = PHPExcel_IOFactory::createReaderForFile('descriptions.xlsx');\n        $objPHPExcel = $objReader-&gt;load('descriptions.xlsx');\n        $objPHPExcel-&gt;setActiveSheetIndex(0);\n        $sheet = $objPHPExcel-&gt;getActiveSheet();\n        $cell = $sheet-&gt;getCellByColumnAndRow(3,3);\n        if ($cell-&gt;getValue() instanceof PHPExcel_RichText) {\n            echo &quot;success!&quot;;\n        }\n        echo &quot;no =(&quot;;</code></pre>\n\nThe output is &quot;no =(&quot;.<br />\n<br />\n<br />\nAny idea? I can read the plaintext from the cell by use $cell-&gt;getValue() but i need the richtext-formats from the cell.<br />\n<br />\nThanks, Tyri<br />\n",
+    "PostedDate": "2013-02-08T04:41:18.437-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "998492",
+    "ThreadId": "432475",
+    "Html": "<pre><code>$cellValue = $cell-&gt;getValue();\nif ($cell-&gt;getValue() instanceof PHPExcel_RichText) {\n    $elements = $cellValue()-&gt;getRichTextElements();\n    // Loop through rich text elements\n    foreach ($elements as $element) {\n        // ... do your stuff here\n    }\n}\n</code></pre>\n\nLook at the HTML WRiter for an example<br />\n",
+    "PostedDate": "2013-02-08T04:54:24.86-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "999611",
+    "ThreadId": "432475",
+    "Html": "Hi.\r<br />\n<br />\nThank you, but the code is exactly the same what i'd wrote above.\r<br />\n<br />\nI created a html file from the excel file with the html writer and there's no formatting.<br />\n",
+    "PostedDate": "2013-02-11T08:04:22.38-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "999622",
+    "ThreadId": "432475",
+    "Html": "It shouldn't be the same. You shouldn't be getting Call to undefined method PHPExcel_Cell::getRichTextElements()  because you shouldn't be calling that method against the Cell object.\r<br />\n<br />\nRetrieve the cell value; test if the returned value is an instance of Rich_Text; if (and only if) the cell value is rich text should you try and call the getRichTextElements() method against that Rich_Text object.\r<br />\n<br />\n<br />\nAnd get rid of $reader-&gt;setReadDataOnly(true); which means <strong>DON'T READ THE CELL FORMATTING</strong>.... you want the formatting, because Rich Text <strong>IS</strong> formatting<br />\n",
+    "PostedDate": "2013-02-11T08:54:31.21-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1000485",
+    "ThreadId": "432475",
+    "Html": "Ok, you're right. With this code, there's no fatal error...<br />\n<br />\nMy Code from my first post:<br />\n<pre><code>        $objReader = PHPExcel_IOFactory::createReaderForFile('descriptions.xlsx');\n        $objPHPExcel = $objReader-&gt;load('descriptions.xlsx');\n        $objPHPExcel-&gt;setActiveSheetIndex(0);\n        $sheet = $objPHPExcel-&gt;getActiveSheet();\n        $cell = $sheet-&gt;getCellByColumnAndRow(3,3);\n        if ($cell-&gt;getValue() instanceof PHPExcel_RichText) {\n            echo &quot;success!&quot;;\n        }\n        echo &quot;no =(&quot;;</code></pre>\n\nThe Output is everytime &quot;no =(&quot; and that's my problem. $cell-&gt;getValue() is never an instance of PHPExcel_RichText.<br />\n",
+    "PostedDate": "2013-02-13T02:42:03.413-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1000503",
+    "ThreadId": "432475",
+    "Html": "That suggests to me that cell 3,3 (D3) doesn't contain rich text. \r<br />\n<br />\nThe file is definitely an OfficeOpenXML file? Not simply a file of some other format with an .xlsx extension? What does <br />\n<pre><code>PHPExcel_IOFactory::identify('descriptions.xlsx');</code></pre>\n\nreturn?<br />\n",
+    "PostedDate": "2013-02-13T03:38:32.347-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1000518",
+    "ThreadId": "432475",
+    "Html": "If i open the file in Excel there is formatting (some bold text) in cell D3.<br />\n<pre><code>var_dump(PHPExcel_IOFactory::identify('descriptions.xlsx'));</code></pre>\n\nis: <br />\n<pre><code>string(9) &quot;Excel2007&quot;</code></pre>\n\n",
+    "PostedDate": "2013-02-13T04:22:01.123-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1001017",
+    "ThreadId": "432475",
+    "Html": "Is it possible to send me a copy of the file? We've never had any problems with Rich Text cells not being read as rich text before (unless you specifically set ReadDataOnly to true).<br />\n",
+    "PostedDate": "2013-02-14T01:14:29.88-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

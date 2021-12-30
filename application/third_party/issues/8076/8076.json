@@ -1,0 +1,106 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "Fixed Excel2007's exporting of 0's in SVN.\nThe other changes were rejected.",
+    "ClosedDate": "2008-11-16T21:20:41.327-08:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "In PHPExcel/Cell/DataType.php:\nReplaced a custom regular expression for checking if a string is a number with just is_numeric (much faster). It's not EXACTLY the same but is there any reason we need the regular expression over is_numeric?\n \nIn PHPExcel/Writer/Excel2007/StringTable.php:\nReplaced $cell->getValue() != '' with $cell->getValue() !== '' because 0 == '' and then all 0's would incorrectly be skipped. Strings are now encoded using htmlspecialchars because Excel2007 would complain about a corrupt file if they weren't.\n \nJust want to know if these changes are alright to be committed. Thanks.",
+    "LastUpdatedDate": "2013-05-16T05:43:05.33-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2008-11-13T17:04:56.603-08:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Some Minor Changes",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 8076
+  },
+  "FileAttachments": [
+    {
+      "FileId": 2272,
+      "FileName": "PHPExcel_Minor_Fixes.patch",
+      "DownloadUrl": ".\\2272"
+    },
+    {
+      "FileId": 2280,
+      "FileName": "is-numeric-test.zip",
+      "DownloadUrl": ".\\2280"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "Can we identify for which cases there would be conflict between is_numeric($pValue) and preg_match('/^\\-?[0-9]*\\.?[0-9]*$/', $pValue) ?",
+      "PostedDate": "2008-11-14T09:57:26.103-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "The is_numeric($pValue) should validate values in scientific format (e.g. '1.5e-2') as numeric, while preg_match('/^\\-?[0-9]*\\.?[0-9]*$/', $pValue) would reject it, and therefore treat it as a string. Same would apply to numbers in bases other than decimal. Not sure if this would be good or bad without testing. You might want to run some tests creating a worksheet using numbers in scientific format using both variants of DataType.php, possibly doing a SUM() of them, and writing the results to xls or xlsx to see what effect it actually has.\r\n\r\nScientific\r\n1.5e-2\r\nis_numeric()\r\nTrue\r\npreg_match()\r\nFalse\r\n--------------------------------------------------------------------------------\r\nHex\r\n0x1A\r\nis_numeric()\r\nTrue\r\npreg_match()\r\nFalse\r\n--------------------------------------------------------------------------------\r\nOctal\r\n077\r\nis_numeric()\r\nTrue\r\npreg_match()\r\nTrue\r\n--------------------------------------------------------------------------------\r\nLeading + sign\r\n+12\r\nis_numeric()\r\nTrue\r\npreg_match()\r\nFalse",
+      "PostedDate": "2008-11-16T11:13:39.21-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Agree with the patch to StringTable.php It makes sense",
+      "PostedDate": "2008-11-16T13:08:57.71-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Inserting cell values of the types listed by MarkBaker may unfortunately lead to corrupt xlsx files if we apply the is_numeric patch.\r\n\r\nTest:\r\n\r\n$excel = new PHPExcel();\r\n$sheet = $excel->getActiveSheet();\r\n\r\n$sheet->getCell('A1')->setValue('123');\r\n$sheet->getCell('A2')->setValue('123.5');\r\n$sheet->getCell('A3')->setValue('1.5e-2');\r\n$sheet->getCell('A4')->setValue('0x1A');\r\n$sheet->getCell('A5')->setValue('077');\r\n$sheet->getCell('A6')->setValue('+12');\r\n$sheet->getCell('A7')->setValue('hello');\r\n\r\n$writer = new PHPExcel_Writer_Excel2007($excel);\r\n$writer->save('test-after-patch.xlsx');\r\n\r\n$writer = new PHPExcel_Writer_Excel5($excel);\r\n$writer->save('test-after-patch.xls');\r\n\r\nYou get corrupt xlsx file because of bad entries such as this:\r\n\r\n<row r=\"4\" spans=\"1:1\">\r\n\r\n<c r=\"A4\">\r\n<v>0x1A</v>\r\n</c>\r\n</row>\r\n\r\nSample files attached.",
+      "PostedDate": "2008-11-16T14:54:04.137-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2008-11-16T14:54:06.793-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Thanks for finding an invalid case for is_numeric. I won't apply that patch when I commit.\r\n\r\nI've also just tested HTML Special Character encoding part of the StringTable.php patch and I can't seem to find a case where it is necessary. It was originally carried over from an old version of PHPExcel we patched but I guess it is no longer needed with the trunk version.\r\n\r\nThis leaves only one line left in the StringTable.php patch that we want. Koyoma, do you also agree with replacing the != with !==?\r\n\r\nThanks for the feedback! Greatly appreciated. It would also be nice to get some feedback on my other patches. Thanks again.",
+      "PostedDate": "2008-11-16T16:16:42.42-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I agree replacing != with !==\r\n\r\nOne would expect that this will give you a zero (0) in cell A1 :\r\n\r\n$sheet->getCell('A1')->setValueExplicit(0, PHPExcel_Cell_DataType::TYPE_STRING);\r\n\r\nBut it doesn't for Excel2007 writer (only for Excel5 writer), so I agree, indeed.\r\n\r\nI am excited about the recent patches and the dramatic improvements in speed you have reported. It is just that I have not studied those parts of PHPExcel enough to evaluate them. But ideas sound very promising in my ears so I am looking forward to hear what others will say. I believe improvement in performance makes the difference between break or no-break for PHPExcel.",
+      "PostedDate": "2008-11-16T18:27:53.14-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Great, I just committed the equality patch.\r\n\r\nThanks for the reply (and kind words) Koyama! I totally agree that performance is very important with PHPExcel. In our webapp, we'd have to get the user to wait at least 40 seconds to receive a download prompt for their some of their spreadsheets (using the 1.6.4 release). For a user, I'm assuming that's a total deal-breaker. Thankfully, my employer let me improve these speeds and push them back here.",
+      "PostedDate": "2008-11-16T21:19:14.56-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2008-11-16T21:20:41.327-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:04:35.097-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:43:05.33-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "730033",
+    "ThreadId": "287250",
+    "Html": "<p>Hi all. I think its a silly one.</p>\n<p>I am trying to load an xls from a variable</p>\n<p>While i can run this code &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>\n<p>$reader = PHPExcel_IOFactory::load(\"/tmp/dir/uploads/upload.xls\")</p>\n<p>this one cant load</p>\n<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $reader = PHPExcel_IOFactory::load(\"\\\"{$filename}\\\"\");</p>\n<p>or $filename</p>\n<p>or any other combination like \"{$filename}\" etc</p>\n<p>$filename is a string $filename=\"/tmp/dir/uploads/upload.xls\";</p>\n<p>and throws a:</p>\n<p><strong>Fatal error</strong>: Uncaught exception 'Exception' with message 'Could not open \"\" for reading! File does not exist.' in ../PHPExcel/PHPExcel/Reader/Excel5.php:509 Stack trace: #0 ../php/PHPExcel/PHPExcel/IOFactory.php(271): PHPExcel_Reader_Excel5-&gt;canRead('\"\"')  #1 ../PHPExcel/PHPExcel/IOFactory.php(192): PHPExcel_IOFactory::createReaderForFile('\"\"') #2 /opt/lampp/htdocs/test.php(169): PHPExcel_IOFactory::load('\"\"') #3 {main} thrown in <strong>../PHPExcel/PHPExcel/Reader/Excel5.php</strong> on line <strong>509</strong></p>\n<p>&nbsp;</p>\n<p><strong>I think i am missing something really obvious! Any help will be greatly appreciated!</strong></p>\n<p><strong>Tia<br /> </strong></p>",
+    "PostedDate": "2012-01-24T09:26:02.88-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "730036",
+    "ThreadId": "287250",
+    "Html": "<p>This isn't a PHPExcel bug, this is illogical coding</p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>\\\"{$filename}\\\"\r\n</pre>\r\n</div>\r\n<p>with $filename = /tmp/dir/uploads/upload.xls</p>\r\n<p>gives an actual&nbsp;filename of \"/tmp/dir/uploads/upload.xls\"</p>\r\n<p>clearly your filename doesn't have the quotes in it, so file isn't found... I'm not aware of any operating platform where that would be a valid filename either</p>\r\n<p>&nbsp;</p>\r\n<p>so get rid of the \\\"</p>",
+    "PostedDate": "2012-01-24T09:31:16.64-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "730042",
+    "ThreadId": "287250",
+    "Html": "<p>Well thanks for replying.</p>\r\n<p>It appears that it cant find the $filename var cause its a php session var which stores an uploaded file.</p>\r\n<p>i am running the if(move_uploaded_file()) routine and i get true,</p>\r\n<p>i dump the session var ,it is a string pointing at the destination, the file is there but phpexcel cant read it.Holly cow where is my fault!</p>\r\n<p>Sorry for not being honest from the beginning.</p>\r\n<p>I am trying to debug it all day long and i am gonna have a nervous breakdown.</p>",
+    "PostedDate": "2012-01-24T09:52:20.94-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "730062",
+    "ThreadId": "287250",
+    "Html": "<p>how about reading Marks answer? ;)</p>\r\n<p>&nbsp;</p>\r\n<p>try printing $filename to see if its contents are correct and change your loading call to:</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre><span style=\"color: blue;\">if</span> ( is_file($filename) ){\r\n  $reader = PHPExcel_IOFactory::load($filename);\r\n} <span style=\"color: blue;\">else</span> {\r\n  printf(<span style=\"color: #a31515;\">\"File not found: %s\\n\"</span>, $filename);\r\n}\r\n</pre>\r\n</div>\r\n</p>",
+    "PostedDate": "2012-01-24T10:25:49.153-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "730081",
+    "ThreadId": "287250",
+    "Html": "<p>sorry for wasting your time guys.Its obviously my fault .It appears that something is wrong with my sessions.</p>\r\n<p>I am running either memcache or files directive in</p>\r\n<p>php.ini session save handler</p>\r\n<p>and while i can print the session var in the uploaded page in the phpexcel reading script page i cant get it .Thanks</p>",
+    "PostedDate": "2012-01-24T11:02:00.08-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "730101",
+    "ThreadId": "287250",
+    "Html": "<p>@madprof - forget your sessions, that may be a problem, but it isn't the very obvious one in the code you've posted</p>\n<div style=\"background-color: white; color: black;\">\n<pre>$reader = PHPExcel_IOFactory::load(<span style=\"color: #a31515;\">\"\\\"{$filename}\\\"\"</span>);\r\n</pre>\n</div>\n<p>Each&nbsp;\\\" in the above line is adding an actual&nbsp;quote (\") character to the beginning and end of the filename that you're trying to load. Your filename does not contain quotes, so why add them? Just do:</p>\n<div style=\"color: black; background-color: white;\">\n<pre>$reader = PHPExcel_IOFactory::load($filename);\r\n</pre>\n</div>\n<p><br />$filename may not be the correct value, but get rid of the obvious code error first, then look at the string contained in $filename.</p>",
+    "PostedDate": "2012-01-24T11:29:19.913-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "730113",
+    "ThreadId": "287250",
+    "Html": "<p>I tried every possible combination of the SESSION['filename'] variable the one you quoted is only one of the examples, i now am going to test in windows to see how thinks will work. PHPexcel is an amazing and pretty useful library thanks for sharing. This is my only bug its a project for my dissertation but i am gonna run it on a shared hosting after hardening it a bit. Project went out really good.On a later stage i am gonna post&nbsp; a function i made to check the excel file for malicious code and would need some help cause this function renders a file that puts after checking it all the contents in the first column.Uses fgets the only one that works. I 've put some malicious code in the uploaded excel file it does no harm but i obviously aint gonna run the site live without checking the file prior the reading.</p>\r\n<p>With respect, to you and all</p>\r\n<p>George.</p>",
+    "PostedDate": "2012-01-24T11:46:32.157-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

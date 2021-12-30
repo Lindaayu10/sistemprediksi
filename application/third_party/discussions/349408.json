@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "813325",
+    "ThreadId": "349408",
+    "Html": "<pre><pre>\tclass chunkReadFilter implements PHPExcel_Reader_IReadFilter {\n\t\tprivate $_startRow = 0;\n\t\tprivate $_endRow = 0;\n\n\t\tpublic function setRows($startRow, $chunkSize) { \n\t\t\t$this-&gt;_startRow    = $startRow; \n\t\t\t$this-&gt;_endRow      = $startRow + $chunkSize;\n\t\t} \n\n\t\tpublic function readCell($column, $row, $worksheetName = '') {\n\t\t\t//  Only read the heading row, and the rows that are configured in $this-&gt;_startRow and $this-&gt;_endRow \n\t\t\tif (($row == 1) || ($row &gt;= $this-&gt;_startRow &amp;&amp; $row &lt; $this-&gt;_endRow)) { \n\t\t\t   return true;\n\t\t\t}\n\t\t\treturn false;\n\t\t} \n\t}\n\techo \"Load from Excel file\\n\";\n\n\t//$objReader = PHPExcel_IOFactory::createReader($inputFileType);\n\t$objReader = new PHPExcel_Reader_Excel2007();\n\t$chunkSize = 100;\n\t$chunkFilter = new chunkReadFilter(); \n\t$objReader-&gt;setReadFilter($chunkFilter); \n\t$objReader-&gt;setReadDataOnly(true);\n\t$objReader-&gt;setLoadSheetsOnly($sheetname);\n\n\tfor ( $startRow = 2; $startRow &lt;= 65536; $startRow += $chunkSize ) {\n\n\t\tprint $startRow . \"\\n\";\n\n\t\t$chunkFilter-&gt;setRows($startRow,$chunkSize); \n\n\t\t$objPHPExcel = $objReader-&gt;load( $xlsx_path );\n\t\t//    Do some processing here \n\n\t\t//    Free up some of the memory \n\t\t$objPHPExcel-&gt;disconnectWorksheets(); \n\t\tunset($objPHPExcel); \n\t}</pre>\n<br /></pre>\n<p>I'd like something more&nbsp;efficient than 65536 as a value in that loop. &nbsp;I have one xlsx with 250,000+ rows, and another with 200, all going through the same pipe.</p>\n<p>It's awesome code. &nbsp;Thank you.&nbsp;</p>",
+    "PostedDate": "2012-03-20T19:27:49.343-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "815541",
+    "ThreadId": "349408",
+    "Html": "<p>It may be easier to just tally while iterating a whole sheet, or iterate just to tally...</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre><span style=\"color: blue;\">foreach</span> ($objPHPExcel-&gt;getRowIterator() <span style=\"color: blue;\">as</span> $row) {\r\n\t$j = 1;\r\n\t\r\n\t$cellIterator = $row-&gt;getCellIterator();\r\n\t$cellIterator-&gt;setIterateOnlyExistingCells(false);\r\n\t\r\n\t<span style=\"color: blue;\">foreach</span> ($cellIterator <span style=\"color: blue;\">as</span> $cell) {\r\n\t\t$num_cols = $j;\r\n\t\t$j++;\r\n\t} <span style=\"color: green;\">// end cell getter</span>\r\n\t\r\n\t$num_rows = $i;\r\n\t$i++;\r\n} <span style=\"color: green;\">// end row getter</span>\r\n</pre>\r\n</div>\r\n</p>",
+    "PostedDate": "2012-03-26T05:32:10.14-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "815815",
+    "ThreadId": "349408",
+    "Html": "<p>Excellent, thank you. &nbsp;This is working with both Excel2007 and Excel5, whereas \"getHighest\" isn't working with Excel5 (at least for me)</p>",
+    "PostedDate": "2012-03-26T15:29:15.927-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

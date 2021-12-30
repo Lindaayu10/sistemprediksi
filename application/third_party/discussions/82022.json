@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "281727",
+    "ThreadId": "82022",
+    "Html": "<p>I'm currently using PHPExcel 1.6.7</p>\r\n<p>I have PHP script that generates images according some arguments. It is available by link like <em>http://somedoma.in/test.php?arg1=val1&amp;arg2=val2&amp;arg3=val3</em></p>\r\n<p>Is there any ways to include such images in project?</p>\r\n<p>&nbsp;</p>\r\n<p>I can access this script directly from the filesystem. I tried to pass arguments like <em>$objDrawing-&gt;setPath(&quot;test.php arg1=val1 arg2=val2 arg3=val3&quot;);</em> but it looks like <em>&quot;test.php arg1=val1 arg2=val2 arg3=val3&quot;</em> is a filename, not file with arguments.</p>\r\n<p>Well, I can fetch it by <em>file_get_contents()</em> or something else, save the file, add to the project and delete it. I can rather add timestamp and/or random value to avoid file name collisions. but... I think this isn't a good idea at all.</p>\r\n<p>Probably it would be better to add images stream (that are got by <em>file_get_contents()</em>) directly to the project avoiding saving files. But I didn't find any methods like that.</p>",
+    "PostedDate": "2010-01-26T00:22:57.507-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "282241",
+    "ThreadId": "82022",
+    "Html": "<p>Agreed. Adding this as a note to work item</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=9990\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=9990</a></p>\r\n<p>The problem is that images are generally not a part of PHPExcel's in-memory representation of the workbook at the moment. When this is fixed it should be easier to address your request.</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-01-27T02:53:42.007-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "815904",
+    "ThreadId": "82022",
+    "Html": "<p>@azriman&nbsp;&nbsp; I have the same issue. Adding a generated image to an Excel worksheet (<em>http://somedoma.in/test.php?arg1=val1&amp;arg2=val2&amp;arg3=val3</em>)<br /><br />Did you use either of the two workarounds you mentioned?<br /><br />I had a look at the May 2009 workitem but it currently has a \"Proposed\" status so it looks like it will be a while before a permanent solution appears.<br /><br />With koyama's comment of the image not being part of the in-memory representation i would imagine only your first suggestion of creating a temporary file, adding it to the workbook and then deleting it after the workbook was generated would be possible.</p>",
+    "PostedDate": "2012-03-26T22:52:38.197-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "816836",
+    "ThreadId": "82022",
+    "Html": "<p>@koyama  I created an Excel 2007 document and looked at the differences  between an image that is stored in the workbook archive and one that was  external and only loaded when the workbook was opened.<br />In the  xl\\drawings\\_rels\\drawing1.xml.rels the only difference was the image  that was sourced externally to the workbook had TargetMode=\"External\" in  the Relationship element.<br />The externally sourced image also allowed  the additional parameters/arguments that azriman was after.  http://somedoma.in/test.php?arg1=val1&amp;arg2=val2&amp;arg3=val3<br />Would  it be possible to to have an option on the $objDrawing-&gt;setPath()  function to tell it to create an TargetMode=\"External\" image? Then it  would know not to attempt to find the file and attach it but rather just  create the entry with the TargetMode=\"External\" parameter.<br />This is all new to me but hopefully this is a valid suggestion. :)</p>",
+    "PostedDate": "2012-03-28T15:15:10.07-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,45 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Whenever a conditional format is used within the PHPExcel_Style_NumberFormat, the HTML and PDF output are double escaped, displaying the <span style=\"color: red\"> in the output.\n\nThe reason is behind a double escape issue, with a proposed fix in a pull request I've submitted at: https://github.com/PHPOffice/PHPExcel/pull/410\n\nHere's an example test code:\n\n```\n$objPHPExcel = new PHPExcel();\n$objPHPExcel->setActiveSheetIndex(0);\n$objPHPExcel->getActiveSheet()\n    ->setCellValue('A1', '-0.5')\n    ->setCellValue('A2', '-0.25')\n    ->setCellValue('A3', '0.0')\n    ->setCellValue('A4', '0.25')\n    ->setCellValue('A5', '0.5')\n    ->setCellValue('A6', '0.75')\n    ->setCellValue('A7', '1.0')\n    ->setCellValue('A8', '1.25')\n;\n\n$objPHPExcel->getActiveSheet()->getStyle('A1:A8')\n    ->getNumberFormat()\n    ->setFormatCode('0.00;[Red]-0.00');\n\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');\n$objWriter->save('test.xlsx');\n\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'HTML');\n$objWriter->save('test.html');\n```\n\nExcel output works as expected, but HTML/PDF have escaping problems (the PDF Writer is based on the HTML for this purpose).\n\nI'd also like to make available the cell comments in the HTML/PDF output, could I work on it? Is there any advice/rules to follow?\n\nThanks,\n\nGuilherme Capilé",
+    "LastUpdatedDate": "2014-07-30T11:00:51.243-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2014-07-30T11:00:45.067-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Formatting issues on HTML/PDF output (when using conditional formatting)",
+    "Type": {
+      "Name": "Unassigned",
+      "Id": 5
+    },
+    "VoteCount": 1,
+    "Id": 21190
+  },
+  "FileAttachments": [
+    {
+      "FileId": 8540,
+      "FileName": "test.html",
+      "DownloadUrl": ".\\8540"
+    }
+  ],
+  "Comments": []
+}

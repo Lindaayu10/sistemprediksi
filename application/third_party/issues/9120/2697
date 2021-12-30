@@ -1,0 +1,102 @@
+### Eclipse Workspace Patch 1.0
+#P PHPExcel
+Index: Classes/PHPExcel/Calculation.php
+===================================================================
+--- Classes/PHPExcel/Calculation.php	(revision 1577)
++++ Classes/PHPExcel/Calculation.php	(working copy)
+@@ -61,12 +61,6 @@
+  */
+ class PHPExcel_Calculation {
+ 
+-	/** constants */
+-	const RETURN_ARRAY_AS_VALUE = 'value';
+-	const RETURN_ARRAY_AS_ARRAY = 'array';
+-
+-	private static $returnArrayAsType	= self::RETURN_ARRAY_AS_ARRAY;
+-
+ 	/**
+ 	 * Function mappings (from Excel to PHPExcel)
+ 	 *
+@@ -116,32 +110,6 @@
+ 	}
+ 
+ 	/**
+-	 * Set the Array Return Type (Array or Value of first element in the array)
+-	 *
+-	 * @param	 string	$returnType			Array return type
+-	 * @return	 boolean					Success or failure
+-	 */
+-	public static function setArrayReturnType($returnType) {
+-		if (($returnType == self::RETURN_ARRAY_AS_VALUE) ||
+-			($returnType == self::RETURN_ARRAY_AS_ARRAY)) {
+-			self::$returnArrayAsType = $returnType;
+-			return True;
+-		}
+-		return False;
+-	}	//	function setExcelCalendar()
+-
+-
+-	/**
+-	 * Return the Array Return Type (Array or Value of first element in the array)
+-	 *
+-	 * @return	 string		$returnType			Array return type
+-	 */
+-	public static function getArrayReturnType() {
+-		return self::$returnArrayAsType;
+-	}	//	function getExcelCalendar()
+-
+-
+-	/**
+ 	 * Create a new PHPExcel_Calculation
+ 	 */
+ 	protected function __construct() {
+@@ -565,9 +533,6 @@
+ 				if ((time () + microtime ()) - $this->_calculationCache [$pCell->getParent ()->getTitle ()] [$pCell->getCoordinate ()] ['time'] < $this->_calculationCacheExpirationTime) {
+ 					// Return result
+ 					$returnValue = $this->_calculationCache [$pCell->getParent ()->getTitle ()] [$pCell->getCoordinate ()] ['data'];
+-					if ((is_array($returnValue)) && (self::$returnArrayAsType == self::RETURN_ARRAY_AS_VALUE)) {
+-						return array_shift(PHPExcel_Calculation_Functions::flattenArray($returnValue));
+-					}
+ 					return $returnValue;
+ 				} else {
+ 					unset ( $this->_calculationCache [$pCell->getParent ()->getTitle ()] [$pCell->getCoordinate ()] );
+@@ -758,17 +723,34 @@
+ 		} catch ( Exception $ex ) {
+ 			$returnValue = '#N/A';
+ 		}
++		
++		if (is_array($returnValue)) {
++			if (isset($returnValue[$pCell->getColumn()])) {
++				$returnValue = $returnValue[$pCell->getColumn()];
++			} elseif (count($returnValue) == 1) {
++				$returnValue = array_pop($returnValue);
++			} else {
++				$returnValue = '#VALUE';
++			}
++			if (is_array($returnValue)) {
++				if (isset($returnValue[$pCell->getRow()])) {
++					$returnValue = $returnValue[$pCell->getRow()];
++				} elseif (count($returnValue) == 1) {
++					$returnValue = array_pop($returnValue);
++				} else {
++					$returnValue = '#VALUE';
++				}
++			} else {
++				$returnValue = '#VALUE';
++			}
++		}
+ 
+ 		// Save to calculation cache
+ 		if ($this->getCalculationCacheEnabled ()) {
+ 			$this->_calculationCache [$pCell->getParent ()->getTitle ()] [$pCell->getCoordinate ()] ['time'] = (time () + microtime ());
+-			$this->_calculationCache [$pCell->getParent ()->getTitle ()] [$pCell->getCoordinate ()] ['data'] = $returnValue;
++			$this->_calculationCache [$pCell->getParent ()->getTitle ()] [$pCell->getCoordinate ()] ['data'] = $returnValue;
+ 		}
+ 
+-		// Return result
+-		if ((is_array($returnValue)) && (self::$returnArrayAsType == self::RETURN_ARRAY_AS_VALUE)) {
+-			return array_shift(PHPExcel_Calculation_Functions::flattenArray($returnValue));
+-		}
+ 		return $returnValue;
+ 	}
+ 

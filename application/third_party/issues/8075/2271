@@ -1,0 +1,235 @@
+Index: Classes/PHPExcel/HashTable.php
+===================================================================
+--- Classes/PHPExcel/HashTable.php	(revision 629)
++++ Classes/PHPExcel/HashTable.php	(working copy)
+@@ -93,10 +93,15 @@
+      * @throws 	Exception
+      */
+     public function add(PHPExcel_IComparable $pSource = null) {
+-   		if (!isset($this->_items[  $pSource->getHashCode()  ])) {
+-            $this->_items[  $pSource->getHashCode()  ] = $pSource;
+-            $this->_keyMap[  count($this->_items) - 1  ] = $pSource->getHashCode();
+-   		}
++	    $hashCode = $pSource->getHashCode();
++   		if (!isset($this->_items[ $hashCode ])) {
++            $this->_items[ $hashCode ] = $pSource;
++            $index = count($this->_items) - 1;
++            $this->_keyMap[ $index  ] = $hashCode;
++            $pSource->_index = $index;
++   		} else {
++            $pSource->_index = $this->_items[ $hashCode ]->_index;
++		}
+     }
+     
+     /**
+Index: Classes/PHPExcel/Writer/Excel2007/Worksheet.php
+===================================================================
+--- Classes/PHPExcel/Writer/Excel2007/Worksheet.php	(revision 629)
++++ Classes/PHPExcel/Writer/Excel2007/Worksheet.php	(working copy)
+@@ -868,6 +868,12 @@
+ 
+ 				// Loop trough cells
+ 				$cellCollection = $pSheet->getCellCollection();
++
++				$cellsByRow = array();
++				foreach ($cellCollection as $cell) {
++					$cellsByRow[$cell->getRow()][] = $cell;
++				}
++
+ 				for ($currentRow = 1; $currentRow <= $highestRow; ++$currentRow) {
+ 						// Get row dimension
+ 						$rowDimension = $pSheet->getRowDimension($currentRow);
+@@ -900,18 +906,10 @@
+ 
+ 						// Write cells
+ 						$rowPassed = false;
+-						foreach ($cellCollection as $cell) {
+-							if ($currentRow == $cell->getRow()) {
++						if(isset($cellsByRow[$currentRow])) {
++							foreach($cellsByRow[$currentRow] as $cell) {
+ 								// Write cell
+ 								$this->_writeCell($objWriter, $pSheet, $cell, $pStringTable, $aFlippedStringTable);
+-
+-								// Speed things up...
+-								$rowPassed = true;
+-								unset($cellCollection[$cell->getCoordinate()]);
+-							} else {
+-								if ($rowPassed) {
+-									break;
+-								}
+ 							}
+ 						}
+ 
+@@ -945,18 +943,16 @@
+ 			// Sheet styles
+ 			$aStyles 		= $pSheet->getStyles();
+ 			$styleIndex 	= '';
+-			if (isset($aStyles[$pCell->getCoordinate()]) && $styleIndex == '') {
+-				$styleIndex = $this->getParentWriter()->getStylesHashTable()->getIndexForHashCode( $aStyles[$pCell->getCoordinate()]->getHashCode() );
+-				if ($styleIndex != '') {
+-					$objWriter->writeAttribute('s', $styleIndex);
+-				}
+-			} else if ($styleIndex == '') {
+-				$styleIndex = $this->getParentWriter()->getStylesHashTable()->getIndexForHashCode( $pSheet->getDefaultStyle()->getHashCode() );
+-				if ($styleIndex != '') {
+-					$objWriter->writeAttribute('s', $styleIndex);
+-				}
++			if (isset($aStyles[$pCell->getCoordinate()])) {
++				$styleIndex = $aStyles[$pCell->getCoordinate()]->_index;
++			} else {
++				$styleIndex = $pSheet->getDefaultStyle()->_index;
+ 			}
+ 
++			if ($styleIndex != '') {
++				$objWriter->writeAttribute('s', $styleIndex);
++			}
++
+ 			// If cell value is supplied, write cell value
+ 			if (is_object($pCell->getValue()) || $pCell->getValue() !== '') {
+ 				// Map type
+Index: Classes/PHPExcel/Writer/Excel5.php
+===================================================================
+--- Classes/PHPExcel/Writer/Excel5.php	(revision 629)
++++ Classes/PHPExcel/Writer/Excel5.php	(working copy)
+@@ -105,6 +105,8 @@
+ 		}
+ 		$allWorksheets = $workbook->worksheets();
+ 
++		$formats = array();
++
+ 		// Add full sheet data
+ 		foreach ($phpExcel->getSheetNames() as $sheetIndex => $sheetName) {
+ 			$phpSheet  = $phpExcel->getSheet($sheetIndex);
+@@ -116,6 +118,63 @@
+ 
+ 			$aStyles = $phpSheet->getStyles();
+ 
++			foreach ($aStyles as $style) {
++				if (isset($style->_index))
++					continue;
++
++				$styleHash = $style->getHashCode();
++
++				$formats[$styleHash] = $workbook->addFormat(array(
++					'HAlign' => $style->getAlignment()->getHorizontal(),
++					'VAlign' => $this->_mapVAlign($style->getAlignment()->getVertical()),
++					'TextRotation' => $style->getAlignment()->getTextRotation(),
++
++					'Bold' => $style->getFont()->getBold(),
++					'FontFamily' => $style->getFont()->getName(),
++					'Color' => $this->_addColor($workbook, $style->getFont()->getColor()->getRGB()),
++					'Underline' => $this->_mapUnderline($style->getFont()->getUnderline()),
++					'Size' => $style->getFont()->getSize(),
++					//~ 'Script' => $style->getSuperscript(),
++
++					'NumFormat' => $style->getNumberFormat()->getFormatCode(),
++
++					'Bottom' => $this->_mapBorderStyle($style->getBorders()->getBottom()->getBorderStyle()),
++					'Top' => $this->_mapBorderStyle($style->getBorders()->getTop()->getBorderStyle()),
++					'Left' => $this->_mapBorderStyle($style->getBorders()->getLeft()->getBorderStyle()),
++					'Right' => $this->_mapBorderStyle($style->getBorders()->getRight()->getBorderStyle()),
++					'BottomColor' => $this->_addColor($workbook, $style->getBorders()->getBottom()->getColor()->getRGB()),
++					'TopColor' => $this->_addColor($workbook, $style->getBorders()->getTop()->getColor()->getRGB()),
++					'RightColor' => $this->_addColor($workbook, $style->getBorders()->getRight()->getColor()->getRGB()),
++					'LeftColor' => $this->_addColor($workbook, $style->getBorders()->getLeft()->getColor()->getRGB()),
++
++					'FgColor' => $this->_addColor($workbook, $style->getFill()->getStartColor()->getRGB()),
++					'BgColor' => $this->_addColor($workbook, $style->getFill()->getEndColor()->getRGB()),
++					'Pattern' => $this->_mapFillType($style->getFill()->getFillType()),
++
++				));
++				if ($style->getAlignment()->getWrapText()) {
++					$formats[$styleHash]->setTextWrap();
++				}
++				$formats[$styleHash]->setIndent($style->getAlignment()->getIndent());
++				if ($style->getAlignment()->getShrinkToFit()) {
++					$formats[$styleHash]->setShrinkToFit();
++				}
++				if ($style->getFont()->getItalic()) {
++					$formats[$styleHash]->setItalic();
++				}
++				if ($style->getFont()->getStriketrough()) {
++					$formats[$styleHash]->setStrikeOut();
++				}
++				if ($style->getProtection()->getLocked() == PHPExcel_Style_Protection::PROTECTION_UNPROTECTED) {
++					$formats[$styleHash]->setUnlocked();
++				}
++				if ($style->getProtection()->getHidden() == PHPExcel_Style_Protection::PROTECTION_PROTECTED) {
++					$formats[$styleHash]->setHidden();
++				}
++
++				$style->_index = $styleHash;
++			}
++
+ 			$freeze = $phpSheet->getFreezePane();
+ 			if ($freeze) {
+ 				list($column, $row) = PHPExcel_Cell::coordinateFromString($freeze);
+@@ -147,8 +206,6 @@
+ 			$firstColumnIndex = 0;
+ 			$lastColumnIndex = -1;
+ 
+-			$formats = array();
+-
+ 			foreach ($phpSheet->getCellCollection() as $cell) {
+ 				$row = $cell->getRow() - 1;
+ 				$column = PHPExcel_Cell::columnIndexFromString($cell->getColumn()) - 1;
+@@ -167,58 +224,8 @@
+ 				if (isset($aStyles[$cell->getCoordinate()])) {
+ 					$style = $aStyles[$cell->getCoordinate()];
+ 				}
+-				$styleHash = $style->getHashCode();
++				$styleHash = $style->_index;
+ 
+-				if (!isset($formats[$styleHash])) {
+-					$formats[$styleHash] = $workbook->addFormat(array(
+-						'HAlign' => $style->getAlignment()->getHorizontal(),
+-						'VAlign' => $this->_mapVAlign($style->getAlignment()->getVertical()),
+-						'TextRotation' => $style->getAlignment()->getTextRotation(),
+-
+-						'Bold' => $style->getFont()->getBold(),
+-						'FontFamily' => $style->getFont()->getName(),
+-						'Color' => $this->_addColor($workbook, $style->getFont()->getColor()->getRGB()),
+-						'Underline' => $this->_mapUnderline($style->getFont()->getUnderline()),
+-						'Size' => $style->getFont()->getSize(),
+-						//~ 'Script' => $style->getSuperscript(),
+-
+-						'NumFormat' => $style->getNumberFormat()->getFormatCode(),
+-
+-						'Bottom' => $this->_mapBorderStyle($style->getBorders()->getBottom()->getBorderStyle()),
+-						'Top' => $this->_mapBorderStyle($style->getBorders()->getTop()->getBorderStyle()),
+-						'Left' => $this->_mapBorderStyle($style->getBorders()->getLeft()->getBorderStyle()),
+-						'Right' => $this->_mapBorderStyle($style->getBorders()->getRight()->getBorderStyle()),
+-						'BottomColor' => $this->_addColor($workbook, $style->getBorders()->getBottom()->getColor()->getRGB()),
+-						'TopColor' => $this->_addColor($workbook, $style->getBorders()->getTop()->getColor()->getRGB()),
+-						'RightColor' => $this->_addColor($workbook, $style->getBorders()->getRight()->getColor()->getRGB()),
+-						'LeftColor' => $this->_addColor($workbook, $style->getBorders()->getLeft()->getColor()->getRGB()),
+-
+-						'FgColor' => $this->_addColor($workbook, $style->getFill()->getStartColor()->getRGB()),
+-						'BgColor' => $this->_addColor($workbook, $style->getFill()->getEndColor()->getRGB()),
+-						'Pattern' => $this->_mapFillType($style->getFill()->getFillType()),
+-
+-					));
+-					if ($style->getAlignment()->getWrapText()) {
+-						$formats[$styleHash]->setTextWrap();
+-					}
+-					$formats[$styleHash]->setIndent($style->getAlignment()->getIndent());
+-					if ($style->getAlignment()->getShrinkToFit()) {
+-						$formats[$styleHash]->setShrinkToFit();
+-					}
+-					if ($style->getFont()->getItalic()) {
+-						$formats[$styleHash]->setItalic();
+-					}
+-					if ($style->getFont()->getStriketrough()) {
+-						$formats[$styleHash]->setStrikeOut();
+-					}
+-					if ($style->getProtection()->getLocked() == PHPExcel_Style_Protection::PROTECTION_UNPROTECTED) {
+-						$formats[$styleHash]->setUnlocked();
+-					}
+-					if ($style->getProtection()->getHidden() == PHPExcel_Style_Protection::PROTECTION_PROTECTED) {
+-						$formats[$styleHash]->setHidden();
+-					}
+-				}
+-
+ 				// Write cell value
+ 				if ($cell->getValue() instanceof PHPExcel_RichText) {
+ 					$worksheet->write($row, $column, $cell->getValue()->getPlainText(), $formats[$styleHash]);

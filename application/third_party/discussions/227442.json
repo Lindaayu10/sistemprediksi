@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "494356",
+    "ThreadId": "227442",
+    "Html": "<p>I have read one of the previous posts regarding dates, but my problem has not yet been solved. The scenario is as follow:</p>\r\n<ol>\r\n<li>My clients can upload a file in either .csv, .xls or .xlsx format. </li>\r\n<li>Any column can contain a date vale</li>\r\n<li>The date value si then upload as a numeric string</li>\r\n</ol>\r\n<p>Using this code:</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre><div style=\"color:black;background-color:white\"><pre>&lt;?php\r\nerror_reporting(E_ALL);\r\n$fnme = $_REQUEST[<span style=\"color:#a31515\">'fnme'</span>];\r\n$rid = $_REQUEST[<span style=\"color:#a31515\">'rid'</span>];\r\n$fst = $_REQUEST[<span style=\"color:#a31515\">'fst'</span>];\r\n<span style=\"color:blue\">require_once</span> <span style=\"color:#a31515\">'../phpex/Classes/PHPExcel/IOFactory.php'</span>;\r\n$objPHPExcel = PHPExcel_IOFactory::load(<span style=\"color:#a31515\">&quot;docs/&quot;</span>.$fnme);\r\n$objWorksheet = $objPHPExcel-&gt;getActiveSheet();\r\n<span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;table id=&quot;uplTbl&quot; class=&quot;table&quot;&gt;'</span> ;\r\n<span style=\"color:blue\">foreach</span> ($objWorksheet-&gt;getRowIterator() <span style=\"color:blue\">as</span> $row) {\r\n\t<span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;tr&gt;'</span> ;\r\n\t\r\n\t$cellIterator = $row-&gt;getCellIterator();\r\n\t$cellIterator-&gt;setIterateOnlyExistingCells(false);\r\n\t$c=0;\r\n\t<span style=\"color:blue\">foreach</span> ($cellIterator <span style=\"color:blue\">as</span> $cell) {\r\n\t\t\t\r\n\t\t<span style=\"color:blue\">if</span> (PHPExcel_Shared_Date::isDateTime($cell-&gt;getValue())) {\r\n\t\t\t<span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;td class=&quot;td&quot;&gt;'</span> . date(<span style=\"color:#a31515\">&quot;d M Y&quot;</span>,PHPExcel_Shared_Date::ExcelToPHP($cell-&gt;getValue())) . <span style=\"color:#a31515\">'&lt;/td&gt;'</span> ;\r\n\t\t}<span style=\"color:blue\">else</span>{\r\n\t\t\t<span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;td class=&quot;td&quot;&gt;'</span> . $cell-&gt;getValue() . <span style=\"color:#a31515\">'&lt;/td&gt;'</span> ;\r\n\t\t}\r\n\t}\r\n\t\r\n\t<span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;/tr&gt;'</span> ;\r\n}\r\n<span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;/table&gt;'</span> ;\r\n?&gt;\r\n\r\nI get the following error:</pre>\r\n<pre>\t<table id=uplTbl><tbody><strong><p>Catchable fatal error</p><p>string given, called in /home/syncohum/public_html/sms/template/getfile.php on line 18 and defined in </p><p><strong>/home/syncohum/public_html/sms/phpex/Classes/PHPExcel/Shared/Date.php</strong> on line 207</p><p><strong>&nbsp;</strong></p><p><strong><strong>(Line 18 refers to </strong></strong></p><p><strong><strong>if (PHPExcel_Shared_Date::isDateTime($cell-&gt;getValue())) {)</strong></strong></p></strong>: Argument 1 passed to PHPExcel_Shared_Date::isDateTime() must be an instance of PHPExcel_Cell, </tbody></table></pre>\r\n<pre>Any assistance will greatly be appreciated.</pre>\r\n<pre>NicOos</pre>\r\n</div>\r\n</pre>\r\n</div>",
+    "PostedDate": "2010-09-16T02:57:08.473-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "494357",
+    "ThreadId": "227442",
+    "Html": "<p>The last bit got a bit scrambled....</p>\r\n<p>The error is:</p>\r\n<p>Catchable fatal error: Argument 1 passed to PHPExcel_Shared_Date::isDateTime() must be an instance of PHPExcel_Cell, string given, called in /home/syncohum/public_html/sms/template/getfile.php on line 18 and defined in /home/syncohum/public_html/sms/phpex/Classes/PHPExcel/Shared/Date.php on line</p>\r\n<p>&nbsp;Line 18 refers to:</p>\r\n<p>if (PHPExcel_Shared_Date::isDateTime($cell-&gt;getValue())) {</p>",
+    "PostedDate": "2010-09-16T02:59:35.683-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "494366",
+    "ThreadId": "227442",
+    "Html": "<p>The error pretty much says it all:</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>Argument 1 passed to PHPExcel_Shared_Date::isDateTime() must be an instance of PHPExcel_Cell, string given</pre>\r\n</div>\r\n<p>You're calling isDateTime() explicitly passing the value from the cell</p>\r\n<p><span style=\"color:blue\">if</span> (PHPExcel_Shared_Date::isDateTime($cell-&gt;getValue)) {</p>\r\n<p>When you should be passing the cell rather than its value</p>\r\n<p><span style=\"color:blue\">if</span> (PHPExcel_Shared_Date::isDateTime($cell)) {</p>\r\n<p>The only way that Excel differentiates between numbers and dates is the number format mask, which isn't anything to do with the value in the cell, but with the formatting of the cell... so we need to be able to read the cell formatting to identify a date. To obtain the formatting for isDateTime() to determine if the format mask is a date/time format or not, we need the cell itself</p>\r\n<p>&nbsp;</p>\r\n<p>Note that if the file could be a CSV, you should probably be using the Advanced Value Binder so that the loader can correctly set the format mask for date values</p>",
+    "PostedDate": "2010-09-16T03:22:39.283-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "494376",
+    "ThreadId": "227442",
+    "Html": "<p>Thanks, it worked like a charm...</p>",
+    "PostedDate": "2010-09-16T03:50:29.163-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

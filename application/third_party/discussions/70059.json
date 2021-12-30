@@ -1,0 +1,66 @@
+[
+  {
+    "Id": "238662",
+    "ThreadId": "70059",
+    "Html": "<p>How can avoid text wraping in&nbsp; a .xlsx  file?</p>\r\n<p>The file i am creating having long column name and auto filter is also set for these fields.</p>\r\n<p>and in one column I want to store the&nbsp; numbers like 0001, 0002, 0003</p>\r\n<p>but I am only getting the numbers without 0 like 1, 2, 3 ..</p>\r\n<p>&nbsp;</p>\r\n<p>Please suggest what to do these issues?</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-09-25T00:46:15.137-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "238688",
+    "ThreadId": "70059",
+    "Html": "<div style=\"color:Black;background-color:White\">\r\n<pre>$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(<span style=\"color:#A31515\">'A1'</span>)-&gt;getNumberFormat() -&gt;setFormatCode(<span style=\"color:#A31515\">'0000'</span>);\r\n</pre>\r\n</div>\r\n<p>should work</p>",
+    "PostedDate": "2009-09-25T01:48:52.267-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "238727",
+    "ThreadId": "70059",
+    "Html": "<p>I tried this but this is not printing all number in the desired format.&nbsp;</p>\r\n<p>again I tried with</p>\r\n<p>$objPHPExcel-&gt;getActiveSheet()-&gt;getCell('A1')-&gt;setValueExplicit($recordsRow['emp_id'], PHPExcel_Cell_DataType::TYPE_STRING);</p>\r\n<p>&nbsp;</p>\r\n<p>This gives the desired out put.</p>",
+    "PostedDate": "2009-09-25T04:13:03.98-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "238748",
+    "ThreadId": "70059",
+    "Html": "<p>@vishalsahu: Generally, you should not store numbers as strings. What is not working with the code Mark posted?</p>\r\n<div id=\"_mcePaste\" style=\"overflow:hidden;left:-10000px;top:0px;width:1px;height:1px\"><a id=\"ctl00_ctl00_MasterContent_Content_PostRepeater_ctl04_UserNameLink\" href=\"http://www.codeplex.com/site/users/view/vishalsahu\">vishalsahu</a></div>",
+    "PostedDate": "2009-09-25T05:35:47.583-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "238765",
+    "ThreadId": "70059",
+    "Html": "<p>Storing numbers as string values can have some interesting side effects if you subsequently want to use these values in formulae, so it's not something that we'd recommend</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre><span style=\"color:Green\">/** Error reporting */</span>\r\nerror_reporting(E_ALL);\r\n<span style=\"color:Green\">/** PHPExcel */</span>\r\n<span style=\"color:Blue\">require_once</span> <span style=\"color:#A31515\">'../Classes/PHPExcel.php'</span>;\r\n<span style=\"color:Green\">/** PHPExcel_IOFactory */</span>\r\n<span style=\"color:Blue\">require_once</span> <span style=\"color:#A31515\">'../Classes/PHPExcel/IOFactory.php'</span>;\r\n<span style=\"color:Green\">// Create new PHPExcel object</span>\r\n$objPHPExcel = <span style=\"color:Blue\">new</span> PHPExcel();\r\n<span style=\"color:Green\">// Add some data</span>\r\n$objPHPExcel-&gt;setActiveSheetIndex(0);\r\n<span style=\"color:Blue\">for</span> ($i = 1; $i &lt;= 10000; ++$i) {\r\n $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(<span style=\"color:#A31515\">'A'</span>.$i, $i);\r\n}\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(<span style=\"color:#A31515\">'A1:A10000'</span>)-&gt;getNumberFormat() -&gt;setFormatCode(<span style=\"color:#A31515\">'0000'</span>);\r\n<span style=\"color:Green\">// Save Excel file</span>\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, <span style=\"color:#A31515\">'Excel5'</span>);\r\n$objWriter-&gt;save(str_replace(<span style=\"color:#A31515\">'.php'</span>, <span style=\"color:#A31515\">'.xls'</span>, <span style=\"color:Blue\">__FILE__</span>));\r\n</pre>\r\n</div>",
+    "PostedDate": "2009-09-25T06:07:27.227-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "239053",
+    "ThreadId": "70059",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>koyama wrote:</strong><br>\r\n<p>@vishalsahu: Generally, you should not store numbers as strings. What is not working with the code Mark posted?&nbsp;</p>\r\n<p>&nbsp;</p>\r\n</blockquote>\r\n<pre>$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(<span style=\"color:#a31515\">'A1'</span>)-&gt;getNumberFormat() -&gt;setFormatCode(<span style=\"color:#a31515\">'0000'</span>);</pre>\r\n<pre>\r\n<p>When I used the above mentioned code,</p><p>I was not getting all the numbers formatted in the desired format.</p><p>Only few numbers were changed. Rests were again printed without preceding 0.</p></pre>",
+    "PostedDate": "2009-09-25T22:13:14.55-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "239147",
+    "ThreadId": "70059",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>vishalsahu wrote:</strong><br>\r\n<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>koyama wrote:</strong><br>\r\n<p>@vishalsahu: Generally, you should not store numbers as strings. What is not working with the code Mark posted?&nbsp;</p>\r\n<p>&nbsp;</p>\r\n</blockquote>\r\n<pre>$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(<span style=\"color:#a31515\">'A1'</span>)-&gt;getNumberFormat() -&gt;setFormatCode(<span style=\"color:#a31515\">'0000'</span>);</pre>\r\n<pre><p>When I used the above mentioned code,</p><p>I was not getting all the numbers formatted in the desired format.</p><p>Only few numbers were changed. Rests were again printed without preceding 0.</p></pre>\r\n</blockquote>\r\n<p>&nbsp;Very unusual.</p>\r\n<p>The code I used above formatted correctly for every number between 1 and 10,000. Can you give us any idea of what values weren't formatted correctly?</p>",
+    "PostedDate": "2009-09-26T10:28:18.807-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1014033",
+    "ThreadId": "70059",
+    "Html": "greetings,<br />\ncosts me some hours... ( at least i wanted to format a cell as currency and didnt work so this simple test, and sory for replying in this old post, but i thought it fits here )<br />\n<br />\n   $objPHPExcel \t\t\t      = new PHPExcel();<br />\n...<br />\n   $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('I26' , '013');<br />\n   $objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('I26')-&gt;getNumberFormat()-&gt;setFormatCode('0000');<br />\n-&gt;cell is not formated... when its the last cell in the sheet... or the onlyone?!<br />\n<br />\ndoing this formats both: <br />\n<br />\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('I27' , '013');<br />\n$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('I27')-&gt;getNumberFormat()-&gt;setFormatCode('0000');<br />\n<br />\nsame issue as: ( nothing in the sheet )<br />\n<br />\n   $objPHPExcel \t\t\t      = new PHPExcel();<br />\n   $objPHPExcel-&gt;getActiveSheet()-&gt;getCell('A1')-&gt;setValueExplicit($psRechnungszeitraum ,PHPExcel_Cell_DataType::TYPE_STRING);<br />\n   $objWriter \t= PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');<br />\n   $objWriter-&gt;save($loRechnung-&gt;lsFilePath . $loRechnung-&gt;lsFilename);<br />\n<br />\nsetting another cell, both appear...<br />\n",
+    "PostedDate": "2013-03-12T09:26:52.557-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

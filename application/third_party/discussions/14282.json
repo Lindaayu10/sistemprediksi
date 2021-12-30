@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "46430",
+    "ThreadId": "14282",
+    "Html": "\r\nI've spend most of my day scratching my head because a very simple =SUM() consistently came out a 0. Eventually I drilled down to Excell2007/Worksheet.php#_writeCell which if the cell is a formular as of 1.4.5 now checks if getPreCalculateFormulas() comes back true (which it always will by default as no setting is otherwise performed) and then stored the precalculated value as the value of the cell (which is always 0).<br /><br />Removing this to the functionality of 1.4.0 resolves the problem although it does cause a a \"save changes?\" dialog when you close the file in excel. But at least my =SUM() works again.<br />",
+    "PostedDate": "2007-08-24T07:34:52.12-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "46729",
+    "ThreadId": "14282",
+    "Html": "\r\nYou can setPreCalculateFormulas(false) to mimic 1.4.0 behaviour.<br /><br />This option has been added because:<br />- Excel2007 behaves correctly and re-calculates formulas on opening<br />- Compatibility pack does not... It only does when adding dummy data into formula precalculated value, as we did untill 1.4.0<br /><br />Regards,<br />Maarten<br />",
+    "PostedDate": "2007-08-27T08:17:35.717-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "47253",
+    "ThreadId": "14282",
+    "Html": "\r\nFirst of all thank you, this is a great work you are doing!<br /><br />I use formulas that contain references to cells in other sheets, using Excel 2003 and the Compatibility Pack. <br />Version 1.4.0 produced a document with formula re-calculation on opening. To have 1.4.5 produce the same I had to apply 2 changes:<br /><br /><ul><li>in <i>Writer/Excel2007/Worksheet.php</i> comment out line <b>784</b> --&gt; $objWriter-&gt;writeElement('v', '0'); This ensures that when using <i>setPreCalculateFormulas(false);</i> the same behaviour as 1.4.0 is preserved i.e. don't add a &lt;v&gt;0&lt;/v&gt; tag. </li></ul><br /><ul><li>in <i>Writer/Excel2007/Workbook.php</i> comment out line <b>87</b> --&gt; $this-&gt;_writeBookViews($objWriter, $pPHPExcel); Again this is required to reproduce the 1.4.0 bahaviour. Somehow adding the &lt;workbookView&gt; tag to workbook.xml is breaking the formula re-calculation on opening, It also has the effect of selecting all of the sheet tabs on opening and positioning on the last sheet. This is removed when commenting out the line.</li></ul><br />Here is a sample code that generates a document that can reproduce the above:<br /><br />set_include_path(get_include_path() . PATH_SEPARATOR . '../PHPExcell-1.4.5/Classes/');<br /><br />include 'PHPExcel.php';<br />include 'PHPExcel/Writer/Excel2007.php';<br />$out_filename = \"test.xlsx\";<br />$objPHPExcel = new PHPExcel();<br /><br />$objPHPExcel-&gt;setActiveSheetIndex(0);<br />$objPHPExcel-&gt;getActiveSheet()-&gt;setTitle('Foglio 1');<br />$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow(0, 1, 10);<br />$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow(1, 1, 20);<br />$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow(2, 1, '=SUM(A1:B1)');<br />$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow(2, 3, \"='Foglio 2'!C1\");<br /><br />$objPHPExcel-&gt;createSheet();<br />$objPHPExcel-&gt;setActiveSheetIndex(1);<br />$objPHPExcel-&gt;getActiveSheet()-&gt;setTitle('Foglio 2');<br />$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow(0, 1, 30);<br />$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow(1, 1, 40);<br />$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow(2, 1, '=SUM(A1:B1)');<br /><br />$objPHPExcel-&gt;setActiveSheetIndex(0);<br /><br />$objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel);<br />$objWriter-&gt;setPreCalculateFormulas(false);<br />$objWriter-&gt;save($out_filename);<br />",
+    "PostedDate": "2007-08-30T11:36:33.743-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "47348",
+    "ThreadId": "14282",
+    "Html": "<br /><div class=\"quote\" style=\"border: dotted .1em #aaa; border-left: none; border-right: none; font-style: italic; margin: 1em 0em 2.5em 3em;padding: .2em;\"><br />francescom wrote:<br /><ul><li>in <i>Writer/Excel2007/Worksheet.php</i> comment out line <b>784</b> --&gt; $objWriter-&gt;writeElement('v', '0'); This ensures that when using <i>setPreCalculateFormulas(false);</i> the same behaviour as 1.4.0 is preserved i.e. don't add a &lt;v&gt;0&lt;/v&gt; tag. </li></ul><br /><ul><li>in <i>Writer/Excel2007/Workbook.php</i> comment out line <b>87</b> --&gt; $this-&gt;_writeBookViews($objWriter, $pPHPExcel); Again this is required to reproduce the 1.4.0 bahaviour. Somehow adding the &lt;workbookView&gt; tag to workbook.xml is breaking the formula re-calculation on opening, It also has the effect of selecting all of the sheet tabs on opening and positioning on the last sheet. This is removed when commenting out the line.</li></ul><br /></div>There you say it: these things are breaking formula re-calculation in Excel2003 and the compatibility pack. But, if you apply the changes you just did, formula re-calculation in Excel2007 is broken... Pity these two don't behave the same way!<br /><br />Would it be useful to add a \"behaviour\" switch in PHPExcel? I.e. you can create OpenXML for Excel2007 and for Excel2003 compatibility pack by setting a boolean switch?<br />",
+    "PostedDate": "2007-08-31T00:49:55.997-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "47353",
+    "ThreadId": "14282",
+    "Html": "\r\nI checked now and my test document above (after applying my 2 changes) recalculates on opening also with Excel2007. But of course I didn't try with more complex documents. So yes, if we come to a point where we see a real incompatibility between Excel2007 and compatibility pack a behaviour switch would be useful.<br />",
+    "PostedDate": "2007-08-31T01:51:24.073-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "47356",
+    "ThreadId": "14282",
+    "Html": "\r\nThis discussion has been copied to a work item. Click here to <a href=\"http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=3217\">go to the work item and continue the discussion</a>.<br />",
+    "PostedDate": "2007-08-31T03:04:21.697-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

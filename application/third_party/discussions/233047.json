@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "515438",
+    "ThreadId": "233047",
+    "Html": "\r\n<p>I'm new to PHPExcel and am hoping to be pointed in the right direction. In older version of PHPExcel my pages work perfect. When I update to new version 1.7.4 I get the following error. Can you point me in the right direction of where to start troubleshooting\r\n this as I am clueless. The reason I need to update is it fixes one item but breaks others..</p>\r\n<p>&nbsp;</p>\r\n<p>[Mon Nov 01 10:50:46 2010] [error] [client 100.100.254.57] PHP Fatal error:&nbsp; Uncaught exception 'Exception' with message 'Report!P3 -&gt; Formula Error: An unexpected error occured' in /usr/share/php/PHPExcel/Cell.php:272\\nStack trace:\\n#0 /usr/share/php/PHPExcel/Writer/Excel5/Worksheet.php(443):\r\n PHPExcel_Cell-&gt;getCalculatedValue()\\n#1 /usr/share/php/PHPExcel/Writer/Excel5.php(177): PHPExcel_Writer_Excel5_Worksheet-&gt;close()\\n#2 /usr/share/php/xlsWriter.php(63): PHPExcel_Writer_Excel5-&gt;save('php://output')\\n#3 /usr/share/php/xlsWriter.php(26):\r\n xlsWriter-&gt;buildXLS5()\\n#4 /var/www/appsrv/wo/paintline/paintsystem_xls.php(1132): xlsWriter-&gt;build()\\n#5 {main}\\n&nbsp; thrown in /usr/share/php/PHPExcel/Cell.php on line 272, referer: http://appsrv3/wo/paintline/paintsystem.php?l=5c0ba53eaf9b6d6c71ca4ca53dae2756</p>\r\n",
+    "PostedDate": "2010-11-01T08:26:32.393-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "515609",
+    "ThreadId": "233047",
+    "Html": "\r\n<p>With any formula error, the best way to help debug it is to enable logging for the calculation engine:</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>PHPExcel_Calculation::getInstance()-&gt;writeDebugLog = true;\r\n</pre>\r\n</div>\r\n<p>and then execute the calculation engine:</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><span style=\"color:blue\">function</span> testFormula($sheet,$cell) {\r\n   $formulaValue = $sheet-&gt;getCell($cell)-&gt;getValue();\r\n   <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;b&gt;'</span>.$cell.<span style=\"color:#a31515\">' Value is &lt;/b&gt;'</span>.$formulaValue.<span style=\"color:#a31515\">&quot;&lt;br /&gt;\\n&quot;</span>;\r\n   $expectedValue = $sheet-&gt;getCell($cell)-&gt;getOldCalculatedValue();\r\n   <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;b&gt;'</span>.$cell.<span style=\"color:#a31515\">' Expected Value is &lt;/b&gt;'</span>.$expectedValue.<span style=\"color:#a31515\">&quot;&lt;br /&gt;\\n&quot;</span>;\r\n\r\n   <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;b&gt;Parser Stack :-&lt;/b&gt;&lt;pre&gt;'</span>;\r\n   $tokens = PHPExcel_Calculation::getInstance()-&gt;parseFormula($formulaValue,$sheet-&gt;getCell($cell));\r\n   print_r($tokens);\r\n   <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;/pre&gt;'</span>;\r\n\r\n   <span style=\"color:blue\">try</span> {\r\n      $cellValue = $sheet-&gt;getCell($cell)-&gt;getCalculatedValue();\r\n      <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;b&gt;'</span>.$cell.<span style=\"color:#a31515\">' Calculated Value is &lt;/b&gt;'</span>.$cellValue.<span style=\"color:#a31515\">&quot;&lt;br /&gt;\\n&quot;</span>;\r\n      <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;h3&gt;Evaluation Log:&lt;/h3&gt;&lt;pre&gt;'</span>;\r\n      print_r(PHPExcel_Calculation::getInstance()-&gt;debugLog);\r\n      <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;/pre&gt;'</span>;\r\n   } <span style=\"color:blue\">catch</span> (Exception $e) {\r\n      <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">&quot;CALCULATION ENGINE ERROR: &quot;</span>.$e-&gt;getMessage().<span style=\"color:#a31515\">&quot;&lt;br /&gt;\\n&quot;</span>;\r\n      <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;h3&gt;Evaluation Log:&lt;/h3&gt;&lt;pre&gt;'</span>;\r\n      print_r(PHPExcel_Calculation::getInstance()-&gt;debugLog);\r\n      <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;/pre&gt;'</span>;\r\n   }\r\n}\r\n\r\ntestFormula($objPHPExcel-&gt;getActiveSheet(),<span style=\"color:#a31515\">'C1'</span>);\r\n</pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2010-11-01T14:49:31.153-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "516014",
+    "ThreadId": "233047",
+    "Html": "\r\n<p>What file would I enable logging in?</p>\r\n",
+    "PostedDate": "2010-11-02T09:51:31.28-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "516168",
+    "ThreadId": "233047",
+    "Html": "\r\n<p>I'd assume in xlsWriter.php ... we need to identify which formula is causing the problem before we can try to find out why it's a problem.</p>\r\n",
+    "PostedDate": "2010-11-02T15:22:26.623-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

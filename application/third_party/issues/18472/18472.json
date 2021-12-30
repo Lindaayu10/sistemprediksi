@@ -1,0 +1,80 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "If you hide all unused columns and rows in Excel, the resulting file is no bigger than previously.\n \nIf you do it in PHPExcel, as follows, the file is orders of magnitude larger, and unusable:\n \nfor ($col = 'E'; $col != 'XFE'; $col++)\n   $sheet->getColumnDimension($col)->setVisible(false);\n \nfor ($row = '28'; $row != '1048577'; $row++)\n   $sheet->getRowDimension($row)->setVisible(false);\n \nPlease don't say you shouldn't be doing this, etc. - I can't control how my analysts want to present their data, and it works in Excel. Thanks!",
+    "LastUpdatedDate": "2013-12-23T13:46:38.753-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2012-08-15T15:47:08.377-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Using setVisible creates huge XLSX files",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 2,
+    "Id": 18472
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "So how come that doesn't happen in Excel? Seems there is a way to do it in Excel without explicitly saying those columns and rows exist.",
+      "PostedDate": "2012-08-15T16:45:55.15-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "It looks like it might be triggered by setting the last column's max width to 16384 in sheet1.xml:\r\n\r\n<col width=\"9.140625\" max=\"16384\" min=\"3\" hidden=\"1\"/>\r\n\r\nCan 't see where the corresponding row trigger is though",
+      "PostedDate": "2012-08-15T16:55:25.293-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "In case you (or anyone else) is interested:\r\n\r\nTo hide all empty rows below the worksheet defined in <dimension>, add zeroHeight=\"1\" to <sheetFormatPr>\r\n\r\nTo hide all empty columns to the right, add <col max=\"16384\" min=\"x\" hidden=\"1\"/> to <cols>, where \"x\" is one number greater than the total number of columns in the worksheet\r\n\r\nThese changes should be applied to sheet<num>.xml under xl\\worksheets. This is how it's done in Excel.",
+      "PostedDate": "2012-08-15T20:45:17.437-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Yes, it will get bigger because your'e explicitly telling it that columns E to XFE and rows 28 to 1048577 exist. I'm not going to change the code logic to stop you doing this.\r\n\r\n\n\n** Closed by MarkBaker 8/15/2012 4:21 PM",
+      "PostedDate": "2012-08-15T20:46:45.257-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "See above comments. I've done the groundwork for you, please consider including it. Thanks.",
+      "PostedDate": "2012-08-15T20:46:46.003-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "You'll be pleased to know that ZeroHeight has now been implemented in the github develop branch, looking at col max hidden now",
+      "PostedDate": "2012-09-20T04:05:32.833-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:01:46.427-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-12-23T13:46:38.753-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

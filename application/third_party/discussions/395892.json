@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "913939",
+    "ThreadId": "395892",
+    "Html": "\r\n<p>I create a writer with an changed reader,</p>\r\n<p>but i found the work of saving of the writer takes a very long time,so i wonder that if there is a way to help me to shorten the time...</p>\r\n",
+    "PostedDate": "2012-09-17T23:52:29.18-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "914032",
+    "ThreadId": "395892",
+    "Html": "<p>Please be slightly more specific in your questions.... reading and writing files aren't instantaneous, but as every reader and every writer is completely different your question doesn't really give me any clues on how to answer. Try reading some of the threads on this forum about performance.</p>",
+    "PostedDate": "2012-09-18T04:12:50.293-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "914389",
+    "ThreadId": "395892",
+    "Html": "<blockquote style=\"border: solid .1em #ccc; font-style: italic; margin: .25em 1em 0 1em; padding: 0 .25em 0 .25em;\"><strong>MarkBaker wrote:</strong><br />\r\n<p>Please be slightly more specific in your questions.... reading and writing files aren't instantaneous, but as every reader and every writer is completely different your question doesn't really give me any clues on how to answer. Try reading some of the threads  on this forum about performance.</p>\r\n</blockquote>\r\n<p>Thank u very much for replying !</p>\r\n<p>what am doing is to get data in Mysql and set the data to the DropDown value of&nbsp;some of the many columns in the excel with 2001 rows.</p>\r\n<p>1: I need create a reader with an existing excel file which has 20001 rows(one title row and 2000 empty rows) and 40 columns.</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>   $objReader = PHPExcel_IOFactory::createReader($excel_type);\r\n   $objReaderTemplateExcel = $objReader-&gt;load($file_name);\r\n</pre>\r\n</div>\r\n</p>\r\n<p>2: I then set the data from Mysql to the DropDown value of some cells of the 40 cells of row with &nbsp;row-index 2(the row with row-index 1 is the title row).</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre><span style=\"color: green;\">// this code below is in an loop with $k form 'A' to 'AQ'</span>\r\n<span style=\"color: green;\">//set row with row-index 2</span>\r\n$readerSheet = $objReaderTemplateExcel-&gt;getSheet($i);<span style=\"color: green;\">//</span>\r\n$objValidation=$readerSheet-&gt;getCell($k.<span style=\"color: #a31515;\">\"2\"</span>)-&gt;getDataValidation();            <span style=\"color: green;\">// A2,B2,C2....</span>\r\n$objValidation-&gt;setType( PHPExcel_Cell_DataValidation::TYPE_LIST )  \t\t  \r\n\t\t\t               -&gt;setErrorStyle(PHPExcel_Cell_DataValidation::STYLE_INFORMATION )\r\n\t\t\t               -&gt;setAllowBlank(true)  \r\n\t\t\t               -&gt;setShowInputMessage(true)  \r\n\t\t\t               -&gt;setShowErrorMessage(true)  \r\n\t\t\t               -&gt;setShowDropDown(true)\r\n$str_len = strlen($<span style=\"color: blue;\">list</span>);  //$list is a string with comma delimiter\r\n<span style=\"color: blue;\">if</span>($str_len&gt;=255){\r\n\t$sheetName = $readerSheet-&gt;getTitle();            \t\t\t\t\t\r\n\t\t$str_list_arr = explode(<span style=\"color: #a31515;\">','</span>, $<span style=\"color: blue;\">list</span>);$<span style=\"color: blue;\">list</span>=null;<span style=\"color: blue;\">unset</span>($<span style=\"color: blue;\">list</span>);   \r\n\t\t<span style=\"color: blue;\">if</span>($str_list_arr)   \r\n\t\t\t  <span style=\"color: blue;\">foreach</span>($str_list_arr <span style=\"color: blue;\">as</span> $i =&gt;$d){  \r\n\t\t\t\t\t $c = $this-&gt;spaceColumn.($i+2);  \r\n\t\t\t\t\t $readerSheet-&gt;setCellValue($c,$d);\t\t\t\t                       \r\n\t\t\t   }   \r\n\t\t $endcell = <span style=\"color: #a31515;\">'$'</span>.$this-&gt;spaceColumn.<span style=\"color: #a31515;\">'$'</span>.($i+2);  \r\n\t\t $objValidation-&gt;setFormula1($sheetName.<span style=\"color: #a31515;\">\"!$\"</span>.$this-&gt;spaceColumn.<span style=\"color: #a31515;\">\"$2:\"</span>.$endcell);\t\t\t\t        \t\t\t\t\t \r\n\t\t $readerSheet-&gt;getColumnDimension($this-&gt;spaceColumn)-&gt;setVisible(false);\r\n\t\t $str_list_arr=null;<span style=\"color: blue;\">unset</span>($str_list_arr);\t\t \r\n} \r\n<span style=\"color: blue;\">else</span> $objValidation-&gt;setFormula1(<span style=\"color: #a31515;\">'\"'</span> . $<span style=\"color: blue;\">list</span> . <span style=\"color: #a31515;\">'\"'</span>);  \t\r\n</pre>\r\n</div>\r\n</p>\r\n<p>3:I clone the row with row-index 2 1999 times.</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre><span style=\"color: green;\">//this code below is in a loop with $k from 'A' to 'AQ'</span>\r\n<span style=\"color: green;\">//row 3 to  row 2001(title row and 2000 data rows )</span>\r\n<span style=\"color: blue;\">for</span>($j=3;$j&lt;=$this-&gt;highestRow;$j++)\r\n{   \r\n\t$readerSheet-&gt;getCell(<span style=\"color: #a31515;\">\"$k$j\"</span>)-&gt;setDataValidation(<span style=\"color: blue;\">clone</span> $objValidation);\t\t\t    \t\r\n}\r\n</pre>\r\n</div>\r\n</p>\r\n<p>4:I create a witer to write the changed ojbReader to excel file to the Apache server.</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>\t$objWriter = PHPExcel_IOFactory::createWriter ( $objReaderTemplateExcel,<span style=\"color: #a31515;\">'Excel5'</span>);<span style=\"color: green;\">//writer</span>\t<div style=\"color: black; background-color: white;\"><pre>      $objWriter-&gt;save($str_file_store_name);<span style=\"color: green;\">//save  file to server disk</span>\r\n</pre>\r\n</div>\r\n</pre>\r\n</div>\r\n</p>\r\n<p>5:At last,a will get an excel file with 2000 rows(one title row and the other 1999 rows &nbsp;with just&nbsp;DropDown&nbsp;value).</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>And i have found that it would take a very long time in progress 4 in the&nbsp;</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre><span style=\"white-space: pre;\">\t\t</span>$objWriter-&gt;save($str_file_store_name);<span style=\"color: green;\">//save  file to server disk</span>\r\n</pre>\r\n</div>\r\n</p>\r\n<p>&nbsp;code.</p>\r\n<p>&nbsp;</p>\r\n<p>Can i get any suggestions ?</p>\r\n<p>&nbsp;</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre><span style=\"background-color: white;\"></span></pre>\r\n</div>\r\n</p>",
+    "PostedDate": "2012-09-18T18:48:08.093-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "914526",
+    "ThreadId": "395892",
+    "Html": "<p>Critical information is that you're talking about the Excel5 Writer.</p>\r\n<p>Use</p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>$objWriter-&gt;setPreCalculateFormulas(FALSE);\r\n</pre>\r\n</div>\r\n<p>to prevent the writer from testing to see if there are any formula cells and executing their calculation when it saves.</p>\r\n<p>&nbsp;</p>\r\n<p>Otherwise, you'll have to live with the speed: PHPExcel needs time to build the xls binary streams and insert them into the OLE container that it builds.</p>\r\n<p>This is why larger workbooks are best generated in the background rather than within a user request</p>",
+    "PostedDate": "2012-09-19T03:29:33.473-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "914943",
+    "ThreadId": "395892",
+    "Html": "<blockquote style=\"border: solid .1em #ccc; font-style: italic; margin: .25em 1em 0 1em; padding: 0 .25em 0 .25em;\"><strong>MarkBaker wrote:</strong><br />\r\n<p>Critical information is that you're talking about the Excel5 Writer.</p>\r\n<p>Use</p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>$objWriter-&gt;setPreCalculateFormulas(FALSE);\r\n</pre>\r\n</div>\r\n<p>to prevent the writer from testing to see if there are any formula cells and executing their calculation when it saves.</p>\r\n<p>&nbsp;</p>\r\n<p>Otherwise, you'll have to live with the speed: PHPExcel needs time to build the xls binary streams and insert them into the OLE container that it builds.</p>\r\n<p>This is why larger workbooks are best generated in the background rather than within a user request</p>\r\n</blockquote>\r\n<p>but i do use formula:</p>\r\n<p>&nbsp;</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre> $objValidation-&gt;setFormula1($sheetName.<span style=\"color: #a31515;\">\"!$\"</span>.$this-&gt;spaceColumn.<span style=\"color: #a31515;\">\"$2:\"</span>.$endcell);\r\n</pre>\r\n</div>\r\n</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2012-09-19T19:20:47.6-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "915040",
+    "ThreadId": "395892",
+    "Html": "<p>It doesn't matter whether you use formulas or not... When an Excel workbook is opened in MS Excel, there is a \"dirty\" flag that tells Excel whether it needs to recalculate formulas itself or not. If PHPExcel calculates the formulas on save, then this flag is set to false so MS Excel doesn't need to calculate them; if PHPExcel doesn't calculate the formulas, then the flag is set to true and MS Excel will calculate them. It means that opening the file in MS Excel is slightly slower, but makes saving the file in PHPExcel faster.</p>",
+    "PostedDate": "2012-09-20T02:52:35.473-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "915048",
+    "ThreadId": "395892",
+    "Html": "<blockquote style=\"border: solid .1em #ccc; font-style: italic; margin: .25em 1em 0 1em; padding: 0 .25em 0 .25em;\"><strong>MarkBaker wrote:</strong><br />\r\n<p>It doesn't matter whether you use formulas or not... When an Excel workbook is opened in MS Excel, there is a \"dirty\" flag that tells Excel whether it needs to recalculate formulas itself or not. If PHPExcel calculates the formulas on save, then this flag  is set to false so MS Excel doesn't need to calculate them; if PHPExcel doesn't calculate the formulas, then the flag is set to true and MS Excel will calculate them. It means that opening the file in MS Excel is slightly slower, but makes saving the file  in PHPExcel faster.</p>\r\n</blockquote>\r\n<p>Thank u very much!! I have learned a lot</p>",
+    "PostedDate": "2012-09-20T03:14:09.84-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

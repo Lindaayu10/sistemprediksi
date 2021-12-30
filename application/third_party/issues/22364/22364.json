@@ -1,0 +1,39 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "There seems to be a bug when using getCalculatedValue() with a PHPExcel_Reader_IReadFilter to read the file in chunks. I'm reading a file in a double loop with a chunk size of 10,000 - when it gets to the second loop values pulled in with getCalculatedValue() are returned as 0 when they shouldn't be. I've reduced the chunk size and confirmed that the issue occurs at the start of the second loop when a new chunk is set.\n\nFormulas in the cells being read are of the format:\n\n=F11*60%\n=F12*60%\netc\n\nMy filter is like this:\n\n```\nclass chunkReadFilter implements PHPExcel_Reader_IReadFilter \n\t{ \n\t    private $_startRow = 0; \n\t    private $_endRow = 0; \n\t    \n\t    /**  Set the list of rows that we want to read  */ \n\t    public function setRows($startRow, $chunkSize) { \n\t        $this->_startRow    = $startRow; \n\t        $this->_endRow      = $startRow + $chunkSize; \n\t    } \n\t    public function readCell($column, $row, $worksheetName = '') { \n\t        //  Only read the heading row, and the rows that are configured in $this->_startRow and $this->_endRow \n\t        if (($row == 1) || ($row >= $this->_startRow && $row < $this->_endRow)) { \n\t            return true; \n\t        } \n\t        return false; \n\t    } \n\t} \n```\n\nOutline of my loop looks like this:\n\n```\nfor ($startRow = 1; $startRow <= $highestRow; $startRow += $chunkSize) { \n\n\t    $chunkFilter->setRows($startRow,$chunkSize); \n\t    $excelObj = $reader->load($filename);\n\t\t$worksheet = $excelObj->getSheet(0); \n\t\t\n\t\t// Process each row of the spreadsheet    \n\t\tfor($z=$startRow; $z<= min(array($startRow + $chunkSize, $highestRow)); $z++) \n\t\t{\t\t\n                        ...\n                        PHPExcel_Calculation::getInstance( $worksheet->getParent() )->flushInstance();\n\t\t\t\t\t\t\t\t$params[$cols[$i]] = $worksheet->getCellByColumnAndRow($i, $z)->getCalculatedValue();\n ...\n\t        }\n}\n```\n\nI added the flushInstance as recommended in another post but it had no affect. \n\nIs this a known issue and is there a way to fix it?",
+    "LastUpdatedDate": "2016-10-11T12:26:08.977-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2016-10-11T12:26:08.977-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "getCalculatedValue() doesn't work with readfilter",
+    "Type": {
+      "Name": "Unassigned",
+      "Id": 5
+    },
+    "VoteCount": 1,
+    "Id": 22364
+  },
+  "FileAttachments": [],
+  "Comments": []
+}

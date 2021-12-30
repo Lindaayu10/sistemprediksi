@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "570117",
+    "ThreadId": "247045",
+    "Html": "\r\n<p>Hi All,<br>\r\n<br>\r\nFirst of all great script to create different files. Great Work.<br>\r\n<br>\r\nI am using latest version of PHPExcel (1.7.5) and and PHP of 5.2.x.<br>\r\n<br>\r\nNow when i am trying to generate very large xlsx file, it will take too much time to create xlsx file, my file has around 500 rows and 649 columns<br>\r\n<br>\r\nI am using below code to generate the file....<br>\r\n<br>\r\nfor($s1=0;$s1&lt;$max;$s1&#43;&#43;) <br>\r\n{<br>\r\n&nbsp;&nbsp;&nbsp; for($s2=0;$s2&lt;$header;$s2&#43;&#43;) <br>\r\n&nbsp;&nbsp;&nbsp; {<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow($col, $row, $value[$id[$p]][$s1][$s2]);<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $col &#43;&#43;;<br>\r\n&nbsp;&nbsp;&nbsp; }<br>\r\n}<br>\r\n<br>\r\nwhere $max is around 20 and $header is around 35, while $value is multidimensional array with all require value to display in xlsx file.<br>\r\n<br>\r\nTo generate this file it is taking around 15 minutes. <br>\r\nCan you please let me whether am i doing anything wrong?<br>\r\nIf not then why will it take too much time?<br>\r\n<br>\r\nWaiting for Replay...Thanks in Advance. <br>\r\n<br>\r\n- Regards</p>\r\n",
+    "PostedDate": "2011-02-22T03:27:43.96-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "570424",
+    "ThreadId": "247045",
+    "Html": "<p>Is it taking 15 minutes to populate the PHPExcel object with this loop? or 15 minutes to write the file?</p>\r\n<p>If it's the writer that's taking the time, and your worksheet contains formulae, then you can try:</p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>$objWriter-&gt;setPreCalculateFormulas(false);\r\n</pre>\r\n</div>\r\n<p>before calling the save method.</p>\r\n<p>&nbsp;</p>\r\n<p>Otherwise, PHPExcel version 1.7.5 runs pretty much as fast as I can get it to run.</p>",
+    "PostedDate": "2011-02-22T13:35:25.273-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "571410",
+    "ThreadId": "247045",
+    "Html": "<p>Hey Mark, Thanks for reply.</p>\r\n<p>I have checked again and it seems it takes much time on below code...</p>\r\n<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow($col, $row, $value[$id[$p]][$s1][$s2]);...................................(1)</p>\r\n<p>and also in writing the file</p>\r\n<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;setActiveSheetIndex(0);<br />&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');<br />&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $objWriter-&gt;save(\"download_docs/Report.xlsx\");....................................................................(2)</p>\r\n<p>Sometime It will take more time on writing the file code(2) or sometime in code(1).....<br />Also there is no any formula contains by xlsx file it is simple data writing....then also i have put your suggested line in code but it cant make any differences..</p>\r\n<p>As i have said earlier that file has to write around 500 rows and 649 columns....These are samples.....<br />actually it has to write around 500 rows and 4000columns for each row depending on user selection.</p>",
+    "PostedDate": "2011-02-24T03:29:18.87-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "571798",
+    "ThreadId": "247045",
+    "Html": "<p>I don't think there's much I can suggest to help speed things up. If there was a simple code change that could cut your 15 minutes down to 1 minute, I'd have made that change months ago. There are a few tricks that you can try when building your worksheet, such as using row/column styling (or applying styles to ranges of cells) rather than setting styles for each individual cell, and applying styles from a style array is faster than issuing a whole series of lines to set several style features. There's also a host of discussions here on the board describing how you can improve performance with the way you write your code.</p>\r\n<p>For example:</p>\r\n<p>If you're using</p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow($col, $row, $value[$id[$p]][$s1][$s2]);\r\n</pre>\r\n</div>\r\n<p>for every cell that you set, change your code to:</p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>$worksheet = $objPHPExcel-&gt;getActiveSheet();\r\n</pre>\r\n</div>\r\n<p>and then within your loop, use</p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>$worksheet-&gt;setCellValueByColumnAndRow($col, $row, $value[$id[$p]][$s1][$s2]);\r\n</pre>\r\n</div>\r\n<p>This save the code from having to call getActiveSheet() for every single cell.</p>\r\n<p>&nbsp;</p>\r\n<p>Alternatively, look at the fromArray() method to populate a number of cells with a single statement; or at&nbsp;call chaining.</p>",
+    "PostedDate": "2011-02-24T14:13:39.827-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "681070",
+    "ThreadId": "247045",
+    "Html": "<p>I had a similar problem on my laptop dev machine. The script would take about 20 seconds to generate a small xlsx file. Running the same code on the server resulted in the xlsx file being generated in about 1 to 2 seconds. So, the problem is probably not  with your code or with PHPExcel....</p>",
+    "PostedDate": "2011-10-06T15:49:37.957-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

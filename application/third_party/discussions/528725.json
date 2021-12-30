@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "1202002",
+    "ThreadId": "528725",
+    "Html": "<pre><code>&lt;?php\n// connection with the database\ninclude ('core/config.php');\ninclude ('core/connect.php');\n\n// require the PHPExcel file\nrequire 'core/Classes/PHPExcel.php';\n\n// simple query\n\n$query = &quot;SELECT id,PRODUCTDESC,QTY,SELLPRICE,LINETOTAL FROM &quot;.$_SESSION['user'].&quot;_final_quote ORDER by id ASC&quot;;\n$headings = array('Item','Product','Qty','Price','Line Total');\n\n\nif ($result = mysql_query($query) or die(mysql_error())) {\n    // Create a new PHPExcel object\n    $objPHPExcel = new PHPExcel();\n\n    $rowNumber = 13;\n    $col = 'A';\n    foreach($headings as $heading) {\n       $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue($col.$rowNumber,$heading);\n       $col++;\n    }\n\n    // Loop through the result set\n    $rowNumber = 14;\n    while ($row = mysql_fetch_row($result)) {\n       $col = 'A';\n       foreach($row as $cell) {\n          $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue($col.$rowNumber,$cell);\n          $col++;\n       }\n       $rowNumber++;\n    }\n    \n    $objPHPExcel-&gt;getActiveSheet()-&gt;getColumnDimension('B')-&gt;setWidth(50);\n    $objPHPExcel-&gt;getActiveSheet()-&gt;getColumnDimension('A')-&gt;setWidth(5);\n    $objPHPExcel-&gt;getActiveSheet()-&gt;getColumnDimension('C')-&gt;setWidth(6);\n    \n    $objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('B1:B'.$objPHPExcel-&gt;getActiveSheet()-&gt;getHighestRow())\n    -&gt;getAlignment()-&gt;setWrapText(true);\n    \n    $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('B1', 'Test value');\n    \n    \n    $objPHPExcel-&gt;getDefaultStyle()\n    -&gt;getAlignment()\n    -&gt;setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);\n\n    // Freeze pane so that the heading line will not scroll\n    $objPHPExcel-&gt;getActiveSheet()-&gt;freezePane('A14');\n\n    // Save as an Excel BIFF (xls) file\n     // Save Excel 2007 file\n    $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');\n    //$objWriter-&gt;save(str_replace('.php', ''. $_SESSION['user'].'-' . $_SESSION['CustNo'] .'-quote.xlsx', __FILE__));\n    $objWriter-&gt;save(''. $_SESSION['user'].'-' . $_SESSION['CustNo'] .'-quote.xlsx');\n   exit();\n}\n?&gt;</code></pre>\n\nI am using the following code to get data from a mysql table. I want to calculate the sellprice and the line total underneath all the values and I am not sure how to do this? Is it something to do with gethighestrow? and then the calculation?<br />\n",
+    "PostedDate": "2014-02-03T03:48:45.283-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1202364",
+    "ThreadId": "528725",
+    "Html": "Two ways to do this:\r<br />\n-Do the calculation in php: each time through the loop, you add the value of each record, and then out of loop, after the last line, you set the value of the cell with the contents of your variable.\r<br />\n-Do the calculation in Excel (*). Out of loop, you defined a form that performs the desired operation, identical to that which you saisirais directly in Excel (in English) after the last row. Concerning, the coordinates, you know the desired column, the line is given by rowNumber\r<br />\n<br />\n(*)Either by the calculation engine PHPExcel reproducing the operation of Excel, Excel itself at the opening of the file.<br />\n",
+    "PostedDate": "2014-02-04T00:41:12.033-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1202377",
+    "ThreadId": "528725",
+    "Html": "Hi,\r<br />\n<br />\nI am fine with all this (doing the calculations etc) but I am not sure how to set the last line. Is it by using gethighestrow?\r<br />\n<br />\nThanks<br />\n",
+    "PostedDate": "2014-02-04T01:09:47.53-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1202536",
+    "ThreadId": "528725",
+    "Html": "I think I'd do the simplest: [...]-&gt;setCellValue('E'.$rowNumber, $MyTotal) or [...]-&gt;setCellValue('E'. $rowNumber, '=SUM(E14:E'.($rowNumber-1).')')\r<br />\nAlthough I would certainly have constants for the column and the first row to facilitate subsequent amendments<br />\n",
+    "PostedDate": "2014-02-04T07:55:36.097-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

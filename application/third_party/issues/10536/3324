@@ -1,0 +1,29 @@
+Index: changelog.txt
+===================================================================
+--- changelog.txt	(revision 1107)
++++ changelog.txt	(working copy)
+@@ -54,6 +54,7 @@
+ - Bugfix:   (ET) Work item 10524 - Date number formats sometimes fail with PHPExcel_Style_NumberFormat::toFormattedString, e.g. [$-40047]mmmm d yyyy
+ - Bugfix:   (MBaker) Fixed minor problem with DATEDIFF YM calculation
+ - Bugfix:   (MB) Applied patch 3695
++- Bugfix:   (ET) Work item 10536 - setAutosize() and Date cells not working properly
+ 
+ 
+ 2009/08/10 (v1.7.0):
+Index: Classes/PHPExcel/Worksheet.php
+===================================================================
+--- Classes/PHPExcel/Worksheet.php	(revision 1107)
++++ Classes/PHPExcel/Worksheet.php	(working copy)
+@@ -582,8 +582,12 @@
+ 
+ 		foreach ($this->getCellCollection() as $cell) {
+ 			if (isset($autoSizes[$cell->getColumn()])) {
++				// Calculated value
+ 				$cellValue = $cell->getCalculatedValue();
+ 
++				// To formatted string
++				$cellValue = PHPExcel_Style_NumberFormat::toFormattedString($cellValue, $this->getParent()->getCellXfByIndex($cell->getXfIndex())->getNumberFormat()->getFormatCode());
++
+ 				foreach ($this->getMergeCells() as $cells) {
+ 					if ($cell->isInRange($cells) && !$calculateMergeCells) {
+ 						$cellValue = ''; // do not calculate merge cells

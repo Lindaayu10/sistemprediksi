@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "938490",
+    "ThreadId": "402396",
+    "Html": "\r\n<p>Hi all,</p>\r\n<p>first of all, the script is working and it is doing what i want. But i have a &quot;problem&quot; with file size.</p>\r\n<p>In details:</p>\r\n<p>i'm inserting some images (logos..) in excel files with this code</p>\r\n<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$objDrawing = new PHPExcel_Worksheet_Drawing();<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$objDrawing-&gt;setWorksheet($objWorksheet);<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$objDrawing-&gt;setName(&quot;name&quot;);<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$objDrawing-&gt;setDescription(&quot;Description&quot;);<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$objDrawing-&gt;setPath('./path_to/image.png');<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$objDrawing-&gt;setCoordinates('B1');<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$objDrawing-&gt;setOffsetX(1);<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;$objDrawing-&gt;setOffsetY(5);</p>\r\n<p>As i said before, the file is correct and images are in the right place.</p>\r\n<p>The problem is that the file size is strange.</p>\r\n<p>I mean:</p>\r\n<p>the file with no logo is 54k</p>\r\n<p>The file with logos as created by phpexcel is 1376k (lol)</p>\r\n<p>If i open this file with excel and simply SAVE it, it becomes 338k (5 sheets and 4 images in every sheet, it can be correct..)</p>\r\n<p>So, i'm wondering if i'm missing something in my code, because it's obvious that PHPexcel is doing something strange..</p>\r\n<p>Thanks a lot</p>\r\n<p>bye</p>\r\n",
+    "PostedDate": "2012-11-08T05:13:12.72-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "938564",
+    "ThreadId": "402396",
+    "Html": "<blockquote style=\"border: solid .1em #ccc; font-style: italic; margin: .25em 1em 0 1em; padding: 0 .25em 0 .25em;\">\r\n<blockquote><strong>MarkBaker wrote:</strong></blockquote>\r\n<blockquote>\r\n<p>If the worksheet contains the data that you expect, then you really shouldn't worry about this. 4MB isn't particularly large for a file.</p>\r\n<p>PHPExcel is not a file editor: it doesn't simply add a few extra cells into the original file that might simply add a few bytes to the resultant size. It loads the file, converting its content to a PHPExcel object; you modify that PHPExcel object; and when you save, it writes a new file from the content of that PHPExcel object. Excel itself has a lot of different options for the way it stores the spreadsheet data, and the resources to optimise to store them extremely efficiently when it saves. PHPExcel stores in a generic manner, without the overhead of determining how best to optimise the resultant file to a minimal size. PHPExcel may, for example,&nbsp;save additional default styles that aren't used in the workbook, whereas Excel itself may discard these. You don't mention which format you're using: .xlsx or .xls... the former is zip compressed; but the zip compression method used by ZipArchive may not match the compression method used by Excel.</p>\r\n<p>So there's a whole host of factors that come into play that affect the size of a saved file: what's generally more important is that the content is correct.</p>\r\n</blockquote>\r\n<br /></blockquote>\r\n<p>This is the answer that Mark gave me to my question because I was having a similar problem when opening a .xlt template (Excel5 format) and saving as a .xls (Excel5). &nbsp;If you are using the newer format, Excel2007, then hopefully he will have a different answer that could help you out.</p>\r\n<p>&nbsp;</p>\r\n<p>~ Mike</p>",
+    "PostedDate": "2012-11-08T07:12:08.207-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "938817",
+    "ThreadId": "402396",
+    "Html": "<p>The same answer applies whether saving using the Excel5 Writer or the Excel2007 Writer. The primary concern of PHPExcel is to provide functionality, to ensure that if you add an image in PHPExcel you get that image when you open the file in MS Excel.</p>\r\n<p>If you open and save using Open/LibreOffice or even a different version of MS Excel, you'll probably find differences in size, though perhaps less drastic.</p>",
+    "PostedDate": "2012-11-08T14:35:56.123-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

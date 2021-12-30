@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "240395",
+    "ThreadId": "70577",
+    "Html": "<p>I'm having a problem with PHP Excel 1.7.0 where reading the Excel file updates its modification date on the file system. Is it possible to use PHPExcel to read the XLSX data without updating the modification date?</p>\r\n<p>I'm new to PHPExcel, so perhaps I'm making an obvious error.</p>\r\n<p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$tracker = PHPExcel_IOFactory::load(<span style=\"color:#A31515\">&quot;data/cttdata.xlsx&quot;</span>);</pre>\r\n</div>\r\n</p>\r\n<p>Is how I'm reading the file. This is Apache under Linux with PHP 5.2.10.</p>\r\n<p>Thanks.</p>",
+    "PostedDate": "2009-09-30T06:24:17.463-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "240481",
+    "ThreadId": "70577",
+    "Html": "<p><em>&gt;&gt; Is it possible to use PHPExcel to read the XLSX data without updating the modification date?</em></p>\r\n<p>This is strange. The reader is not supposed to change the dates on the file system.</p>\r\n<p>Can you try to run the test with an xls file instead of an xlsx file and report back if the same thing is happening?</p>",
+    "PostedDate": "2009-09-30T08:54:07.74-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "240905",
+    "ThreadId": "70577",
+    "Html": "<p>XLS works properly. Also, it occurred to me that I am using the ZipArchive.php replacement on the server because the zip module is not enabled. Maybe that's causing the problem?</p>\r\n<p>I've also cobbled together a very simple test that doesn't change the mod date for xls or xlsx.</p>\r\n<p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre><span style=\"color:Green\">/** ZIP */</span><br><span style=\"color:Blue\">if</span> ($_SERVER[<span style=\"color:#A31515\">'SERVER_NAME'</span>] != <span style=\"color:#A31515\">'localhost'</span>) {<br><span style=\"color:Blue\">require_once</span> <span style=\"color:#A31515\">'ZipArchive.php'</span>;<br>}<br><br><span style=\"color:Green\">/** PHPExcel */</span><br><span style=\"color:Blue\">require_once</span> <span style=\"color:#A31515\">'PHPExcel.php'</span>;<br><br><span style=\"color:Green\">/** PHPExcel_IOFactory */</span><br><span style=\"color:Blue\">require_once</span> <span style=\"color:#A31515\">'./PHPExcel/IOFactory.php'</span>;<br><br><span style=\"color:Blue\">print</span> <span style=\"color:#A31515\">&quot;Last Modified: &quot;</span> . date( <span style=\"color:#A31515\">&quot;m/d/Y H:i:s.&quot;</span>, filemtime(<span style=\"color:#A31515\">&quot;phpxldate.xlsx&quot;</span>));<br><br>$tracker = PHPExcel_IOFactory::load(<span style=\"color:#A31515\">&quot;PHPXLdate.xls&quot;</span>);<br><br>$properties = $tracker-&gt;getProperties();<br><span style=\"color:Blue\">print</span> date(<span style=\"color:#A31515\">'m/d/Y'</span>, $properties-&gt;getModified() );<br><br><span style=\"color:Blue\">print</span> <span style=\"color:#A31515\">&quot;Last Modified: &quot;</span> . date( <span style=\"color:#A31515\">&quot;m/d/Y H:i:s.&quot;</span>, filemtime(<span style=\"color:#A31515\">&quot;phpxldate.xlsx&quot;</span>));<br></pre>\r\n</div>\r\n</p>\r\n<p>So it looks like reading properties doesn't change the mod date, but reading some other data does.</p>",
+    "PostedDate": "2009-10-01T06:35:22.663-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "240917",
+    "ThreadId": "70577",
+    "Html": "<p>You might want to rerun your tests calling <span>clearstatcache() between the two calls to filemtime()</span></p>\r\n<p><span>You may also want to test fileatime() as well</span></p>",
+    "PostedDate": "2009-10-01T07:12:56.313-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

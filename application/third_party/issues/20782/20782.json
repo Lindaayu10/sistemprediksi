@@ -1,0 +1,65 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hi,\n\nI am currently outputting array values into a template that are correctly defined right before calling the following code snippet:\n\n$objPHPExcel->getSheet(1)->setCellValue('F'.$rowNum, $ml_info[4])->setCellValue('H'.$rowNum, $ml_info[5]);\n\nMy object reader and writer are defined as follows:\n\n$objReader = PHPExcel_IOFactory::createReader('Excel2007');\n\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');\n$objWriter->save(str_replace('.php', '.xlsx', __FILE__));\n\nMy headers are:\n\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8 Accept-Encoding: gzip, deflate Accept-Language: pt-br,en-us;q=0.7,en;q=0.3 Connection: keep-alive Cookie: wp-settings-time-1=1383598398; wp-settings-1=editor%3Dhtml; __utma=238689695.1108274813.1384025471.1393541992.1393795222.80; __utmz=238689695.1393028200.75.7.utmcsr=login.bluehost.com|utmccn=(referral)|utmcmd=referral|utmcct=/awstats.pl; PHPSESSID=dda4bffc206ca2873c37791a8811c28a; __utmc=238689695 \n\nThe output in the Excel workbook has the desired values (located in $ml_info[4]) in column 'F' but displays the string 'FALSE' in column 'H' instead of the values that are present in $ml_info[5].\n\nSo there is something going wrong when writing the data to the workbook, but I am at a loss at to what exactly is amiss. There was another thread started last year where someone had the same problem, and apparently he solved it, but did not post his solution to the issue (https://phpexcel.codeplex.com/workitem/19977).\n\nI would greatly appreciate any help in this matter.\n\nThank you,\nAustin",
+    "LastUpdatedDate": "2014-07-31T06:13:41.083-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2014-03-02T15:07:55.543-08:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Output to Excel places value 'FALSE' in cell instead of value in array",
+    "Type": {
+      "Name": "Unassigned",
+      "Id": 5
+    },
+    "VoteCount": 2,
+    "Id": 20782
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "So what is the value in $ml_info[5]?",
+      "PostedDate": "2014-03-02T16:11:09.343-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Hi Mark,\r\n\r\nIn one particular instance, the value in $ml_info[5] is the string:\r\n\r\n\"contribute to the genetic risk towards the development of type 2 diabetes, obesity and hypoadiponectinemia in the south Indian population.\"\r\n\r\nThe puzzling part is that, while using the following loop, some of the values present in $ml_info[5] are output to the workbook correctly, while other are (consistently) not:\r\n\r\n\tforeach($ml_data[$gene_name[0]] as $row => $ml_info) {\n\t\t$rowNum = $baseRow + $row;\n\t\t$data_sheet->setCellValue('B'.$rowNum, $ml_info[0])\n\t                              ->setCellValue('C'.$rowNum, $ml_info[1])\n\t                              ->setCellValue('D'.$rowNum, $ml_info[2])\n\t                              ->setCellValue('E'.$rowNum, $ml_info[3])\n\t                              ->setCellValue('F'.$rowNum, $ml_info[4])\n\t                              ->setCellValue('G'.$rowNum, $ml_info[5])\n\t                              ->setCellValue('H'.$rowNum, $ml_info[6]);\n\t}\r\n\r\nAll values present in $ml_info[0],$ml_info[1],$ml_info[2],$ml_info[3],$ml_info[4],$ml_info[6] are correctly output and are all strings similar to the values in $ml_info[5].\r\n\r\nMany thanks for any advice on this problem.\r\n\r\nThank you,\nAustin\n",
+      "PostedDate": "2014-03-02T17:31:21.107-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2014-03-14T06:48:24.847-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I have exactly this problem with the writer, i actually posted it on the discussions tab.\r\n\r\nI haven't been able to figure out what could be going wrong",
+      "PostedDate": "2014-03-14T06:49:57.67-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "try to use utf_encode() function. PHPExcel exepts utf8 \r\n\r\nforeach($ml_data[$gene_name[0]] as $row => $ml_info) {\n    $rowNum = $baseRow + $row;\n    $data_sheet->setCellValue('B'.$rowNum, $ml_info[0])\n                              ->setCellValue('C'.$rowNum, utf8_encode($ml_info[1]))\n                              ->setCellValue('D'.$rowNum, utf8_encode($ml_info[2]))\n                              ->setCellValue('E'.$rowNum, utf8_encode($ml_info[3]))\n                              ->setCellValue('F'.$rowNum, utf8_encode($ml_info[4]))\n                              ->setCellValue('G'.$rowNum, utf8_encode($ml_info[5]))\n                              ->setCellValue('H'.$rowNum, utf8_encode($ml_info[6]));\n}",
+      "PostedDate": "2014-07-31T06:13:41.083-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

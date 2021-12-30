@@ -1,0 +1,98 @@
+[
+  {
+    "Id": "142001",
+    "ThreadId": "42735",
+    "Html": "I have a formatting issue with Excel with some ID's. For instance, &quot;207375933158&quot; will display as &quot;2.07376E+11&quot; - it does it for all of the IDs within the 20737* range, but not others (like &quot;44533114719&quot; will display just fine). I've tried casting the number as an int with PHP (&quot; $ID = (integer)207375933158);&quot;) although, some of you may know that this will only work on numbers below 2147483648 - then it casts it as &quot;float&quot; - which will not work.<br>\r\n<br>\r\nIn PHPExcel, I tried the following:<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getCell('H' . $cellnum)-&gt;setValueExplicit($ID, PHPExcel_Cell_DataType::TYPE_NUMERIC);<br>\r\n<br>\r\nNo go, does the same thing. Oddly enough, when I manually format the cell column as &quot;Number&quot; then it formats to how it should. Am I using the wrong TYPE?<br>\r\n<br>\r\nOtherwise, I'm out of ideas...maybe I just have to tell the executives &quot;you'll just have to manually set the field every time you open a fresh document...&quot; - which sucks, because one of the big reasons I tried this system out was because of the ability to define the data type. I really hope someone has at least a few ideas to try...if not the solution.<br>\r\n<br>\r\nThank you!<br>\r\n",
+    "PostedDate": "2008-12-19T23:41:21.037-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "142012",
+    "ThreadId": "42735",
+    "Html": "So 12-digit numbers (or more, I'd assume) such as 207375933158 are showing in scientific notation, while 11-digit numbers lile 44533114719 display OK.<br>\r\n<br>\r\nIf the problem is in an Excel file that you've written, then look at number masking the values.<br>\r\n$excelObject-&gt;getActiveSheet()-&gt;getStyle($cellID)-&gt;getNumberFormat()-&gt;setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);<br>\r\nor whatever Excel number format masking is appropriate<br>\r\n<br>\r\nIf it's in the PHP, then I'd take a look at your php.ini file, and check the value of <strong>precision</strong> possibly increasing it if it is set to 12<br>\r\nNote that you can modify this value within your own code.<br>\r\n<br>\r\n",
+    "PostedDate": "2008-12-20T01:25:31.5-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "142013",
+    "ThreadId": "42735",
+    "Html": "Yeah, it is probably the number format that is the problem. As markbaker says, you may need to use<br>\r\n<br>\r\n<code>\r\n$excelObject-&gt;getActiveSheet()-&gt;getStyle($cellID)-&gt;getNumberFormat()-&gt;setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_NUMBER);<br>\r\n</code>\r\n<br>\r\nThis corresponds to the number format ”Number” in Excel.<br>\r\n<br>\r\nI just noticed that <code>PHPExcel_Style_NumberFormat::FORMAT_NUMBER</code> is not working for Excel5 writer, but ok for Excel2007 writer. Not sure why, but I will check up on this.<br>\r\n<br>\r\n",
+    "PostedDate": "2008-12-20T01:47:19.89-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "142124",
+    "ThreadId": "42735",
+    "Html": "Problem related to PHPExcel_Writer_Excel5 is fixed per work item #8596:<br>\r\n<a href=\"http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=8596\">http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=8596</a><br>\r\n<br>\r\nDownload latest source at next check out:<br>\r\n<a href=\"../SourceControl/ListDownloadableCommits.aspx\">http://www.codeplex.com/PHPExcel/SourceControl/ListDownloadableCommits.aspx</a><br>\r\n<br>\r\n",
+    "PostedDate": "2008-12-21T01:22:25.183-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "142395",
+    "ThreadId": "42735",
+    "Html": "'FORMAT_NUMBER' did it! Thanks a lot...that's such a relief! :)<br>\r\n<br>\r\nA+<br>\r\n",
+    "PostedDate": "2008-12-22T09:51:16.837-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "148792",
+    "ThreadId": "42735",
+    "Html": "I have a similiar problem, I have the format set as CURRENCY_USD, however the numbers like 200000 show up in scientific notation instead of the currency format that I have set. Any ideas why? BTW I am using the latest source code<br>\r\n",
+    "PostedDate": "2009-01-20T09:38:04.663-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "148806",
+    "ThreadId": "42735",
+    "Html": "@jay102482: Can you try this?<br>\r\n<br>\r\n<code>\r\n$excel = new PHPExcel();<br>\r\n$sheet = $excel-&gt;getActiveSheet();<br>\r\n<br>\r\n$sheet-&gt;getCell('A1')-&gt;setValue(200000);<br>\r\n$sheet-&gt;getStyle('A1')-&gt;getNumberFormat()-&gt;setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_CURRENCY_USD);<br>\r\n<br>\r\n$writer = new PHPExcel_Writer_Excel2007($excel);<br>\r\n$writer-&gt;save('test.xlsx');</code>\r\n<br>\r\n<br>\r\nResult looks ok:<br>\r\n<a href=\"http://img519.imageshack.us/img519/2315/dollarzi8.png\">http://img519.imageshack.us/img519/2315/dollarzi8.png</a><br>\r\n<br>\r\n",
+    "PostedDate": "2009-01-20T10:14:57.437-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "156649",
+    "ThreadId": "42735",
+    "Html": "<p>I am having a problem, just svn'd the latest, but have this code:</p>\r\n<p> $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(&quot;A{$row}&quot;,$chargeback-&gt;AccountNumber);<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(&quot;A{$row}&quot;)-&gt;getNumberFormat()-&gt;setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_NUMBER);</p>\r\n<p>In the spreadsheet, the last digit is being replaced with a zero.  I am finally pushing this into an Excel5 spreadsheet.<br>\r\n</p>\r\n",
+    "PostedDate": "2009-02-11T06:38:30.78-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "156655",
+    "ThreadId": "42735",
+    "Html": "@niterain: How many digits are there? Can you try the following:<br>\r\nCreate the spreadsheet in MS Office Excel as you would like it to look. Then do a plain read/write using <code>PHPExcel_Reader_Excel5 / PHPExcel_Writer_Excel5</code>.<br>\r\nCheck if output looks like input.<br>\r\n<br>\r\n",
+    "PostedDate": "2009-02-11T06:55:54.597-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "156660",
+    "ThreadId": "42735",
+    "Html": "One is about 16 characters and the other is 23 characters long.\r\n",
+    "PostedDate": "2009-02-11T07:04:22.35-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "156667",
+    "ThreadId": "42735",
+    "Html": "This may be the problem. There is a limit how large numbers you can store in Excel. Notice that redcore's example had only about 12 digits. Approximately 15 digits is the limit.<br>\r\n<a href=\"http://en.allexperts.com/q/Excel-1059/Excel-rounding-large-numbers.htm\">http://en.allexperts.com/q/Excel-1059/Excel-rounding-large-numbers.htm</a><br>\r\n<br>\r\nYour only option is to store as text. But if you are not using those numbers in any formulas then it should be ok.<br>\r\n<br>\r\n<code>$sheet-&gt;getCell('B2')-&gt;setValueExplicit('9999988888777776666655555', PHPExcel_Cell_DataType::TYPE_STRING);</code><br>\r\n<br>\r\n",
+    "PostedDate": "2009-02-11T07:30:44.777-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1130883",
+    "ThreadId": "42735",
+    "Html": "Hi,\r<br />\n<br />\nThose who are having problem with lengthy integer values which convert in xls files as scientific notation the below code solves the problem. What you need to do is place these lines in your while loop . After formatting cells data will write into cell.\r<br />\n<br />\nwhile (){// Begins\r<br />\n$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('B'.$s)-&gt;getNumberFormat()-&gt;setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_NUMBER);\r<br />\n$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('D'.$s)-&gt;getNumberFormat()-&gt;setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_NUMBER); \r<br />\n<br />\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('B'.$s, $csvrow['LARGEINTEGER']);\r<br />\n}\r<br />\n<br />\nSimple . Happy PHPEXCELING :)<br />\n",
+    "PostedDate": "2013-12-02T05:07:01.803-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

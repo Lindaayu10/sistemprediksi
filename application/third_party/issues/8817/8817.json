@@ -1,0 +1,45 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel_Reader_Excel5",
+      "DisplayName": "PHPExcel_Reader_Excel5"
+    },
+    "ClosedComment": "Fixed in SVN",
+    "ClosedDate": "2009-01-05T20:53:23.947-08:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "PHPExcel_Reader_Excel5 is not always reading accurate values for the default column width. The problem is that the value for the default column width found in the DEFCOLWIDTH record does not directly map to the value for the default column as used in the Excel 2007 format. There is a slight difference, typically 10%, if mapping should be correct. The true algorithm for mapping between the values is complex so implementation of this in PHPExcel will have to wait.\n \nHowever, in PHPExcel_Reader_Excel5, we can choose to ignore the DEFCOLWIDTH record when it contains the value 8 (built-in default). One will then get accurate results for this special case. We take advantage of the fact that there is agreement between the built-in default column width in MS Office 2007 and previous versions. Many (most?) Excel files fall into this category.\n \nTest (file conversion xls to xlsx using PHPExcel):\n----\n$reader = new PHPExcel_Reader_Excel5();\n$excel = $reader->load('defcol8.xls');\n \n$writer = new PHPExcel_Writer_Excel2007($excel);\n$writer->save('defcol8.xlsx');\n \nExpected result:\n----\nxls and xlsx look identical when opened in MS Office Excel 2007\n \nActual result:\n----\nColumn width has dropped from 64 pixels in xls file to 56 pixels in converted xlsx file. See screen shots:\n \nInput (defcol8.xls)\nhttp://img383.imageshack.us/img383/9085/defcol8xlsuv2.png\n \nOutput (defcol8.xlsx)\nhttp://img383.imageshack.us/img383/5525/defcol8xlsxkr9.png\n \nEnvironment:\n----\nPHPExcel 1.6.5 (and latest source from SVN)",
+    "LastUpdatedDate": "2013-05-16T05:42:59.647-07:00",
+    "PlannedForRelease": "PHPExcel 1.6.6 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-01-05T20:46:47.293-08:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Ignore DEFCOLWIDTH records with value 8 in PHPExcel_Reader_Excel5",
+    "Type": {
+      "Name": "Feature",
+      "Id": 1
+    },
+    "VoteCount": 1,
+    "Id": 8817
+  },
+  "FileAttachments": [
+    {
+      "FileId": 2595,
+      "FileName": "defcol8.zip",
+      "DownloadUrl": ".\\2595"
+    }
+  ],
+  "Comments": []
+}

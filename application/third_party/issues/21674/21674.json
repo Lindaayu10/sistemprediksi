@@ -1,0 +1,50 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I am able to create xls files when running PHPExcel on http connection, but same code gets stuck when instantiating PHPExcel object if running on https (secure) connection. No exception/error is generated, no file is created and in browser is displayed the message \"Internet Explorer cannot display the webpage\". The SSL and TLS protocols are enabled (this is one of the suggestions from IE). It seems that the code gets stuck in PHPExcel.php in __construct(). Please help.",
+    "LastUpdatedDate": "2015-01-23T03:53:21.87-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2015-01-21T09:11:17.503-08:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "PHPExcel object is not instantiated when running on HTTPS connection",
+    "Type": {
+      "Name": "Unassigned",
+      "Id": 5
+    },
+    "VoteCount": 1,
+    "Id": 21674
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "SSL/TLS should be incapable of preventing a PHP object from being instantiated.... the PHP code is simply accepting a request from your webserver, and responding through your webserver; all SSL should be handled by the webserver itself, so PHP neither knows nor cares whether the request is SSL or not.\r\n\r\nHowever, if you're using SSL with IE, then you may need to send some additional headers so that IE can handle the response correctly.... as shown in `01-simple-download-xls.php` in `/Examples`\r\n\r\n```php\n// If you're serving to IE over SSL, then the following may be needed\nheader ('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Date in the past\nheader ('Last-Modified: '.gmdate('D, d M Y H:i:s').' GMT'); // always modified\nheader ('Cache-Control: cache, must-revalidate'); // HTTP/1.1\nheader ('Pragma: public'); // HTTP/1.0\n```",
+      "PostedDate": "2015-01-22T02:22:07.023-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Thank you Mark for your answer. What you have explained makes sense and it is understood. However, I experience a very annoying situation... I run 01-simple-download-xls.php from a http connection and it works. When I run the same file from https, it does not work. I've added few debug messages (like I did before with my code), and I notice that also in this example, under https it gets stuck at line \n$objPHPExcel = new PHPExcel();\r\n\r\nThe only difference that I could notice between my environments (http and https), was the value of PHP_SAPI. On http environment PHP_SAPI == apache, while on https PHP_SAPI == apache2handler. I do not know if this is relevant to identify the problem. My impression is that it is only some configuration issue. Unfortunately, I do not know what it is wrong in https environment. Do you have any further suggestions? Thanks.",
+      "PostedDate": "2015-01-23T03:53:21.87-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

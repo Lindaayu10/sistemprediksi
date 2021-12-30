@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "243055",
+    "ThreadId": "71276",
+    "Html": "<p>Or at least it sure seems that way. &nbsp;I have a little loop that just iterates down x columns, and sets a max row number so I can use those later to create other tables.&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>  $tmpCol = $tableIndices[<span style=\"color:#A31515\">'x1'</span>];\r\n  $maxRow = $tableIndices[<span style=\"color:#A31515\">'y1'</span>];\r\n  <span style=\"color:Blue\">while</span> ($objWorksheet-&gt;cellExistsByColumnAndRow($tmpCol, $tableIndices[<span style=\"color:#A31515\">'y1'</span>])) {\r\n    $tmpRow = $tableIndices[<span style=\"color:#A31515\">'y1'</span>];\r\n    <span style=\"color:Blue\">while</span> ($objWorksheet-&gt;cellExistsByColumnAndRow($tmpCol, $tmpRow)) {\r\n      <span style=\"color:Blue\">if</span> ($tmpRow &gt; $maxRow) {\r\n        $maxRow = $tmpRow;\r\n      }\r\n      $tmpRow++;\r\n    }\r\n    $tmpCol++;\r\n  }\r\n  $tableIndices[<span style=\"color:#A31515\">'x2'</span>] = $tmpCol - 1;\r\n  $tableIndices[<span style=\"color:#A31515\">'y2'</span>] = $maxRow;\r\n\r\n</pre>\r\n</div>\r\n<p>On the first column, it stops correctly at the last row from my worksheet, 153. &nbsp;But on the second column, row 154 passes cellExistsByColumnAndRow. &nbsp;I printed the values of the cells to see what was happening, but it just looks like an empty cell is passing:</p>\r\n<p>...<br>col: 1 row: 152 max 153 val 10.244.48.129 255.255.255.0<br>col: 1 row: 153 max 153 val 10.244.48.130 255.255.255.0<br>col: 1 row: 154 max 154 val <br>col: 2 row: 16 max 154 val NAT IP Address (if applicable) ...</p>\r\n<p>Any thoughts?</p>\r\n<p>Side note: I was looking in the source to see what cellExists does, and saw this in Worksheet.php:1027 :</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>        <span style=\"color:Blue\">if</span> ((!preg_match(<span style=\"color:#A31515\">'/^'</span>.PHPExcel_Calculation::CALCULATION_REGEXP_CELLREF.<span style=\"color:#A31515\">'$/i'</span>, $pCoordinate, $matches)) &amp;&amp;\r\n            (preg_match(<span style=\"color:#A31515\">'/^'</span>.PHPExcel_Calculation::CALCULATION_REGEXP_CELLREF.<span style=\"color:#A31515\">'$/i'</span>, $pCoordinate, $matches))) {\r\n</pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n<p>does that strike anyone else as, um.. odd?</p>\r\n<p>&nbsp;</p>\r\n<p>Edit:<br>PHP v5.2.6, PHPExcel v1.7.0</p>",
+    "PostedDate": "2009-10-07T10:54:04.623-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "243085",
+    "ThreadId": "71276",
+    "Html": "<p>Not sure about your problem with cellExists, I'd have to run some tests on that</p>\r\n<p>However</p>\r\n<p><span style=\"color:blue\">if</span> ((!preg_match(<span style=\"color:#a31515\">'/^'</span>.PHPExcel_Calculation::CALCULATION_REGEXP_CELLREF.<span style=\"color:#a31515\">'$/i'</span>, $pCoordinate, $matches)) &amp;&amp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (preg_match(<span style=\"color:#a31515\">'/^'</span>.PHPExcel_Calculation::CALCULATION_REGEXP_CELLREF.<span style=\"color:#a31515\">'$/i'</span>, $pCoordinate, $matches))) {</p>\r\n<p>has already been fixed in the SubVersion code.</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-10-07T12:10:33.557-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "243105",
+    "ThreadId": "71276",
+    "Html": "<p>PS</p>\r\n<p>Check out the following methods</p>\r\n<p>$objWorksheet-&gt;getHighestColumn() and $objWorksheet-&gt;getHighestRow()</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-10-07T12:56:19.987-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "243128",
+    "ThreadId": "71276",
+    "Html": "<p>Wow. I don't know how I missed those.</p>\r\n<p>However, it looks like its still returning the same result. &nbsp;From my snippet above, I just changed it to:</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>  $tableIndices[<span style=\"color:#A31515\">'x2'</span>] = $objWorksheet-&gt;getHighestColumn();\r\n  $tableIndices[<span style=\"color:#A31515\">'y2'</span>] = $objWorksheet-&gt;getHighestRow();\r\n\r\n</pre>\r\n</div>\r\n<p>The row value was still set to 1 more than there is on the worksheet. &nbsp;What does this say about the worksheet? &nbsp;This sounds like its something to do with how the worksheet was populated (I'm not making the spreadsheets I'm trying to parse).</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-10-07T13:45:19.613-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "243347",
+    "ThreadId": "71276",
+    "Html": "<p>If the cell has been styled, for example a background color has been set, or font is set to bold, then it is enough to make the cell &quot;exist&quot; even if it has no value in it.</p>\r\n<p>You can try to use <span style=\"font-family:Courier New\">$objReader-&gt;setReadDataOnly(true)</span> if you want to remove styles.</p>",
+    "PostedDate": "2009-10-08T02:56:45.5-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

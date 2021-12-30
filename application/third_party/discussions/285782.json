@@ -1,0 +1,66 @@
+[
+  {
+    "Id": "723762",
+    "ThreadId": "285782",
+    "Html": "<p>Hi,</p>\n<p>I use 1.7.6, MAC OS, and I get the following error:&nbsp;<em>Allowed memory size of 67108864 bytes exhausted (tried to allocate 65300 bytes)</em> , when i try to convert/export and excel file to pdf. I really don't know what could be the problem. Also I don't  have access to php.ini, but it seems that the limit is 64 MB, also the excel (.xls) file is small has one sheet with 20 rows, around 12 KB</p>\n<p>below is the code:</p>\n<p>&nbsp;</p>\n<div style=\"color: black; background-color: white;\">\n<pre>               $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, <span style=\"color: #a31515;\">\"PDF\"</span>);\n               <span style=\"color: green;\">//unset($objPHPExcel);</span>\n               <span style=\"color: green;\">//ob_end_clean();</span>\n               <span style=\"color: green;\">// Redirect output to a client's web browser (pdf)</span>\n               header(<span style=\"color: #a31515;\">'Content-Type: application/pdf'</span>);\n               header(<span style=\"color: #a31515;\">'Content-Disposition: attachment;filename=\"pdffile'</span>.date(<span style=\"color: #a31515;\">'Ymd_His'</span>).<span style=\"color: #a31515;\">'.pdf\"'</span>);\n               header(<span style=\"color: #a31515;\">'Cache-Control: max-age=0'</span>);\n               <span style=\"color: green;\">//$objWriter-&gt;writeAllSheets();</span>\n               $objWriter-&gt;save(<span style=\"color: #a31515;\">'test.pdf'</span>);\n               <span style=\"color: blue;\">exit</span>;\n</pre>\n</div>\n<p>I would need some help to escape from this error, and to get the pdf. Thx in advance.</p>",
+    "PostedDate": "2012-01-11T09:06:08.547-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "724148",
+    "ThreadId": "285782",
+    "Html": "<p>pls I need some help, I searched trough forum and I read that phpexcel and the pdf exporter eats a lot of memory, is it right, this could be the reason ? because my limit is 64mb as the error says. I first time use it and not so known with all constraints and issues.</p>",
+    "PostedDate": "2012-01-12T02:48:26.947-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "724156",
+    "ThreadId": "285782",
+    "Html": "<p>you probably need more memory. 64MB is quite low, even most shared hosting solutions provide higher memory limits.</p>\r\n<p>&nbsp;</p>\r\n<p>try the following:</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre> ini_set(<span style=\"color: #a31515;\">'memory_limit'</span>,<span style=\"color: #a31515;\">'256M'</span>);\r\n</pre>\r\n</div>\r\n</p>",
+    "PostedDate": "2012-01-12T02:57:00.167-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "724175",
+    "ThreadId": "285782",
+    "Html": "<p>thx for your replay still have the problem, I tried 800MB, is very much :</p>\n<p>[12-Jan-2012 13:35:41] PHP Fatal error: &nbsp;Allowed memory size of 33554432 bytes exhausted (tried to allocate 130600 bytes) in /Applications/MAMP/htdocs/wizard/ci_application/my_classes/Classes/PHPExcel/Shared/PDF/tcpdf.php on line 6004[12-Jan-2012 13:37:01]  PHP Fatal error: &nbsp;Allowed memory size of 268435456 bytes exhausted (tried to allocate 71 bytes) in /Applications/MAMP/htdocs/wizard/ci_application/my_classes/Classes/PHPExcel/Shared/PDF/tcpdf.php on line 18170[12-Jan-2012 13:38:22] PHP Fatal error: &nbsp;Allowed  memory size of 536870912 bytes exhausted (tried to allocate 77 bytes) in /Applications/MAMP/htdocs/wizard/ci_application/my_classes/Classes/PHPExcel/Shared/PDF/tcpdf.php on line 18021[12-Jan-2012 13:40:46] PHP Fatal error: &nbsp;Allowed memory size of 838860800  bytes exhausted (tried to allocate 130600 bytes) in /Applications/MAMP/htdocs/wizard/ci_application/my_classes/Classes/PHPExcel/Shared/PDF/tcpdf.php on line 6004</p>\n<p>&nbsp;</p>\n<p>and changed on line in code, now is :&nbsp;$objWriter-&gt;save('php://output');</p>",
+    "PostedDate": "2012-01-12T03:42:48.713-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "724185",
+    "ThreadId": "285782",
+    "Html": "<p>setuped even 1400mb and changed maximum execution of time for each script to 60 seconds. Now sounds different than a memory problem</p>",
+    "PostedDate": "2012-01-12T03:57:20.287-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "724197",
+    "ThreadId": "285782",
+    "Html": "<p>nevermind, I read too quickly</p>\n<p>&nbsp;</p>\n<p>does it only occur if you try to build a pdf? (ie. do other output writers exhibit the same problem?)</p>",
+    "PostedDate": "2012-01-12T04:39:42.247-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "724207",
+    "ThreadId": "285782",
+    "Html": "<p>yes, with the excel and html works&nbsp;perfectly</p>",
+    "PostedDate": "2012-01-12T05:04:37.533-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "724250",
+    "ThreadId": "285782",
+    "Html": "<p>solved with excel-&gt;html + mpdf -&gt; pdf, and works with 64mb, interesting why tcpdf doesn't work.</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2012-01-12T06:28:22.907-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

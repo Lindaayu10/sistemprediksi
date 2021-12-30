@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "762769",
+    "ThreadId": "312180",
+    "Html": "\r\n<p>Before I invest time and effort, does anyone know any reasons this won't work as a way to create large excel files without hitting the memory limit:</p>\r\n<p>1. Create a spreadsheet as usual, but do not fill in any of the 'standard' rows. By standard, I refer to the bulk content of the spreadsheet. The purpose of this step is to get the xlsx component files (eg rels, app.xml, core.xml, etc) all ready for use.</p>\r\n<p>2. Write to disk in a temp file</p>\r\n<p>3. Open xl/worksheets/sheet1.xml with ordinary file manip functions (eg fopen)</p>\r\n<p>4. Cut and save the closing portion of this file, leaving sheet1.xml with EOF exactly at the right place for appending rows.</p>\r\n<p>5. Manually append the bulk rows, writing as you go, so that this file is never loaded into memory. Requires knowledge of the format, but this is easily obtained through a little study of examples you can make.</p>\r\n<p>4. Replace the ending portion that was taken out in step 4</p>\r\n<p>Can anything think of a reason this won't work?</p>\r\n<p>Regards</p>\r\n",
+    "PostedDate": "2012-02-14T04:18:11.6-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "762789",
+    "ThreadId": "312180",
+    "Html": "<p>I've implemented something like this, and it works like a charm, I can now actually stream in the data, which means I have no problems with writing excel files in excess of 300K rows, with less than 100MB of memory usage.</p>",
+    "PostedDate": "2012-02-14T04:31:45.907-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "762811",
+    "ThreadId": "312180",
+    "Html": "<p>Thanks for the green light, borft. Is it as straightforward as I've outlined, or are the dark pits along the way? I was just doing some memory and speed tests with append (simple csv, not the xml), and it looks good so far.</p>",
+    "PostedDate": "2012-02-14T04:39:05.3-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "762877",
+    "ThreadId": "312180",
+    "Html": "<p>well, to be perfectly honest, I wrote my own excel writer from scratch, reverse engineering the xlsx format on the way. The initial idea I had was pretty much your suggestion. Take some kind of basis, and then unzip the xlsx, and stream in the data.</p>\r\n<p>My approach is the following:</p>\r\n<p>1. take some kind of xlsx as template</p>\r\n<p>2. unzip it</p>\r\n<p>3. split the worksheets at the &lt;sheetData&gt; tags (I call it header and footer)</p>\r\n<p>4. write data to data file</p>\r\n<p>5. update meta data in header and workbook.xml</p>\r\n<p>6. merge header, data and footer</p>\r\n<p>7. zip all the files</p>\r\n<p>8. presto!</p>",
+    "PostedDate": "2012-02-14T05:02:23.497-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "762895",
+    "ThreadId": "312180",
+    "Html": "<p>Thanks, sounds like about 20 minutes work, the way you say it! I've looked at this long time ago, though, when it first came out, and its complex if you want to understand it (understanding isn't really needed, fortunately: copy is sufficient for much of it). I think I'll stick with PHPExcel for the convenience it offers for putting things in the right place (the write place, ahem), and roll my own only for the bulk portion. Thanks again.</p>",
+    "PostedDate": "2012-02-14T05:08:07.567-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "762915",
+    "ThreadId": "312180",
+    "Html": "<p>haha, i think it took me a lot more time than that to get it to work properly :) First trial version was up and running within a week or so, but it took me over a month to get it up to useable quality. I've found out that openoffice tolerates a lot more shit in the xml than ms Office for instance.</p>\r\n<p>You should definitely not underestimate the functionality PHPExcel has to offer, it is really impressive. However, if you don't want to use all the complex functions, but just want to build incredibly large xlsx speadsheets, building your own implementation might be a better solution, although I still think it is not a project to be undertaken lightly :)</p>",
+    "PostedDate": "2012-02-14T05:14:50.43-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

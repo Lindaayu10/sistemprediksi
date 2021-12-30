@@ -1,0 +1,39 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "Duplicate of Work item 11576 - AdvancedValueBinder.php&#58; String sometimes becomes a date when it shouldn&#39;t.This has already been fixed in the latest 1.7.6 production release.",
+    "ClosedDate": "2011-02-28T08:36:51.04-08:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Please reconsider the \"shelling out\" to the DATETIME() function before settling on the fact that we have indeed a string at hand. I think the usage of date_parse() (DateTime.php:377) as a result of calling PHPExcel_Shared_Date::stringToExcel() in AdvancedValueBinder.php:114 makes the false assumption that I am indeed trying very hard to express a date, no matter what. So if date_parse() manages to wrestle anything like a date from the string, this leads our AdvancedValueBinder to the assumption that the user wanted it that way.\n \nIllustrative example:\nValue entered for AdvancedValueBinder to chew on: \"K5070\"\n \n$PHPDateArray = date_parse('K5070');\n$PHPDateArray =  array = \n  year: long = 5070\n  month: bool = FALSE\n  day: bool = FALSE\n  hour: bool = FALSE\n  minute: bool = FALSE\n  second: bool = FALSE\n  fraction: bool = FALSE\n  warning_count: long = 0\n  warnings: array = \n  error_count: long = 0\n  errors: array = \n  is_localtime: bool = TRUE\n  zone_type: long = 2\n  zone: long = -600\n  is_dst: bool = FALSE\n  tz_abbr: string = \"K\"\n \nAdvancedValueBinder result entered in cell: 5070-2-28 (for this adds todays month and day to the \"incomplete\" date)\n \nWait what??? Show me the human who in his right mind considers K5070 a moniker for \"Febuary 28th, 5070\". You just touched POMS (principle of maximum surprise)!\n \nI don't have a problem with date_parse() when let loose on the garbage entered into a dedicated date field - you have some sort of \"contract\" then between user and programmer that both try their very best to make this \"date\" work (pun unfortunately not avoided, please stay with me). For those instances PHP gives you date_parse(), the Alex 'Hitch' Hitchens of date extraction (\"if it doesn't get you a date, no one else will\" - sorry, again). But this contract is IMHO not signed when activating the AdvancedValueBinder.\n \nI suggest to do some sensible regex tests to catch, say, the top 3-5 types of date formatting - anything else should be considered a normal string by AdvancedValueBinder.\n \nAnd besides: if I formatted a cell with  PHPExcel_Style_NumberFormat::FORMAT_TEXT (= '@'), expressing that it will only contain text, PHPExcel should play fair and keep the value untouched!",
+    "LastUpdatedDate": "2013-05-16T05:41:45.27-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2011-02-28T07:10:28.58-08:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Usage of date_parse() in AdvancedValueBinder leads to false positives",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 15434
+  },
+  "FileAttachments": [],
+  "Comments": []
+}

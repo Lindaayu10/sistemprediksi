@@ -1,0 +1,98 @@
+[
+  {
+    "Id": "1064386",
+    "ThreadId": "449030",
+    "Html": "Hello everybody,\r<br />\n<br />\nI have the following issue \r<br />\n<br />\nI read a .xls sheet by using getValue() method like this :<br />\n<pre><code>$objPHPExcel = PHPExcel_IOFactory::load($_FILES['excel']['tmp_name']);\n\n$sheet = $objPHPExcel-&gt;getSheet(0);\n\nforeach($sheet-&gt;getRowIterator() as $row){\n     $tab = array();\n     foreach($row-&gt;getCellIterator() as $cell){\n          array_push($tab, $cell-&gt;getValue());\n}\n}</code></pre>\n\nThen I stock the contents of each cell up on a database (mySQL/phpMyAdmin).\r<br />\nThe contents of each cell is a string.\r<br />\nIt works well except for the cells which contain a string with accent (french string), for them\r<br />\ngetValue() return nothing, it looks like the cells are empty.\r<br />\n<br />\nThanks for help<br />\n",
+    "PostedDate": "2013-07-03T22:50:26.06-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1064398",
+    "ThreadId": "449030",
+    "Html": "At first, I would go for a problem of encoding (character set) and not on the side of phpexcel.<br />\n",
+    "PostedDate": "2013-07-03T23:43:47.143-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1064402",
+    "ThreadId": "449030",
+    "Html": "Thanks for your response,\r<br />\n<br />\nDo you mean that I should look for problem of encoding on the side of the excel sheet?\r<br />\n<br />\nI have unsuccessfully tried to use iconv and utf8_encode/utf8_decode functions but \r<br />\nI'm not sure of how using them. \r<br />\n<br />\nI read that getValue returns UTF8 encoded string by default and my php file are also UTF8 encoded\r<br />\nso I realy don't know how I can resolve the problem <br />\n",
+    "PostedDate": "2013-07-03T23:58:41.543-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1064410",
+    "ThreadId": "449030",
+    "Html": "Hum... If PHPExcel encounters an unknown page code, it raises an exception... Your Excel file was created by what program, on which platform? But unless something exotic, it would surprise me that the problem comes from there: over time, PHPExcel has seen many sources and the problems were resolved.\r<br />\n<br />\nAssured you that getValue() returns actually empty. If this is the case, a small sample file with the problem would be useful.<br />\n",
+    "PostedDate": "2013-07-04T00:19:29.21-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1064417",
+    "ThreadId": "449030",
+    "Html": "I'm sure that getValue return empty when I &quot;echo&quot; each getValue, the results are printed\r<br />\nexcept those contain accents like it is the case in the database.\r<br />\n<br />\nHere the column which causes the problem in the excel sheet \r<br />\n<br />\n!!<img src=\"http://nsa33.casimages.com/img/2013/07/04/130704093441756088.png\" alt=\"Image\" />\r<br />\n<br />\nAnd here what is written in my phpMyAdmin database \r<br />\n<br />\n<img src=\"http://nsa34.casimages.com/img/2013/07/04/130704093627395823.png\" alt=\"Image\" />\r<br />\n<br />\nAs you can see, 2 rows are empty in the database and they correspond to the 2 rows in the excel sheet which contain\r<br />\nan &quot;à&quot;.\r<br />\n<br />\nWhen I manually change the &quot;à&quot; in &quot;a&quot; directly in the excel sheet, the rows are written in the database without any problem.\r<br />\n<br />\nI don't know if it is important but the excel file comes from another site.\r<br />\nI have to develop a php app based on the excel file datas <br />\n",
+    "PostedDate": "2013-07-04T00:42:30.69-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1064439",
+    "ThreadId": "449030",
+    "Html": "I tried this : change the coding of the excel file by &quot;save as&quot; -&gt; excel 97-2003 -&gt; tools -&gt; coding and I replace &quot;windows&quot; by &quot;unicode (UTF-8)&quot; and save the file with another name, uploaded it in my app and it works!\r<br />\n<br />\nSo now I try to find how I can change the coding of the whole excel file in php before using getValue() in my php file, because I can't manage coding of the excel file\r<br />\nto the extent that the user export the file from another website only with .xls extension  (.csv export isn't possible).\r<br />\n<br />\nDo you know how I could change the coding when I load the excel file in my PHPObject?<br />\n",
+    "PostedDate": "2013-07-04T02:01:51.897-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1064459",
+    "ThreadId": "449030",
+    "Html": "Change the page code is perhaps not so obvious.\r<br />\nIt might be interesting to know the code page recorded in the file and know if he lies.\r<br />\nThe first point, to show the code when PHPExcel made the transcript.\r<br />\nA bit horrible, but the simplest is to display the value by the NumberToName method of the Shared_CodePage class in Shared\\CodePage.php<br />\n",
+    "PostedDate": "2013-07-04T02:41:17.84-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1064517",
+    "ThreadId": "449030",
+    "Html": "I edited the CodePage.php file to see how works the NumberToName method. It needs a number as argument but I don't know how I can obtain this number from my excel(.xls) file<br />\n",
+    "PostedDate": "2013-07-04T05:07:49.277-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1064532",
+    "ThreadId": "449030",
+    "Html": "Despite including the file by using require_once(&quot;mypath/CodePage.php&quot;) it displays that NumberToName is undefined..\r<br />\nAfter several  hours of search I know that Excel force the windows-latin1 code when it exports or opens file which correspond to the number 1252.\r<br />\n<br />\nDoes a way to force the coding of my PHPExcelObject to UTF-8 exists? <br />\n",
+    "PostedDate": "2013-07-04T05:34:29.86-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1064557",
+    "ThreadId": "449030",
+    "Html": "You do not need to include it, PHPExcel does it all alone; Similarly, it is he who will communicate the codepage that he read to the method. Just add, on an interim basis what to display it.\r<br />\n<br />\nDo you know if the basis file is created under Excel or if it is a creation by a server application?\r<br />\n<br />\nCan you also try to save the file under a different name without change of parameters and see if this new file also poses problems?<br />\n",
+    "PostedDate": "2013-07-04T06:49:17.023-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1064569",
+    "ThreadId": "449030",
+    "Html": "I don't know how to display the results of the method, the following message appears &quot;Undefined function NumberToName()...&quot;\r<br />\n<br />\nThe basis file come from another app which proposes data export in .xls or .pdf or directly print the datas.\r<br />\n<br />\nI tried with the same export but another name and still the same result nothing return by getValue() from the cells containing accent.\r<br />\n<br />\nI also tried utf8_encode and iconv methods but as $cell-&gt;getValue() returns nothing it doesn't work.\r<br />\n<br />\nThe only way it works is instead of export the file after have saved it, is to open it -&gt; &quot;save as&quot; -&gt; excel 97-2003 -&gt; tools -&gt; coding and chose &quot;utf-8&quot;<br />\n",
+    "PostedDate": "2013-07-04T07:18:59.467-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1064583",
+    "ThreadId": "449030",
+    "Html": "Does not seek to call the method yourself.\r<br />\nEdit the file CodePage.php that you'll find in PHPExcel\\Shared.\r<br />\nYou'll find the NumberToName method, before the switch, adds an echo $codePage;\r<br />\nI think it'll display 1252, but see.\r<br />\nI suspect the creative application to generate an inconsistency between what she announces and what it produces, because from what I know, PHPExcel has no problems with accented letters.<br />\n",
+    "PostedDate": "2013-07-04T07:43:29.437-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

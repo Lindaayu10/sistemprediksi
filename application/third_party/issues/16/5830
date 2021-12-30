@@ -1,0 +1,315 @@
+diff -p1 -E -b -w -r Classes/PHPExcel/Worksheet/BaseDrawing.php /home/mzebrowski/public_html/Classes//PHPExcel/Worksheet/BaseDrawing.php
+*** Classes/PHPExcel/Worksheet/BaseDrawing.php	2011-02-27 16:37:52.000000000 +0100
+--- /home/mzebrowski/public_html/Classes//PHPExcel/Worksheet/BaseDrawing.php	2011-08-08 13:38:25.000000000 +0200
+*************** class PHPExcel_Worksheet_BaseDrawing imp
+*** 129,130 ****
+--- 129,137 ----
+  	/**
++ 	 * Coordinates for twoCellAnchor
++ 	 * @var string
++ 	 */
++ 	protected $_coordinates2;
++ 	
++ 
++     /**
+       * Create a new PHPExcel_Worksheet_BaseDrawing
+*************** class PHPExcel_Worksheet_BaseDrawing imp
+*** 138,139 ****
+--- 145,147 ----
+      	$this->_coordinates			= 'A1';
++     	$this->_coordinates2		= 'A1';
+      	$this->_offsetX				= 0;
+*************** class PHPExcel_Worksheet_BaseDrawing imp
+*** 484,485 ****
+--- 492,502 ----
+  	}
++ 	
++ 	public function getCoordinates2() {
++ 		return $this->_coordinates2;
++ 	}
++ 	
++ 	public function setCoordinates2($c){
++ 		$this->_coordinates2=$c;
++ 		return $this;
++ 	}
+  }
+Tylko w /home/mzebrowski/public_html/Classes//PHPExcel/Worksheet: ChartDrawing
+Tylko w /home/mzebrowski/public_html/Classes//PHPExcel/Worksheet: ChartDrawing.php
+Tylko w /home/mzebrowski/public_html/Classes//PHPExcel/Writer/Excel2007: CalcChain.php
+Tylko w /home/mzebrowski/public_html/Classes//PHPExcel/Writer/Excel2007: Charts.php
+diff -p1 -E -b -w -r Classes/PHPExcel/Writer/Excel2007/ContentTypes.php /home/mzebrowski/public_html/Classes//PHPExcel/Writer/Excel2007/ContentTypes.php
+*** Classes/PHPExcel/Writer/Excel2007/ContentTypes.php	2011-02-27 16:37:52.000000000 +0100
+--- /home/mzebrowski/public_html/Classes//PHPExcel/Writer/Excel2007/ContentTypes.php	2011-08-11 15:52:59.000000000 +0200
+*************** class PHPExcel_Writer_Excel2007_ContentT
+*** 120,121 ****
+--- 120,126 ----
+  			
++ 			// Calculation Chain
++ 			$this->_writeOverrideContentType(
++ 				$objWriter, '/xl/calcChain.xml', 'application/vnd.openxmlformats-officedocument.spreadsheetml.calcChain+xml'
++ 			);
++ 
+  			// Add worksheet relationship content types
+*************** class PHPExcel_Writer_Excel2007_ContentT
+*** 126,127 ****
+--- 131,143 ----
+  					);
++ 					//write all charts
++ 					$iterator = $pPHPExcel->getSheet($i)->getDrawingCollection()->getIterator();
++ 					while($iterator->valid()) {
++ 						if ($iterator->current() instanceof PHPExcel_Worksheet_ChartDrawing) {
++ 							$this->_writeOverrideContentType(
++ 							$objWriter, '/xl/charts/'.$iterator->current()->getIndexedFileName(), 'application/vnd.openxmlformats-officedocument.drawingml.chart+xml'
++ 							);
++ 						}
++ 						$iterator->next();
++ 						++$i;
++ 					}
+  				}
+*************** class PHPExcel_Writer_Excel2007_ContentT
+*** 145,147 ****
+  
+! 				if ($this->getParentWriter()->getDrawingHashTable()->getByIndex($i) instanceof PHPExcel_Worksheet_Drawing) {
+  					$extension 	= strtolower($this->getParentWriter()->getDrawingHashTable()->getByIndex($i)->getExtension());
+--- 161,165 ----
+  				
+! 				if ($this->getParentWriter()->getDrawingHashTable()->getByIndex($i) instanceof PHPExcel_Worksheet_ChartDrawing) {
+! 					continue;
+! 				} else if ($this->getParentWriter()->getDrawingHashTable()->getByIndex($i) instanceof PHPExcel_Worksheet_Drawing) {
+  					$extension 	= strtolower($this->getParentWriter()->getDrawingHashTable()->getByIndex($i)->getExtension());
+diff -p1 -E -b -w -r Classes/PHPExcel/Writer/Excel2007/Drawing.php /home/mzebrowski/public_html/Classes//PHPExcel/Writer/Excel2007/Drawing.php
+*** Classes/PHPExcel/Writer/Excel2007/Drawing.php	2011-02-27 16:37:52.000000000 +0100
+--- /home/mzebrowski/public_html/Classes//PHPExcel/Writer/Excel2007/Drawing.php	2011-08-12 09:35:07.000000000 +0200
+*************** class PHPExcel_Writer_Excel2007_Drawing
+*** 66,67 ****
+--- 66,68 ----
+  			while ($iterator->valid()) {
++ 				
+  				$this->_writeDrawing($objWriter, $iterator->current(), $i);
+*************** class PHPExcel_Writer_Excel2007_Drawing
+*** 89,90 ****
+--- 90,93 ----
+  		if ($pRelationId >= 0) {
++ 			
++ 			if (! ($pDrawing instanceof PHPExcel_Worksheet_ChartDrawing) ) {
+  				// xdr:oneCellAnchor
+*************** class PHPExcel_Writer_Excel2007_Drawing
+*** 109,110 ****
+--- 112,154 ----
+  
++ 					$this->_writePicture($objWriter, $pDrawing, $pRelationId);
++ 							// xdr:clientData
++ 				$objWriter->writeElement('xdr:clientData', null);
++ 
++ 				$objWriter->endElement();
++ 			}  else {
++ 				$objWriter->startElement('xdr:twoCellAnchor');
++ 				// Image location
++ 				$aCoordinates 		= PHPExcel_Cell::coordinateFromString($pDrawing->getCoordinates());
++ 				$aCoordinates[0] 	= PHPExcel_Cell::columnIndexFromString($aCoordinates[0]);
++ 				
++ 				// xdr:from
++ 				$objWriter->startElement('xdr:from');
++ 				$objWriter->writeElement('xdr:col', $aCoordinates[0] - 1);
++ 				$objWriter->writeElement('xdr:colOff',0);// PHPExcel_Shared_Drawing::pixelsToEMU($pDrawing->getOffsetX()));
++ 				$objWriter->writeElement('xdr:row', $aCoordinates[1] - 1);
++ 				$objWriter->writeElement('xdr:rowOff', 0);//PHPExcel_Shared_Drawing::pixelsToEMU($pDrawing->getOffsetY()));
++ 				$objWriter->endElement();
++ 				// xdr:to
++ 				$aCoordinates 		= PHPExcel_Cell::coordinateFromString($pDrawing->getCoordinates2());
++ 				$aCoordinates[0] 	= PHPExcel_Cell::columnIndexFromString($aCoordinates[0]);
++ 				$objWriter->startElement('xdr:to');
++ 				$objWriter->writeElement('xdr:col', $aCoordinates[0] - 1);
++ 				$objWriter->writeElement('xdr:colOff', 0);//PHPExcel_Shared_Drawing::pixelsToEMU($pDrawing->getOffsetX()));
++ 				$objWriter->writeElement('xdr:row', $aCoordinates[1] - 1);
++ 				$objWriter->writeElement('xdr:rowOff', 0);//PHPExcel_Shared_Drawing::pixelsToEMU($pDrawing->getOffsetY()));
++ 				$objWriter->endElement();
++ 				
++ 				$this->_writeChart($objWriter, $pDrawing, $pRelationId);
++ 				$objWriter->writeElement('xdr:clientData', null);
++ 				
++ 				$objWriter->endElement();
++ 				
++ 			}
++ 
++ 		} else {
++ 			throw new Exception("Invalid parameters passed.");
++ 		}
++ 	}
++ 	
++ 	public function _writePicture(PHPExcel_Shared_XMLWriter $objWriter = null, PHPExcel_Worksheet_BaseDrawing $pDrawing = null, $pRelationId = -1) {
+  		// xdr:pic
+*************** class PHPExcel_Writer_Excel2007_Drawing
+*** 117,119 ****
+  						$objWriter->startElement('xdr:cNvPr');
+! 						$objWriter->writeAttribute('id', $pRelationId);
+  						$objWriter->writeAttribute('name', $pDrawing->getName());
+--- 161,163 ----
+  		$objWriter->startElement('xdr:cNvPr');
+! 		$objWriter->writeAttribute('id', $pRelationId-1);
+  		$objWriter->writeAttribute('name', $pDrawing->getName());
+*************** class PHPExcel_Writer_Excel2007_Drawing
+*** 287,290 ****
+  
+! 				// xdr:clientData
+! 				$objWriter->writeElement('xdr:clientData', null);
+  
+--- 331,399 ----
+  		
+! 	}
+! 	/**
+! 	* Write chart drawing to XML format
+! 	*
+! 	* @param 	PHPExcel_Shared_XMLWriter			$objWriter 		XML Writer
+! 	* @param 	PHPExcel_Worksheet_BaseDrawing		$pDrawing
+! 	* @param 	int									$pRelationId
+! 	* @throws 	Exception
+! 	*/
+! 	public function _writeChart(PHPExcel_Shared_XMLWriter $objWriter = null, PHPExcel_Worksheet_ChartDrawing $pDrawing = null, $pRelationId = -1)
+! 	{
+! 		if ($pRelationId >= 0) {
+! 			// xdr:graphicFrame
+! 			$objWriter->startElement('xdr:graphicFrame');
+! 			$objWriter->writeAttribute('macro', '');
+! 	
+! 			// xdr:nvGraphicFramePr
+! 			$objWriter->startElement('xdr:nvGraphicFramePr');
+! 	
+! 			// xdr:cNvPr
+! 			$objWriter->startElement('xdr:cNvPr');
+! 			$objWriter->writeAttribute('id',0);
+! 			$objWriter->writeAttribute('name', $pDrawing->getName());
+! 			//$objWriter->writeAttribute('descr', $pDrawing->getDescription());
+! 			$objWriter->endElement();
+! 	
+! 			// xdr:cNvGraphicFramePr
+! 			$objWriter->startElement('xdr:cNvGraphicFramePr');
+! 			$objWriter->endElement();
+! 	
+! 			$objWriter->endElement();
+! 	
+! 			// xdr:xfrm
+! 			$objWriter->startElement('xdr:xfrm');
+! 	
+! 			// a:off
+! 			$objWriter->startElement('a:off');
+! 			/*<a:off x="65160" y="1043640" />*/
+! 			$objWriter->writeAttribute('x', 0);//PHPExcel_Shared_Drawing::pixelsToEMU($pDrawing->getOffsetX()));
+! 			$objWriter->writeAttribute('y', 0);//PHPExcel_Shared_Drawing::pixelsToEMU($pDrawing->getOffsetY()));
+! 			$objWriter->endElement();
+! 	
+! 			// a:ext
+! 			$objWriter->startElement('a:ext');
+! 			$objWriter->writeAttribute('cx', 0);//PHPExcel_Shared_Drawing::pixelsToEMU($pDrawing->getWidth()));
+! 			$objWriter->writeAttribute('cy', 0);//PHPExcel_Shared_Drawing::pixelsToEMU($pDrawing->getHeight()));
+! 			$objWriter->endElement();
+! 	
+! 			$objWriter->endElement();
+! 	
+! 			// a:graphic
+! 			$objWriter->startElement('a:graphic');
+! 	
+! 			// a:graphicData
+! 			$objWriter->startElement('a:graphicData');
+! 			$objWriter->writeAttribute('uri', "http://schemas.openxmlformats.org/drawingml/2006/chart");
+! 	
+! 			// c:chart
+! 			$objWriter->startElement('c:chart');
+! 			$objWriter->writeAttribute('xmlns:c', "http://schemas.openxmlformats.org/drawingml/2006/chart");
+! 			$objWriter->writeAttribute('xmlns:r', "http://schemas.openxmlformats.org/officeDocument/2006/relationships");
+! 			$objWriter->writeAttribute('r:id', 'rId' . $pRelationId);
+! 			$objWriter->endElement();
+! 	
+! 			$objWriter->endElement();
+! 				
+! 			$objWriter->endElement();
+  				
+*************** class PHPExcel_Writer_Excel2007_Drawing
+*** 296,297 ****
+--- 405,407 ----
+  	
++ 
+  	/**
+diff -p1 -E -b -w -r Classes/PHPExcel/Writer/Excel2007/Rels.php /home/mzebrowski/public_html/Classes//PHPExcel/Writer/Excel2007/Rels.php
+*** Classes/PHPExcel/Writer/Excel2007/Rels.php	2011-02-27 16:37:52.000000000 +0100
+--- /home/mzebrowski/public_html/Classes//PHPExcel/Writer/Excel2007/Rels.php	2011-08-11 14:46:31.000000000 +0200
+*************** class PHPExcel_Writer_Excel2007_Rels ext
+*** 151,152 ****
+--- 151,161 ----
+  
++ 			// Relationship calcChain.xml
++ 			$this->_writeRelationship(
++ 				$objWriter,
++ 				4,
++ 				'http://schemas.openxmlformats.org/officeDocument/2006/relationships/calcChain',
++ 				'calcChain.xml'
++ 			);
++ 				
++ 			
+  			// Relationships with sheets
+*************** class PHPExcel_Writer_Excel2007_Rels ext
+*** 156,158 ****
+  					$objWriter,
+! 					($i + 1 + 3),
+  					'http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet',
+--- 165,167 ----
+  					$objWriter,
+! 					($i + 1 + 4),
+  					'http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet',
+*************** class PHPExcel_Writer_Excel2007_Rels ext
+*** 295,296 ****
+--- 304,313 ----
+  					);
++ 				} else if ($iterator->current() instanceof PHPExcel_Worksheet_ChartDrawing) {
++ 					// Write relationship for image drawing
++ 					$this->_writeRelationship(
++ 						$objWriter,
++ 						$i,
++ 						'http://schemas.openxmlformats.org/officeDocument/2006/relationships/chart',
++ 						'../charts/' . str_replace(' ', '', $iterator->current()->getIndexedFilename())
++ 					);
+  				}
+diff -p1 -E -b -w -r Classes/PHPExcel/Writer/Excel2007/Workbook.php /home/mzebrowski/public_html/Classes//PHPExcel/Writer/Excel2007/Workbook.php
+*** Classes/PHPExcel/Writer/Excel2007/Workbook.php	2011-02-27 16:37:52.000000000 +0100
+--- /home/mzebrowski/public_html/Classes//PHPExcel/Writer/Excel2007/Workbook.php	2011-08-11 15:16:05.000000000 +0200
+*************** class PHPExcel_Writer_Excel2007_Workbook
+*** 219,221 ****
+  				($i + 1),
+! 				($i + 1 + 3),
+  				$pPHPExcel->getSheet($i)->getSheetState()
+--- 219,221 ----
+  				($i + 1),
+! 				($i + 1 + 4),
+  				$pPHPExcel->getSheet($i)->getSheetState()
+diff -p1 -E -b -w -r Classes/PHPExcel/Writer/Excel2007.php /home/mzebrowski/public_html/Classes//PHPExcel/Writer/Excel2007.php
+*** Classes/PHPExcel/Writer/Excel2007.php	2011-02-27 16:37:52.000000000 +0100
+--- /home/mzebrowski/public_html/Classes//PHPExcel/Writer/Excel2007.php	2011-08-11 14:49:06.000000000 +0200
+*************** class PHPExcel_Writer_Excel2007 implemen
+*** 147,149 ****
+  									'drawing' 		=> 'PHPExcel_Writer_Excel2007_Drawing',
+! 									'comments' 		=> 'PHPExcel_Writer_Excel2007_Comments'
+  								 );
+--- 147,151 ----
+  									'drawing' 		=> 'PHPExcel_Writer_Excel2007_Drawing',
+! 									'comments' 		=> 'PHPExcel_Writer_Excel2007_Comments',
+! 									'charts'		=> 'PHPExcel_Writer_Excel2007_Charts',
+! 									'calcchain'		=> 'PHPExcel_Writer_Excel2007_CalcChain'
+  								 );
+*************** class PHPExcel_Writer_Excel2007 implemen
+*** 263,264 ****
+--- 265,269 ----
+  
++ 			// Add calcChain to ZIP file
++ 			$objZip->addFromString('xl/calcChain.xml', 				$this->getWriterPart('calcChain')->writeCalcChain($this->_spreadSheet));
++ 				
+  			// Add worksheets
+*************** class PHPExcel_Writer_Excel2007 implemen
+*** 337,339 ****
+--- 342,348 ----
+  					$objZip->addFromString('xl/media/' . str_replace(' ', '_', $this->getDrawingHashTable()->getByIndex($i)->getIndexedFilename()), $imageContents);
++ 				} else if ($this->getDrawingHashTable()->getByIndex($i) instanceof PHPExcel_Worksheet_ChartDrawing) {
++ 					//print_r($this->getDrawingHashTable()->getByIndex($i));
++ 					$objZip->addFromString('xl/charts/' . str_replace(' ', '_', $this->getDrawingHashTable()->getByIndex($i)->getIndexedFilename()), $this->getWriterPart('Charts')->writeChart($this->getDrawingHashTable()->getByIndex($i)));
+  				}
++ 				
+  			}

@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "984411",
+    "ThreadId": "428993",
+    "Html": "\r\n<p>Hi,</p>\r\n<p>The setTextRotation function doesn't appear to be working for me. Am using PHPExcel version 1.7.6 on php version 5.3.8 with Excel5.</p>\r\n<p>I want to alter the orientation for an entire row and have tried setting it by entire row or individual cells without success.</p>\r\n<p>Using the line:</p>\r\n<p>$sheet-&gt;getStyle('A1')-&gt;getAlignment()-&gt;setTextRotation(90);</p>\r\n<p>When checking the rotation value before and after the line it is being set.</p>\r\n<p>Any ideas as to what I'm doing wrong?</p>\r\n<p>Thanks.</p>\r\n",
+    "PostedDate": "2013-01-09T02:59:50.607-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "984680",
+    "ThreadId": "428993",
+    "Html": "\r\n<p>Tested using 1.7.6</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>$objPHPExcel = <span style=\"color:blue\">new</span> PHPExcel();\r\n$objPHPExcel-&gt;setActiveSheetIndex(0)\r\n            -&gt;setCellValue(<span style=\"color:#a31515\">'A1'</span>,  <span style=\"color:#a31515\">&quot;Hello&quot;</span>)\r\n            -&gt;setCellValue(<span style=\"color:#a31515\">'A2'</span>,  <span style=\"color:#a31515\">&quot;World&quot;</span>);\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(<span style=\"color:#a31515\">'A1:A2'</span>)-&gt;getAlignment()-&gt;setTextRotation(90);\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setTitle(<span style=\"color:#a31515\">'Simple'</span>);\r\n\r\n$objPHPExcel-&gt;setActiveSheetIndex(0);\r\n\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, <span style=\"color:#a31515\">'Excel2007'</span>);\r\n$objWriter-&gt;save(str_replace(<span style=\"color:#a31515\">'.php'</span>, <span style=\"color:#a31515\">'.xlsx'</span>, <span style=\"color:blue\">__FILE__</span>));\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, <span style=\"color:#a31515\">'Excel5'</span>);\r\n$objWriter-&gt;save(str_replace(<span style=\"color:#a31515\">'.php'</span>, <span style=\"color:#a31515\">'.xls'</span>, <span style=\"color:blue\">__FILE__</span>));\r\n</pre>\r\n</div>\r\n<p>And works happily&nbsp;</p>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2013-01-09T13:32:13.743-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "985334",
+    "ThreadId": "428993",
+    "Html": "\r\n<p>Thanks very much for that Mark, however obviously we're doing something wrong as it's not working.</p>\r\n<p>We have multiple sheets (not that it should make any difference) and use the following:</p>\r\n<p></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre> &nbsp;&nbsp;&nbsp; &nbsp;&nbsp; $workbook = new PHPExcel();<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; ** create all the sheets here **<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $setup = $workbook-&gt;setActiveSheetIndex(0)-&gt;getPageSetup();<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $setup-&gt;setPaperSize(PHPExcel_Worksheet_PageSetup::PAPERSIZE_A3);<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $setup-&gt;setFitToWidth(true);<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $setup-&gt;setOrientation(PHPExcel_Worksheet_PageSetup::ORIENTATION_LANDSCAPE);<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $writer = PHPExcel_IOFactory::createWriter($workbook, 'PDF');<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $writer-&gt;writeAllSheets();<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $writer-&gt;save($outfile);\r\n</pre>\r\n</div>\r\n<p></p>\r\n<p>All the other formating (font size, font weight, column width, etc) works perfectly. So I'm guessing this is more than likely down to my lack of understanding of PHPExcel so please point out any glaring mistakes.</p>\r\n<p>Thanks.</p>\r\n",
+    "PostedDate": "2013-01-11T01:58:08.65-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "985594",
+    "ThreadId": "428993",
+    "Html": "\r\n<p>I'll take a stab at it. Something that looks odd to me.</p>\r\n<p>$setup = $workbook-&gt;setActiveSheetIndex(0)-&gt;getPageSetup();</p>\r\n<p>I'm not sure, but isn't this line making a <strong>copy&nbsp;</strong>of the page setup. Which you make a lot of changes to but if it is a copy, you aren't actually modifying the $workbook structure.</p>\r\n<p>Which means all of your setup lines do nothing as far as the PHPExcel is concerned.&nbsp;</p>\r\n<p>Not sure if that helps any.</p>\r\n<p>- Christopher Mullins</p>\r\n",
+    "PostedDate": "2013-01-11T11:08:45.167-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "985732",
+    "ThreadId": "428993",
+    "Html": "\r\n<p>The HTML and hence the PDF output doesn't support text rotation; I don't know if CSS3 allows you to rotate text, I'll need to take a look at that; but even if it did, it might still not be an option for any of the PDF rendering libraries</p>\r\n",
+    "PostedDate": "2013-01-11T16:22:59.73-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

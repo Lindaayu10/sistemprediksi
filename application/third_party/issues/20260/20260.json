@@ -1,0 +1,80 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "for example:\n\nIf I have:\n\na sheet with a range of cells from C33 to D39 \nC with names and D with values\n\np1=what I'm search for(which must me a reference OMFG, from when this must be a reference?) : 'AAA'\np2=MySheet!C33:D39) -> mandatory cellrange(well... not quitly, it must be a excel format array like {0,1,2,3;4,3,4,5}, but just in EXCEL)\nand I call VLOOKUP(p1,p2,2,FALSE)\n\nguess what I got... a big #N/A! \n\nso I think you should better check the excel formulas before you get a new version up!\n\nand 1 more thing: VVV is any case isn't a named range so also you should check those regex(VLOOKUP is 1 of the most used functions in excel,even is MS or PHP)",
+    "LastUpdatedDate": "2015-04-14T02:43:25.563-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2013-10-01T10:25:50.527-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "VLOOKUP - returns #N/A!",
+    "Type": {
+      "Name": "Unassigned",
+      "Id": 5
+    },
+    "VoteCount": 4,
+    "Id": 20260
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "I believe this is an issue with the function VLOOKUP in LookupRef.php, as I encountered the same issue, getting #N/A for what is a valid lookup within excel.\r\n\r\nversion 1.8.0, line 739:\n\t\t\t\tif ((is_numeric($lookup_value) && is_numeric($result)) ||\n\t\t\t\t\t(!is_numeric($lookup_value) && !is_numeric($result))) {\r\n\r\nBy this logic, if I'm looking for a number, my lookup value MUST be a number, I cannot look up a number with a string.\r\n\r\nThis completely breaks the case I am doing, as I am doing currency conversion, looking up a currency code (e.g. USD) and expecting a number back.\n",
+      "PostedDate": "2014-05-14T21:10:18.74-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2014-05-14T21:10:30.303-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "hi jbailey74,\nI solved my vlookup problem by altering Calculation.php file, function  _calculateFormulaValue\nafter $formula = trim($formula); added next:\n```\nif(strpos($formula,'VLOOKUP(')!==false)\n        {\n            preg_match_all(\"/VLOOKUP(\\((?:[^()]++|(?1))+\\))/\", $formula, $matches);\n            for($v=0;$v<sizeof($matches[0]);$v++)\n            {\n                //echo \"formula initiala: \".$formula.\"\\r\\n\";\n                $curForm=$matches[0][$v];               \n                $with='';               \n                                \n                $params=explode(\",\",$curForm);\n                $params[0]=str_replace(\"VLOOKUP(\", \"\",$params[0]);\n                $params[count($params)-1]=rtrim($params[count($params)-1],\")\");\n                if(preg_match('/([A-Z][0-9])/',$params[0]))\n                {\n                    $params_address=$params[0];\n                    if(strpos($params[0],'!')){\n                        $params_=preg_split('/[!]/', $params[0]);\n                        $params_address=$params_[1];\n                    }\n                    $params_r1 = $this->_processTokenStack($this->_parseFormula($params[0],$pCell), $cellID,$pCell);\n                    $params[1]= $this->_processTokenStack($this->_parseFormula($params[1],$pCell), $cellID,$pCell);\n                    if(is_array($params_r1)){                        \n                        $s_row=preg_replace(\"/[^0-9]/\",\"\",$params_address);\n                        $s_col=preg_replace(\"/[^a-zA-Z]/\",\"\",$params_address);\n                        \n                        $params[0]=$params_r1[$s_row][$s_col];\n                    }\n                    else{\n                        $params[0]=$params_r1;\n                    }\n                }\n                \n                if(count($params)==3)\n                    $with=PHPExcel_Calculation_LookupRef::VLOOKUP($params[0], $params[1], $params[2]);\n                else {\n                    $with=PHPExcel_Calculation_LookupRef::VLOOKUP($params[0], $params[1], $params[2],$params[3]);\n                }              \r\n\r\n                $formula= str_replace($curForm, $with, $formula);                               \n            }       \n        }\n```\r\n\r\n> and this solved my vlookup implementation problem... also be careful on index function cause it's buggy also",
+      "PostedDate": "2014-05-15T01:09:20.66-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "also you must modify the vlookup function in the LookupRef.php\r\n\r\n```\n/**\n\t* VLOOKUP\n\t* The VLOOKUP function searches for value in the left-most column of lookup_array and returns the value in the same row based on the index_number.\n\t* @param\tlookup_value\tThe value that you want to match in lookup_array\n\t* @param\tlookup_array\tThe range of cells being searched\n\t* @param\tindex_number\tThe column number in table_array from which the matching value must be returned. The first column is 1.\n\t* @param\tnot_exact_match\tDetermines if you are looking for an exact match based on lookup_value.\n\t* @return\tmixed\t\t\tThe value of the found cell\n\t*/\n\tpublic static function VLOOKUP($lookup_value, $lookup_array, $index_number, $not_exact_match=true) {\n\t\t$lookup_value\t= PHPExcel_Calculation_Functions::flattenSingleValue($lookup_value);\n\t\t$index_number\t= PHPExcel_Calculation_Functions::flattenSingleValue($index_number);\n\t\t$not_exact_match\t= PHPExcel_Calculation_Functions::flattenSingleValue($not_exact_match);\r\n\r\n\t\t// index_number must be greater than or equal to 1\n\t\tif ($index_number < 1) {\n\t\t\treturn PHPExcel_Calculation_Functions::VALUE();\n\t\t}\n\t\t//print_r($lookup_array);\n\t\t// index_number must be less than or equal to the number of columns in lookup_array\n\t\tif ((!is_array($lookup_array)) || (empty($lookup_array))) {\n\t\t\treturn PHPExcel_Calculation_Functions::REF();\n\t\t} else {\n\t\t\t$f = array_keys($lookup_array);\n\t\t\t$firstRow = array_pop($f);\n\t\t\tif ((!is_array($lookup_array[$firstRow])) || ($index_number > count($lookup_array[$firstRow]))) {\n\t\t\t\treturn PHPExcel_Calculation_Functions::REF();\n\t\t\t} else {\n\t\t\t\t$columnKeys = array_keys($lookup_array[$firstRow]);\n\t\t\t\t$returnColumn = $columnKeys[--$index_number];\n\t\t\t\t$firstColumn = array_shift($columnKeys);\n\t\t\t}\n            \n            $rowKeys=array_keys($lookup_array);\n            //caz particular\n            for($x=0;$x<count($rowKeys);$x++){\n                $rowtempkey=$rowKeys[$x];\n                \n                for($y=0;$y<count($lookup_array[$rowKeys[$x]]);$y++)\n                {\n                    $colKeys=array_keys($lookup_array[$rowKeys[$x]]);\n                    $coltempkey=$colKeys[$y];\n                    if($lookup_array[$rowtempkey][$coltempkey]==$lookup_value)\n                    {\n                        $rezForReturn=$lookup_array[$rowtempkey][$returnColumn]; \n                        if(strpos($rezForReturn,\"%\"))\n                        {\n                            $rezForReturn_= str_replace('%', '', $rezForReturn);\n                            $rezForReturn=$rezForReturn_/100;\n                        }\n                        return  $rezForReturn; \n                    }\n                }\n            }\n            /*foreach($firstRow as $frow)\n            {\n                if(strpos($frow,$lookup_value)){\n                    return  $lookup_array[[0]][$returnColumn]; \n                }\n            }*/\n\t\t}\r\n\r\n\t\tif (!$not_exact_match) {\n\t\t\tuasort($lookup_array,array('self','_vlookupSort'));\n\t\t}\r\n\r\n\t\t$rowNumber = $rowValue = False;\n\t\tforeach($lookup_array as $rowKey => $rowData) {\n\t\t\tif ((is_numeric($lookup_value) && is_numeric($rowData[$firstColumn]) && ($rowData[$firstColumn] > $lookup_value)) ||\n\t\t\t\t(!is_numeric($lookup_value) && !is_numeric($rowData[$firstColumn]) && (strtolower($rowData[$firstColumn]) > strtolower($lookup_value)))) {\n\t\t\t\tbreak;\n\t\t\t}\n\t\t\t$rowNumber = $rowKey;\n\t\t\t$rowValue = $rowData[$firstColumn];\n\t\t}\r\n\r\n\t\tif ($rowNumber !== false) {\n\t\t\tif ((!$not_exact_match) && ($rowValue != $lookup_value)) {\n\t\t\t\t//\tif an exact match is required, we have what we need to return an appropriate response\n\t\t\t\treturn PHPExcel_Calculation_Functions::NA();\n\t\t\t} else {\n\t\t\t\t//\totherwise return the appropriate value\n\t\t\t\t$result = $lookup_array[$rowNumber][$returnColumn];\n                //if ((is_numeric($lookup_value) && is_numeric($result)) ||\n                //    (!is_numeric($lookup_value) && !is_numeric($result))) {\n\t\t\t\t\treturn $result;\n\t\t\t\t//}\n\t\t\t}\n\t\t}\r\n\r\n\t\treturn PHPExcel_Calculation_Functions::NA();\n\t}\t//\tfunction VLOOKUP()\n```",
+      "PostedDate": "2014-05-15T01:13:07.607-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I created an account just to say thank you to kordosoft.\r\n\r\nI was beginning to rip my hair out, then your solution worked perfectly.\r\n\r\nThanks again man.",
+      "PostedDate": "2014-06-23T21:32:22.293-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Thank you kordosoft.",
+      "PostedDate": "2014-07-02T00:33:32.693-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I'm glad that I could help :)",
+      "PostedDate": "2014-07-02T02:26:59.743-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Thank you kordosoft :)",
+      "PostedDate": "2015-04-14T02:43:25.563-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "102812",
+    "ThreadId": "30909",
+    "Html": "I have an excel 2007 workbook with two sheets that have only two columns which stand for first name and last name. The first sheet is used for girls and the second sheet is used for boys.<br>\r\nI want to export the cell data of&nbsp; both cells to a two-dimensional array. <br>\r\nHere is my code:<br>\r\n<code>\r\ninclude(&quot;PHPExcel.php&quot;);<br>\r\ninclude(&quot;PHPExcel/Reader/Excel2007.php&quot;);<br>\r\n<br>\r\n$objReader = new PHPExcel_Reader_Excel2007();<br>\r\n$objReader-&gt;setReadDataOnly(true);<br>\r\n$obj = $objReader-&gt;load(&quot;list.xlsx&quot;);<br>\r\n</code>\r\n<br>\r\nNow, here is my question, what properties and/or methods are used to retrieve the cells from A2 to A563 and from B2 to&nbsp; B563 .<br>\r\nThanks in advance<br>\r\n",
+    "PostedDate": "2008-07-05T01:05:41.633-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "102824",
+    "ThreadId": "30909",
+    "Html": "Perhaps this will get you started:<br>\r\n<br>\r\n<code>\r\n$objReader = new PHPExcel_Reader_Excel2007();<br>\r\n$obj = $objReader-&gt;load('boys.xlsx');<br>\r\n<br>\r\n$ws = $obj-&gt;getSheet(0);<br>\r\n<br>\r\n$boys = array();<br>\r\nfor ($row = 2; $row &lt;= $ws-&gt;getHighestRow(); $row++) {<br>\r\n&nbsp;&nbsp;&nbsp; $boys[] = array(<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; 'firstname' =&gt; $ws-&gt;getCellByColumnAndRow(0, $row)-&gt;getValue(),<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; 'lastname' =&gt; $ws-&gt;getCellByColumnAndRow(1, $row)-&gt;getValue(),<br>\r\n&nbsp;&nbsp;&nbsp; );<br>\r\n}<br>\r\n<br>\r\nvar_dump($boys);<br>\r\n</code>\r\n",
+    "PostedDate": "2008-07-05T05:08:01.177-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "102836",
+    "ThreadId": "30909",
+    "Html": "Thank you. It helped very much.However, it generated an error when i ran the above code. But that was fixed after adding the following line before<code> $obj=$objReader-&gt;load('boys.xlsx');</code><br>\r\n<code>$objReader-&gt;setReadDataOnly(true);</code><br>\r\n<strong><br>\r\n</strong><strong><br>\r\n</strong>\r\n",
+    "PostedDate": "2008-07-05T06:45:45.793-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "102844",
+    "ThreadId": "30909",
+    "Html": "In any case, it may be a good idea to let the reader only read data like you did. I guess that it may speed up the script, but I'm not sure how big a difference it makes. Still, I'm curious why you are getting an error? Maybe you can attach a sample Excel file that generates the error. Which version of PHPExcel are you using?<br>\r\n",
+    "PostedDate": "2008-07-05T08:27:23.81-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "102910",
+    "ThreadId": "30909",
+    "Html": "I have downloaded the last version (1.6.2) yesterday.This is the error:<br>\r\n<strong>Fatal error</strong>:  Allowed memory size of 33554432 bytes exhausted (tried to allocate 16 bytes) in <strong>C:\\xampp\\htdocs\\PHPExcel\\Cell.php</strong> on line <strong>504</strong><br>\r\nWhen I add ini_set(&quot;memory_limit&quot;,&quot;128M&quot;) at the top of my script, the error changes to:<br>\r\n<strong>Fatal error</strong>:  Allowed memory size of 134217728 bytes exhausted (tried to allocate 1572864 bytes) in <strong>C:\\xampp\\htdocs\\PHPExcel\\Reader\\Excel2007.php</strong> on line <strong>502</strong><br>\r\nBut after adding setReaderDataOnly(true) the problem solves completely.<br>\r\n",
+    "PostedDate": "2008-07-06T01:02:30.247-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "102994",
+    "ThreadId": "30909",
+    "Html": "Do you need formatting in the document? You can use setReadDataOnly(true) on the reader to only read cell values.\r\n",
+    "PostedDate": "2008-07-06T23:00:32.917-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

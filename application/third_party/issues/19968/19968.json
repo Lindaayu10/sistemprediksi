@@ -1,0 +1,60 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel",
+      "DisplayName": "PHPExcel"
+    },
+    "ClosedComment": "Fixed in version 1.8.0",
+    "ClosedDate": "2014-03-04T03:20:29.723-08:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Using PHPexcel 1.79 I get a fatal error in the new Supervisor.php :\nPHP Fatal error:  Out of memory (allocated -135266304) (tried to allocate 261904 bytes) in .../phpexcel/PHPExcel/Style/Supervisor.php on line 126\n\nThe clone on line 126 is buggin me!\nIf I disable the clone it is still a problem... the creation of the excel is not completed i.e. takes forever! No out of memory errors though.\n\nFor me.. I revert back to 1.78 . This version for me is working like a charm! \nBTW: I love PHPExcel, it's a very good product!",
+    "LastUpdatedDate": "2014-03-04T03:20:29.723-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2013-07-15T03:58:30.98-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Fixed"
+    },
+    "Summary": "Out of memory in style/supervisor.php",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 3,
+    "Id": 19968
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "I see the same problem. It seems to be caused by the recursive applyFromArray call on a supervisor style in Style.php::applyFromArray() which then recurses infinitely.\n```\n$newStyle = clone $style;\n$newStyle->applyFromArray($pStyles); // comment-out and no crash\n```\r\n\r\nI've been trying to fix this, but not knowing how the style data structure actually works is a bit limiting!",
+      "PostedDate": "2013-08-15T21:42:13.16-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Patch from github (https://github.com/PHPOffice/PHPExcel/commit/44f953b69d78dbd79a0d1ea37e898056b710d88f) fixes this issue",
+      "PostedDate": "2013-08-15T22:08:48.043-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Should now be resolved in develop branch on github (thanks for the confirmation cdhutch)",
+      "PostedDate": "2013-08-18T03:53:20.593-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2014-03-04T03:20:29.723-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

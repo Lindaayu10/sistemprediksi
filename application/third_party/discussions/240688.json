@@ -1,0 +1,218 @@
+[
+  {
+    "Id": "544757",
+    "ThreadId": "240688",
+    "Html": "\r\n<p>Hello,</p>\r\n<p>I follow your project for 2 years now. Unfortunately, whereas phpexcel has great functionnality, I found it's really slow compared to basic PEAR-excel module.</p>\r\n<p>Here are some tests I've done :</p>\r\n<p>PHPExcel, generates excel 2007 file : <br>\r\nwith standard cache (memory) : 2min15s and it uses 220Mo RAM<br>\r\nwith gzipped cache : 3min59s and it uses 141Mo RAM</p>\r\n<p>PEAR generatig excel5 file : <br>\r\nit takes 1min21s and 79Mo</p>\r\n<p>My file contains 25 columns and 4573 rows on only one worksheet.</p>\r\n<p>Do you have any clue in order to improve performance please?</p>\r\n<p>With PEAR, I'm used to regenerate big file (20Mo-40Mo), and I'm not able to used phpexcel as it's slower than PEAR.</p>\r\n<p>Thank you in advance for your help!</p>\r\n",
+    "PostedDate": "2011-01-06T04:49:02.103-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "544766",
+    "ThreadId": "240688",
+    "Html": "\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<strong>MarcParis wrote:</strong><br>\r\n<p>Hello,</p>\r\n<p>I follow your project for 2 years now. Unfortunately, whereas phpexcel has great functionnality, I found it's really slow compared to basic PEAR-excel module.</p>\r\n</blockquote>\r\n<p>Yes, PHPExcel is slower than the old PEAR Spreadsheet Writer, as I'm constantly being reminded.</p>\r\n<ol>\r\n<li>Things to remember: PHPExcel both reads and writes, while you need different (and incompatible) PEAR libraries if you want to do both.\r\n</li><li>PHPExcel supports a wider range of spreadsheet formats than PEAR. </li><li>PHPExcel supports a wider range of Excel features than PEAR. </li><li>PHPExcel is still supported, and still actively being developed to add new features; PEAR is not.\r\n</li></ol>\r\n<p>&nbsp;</p>\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<p><strong>MarcParis wrote:</strong></p>\r\n<p>PHPExcel, generates excel 2007 file : <br>\r\nwith standard cache (memory) : 2min15s and it uses 220Mo RAM<br>\r\nwith gzipped cache : 3min59s and it uses 141Mo RAM</p>\r\n<p>PEAR generatig excel5 file : <br>\r\nit takes 1min21s and 79Mo</p>\r\n</blockquote>\r\n<p>Well you are comparing writing xlsx with one library, and writing xls with another. Why not compare writing xls with both? Especially as PHPExcel's Excel5 Writer is faster than the Excel2007 Writer.&nbsp;PHPExcel will still be slower than PEAR, but at least\r\n you're comparing like with like.</p>\r\n<p>&nbsp;</p>\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<strong>MarcParis wrote:</strong><br>\r\n<p>Do you have any clue in order to improve performance please?</p>\r\n</blockquote>\r\n<p>Yes, but I'm not going to rewrite PHPExcel in C. You'll get far faster performance (even than PEAR) if you use Ilia Alshanetsky's\r\n<a href=\"http://ilia.ws/archives/222-PHP-Excel-Extension.html\">Excel extension</a>&nbsp;(xls only, and requires commercial component) or PHP's\r\n<a href=\"http://uk3.php.net/manual/en/book.com.php\">.COM extension</a> (requires a COM enabled spreadsheet program such as MS Excel or OpenOffice Calc running on the server).</p>\r\n<p>&nbsp;</p>\r\n<p>I have spent most of the last 4-months doing nothing but improve memory usage and performance, at the expense of a great deal of my sanity. If I had a simple fix (that didn't entail scrapping PHPExcel in its entirety and restarting from scratch), it would\r\n have been implemented already.</p>\r\n<p>All I can promise is that I will spend endless hours testing every single new feature that I add to ensure that it uses as little memory as possible, and executes as quickly as possible. At the same time, if I can improve execution speed, and/or reduce memory\r\n usage still further, I will do so; but not at the expense of functionality, or backward compatibility.</p>\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<strong>MarcParis wrote:</strong><br>\r\n<p>Do you have any clue in order to improve performance please?</p>\r\n</blockquote>\r\n<p>If your worksheets include formulae, then you can improve writer speed by setting setPreCalculateFormulas(false). This tells the writer not to calculate the resulting value of any formula, and only the formula itself is written to the generated Excel file.\r\n The cost of this is an overhead when opening the file in MS Excel itself as it forces recalculation then (possibly with a prompt asking if you want to recalculate, depending on the version of Excel)</p>\r\n<p>You can&nbsp;also&nbsp;set styles (including number format masks, bold, colours, etc) against rows or columns, rather than each individual cell, while you are building the worksheet.</p>\r\n",
+    "PostedDate": "2011-01-06T05:31:01.647-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "544816",
+    "ThreadId": "240688",
+    "Html": "\r\n<p>Might I add: PHPExcel is not *only* about writing spreadsheets. It can convert between formats, it supports operations in a worksheet (like calculating a formula, which I still think is an insane cool feature!). My suggestion is that if you only need writing\r\n capabilities and only XLS, go with PEAR's writer. If you need anything else with more features and that is future proof, go with PHPExcel.</p>\r\n",
+    "PostedDate": "2011-01-06T07:06:01.393-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "544885",
+    "ThreadId": "240688",
+    "Html": "\r\n<p>Thank you for your answer. I understand.</p>\r\n<p>I've made one extra test with excel5 writer on phphexcel</p>\r\n<p>PHPExcel, generates excel5 (based on pear)&nbsp; file : <br>\r\nwith standard cache (memory) : 2min09s and it uses 213Mo RAM<br>\r\n</p>\r\n<hr>\r\nPHPExcel, generates excel 2007 file : <br>\r\nwith standard cache (memory) : 2min15s and it uses 220Mo RAM<br>\r\nwith gzipped cache : 3min59s and it uses 141Mo RAM\r\n<p></p>\r\n<p>PEAR generatig excel5 file : <br>\r\nit takes 1min21s and 79Mo</p>\r\n<p>My file contains 25 columns and 4573 rows on only one worksheet.</p>\r\n<p></p>\r\n<hr>\r\n<p></p>\r\n<p>Thus, for my point of view, writersof phpexcel (at least excel 2007 and excel5) are not the roadblock. I would say that the issue is directly phpexcel class.</p>\r\n<p><span style=\"text-decoration:underline\"><strong>@Mark Baker : </strong></span>I understand now that already compiled program are faster than php. Thank you for the links you gave me, but I won't use them.<br>\r\nIs there any way to load or compile in advance phpexcel?</p>\r\n<p>Anyway as far as I remember, phpexcel 1.7.5 is far more faster than version I've tested in past (1.5.5)</p>\r\n<p>Right now my application is using PEAR, but as my company has switched to excel 2007, I'm truly willing to apply phpexcel..:D Maybe I can help..:D</p>\r\n<p><span style=\"text-decoration:underline\"><strong>@Maartenba : </strong></span>I want it both : functions of phpexcel and speed of PEAR..:)</p>\r\n",
+    "PostedDate": "2011-01-06T08:37:26.967-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "544945",
+    "ThreadId": "240688",
+    "Html": "\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<strong>MarcParis wrote:</strong><br>\r\n<p><span style=\"text-decoration:underline\"><strong>@Mark Baker : </strong></span>I understand now that already compiled program are faster than php. Thank you for the links you gave me, but I won't use them.<br>\r\nIs there any way to load or compile in advance phpexcel?</p>\r\n<p>Anyway as far as I remember, phpexcel 1.7.5 is far more faster than version I've tested in past (1.5.5)</p>\r\n<p>Right now my application is using PEAR, but as my company has switched to excel 2007, I'm truly willing to apply phpexcel..:D Maybe I can help..:D</p>\r\n<p><span style=\"text-decoration:underline\"><strong>@Maartenba : </strong></span>I want it both : functions of phpexcel and speed of PEAR..:)</p>\r\n</blockquote>\r\n<p>There is a&nbsp;table showing comparisons between execution speed and memory usage for different versions of PHPExcel\r\n<a href=\"http://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=234150\">here</a>&nbsp;based on reading, updating and writing a fairly generic workbook. While this only goes back as far as version 1.7.0 (not as far back as 1.5.5) - mainly because some of the\r\n features of my test workbook (while fairly basic) simply weren't supported in earlier releases (and aren't supported in the PEAR Reader and Writer either) - it does show the improvements in the 1.7.5 quite markedly. Believe me, if we could give you the functionality\r\n of PHPExcel with the speed of PEAR (or Ilia Excel extension we would).</p>\r\n<p>There is one alternative to PHPExcel for creating/writing xlsx files that I'm aware of:\r\n<a href=\"http://sourceforge.net/projects/excelwriterxml/\">http://sourceforge.net/projects/excelwriterxml/</a></p>\r\n<p>Native-compiled&nbsp;programs are generally significantly faster than scripted languages (even those that use JIT and compile to bytecode like PHP), but PHP is still a scripted language, so programs in PHP are generally not native-compiled. There are some\r\n compilers available (ranging from Facebook's HiPHoP to phc or RoadsEnd) but these generate full applications rather than library code for modules or extensions, and it is also necessary to create a native binary for every operating platform that you need to\r\n support... Linux, Windows, Mac, 32-bit, 64-bit, thread safe, and all combinations thereof) The best alternative to a compiler is to install an opcode cache such as APC, ionCube,&nbsp;eAccelerator or WinCache... this will benefit all of your PHP applications\r\n (not just libraries like PHPExcel).</p>\r\n<p>I have looked at the possibilities of using phc to convert the PHPExcel source to a PHP extension (it's the only PHP compiler that doesn't&nbsp;only build complete PHP applications) and (theoretically) this should more than double execution speed (in optimized\r\n mode) but it has some problems with dependecies on other PHP modules like GD (which PHPExcel uses); and only created extensions for Linux. The gcc code that it produces would need to be built manually for other platforms such as Windows and Mac).</p>\r\n<p>&nbsp;</p>\r\n<p>We're always glad for any offers of help, and I'm more than happy to have another set of eyes looking over the code. There's every possibility that a fresh perspective will notice things that I might miss.</p>\r\n<p>Currently I'm looking at the Excel5 OLE writer (it needs completely rewriting to handle certain additional features such as workbook properties that aren't currently supported); the cell caching (I believe storing the cellCollection as a 2-D array might\r\n be faster, and would help resolve some problems with the iterators); and the calculation engine (looking at how I might boost speed there)... so those blocks of code are subject to frequent change in SVN.</p>\r\n",
+    "PostedDate": "2011-01-06T10:07:45.563-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "545035",
+    "ThreadId": "240688",
+    "Html": "\r\n<p>indeed you are right, if you compile php directly, you will lose compatibility between platform. As I'm developping on windows, and my main server is on Linux, I'll will need to stay on php files..:)</p>\r\n<p>I'll have a look to code, maybe I can find some tips. I was thinking to declare writer type when initialyze phpexcel class, in order to load only necessary module. I guess this can help speeding the script.<br>\r\nFor example, you can also precise complexity of excel2007 file : low, medium, high.</p>\r\n<p>What do you think about that?</p>\r\n<p>ps : I've tried pdf writer...and it was really long to generate...:)</p>\r\n",
+    "PostedDate": "2011-01-06T12:17:01.357-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "545068",
+    "ThreadId": "240688",
+    "Html": "\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<strong>MarcParis wrote:</strong><br>\r\n<p>I'll have a look to code, maybe I can find some tips. I was thinking to declare writer type when initialyze phpexcel class, in order to load only necessary module. I guess this can help speeding the script.<br>\r\nFor example, you can also precise complexity of excel2007 file : low, medium, high.</p>\r\n</blockquote>\r\n<p>The idea has a few drawbacks... for example, if you're loading the PHPExcel object from a file simply to read, or because you want to convert it to a different format, or you want to generate several different formats. And the different classes/modules are\r\n only loaded when actually needed, courtesy of the &quot;Lazy Loader&quot;, so pre-declaring the writer</p>\r\n<p>There's also not much overhead in the way the readers generate a PHPExcel object, or the way the writers read from the PHPExcel object to extract the data they need. The slowest single process for the writers is the garbage collection, within the PHPExcel_Worksheet\r\n class; and then the myriad calls to each (sub-)object's getHash() method.</p>\r\n<p>&nbsp;</p>\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<strong>MarcParis wrote:</strong><br>\r\n<p>ps : I've tried pdf writer...and it was really long to generate...:)</p>\r\n</blockquote>\r\n<p>&nbsp;Yes, the latest version of tcPDF is very slow, <em>and </em>uses a lot of memory. Unfortunately, the upgrade fixed a number of issues people had with the PDF generation, but at a high cost. Somewhere down the line, I'll need to look at alternatives,\r\n or at forking the tcPDF code to optimize it.</p>\r\n",
+    "PostedDate": "2011-01-06T13:18:26.78-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "545394",
+    "ThreadId": "240688",
+    "Html": "\r\n<p>I've done others right now.</p>\r\n<p>On same file generation, pear do the job in 7seconds and phpexcel in 60seconds..:( (without talking about memory)</p>\r\n<p>the gap is really big...:(</p>\r\n<p>I'll test xml writer...as writer and phpexcel as reader of excel 2007 file..:)</p>\r\n<p>First step : I need to understand why phpexcel is so greedy on cpu and ram...and now I don't really why..:)</p>\r\n",
+    "PostedDate": "2011-01-07T06:54:21.69-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "545423",
+    "ThreadId": "240688",
+    "Html": "\r\n<p>well I've tried xmlwriter quickly...and...and it's worse than phpexcel, why?</p>\r\n<p>Because it's using as much as memory as phpexcel but with no tools to compressed it.</p>\r\n<p>Thus I forget it.</p>\r\n",
+    "PostedDate": "2011-01-07T07:44:53.43-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "545474",
+    "ThreadId": "240688",
+    "Html": "\r\n<p>Just for reference, as this was of hight importance for me.</p>\r\n<p>This iteration:</p>\r\n<p>&lt;snipp&gt;</p>\r\n<p>$objPHPExcel-&gt;getActiveSheet() &nbsp; &nbsp;<br>\r\n&nbsp;-&gt;setCellValue(&quot;A1&quot;, 'Value')&nbsp;&nbsp; &nbsp;<br>\r\n);</p>\r\n<p>$objPHPExcel-&gt;getActiveSheet()&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;-&gt;setCellValue(&quot;B1&quot;, 'Value')&nbsp;&nbsp; &nbsp;<br>\r\n);</p>\r\n<p>&lt;/snipp&gt;</p>\r\n<p>Consumes pretty much twice as much RAM as this one:</p>\r\n<p>&lt;snipp&gt;</p>\r\n<p>$objPHPExcel-&gt;getActiveSheet()<br>\r\n&nbsp;&nbsp;-&gt;setCellValue(&quot;A1&quot;, 'Value') &nbsp; &nbsp; &nbsp;<br>\r\n&nbsp;&nbsp;-&gt;setCellValue(&quot;B1&quot;, 'Value')&nbsp;<br>\r\n);</p>\r\n<p>&lt;/snipp&gt;</p>\r\n<p>Given an iteration where you are dumping out MySQL rows with say 50 cols, setting it up on one instance (second example) saves you pretty much 50x RAM.</p>\r\n<p>Regards,</p>\r\n<p>Kim Steinhaug, <a href=\"mailto:kim@steinhaug.com\">kim@steinhaug.com</a>, <a href=\"http://www.steinhaug.no/\">\r\nwww.steinhaug.no</a></p>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2011-01-07T08:54:16.567-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "545741",
+    "ThreadId": "240688",
+    "Html": "\r\n<p>thank you for this tip.</p>\r\n<p>unfortunately my script is full of &quot;for&quot; loops</p>\r\n<p>do you have any tricks to avoid &quot;for&quot; loops? (for example : loop on row&nbsp;included in a loop on column)</p>\r\n<p>thanks in advance</p>\r\n",
+    "PostedDate": "2011-01-07T17:19:36.177-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "546210",
+    "ThreadId": "240688",
+    "Html": "\r\n<p>Well, my script also have for loops looping through the data from mysql and such. What I ended up doing was hardcoding alot. As an example I use this one in one of the dumps:</p>\r\n<p>$objPHPExcel-&gt;getActiveSheet()</p>\r\n<p>-&gt;setCellValue($excel_cols[1] . ($row), $item[0])<br>\r\n-&gt;setCellValue($excel_cols[2] . ($row), $item[1])<br>\r\n-&gt;setCellValue($excel_cols[3] . ($row), $item[2])<br>\r\n-&gt;setCellValue($excel_cols[4] . ($row), $item[3])<br>\r\n-&gt;setCellValue($excel_cols[5] . ($row), $item[4])<br>\r\n-&gt;setCellValue($excel_cols[6] . ($row), $item[5])<br>\r\n-&gt;setCellValue($excel_cols[7] . ($row), $item[6])<br>\r\n-&gt;setCellValue($excel_cols[8] . ($row), $item[7])<br>\r\n-&gt;setCellValue($excel_cols[9] . ($row), $item[8])<br>\r\n-&gt;setCellValue($excel_cols[10] . ($row), $item[9])<br>\r\n-&gt;setCellValue($excel_cols[11] . ($row), $item[10])<br>\r\n-&gt;setCellValue($excel_cols[12] . ($row), $item[11])<br>\r\n-&gt;setCellValue($excel_cols[13] . ($row), $item[12])<br>\r\n-&gt;setCellValue($excel_cols[14] . ($row), $item[13])<br>\r\n-&gt;setCellValue($excel_cols[15] . ($row), $item[14])<br>\r\n-&gt;setCellValue($excel_cols[16] . ($row), $item[15])<br>\r\n-&gt;setCellValue($excel_cols[17] . ($row), $item[16])<br>\r\n-&gt;setCellValue($excel_cols[18] . ($row), $item[17])<br>\r\n-&gt;setCellValue($excel_cols[19] . ($row), $item[18])<br>\r\n-&gt;setCellValue($excel_cols[20] . ($row), $item[19])<br>\r\n-&gt;setCellValue($excel_cols[21] . ($row), $item[20])<br>\r\n-&gt;setCellValue($excel_cols[22] . ($row), $item[21])<br>\r\n-&gt;setCellValue($excel_cols[23] . ($row), $item[22])<br>\r\n-&gt;setCellValue($excel_cols[24] . ($row), $item[23])<br>\r\n-&gt;setCellValue($excel_cols[25] . ($row), $item[24])<br>\r\n-&gt;setCellValue($excel_cols[26] . ($row), $item[25])<br>\r\n-&gt;setCellValue($excel_cols[27] . ($row), $item[26])<br>\r\n;</p>\r\n<p>Instead of the usual:</p>\r\n<p>$i = 1;<br>\r\nforeach($item AS $k=&gt;$v){</p>\r\n<p>&nbsp;&nbsp;$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue($excel_cols[$i] . ($row), $v);<br>\r\n&nbsp;&nbsp;$i&#43;&#43;;&nbsp;</p>\r\n<p>}</p>\r\n<p>Which basically means I end up with different export scripts for different coloumn layouts.&nbsp;</p>\r\n",
+    "PostedDate": "2011-01-09T06:18:51.65-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "546530",
+    "ThreadId": "240688",
+    "Html": "\r\n<p>Thank you for the tip.</p>\r\n<p>I'll see how to use it.</p>\r\n",
+    "PostedDate": "2011-01-10T01:29:50.323-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "546562",
+    "ThreadId": "240688",
+    "Html": "\r\n<p>@kimms: did you try this one?</p>\r\n<p></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>$sheet = $objPHPExcel-&gt;getActiveSheet();<br>$i = 1;\r\n<span style=\"color:blue\">foreach</span>($item AS $k =&gt; $v) {\r\n    $sheet-&gt;setCellValue($excel_cols[$i] . ($row), $v);\r\n    $i&#43;&#43;;\r\n}\r\n</pre>\r\n</div>\r\n<p></p>\r\n",
+    "PostedDate": "2011-01-10T03:14:58.267-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "546745",
+    "ThreadId": "240688",
+    "Html": "\r\n<p>@Marc</p>\r\n<p>Take a look at the fromArray() method referenced in the latest few messages of\r\n<a href=\"http://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=240547\">this thread</a>.</p>\r\n",
+    "PostedDate": "2011-01-10T07:38:45.913-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "546761",
+    "ThreadId": "240688",
+    "Html": "\r\n<p>good idea, I can create a specific array in order to load them in excel file with FromArray() function.</p>\r\n<p>I'll give it a try by wednesday (I'm not sure I will be able to test that before..:))</p>\r\n",
+    "PostedDate": "2011-01-10T08:04:43.53-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "546852",
+    "ThreadId": "240688",
+    "Html": "\r\n<p>@SlowFox</p>\r\n<p>Thanks for this tip, I'll do some benchmarking on it, and no - I didn't try that one.</p>\r\n<p>- - -</p>\r\n<p>Other than that I cannot use the fromArray() function as I am exporting strings as &quot;0123&quot; which Excel turns into the number &quot;123&quot; which is wrong for me. I ended up using the&nbsp;setCellValueExplicit() function which lets me set the dataformat directly as\r\n I set the field.</p>\r\n<p>I am getting better at this as we speak, its a huge beast this library (and a sweet one to!), if there only was a way to say that col H should be numeric, and col B should be date...</p>\r\n",
+    "PostedDate": "2011-01-10T10:25:20.007-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "546931",
+    "ThreadId": "240688",
+    "Html": "\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<strong>kimss wrote:</strong><br>\r\n<p>Other than that I cannot use the fromArray() function as I am exporting strings as &quot;0123&quot; which Excel turns into the number &quot;123&quot; which is wrong for me. I ended up using the&nbsp;setCellValueExplicit() function which lets me set the dataformat directly as\r\n I set the field.</p>\r\n</blockquote>\r\n<p>You could always write a dedicated Value Binder (similar to the Advanced Value Binder) that would recognise leading zeroes on a string, and set it explicit (or set a number format mask to ###0).</p>\r\n<p>&nbsp;</p>\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<strong>kimss wrote:</strong><br>\r\n<p>I am getting better at this as we speak, its a huge beast this library (and a sweet one to!), if there only was a way to say that col H should be numeric, and col B should be date...</p>\r\n</blockquote>\r\n<p>&nbsp;Alternatively, a Value Binder could be written to identify the column and set implicit or an appropriate format mask based on that.</p>\r\n<p>Something like:</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><span style=\"color:blue\">class</span> PHPExcel_Cell_ColumnValueBinder <span style=\"color:blue\">extends</span> PHPExcel_Cell_DefaultValueBinder <span style=\"color:blue\">implements</span> PHPExcel_Cell_IValueBinder {\r\n   <span style=\"color:blue\">public</span> <span style=\"color:blue\">function</span> bindValue(PHPExcel_Cell $cell, $value = null)\r\n   {\r\n      <span style=\"color:blue\">if</span> (is_string($value)) {\r\n         $value = PHPExcel_Shared_String::SanitizeUTF8($value);\r\n      }\r\n      <span style=\"color:blue\">switch</span> ($cell-&gt;getColumn()) {\r\n         <span style=\"color:blue\">case</span> <span style=\"color:#a31515\">'B'</span> :\r\n            $cell-&gt;setValueExplicit($value, PHPExcel_Cell_DataType::TYPE_NUMERIC);\r\n            $cell-&gt;getParent()-&gt;getStyle( $cell-&gt;getCoordinate() )-&gt;getNumberFormat()-&gt;setFormatCode(<span style=\"color:#a31515\">'yyyy-mm-dd'</span>);\r\n            <span style=\"color:blue\">return</span> true;\r\n            <span style=\"color:blue\">break</span>;\r\n        <span style=\"color:blue\">case</span> <span style=\"color:#a31515\">'H'</span> :  <span style=\"color:green\">// Date</span>\r\n            $cell-&gt;setValueExplicit($value, PHPExcel_Cell_DataType::TYPE_NUMERIC);\r\n            <span style=\"color:blue\">return</span> true;\r\n            <span style=\"color:blue\">break</span>;\r\n      }\r\n      <span style=\"color:blue\">return</span> parent::bindValue($cell, $value);\r\n   }\r\n}\r\n</pre>\r\n</div>\r\n",
+    "PostedDate": "2011-01-10T13:09:07.113-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "546938",
+    "ThreadId": "240688",
+    "Html": "\r\n<p>Not sure you got the private email I sendt you during the weekend, I would rather pay you for looking over my export/import scripts. You seem to have the better knowledge of this library and your input will obviously be worth my while instead of diving into\r\n the documentation. Basically it's a simple export and populate an excel file, then reading the same file back so I can populate/update the same database again. (Bare in mind, my export and import system is already made, however I belive you looking over the\r\n code could - or not - result in some changes regarding my implementation of PHPExcel).</p>\r\n<p>I would be interested in your input as you are the one that could easily see what would be the most efficient way to do the code for PHPExcel. I am kinda grasping for straws here, I am getting there though, but must admit this library is extremely heavy\r\n and at a object level I am not quite used to, :) (also, if I could save some time here and be sure I have it perfect, I would sleep better, than using to much time since all I really need here is creating an excel file and reading it back again).</p>\r\n<p>Thanks for your kind efforts in sharing your help here, and bare in mind if you have time say in a week or so to spare some hours I would be happy to buy your time. You can reach me at my email, kim@steinhaug.com if interested.</p>\r\n<p>Regards,<br>\r\nKim Steinhaug, <a href=\"mailto:kim@steinhaug.com\">kim@steinhaug.com</a>, <a href=\"http://www.steinhaug.no/\">\r\nwww.steinhaug.no</a></p>\r\n",
+    "PostedDate": "2011-01-10T13:22:47.583-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "547149",
+    "ThreadId": "240688",
+    "Html": "\r\n<p>Ok I've tried also fromArray() function. Indeed it's a clear saving of memory, more than 10%, and also in time ( about 5%).</p>\r\n<p>Thus, I'll continue to use fromArray..:)</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks again for this tip.</p>\r\n",
+    "PostedDate": "2011-01-11T00:46:11.483-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "550490",
+    "ThreadId": "240688",
+    "Html": "\r\n<p>sorry for delay.</p>\r\n<p>My version of php was bugged (zip module), and it takes me some times in order to install a complete fresh of apache/php/mysql manually..:)</p>\r\n<p>I'll deepen my experiment with fromarray and large sheet (currently 29000 lines with 26 columns).</p>\r\n<p>Currently, Pear is doing the job in about 30 seconds, whereas phpexcel in excel 2007 puts 7minutes (using 600Mo of RAM. serialized cache is really effective for my needs).</p>\r\n<p>Sure phpexcel is longer than pear, but I see others advantages by using also phpexcel..:)</p>\r\n",
+    "PostedDate": "2011-01-17T04:52:27.927-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "550527",
+    "ThreadId": "240688",
+    "Html": "\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<strong>MarcParis wrote:</strong><br>\r\n<p>My version of php was bugged (zip module), and it takes me some times in order to install a complete fresh of apache/php/mysql manually..:)</p>\r\n</blockquote>\r\n<p>The latest version of the SVN code allows&nbsp;the use of the PCLZip library as an alternative to ZipArchive (within the Excel2007 Writer at present) for precisely the situation when your PHP has the buggy&nbsp;php_zip extension (or if you don't have php_zip\r\n enabled.</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>PHPExcel_Settings::setZipClass(PHPExcel_Settings::PCLZIP);\r\n</pre>\r\n</div>\r\n<p>can be used to enable this.</p>\r\n<p>I'm hoping to get&nbsp;this implemented for the Readers (Excel2007 and&nbsp;OOCalc) as well, sometime before next weekend.</p>\r\n",
+    "PostedDate": "2011-01-17T05:56:22.593-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "551054",
+    "ThreadId": "240688",
+    "Html": "\r\n<p>good news..:)</p>\r\n<p>Otherwise, I found FromArray() function difficult to apply due to empty cells.</p>\r\n<p>I've tried this formula :</p>\r\n<p>$objPHPExcel-&gt;getActiveSheet()-&gt;fromArray($temp_display_phpexcel,&quot;empty&quot;,'A1',true);</p>\r\n<p>In fact empty cells (cell filled with &quot;empty&quot; are ignored by fromarray.</p>\r\n<p>How can I keep empty cell, empty?..:)</p>\r\n<p>Thank you in advance</p>\r\n",
+    "PostedDate": "2011-01-18T00:38:02.62-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "552255",
+    "ThreadId": "240688",
+    "Html": "\r\n<p>As an <strong>extreme sidenote</strong>, which will render the Excel file in &quot;compability mode&quot;, however it still works. Just picked it out from some files I am moving over to phpexcel.</p>\r\n<p><a href=\"http://www.phpclasses.org/browse/file/2195.html\">http://www.phpclasses.org/browse/file/2195.html</a></p>\r\n<p>This class can be used like this:</p>\r\n<p>include './class.excelgen.php';<br>\r\n$excel = new ExcelGen(&quot;ExcelGen&quot;);<br>\r\n$excel-&gt;WriteText($row,$col,$value);<br>\r\n$excel-&gt;WriteNumber($row,$col,$data[$key]);<br>\r\n$excel-&gt;SendFile(&quot;write&quot;,$filepath . 'excel.xls');</p>\r\n<p>The memory used for the class is like nothing. It would be cool (Im wishing!) if phpexcel would have a little &quot;turbomode&quot; with no features just to create a spreadsheet for numbers and strings.</p>\r\n<p>Having said that, I have tweaked all server installs to be able to use 1GB of RAM if needed so I do not have problems with phpexcel anymore, and phpexcel do create a perfect excel file which is what we want in the first place. I just find it a little &quot;cool&quot;\r\n that the above class, which is micro-small compared, accually creates an excel file (thour flawed, so it opens in compability mode, which is kind off good enough - it opens).</p>\r\n<p>For a reader for Excel2003 files&nbsp;http://code.google.com/p/php-excel-reader/ has a very small memory footprint and is very fast!</p>\r\n<p>Again - this was a sidenote, just wanted to mention it.</p>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2011-01-19T16:43:39.84-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "552257",
+    "ThreadId": "240688",
+    "Html": "\r\n<p>Actually, the correct reader is this one:&nbsp;<a href=\"http://code.google.com/p/php-excel-reader2/\">http://code.google.com/p/php-excel-reader2/</a>&nbsp;which is much faster.</p>\r\n<p>I also had to google that &quot;compability mode&quot;, and thats actually just excel2003 files. I learn something new all the time, :)</p>\r\n",
+    "PostedDate": "2011-01-19T16:51:08.71-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "557355",
+    "ThreadId": "240688",
+    "Html": "\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<strong>MarcParis wrote:</strong><br>\r\n<p>Otherwise, I found FromArray() function difficult to apply due to empty cells.</p>\r\n<p>I've tried this formula :</p>\r\n<p>$objPHPExcel-&gt;getActiveSheet()-&gt;fromArray($temp_display_phpexcel,&quot;empty&quot;,'A1',true);</p>\r\n<p>In fact empty cells (cell filled with &quot;empty&quot; are ignored by fromarray.</p>\r\n<p>How can I keep empty cell, empty?..:)</p>\r\n</blockquote>\r\n<p>&nbsp;Ensure that you have genuine PHP NULLs in your array, and</p>\r\n<p>$objPHPExcel-&gt;getActiveSheet()-&gt;fromArray($temp_display_phpexcel,NULL,'A1',true);</p>\r\n<p>should work.</p>\r\n<p>PHPExcel should not touch any cells where the array value matches the NULL value. However, if those cells already exist in the worksheet, they won't be removed.</p>\r\n",
+    "PostedDate": "2011-01-29T10:12:56.97-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "558656",
+    "ThreadId": "240688",
+    "Html": "\r\n<p>I dont complaint about phpexcel... I have been working in my company for 5 months more or less, we have to send more than 100 reports everyday to clients around the world, and the first thing that i saw here was that all those reports were running manually\r\n with macros.... Can you imagine that???... go running report by report and after that sending them to the clients.... Sorry but thats not my style..., now im working on an application that run and send the reports automaticaly... right now i have like 30 reports&nbsp;running\r\n with phpexcel and still migrating... imagine the speed that i get with phpexcel vs macros... its like changing from a corolla to a ferrari..... I really like this Class... the only thing than im waiting its the Chart support.... i know there is another library\r\n call pChart that i can use... but i prefer to wait until we can have that running here... and I think for the time that i have my application finished we going to have the chart support in the Class..</p>\r\n",
+    "PostedDate": "2011-02-01T06:13:26.073-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

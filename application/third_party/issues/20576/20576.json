@@ -1,0 +1,55 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "Live with it.... I'm rapidly reaching the stage where I tell this entire project to \"stuff it\" because I'm fed up to the back teeth with people constantly and endlessly moaning about speed. Everything I fucking do is speed tested to try and ensure that it executes as quickly as I can get it to execute, which is why I spend so many hours a day working on it. There's clearly some issue with your server because it should never take that long to load a file, and my development box runs tests of much larger files in a fraction of that time... but of course it must be my code that's responsible.",
+    "ClosedDate": "2013-12-30T03:10:07.573-08:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I know this is an issue and I have been reading up on it and trying to fix it but still it seems to take a long, long very long time to read only very small files.\n\nSituation: Reading a xls file of (~100kb), creating a reader using setReadDataOnly and setReadFilter (100 rows colums a-z) takes over 30 seconds and takes up over 30 mb.\n\nThis is not a lot of data and the file only contains 1600 rows. This means that if I read 100 rows per time it will take 16 page reloads of my application and 8 minutes time to read a simple 100kb file.\n\nI use the develop branch from github and run php 5.5.0 on windows. On my production server I run php 5.4\n\nI need to break up my file since in some occasions I will deal with larger files that have 20,000 rows and try to avoid page time outs without setting the timeout to indefinite. \n\nMy questions are:\nAm I missing something and thus doing something horribly wrong?\nCan I speed up the load method beside doing things that I already did, e.g. the setReadFilter and setReadDataOnly?\nOr am I using a wrong branch?",
+    "LastUpdatedDate": "2013-12-30T07:49:23.543-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2013-12-29T21:07:14.47-08:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "PHPExcel Reading Very Very Slow",
+    "Type": {
+      "Name": "Unassigned",
+      "Id": 5
+    },
+    "VoteCount": 1,
+    "Id": 20576
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "Why are you filtering the file anyway? Each iteration of a read filter still __reads__ the entire file, it simply selects what is __loaded__ into the PHPExcel object, so this will slow things down significantly. Don't use a read filter in a loop unless you're severely strapped for memory, and then only if cell caching isn't sufficient",
+      "PostedDate": "2013-12-30T03:12:23.76-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "As stated I am saying that it is probably my fault!\n\"Am I missing something and thus doing something horribly wrong?\" and \"Or am I using a wrong branch?\" \r\n\r\nI am just trying to figure out what is wrong.\r\n\r\nI use a filter since most of the time I deal not with a 1600 row file but with a 20,000+ row file and then will process about 5000 or so rows __per request__! Which is described in the documentation here: https://github.com/PHPOffice/PHPExcel/blob/develop/Documentation/markdown/ReadingSpreadsheetFiles/04-Reader-Options.md (This can be particularly useful for conserving memory, by allowing you to read and process a large workbook in “chunks”: an example of this usage might be when transferring data from an Excel worksheet to a database.)\r\n\r\nAgain, I am just trying to figure out why it is taking so long to load a file and am simply looking for a few pointers where to look for the problem.",
+      "PostedDate": "2013-12-30T06:25:12.853-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Chunking is an option for reducing memory usage, but at a major cost in speed because (as I said) it requires a complete read and parse of the input file every iteration: the recommended solution to memory issues is cell caching. Using cell caching has a speed overhead, but nothing like the overheads of filtering in a loop",
+      "PostedDate": "2013-12-30T07:49:23.543-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

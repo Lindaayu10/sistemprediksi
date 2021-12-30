@@ -1,0 +1,51 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "i've verified that the file is exists, this is my script to load the document\ntry{\n               \n                $this->obj_global = PHPExcel_IOFactory::load($this->file_name);\n                $err_msgs = '';\n                \n            }catch(ErrorException $e)\n            {\n                $err_msgs = $e.getMessage();\n                \n            }catch (Exception $e)\n            {\n                $err_msgs = $e.getMessage();\n                \n            }\n\nas i understand the factory object try to load the file_name parameters, first is to make sure the file is exists and try to create reader based on pathinfo['extensions'], which is identified by Excel5 type reader, but after the reader was created, the document is parsed by the reader and the script halted and give me some point of error which is pointed to Excel5.php line 995, the message is \"Call to a member function getBlipType() on a non-object\" .\ni try to open the pointed file and go to the line 995 and i found the script halted caused by the script line $blipType = $BSE->getBlipType();\n\ni've succeeded to parse any file except this one in the attachment.\ni still have no clue, what's going on. please help.",
+    "LastUpdatedDate": "2013-07-13T05:26:44.703-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2013-07-13T04:51:09.14-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "cannot load excel 5 using, and uncaught exception, script halted",
+    "Type": {
+      "Name": "Unassigned",
+      "Id": 5
+    },
+    "VoteCount": 1,
+    "Id": 19964
+  },
+  "FileAttachments": [
+    {
+      "FileId": 7064,
+      "FileName": "05. DOLAGO.xls",
+      "DownloadUrl": ".\\7064"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "i got the solutions remain i only need to read the data cell, i did'nt need to read entire object including graphic object . so i changed my loader script to this line, \n$reader = PHPExcel_IOFactory::createReaderForFile($this->file_name);\n                $reader->setReadDataOnly(true);\n                $this->obj_global = $reader->load($this->file_name);\r\n\r\nand everything work's fine. thanks :D",
+      "PostedDate": "2013-07-13T05:26:44.703-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

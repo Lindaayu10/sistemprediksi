@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "627749",
+    "ThreadId": "261394",
+    "Html": "\r\n<p>The specific error I receive is:</p>\r\n<p>Fatal error: Maximum execution time of XX seconds exceeded in /PHPExcel/Shared/OLERead.php on line 114</p>\r\n<p>The line number changes between 114 and 112. I've tried with a max execution time of 1000 seconds and it still has the problem.</p>\r\n<p>The problem does not occur for Excel2007 files.</p>\r\n<p>The code is as follows:</p>\r\n<p></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>        ini_set(<span style=\"color:#a31515\">&quot;memory_limit&quot;</span>, <span style=\"color:#a31515\">&quot;256M&quot;</span>);\r\n\r\n        error_reporting(E_ALL);\r\n        ini_set(<span style=\"color:#a31515\">'display_errors'</span>, <span style=\"color:#a31515\">'1'</span>);\r\n        \r\n        <span style=\"color:blue\">foreach</span> ($_FILES AS $fieldName =&gt; $sourceFile) {\r\n            <span style=\"color:blue\">if</span> (!<span style=\"color:blue\">empty</span>($sourceFile[<span style=\"color:#a31515\">&quot;tmp_name&quot;</span>])) {\r\n\r\n                $inputFile = $sourceFile[<span style=\"color:#a31515\">&quot;tmp_name&quot;</span>];\r\n\r\n                $objPHPExcel = <span style=\"color:blue\">new</span> PHPExcel();\r\n\r\n                $objPHPExcel = PHPExcel_IOFactory::load($inputFile);\r\n\r\n                header(<span style=\"color:#a31515\">'Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'</span>);\r\n                header(<span style=\"color:#a31515\">'Content-Disposition: attachment;filename=&quot;ExcelTest'</span> . date(<span style=\"color:#a31515\">'ymd'</span>) . <span style=\"color:#a31515\">'.xlsx&quot;'</span>);\r\n                header(<span style=\"color:#a31515\">'Cache-Control: max-age=0'</span>);\r\n\r\n\r\n                $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, <span style=\"color:#a31515\">'Excel2007'</span>);\r\n                $objWriter-&gt;save(<span style=\"color:#a31515\">'php://output'</span>);\r\n\r\n                $objPHPExcelOutput-&gt;disconnectWorksheets();\r\n                <span style=\"color:blue\">unset</span>($objPHPExcelOutput);\r\n                Yii::app()-&gt;end();\r\n            }\r\n        }\r\n\r\n</pre>\r\n</div>\r\n<p></p>\r\n<p>The server is Apache 2 with PHP 5.3.6. This issue is only occurring on one server so I imagine there must be a setting somewhere that needs to be changed, if anyone has any advice, it would be appreciated.</p>\r\n",
+    "PostedDate": "2011-06-14T13:19:31.77-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "627752",
+    "ThreadId": "261394",
+    "Html": "<p>I forgot to add my PHPExcel version: 1.7.3c</p>",
+    "PostedDate": "2011-06-14T13:26:30.417-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "645910",
+    "ThreadId": "261394",
+    "Html": "<p>try this...</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;php.ini&nbsp; set</p>\r\n<p><span style=\"color: #0000ff;\">magic_quotes_routine&nbsp;=&nbsp;Off</span></p>\r\n<p>&nbsp;</p>\r\n<p>or before executing PHPExcel, add&nbsp;code as follow&nbsp;:</p>\r\n<p><span style=\"color: #0000ff;\">ini_set('magic_quotes_runtime', 'Off');</span></p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2011-07-21T22:16:50.96-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "646171",
+    "ThreadId": "261394",
+    "Html": "<p>or set your execution time with the help of&nbsp;set_time_limit(int sec) &nbsp;sec number of seconds you think ur processes will take</p>",
+    "PostedDate": "2011-07-22T08:10:49.373-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,541 @@
+Index: C:/xampp/htdocs/_phpexcel/PHPExcel/changelog.txt
+===================================================================
+--- C:/xampp/htdocs/_phpexcel/PHPExcel/changelog.txt	(revision 1347)
++++ C:/xampp/htdocs/_phpexcel/PHPExcel/changelog.txt	(revision 1348)
+@@ -41,6 +41,8 @@
+ - Feature:  (MB) Work item 11616 - Improve autosize calculation
+ - Feature:  (MBaker) Methods to translate locale-specific function names in formulae
+ 			- Language implementations for Czech (cs), Danish (da), German (de), English (UK), Spanish (es), Finnish (fi), French (fr), Hungarian (hu), Italian (it), Dutch (nl), Norwegian (no), Polish (pl), Portuguese (pt), Brazilian Portuguese (pt_br) and Swedish (sv)
++- Feature:  (ET) Work item 9759 - Implement document properties in Excel5 reader/writer
++			- Fixed so far for PHPExcel_Reader_Excel5
+ - Bugfix:   (MBaker) Work item 10979 - Warning messages with INDEX function having 2 arguments
+ - Bugfix:   (ET) Work item 11473 - setValue('=') should result in string instead of formula
+ - Bugfix:   (MBaker) Work item 11471 - method _raiseFormulaError should no be private
+Index: C:/xampp/htdocs/_phpexcel/PHPExcel/Classes/PHPExcel/Reader/Excel5.php
+===================================================================
+--- C:/xampp/htdocs/_phpexcel/PHPExcel/Classes/PHPExcel/Reader/Excel5.php	(revision 1347)
++++ C:/xampp/htdocs/_phpexcel/PHPExcel/Classes/PHPExcel/Reader/Excel5.php	(revision 1348)
+@@ -188,10 +188,17 @@
+ 	private $_ole;
+ 
+ 	/**
+-	 * Stream data that is read. Includes workbook globals substream as well as sheet substreams
++	 * Summary Information stream data.
+ 	 *
+ 	 * @var string
+ 	 */
++	private $_summaryInformation;
++
++	/**
++	 * Workbook stream data. (Includes workbook globals substream as well as sheet substreams)
++	 *
++	 * @var string
++	 */
+ 	private $_data;
+ 
+ 	/**
+@@ -504,6 +511,10 @@
+ 		$res = $this->_ole->read($pFilename);
+ 		$this->_data = $this->_ole->getWorkBook();
+ 
++		// Get summary information data
++		$this->_summaryInformation = $this->_ole->getSummaryInformation();
++		$this->_readSummaryInformation();
++
+ 		// total byte size of Excel data (workbook global substream + sheet substreams)
+ 		$this->_dataSize = strlen($this->_data);
+ 
+@@ -937,6 +948,130 @@
+ 	}
+ 
+ 	/**
++	 * Read summary information
++	 */
++	private function _readSummaryInformation()
++	{
++		if (!isset($this->_summaryInformation)) {
++			return;
++		}
++		
++		// offset: 0; size: 2; must be 0xFE 0xFF (UTF-16 LE byte order mark)
++		// offset: 2; size: 2;
++		// offset: 4; size: 2; OS version
++		// offset: 6; size: 2; OS indicator
++		// offset: 8; size: 16
++		// offset: 24; size: 4; section count
++
++		// offset: 28; size: 16; first section's class id: e0 85 9f f2 f9 4f 68 10 ab 91 08 00 2b 27 b3 d9
++		// offset: 44; size: 4
++
++		// section header
++		// offset: 48; size: 4; section length
++		$secLength = $this->_GetInt4d($this->_summaryInformation, 48);
++
++		// offset: 52; size: 4; property count
++		$countProperties = $this->_GetInt4d($this->_summaryInformation, 52);
++
++		// initialize code page (used to resolve string values)
++		$codePage = 'CP1252';
++
++		// offset: 56; size: var
++		// loop through property decarations and properties
++		for ($i = 0; $i < $countProperties; ++$i) {
++
++			// offset: 56 + 8 * $i; size: 4; property ID
++			$id = $this->_GetInt4d($this->_summaryInformation, 56 + 8 * $i);
++
++			// offset: 60 + 8 * $i; size: 4; offset from beginning of section (48)
++			$offset = $this->_GetInt4d($this->_summaryInformation, 60 + 8 * $i);
++
++			$type = $this->_GetInt4d($this->_summaryInformation, 48 + $offset);
++
++			// initialize property value
++			$value = null;
++
++			// extract property value based on property type
++			switch ($type) {
++				case 0x02: // 2 byte signed integer
++					$value = $this->_GetInt2d($this->_summaryInformation, 52 + $offset);
++					break;
++
++				case 0x03: // 4 byte signed integer
++					$value = $this->_GetInt4d($this->_summaryInformation, 52 + $offset);
++					break;
++
++				case 0x13: // 4 byte unsigned integer
++					// not needed yet, fix later if necessary
++					break;
++
++				case 0x1E: // null-terminated string prepended by dword string length
++					$byteLength = $this->_GetInt4d($this->_summaryInformation, 52 + $offset);
++					$value = substr($this->_summaryInformation, 56 + $offset, $byteLength);
++					$value = PHPExcel_Shared_String::ConvertEncoding($value, 'UTF-8', $codePage);
++					$value = rtrim($value);
++					break;
++
++				case 0x40: // Filetime (64-bit value representing the number of 100-nanosecond intervals since January 1, 1601)
++					// PHP-time
++					$value = PHPExcel_Shared_OLE::OLE2LocalDate(substr($this->_summaryInformation, 52 + $offset, 8));
++					break;
++
++				case 0x47: // Clipboard format
++					// not needed yet, fix later if necessary
++					break;
++			}
++
++			// Use value of property id as appropriate
++			switch ($id) {
++				case 0x01: // Code Page
++					$codePage = PHPExcel_Shared_CodePage::NumberToName($value);
++					break;
++
++				case 0x02: // Title
++					$this->_phpExcel->getProperties()->setTitle($value);
++					break;
++
++				case 0x03: // Subject
++					$this->_phpExcel->getProperties()->setSubject($value);
++					break;
++
++				case 0x04: // Author (Creator)
++					$this->_phpExcel->getProperties()->setCreator($value);
++					break;
++
++				case 0x05: // Keywords
++					$this->_phpExcel->getProperties()->setKeywords($value);
++					break;
++
++				case 0x06: // Comments (Description)
++					$this->_phpExcel->getProperties()->setDescription($value);
++					break;
++
++				case 0x08: // Last Saved By (LastModifiedBy)
++					$this->_phpExcel->getProperties()->setLastModifiedBy($value);
++					break;
++
++				case 0x09: // Revision
++					// not supported by PHPExcel
++					break;
++
++				case 0x0C: // Created
++					$this->_phpExcel->getProperties()->setCreated($value);
++					break;
++
++				case 0x0D: // Modified
++					$this->_phpExcel->getProperties()->setModified($value);
++					break;
++
++				case 0x12: // Name of creating application
++					// not supported by PHPExcel
++					break;
++			}
++		}
++	}
++
++	/**
+ 	 * Reads a general type of BIFF record. Does nothing except for moving stream pointer forward to next record.
+ 	 */
+ 	private function _readDefault()
+@@ -990,159 +1125,7 @@
+ 		// offset: 0; size: 2; code page identifier
+ 		$codepage = $this->_GetInt2d($recordData, 0);
+ 
+-		switch ($codepage) {
+-
+-		case 367: // ASCII
+-			$this->_codepage ="ASCII";
+-			break;
+-
+-		case 437: //OEM US
+-			$this->_codepage ="CP437";
+-			break;
+-
+-		case 720: //OEM Arabic
+-			// currently not supported by libiconv
+-			$this->_codepage = "";
+-			break;
+-
+-		case 737: //OEM Greek
+-			$this->_codepage ="CP737";
+-			break;
+-
+-		case 775: //OEM Baltic
+-			$this->_codepage ="CP775";
+-			break;
+-
+-		case 850: //OEM Latin I
+-			$this->_codepage ="CP850";
+-			break;
+-
+-		case 852: //OEM Latin II (Central European)
+-			$this->_codepage ="CP852";
+-			break;
+-
+-		case 855: //OEM Cyrillic
+-			$this->_codepage ="CP855";
+-			break;
+-
+-		case 857: //OEM Turkish
+-			$this->_codepage ="CP857";
+-			break;
+-
+-		case 858: //OEM Multilingual Latin I with Euro
+-			$this->_codepage ="CP858";
+-			break;
+-
+-		case 860: //OEM Portugese
+-			$this->_codepage ="CP860";
+-			break;
+-
+-		case 861: //OEM Icelandic
+-			$this->_codepage ="CP861";
+-			break;
+-
+-		case 862: //OEM Hebrew
+-			$this->_codepage ="CP862";
+-			break;
+-
+-		case 863: //OEM Canadian (French)
+-			$this->_codepage ="CP863";
+-			break;
+-
+-		case 864: //OEM Arabic
+-			$this->_codepage ="CP864";
+-			break;
+-
+-		case 865: //OEM Nordic
+-			$this->_codepage ="CP865";
+-			break;
+-
+-		case 866: //OEM Cyrillic (Russian)
+-			$this->_codepage ="CP866";
+-			break;
+-
+-		case 869: //OEM Greek (Modern)
+-			$this->_codepage ="CP869";
+-			break;
+-
+-		case 874: //ANSI Thai
+-			$this->_codepage ="CP874";
+-			break;
+-
+-		case 932: //ANSI Japanese Shift-JIS
+-			$this->_codepage ="CP932";
+-			break;
+-
+-		case 936: //ANSI Chinese Simplified GBK
+-			$this->_codepage ="CP936";
+-			break;
+-
+-		case 949: //ANSI Korean (Wansung)
+-			$this->_codepage ="CP949";
+-			break;
+-
+-		case 950: //ANSI Chinese Traditional BIG5
+-			$this->_codepage ="CP950";
+-			break;
+-
+-		case 1200: //UTF-16 (BIFF8)
+-			$this->_codepage ="UTF-16LE";
+-			break;
+-
+-		case 1250:// ANSI Latin II (Central European)
+-			$this->_codepage ="CP1250";
+-			break;
+-
+-		case 1251: //ANSI Cyrillic
+-			$this->_codepage ="CP1251";
+-			break;
+-
+-		case 1252: //ANSI Latin I (BIFF4-BIFF7)
+-			$this->_codepage ="CP1252";
+-			break;
+-
+-		case 1253: //ANSI Greek
+-			$this->_codepage ="CP1253";
+-			break;
+-
+-		case 1254: //ANSI Turkish
+-			$this->_codepage ="CP1254";
+-			break;
+-
+-		case 1255: //ANSI Hebrew
+-			$this->_codepage ="CP1255";
+-			break;
+-
+-		case 1256: //ANSI Arabic
+-			$this->_codepage ="CP1256";
+-			break;
+-
+-		case 1257: //ANSI Baltic
+-			$this->_codepage ="CP1257";
+-			break;
+-
+-		case 1258: //ANSI Vietnamese
+-			$this->_codepage ="CP1258";
+-			break;
+-
+-		case 1361: //ANSI Korean (Johab)
+-			$this->_codepage ="CP1361";
+-			break;
+-
+-		case 10000: //Apple Roman
+-			$this->_codepage = 'MAC';
+-			break;
+-
+-		case 32768: //Apple Roman
+-			$this->_codepage = 'MAC';
+-			break;
+-
+-		case 32769: //ANSI Latin I (BIFF2-BIFF3)
+-			// currently not supported by libiconv
+-			$this->_codepage = "";
+-			break;
+-
+-		}
++		$this->_codepage = PHPExcel_Shared_CodePage::NumberToName($codepage);
+ 	}
+ 
+ 	/**
+Index: C:/xampp/htdocs/_phpexcel/PHPExcel/Classes/PHPExcel/Shared/CodePage.php
+===================================================================
+--- C:/xampp/htdocs/_phpexcel/PHPExcel/Classes/PHPExcel/Shared/CodePage.php	(revision 0)
++++ C:/xampp/htdocs/_phpexcel/PHPExcel/Classes/PHPExcel/Shared/CodePage.php	(revision 1348)
+@@ -0,0 +1,94 @@
++<?php
++/**
++ * PHPExcel
++ *
++ * Copyright (c) 2006 - 2010 PHPExcel
++ *
++ * This library is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU Lesser General Public
++ * License as published by the Free Software Foundation; either
++ * version 2.1 of the License, or (at your option) any later version.
++ *
++ * This library is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * Lesser General Public License for more details.
++ *
++ * You should have received a copy of the GNU Lesser General Public
++ * License along with this library; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
++ *
++ * @category   PHPExcel
++ * @package    PHPExcel_Shared
++ * @copyright  Copyright (c) 2006 - 2010 PHPExcel (http://www.codeplex.com/PHPExcel)
++ * @license    http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt	LGPL
++ * @version    ##VERSION##, ##DATE##
++ */
++
++
++/**
++ * PHPExcel_Shared_CodePage
++ *
++ * @category   PHPExcel
++ * @package    PHPExcel_Shared
++ * @copyright  Copyright (c) 2006 - 2010 PHPExcel (http://www.codeplex.com/PHPExcel)
++ */
++class PHPExcel_Shared_CodePage
++{
++	/**
++	 * Convert Microsoft Code Page Identifier to Code Page Name which iconv
++	 * and mbstring understands
++	 *
++	 * @param int $number Microsoft Code Page Indentifier
++	 * @return string Code Page Name
++	 * @throws Exception
++	 */
++	public static function NumberToName($codePage = '1252')
++	{
++		switch ($codePage) {
++			case 367:	return 'ASCII';		break;	// ASCII
++			case 437:	return 'CP437';		break;	//OEM US
++			case 720:	throw new Exception('Code page 720 not supported.');
++											break;	//OEM Arabic
++			case 737:	return 'CP737';		break;	//OEM Greek
++			case 775:	return 'CP775';		break;	//OEM Baltic
++			case 850:	return 'CP850';		break;	//OEM Latin I
++			case 852:	return 'CP852';		break;	//OEM Latin II (Central European)
++			case 855:	return 'CP855';		break;	//OEM Cyrillic
++			case 857:	return 'CP857';		break;	//OEM Turkish
++			case 858:	return 'CP858';		break;	//OEM Multilingual Latin I with Euro
++			case 860:	return 'CP860';		break;	//OEM Portugese
++			case 861:	return 'CP861';		break;	//OEM Icelandic
++			case 862:	return 'CP862';		break;	//OEM Hebrew
++			case 863:	return 'CP863';		break;	//OEM Canadian (French)
++			case 864:	return 'CP864';		break;	//OEM Arabic
++			case 865:	return 'CP865';		break;	//OEM Nordic
++			case 866:	return 'CP866';		break;	//OEM Cyrillic (Russian)
++			case 869:	return 'CP869';		break;	//OEM Greek (Modern)
++			case 874:	return 'CP874';		break;	//ANSI Thai
++			case 932:	return 'CP932';		break;	//ANSI Japanese Shift-JIS
++			case 936:	return 'CP936';		break;	//ANSI Chinese Simplified GBK
++			case 949:	return 'CP949';		break;	//ANSI Korean (Wansung)
++			case 950:	return 'CP950';		break;	//ANSI Chinese Traditional BIG5
++			case 1200:	return 'UTF-16LE';	break;	//UTF-16 (BIFF8)
++			case 1250:	return 'CP1250';	break;	// ANSI Latin II (Central European)
++			case 1251:	return 'CP1251';	break;	//ANSI Cyrillic
++			case 1252:	return 'CP1252';	break;	//ANSI Latin I (BIFF4-BIFF7)
++			case 1253:	return 'CP1253';	break;	//ANSI Greek
++			case 1254:	return 'CP1254';	break;	//ANSI Turkish
++			case 1255:	return 'CP1255';	break;	//ANSI Hebrew
++			case 1256:	return 'CP1256';	break;	//ANSI Arabic
++			case 1257:	return 'CP1257';	break;	//ANSI Baltic
++			case 1258:	return 'CP1258';	break;	//ANSI Vietnamese
++			case 1361:	return 'CP1361';	break;	//ANSI Korean (Johab)
++			case 10000:	return 'MAC';		break;	//Apple Roman
++			case 32768:	return 'MAC';		break;	//Apple Roman
++			case 32769:	throw new Exception('Code page 32769 not supported.');
++											break;	//ANSI Latin I (BIFF2-BIFF3)
++			case 65001:	return 'UTF-8';		break;	//Unicode (UTF-8)
++		}
++
++		throw new Exception('Unknown codepage: ' . $codePage);
++	}
++
++}
+Index: C:/xampp/htdocs/_phpexcel/PHPExcel/Classes/PHPExcel/Shared/OLERead.php
+===================================================================
+--- C:/xampp/htdocs/_phpexcel/PHPExcel/Classes/PHPExcel/Shared/OLERead.php	(revision 1347)
++++ C:/xampp/htdocs/_phpexcel/PHPExcel/Classes/PHPExcel/Shared/OLERead.php	(revision 1348)
+@@ -214,6 +214,58 @@
+ 	}
+ 
+ 	/**
++	 * Extract binary stream data, summary information
++	 *
++	 * @return string|null
++	 */
++	public function getSummaryInformation()
++	{
++		if (!isset($this->summaryInformation)) {
++			return null;
++		}
++
++		if ($this->props[$this->summaryInformation]['size'] < self::SMALL_BLOCK_THRESHOLD){
++			$rootdata = $this->_readData($this->props[$this->rootentry]['startBlock']);
++
++			$streamData = '';
++			$block = $this->props[$this->summaryInformation]['startBlock'];
++
++			$pos = 0;
++			while ($block != -2) {
++	  			$pos = $block * self::SMALL_BLOCK_SIZE;
++				$streamData .= substr($rootdata, $pos, self::SMALL_BLOCK_SIZE);
++
++				$block = $this->smallBlockChain[$block];
++			}
++
++			return $streamData;
++
++
++		} else {
++			$numBlocks = $this->props[$this->summaryInformation]['size'] / self::BIG_BLOCK_SIZE;
++			if ($this->props[$this->summaryInformation]['size'] % self::BIG_BLOCK_SIZE != 0) {
++				++$numBlocks;
++			}
++
++			if ($numBlocks == 0) return '';
++
++
++			$streamData = '';
++			$block = $this->props[$this->summaryInformation]['startBlock'];
++
++			$pos = 0;
++
++			while ($block != -2) {
++				$pos = ($block + 1) * self::BIG_BLOCK_SIZE;
++				$streamData .= substr($this->data, $pos, self::BIG_BLOCK_SIZE);
++				$block = $this->bigBlockChain[$block];
++			}
++
++			return $streamData;
++		}
++	}
++
++	/**
+ 	 * Read a standard stream (by joining sectors using information from SAT)
+ 	 *
+ 	 * @param int $bl Sector ID where the stream starts
+@@ -280,6 +332,11 @@
+ 				$this->rootentry = count($this->props) - 1;
+ 			}
+ 
++			// Summary information
++			if ($name == chr(5) . 'SummaryInformation') {
++				$this->summaryInformation = count($this->props) - 1;
++			}
++
+ 			$offset += self::PROPERTY_STORAGE_BLOCK_SIZE;
+ 		}
+ 
+Index: C:/xampp/htdocs/_phpexcel/PHPExcel/Classes/PHPExcel/Shared/OLE.php
+===================================================================
+--- C:/xampp/htdocs/_phpexcel/PHPExcel/Classes/PHPExcel/Shared/OLE.php	(revision 1347)
++++ C:/xampp/htdocs/_phpexcel/PHPExcel/Classes/PHPExcel/Shared/OLE.php	(revision 1348)
+@@ -514,20 +514,9 @@
+ 
+ 		// factor used for separating numbers into 4 bytes parts
+ 		$factor = pow(2,32);
+-		$high_part = 0;
+-		for ($i = 0; $i < 4; ++$i) {
+-			list(, $high_part) = unpack('C', $string{(7 - $i)});
+-			if ($i < 3) {
+-				$high_part *= 0x100;
+-			}
+-		}
+-		$low_part = 0;
+-		for ($i = 4; $i < 8; ++$i) {
+-			list(, $low_part) = unpack('C', $string{(7 - $i)});
+-			if ($i < 7) {
+-				$low_part *= 0x100;
+-			}
+-		}
++		list(, $high_part) = unpack('V', substr($string, 4, 4));
++		list(, $low_part) = unpack('V', substr($string, 0, 4));
++
+ 		$big_date = ($high_part * $factor) + $low_part;
+ 		// translate to seconds
+ 		$big_date /= 10000000;

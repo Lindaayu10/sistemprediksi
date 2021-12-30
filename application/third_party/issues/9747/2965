@@ -1,0 +1,25 @@
+Index: Classes/PHPExcel/Cell/AdvancedValueBinder.php
+===================================================================
+--- Classes/PHPExcel/Cell/AdvancedValueBinder.php	(revision 899)
++++ Classes/PHPExcel/Cell/AdvancedValueBinder.php	(working copy)
+@@ -76,6 +76,20 @@
+ 				return true;
+ 			}
+ 			
++			// Check for time e.g. '9:45', '09:45'
++			if (preg_match('/^(\d|[0-1]\d|2[0-3]):[0-5]\d$/', $value)) {
++				list($h, $m) = explode(':', $value);
++				$days = $h / 24 + $m / 1440;
++				
++				// Convert value to number
++				$cell->setValueExplicit($days, PHPExcel_Cell_DataType::TYPE_NUMERIC);
++				
++				// Set style
++				$cell->getParent()->getStyle( $cell->getCoordinate() )->getNumberFormat()->setFormatCode( PHPExcel_Style_NumberFormat::FORMAT_DATE_TIME3 );
++				
++				return true;
++			}
++			
+ 			// Check for date
+ 			if (strtotime($value) !== false) {
+ 				// make sure we have UTC for the sake of strtotime

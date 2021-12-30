@@ -1,0 +1,10 @@
+[
+  {
+    "Id": "953008",
+    "ThreadId": "405983",
+    "Html": "\r\n<p>I have a .XLS file which has some functions:<br>\r\n&nbsp; &quot;=SUM(D2:FN2)&quot; in a cell C2,<br>\r\n&nbsp; &quot;=SUM(D3:FN3)&quot; in a cell C3,<br>\r\n&nbsp; &quot;=SUM(D4:FN4)&quot; in a cell C4, ...<br>\r\n<br>\r\nI wrote a code to load this, modify some other cells, and write to .XLS.<br>\r\nBut, an error &quot;Formula Error: An unexpected error occured&quot; is occured.<br>\r\n<br>\r\nI tried to find what's wrong, I got something strange.<br>\r\nCell C2 was &quot;=SUM(D2:FN2)&quot;,<br>\r\nbut cell C3 was &quot;=SUM(D3:？3)&quot;. corrupted.<br>\r\nThis caused the error.<br>\r\n<br>\r\nFinally, I got the point.<br>\r\nthe function &quot;_readBIFF8CellRangeAddressB&quot; In Reader/Excel5.php.<br>\r\n<br>\r\n&nbsp; $lcIndex = 0x00FF & self::_GetInt2d($subData, 6);<br>\r\n&nbsp; $lcIndex = ($lcIndex &lt;= 127) ? $lcIndex : $lcIndex - 256;<br>\r\n&nbsp; $lc = PHPExcel_Cell::stringFromColumnIndex($baseCol &#43; $lcIndex);<br>\r\n<br>\r\nAfter the first line, $lcIndex becomes abount 160 from &quot;FN&quot;.<br>\r\nThen, After the second line, $lcIndex becomes some negative value,<br>\r\nAfter the following third line, $lc becomes a corrupted character.<br>\r\n<br>\r\nI tried to comment-out the second line, <br>\r\nThen it seems like the error was fixed...<br>\r\n<br>\r\nBut, is this all right?<br>\r\nAre there any possible side effects?<br>\r\n<br>\r\nSorry about my poor English.</p>\r\n",
+    "PostedDate": "2012-12-07T08:29:07.72-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

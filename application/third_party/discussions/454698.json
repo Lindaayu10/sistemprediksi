@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "1085554",
+    "ThreadId": "454698",
+    "Html": "I've been researching my problems now for some time and it appears that the common solutions aren't doing much for me. I've done my best to boil my problem down to the simplest example that will exhibit it. I am loading an .xlsx file with a reader as follows:<br />\n<pre><code>&lt;?php \n\n    // Initialize state\n    define( 'EOL', ( PHP_SAPI == 'cli' ) ? PHP_EOL : '&lt;br /&gt;' );\n    date_default_timezone_set( 'America/Toronto' );\n    \n    print class_exists('ZipArchive');\n    \n    require_once  __DIR__ . '/../private/includes/PHPExcel/Classes/PHPExcel/IOFactory.php';\n    $objReader = PHPExcel_IOFactory::createReader( 'Excel2007' );\n    $excelObj = $objReader-&gt;load( __DIR__ . &quot;/../private/report-templates/test.xlsx&quot; );\n    \n?&gt;</code></pre>\n\nwhere test is an empty template (immediately saved a new Excel 2010 workbook).<br />\n<br />\nI get a bunch of the following back:<br />\n<pre><code>1\nWarning: ZipArchive::getFromName() [ziparchive.getfromname]: Invalid or unitialized Zip object in C:\\Inetpub\\wwwroot\\VICTracking\\private\\includes\\PHPExcel\\Classes\\PHPExcel\\Reader\\Excel2007.php on line 323\n\nWarning: ZipArchive::getFromName() [ziparchive.getfromname]: Invalid or unitialized Zip object in C:\\Inetpub\\wwwroot\\VICTracking\\private\\includes\\PHPExcel\\Classes\\PHPExcel\\Reader\\Excel2007.php on line 326\n\nNotice: Trying to get property of non-object in C:\\Inetpub\\wwwroot\\VICTracking\\private\\includes\\PHPExcel\\Classes\\PHPExcel\\Reader\\Excel2007.php on line 358\n\nWarning: Invalid argument supplied for foreach() in C:\\Inetpub\\wwwroot\\VICTracking\\private\\includes\\PHPExcel\\Classes\\PHPExcel\\Reader\\Excel2007.php on line 358</code></pre>\n\noften culminating in an error as soon as I attempt to call a method on the PHPExcel object.<br />\n<br />\nI know this looks like I'm not meeting the requirements for installed software, because that's the solution I've seen everywhere. I can confirm based on my phpinfo() and php.ini that zip functionality is enabled, php_gd2 in installed and enabled and that xml_rpc is installed and enabled. However, because I'm running PHP 5.3.27 on this box, php_zip does not appear as an extension because it is supposed to have become core functionality as of 5.2.0. The ZipArchive class is listed as part of the PHP core. I should note that the the class_exists('ZipArchive') line returns true in the above code sample.<br />\n<br />\nI'm at a loss as to how to correct for this. I can't enable zip because it's already enabled, and there's no .dll to point PHP to. What can I do about this?<br />\n<br />\nP.S. I am running PHP on an IIS 6 Windows machine and I am using PHPExcel 1.7.9.<br />\n",
+    "PostedDate": "2013-08-27T14:38:51.88-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1086712",
+    "ThreadId": "454698",
+    "Html": "No suggestions?<br />\n<br />\nI left this for a few days in the hopes that some ideas would trickle in since I haven't been back in at work to deal with this problem for a bit, but I'm looking at this again now and it would be a big help to get past this.<br />\n<br />\nThe temporary solution that I have in mind is to use the Excel 97-2003 format instead, but ideally I'd be able to use the modern Excel file format.<br />\n<br />\nI'll pursue my temporary solution for the time being and report on whether that has solved my problems.<br />\n",
+    "PostedDate": "2013-08-30T08:46:13.507-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1088197",
+    "ThreadId": "454698",
+    "Html": "A priori, you did as no errors when creating the object archive ($zip = new ZipArchive), so this track does not seem good (in addition, you as verified everything is related).\r<br />\nOn the other hand, the result of the call to the open method is not verified (line 354 of the reader). You could temporarily display its result (you will find on php.net, a user contribution for displaying the text corresponding to the constant).\r<br />\nThe file is present (otherwise, you thrown an exception), but is it readable (rights?) ?\r<br />\n<br />\nThese are that suggestions, I wouldn't pretend solution :-)<br />\n",
+    "PostedDate": "2013-09-04T05:18:18.507-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

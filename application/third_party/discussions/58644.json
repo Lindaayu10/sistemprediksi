@@ -1,0 +1,114 @@
+[
+  {
+    "Id": "198531",
+    "ThreadId": "58644",
+    "Html": "<p>Hi,</p>\r\n<p>ps : I am french speaking</p>\r\n<p>i am not able use setWrapText on merged cells</p>\r\n<p>&nbsp;</p>\r\n<p>this code don't wrap cell A1</p>\r\n<p>$workbook = new PHPExcel;</p>\r\n<p>$sheet = $workbook-&gt;getActiveSheet();</p>\r\n<p>$sheet-&gt;getColumnDimension('A')-&gt;setWidth(10);<br>$sheet-&gt;getColumnDimension('B')-&gt;setWidth(10);<br>$sheet-&gt;getColumnDimension('C')-&gt;setWidth(10);</p>\r\n<p>$sheet-&gt;setCellValue('A1'.'Voici un trop long texte que je voudrais voire revenir &agrave; la ligne automatiquement');</p>\r\n<p>$sheet-&gt;mergeCells('A1:C1');</p>\r\n<p>$sheet-&gt;getStyle('A1')-&gt;getAlignment()-&gt;setWrapText(true);</p>\r\n<p>$writer = new PHPExcel_Writer_Excel5($workbook);<br> header('Content-type: application/vnd.ms-excel');<br>$writer-&gt;save('php://output');<br></p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-06-06T05:46:09.407-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "198537",
+    "ThreadId": "58644",
+    "Html": "<p>1. Download latest source code:<br><a href=\"../SourceControl/ListDownloadableCommits.aspx\">http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx</a><br><br><br>2. You have to set a height for the row (just like in Excel). Do like this:<br><br><span style=\"font-family:Courier New\">$excel = new PHPExcel();</span><br><span style=\"font-family:Courier New\">$sheet = $excel-&gt;getActiveSheet();</span><br><br><span style=\"font-family:Courier New\">$sheet-&gt;getColumnDimension('A')-&gt;setWidth(10);</span><br><span style=\"font-family:Courier New\">$sheet-&gt;getColumnDimension('B')-&gt;setWidth(10);</span><br><span style=\"font-family:Courier New\">$sheet-&gt;getColumnDimension('C')-&gt;setWidth(10);</span><br><br><span style=\"background-color:#ffff00;color:#111111;font-family:Courier New\">$sheet-&gt;getRowDimension(1)-&gt;setRowHeight(45);</span><br><br><span style=\"font-family:Courier New\">$sheet-&gt;setCellValue('A1', 'Voici un trop long texte que je voudrais voire revenir &agrave; la ligne automatiquement');</span><br><span style=\"font-family:Courier New\">$sheet-&gt;mergeCells('A1:C1');</span><br><span style=\"font-family:Courier New\">$sheet-&gt;getStyle(<span style=\"background-color:#ffff00;font-family:Courier New\">'A1:C1'</span>)-&gt;getAlignment()-&gt;setWrapText(true);</span><br><br><span style=\"font-family:Courier New\">$writer = PHPExcel_IOFactory::createWriter($excel, 'Excel5');</span><br><span style=\"font-family:Courier New\">$writer-&gt;save('write.xls');</span></p>\r\n<p><em>Result:</em><br> <a href=\"http://img181.imageshack.us/img181/7239/write.png\"><img src=\"http://img181.imageshack.us/img181/7239/write.th.png\" border=0 alt=\"\"></a></p>",
+    "PostedDate": "2009-06-06T06:13:51.947-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "198541",
+    "ThreadId": "58644",
+    "Html": "<p>Thank,</p>\r\n<p>So, i can't resize height automaitcally with API ?</p>\r\n<p>Very Thank for all.</p>",
+    "PostedDate": "2009-06-06T06:31:59.417-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "198546",
+    "ThreadId": "58644",
+    "Html": "<p><em>&gt;&gt; So, i can't resize height automaitcally with API ?</em></p>\r\n<p>No, text wrap and merged cells don't play well together in Excel. This is very annoying.</p>\r\n<p>Even in MS Office Excel 2007 you will still have to adjust row height manually:</p>\r\n<p><a href=\"http://support.microsoft.com/kb/212010\">http://support.microsoft.com/kb/212010</a></p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-06-06T06:54:28.5-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "198555",
+    "ThreadId": "58644",
+    "Html": "<p>Thank koyama, your g&eacute;nial .... :)</p>",
+    "PostedDate": "2009-06-06T08:05:31.56-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "458538",
+    "ThreadId": "58644",
+    "Html": "<p>Unfortunately, this still isn't working for me. I downloaded the latest snapshot, and &quot;setWrapText()&quot; still doesn't work. Here is a snippet of my code:</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre><span style=\"white-space:pre\">\t</span>$this-&gt;active_sheet-&gt;setCellValueByColumnAndRow($col, $row, $column);\r\n        <span style=\"color:blue\">if</span>($styled) {\r\n          $style_array = <span style=\"color:blue\">array</span>(\r\n            <span style=\"color:#a31515\">'alignment'</span> =&gt; <span style=\"color:blue\">array</span>(<span style=\"color:#a31515\">'horizontal'</span> =&gt; PHPExcel_Style_Alignment::HORIZONTAL_LEFT),\r\n            <span style=\"color:#a31515\">'borders'</span> =&gt; <span style=\"color:blue\">array</span>(<span style=\"color:#a31515\">'outline'</span> =&gt; <span style=\"color:blue\">array</span>(<span style=\"color:#a31515\">'style'</span> =&gt; PHPExcel_Style_Border::BORDER_THIN,))\r\n          );\r\n          $this-&gt;active_sheet-&gt;getStyleByColumnAndRow($col, $row)-&gt;applyFromArray($style_array);\r\n          $this-&gt;active_sheet-&gt;getRowDimension($row)-&gt;setRowHeight($this-&gt;default_row_height);\r\n          $this-&gt;active_sheet-&gt;getStyleByColumnAndRow($col, $row)-&gt;getAlignment()-&gt;setWrapText(true);\r\n        }\r\n</pre>\r\n<pre><br></pre>\r\n<pre>Why does the wrap text not work?</pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-06-22T07:52:41.343-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "458961",
+    "ThreadId": "58644",
+    "Html": "<p>Are you still working with merge cells? Can you try without merge cells?</p>",
+    "PostedDate": "2010-06-23T07:04:41.41-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "458974",
+    "ThreadId": "58644",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>maartenba wrote:</strong><br>\r\n<p>Are you still working with merge cells? Can you try without merge cells?</p>\r\n</blockquote>\r\n<p>Yes, the wrap text works when I do not use merge cells. The curious thing is that I wasn't using wrap text on the merged cells, but rather on other cells.&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>Please advise.</p>",
+    "PostedDate": "2010-06-23T07:36:06.16-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "461652",
+    "ThreadId": "58644",
+    "Html": "<p>Still having the same issue. Is there any resolution to this?</p>",
+    "PostedDate": "2010-06-30T07:11:50.71-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "462052",
+    "ThreadId": "58644",
+    "Html": "<p>Just did some investigation on this:</p>\r\n<ul>\r\n<li>Seems that Excel 2007 can not do this automatically, there is a workaround available through Excel:&nbsp;<a href=\"http://support.microsoft.com/kb/212010\">http://support.microsoft.com/kb/212010</a></li>\r\n<li>I copied the output of the file after this workaround and injected it into the output of the above code</li>\r\n<li>Excel ignored this completely, untill again I did this manually</li>\r\n</ul>\r\n<p>Seems like this one will go unsolvable... A workaround can be to add newlines to your cell text manually every X words or so, based on the number of columns?</p>\r\n<p>PS: I will be on a vacation for the next two weeks.</p>",
+    "PostedDate": "2010-07-01T01:45:45.413-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "540984",
+    "ThreadId": "58644",
+    "Html": "\r\n<p>Hi,</p>\r\n<p>is automatic wordwrap still a problem on merged cells? I have the same issue. For now I am using 1.7.1. and will upgrade if this is solved in any later version, but it seems that it is a Microsoft bug.</p>\r\n<p>Thanks for reply</p>\r\n<p>Goran</p>\r\n",
+    "PostedDate": "2010-12-27T15:38:51.023-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "593612",
+    "ThreadId": "58644",
+    "Html": "<p>On the latest release of PHPExcel merged cells and wrapTExt are working in Excel2007 for me, when the .xlsx file is opened in OpenOffice or any other Office programs the wrapText and mergeCells is not working.</p>",
+    "PostedDate": "2011-04-07T09:20:37.55-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "593799",
+    "ThreadId": "58644",
+    "Html": "<blockquote style=\"padding-bottom: 0px; font-style: italic; margin: 0.25em 1em 0px; padding-left: 0.25em; padding-right: 0.25em; padding-top: 0px; border: #ccc 0.1em solid;\"><strong>chrislynch8 wrote:</strong><br />\r\n<p>On the latest release of PHPExcel merged cells and wrapTExt are working in Excel2007 for me, when the .xlsx file is opened in OpenOffice or any other Office programs the wrapText and mergeCells is not working.</p>\r\n</blockquote>\r\n<p><br />If you create a file with merged cells and WrapText in MS Excel itself, then open it in Open or Libre Office, is the wrap text still working then?</p>",
+    "PostedDate": "2011-04-07T14:31:16.063-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "595823",
+    "ThreadId": "58644",
+    "Html": "<p>Hi,</p>\r\n<p>This is what I've found so far.</p>\r\n<p>Create a xlsx file in MS Excel 2007.</p>\r\n<ol>\r\n<li>If I enter text and then set the cell to wrap it wraps, I then set this cell and another to merge and the text is wrapped in the new merged cells.</li>\r\n<li>If I set two cells as merged and wrapped and then enter the text it will not wrap the text.</li>\r\n</ol>\r\n<p>When I open the above file I save as xlsx in OpenOffice and LibreOffice the wrapped Text and Merged Cells work the same as above the same cells appear as wrapped, merged and auto adjusted row heights.</p>\r\n<p>I will try to apply the logic in the first example above to my PHPExcel code, remove all the wrapping and merged cells and then set them after text has been added to the cells etc.</p>\r\n<p>Also strangely I got it working with OpenOffice yesterday, but I have been unable to reproduce since. What I done was in the template set the cells as Shrink to Fit and Wrapped, then when this was exported it worked in OpenOffice my cells where wrapping correctly and the height was adjusted. But as I've said I can't reproduce this again. Still looking into it.</p>\r\n<p>&nbsp;</p>\r\n<p>Rgds</p>\r\n<p>Chris</p>",
+    "PostedDate": "2011-04-12T03:29:04.083-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

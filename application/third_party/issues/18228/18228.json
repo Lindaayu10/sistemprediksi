@@ -1,0 +1,39 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I'm trying to create a chart with 2 series, one bar and one line, but when i execute the code, it return without the rows to second values serie.\n \nTrying to search why it happens i found something and change de code, but, i dont know if it will affect something else.\n \nMy test code:\n \n \n \n$sheet = $this->objPHPExcel->getActiveSheet();\n$data = array('10%', '50%', '100%');\n$row = 1;\nforeach($data as $point) {\n\t$sheet->setCellValueByColumnAndRow(0, $row++, $point);\n}\n\t\n$data = array(12, 42, 22);\n$row = 1;\nforeach($data as $point) {\n\t$sheet->setCellValueByColumnAndRow(1, $row++, $point);\n}\n \n$data = array(rand(1,100), rand(1,100), rand(1,100));\n$row = 1;\nforeach($data as $point) {\n\t$sheet->setCellValueByColumnAndRow(2, $row++, $point);\n}\n\t\t\n$values = new PHPExcel_Chart_DataSeriesValues('Number', 'Worksheet!$B$1:$B$3');\n$values2 = new PHPExcel_Chart_DataSeriesValues('Number', 'Worksheet!$C$1:$C$3');\n$categories = new PHPExcel_Chart_DataSeriesValues('String', 'Worksheet!$A$1:$A$3');\n\t\t\n$series = new PHPExcel_Chart_DataSeries(\n\tPHPExcel_Chart_DataSeries::TYPE_BARCHART,       // plotType\n\tPHPExcel_Chart_DataSeries::GROUPING_CLUSTERED,  // plotGrouping\n\tarray(0),                                       // plotOrder\n\tarray(),                                        // plotLabel\n\tarray($categories),                             // plotCategory\n\tarray($values)                                  // plotValues\n);\n\t\t\n$series->setPlotDirection(PHPExcel_Chart_DataSeries::DIRECTION_COL);\n \n$series2 = new PHPExcel_Chart_DataSeries(\n\tPHPExcel_Chart_DataSeries::TYPE_LINECHART,       // plotType\n\tPHPExcel_Chart_DataSeries::GROUPING_STANDARD,  // plotGrouping\n\tarray(1),                                       // plotOrder\n\tarray(),                                        // plotLabel\n\tarray($categories),                             // plotCategory\n\tarray($values2),                                  // plotValues\n\ttrue,\n\tPHPExcel_Chart_DataSeries::STYLE_FILLED\n);\n \n\t\t\n$layout = new PHPExcel_Chart_Layout();\n$plotarea = new PHPExcel_Chart_PlotArea($layout, array($series,$series2));\n\t\t\n$chart = new PHPExcel_Chart('sample', null, null, $plotarea);\n \n$chart->setTopLeftPosition('D1');\n$chart->setBottomRightPosition('K15');\n\t\t\n$sheet->addChart($chart);\n \n \n \n \nWhat i change:\n \nFile: PHPExcel > Chart > DataSeries.php\n \nFunction getPlotValuesByIndex\n \nI force index always be 0\n \n\tpublic function getPlotValuesByIndex($index) {\n\t\t$index=0;\n\t\t$keys = array_keys($this->_plotValues);\n\t\tif (in_array($index,$keys)) {\n\t\t\treturn $this->_plotValues[$index];\n\t\t} elseif(isset($keys[$index])) {\n\t\t\treturn $this->_plotValues[$keys[$index]];\n\t\t}\n\t\treturn false;\n\t}\nWith this change, my chart render correctly",
+    "LastUpdatedDate": "2013-02-21T19:01:53.457-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2012-06-14T13:10:57.003-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Multiple Series Chart",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 18228
+  },
+  "FileAttachments": [],
+  "Comments": []
+}

@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "926563",
+    "ThreadId": "399353",
+    "Html": "\r\n<p>Hi there.</p>\r\n<p>&nbsp;</p>\r\n<p>I'm trying to create a horizontal stacked barchart. The labels are in Column 'A', the Values in Column 'D'.</p>\r\n<p>I use the following code to create the $series array: </p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>$series = <span style=\"color:blue\">array</span>();\r\n<span style=\"color:blue\">for</span> ($r = 2; $r &lt;= 7; $r&#43;&#43;)\r\n{\r\n    $label = <span style=\"color:blue\">new</span> PHPExcel_Chart_DataSeriesValues(<span style=\"color:#a31515\">'String'</span>, <span style=\"color:#a31515\">'A'</span>.$r,null,1);\r\n    $value = <span style=\"color:blue\">new</span> PHPExcel_Chart_DataSeriesValues(<span style=\"color:#a31515\">'Number'</span>, <span style=\"color:#a31515\">'D'</span>.$r,null,1);\r\n    $series[count($series)] = <span style=\"color:blue\">new</span> PHPExcel_Chart_DataSeries( PHPExcel_Chart_DataSeries::TYPE_BARCHART <br>                                                           , PHPExcel_Chart_DataSeries::GROUPING_STACKED   <span style=\"color:green\">// plotGrouping</span>\r\n\t\t\t\t                           , <span style=\"color:blue\">array</span>(0)                                      <span style=\"color:green\">// plotOrder</span>\r\n\t\t\t\t\t\t           , <span style=\"color:blue\">array</span>($label)                                 <span style=\"color:green\">// plotLabel</span>\r\n\t\t\t\t\t\t           , null                                          <span style=\"color:green\">// plotCategory</span>\r\n\t\t\t\t\t\t           , <span style=\"color:blue\">array</span>($value)                                 <span style=\"color:green\">// plotValues</span>\r\n\t\t\t\t\t\t\t   );<br>}<br>\r\n</pre>\r\n</div>\r\n<p></p>\r\n<p>&nbsp;Unfortunately the resulting plot is a) vertical and not horizontal, and b) every series has the same color.</p>\r\n<p>&nbsp;</p>\r\n<p>What is the correct way to create a horizontal stacked barchart?</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>mfg Tobias</p>\r\n",
+    "PostedDate": "2012-10-15T00:51:29.307-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "926587",
+    "ThreadId": "399353",
+    "Html": "<p>There is an example setting bar direction provided in /Tests</p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>$series-&gt;setPlotDirection(PHPExcel_Chart_DataSeries::DIRECTION_BAR);\r\n</pre>\r\n</div>\r\n<p>Can't understand how you're getting every series with the same colour though.</p>",
+    "PostedDate": "2012-10-15T02:00:25.453-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "926613",
+    "ThreadId": "399353",
+    "Html": "<p>Ah, yes, that puts it horizontally, thanks.</p>\r\n<p>Is there a way to set the colors manually?</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>mfg Tobias</p>",
+    "PostedDate": "2012-10-15T02:50:13.57-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "926647",
+    "ThreadId": "399353",
+    "Html": "<p>At the moment there isn't a way to set the colours manually: and I can't understand how it is setting all the colours to be identical.... the code written to the Excel xml chart file for every single chart says explicitly to use different default colours using c:varyColors</p>\r\n<p>Can you post a more complete version of your code so that I can run some tests</p>",
+    "PostedDate": "2012-10-15T04:46:47.837-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "926654",
+    "ThreadId": "399353",
+    "Html": "<p>Sure:</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>$series = <span style=\"color: blue;\">array</span>();\r\n<span style=\"color: blue;\">for</span> ($r = 11; $r &lt;= 16; $r++)\r\n{\r\n    $label = <span style=\"color: blue;\">new</span> PHPExcel_Chart_DataSeriesValues(<span style=\"color: #a31515;\">'String'</span>, <span style=\"color: #a31515;\">'A'</span>.$r,null,1);\r\n    $value = <span style=\"color: blue;\">new</span> PHPExcel_Chart_DataSeriesValues(<span style=\"color: #a31515;\">'Number'</span>, <span style=\"color: #a31515;\">'D'</span>.$r,null,1);\r\n    $series[count($series)] = <span style=\"color: blue;\">new</span> PHPExcel_Chart_DataSeries( PHPExcel_Chart_DataSeries::TYPE_BARCHART      \r\n                                                           , PHPExcel_Chart_DataSeries::GROUPING_STACKED   \r\n                                                           , <span style=\"color: blue;\">array</span>(0)                                      \r\n                                                           , <span style=\"color: blue;\">array</span>($label)                                 \r\n                                                           , null                                          \r\n                                                           , <span style=\"color: blue;\">array</span>($value)                                 \r\n                                                           );\r\n    $series[count($series)-1]-&gt;setPlotDirection(PHPExcel_Chart_DataSeries::DIRECTION_BAR);\r\n}\r\n\r\n$label = <span style=\"color: blue;\">new</span> PHPExcel_Chart_DataSeriesValues(<span style=\"color: #a31515;\">'String'</span>, <span style=\"color: #a31515;\">'A4'</span>,null,1);\r\n$value = <span style=\"color: blue;\">new</span> PHPExcel_Chart_DataSeriesValues(<span style=\"color: #a31515;\">'Number'</span>, <span style=\"color: #a31515;\">'G4'</span>,null,1);\r\n$series[count($series)] = <span style=\"color: blue;\">new</span> PHPExcel_Chart_DataSeries( PHPExcel_Chart_DataSeries::TYPE_BARCHART        \r\n                                                        , PHPExcel_Chart_DataSeries::GROUPING_STACKED    \r\n                                                        , <span style=\"color: blue;\">array</span>(0)                                       \r\n                                                        , <span style=\"color: blue;\">array</span>($label)                                 \r\n                                                        , null                                          \r\n                                                        , <span style=\"color: blue;\">array</span>($value)                                  \r\n                                                        );\r\n$series[count($series)-1]-&gt;setPlotDirection(PHPExcel_Chart_DataSeries::DIRECTION_BAR);\r\n\r\n\r\n$layout = <span style=\"color: blue;\">new</span> PHPExcel_Chart_Layout();\r\n$plotarea = <span style=\"color: blue;\">new</span> PHPExcel_Chart_PlotArea($layout,  $series) ;\r\n\r\n$legend = <span style=\"color: blue;\">new</span> PHPExcel_Chart_Legend(PHPExcel_Chart_Legend::POSITION_RIGHT, null, false);\r\n$chart = <span style=\"color: blue;\">new</span> PHPExcel_Chart( $title\r\n                           , null\r\n                           , $legend\r\n                           , $plotarea\r\n                           , true\r\n                           , 0\r\n                           , null\r\n                           , null\r\n                           );\r\n$chart-&gt;setTopLeftPosition(<span style=\"color: #a31515;\">'A'</span>.($mr+2));\r\n$chart-&gt;setBottomRightPosition(<span style=\"color: #a31515;\">'K'</span>.($mr+22));\r\n$sheet-&gt;addChart($chart);\r\n\r\n\r\n</pre>\r\n</div>\r\nHere's a screenshot of the result: http://user.math.uzh.ch/berner/files/bar_graph.png&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks.</p>\r\n<p>&nbsp;</p>\r\n<p>mfg Tobias</p>",
+    "PostedDate": "2012-10-15T05:04:31.593-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

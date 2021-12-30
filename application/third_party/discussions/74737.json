@@ -1,0 +1,194 @@
+[
+  {
+    "Id": "255807",
+    "ThreadId": "74737",
+    "Html": "<p>greetings, I have the following problem:  <br> <br> I have a format in Excel 2003 workbook with formulas, styles, graphics and other elements. to open the same, and intention to save a value in a cell determianda, I get the following error</p>\r\n<p>&nbsp;</p>\r\n<p><br>Fatal error: Uncaught exception 'Exception' with message 'Syntax error: , lookahead: , current char: 0' in C:\\wamp\\www\\Excel\\PHPExcel\\Writer\\Excel5\\Parser.php:1406 Stack trace: #0 C:\\wamp\\www\\Excel\\PHPExcel\\Writer\\Excel5\\Parser.php(1312): PHPExcel_Writer_Excel5_Parser-&gt;_fact() #1 C:\\wamp\\www\\Excel\\PHPExcel\\Writer\\Excel5\\Parser.php(1272): PHPExcel_Writer_Excel5_Parser-&gt;_term() #2 C:\\wamp\\www\\Excel\\PHPExcel\\Writer\\Excel5\\Parser.php(1220): PHPExcel_Writer_Excel5_Parser-&gt;_expression() #3 C:\\wamp\\www\\Excel\\PHPExcel\\Writer\\Excel5\\Parser.php(1207): PHPExcel_Writer_Excel5_Parser-&gt;_condition() #4 C:\\wamp\\www\\Excel\\PHPExcel\\Writer\\Excel5\\Worksheet.php(965): PHPExcel_Writer_Excel5_Parser-&gt;parse(''% Humedad'!$A$...') #5 C:\\wamp\\www\\Excel\\PHPExcel\\Writer\\Excel5\\Worksheet.php(484): PHPExcel_Writer_Excel5_Worksheet-&gt;_writeFormula(6, 3, '='% Humedad'!$A...', 16) #6 C:\\wamp\\www\\Excel\\PHPExcel\\Writer\\Excel5\\Workbook.php(492): PHPExcel_Writer_Excel5_Worksheet-&gt;close() #7 C:\\wamp\\www\\Excel\\PHPExcel\\Writer\\Excel5\\Workbook.php(233): PHPExcel_W in C:\\wamp\\www\\Excel\\PHPExcel\\Writer\\Excel5\\Parser.php on line 1406</p>\r\n<p>&nbsp;</p>\r\n<p>I wonder if I can do this program with the library phpexcel or not supported I want to do.  <br> <br> PD. I tried with a blank file (no formulas, no styles or graphics), which contains only text and numeric values, and if I save some value in a specific cell. <br> <br> Annex also code that uses</p>\r\n<p>&nbsp;</p>\r\n<p>&lt;?php<br>require (&quot;PHPExcel.php&quot;);<br>require (&quot;PHPExcel/Writer/Excel5.php&quot;);<br>require (&quot;PHPExcel/IOFactory.php&quot;);<br><br><br>$objReader = PHPExcel_IOFactory::createReader('Excel5');<br>$objReader-&gt;setReadDataOnly(true);<br><br>$objPHPExcel = $objReader-&gt;load(&quot;asignacion.xls&quot;);<br>$objWorksheet = $objPHPExcel-&gt;getActiveSheet(0);<br><br>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow(1, 11, 'prueba');<br><br>$objWriter = new PHPExcel_Writer_Excel5($objPHPExcel);<br>$objWriter-&gt;save(&quot;asignacion.xls&quot;);<br><br>?&gt;</p>",
+    "PostedDate": "2009-11-10T19:21:21.357-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "255814",
+    "ThreadId": "74737",
+    "Html": "<p>This looks like a bug in the formula parser for Excel5 writer.</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=7895\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=7895</a></p>\r\n<p>Can you show us the file asignacion.xls so we can check? Please upload here:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10749\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10749</a></p>",
+    "PostedDate": "2009-11-10T19:38:32.85-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "256212",
+    "ThreadId": "74737",
+    "Html": "<p>I tried this exactly the same as you:</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$objReader = PHPExcel_IOFactory::createReader(<span style=\"color:#A31515\">'Excel5'</span>);\r\n$objReader-&gt;setReadDataOnly(true);\r\n\r\n$objPHPExcel = $objReader-&gt;load(<span style=\"color:#A31515\">&quot;asignacion.xls&quot;</span>);\r\n$objWorksheet = $objPHPExcel-&gt;getActiveSheet(0);\r\n\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow(1, 11, <span style=\"color:#A31515\">'prueba'</span>);\r\n\r\n$objWriter = <span style=\"color:Blue\">new</span> PHPExcel_Writer_Excel5($objPHPExcel);\r\n$objWriter-&gt;save(<span style=\"color:#A31515\">&quot;asignacion-saved.xls&quot;</span>);\r\n</pre>\r\n</div>\r\n<p><br>But it worked fine as you can see:<br><br> <a href=\"http://img130.imageshack.us/img130/4813/ss20091112072500.png\"><img src=\"http://img130.imageshack.us/img130/4813/ss20091112072500.th.png\" border=0 alt=\"\"></a> <br><br><a href=\"http://phpexcel.codeplex.com/Project/Download/AttachmentDownload.ashx?ProjectName=PHPExcel&WorkItemId=10749&FileAttachmentId=3534\">asignacion-saved.xls</a><br><br>Why don't I get the error? Is it possible that you renamed a sheet since you tried originally? Also, what version of PHPExcel are you using?</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-11-11T22:27:08.82-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "259679",
+    "ThreadId": "74737",
+    "Html": "<p><span id=\"result_box\"><span style=\"background-color:#ffffff\" title=\"gracias por tu pronta respuesta, en verdad intente con el mismo archivo y efectivamente no me dio error.\">thanks for your prompt response, really try with the same file and actually gave me no error. </span><span style=\"background-color:#ffffff\" title=\"Ahora bien, intentando con ese mismo archivo, pero incluyendo las imagenes reales, las cuales habia suprimido antes de enviartelo, me da el mismo error.\">Now, trying with the same file, but including real images, which had suppressed before send it, I get the same error.<br><br></span><span style=\"background-color:#ffffff\" title=\"Te envio nuevamente el archivo con las imagenes originales.\">You send the file again with the original images.<br><br></span><span style=\"background-color:#ffffff\" title=\"Por cierto, como se que versión de PHPExcel estoy usando?\">By the way, as that PHPExcel version am I using? </span><span style=\"background-color:#ffffff\" title=\"cual es la última?\">which is the last?</span></span></p>",
+    "PostedDate": "2009-11-22T19:29:27.99-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "259699",
+    "ThreadId": "74737",
+    "Html": "<p>Strange, I still don't get any errors. I tried this using latest source code:<br><br></p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$excel = PHPExcel_IOFactory::load(<span style=\"color:#A31515\">'asignacion.xls'</span>);\r\n\r\n$writer = PHPExcel_IOFactory::createWriter($excel, <span style=\"color:#A31515\">'Excel5'</span>);\r\n$writer-&gt;save(<span style=\"color:#A31515\">'asignacion-saved-2.xls'</span>);\r\n</pre>\r\n</div>\r\n<p><br>Look:</p>\r\n<p><a href=\"http://img33.imageshack.us/img33/728/ss20091123062730.png\"><img src=\"http://img33.imageshack.us/img33/728/ss20091123062730.th.png\" border=0 alt=\"\"></a></p>\r\n<p><a href=\"http://phpexcel.codeplex.com/Project/Download/AttachmentDownload.ashx?ProjectName=PHPExcel&WorkItemId=10749&FileAttachmentId=3559\">asignacion-saved-2.xls</a><br><br>Are you using latest source code? Here is latest source code<br><br><a href=\"http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx\">http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx</a></p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-11-22T21:32:41.557-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "259870",
+    "ThreadId": "74737",
+    "Html": "<p><span id=\"result_box\"><span title=\"actualice la version de PHPExcel por la 29473, del link que me enviaste, y ya no me da el error.\">PHPExcel updated version of the 29,473, the link you sent me, and no longer gives me the error.<br><br></span><span title=\"ahora bien, al momento de ejecutar el codigo, efectivamente me escribe en la celda que le indico, pero se pierde el formato original (entre este el logo de la empresa).\">however, when you run the code, I really writes that tells the cell but loses the original formatting (including the logo of the company). </span><span title=\"Como haria para que se conserve el formato tal cual?\">How would you get the formatting is retained as is?<br><br></span><span title=\"a continuación, el codigo que utilizo:\">then the code I use:<br></span></span></p>\r\n<p>$objReader = PHPExcel_IOFactory::createReader('Excel5');<br>$objReader-&gt;setReadDataOnly(true);<br><br>$objPHPExcel = $objReader-&gt;load(&quot;asignacion.xls&quot;);<br>$objWorksheet = $objPHPExcel-&gt;getActiveSheet(0);<br><br>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow(1, 11, 'prueba');<br><br>$objWriter = new PHPExcel_Writer_Excel5($objPHPExcel);<br>$objWriter-&gt;save(&quot;asignacion-saved.xls&quot;);<br><span id=\"result_box\"><span title=\"a continuación, el codigo que utilizo:\"><br></span><span title=PD.>PD. </span><span title=\"no conozco otra forma para que se mantenga el formato original, si hay otro codigo, y si esta en tu posibilidad, te agradezco que me lo facilites.\">I know no other way to maintain the original format, if there is another code, and if your chance, I appreciate what I facilites.<br><br></span><span title=\"Gracias de antemano\">Thanks in advance</span></span></p>",
+    "PostedDate": "2009-11-23T09:36:00.71-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "260115",
+    "ThreadId": "74737",
+    "Html": "<p>The reason why you are losing styles is because you have this line:</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$objReader-&gt;setReadDataOnly(true);\r\n</pre>\r\n</div>\r\n<p>Try to remove it and you should be able to see styles and images.</p>",
+    "PostedDate": "2009-11-23T23:37:34.047-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "260332",
+    "ThreadId": "74737",
+    "Html": "<p><span id=\"result_box\"><span title=\"gracias por tu respuesta, quite la linea y mantuvo el formato.\">thanks for your reply, remove the line and kept the format.<br><br></span><span title=\"ahora, con el mismo codigo, pero con este archivo (formato.xls), se queda colgado el navegador al ejecutar el programa.\">Now, with the same code, but with this file (formato.xls), it hangs the browser to run the program.<br><br></span><span title=\"intente dejando sólo las dos primeras hojas y funcionó, pero la segunda perdio el estilo.\">try leaving only the first two leaves and ran, but lost the second style.<br><br></span><span title=\"Cual podria ser el inconveniente ahora?\">What could be the problem now? </span><span title=\"aprovecho la oportunidad y subi el archivo en cuestion.\">take the opportunity and went up the file in question.</span></span></p>",
+    "PostedDate": "2009-11-24T12:06:54.38-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "261034",
+    "ThreadId": "74737",
+    "Html": "<p>I can verify the bug. Will investigate tomorrow and post back here.</p>",
+    "PostedDate": "2009-11-26T20:05:15.473-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "261246",
+    "ThreadId": "74737",
+    "Html": "<p><span id=\"result_box\"><span style=\"background-color:#ffffff\" title=\"ok, te lo agradecería.\">ok, I appreciate it. </span><span style=\"background-color:#ebeff9\" title=\"en resumen, necesito escribir ciertos valores, en ciertas celdas especificas, en cada una de las hojas del archivo (formato.xls) que te envie, sin que se pierda el formato original del mismo.\">In short, I need to write certain values in certain specific cells in each leaf of the file (formato.xls) you send, without losing the original format of it.</span></span></p>",
+    "PostedDate": "2009-11-27T18:06:15.77-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "277630",
+    "ThreadId": "74737",
+    "Html": "<p><span id=\"result_box\"><span title=\"Saludos koyama, disculpa que te moleste nuevamente.\">Koyama Greetings, sorry to bother you again. </span><span title=\"Pudiste investigar algo sobre el error de cual te comente la ultima vez relacionado a la discucion 74737, de la cual quedaste en responderme al respecto?\">You could investigate anything about the error that you said last time related to the discucion 74,737, which didst answer me this?</span></span></p>",
+    "PostedDate": "2010-01-15T09:03:17.567-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "278111",
+    "ThreadId": "74737",
+    "Html": "<p>Bug finally discovered and fixed:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=11528\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=11528</a></p>",
+    "PostedDate": "2010-01-17T01:53:25.553-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "284001",
+    "ThreadId": "74737",
+    "Html": "<p><span id=\"result_box\"><span style=\"background-color:#ffffff\" title=\"Saludos koyama, hice la prueba con los cambios que indican en el link (http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=11528) que me indicastes y me arrojo el error siguiente:\">Koyama Greetings, I experimented with changes indicated in the link (http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=11528) indicastes me and throw me the following error: <br> <br></span><span style=\"background-color:#ffffff\" title=\"Fatal error: Call to undefined method PHPExcel_Shared_Escher_DgContainer_SpgrContainer::setDgContainer() in D:\\wamp\\www\\Formato_Suelo_Excel\\PHPExcel\\Reader\\Excel5\\Escher.php on line 451\">Fatal error: Call to undefined method PHPExcel_Shared_Escher_DgContainer_SpgrContainer: setDgContainer () in D: \\ wamp \\ www \\ Formato_Suelo_Excel \\ PHPExcel \\ Reader \\ Excel5 \\ Escher.php on line 451 <br> <br></span><span style=\"background-color:#ffffff\" title=\"Estaba utilizando la libreria en su version 29473 y decidi actualizarla a la 38617, que es la ultima a la fecha, la cual tiene la correccion planteada en el link anterior.\">I was using the library in his version and decided to update 29,473 to 38,617, which is the last to date, which has raised the correction on the above link. </span><span style=\"background-color:#ffffff\" title=\"Ahora bien, al ejecutar el codigo y el archivo (formato.xls), que ya conoces, se sigue quedando colgada la aplicacion.\">However, when running the code and the file (formato.xls), you already know, it remains to crash the application. <br> <br></span><span style=\"background-color:#ffffff\" title=\"Alguna otra sugerencia?.\">Any other suggestions?. </span><span style=\"background-color:#ffffff\" title=\"Gracias nuevamente y disculpa porque en realidad se que te he molestado varias veces en el mismo tema.\">Thanks again and sorry because I've actually bothered several times on the same topic.</span></span></p>",
+    "PostedDate": "2010-01-31T12:39:33.327-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "284080",
+    "ThreadId": "74737",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>guarus wrote:</strong><br>\r\n<p><span id=\"result_box\"><span style=\"background-color:#ffffff\" title=\"Saludos koyama, hice la prueba con los cambios que indican en el link (http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=11528) que me indicastes y me arrojo el error siguiente:\">Koyama Greetings, I experimented with changes indicated in the link (http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=11528) indicastes me and throw me the following error: <br> <br></span><span style=\"background-color:#ffffff\" title=\"Fatal error: Call to undefined method PHPExcel_Shared_Escher_DgContainer_SpgrContainer::setDgContainer() in D:\\wamp\\www\\Formato_Suelo_Excel\\PHPExcel\\Reader\\Excel5\\Escher.php on line 451\">Fatal error: Call to undefined method PHPExcel_Shared_Escher_DgContainer_SpgrContainer: setDgContainer () in D: \\ wamp \\ www \\ Formato_Suelo_Excel \\ PHPExcel \\ Reader \\ Excel5 \\ Escher.php on line 451 <br> <br></span><span style=\"background-color:#ffffff\" title=\"Estaba utilizando la libreria en su version 29473 y decidi actualizarla a la 38617, que es la ultima a la fecha, la cual tiene la correccion planteada en el link anterior.\">I was using the library in his version and decided to update 29,473 to 38,617, which is the last to date, which has raised the correction on the above link. </span><span style=\"background-color:#ffffff\" title=\"Ahora bien, al ejecutar el codigo y el archivo (formato.xls), que ya conoces, se sigue quedando colgada la aplicacion.\">However, when running the code and the file (formato.xls), you already know, it remains to crash the application. <br> <br></span><span style=\"background-color:#ffffff\" title=\"Alguna otra sugerencia?.\">Any other suggestions?. </span><span style=\"background-color:#ffffff\" title=\"Gracias nuevamente y disculpa porque en realidad se que te he molestado varias veces en el mismo tema.\">Thanks again and sorry because I've actually bothered several times on the same topic.</span></span></p>\r\n</blockquote>\r\n<p>I was quite sure it was fixed, but apparently not. Can you show the exact code you are using to produce this error?</p>",
+    "PostedDate": "2010-01-31T16:48:18.073-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "284100",
+    "ThreadId": "74737",
+    "Html": "<p><span id=\"result_box\"><span title=\"Este es el codigo: el cual, es el mismo que he utilizado a lo largo de este tema.\">This is the code:</span></span></p>\r\n<p>&lt;?php<br>&nbsp;&nbsp; require (&quot;PHPExcel.php&quot;);<br>&nbsp;&nbsp; require (&quot;PHPExcel/Writer/Excel5.php&quot;);<br>&nbsp;&nbsp; require (&quot;PHPExcel/IOFactory.php&quot;);<br>&nbsp; &nbsp;<br>&nbsp;&nbsp; $objReader = PHPExcel_IOFactory::createReader('Excel5');<br>&nbsp;&nbsp; &nbsp;<br>&nbsp;&nbsp; $objPHPExcel = $objReader-&gt;load(&quot;formato.xls&quot;);<br>&nbsp;&nbsp; $objWorksheet = $objPHPExcel-&gt;getActiveSheet(0);<br>&nbsp;&nbsp; &nbsp;<br>&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow(3,7, 'prueba');<br>&nbsp; &nbsp;<br>&nbsp;&nbsp; $objWriter = new PHPExcel_Writer_Excel5($objPHPExcel);<br>&nbsp;&nbsp; $objWriter-&gt;save(&quot;asignacion-saved.xls&quot;);<br><br>?&gt;</p>\r\n<p><span id=\"result_box\"><span title=\"Este es el codigo: el cual, es el mismo que he utilizado a lo largo de este tema.\">which is the same that I used throughout this topic. </span><span title=\"como te comente baje la versión 38617 de la libreria y se sigue quedando colgada la aplicación cuando ejecuto el mismo.\">comment as you go down version of the library and 38,617 were still being hung application when I run the same. </span><span title=\"Estoy utilizando el mismo archivo (formato.xls) que lo vuelvo a subir de todas formas.\">I am using the same file (formato.xls) that goes up anyway.</span></span></p>\r\n<p><span id=\"result_box\"><span title=PD.>PD. </span><span title=\"el error que te indique me daba con la version 29473 de la libreria, pero me dejo de salir al bajar la version 38617, con la salvedad de que ahora solo se queda colgada la aplicación con el archivo indicado.\">the error that tells you the version I did with 29,473 of the library, but I stopped going out to get the 38,617 version, except that now only the application is hung with the specified file.</span></span></p>",
+    "PostedDate": "2010-01-31T19:26:13.437-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "284595",
+    "ThreadId": "74737",
+    "Html": "<p>Bug verified with the new <span style=\"font-family:Courier New\">formato.xls</span> file. The problem is a  different one this time.</p>\r\n<p>Can you try with latest source code in  one hour:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/SourceControl/list/changesets\">http://phpexcel.codeplex.com/SourceControl/list/changesets</a></p>",
+    "PostedDate": "2010-02-02T00:27:39.633-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "284988",
+    "ThreadId": "74737",
+    "Html": "<p><span id=\"result_box\"><span style=\"background-color:#ffffff\" title=\"gracias koyama, efectivamente se solvento el problema del bucle infinito en cuestion, pero note que cuando se asignan valores a las celdas, bien sea dentro de una misma o hoja o en varias, se pierde el formato (estilo) original, o al menos en\">koyama thanks, actually solve the problem of infinite loop in question, but note that when assigning values to cells, either intra-or sheet or several, you lose the format (style) original, or at least </span><span style=\"background-color:#ffffff\" title=\"mi caso, aparte de no escribir en el resto de las celdas indicadas.\">my case, apart from not write in the rest of the cells indicated.<br></span><span title=\"La perdida del formato es un error?, el no escribir mencionado es un error?\">The loss of the format is bug?, Not writing above is bug? </span><span style=\"background-color:#ffffff\" title=\"aunado a ello me da un mensaje de referencia circular, que no se si esta asociado a todo lo anterior, pero que no me aparece al utilizar otros formatos mucho mas simples.\">coupled to it gives me a circular reference message, if this is not associated with the above, but I do not appear to use other formats much more simple.<br><br></span><span title=PD.>PD. </span><span style=\"background-color:#ffffff\" title=\"anexo el codigo, que en esencia, sigue siendo el mismo.\">Annex to the code, which essentially remains the same</span></span><span id=\"result_box\"><span title=\"anexo el codigo, que en esencia, sigue siendo el mismo, al igual que el archivo formato.xls.\">, like </span></span>formato.xls<span id=\"result_box\"><span title=\"anexo el codigo, que en esencia, sigue siendo el mismo, al igual que el archivo formato.xls.\"> file.</span></span></p>\r\n<p>&lt;?php<br>&nbsp;&nbsp; require (&quot;PHPExcel.php&quot;);<br>&nbsp;&nbsp; require (&quot;PHPExcel/Writer/Excel5.php&quot;);<br>&nbsp;&nbsp; require (&quot;PHPExcel/IOFactory.php&quot;);<br>&nbsp; &nbsp;<br>&nbsp;&nbsp; $objReader = PHPExcel_IOFactory::createReader('Excel5');<br>&nbsp;&nbsp; &nbsp;<br>&nbsp;&nbsp; $objPHPExcel = $objReader-&gt;load(&quot;formato.xls&quot;);<br>&nbsp;&nbsp; $objWorksheet = $objPHPExcel-&gt;getActiveSheet(0); //humedad<br>&nbsp;&nbsp; &nbsp;<br>&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow(3,7, 'prueba');<br>&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow(1,19, '3');<br>&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow(2,19, '25');<br>&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow(3,19, '33');<br>&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow(4,19, '28');<br>&nbsp; &nbsp;<br>&nbsp;&nbsp; $objWorksheet = $objPHPExcel-&gt;getActiveSheet(1); // gr gruesa<br>&nbsp;&nbsp; &nbsp;<br>&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow(10,17, '12');<br>&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow(10,18, '9');<br>&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow(10,19, '7');<br><br>&nbsp;&nbsp; $objWorksheet = $objPHPExcel-&gt;getActiveSheet(3); // proctor<br>&nbsp;&nbsp; &nbsp;<br>&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow(2,16, '3');<br>&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow(10,34, '300');<br>&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow(10,137, '26');<br>&nbsp; &nbsp;<br>&nbsp;&nbsp; $objWriter = new PHPExcel_Writer_Excel5($objPHPExcel);<br>&nbsp;&nbsp; $objWriter-&gt;save(&quot;asignacion-saved.xls&quot;);<br><br>?&gt;</p>\r\n<p><span><span style=\"background-color:#ffffff\" title=\"anexo el codigo, que en esencia, sigue siendo el mismo.\"><br></span></span></p>",
+    "PostedDate": "2010-02-02T14:26:29.257-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "313735",
+    "ThreadId": "74737",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>guarus wrote:</strong><br>\r\n<p><span id=\"result_box\"><span style=\"background-color:#ffffff\" title=\"gracias koyama, efectivamente se solvento el problema del bucle infinito en cuestion, pero note que cuando se asignan valores a las celdas, bien sea dentro de una misma o hoja o en varias, se pierde el formato (estilo) original, o al menos en\">koyama thanks, actually solve the problem of infinite loop in question, but note that when assigning values to cells, either intra-or sheet or several, you lose the format (style) original, or at least </span><span style=\"background-color:#ffffff\" title=\"mi caso, aparte de no escribir en el resto de las celdas indicadas.\">my case, apart from not write in the rest of the cells indicated.<br></span><span title=\"La perdida del formato es un error?, el no escribir mencionado es un error?\">The loss of the format is bug?, Not writing above is bug? </span><span style=\"background-color:#ffffff\" title=\"aunado a ello me da un mensaje de referencia circular, que no se si esta asociado a todo lo anterior, pero que no me aparece al utilizar otros formatos mucho mas simples.\">coupled to it gives me a circular reference message, if this is not associated with the above, but I do not appear to use other formats much more simple.</span></span></p>\r\n</blockquote>\r\n<p>Bug identified.</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=11850\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=11850</a></p>\r\n<p>Try with latest source code:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/SourceControl/list/changesets\">http://phpexcel.codeplex.com/SourceControl/list/changesets</a></p>",
+    "PostedDate": "2010-02-20T19:17:21.997-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "442973",
+    "ThreadId": "74737",
+    "Html": "<p><span id=\"result_box\"><span style=\"background-color:#ebeff9\" title=\"saludos, con la corrección anterior ahora si guarda y no se pierde el formato (estilo) original, de forma local.\">greetings <a id=\"ctl00_ctl00_MasterContent_Content_PostRepeater_ctl34_UserNameLink\" href=\"http://www.codeplex.com/site/users/view/koyama\">koyama</a>, with the correction above if you save now and do not lose the format (style) original, locally. </span><span style=\"background-color:#fff\" title=\"Ahora courre lo siguiente:\">Now courre the following: <br><br></span><span style=\"background-color:#fff\" title=\"Al subir el programa en el servidor y ejecutarlo me da el siguiente error:\">Going up the program on the server and run it gives me the following error: <br><br></span><span style=\"background-color:#fff\" title=\"Catchable fatal error: Object of class PHPExcel_RichText_TextElement could not be converted to string in\">Catchable fatal error: Object of class PHPExcel_RichText_TextElement Could not be converted to string in <br></span><span style=\"background-color:#fff\" title=\"C:\\wamp\\www\\kriel\\PHPExcel\\Calculation.php on line 2374\">C: \\ wamp \\ www \\ Kriel \\ PHPExcel \\ Calculation.php on line 2374 <br><br></span><span style=\"background-color:#fff\" title=\"Pero al ejecutarlo de forma local, no da ningún error y realiza perfectamente la escritura en excel.\">But when run locally, it gives no error and performs perfectly in excel writing. </span><span style=\"background-color:#fff\" title=\"La única diferencia que veo, es que en la computadora local tengo windows XP SP 2 y office 2003, mientras que en el servidor esta windows server 2008 SP 1 y office 2007.\">The only difference I see is that on the local computer I have Windows XP SP2 and Office 2003, while the server is Windows Server 2008 SP 1 and Office 2007. </span><span style=\"background-color:#fff\" title=\"¿Tendría algo que ver la version del sistema operativo y/o del office?\">Would it have anything to do with the version of operating system and / or office? </span><span style=\"background-color:#fff\" title=\"o alguna configuración adicional a nivel del programa o libreria\">or some additional configuration at the program or library <br><br></span><span style=\"background-color:#fff\" title=PD.>PD. </span><span style=\"background-color:#fff\" title=\"estoy utilizando la version 48790 de la libreria, que es la última a la fecha.\">I am using the version <span style=\"background-color:#fff\" title=\"estoy utilizando la version 48790 de la libreria, que es la última a la fecha.\">48790 </span>of the library, which is the last to date. </span><span style=\"background-color:#fff\" title=\"Seguidamente el codigo utilizado en cuestión, el archivo de excel sigue siendo el mismo también (formato.xls).\">Then use the code in question, the excel file remains the same too (formato.xls).</span></span></p>\r\n<p><span><span style=\"background-color:#fff\" title=\"Seguidamente el codigo utilizado en cuestión, el archivo de excel sigue siendo el mismo también (formato.xls).\">&nbsp;</span></span></p>\r\n<p>&lt;?php&nbsp; <br>&nbsp;&nbsp; require (&quot;PHPExcel.php&quot;);<br>&nbsp;&nbsp; require (&quot;PHPExcel/Writer/Excel5.php&quot;);<br>&nbsp;&nbsp; require (&quot;PHPExcel/IOFactory.php&quot;);<br>&nbsp;&nbsp; <br>&nbsp;&nbsp; $objReader = PHPExcel_IOFactory::createReader('Excel5');<br>&nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp; $objPHPExcel = $objReader-&gt;load(&quot;formato.xls&quot;);<br>&nbsp;&nbsp; $objWorksheet = $objPHPExcel-&gt;setActiveSheetIndex(0); //humedad<br>&nbsp;&nbsp; <br>&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(&quot;D7&quot;, &quot;prueba&quot;);<br>&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(&quot;D8&quot;, &quot;escritura&quot;);<br>&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(&quot;D9&quot;, &quot;casa&quot;);<br>&nbsp;&nbsp; <br>&nbsp;&nbsp; $objWorksheet = $objPHPExcel-&gt;setActiveSheetIndex(1); // gr gruesa<br>&nbsp;&nbsp; <br>&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(&quot;K17&quot;, &quot;12&quot;);<br>&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(&quot;K18&quot;, &quot;9&quot;);<br>&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(&quot;K19&quot;, &quot;7&quot;);&nbsp;&nbsp;&nbsp;</p>\r\n<p>&nbsp;&nbsp; $objWorksheet = $objPHPExcel-&gt;setActiveSheetIndex(3); // proctor<br>&nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(&quot;C16&quot;, &quot;3&quot;);<br>&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(&quot;K34&quot;, &quot;300&quot;);<br>&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(&quot;K37&quot;, &quot;26&quot;);&nbsp;&nbsp;&nbsp; <br>&nbsp;&nbsp; <br>&nbsp;&nbsp; $objWorksheet = $objPHPExcel-&gt;setActiveSheetIndex(4); // peso unitario<br>&nbsp;&nbsp; <br>&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(&quot;F15&quot;, &quot;3&quot;);<br>&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(&quot;F16&quot;, &quot;300&quot;);<br>&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(&quot;F17&quot;, &quot;26&quot;);<br>&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(&quot;F18&quot;, &quot;99&quot;);<br>&nbsp;&nbsp; <br>&nbsp;&nbsp; $objWriter = new PHPExcel_Writer_Excel5($objPHPExcel);<br>&nbsp;&nbsp; $objWriter-&gt;save(&quot;asignacion-saved.xls&quot;);&nbsp;&nbsp;</p>\r\n<p>?&gt;</p>",
+    "PostedDate": "2010-05-14T09:35:10.98-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "445390",
+    "ThreadId": "74737",
+    "Html": "koyama good day, sorry to bother you again, but you could inquire about the last error (May 14 at 4:35 PM) you comment? \r\n",
+    "PostedDate": "2010-05-20T06:16:53.867-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "446927",
+    "ThreadId": "74737",
+    "Html": "<p>Problem solved....</p>\r\n<p>The problem was in the template file.</p>\r\n<p>I removed a complex formula from the template and voila. It works.</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-05-24T21:43:53.773-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "447083",
+    "ThreadId": "74737",
+    "Html": "<p><span id=\"result_box\"><span style=\"background-color:#ebeff9\">pkhera thanks. </span><span style=\"background-color:#fff\">Now, could you tell me where in the code and / or the library must correct the error?</span></span></p>",
+    "PostedDate": "2010-05-25T06:39:11.917-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "452036",
+    "ThreadId": "74737",
+    "Html": "<p>pkhera discomfort apology, but still have not told me what I have to modify or remove in the library to work and not give me the error that post on May 14 at 4:35 PM.</p>\r\n<p><span id=\"result_box\"><span>thanks  in advance</span></span></p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-06-05T12:15:12.307-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "472653",
+    "ThreadId": "74737",
+    "Html": "Greetings to all developers and users of the library PHPExcel.\r\n\r\nSome time ago I had post an error when up and run an application on the server, since Local mode works without problems. This error is associated with the number of discussions 74 737 (Error When recording in a format with formulas, styles and graphics), specifically on May 14 at 24:05.\r\n\r\nThe detail is that I was told that the problem had already been resolved (pkhera user), however most did not see the solution, and even lowering the latest version of the library, thinking I had the fix, the problem persists.\r\n\r\nIf someone could tell me corrections that I do to solve the problem really appreciate it because I had to link multiple excel sheets, being able to do directly with the library, brought me several problems with data and formulas that there is contemplating , which I address each time they use the program.\r\n\r\nOn the other hand, do not think it necessary to say that this will also benefit me, the users of this library, coupled with the fact that this entails feedback for everyone.",
+    "PostedDate": "2010-07-26T07:04:46.407-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

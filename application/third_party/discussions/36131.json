@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "119875",
+    "ThreadId": "36131",
+    "Html": "Hi to all! <br>\r\nI created a script to convert excel data in MYSQL data using this marvellous class. But every time I upload an excel file, I found 2 empty rows at the end of the array with data. Is it normal? If this is a usual behaviour of the class, I will use a &quot;for&quot; insted a &quot;foreach&quot; to publish a report of the inserted file so as to remove the last 2 rows... <br>\r\n<br>\r\nThanks you<br>\r\nGianluca <br>\r\n",
+    "PostedDate": "2008-09-21T09:30:01.06-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "119915",
+    "ThreadId": "36131",
+    "Html": "I think this isn't normal behavior. But it might be the case that some ”empty” row aren't as empty as it looks. For example if you change the row height or specify a specific style in an empty cell, then the row counts as non-empty.<br>\r\n<br>\r\nYou may try to delete some of the  ”empty” rows and see if it makes a difference. Alternatively, you may use <code>setReadDataOnly(true)</code> for the reader to ignore styling. Then styles will not be loaded and <code>getHighestRow()</code> for the worksheet will return the highest row containing data.<br>\r\n",
+    "PostedDate": "2008-09-21T16:11:58.283-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "132880",
+    "ThreadId": "36131",
+    "Html": "Unfortunately, your suggest doesn't work and I don't know why! :-|<br>\r\n<br>\r\nThis is the method that I use to instance the class after the upload<br>\r\n<br>\r\n[PHP]<br>\r\nprivate function caricaFile(){<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;/** Include path **/<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;set_include_path('include/class/');<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;/** PHPExcel */<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;include 'PHPExcel.php';<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;/** PHPExcel_IOFactory */<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;include 'PHPExcel/IOFactory.php';<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;//estraggo l'estensione del file<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$explode_nome_file = explode(&quot;.&quot;, $this-&gt;nome_file);<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$estensione = $explode_nome_file[1];<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;//istanzio l'oggetto che dovrà accedere al file excel<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;switch ($estensione){<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;case &quot;xls&quot;:<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$objReader = PHPExcel_IOFactory::createReader(&quot;Excel5&quot;);<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;break;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;case &quot;xlsx&quot;:<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$objReader = PHPExcel_IOFactory::createReader(&quot;Excel2007&quot;);<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;break;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;default:<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;//inserire l'errore del file sbagliato<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;break;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;//carico il file<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$this-&gt;objPHPExcel = $objReader-&gt;load($this-&gt;nome_file);<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;//attivo il primo foglio<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$this-&gt;selezionaFoglio(0);<br>\r\n&nbsp;&nbsp; &nbsp;}<br>\r\n<br>\r\n&nbsp;&nbsp;&nbsp; private function selezionaFoglio($numero){<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$this-&gt;foglio = $this-&gt;objPHPExcel-&gt;getSheet($numero);<br>\r\n&nbsp;&nbsp; &nbsp;}<br>\r\n[/PHP]<br>\r\nand this is the method where the getHighestRow() function makes the mistake:<br>\r\n<br>\r\n[PHP]&nbsp; <br>\r\nprivate function estraiDati(){<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;//verifico l'ultima riga compilata del file excel<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$ultimaRiga = $this-&gt;objPHPExcel-&gt;getActiveSheet()-&gt;getHighestRow(); <br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; <br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for ($i=0; $i&lt;=$ultimaRiga; $i++){<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //do something<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>\r\n}<br>\r\n[/PHP]<br>\r\n<br>\r\nThank you! <br>\r\nGianluca <br>\r\n<br>\r\n<br>\r\n<br>\r\n",
+    "PostedDate": "2008-11-16T02:12:04.5-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "132906",
+    "ThreadId": "36131",
+    "Html": "Did you try this:<br>\r\n<br>\r\n<code>\r\nswitch ($estensione){<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;case &quot;xls&quot;:<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$objReader = PHPExcel_IOFactory::createReader(&quot;Excel5&quot;);<br>\r\n</code><code>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; $objReader-&gt;setReadDataOnly(true);</code><br>\r\n<code>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;break;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;case &quot;xlsx&quot;:<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$objReader = PHPExcel_IOFactory::createReader(&quot;Excel2007&quot;);<br>\r\n</code><code>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; $objReader-&gt;setReadDataOnly(true);</code><br>\r\n<code></code><code>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; break;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;default:<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;//inserire l'errore del file sbagliato<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;break;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}<br>\r\n</code>\r\n",
+    "PostedDate": "2008-11-16T07:01:42.503-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "133011",
+    "ThreadId": "36131",
+    "Html": "Ok, I found my mistakes (yes I tried your code before write here)! <br>\r\n<br>\r\nFirstly, the &quot;for&quot; cicle starts from 0 while it should start from 1.<br>\r\n<br>\r\nSecondly, I made a method that check if the excel file contains labels and eventually shifts the pointer to the following row. In this way I can't use getHighestRow() but getHighestRow()-1!<br>\r\n<br>\r\nThank you for your patience<br>\r\nGianluca \r\n",
+    "PostedDate": "2008-11-17T01:01:19.917-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

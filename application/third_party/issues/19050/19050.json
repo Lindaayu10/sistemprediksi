@@ -1,0 +1,39 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hi !!\n\nI was giving an exception when trying to load my last sheet. It told me the sheet exceed the limit.\n\nPHPExcel.php:286\n\t\t\tthrow new Exception(\"Sheet index is out of bounds.\");\n\nso I tracced the error. till i found that when commenting the following \nReader/Excel2007.php:1600\n\t\t\t\t\t\t\t\t\t\t\t\tif ($worksheet = $docSheet->getParent()->getSheetByName($range[0])) {\n\t\t\t\t\t\t\t\t\t\t\t\t\t$extractedRange = str_replace('$', '', $range[1]);\n\t\t\t\t\t\t\t\t\t\t\t\t\t//$scope = $docSheet->getParent()->getSheet((string)$definedName['localSheetId']);\n\n\t\t\t\t\t\t\t\t\t\t\t\t\t//$excel->addNamedRange( new PHPExcel_NamedRange((string)$definedName['name'], $worksheet, $extractedRange, true, $scope) );\n\t\t\t\t\t\t\t\t\t\t\t\t\t$excel->addNamedRange( new PHPExcel_NamedRange((string)$definedName['name'], $worksheet, $extractedRange, true) );\n\t\t\t\t\t\t\t\t\t\t\t\t}\n\n\neverything works as expected.\n\nI would love to apport to this proyect, please explain me a bit the reason and meaning of scope in my circustances. Cauze I think there's a 'if' missing, instead of commenting lines xD\n\n\nmy condicions:\n\n\tpublic function readDocument($rowOffset = 0, $colOffset = 0) {\n\t\t$sheets= $this->_reader->listWorksheetNames($this->_file);\n\t\t//$this->_reader->setLoadSheetsOnly($sheets[0]);\n\t\t$this->_reader->setLoadSheetsOnly($sheets[6]);",
+    "LastUpdatedDate": "2013-02-21T19:01:33.287-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2012-12-13T06:04:19.723-08:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "sheet exceded limit wrong exception",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 2,
+    "Id": 19050
+  },
+  "FileAttachments": [],
+  "Comments": []
+}

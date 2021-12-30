@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "259940",
+    "ThreadId": "76002",
+    "Html": "<p>I am running the code below to combine multiple CSV files into 1 Excel file with multiple tabs. I am not doing any styling or other advanced operations. However, I am running into a PHP memory limit of 512MB when I have multiple sheets with a few thousand rows each. I have read other posts regarding PHPExcel's memory utilization issues. Is there an optimization I could make to the code below to help my issue? Possibly write to disk after each tab or something similar. Thanks.</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre><br>$sheetIdx = 0;\r\n$excel = <span style=\"color:Blue\">new</span> PHPExcel();\r\n<span style=\"color:Blue\">foreach</span>($csvFiles <span style=\"color:Blue\">as</span> $csvFile)\r\n{\r\n    <span style=\"color:Blue\">if</span>($sheetIdx &gt; 0)\r\n    {\r\n        $excel-&gt;createSheet();\r\n    }\r\n    $excel-&gt;setActiveSheetIndex($sheetIdx);\r\n    $excel-&gt;getActiveSheet()-&gt;setTitle(<span style=\"color:#A31515\">'Report'</span>.$sheetIdx);\r\n    $reader = PHPExcel_IOFactory::createReaderForFile($csvFile);\r\n    $reader-&gt;setSheetIndex($sheetIdx);\r\n    $reader-&gt;loadIntoExisting($csvFile, $excel);\r\n    $sheetIdx++;\r\n}\r\n$excel-&gt;setActiveSheetIndex(0);\r\n$writer = PHPExcel_IOFactory::createWriter($excel, <span style=\"color:#A31515\">'Excel5'</span>);\r\n$writer-&gt;save($xlsFile);\r\n</pre>\r\n</div>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-11-23T12:39:45.043-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "260110",
+    "ThreadId": "76002",
+    "Html": "<p>The problem is that PHPExcel uses too much memory per cell. Around 1KB per cell. There is some indication that this can be cut down to around one half ~ 500B by introducing a cell supervisor. This is the next thing on the to-do list for the weeks to come. Once this is in place it will be easier to introduce automatic disk caching like you are suggesting. And this would nearly wipe out all memory usage by PHPExcel.</p>",
+    "PostedDate": "2009-11-23T23:06:08.88-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

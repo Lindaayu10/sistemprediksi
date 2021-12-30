@@ -1,0 +1,65 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I found that PHPExcel_Cell_AdvancedValueBinder inserts current date instead of the original value for some string values. I've tracked down the issue to PHPExcel_Calculation_DateTime::DATEVALUE(). See this test case:\n \n<?php\n \nrequire('PHPExcel.php');\n \nvar_dump( PHPExcel_Calculation_DateTime::DATEVALUE(\"X\\nX\") );\nvar_dump( PHPExcel_Calculation_DateTime::DATEVALUE(\"X\\n\") );\nvar_dump( PHPExcel_Calculation_DateTime::DATEVALUE(\"X\") );\n \n?>\n \n... which prints:\n \nfloat(40589)\nfloat(40589)\nfloat(40589)\n \n... instead of the expected output:\n \nstring(7) \"#VALUE!\"\nstring(7) \"#VALUE!\"\nstring(7) \"#VALUE!\"",
+    "LastUpdatedDate": "2013-02-21T19:02:33.36-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2011-02-15T02:13:51.01-08:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "PHPExcel_Calculation_DateTime::DATEVALUE() returns current date for some strings",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 15329
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "The issue appears to be originated at PHP date_parse() builtin function.\r\n\r\nA call to date_parse('X') and many other random strings returns an array where all items are FALSE except those related to time zone. The array should be analysed and discarded as valid date if it doesn't actually contain a date.",
+      "PostedDate": "2011-02-15T02:40:19.187-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "@kAlvaro\r\nHave you tried this with the latest SVN code? I have made a number of changes to date testing with the Advanced Value Binder over the last month to try and trap for precisely this.",
+      "PostedDate": "2011-02-15T03:01:56.333-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "@MarkBaker: I've just tried with r68577 (trunk). The result is the same in all three cases: float(40589)",
+      "PostedDate": "2011-02-15T04:47:18.79-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "@MarkBaker: I've just noticed that you were talking about value binders. My test cases work fine in r68577 (trunk) with PHPExcel_Cell_AdvancedValueBinder.\r\n\r\nPHPExcel_Calculation_DateTime::DATEVALUE(), though, is still unreliable.",
+      "PostedDate": "2011-02-15T04:53:52.513-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:02:33.36-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

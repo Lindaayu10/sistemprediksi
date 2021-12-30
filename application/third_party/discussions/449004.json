@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "1064291",
+    "ThreadId": "449004",
+    "Html": "Hi, I'm using a php script to create an xlsx file from an sql database everyday. <br />\nMy suppliers upload their prices into my database and I generate an xlsx file with their data at the end of the day. Sometimes I get a fatal error message. I searched for the cause and found out that the fatal error occurs everytime the output-file would consist of more than 130 columns due to the size of the database. When I delete the corresponding surplus data of the user uploads inside the database and start the file-creation script again, then everything works fine, the file gets created.<br />\n<br />\nI don't know if there maybe a problem with any limitation of my server, or if there is any limitation within my script or if there is a limitation with PHPExcel.. Maybe someone can tell me, so I can increase any value anywhere and create xlsx files with more than 130 columns..<br />\n<br />\nThe Output file consists of the following columns: A - Item-no, B - Vendor-id, C - Name of product, D - quantity (the first 4 Columns are always that way, they are fix. Then the uploaded data of the users are added 3-column-wise: E - Price (Headline Name of user), F - Quantity (the quantity he has on stock), G - Infos regarding the item, H-J next user data, K-M next user data and so on, till column DZ (130), when there's more in the database than that, the following fatal error occurs. That means, only 42 Users (126/3) can upload their data, if it were 43, the output-creation crashes.<br />\n<br />\nHere's the fatal error message I get:<br />\n<br />\nFatal error: Uncaught exception 'PHPExcel_Exception' with message 'Invalid cell coordinate 1' in /usr/www/users/markusj/anfrage/includes/PHPExcel/Cell.php:546 Stack trace: #0 /usr/www/users/markusj/anfrage/includes/PHPExcel/Worksheet.php(1134): PHPExcel_Cell::coordinateFromString('1') #1 /usr/www/users/markusj/anfrage/includes/PHPExcel/Worksheet.php(1042): PHPExcel_Worksheet-&gt;getCell('1') #2 /usr/www/users/markusj/anfrage/includes/class.user.php(583): PHPExcel_Worksheet-&gt;setCellValue('1', 'Built') #3 /usr/www/users/markusj/anfrage/controller/default.php(133): USER-&gt;getResult() #4 /usr/www/users/markusj/anfrage/controller/default.php(65): FWDefaultController-&gt;result() #5 /usr/www/users/markusj/anfrage/start.php(20): FWDefaultController-&gt;__construct('result') #6 /usr/www/users/markusj/anfrage/tmpl/header.php(1): include('/usr/www/users/...') #7 /usr/www/users/markusj/anfrage/index.php(1): include('/usr/www/users/...') #8 {main} thrown in /usr/www/users/markusj/anfrage/includes/PHPExcel/Cell.php on line 546<br />\n<br />\nI'm using the newest version of PHPExcel. My server runs PHP 5.3, SQL Database 5.1. Maybe someone can help me with that..<br />\n<br />\nThanks in advance, <br />\n<br />\nMark<br />\n",
+    "PostedDate": "2013-07-03T13:48:51.973-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1064395",
+    "ThreadId": "449004",
+    "Html": "According to the error message, the coordinates of the cell are incorrect (just &quot;1&quot; something of the form &quot;A1&quot; is expected).\r<br />\nI guess that your script has a concern to determine the column when there are more than 42 users.<br />\n",
+    "PostedDate": "2013-07-03T23:37:29.81-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1064691",
+    "ThreadId": "449004",
+    "Html": "Hi LWol,<br />\n<br />\nthanks for your advice, I found the mistake. In one of the files (class.user.php) an array gets created from A to DZ. I extended it to GZ, now it works fine! :-)<br />\n<br />\nThank you very much!<br />\n<br />\nMark<br />\n",
+    "PostedDate": "2013-07-04T13:40:50.127-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

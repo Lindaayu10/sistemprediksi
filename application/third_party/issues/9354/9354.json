@@ -1,0 +1,50 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel_Writer_Excel5",
+      "DisplayName": "PHPExcel_Writer_Excel5"
+    },
+    "ClosedComment": "Fixed in SVN",
+    "ClosedDate": "2009-02-25T16:57:11.673-08:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "In the BIFF8 file format there is only room for 256 columns. If one tries to insert some cell values in columns greater than 256 then these should silently be skipped when output is dumped using PHPExcel_Writer_Excel5.\n \nPHPExcel_Writer_Excel5 is handling this correctly except for the DIMENSION record. For some reason, as of MS Office Excel 2003 SP3, incorrect DIMENSION record gives warning message \"File Error: data may have been lost.\"\n \nThe problem is also seen when one converts from xlsx to xls using PHPExcel when the xlsx file contains cells in columns higher than 256.\n \nTest:\n----\n// read.xls contains uses more than 256 columns\n \n$reader = new PHPExcel_Reader_Excel2007();\n$excel = $reader->load('read.xlsx');\n \n$writer = new PHPExcel_Writer_Excel5($excel);\n$writer->save('write.xls');\n \nExpected result:\n----\nOutput is identical to input except that columns higher than 256 are gone\n \nActual result:\n----\nAs expected, but MS Office Excel 2007 says: \"File Error: data may have been lost.\"\n \nEnvironment:\n----\nPHPExcel 1.6.5 (and source code 25452)",
+    "LastUpdatedDate": "2013-05-16T05:42:52.427-07:00",
+    "PlannedForRelease": "PHPExcel 1.6.6 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-02-25T16:49:16.783-08:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Column greater than 256 results in corrupt Excel file using PHPExcel_Writer_Excel5",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 9354
+  },
+  "FileAttachments": [
+    {
+      "FileId": 2780,
+      "FileName": "read.xlsx",
+      "DownloadUrl": ".\\2780"
+    },
+    {
+      "FileId": 2781,
+      "FileName": "write.xls",
+      "DownloadUrl": ".\\2781"
+    }
+  ],
+  "Comments": []
+}

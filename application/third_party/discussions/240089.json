@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "542489",
+    "ThreadId": "240089",
+    "Html": "\r\n<p>Hi!</p>\r\n<p>PHPExcel changes something in styles when using xlsx templates and resulting file differs. Let's make simple test:</p>\r\n<p>1. create empty xlsx file in Excel2007 and save it as template.xlsx</p>\r\n<p>2. execute this simple php code:</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>$objPHPExcel = PHPExcel_IOFactory::load(<span style=\"color:#a31515\">&quot;template.xlsx&quot;</span>);\r\n$objWriter = <span style=\"color:blue\">new</span> PHPExcel_Writer_Excel2007($objPHPExcel);\r\n$objWriter-&gt;save(<span style=\"color:#a31515\">&quot;result.xlsx&quot;</span>);\r\n</pre>\r\n</div>\r\n<p>3. open result.xlsx in Excel2007. At first it looks the same, but try to edit some cell by hitting F2. Background of this cell changes to black!!</p>\r\n<p>&nbsp;</p>\r\n<p>When you overwrite style.xml in result.xlsx with this one from template.xlsx it backs to normal.</p>\r\n<p>Am I doing something wrong? Is there any workaround?</p>\r\n<p>&nbsp;</p>\r\n<p>EDIT:</p>\r\n<p>&nbsp;</p>\r\n<p>I'm working with PHPEXcel 1.7.5</p>\r\n<p>If I change Style/Fill.php line 120 from:</p>\r\n<p></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>\t\t$this-&gt;_endColor\t\t\t= <span style=\"color:blue\">new</span> PHPExcel_Style_Color(PHPExcel_Style_Color::COLOR_BLACK, $isSupervisor);\r\n\r\n</pre>\r\n</div>\r\n<p></p>\r\n<p>to:</p>\r\n<pre>PHPExcel_Style_Color::COLOR_<span style=\"color:#ff0000\">WHITE</span></pre>\r\n<p>it seems to work normal. What do you think about this?</p>\r\n",
+    "PostedDate": "2010-12-31T03:24:28.437-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "542602",
+    "ThreadId": "240089",
+    "Html": "\r\n<p>I'm not sure what to think... I'll run some tests in debug over the next week and see if I can identify the cause of this behaviour.</p>\r\n<p>I've spent a pleasant New Year's Eve reading through the MS documentation on fill colours (while listening to Jools Holland's Hootenanny, so I have been celebrating at the same time). There are some potential issues that I've identified when colours are\r\n selected from a theme in MS Excel, and not translated correctly by the Excel2007 Reader. Annoyingly, the colours are referenced by a name in the themes file (eg dk1 and dk2, lt1 and lt2, accent1 to accent6, hlink and folHlink) but by number in the style index\r\n (and there's nothing to indicate whether dk1 is number 0 or number 1) and with an optional &quot;tint&quot; that adjusts the colour value (precisely how isn't explained in the documentation or in the ECMA spec). I'm not certain if this is the cause of the behaviour\r\n you've encountered - I've a feeling that it isn't related - although the Excel2007 Reader interprets all theme colours incorrectly as black.</p>\r\n<p>According to the documentation, endColor should only be applied when the fill type is a gradient or a pattern fill: for a solidFill (the default fill style) only startColor is used. Of course, not everything in the MS documentation is completely accurate.\r\n While endColor must always be set (irrespective of the fill style), it defaults to indexed colour 64 (which doesn't actually exist in the colour chart) so the code defaults this to FF000000 (Black) because the PHPExcel_Style_Color class doesn't differentiate\r\n how/where that colour is being used. Within the Excel2007 Writer, we don't use indexed colours, just rgb values, and it is&nbsp;explicitly written as&nbsp;FF000000 (Black). It's more likely that this is the cause of the problem: to fix it, I'd need to change\r\n the default behaviour when a colour wasn't identified in the indexed colour chart to return white (FFFFFFFF) for fill colours, black (FF000000) for font colours.</p>\r\n<p>So a couple of potential causes for the problem, both of which I'll look at fixing over the next week. Hopefully, one or other will resolve this issue.</p>\r\n",
+    "PostedDate": "2010-12-31T18:43:07.443-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "542603",
+    "ThreadId": "240089",
+    "Html": "This discussion has been copied to a work item. Click <a href=\"http://phpexcel.codeplex.com/workitem/14999\">here</a> to go to the work item and continue the discussion.",
+    "PostedDate": "2010-12-31T18:44:10.223-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

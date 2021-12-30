@@ -1,0 +1,91 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel",
+      "DisplayName": "PHPExcel"
+    },
+    "ClosedComment": "Fixed in SVN",
+    "ClosedDate": "2009-05-02T10:34:47.33-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "We have received a script that was generating corrupt Excel 2007 files.\n \nIt turned out that sheet names were set to be longer than 31 characters which is apparently the limit in Excel 2007 as well as BIFF8.\n \nPerhaps we should throw an exception for this. Patch for review.\n \nTest:\n----\n$excel = new PHPExcel();\n \n$sheet = $excel->getActiveSheet(0);\n$sheet->setTitle('aäâáàbcdeéèëêfghiíìïjklmnoóòöøpq'); // 32 characters, this is too long\n \n$writer = new PHPExcel_Writer_Excel2007($excel);\n$writer->save('write.xlsx');\n \nExpected result:\n----\nThrow exception?\n \nActual result:\n----\nWorkbook generated, but it opens as corrupt in MS Office Excel. (Not clear from the generic error message in MS Office Excel)\n \nEnvironment:\n----\nPHPExcel 1.6.6",
+    "LastUpdatedDate": "2013-05-16T05:42:49.553-07:00",
+    "PlannedForRelease": "PHPExcel 1.6.7 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-03-24T21:07:30.28-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Check that sheet title has maximum 31 characters",
+    "Type": {
+      "Name": "Feature",
+      "Id": 1
+    },
+    "VoteCount": 1,
+    "Id": 9598
+  },
+  "FileAttachments": [
+    {
+      "FileId": 2896,
+      "FileName": "wi-9598.patch",
+      "DownloadUrl": ".\\2896"
+    },
+    {
+      "FileId": 3046,
+      "FileName": "sn_issue.zip",
+      "DownloadUrl": ".\\3046"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "It seems that office 2007 has a problem even with short sheet names; also the office 2003 convertor fails (I'm using 1.6.7 production):\r\nLoading this file fails:\r\n$sn = '_______ten____twenty__3';\r\n$objPHPExcel->getActiveSheet()->setTitle($sn);\r\nand this works\r\n$sn = '_______ten____twenty_2';\r\n$objPHPExcel->getActiveSheet()->setTitle($sn);\r\n\r\nOffice 2007 is able to open the file, but says it is correupted and need to fix it while the office 2003 format convertor just fails.\r\n\r\n",
+      "PostedDate": "2009-05-02T08:37:28.5-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-05-02T08:37:29.983-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Fixed in SVN\r\n\r\n** Closed by maartenba 3/25/2009 12:40 AM",
+      "PostedDate": "2009-05-02T10:04:25.98-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Confirmed.",
+      "PostedDate": "2009-05-02T10:04:27.03-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Posting this in a separate issue as it seems to have a different cause.\r\nhttp://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=9913",
+      "PostedDate": "2009-05-02T10:34:08.157-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-05-02T10:34:47.33-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:04:14.6-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:49.553-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

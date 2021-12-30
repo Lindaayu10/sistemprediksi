@@ -1,0 +1,199 @@
+Index: Classes/PHPExcel/Reader/Excel2007.php
+===================================================================
+--- Classes/PHPExcel/Reader/Excel2007.php	(revision 1072)
++++ Classes/PHPExcel/Reader/Excel2007.php	(working copy)
+@@ -578,6 +578,14 @@
+ 							}
+ 						}
+ 
++						if (isset($xmlSheet->sheetPr) && isset($xmlSheet->sheetPr->pageSetUpPr)) {
++							if (isset($xmlSheet->sheetPr->pageSetUpPr['fitToPage']) && $xmlSheet->sheetPr->pageSetUpPr['fitToPage'] == false) {
++								$docSheet->getPageSetup()->setFitToPage(false);
++							} else {
++								$docSheet->getPageSetup()->setFitToPage(true);
++							}
++						}
++
+ 						if (isset($xmlSheet->sheetFormatPr)) {
+ 							if (isset($xmlSheet->sheetFormatPr['customHeight']) && ((string)$xmlSheet->sheetFormatPr['customHeight'] == '1' || strtolower((string)$xmlSheet->sheetFormatPr['customHeight']) == 'true') && isset($xmlSheet->sheetFormatPr['defaultRowHeight'])) {
+ 								$docSheet->getDefaultRowDimension()->setRowHeight( (float)$xmlSheet->sheetFormatPr['defaultRowHeight'] );
+@@ -858,13 +866,13 @@
+ 								$docPageSetup->setPaperSize(intval($xmlSheet->pageSetup["paperSize"]));
+ 							}
+ 							if (isset($xmlSheet->pageSetup["scale"])) {
+-								$docPageSetup->setScale(intval($xmlSheet->pageSetup["scale"]));
++								$docPageSetup->setScale(intval($xmlSheet->pageSetup["scale"]), false);
+ 							}
+-							if (isset($xmlSheet->pageSetup["fitToHeight"]) && intval($xmlSheet->pageSetup["fitToHeight"]) > 0) {
+-								$docPageSetup->setFitToHeight(intval($xmlSheet->pageSetup["fitToHeight"]));
++							if (isset($xmlSheet->pageSetup["fitToHeight"]) && intval($xmlSheet->pageSetup["fitToHeight"]) >= 0) {
++								$docPageSetup->setFitToHeight(intval($xmlSheet->pageSetup["fitToHeight"]), false);
+ 							}
+-							if (isset($xmlSheet->pageSetup["fitToWidth"]) && intval($xmlSheet->pageSetup["fitToWidth"]) > 0) {
+-								$docPageSetup->setFitToWidth(intval($xmlSheet->pageSetup["fitToWidth"]));
++							if (isset($xmlSheet->pageSetup["fitToWidth"]) && intval($xmlSheet->pageSetup["fitToWidth"]) >= 0) {
++								$docPageSetup->setFitToWidth(intval($xmlSheet->pageSetup["fitToWidth"]), false);
+ 							}
+ 						}
+ 
+Index: Classes/PHPExcel/Reader/Excel5.php
+===================================================================
+--- Classes/PHPExcel/Reader/Excel5.php	(revision 1073)
++++ Classes/PHPExcel/Reader/Excel5.php	(working copy)
+@@ -2320,12 +2320,10 @@
+ 				case 1: $this->_phpSheet->getPageSetup()->setOrientation(PHPExcel_Worksheet_PageSetup::ORIENTATION_PORTRAIT); break;
+ 				}
+ 
+-				if (!$this->_isFitToPages) {
+-					$this->_phpSheet->getPageSetup()->setScale($scale);
+-				} else {
+-					$this->_phpSheet->getPageSetup()->setFitToWidth($fitToWidth);
+-					$this->_phpSheet->getPageSetup()->setFitToHeight($fitToHeight);
+-				}
++				$this->_phpSheet->getPageSetup()->setScale($scale, false);
++				$this->_phpSheet->getPageSetup()->setFitToPage((bool) $this->_isFitToPages);
++				$this->_phpSheet->getPageSetup()->setFitToWidth($fitToWidth, false);
++				$this->_phpSheet->getPageSetup()->setFitToHeight($fitToHeight, false);
+ 			}
+ 
+ 			// offset: 16; size: 8; header margin (IEEE 754 floating-point value)
+Index: Classes/PHPExcel/Worksheet/PageSetup.php
+===================================================================
+--- Classes/PHPExcel/Worksheet/PageSetup.php	(revision 1071)
++++ Classes/PHPExcel/Worksheet/PageSetup.php	(working copy)
+@@ -204,6 +204,14 @@
+ 	private $_scale;
+ 
+ 	/**
++	  * Fit To Page
++	  * Whether scale or fitToWith / fitToHeight applies
++	  *
++	  * @var boolean
++	  */
++	private $_fitToPage;
++
++	/**
+ 	  * Fit To Height
+ 	  * Number of vertical pages to fit on
+ 	  *
+@@ -262,9 +270,10 @@
+     	// Initialise values
+     	$this->_paperSize 				= PHPExcel_Worksheet_PageSetup::PAPERSIZE_LETTER;
+     	$this->_orientation				= PHPExcel_Worksheet_PageSetup::ORIENTATION_DEFAULT;
+-    	$this->_scale					= null;
+-    	$this->_fitToHeight				= null;
+-    	$this->_fitToWidth				= null;
++    	$this->_scale					= 100;
++    	$this->_fitToPage				= false;
++    	$this->_fitToHeight				= 1;
++    	$this->_fitToWidth				= 1;
+     	$this->_columnsToRepeatAtLeft 	= array('', '');
+     	$this->_rowsToRepeatAtTop		= array(0, 0);
+     	$this->_horizontalCentered		= false;
+@@ -328,14 +337,18 @@
+ 	 * This setting is overridden when fitToWidth and/or fitToHeight are in use
+ 	 *
+ 	 * @param 	int? 	$pValue
++	 * @param boolean $pUpdate Update fitToPage so scaling applies rather than fitToHeight / fitToWidth
+ 	 * @throws 	Exception
+ 	 * @return PHPExcel_Worksheet_PageSetup
+ 	 */
+-	public function setScale($pValue = 100) {
++	public function setScale($pValue = 100, $pUpdate = true) {
+ 		// Microsoft Office Excel 2007 only allows setting a scale between 10 and 400 via the user interface,
+ 		// but it is apparently still able to handle any scale >= 0, where 0 results in 100
+ 		if (($pValue >= 0) || is_null($pValue)) {
+ 			$this->_scale = $pValue;
++			if ($pUpdate) {
++				$this->_fitToPage = false;
++			}
+ 		} else {
+ 			throw new Exception("Scale must not be negative");
+ 		}
+@@ -343,6 +356,26 @@
+ 	}
+ 
+ 	/**
++	 * Get Fit To Page
++	 *
++	 * @return boolean
++	 */
++	public function getFitToPage() {
++		return $this->_fitToPage;
++	}
++
++	/**
++	 * Set Fit To Page
++	 *
++	 * @param boolean $pValue
++	 * @return PHPExcel_Worksheet_PageSetup
++	 */
++	public function setFitToPage($pValue = true) {
++		$this->_fitToPage = $pValue;
++		return $this;
++	}
++
++	/**
+ 	 * Get Fit To Height
+ 	 *
+ 	 * @return int?
+@@ -355,11 +388,13 @@
+ 	 * Set Fit To Height
+ 	 *
+ 	 * @param int? $pValue
++	 * @param boolean $pUpdate Update fitToPage so it applies rather than scaling
+ 	 * @return PHPExcel_Worksheet_PageSetup
+ 	 */
+-	public function setFitToHeight($pValue = 1) {
+-		if ($pValue != '') {
+-			$this->_fitToHeight = $pValue;
++	public function setFitToHeight($pValue = 1, $pUpdate = true) {
++		$this->_fitToHeight = $pValue;
++		if ($pUpdate) {
++			$this->_fitToPage = true;
+ 		}
+ 		return $this;
+ 	}
+@@ -377,11 +412,13 @@
+ 	 * Set Fit To Width
+ 	 *
+ 	 * @param int? $pValue
++	 * @param boolean $pUpdate Update fitToPage so it applies rather than scaling
+ 	 * @return PHPExcel_Worksheet_PageSetup
+ 	 */
+-	public function setFitToWidth($pValue = 1) {
+-		if ($pValue != '') {
+-			$this->_fitToWidth = $pValue;
++	public function setFitToWidth($pValue = 1, $pUpdate = true) {
++		$this->_fitToWidth = $pValue;
++		if ($pUpdate) {
++			$this->_fitToPage = true;
+ 		}
+ 		return $this;
+ 	}
+Index: Classes/PHPExcel/Writer/Excel2007/Worksheet.php
+===================================================================
+--- Classes/PHPExcel/Writer/Excel2007/Worksheet.php	(revision 1072)
++++ Classes/PHPExcel/Writer/Excel2007/Worksheet.php	(working copy)
+@@ -197,7 +197,7 @@
+ 			$objWriter->endElement();
+ 
+ 			// pageSetUpPr
+-			if (!is_null($pSheet->getPageSetup()->getFitToHeight()) || !is_null($pSheet->getPageSetup()->getFitToWidth())) {
++			if ($pSheet->getPageSetup()->getFitToPage()) {
+ 				$objWriter->startElement('pageSetUpPr');
+ 				$objWriter->writeAttribute('fitToPage',	'1');
+ 				$objWriter->endElement();
+Index: Classes/PHPExcel/Writer/Excel5/Worksheet.php
+===================================================================
+--- Classes/PHPExcel/Writer/Excel5/Worksheet.php	(revision 1073)
++++ Classes/PHPExcel/Writer/Excel5/Worksheet.php	(working copy)
+@@ -2173,7 +2173,7 @@
+ 		if ($this->_phpSheet->getShowSummaryRight()) {
+ 			$grbit |= 0x0080; // Outline summary right
+ 		}
+-		if ($this->_phpSheet->getPageSetup()->getFitToWidth() || $this->_phpSheet->getPageSetup()->getFitToHeight()) {
++		if ($this->_phpSheet->getPageSetup()->getFitToPage()) {
+ 			$grbit |= 0x0100; // Page setup fit to page
+ 		}
+ 		if ($this->_outline_on) {

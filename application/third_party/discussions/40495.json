@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "134344",
+    "ThreadId": "40495",
+    "Html": "Ok, first my software specs:<br>\r\nwamp - php5.2.5, ms office professional 2003 with sp3, winxp sp2<br>\r\n<br>\r\ni generate an xls sheet, and i can open the saved file from my hard disc of course (using excel5 writer) on my computer, but when i send the file to other people (mail or copy via memory stick), they can't open it - they get an error that excel has tried to repair the problem, but the file was corupted beyond repair, and it shuts down (ofiice 2003 sp2 and sp3). <br>\r\n<br>\r\ni can not use excel2007 because of the software license isue (about 200 computer users in my firm are using office 2003 and they are happy with it, so its out of the question, and did not bother to test it).<br>\r\n<br>\r\nthe thing that is also funny is that when i opet the same file on my computer and save it under another name via excel - they have no problem opening the other file. The funny thing is that the generated file with the writer is about 650kb, and the same file opened and resaved by excel has a mere 50kb. this is not such a problem, but i cant belive that the writer produces 10 times more &quot;garbage&quot; then needed (and its not such a big sheet - 5 columns and 59 rows). <br>\r\n<br>\r\np.s. i tried to generate the test files on my computer (14excel5.php, 01simple with excel5), and have the same problem - other people cant open them ether (but i can of course???)<br>\r\n<br>\r\nwhere is the catch?\r\n",
+    "PostedDate": "2008-11-21T12:27:34.933-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "134383",
+    "ThreadId": "40495",
+    "Html": "Looks like this is the same issue as was reported for PEAR Spreadsheet_Excel_Writer (which PHPExcel_Writer_Excel5 is based on):<br>\r\n<a href=\"http://pear.php.net/bugs/bug.php?id=4174\">http://pear.php.net/bugs/bug.php?id=4174</a><br>\r\n<br>\r\nAs I read what the posters are saying, the bug really lies in Outlook altering the attachment. There must be something that Outlook doesn't like about the files that the OLE writer is producing.<br>\r\nThis needs investigation...<br>\r\n<br>\r\nBefore distributing the generated Excel file, I agree that it may be a\r\ngood idea to do a plain save in MS Office Excel\r\nwhenever you have such chance. This will give you the best chances that\r\nthe Excel file will be forward compatible with future MS Office Excel\r\nversions, and compatible with other applications such as OpenOffice.org.\r\nFor example, you will not be able to see images if you open your\r\ngenerated spreadsheet in OpenOffice.org, but after a save in MS Office\r\nExcel, you will.<br>\r\n<br>\r\nP.S. The reason why file sizes are reduced after saving is probably because you have images. Excel5 writer stores images as uncompressed bitmaps, but when you save in MS Office Excel, the application will convert the image to compressed bitmap (probably PNG).<br>\r\n<br>\r\n<br>\r\n",
+    "PostedDate": "2008-11-21T15:37:00.523-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "134417",
+    "ThreadId": "40495",
+    "Html": "yes, you were right - it is an outlook 2003 problem. TNX!<br>\r\n<br>\r\nThis is also true: &quot;the problem seems to be with Outlook modifying attachments as part of\r\nits encoding. You can in fact send generated spreadsheets successfully\r\nusing Outlook by right-clicking the file you want to send (using File\r\nExplorer) and selected &quot;Send To&quot; from the drop-down. This method uses a\r\ndifferent encoding method which seems to work (unlike attaching the file\r\nfrom within Outlook itself).&quot;<br>\r\n<br>\r\nhere is the simple and stupid workaround that will work for me though - if you zip the files, they are not altered :)<br>\r\n(i need to send 50 of those files as a monthly report, so zip is the method, and that will work ok for now i guess...).<br>\r\n",
+    "PostedDate": "2008-11-22T00:28:03.543-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "135992",
+    "ThreadId": "40495",
+    "Html": "A work item has been created for monitoring this problem:<br>\r\n<br>\r\n<a href=\"http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=8320\">http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=8320</a><br>\r\n<br>\r\n<br>\r\n",
+    "PostedDate": "2008-11-27T21:05:37.003-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "136202",
+    "ThreadId": "40495",
+    "Html": "Fixed per work item 8320:<br>\r\n<a href=\"http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=8320\">http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=8320</a><br>\r\n<br>\r\n",
+    "PostedDate": "2008-11-28T20:38:14.133-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

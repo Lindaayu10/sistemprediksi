@@ -1,0 +1,75 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel_Reader_Excel2007",
+      "DisplayName": "PHPExcel_Reader_Excel2007"
+    },
+    "ClosedComment": "",
+    "ClosedDate": "2007-04-25T14:40:06.85-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hi,\nI reported an issue with 1.0.0. \nI create a lot of sheets one at a time sheet closing the Excel file in between. It turned out that the reader was loosing the style info. \nNow in 1.1.0. this has changed a bit. The reader seems to lose style info for all but the last sheet, or some variation of that. \n \nIn my multi sheet excel file I now have the TWO last sheets with style info. In vs 1.0.0 only the last sheet (unprocessed by the reader) had style info.",
+    "LastUpdatedDate": "2013-05-16T05:44:00.61-07:00",
+    "PlannedForRelease": "PHPExcel 1.2.0 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2007-04-25T14:40:04.003-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "style info lost in reader vs 1.1.0",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 1464
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "Please attach a file to reproduce this error.",
+      "PostedDate": "2007-04-25T14:40:04.753-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Hi,There is no file I can attach to reproduce the error. The Excelfile is produced by a program.This is what happens:do while (sql select statement) { 1. execute sql select statment n. 2. check if excel file exist, if so read the file. 3. create a new excelsheet from sql result, and append it to the excelfile. 4. save the excelfile.}The program code creating the excelsheet is huge.I attach the code responsible for 2,3 and 4 below. The 'interesting' code are in between the comments: // Insert title row  ...// Add data rows\r\n\r\nFor each but the first SQL, the Excel file is read by the reader. For some reason, the reader only regards the attributes from the last sheet. You should be able to reproduce this error with any excel file with more than one sheet. I set the following attributes for the first row in each sheet:setName('Arial');setBold(true);setUnderline(PHPExcel_Style_Font::UNDERLINE_SINGLE);setARGB(PHPExcel_Style_Color::COLOR_BLUE);\r\n\r\nIf you process such an excel sheet by the reader i.e.   $objReader1 = new PHPExcel_Reader_Excel2007; $objPHPExcel = $objReader1->load(\"EXCELFILE\");\r\n\r\nyou should loose the attribute of all sheets but the last one.\r\n\r\nI hope this is something you can work on. I attach a produced excelfile, (please remove the file when you have download it) This excel file misses attributes on all but the last two sheets.I suspect that if you process this excel file by the loader it will only have attribute left on the last sheet.\r\n\r\n<<?php/*** SQL result converter - dynamically included in function {@link execSql()}** This SQL converter converts a mysqli select result into a Excel 2007 worksheet.* This code is a wrapper to the program product {@link http://www.codeplex.com/PHPExcel/Wiki/View.aspx PHP Excel 2007 classes}* This program product was originally developed by {@link http://www.balliauw.be/maarten Maarten Balliauw}** I assembled this code by looking at some examples in the Tests directory. You should probably enjoy the {@link sqlconverter_default.php adac default sql converter documentation} first, before you digest this.** Processing: * 1 - Initializing, we set up constants, check for file(s) existance etc.* 2 - Get meta data from the result set.* 3 - Include necessary PHP Excel 2007 classes files. For reasons not clear to me yet, I have to change include-path and set PWD to install library of PHP Excel 2007 classes to get things going. (I reset those before saving the Excel sheet.)* 4 - Create the Excel sheet* 5 - Post-edit the Excel sheet and save** @see sqlconverter_default.php, for a details on sql converters* @author Lasse Johansson <lars.a.johansson@se.atlascopco.com>* @version  1.0.0* @package adac* @subpackage sqlconverter* @uses getCustomXml()*/\r\n\r\n$sqllog->logit('Note',\"Enter sqlconverter_PHPExcel01.php using target=$sqltarget\");$sheetName=$sqltarget;$C_company = $context['_xlate']['C_company'];$C_application = $context['_xlate']['C_application'];$jobname = $job['name'];$schedname = $schedule['name'];//print \"company=$C_company,appl=$C_application,job=$jobname,sched=$schedname\\n\";\r\n\r\nif(is_numeric(substr($sqltarget, -1,1))) {\t$metafile = \"$metafile$filePfx\";\t$sqltarget = \"$sqltarget.xlsx\";} else {\tclearstatcache();\tfor ($x=0; 1==1; $x++){\t\tif (!file_exists(\"$metafile$x$filePfx\")){\t\t\t$metafile = \"$metafile$x$filePfx\";\t\t\t$sqltarget = \"$sqltarget$x.xlsx\";\t\t\tbreak;\t\t}\t}}$sqllog->logit('Note',\"sqlconverter writing output to $sqltarget\");\r\n\r\nif (file_exists($sqltarget)) $fpc_flag = 'FILE_APPEND';else $fpc_flag = NULL;\r\n\r\n$Ecols = array('A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','X','Y','Z','AA','AB','AC','AD','AE','AF','AG','AH','AI','AJ','AK','AL','AM','AN','AO','AP','AQ','AR','AS','AT','AU','AV','AX','AY','AZ','BA','BB','BC','BD','BE','BF','BG','BH','BI','BJ','BK','BL','BM','BN','BO','BP','BQ','BR','BS','BT','BU','BV','BX','BY','BZ','CA','CB','CC','CD','CE','CF','CG','CH','CI','CJ','CK','CL','CM','CN','CO','CP','CQ','CR','CS','CT','CU','CV','CX','CY','CZ','DA','DB','DC','DD','DE','DF','DG','DH','DI','DJ','DK','DL','DM','DN','DO','DP','DQ','DR','DS','DT','DU','DV','DX','DY','DZ','EA','EB','EC','ED','EE','EF','EG','EH','EI','EJ','EK','EL','EM','EN','EO','EP','EQ','ER','ES','ET','EU','EV','EX','EY','EZ','FA','FB','FC','FD','FE','FF','FG','FH','FI','FJ','FK','FL','FM','FN','FO','FP','FQ','FR','FS','FT','FU','FV','FX','FY','FZ','GA','GB','GC','GD','GE','GF','GG','GH','GI','GJ','GK','GL','GM','GN','GO','GP','GQ','GR','GS','GT','GU','GV','GX','GY','GZ','HA','HB','HC','HD','HE','HF','HG','HH','HI','HJ','HK','HL','HM','HN','HO','HP','HQ','HR','HS','HT','HU','HV','HX','HY','HZ');$EcolsA = count($Ecols);\r\n\r\n/** Get meta data **/\r\n\r\n$trow = array();//if ($fpc_flag == NULL){;\t$meta = '';\twhile ($finfo = $result->fetch_field()) {\t$trow[] = (array) $finfo;\t//\t$sqllog->logit('Note',sprintf(\"Name:    %s\", $finfo->name));\t//\t$sqllog->logit('Note',sprintf(\"Table:    %s\", $finfo->table));\t//\t$sqllog->logit('Note',sprintf(\"max. Len:    %d\", $finfo->max_length));\t//\t$sqllog->logit('Note',sprintf(\"Flags:    %d\", $finfo->flags));\t//\t$sqllog->logit('Note',sprintf(\"Type:    %d\", $finfo->type));\t\t$meta .= sprintf(\"Name:    %s;\", $finfo->name);\t\t$meta .= sprintf(\"Table:    %s;\", $finfo->table);\t\t$meta .= sprintf(\"max. Len:    %d;\", $finfo->max_length);\t\t$meta .= sprintf(\"Flags:    %d;\", $finfo->flags);\t\t$meta .= sprintf(\"Type:    %d;\", $finfo->type);\t\t$meta .= \"\\n\";\t\t$tcols = count($trow) - 1;\t//\tprint_r($tcols);\t//\tprint_r($Ecols[$tcols]);\t//\tprint_r($trow[$tcosl]);\t\t$trow[$tcols]['ExcelCol'] = $Ecols[$tcols];\t}/*$mysqli_type = array(); $mysqli_type[0] = \"decimal\"; $mysqli_type[1] = \"tinyint\"; $mysqli_type[2] = \"smallint\"; $mysqli_type[3] = \"int\"; $mysqli_type[4] = \"float\"; $mysqli_type[5] = \"double\"; $mysqli_type[7] = \"timestamp\"; $mysqli_type[8] = \"bigint\"; $mysqli_type[9] = \"mediumint\"; $mysqli_type[10] = \"date\"; $mysqli_type[11] = \"time\"; $mysqli_type[12] = \"datetime\"; $mysqli_type[13] = \"year\"; $mysqli_type[252] = \"blob\"; // text, blob, tinyblob,mediumblob, etc... $mysqli_type[253] = \"string\"; // varchar and char $mysqli_type[254] = \"enum\";// file_put_contents($metafile,$meta);*///print_r($trow);unset($meta);//}\r\n\r\n/** Fix include path & pwd, grab PHP Excel 2007 classes and instantiate a worksheet **/if(!$xml = getCustomXml($context, 'PHPExcel')){\treturn FALSE;}$epath = $xml->install;$wd_was = getcwd();$ip_was = ini_get('include_path');chdir(\"$epath/Classes\"); // It's not clear to me why I have to do thisini_set('include_path', ini_get('include_path').':../Classes/');$ipath = ini_get('include_path');\r\n\r\n/** PHP Excel 2007 classes - PHPExcel */include_once \"PHPExcel.php\";/** PHP Excel 2007 classes - PHPExcel_Writer_Excel2007 */include_once 'PHPExcel/Writer/Excel2007.php';$fti = TRUE; // posit this is the First Time Inif ($fpc_flag == 'FILE_APPEND') {\t$fti = FALSE;/** PHP Excel 2007 classes - PHPExcel_Reader_Excel2007 */\trequire_once 'PHPExcel/Reader/Excel2007.php';\t$sqllog->logit('Note',\"Load from Excel2007 file=$wd_was/$sqltarget\");\t$objReader1 = new PHPExcel_Reader_Excel2007;\t$objPHPExcel = $objReader1->load(\"$wd_was/$sqltarget\");\t$objPHPExcel->createSheet();\t$sheetCount =$objPHPExcel->getSheetCount();\t$sheetCount--;//print_r($sheetCount);\t$objPHPExcel->setActiveSheetIndex($sheetCount);} else {\t$sqllog->logit('Note',\"Create new Excel2007 worksheet\");\t$objPHPExcel = new PHPExcel();\t$objPHPExcel->getProperties()->setCreator(\"$C_application - $schedname\");\t$objPHPExcel->getProperties()->setLastModifiedBy(\"$C_application - $jobname\");\t$objPHPExcel->getProperties()->setTitle(\"$schedname - $jobname\");\t//$objPHPExcel->getProperties()->setSubject(\"Office 2007 XLSX Document produced by $C_application\");\t$objPHPExcel->getProperties()->setDescription(\"Excel 2007 spreadsheet produced by $C_application for $C_company.\");\t$objPHPExcel->getActiveSheet()->getPageSetup()->setOrientation(PHPExcel_Worksheet_PageSetup::ORIENTATION_PORTRAIT);\t$objPHPExcel->getActiveSheet()->getPageSetup()->setPaperSize(PHPExcel_Worksheet_PageSetup::PAPERSIZE_A4);} //($fpc_flag == 'FILE_APPEND')\r\n\r\n/** Create the Excel sheet **/\r\n\r\n// Insert title row$rows = 1;foreach ($trow as $tcol) {\t$coltitle = ucfirst($tcol['name']);\t$cell = $tcol['ExcelCol'] . $rows;\t$celln = $tcol['ExcelCol'] . $rows + 1;\r\n\r\n\t  $objPHPExcel->getActiveSheet()->SetCellValue(\"$cell\", iconv(\"ISO-8859-1\", \"UTF-8\", \"$coltitle\"));\t\t$objPHPExcel->getActiveSheet()->getStyle(\"$cell\")->getFont()->setName('Arial');\t\t$objPHPExcel->getActiveSheet()->getStyle(\"$cell\")->getFont()->setBold(true);\t\t$objPHPExcel->getActiveSheet()->getStyle(\"$cell\")->getFont()->setUnderline(PHPExcel_Style_Font::UNDERLINE_SINGLE);\t\t$objPHPExcel->getActiveSheet()->getStyle(\"$cell\")->getFont()->getColor()->setARGB(PHPExcel_Style_Color::COLOR_BLUE);}// Add data rows$fstDatarow = $rows + 1;\r\n\r\nwhile ($row = $result->fetch_row()) {\t$rows++;\t$cols = 0;\t$rowstr='';\tforeach($row as $value) {\t\t$cell = $trow[$cols]['ExcelCol'] . $rows;//\t\tprint \"Excel cell $cell=$value,\\n\";\t\t$tp =$trow[$cols]['type'] ;\t\tif ($tp == 253 | $tp == 254) { // text column only \t\t\t$value = iconv(\"ISO-8859-1\", \"UTF-8\", \"$value\");\t\t\t$tp =$trow[$cols]['type'] ;\t\t\t$nm =$trow[$cols]['name'] ;//\t\t\tprint \"TEXT COL=$nm,$tp \\n\";\t\t} else {\t\t\t$tp =$trow[$cols]['type'] ;\t\t\t$nm =$trow[$cols]['name'] ;//\t\t\tprint \"NUM COL=$nm,$tp \\n\";\t\t}\t\t$objPHPExcel->getActiveSheet()->SetCellValue(\"$cell\", \"$value\");\t\t$cols++;\t}}$lstDatarow = $rows;\r\n\r\n// Rename sheet$sheetTmp = $trow[0]['table'];if(strlen($sheetTmp) < 3) $sheetTmp = $trow[0]['orgtable'];if($sheetTmp != '') $sheetName = $sheetTmp;$sheetName = ucfirst(strtolower($sheetName));\r\n\r\n$sheetNames =$objPHPExcel->getSheetNames();while (in_array(\"$sheetName\",$sheetNames)) { //We append an 'X' to name if already exists\t$sheetName .= 'X';}$tm = date(\"His\");print \"NEW SHEET=$sheetName $tm\\n\";//echo date('H:i:s') . \" Rename sheet to $sheetName\\n\";$objPHPExcel->getActiveSheet()->setTitle(\"$sheetName\");\r\n\r\n// Save Excel 2007 file$objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel);\r\n\r\n$efile = $sqltarget;ini_set('include_path',$ip_was); //resetchdir($wd_was);\t\t\t //reset\r\n\r\n$objWriter->save($efile);$sqllog->logit('Note',\"Exit sqlconverter_ExcelBasic.php, writing file $efile\");?>\r\n\r\n",
+      "PostedDate": "2007-04-25T14:40:05.177-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I failed to add the excel file with my previous responce.Please remove this when you have downloaded thte file.",
+      "PostedDate": "2007-04-25T14:40:05.6-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "This could be related to http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=1309 ...",
+      "PostedDate": "2007-04-25T14:40:06.003-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2007-04-25T14:40:06.85-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:05:47.593-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:44:00.61-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

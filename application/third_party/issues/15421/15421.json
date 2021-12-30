@@ -1,0 +1,70 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "Production Release 1.7.7",
+    "ClosedDate": "2012-05-20T03:08:19.317-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Cell comments don't get moved with their cell when a row/column is inserted before them.",
+    "LastUpdatedDate": "2013-05-16T05:41:45.55-07:00",
+    "PlannedForRelease": "PHPExcel 1.7.7 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2011-02-25T12:26:29.06-08:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "PHPExcel_ReferenceHelper::insertNewBefore() is missing an 'Update worksheet: comments' section",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 15421
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "Proposed solution: insert at ReferenceHelper.php:262\r\n//--------------------------------------------------------------------------\r\n\t\t// Update worksheet: comments\r\n\t\t$aComments = $pSheet->getComments();\r\n\t\t$aNewComments = array(); // the new array of all comments\r\n\t\tforeach ($aComments as $key => &$value) {\r\n\t\t\t$newReference = $this->updateCellReference($key, $pBefore, $pNumCols, $pNumRows);\r\n\t\t\t$aNewComments[$newReference] = $value;\r\n\t\t}\r\n\t\t$pSheet->setComments($aNewComments); // replace the comments array\r\n\r\n//--------------------------------------------------------------------------\r\n\r\nThis in turn requires the following addition to Worksheet.php (e.g. at line 1933)\r\n//--------------------------------------------------------------------------\r\n\r\n\t/**\r\n\t * Set comments array for the entire sheet. \r\n\t *\r\n\t * @param array\r\n\t */\r\n\tpublic function setComments($pValue = array())\r\n\t{\r\n\t\t$this->_comments = $pValue;\r\n\r\n\t\treturn $this;\r\n\t}\r\n\r\n//--------------------------------------------------------------------------\r\n",
+      "PostedDate": "2011-02-25T13:04:25.353-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Thanks for spotting this, and for providing a fix.\r\nTested with insert and removal of both comments and rows, and works very nicely.",
+      "PostedDate": "2011-02-25T14:55:26.88-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-05-19T18:29:07.447-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-05-20T03:08:19.317-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:02:31.793-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:41:45.55-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

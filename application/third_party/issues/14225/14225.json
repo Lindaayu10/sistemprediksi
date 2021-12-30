@@ -1,0 +1,106 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "After executing PHPExcel_Worksheet::removeRow(), the worksheet is not resized as I'd expect. Instead, it seems that the remaining rows are simply repositioned within the worksheet, but trailing empty rows are left at the bottom of the worksheet.\n \nI've attached a test case to illustrate the issue.\n \nUsing PHPExcel 1.7.4.",
+    "LastUpdatedDate": "2016-04-20T05:42:54.443-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2010-09-10T10:04:41.61-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Trailing empty rows remain after removeRow()",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 8,
+    "Id": 14225
+  },
+  "FileAttachments": [
+    {
+      "FileId": 4837,
+      "FileName": "Mk-empty-rows-test.php",
+      "DownloadUrl": ".\\4837"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "I've also observed similar behavior from PHPExcel_Worksheet::removeColumnByIndex() when attempting to remove columns from the worksheet.",
+      "PostedDate": "2010-09-21T02:01:26.61-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2011-06-14T06:34:44.44-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "i have noticed the same behavior in 1.7.6",
+      "PostedDate": "2011-06-14T06:35:07.73-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2011-06-16T07:44:51.217-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-05-17T12:51:59.927-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I'm having the same issue, also in 1.7.6\r\nIts also affecting PHPExcel_Worksheet::removeColumn()\r\n\r\nOnly noticed because I'm using PHPExcel_Writer_HTML and saw the empty rows and columns at the ends of the generated table.\r\n\r\nPossible workaround (please note, I've not tried this yet so it might not work) could be to remove the rows/columns as normal, then use PHPExcel_Worksheet::rangeToArray() and fromArray() to copy the cells into a new PHPExcel_Worksheet, and replace the original worksheet with the new one.",
+      "PostedDate": "2012-05-17T12:55:36.377-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Just replying to confirm that the workaround I posted in my previous comment worked, at least in my case.\r\n\r\nUsing xdebug and Netbeans I stepped through the code while it pulled the worksheet from the cache and I think the problem is caused by the cache not being updated properly when rows/columns are removed, so the resulting worksheet ends up having the same number of rows and columns as the original.\r\n\r\nAnyway, here's the steps I used in my workaround. I've used code that's working in my project and just changed the names of the variables. I was also only getting a portion of my worksheet, hence the bits where it deals with the range B13:Q64 so that may not be needed for you.\r\n\r\nHope this is of some help to someone!\r\n\r\n\t\t$theWorkbook = new PHPExcel();\r\n\r\n\t\t$tmpNewWorksheet = new PHPExcel_Worksheet($theWorkbook, 'tmpNewWorksheet');\r\n\t\t$arr = $calculatorWorksheetObject->rangeToArray('B13:Q64');\r\n\t\t$tmpNewWorksheet->fromArray($arr);\r\n\t\t\r\n\t\t// Remove Columns C, D, E and N\r\n\t\t// Important notes:\r\n\t\t// 1) Since the cells were copied into a new sheet at A1, they are no longer at B13:Q64 but A1:P52, so Column C becomes B, etc. and if you're dealing with any rows, they will be now be 12 less than they were.\r\n\t\t// 2) As you remove each column, the columns after it shift left, just like in Excel. Therefore you have to account for this when removing subsequent columns. Maybe we could do it backwards (i.e. remove N, then E, then D then C) but I've not tested that.\r\n\t\t$tmpNewWorksheet->removeColumn('B');\r\n\t\t$tmpNewWorksheet->removeColumn('B');\r\n\t\t$tmpNewWorksheet->removeColumn('B');\r\n\t\t$tmpNewWorksheet->removeColumn('J');\r\n\t\t\r\n\t\t// Note that we don't need to add $tmpNewWorksheet to the $theWorkbook.\r\n\t\t\r\n\t\t$realWorkseet = new PHPExcel_Worksheet($theWorkbook,'RealWorksheet');\r\n\t\t$arr = $tmpNewWorksheet->rangeToArray('A1:L52'); // Since everything was shifted to the left by one column when we copied the range the first time, the last column, Q became P, then we deleted 4 columns, so P became L.\r\n\t\t$realWorkseet->fromArray($arr);\r\n\t\t\r\n\t\t// Now we add the sheet to $theWorkbook.\r\n\t\t$theWorkbook->addSheet($realWorkseet);\r\n\r\n\t\t// Do stuff, in this case output as embedded HTML.\r\n\t\t$htmlWriterTheWorkbook = new PHPExcel_Writer_HTML($theWorkbook);\r\n\t\t$htmlWriterTheWorkbook->setSheetIndex(1); // The sheet is at index 1 and not 0, because when $theWorkbook was created it seems to have a blank sheet already present at index 0.\r\n\t\t\r\n\t\techo $htmlWriterTheWorkbook->generateSheetData();\r\n\r\n\r\n",
+      "PostedDate": "2012-05-17T15:11:53.913-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:02:45.54-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-09-29T16:25:18.457-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2014-05-08T09:21:50.787-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2015-01-05T01:27:12.883-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2016-04-20T05:42:54.443-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

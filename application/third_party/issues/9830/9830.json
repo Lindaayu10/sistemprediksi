@@ -1,0 +1,111 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "All",
+      "DisplayName": "All"
+    },
+    "ClosedComment": "Fixed in SVN",
+    "ClosedDate": "2009-04-26T23:15:53.84-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Question from here:\nhttp://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=9793\n--------\nCan something be done with a delimiter before the decimals instead of a dot (\".\")?\n \nOr I just can simply add php str_replace() for my purposes before returning a formatted value? something like this:\n \n$returnVal = sprintf($format, 100 * $value);\nreturn str_replace(\".\", \",\", $returnVal);\n \nAs I remember for excel it depends on system local settings, am I right?",
+    "LastUpdatedDate": "2013-05-16T05:42:43.917-07:00",
+    "PlannedForRelease": "PHPExcel 1.7.0 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-04-22T15:46:19.017-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Locale aware decimal and thousands separator in exported formats HTML, CSV, PDF",
+    "Type": {
+      "Name": "Feature",
+      "Id": 1
+    },
+    "VoteCount": 1,
+    "Id": 9830
+  },
+  "FileAttachments": [
+    {
+      "FileId": 3021,
+      "FileName": "wi-9830.patch",
+      "DownloadUrl": ".\\3021"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "The technique using str_replace() will work, but it is probably not very convenient.\r\n\r\nBy default, MS Office Excel 2007 uses the system locale settings to determine which decimal and thousands separator to use. In Windows XP this would be the ones set in Control Panel > Regional And Language Options. \r\n\r\nBut you can also explicitly set decimal separator via advanced options in MS Office Excel 2007:\r\nhttp://img520.imageshack.us/img520/4967/advanced.png\r\n\r\nMaarten, some thoughts:\r\n\r\n1. Perhaps we need something in PHPExcel corresponding to \"Excel Options\" where one can set this kind of stuff.\r\n\r\n2. Related to this feature request, would things be easier if we had an unbindValue() method in PHPExcel_Cell_IValueBinder?\r\n\r\nIf PHPExcel_Cell_AdvancedValueBinder could somehow take care of delivering calculated cell values as formatted strings, then the HTML/PDF/CSV writers could make use of that, while at the same time making the undbindValue() function available to users.\r\n\r\n",
+      "PostedDate": "2009-04-22T16:22:42.453-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Options can not be reflected in the document, but we could create a class in which stuff like this is stored. But wouldn't setting PHP's locale be easier?\r\n\r\nWhat would this unbindValue do at which moment?",
+      "PostedDate": "2009-04-23T01:42:43.817-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": ">> But wouldn't setting PHP's locale be easier?\r\nI think it is a good idea that current locale controls the default decimal/thousands separators. Just like in MS Office Excel. Tried to implement this, but ran into trouble:\r\nhttp://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=9846\r\n\r\n>> What would this unbindValue do at which moment?\r\nJust mentioning the idea, this is not directly related to this work item. But I was imagining that this would allow you to control result of $cell->getValue(). For the advanced value binder, it could be practical if it gave what-you-see-in-Excel, this means, formatted dates, calculated values etc.",
+      "PostedDate": "2009-04-24T05:19:19.423-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "ANother option is to add \"getFormattedValue()\" to PHPExcel_Cell, applying all formatting set by style, locale, ...?",
+      "PostedDate": "2009-04-25T01:51:15.297-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": ">> Another option is to add \"getFormattedValue()\" to PHPExcel_Cell, applying all formatting set by style, locale, ...?\r\n\r\nThat would work too, I think. On the other hand there might be disagreement what kind of value getFormattedValue() should return. Some may want Rich-Text objects returned as plain text, others may not. Some may want calculated values, others may want formulas.\r\n\r\nDiverging opinions could be embraced by allowing this to be controlled via the value binder.\r\n\r\nIn the long run, AdvancedValueBinder could become the default value binder, and setValue() and getValue() could correspond exactly to the way one interacts with a cell in MS Office Excel:\r\n\r\n$cell->setValue('=5+3');\r\necho $cell->getValue(); // 8\r\n\r\nAlthough there is asymmetry, this is probably what first-time users would find most easy to grasp. Also, we would not have to introduce a new method for the cell.\r\n\r\nThis is how I'm thinking right now, but will try to let this relax a bit, sometimes I change my mind after some time :)\r\n",
+      "PostedDate": "2009-04-25T08:03:20.31-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Here is patch to make decimal/thousands separator in HTML/CSV/PDF locale aware. Well, actually, it was already, partially, because sprintf() with the f specifier is locale aware. Only the formatting via number_format() needed updating.",
+      "PostedDate": "2009-04-25T08:47:28.67-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-04-25T08:47:32.92-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-04-25T11:10:24.877-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-04-26T23:15:38.557-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-04-26T23:15:53.84-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "The unbindValue seems like a valuable option in that case. AdvancedValueBinder will be the default once, at a moment where we feel it covers all scenario's it should handle.",
+      "PostedDate": "2009-04-26T23:17:13.527-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:04:06.65-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:43.917-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

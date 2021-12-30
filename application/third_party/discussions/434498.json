@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "1006694",
+    "ThreadId": "434498",
+    "Html": "I'm pretty new to PHP and I've a task to carry out, where in I need to fetch data from tables present in mysql db into existing excel template.\r<br />\n<br />\nI've my .xls stored in my localdrive, which has n number of fields in the cells, i.e.,\r<br />\n<br />\nA1 - NAME\r<br />\nA2- EMAIL ADDRESS\r<br />\nA3- PHONE NUMBER\r<br />\nA4- DEPARTMENT\r<br />\n<br />\nI need to fetch data from mysql db and data need to be loaded into the cells\r<br />\nB1, B2, B3, B4 for the above respective fields.\r<br />\n<br />\nPlease advise me, as I'm not much aware of PHP coding.\r<br />\n<br />\nThanks in advance!\r<br />\nKrishna<br />\n",
+    "PostedDate": "2013-02-25T22:23:53.677-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1006782",
+    "ThreadId": "434498",
+    "Html": "<pre><code>$objPHPExcel = PHPExcel_IOFactory::load(&quot;myExistingTemplate.xls&quot;);\n\n$col = 1; \nwhile($row_data = mysql_fetch_assoc($result)) {\n    $row = 1;\n    foreach($row_data as $value) {\n        $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow($col, $row, $value);\n        $row++;\n    }\n    $col++;\n}\n\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');\n$objWriter-&gt;save('myResultFile.xls');</code></pre>\n\n",
+    "PostedDate": "2013-02-26T01:22:43.913-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1006800",
+    "ThreadId": "434498",
+    "Html": "Hi Mark,\r<br />\n<br />\nThanks for your reply. But I don't understand how you are mapping A1 cell to insert value in B1 Cell and similarly for other cells as well.\r<br />\nAs I don't have much idea about PHP, please do help me with a working example if possible.\r<br />\n<br />\nThank you!\r<br />\nKrishna<br />\n",
+    "PostedDate": "2013-02-26T01:49:37.407-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1006804",
+    "ThreadId": "434498",
+    "Html": "This code isn't mapping anything: your database query should be doing the mapping.... returning only the columns you want and in the order that you want them<br />\n",
+    "PostedDate": "2013-02-26T01:54:44.633-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1006808",
+    "ThreadId": "434498",
+    "Html": "I'm just fetching the columns I need from table. But not sure how exactly to map it in queries.<br />\n",
+    "PostedDate": "2013-02-26T02:07:46.083-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1006813",
+    "ThreadId": "434498",
+    "Html": "Here is what I'm trying to do in my code, pls. let me know what modifications I've to do.\r<br />\n<br />\n&lt;?php \r<br />\n<br />\n$con = mysql_connect(&quot;localhost&quot;,&quot;root&quot;,&quot;pwd&quot;);\r<br />\nif (!$con)\r<br />\n  {\r<br />\n  die('Could not connect: ' . mysql_error());\r<br />\n  }\r<br />\n<br />\nmysql_select_db(&quot;world&quot;, $con);\r<br />\n<br />\n/*<em> Include PHPExcel </em>/\r<br />\nrequire_once '/Classes/PHPExcel.php';\r<br />\n<br />\n<br />\n// Create new PHPExcel object\r<br />\n$objPHPExcel = new PHPExcel();\r<br />\n<br />\n$result = mysql_query(&quot;SELECT Name, District FROM city where Name = 'Kabul'&quot;);\r<br />\n$objPHPExcel = PHPExcel_IOFactory::load(&quot;form.xls&quot;);\r<br />\n<br />\n<br />\n<br />\nwhile($row = mysql_fetch_array($result)){<br />\n<pre><code>$objPHPExcel-&gt;setActiveSheetIndex(0);\n\n$objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue('C6', $row['Name']);\n$objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue('C7', $row['District']);\n    }\n    header('Content-type: application/ms-excel');\n\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');\n    $objWriter-&gt;save('Result.xls');\n\n    exit;\n</code></pre>\n\n?&gt;<br />\n",
+    "PostedDate": "2013-02-26T02:12:43.037-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1006903",
+    "ThreadId": "434498",
+    "Html": "(my apologies to intrude on the subject, Mark)<br />\nPerhaps easier to understand:<br />\n<pre><code>$row = 2; / / whereas the first line contains a header, otherwise 1\n$S = $objPHPExcel-&gt;getActiveSheet();\nwhile($ row_data = mysql_fetch_assoc($result)){\n$S-&gt;setCellValueExplicit('A'.$row, $row_data['Name']);//in first loop, write the name in A2\n$S-&gt;setCellValueExplicit('B'.$row, $row_data['District']);\n$row++;\n}</code></pre>\n\nUsing setCellValueExplicit to avoid stupid thing with phone number, zip code.<br />\nThis method forces the type according to what is stated in the third parameter, when it is not present - as here - this will be a string.<br />\nIf this is not clear, you can write it:<br />\n<pre><code>$S-&gt;setCellValueExplicit('A'.$row, $row_data['Name'], PHPExcel_Cell_DataType::TYPE_STRING);</code></pre>\n\n",
+    "PostedDate": "2013-02-26T05:06:42.817-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

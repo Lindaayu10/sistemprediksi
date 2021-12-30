@@ -1,0 +1,39 @@
+<?php
+require_once "PHPExcel.php";
+//include PHPExcel library
+require_once './PHPExcel/IOFactory.php';
+/** PHPExcel_Writer_Excel2007 */
+require_once './PHPExcel/Writer/Excel2007.php';
+
+$excel = new PHPExcel();
+
+$excel->getProperties()
+->setCreator("zzy")
+->setLastModifiedBy("Administrative institutions budget funds management system")
+->setTitle("Administrative institutions budget funds management system")
+->setSubject("Administrative institutions budget funds management system")
+->setDescription("targetmanajor statistic list")
+->setKeywords("office 2007 openxml php")
+->setCategory("Administrative institutions budget funds management system");
+
+$sheet = $excel->getActiveSheet();
+$sheet->mergeCells("B2:C5");
+$sheet->setCellValue("B2", "Test");
+//echo $sheet->getSelectedCells();
+
+$style = $sheet->getStyle("B2");
+$border = $style->getBorders();
+$border->getRight()->setBorderStyle(true);
+$border->getBottom()->setBorderStyle(true);
+$border->getTop()->setBorderStyle(true);
+$border->getLeft()->setBorderStyle(true);
+
+
+$excel->setActiveSheetIndex(0);
+$objWriter = PHPExcel_IOFactory::createWriter($excel, 'Excel2007');
+header("Content-Type: application/force-download");   
+header("Content-Type: application/octet-stream");   
+header("Content-Transfer-Encoding: binary"); 
+header("Content-Disposition: attachment;filename=test.xlsx");
+header('Cache-Control: max-age=0');
+$objWriter->save('php://output'); 

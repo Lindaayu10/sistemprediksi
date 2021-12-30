@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "622904",
+    "ThreadId": "260181",
+    "Html": "\r\n<p>Since the email&nbsp; maarten@phpexcel.net&nbsp; was invalid I am copy-pasting the email here:</p>\r\n<p>Dear Mr Maarten<br>\r\nHello my name is George Pligor and I am a developer from Greece. I have benefited much from the project PHPExcel. In fact I made a small donation\r\n<img src=\"http://static.ak.fbcdn.net/images/blank.gif\" alt=\":)\" style=\"\"> Although I am curious about why there is no change at the donation bar. It writes 870.00$ as the first time I checked your site..<br>\r\n<br>\r\nAnyway I have two(2) bugs to mention:<br>\r\n<br>\r\nBefore I proceed I should mention that I apply PHPExcel on Excel5 (.xls) files. I should also mention that I would happily send you any information or files that could help you reproduce the problem and thus fix these bugs\r\n<img src=\"http://static.ak.fbcdn.net/images/blank.gif\" alt=\":)\" style=\"\"><br>\r\n<br>\r\nFirstly there is some issue with the &quot;calculations&quot; function. I guess when there is some row or column full of a background color, or maybe full of borders the calculation crashes and the file is not loaded. So far I overcome this problem by using a &quot;ReadFilter&quot;\r\n which constraints the number of rows and specifies which columns to be read. But the problem remains when using an excel file with unknown number of rows or columns<br>\r\n<br>\r\nSecondly and MOST importantly I would like to mention this bug: If you have =C5&#43;B4 this is a reference to cells inside the same sheet. Then if you have =SHEETNAME!A10 then you have a reference to a cell in the specified sheet.<br>\r\nPHPExcel does NOT take into account the third option. REFERENCE TO ANOTHER .XLS FILE: 'C:\\some_path\\[some_excel_filename.xls]SHEETNAME'!A10<br>\r\nI guess you would have to load the other file and read the data. So far the loader crashes.<br>\r\n<br>\r\nI would greatly appreciate If you could fix this. Is it possible to happen relatively soon?\r\n<img src=\"http://static.ak.fbcdn.net/images/blank.gif\" alt=\":)\" style=\"\"><br>\r\n<br>\r\nThank you and once more excellent work to all of the team of this project!</p>\r\n",
+    "PostedDate": "2011-06-04T02:21:49.607-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "623760",
+    "ThreadId": "260181",
+    "Html": "<p>Regarding your first problem:</p>\r\n<p>When you say the calculation crashes, can you explain exactly what you mean? What is the calculation? Are any error messages displayed or written to the log? What does a calculation log show?</p>\r\n<p>&nbsp;</p>\r\n<p>Regarding the second problem:</p>\r\n<p>This isn't a little thing, but a very big one, and there is a Work Item for it (See Artistan's problem <a href=\"http://phpexcel.codeplex.com/workitem/15646\">here</a>). While I know how to resolve this, it's an enormous performance and memory overhead, loading external workbooks that may or may not be accessible on the web server, making it impractical to implement.</p>",
+    "PostedDate": "2011-06-06T14:27:39.77-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "624042",
+    "ThreadId": "260181",
+    "Html": "<p>Yes in fact the problems were not in order. The huge problem is the one where PHPExcel fails to load linked .xls files.</p>\r\n<p>About the first problem, when I said calculation I saw an exception thrown from inside calculation.php. Is there a calcultion function as well? I didn't look it up. Of course if you would like me to I could send you the steps which reproduce the problem (simply loading a .xls file and then saving it). I only guess that the infinite borders is the problem, I am not exactly sure. Would you like me to send you the .xls file as well to an email or rapidshare link ?..</p>\r\n<p>As far as the problem with the linked .xls files is concerned I am not suggesting such an extreme dynamic way as you imagine.<br />But let's take thing from the beginning.</p>\r\n<p>I live in Greece. You know Greece, the new beloved case study for all economists at least the for last past year (:</p>\r\n<p>My company is using Excel to store all kinds of data.... ==&gt;CHAOS !!<br />Only think about many many columns and hundred or more sheets per .xls file !!! ==&gt; HELL !!</p>\r\n<p>Since the system is (already) unsustainable all data must pass to a database. BUT automatically, so this is where PHPExcel plays the main role.</p>\r\n<p>First of all please do not be concerned about a web server crashing. Only because I use php scripts in cli. Some scripts take longer than 5 minutes to run!!</p>\r\n<p>As you said I understand how things could get messy if you would read dynamically data from another .xls. But no need to do that. I only ask, just when the child .xls file loads would load the .xls parent (one level parent-child depth is enough for now), read the calculated values of the parent cells and pass them as static values at the child.</p>\r\n<p>so the reference to the parent.xls file: 'C:\\some_path\\[parent.xls]SHEETNAME'!A10 would be conveted to value '10' or value 'Maria' or whatever is the calculated value of this cell.</p>\r\n<p>So after this load, we close the parent.xls file and release the memory.</p>\r\n<p>For the rest of the script we forget about the parent.xls file and do our work only on child.xls file with the classes and methods which already exist in PHPExcel (:</p>\r\n<p>Even further you could use (btw do you know any other way to do that?) this line</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre><span style=\"color: blue;\">if</span>($argc) { <span style=\"color: green;\">/*...*/</span> }\r\n</pre>\r\n</div>\r\n</p>\r\n<p>so you could separate the cli from the cgi php. Maybe you wanted to prevent such a load with the cgi mode to save webserver resources as you said :)</p>\r\n<p>Hope to resolve this soon</p>",
+    "PostedDate": "2011-06-07T03:26:40.303-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "638002",
+    "ThreadId": "260181",
+    "Html": "<p>I renew this request as a major request</p>\r\n<p>OR at least could you give me some directions on which functions/methods to look inside the source code of PHPExcel to solve it myself?</p>\r\n<p>OR any other indirect solution is welcome :)</p>\r\n<p>Thank you in advance!</p>",
+    "PostedDate": "2011-07-06T03:23:29.363-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

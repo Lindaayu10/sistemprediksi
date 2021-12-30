@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "1484559",
+    "ThreadId": "658222",
+    "Html": "Hy, i am new in using phpexcel. \r<br />\n<br />\ncurrently my system using mass upload data to the database, and mostly the data is copy and paste in to excel. File type mass upload is comma separated value. so their is high possible contain of non ascii value inside the column.\r<br />\n<br />\nSo i am using phpexcel to generate the data fail insert into database.\r<br />\nbut the problem is that, some of the data column contain false because the data contain non ascii, \r<br />\nso how to set the column value same as what i upload file.!\r<br />\n<br />\nthis is the file i upload\r<br />\n<img src=\"http://www.lookp.com/assets/image_codex/upload_data.PNG\" alt=\"Image\" />\r<br />\n<br />\n<br />\nthis is error data\r<br />\n<img src=\"http://www.lookp.com/assets/image_codex/massupload%20error.PNG\" alt=\"Image\" />\r<br />\n<br />\nfrom the image we can see that &quot;Address&quot; column contain value is False. i want that column contain value same as what i upload instead of FALSE.<br />\n",
+    "PostedDate": "2016-09-24T04:17:28.83-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1484566",
+    "ThreadId": "658222",
+    "Html": "If you know  what charset the csv file is using, then tell the PHPExcel Reader that using the Reader's <code>setInputEncoding()</code> method before calling the load(); otherwise PHPExcel assumes that it's UTF-8<br />\n",
+    "PostedDate": "2016-09-24T07:21:41.303-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1484629",
+    "ThreadId": "658222",
+    "Html": "$filename = date('H-i-s').&quot;_fail_sp&quot;;<br />\n<pre><code>    /** Error reporting */\n    error_reporting(E_ALL);\n\n    /** Include path **/\n    ini_set('include_path', ini_get('include_path').';../Classes/');\n\n    /** PHPExcel */\n    include 'library/PHPExcel/Classes/PHPExcel.php';\n\n    /** PHPExcel_Writer_Excel2007 */\n    include 'library/PHPExcel/Classes/PHPExcel/Writer/Excel2007.php';\n\n    // Create new PHPExcel object\n    $objPHPExcel = new PHPExcel();\n    // Set properties\n    $objPHPExcel-&gt;getProperties()-&gt;setCreator(&quot;LookP Team&quot;);\n    $objPHPExcel-&gt;getProperties()-&gt;setLastModifiedBy(&quot;LookP Team&quot;);\n    $objPHPExcel-&gt;getProperties()-&gt;setTitle(&quot;Office 2007 XLSX Mass Upload Fail SP download&quot;);\n    $objPHPExcel-&gt;getProperties()-&gt;setSubject(&quot;Office 2007 XLSX Test Document&quot;);\n    $objPHPExcel-&gt;getProperties()-&gt;setDescription(&quot;Test document for Office 2007 XLSX, generated using PHP classes.&quot;);\n\n\n    $worksheet = $objPHPExcel-&gt;getActiveSheet();\n\n    foreach($error_businessInfo as $row =&gt; $columns) {\n        foreach($columns as $column =&gt; $data) {\n            $worksheet-&gt;setCellValueByColumnAndRow($column, $row + 1, $data);\n        }\n    }\n\n    // Rename sheet\n    $objPHPExcel-&gt;getActiveSheet()-&gt;setTitle('Simple');\n\n    // Save Excel 2007 file\n    $objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel);\n\n    $objWriter-&gt;save(&quot;download/$filename.xlsx&quot;);\n\n</code></pre>\n\nthis is my code section, i am not sure where should i put the &quot;setinputencoding&quot;. the file i upload is type &quot;Windows-1252&quot; and i wanna produce file &quot;Windows-1252&quot;<br />\n",
+    "PostedDate": "2016-09-25T18:09:18.67-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

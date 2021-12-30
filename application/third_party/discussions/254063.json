@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "597945",
+    "ThreadId": "254063",
+    "Html": "<p>Hello,</p>\n<p>Could you please help me with my problem?</p>\n<p>I'm trying to export data (set of SQL tables) to Excel and have no problem with 8 or less exported tables, but with 9 or more I have</p>\n<p><strong>unserialize(): Error at offset 176 of 177 bytes in PHPTemp.php</strong></p>\n<p>As I can see it is not data format problem, it is memory limit or something like this.</p>\n<p>Here is screen copy of the apache error file (sorry for screen copy, but it was the only way to get it from Citrix)<a href=\"http://phpexcel.codeplex.com/Project/Download/AttachmentDownload.ashx?ProjectName=phpexcel&amp;WorkItemId=10749&amp;FileAttachmentId=5585\">http://phpexcel.codeplex.com/Project/Download/AttachmentDownload.ashx?ProjectName=phpexcel&amp;WorkItemId=10749&amp;FileAttachmentId=5585</a></p>\n<p>Memory_peak&nbsp;always shows value around 20Mb when I do export for 8 tables. For 9 and more is shows about 15.8Mb.</p>\n<p>I tried to play with memoryCasheSize values from 1Mb to 32Mb but with no success.</p>\n<p>Do you have any suggestions what should I check and tune?</p>\n<p>Thanks in advance!</p>",
+    "PostedDate": "2011-04-15T07:20:00.673-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "598335",
+    "ThreadId": "254063",
+    "Html": "<p>After small code update I could export up to 9 tables.</p>\r\n<p>Updates in my code include checks on empty data.</p>\r\n<p>This gave me a bit more memory but does not fix my problem.</p>",
+    "PostedDate": "2011-04-16T00:23:50.037-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "601559",
+    "ThreadId": "254063",
+    "Html": "<p>Way forward is stop using<br /><br />$cacheMethod = PHPExcel_CachedObjectStorageFactory:: cache_to_phpTemp;<br />$cacheSettings = array( ' memoryCacheSize '&nbsp; =&gt; '8MB' );<br />PHPExcel_Settings::setCacheStorageMethod($cacheMethod, $cacheSettings);<br /><br />and increase memory_limit for PHP.<br /><br />But it is not solution. It is workaround</p>",
+    "PostedDate": "2011-04-22T08:26:35.91-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "905120",
+    "ThreadId": "254063",
+    "Html": "\r\n<p>Hi,</p>\r\n<p>Running into a similar issue. <strong>mzeddd</strong>&nbsp;mentioned using the memory limit in PHP -- is there a code example of how I'd bypass using PHP Excel. We are running a Linux VPS, 2GB of RAM, FCGI with APC and increased server settings to rediculous\r\n amounts:</p>\r\n<p><strong>max_execution_time = 200000</strong></p>\r\n<p><strong>max_input_time = 200000</strong></p>\r\n<p><strong>memory_limit = 512M</strong></p>\r\n<p>Using a file with about 12,000 lines (2.4MB file), but only when I decrease the amount to 2,000 or so does it go through. Otherwise, I get the following error:</p>\r\n<p><strong>Warning: fread() [function.fread]: Length parameter must be greater than 0 in/home/usr/public_html/libraries/phpexcel/Classes/PHPExcel/CachedObjectStorage/PHPTemp.phpon line 98</strong></p>\r\n<p><strong>Fatal error: Call to a member function attach() on a non-object in/home/usr/public_html/libraries/phpexcel/Classes/PHPExcel/CachedObjectStorage/PHPTemp.phpon line 100</strong></p>\r\n<p><strong>Fatal error: spl_autoload() [&lt;ahref='function.spl-autoload'&gt;function.spl-autoload&lt;/a&gt;]:Class JFactory could not be loaded in/home/usr/public_html/libraries/joomla/session/storage/database.php online 84</strong></p>\r\n<p>Any help would be EXTREMELY appreciated as I and my data center are at our whit's end here. Running\r\n<strong>1.7.7</strong>. Thanks!</p>\r\n",
+    "PostedDate": "2012-08-28T07:11:54.393-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

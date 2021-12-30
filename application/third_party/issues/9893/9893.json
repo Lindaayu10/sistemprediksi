@@ -1,0 +1,91 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "All",
+      "DisplayName": "All"
+    },
+    "ClosedComment": "Fixed in SVN",
+    "ClosedDate": "2009-04-30T08:36:12.06-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Expand documentation: Number formats\n \nA large fraction of the questions we get are related to number formats including the custom ones. Number formats are not explicitly covered in the PHPExcel Developer Documentation.\n \nHere is a suggested section which could perhaps fit in after section \"Formatting a cell\".\n \n \n-------------\nNumber formats\n \nYou often want to format numbers in Excel. For example you may want a thousands separator plus a fixed number of decimals after the decimal separator. Or perhaps you want some numbers to be zero-padded.\n \nIn MS Office Excel you may be familiar with selecting a number format from the \"Format Cells\" dialog. Here there are some predefined number formats available including some for dates. The dialog is designed in a way so you don't have to interact with the underlying raw number format code unless you need a custom number format.\n \nIn PHPExcel, you can also apply various predefined number formats. Example:\n \n$objPHPExcel->getActiveSheet()->getStyle('A1')->getNumberFormat()\n->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1);\n \nThis will format a number e.g. 1587.2 so it shows up as 1,587.20 when you open the workbook in MS Office Excel. (Depending on settings for decimal and thousands separators in MS Office Excel it may show up as 1.587,20)\n \nYou can achieve exactly the same as the above by using this:\n \n$objPHPExcel->getActiveSheet()->getStyle('A1')->getNumberFormat()\n->setFormatCode('#,##0.00');\n \nIn Excel, as well as in PHPExcel, you will have to interact with raw number format codes whenever you need some special custom number format. Example:\n \n$objPHPExcel->getActiveSheet()->getStyle('A1')->getNumberFormat()\n->setFormatCode('[Blue][>=3000]$#,##0;[Red][<0]$#,##0;$#,##0');\n \nTip:\n--\nThe rules for composing a number format code in Excel can be rather complicated. Sometimes you know how to create some number format in MS Office Excel, but don't know what the underlying number format code looks like. How do you find it?\n \nThe readers shipped with PHPExcel come to the rescue. Load your template workbook using e.g. Excel2007 reader to reveal the number format code. Example how read a number format code for cell A1:\n \n$objReader = PHPExcel_IOFactory::createReader('Excel2007');\n$objPHPExcel = $objReader->load('template.xlsx');\n \nvar_dump($objPHPExcel->getActiveSheet()->getStyle('A1')->getNumberFormat()->getFormatCode());\n \nAdvanced users may find it faster to inspect the number format code directly by renaming template.xlsx to template.zip, unzipping, and looking for the relevant piece of XML code holding the number format code in xl/styles.xml.\n--\n \n----------\nend of suggestion",
+    "LastUpdatedDate": "2015-04-27T14:21:40.13-07:00",
+    "PlannedForRelease": "PHPExcel 1.7.0 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-04-29T08:59:16.99-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Expand documentation: Number formats",
+    "Type": {
+      "Name": "Task",
+      "Id": 2
+    },
+    "VoteCount": 1,
+    "Id": 9893
+  },
+  "FileAttachments": [
+    {
+      "FileId": 8850,
+      "FileName": "TestExcel2007.xlsx",
+      "DownloadUrl": ".\\8850"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "Maarten, a minor thing...\r\n- The date on the front page of the developer documentation is always \"today\" when I print it, maybe hard code it to the release date?\r\n",
+      "PostedDate": "2009-04-29T09:15:35.943-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-04-29T09:18:26.633-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-04-29T11:20:37.803-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-04-30T08:36:01.12-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-04-30T08:36:12.06-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:04:05.24-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:42.77-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2015-04-27T14:21:39.45-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Phpexcel getformatcode \nI tested all possible XLS Date, Currency, Accounting formats for Excel5. All results tell me PHPExcel Excel5 works fine.\nFor Excel2007, I tested  all possible XLSX Date, Currency, Accounting formats for Excel2007.  Almost all results tell me PHPExcel Excel5 works fine except for Currency format with '(' and  ')' symbles getFormatCode() returns \"General\".\nI wrote a PHP script, it reads data from Excel sheet and display cell format code:\n<?php //ShowFormatCode.php\nsession_start(); \n \n $shnum =0;\n set_include_path(get_include_path() . PATH_SEPARATOR . 'Classes/');\n    include 'PHPExcel/IOFactory.php';\n //echo 'IN pre_load_first20<br>';\n \n \n    $inputFileName = \"./upload/TestExcel5.xls\";\n echo \"inputFileName***\" .$inputFileName .\"***<br>\";\n display_format($inputFileName,$shnum);\n echo \"*******************------------------------**************************----------------------------*******************<br>***\";\n \n    $inputFileName = \"./upload/TestExcel2007.xlsx\";\n echo \"inputFileName***\" .$inputFileName .\"***<br>\"; \n display_format($inputFileName,$shnum);\n \n \nfunction display_format($inputFileName,$shnum){ \n try {\n     $inputFileType = PHPExcel_IOFactory::identify($inputFileName);\n        $objReader = PHPExcel_IOFactory::createReader($inputFileType);\n  //$objReader = PHPExcel_IOFactory::createReader(\"Excel5\");\n  $objPHPExcel = $objReader->load($inputFileName);\n  //$objPHPExcel = PHPExcel_IOFactory::load($inputFileName);\n  if (!$objPHPExcel){\n      echo 'objPHPExcel is null<br>';\n  }\n  else{\n    echo 'Excel type:***' .$inputFileType .'***<br>';\n    // echo 'objPHPExcel is NOT null<br>';\n     ;\n  } \n } catch(Exception $e) {\n      $er = 'Error loading file \"'.pathinfo($inputFileName,PATHINFO_BASENAME).'\": '.$e->getMessage();\n  echo $er; \n }\n echo 'After try/catch **' .$shnum .'**<br>';\n  $objPHPExcel->setActiveSheetIndex($shnum);\n //echo 'After setActiveSheetIndex**<br>';\n \n $highestColumm = $objPHPExcel->getActiveSheet()->getHighestColumn();\n echo 'highestColumm***' .$highestColumm .'***<br>';\n    $highestRow = $objPHPExcel->getActiveSheet()->getHighestRow(); \n echo 'highestRow***' .$highestRow .'***<br>';\n \n $highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumm);  \n \n echo 'highestColumnIndex***' .$highestColumnIndex .'***<br>';\n   $dtcol = array();\n   $nodtcol = array();\n   $dtdex = array();\n   $highestRow = 8;\n   echo 'Only show first 7 rows---------------------<br>';\n for($row =2; $row < $highestRow; $row++) {  \n       for ($i = 0; $i < $highestColumnIndex; $i++) { \n       // echo 'in loop **' .$i  .'**column--';\n    $cell = $objPHPExcel->getActiveSheet()->getCellByColumnAndRow($i, $row);\n             $lt = get_col_letter($i+1); \n    \n    $range = $lt .$row;\n    \n       $frmcod = $objPHPExcel->getActiveSheet()->getCellByColumnAndRow($i, $row)->getStyle()->getNumberFormat()->getFormatCode();\n    \n    $v = $cell->getValue();\n    \n   // echo $range .'*' .$frmnm .'**' .$frmcod .'**value**' .$v  .'**<br>';\n    echo $range .'**' .$frmcod .'**value**' .$v  .'**<br>';  //check formatcode \n    \n \n  }//for in loop \n  echo  'End ' .$row .'th row-----------------------------------------------------<br>';\n }//for out loop\n}//end  function display_format\n function get_col_letter($num){\n    $comp=0;    \n    $pre='';\n    $letters=array('A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z');\n    \n    //if the number is greater than 26, calculate to get the next letters\n    if($num > 26){\n        //divide the number by 26 and get rid of the decimal\n        $comp=floor($num/26);\n        \n        //add the letter to the end of the result and return it\n  if($comp!=0)\n        // don't subtract 1 if the comparative variable is greater than 0\n   return get_col_letter($comp).$letters[($num-$comp*26)];\n  else\n            return get_col_letter($comp).$letters[($num-$comp*26)-1];\n    }\n    else\n    //return the letter\n $num = $num -1;\n    return $letters[$num];\n} \n?>\r\n\r\n",
+      "PostedDate": "2015-04-27T14:21:40.13-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

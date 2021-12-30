@@ -1,0 +1,90 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "EDIT:  I should have been in the discussions tab.  Sorry\n \nWhenever my script runs through, it likes to create an extra worksheet for each worksheet I want to create.  \n \nI've checked and my code has no place where there is a sheet created that is not renamed directly afterwords.  Meanwhile, I have Worksheet 1 through Worksheet 15 showing up like unwanted in-laws.\n \nAnything I should check?",
+    "LastUpdatedDate": "2013-02-21T19:03:06.55-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2010-03-24T14:40:49.77-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Extra Worksheets",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 12248
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "Sorry, thought I was in the discussions.",
+      "PostedDate": "2010-03-24T14:46:01.1-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-03-24T14:47:15-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "What code are you using to create the sheets?",
+      "PostedDate": "2010-03-24T17:05:10.11-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I'm using PHP.  I'll have to wait til I get back to work tomorrow to send you some snippets.",
+      "PostedDate": "2010-03-24T18:06:21.4-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "OK, here's some of my code:\r\n\r\n======================================================================\r\nIterate through the loops\r\n\r\n\t$arr = array(lighting, drives, invmgt, esrform, costsav, procimp, prodimp, repair, classes, techsupp);\r\n\t$sheet = 0;\r\n\tforeach($arr as $table)\r\n\t{\r\n\t$sheet++;\r\n\r\n\t\t\t$sql2 = \"SELECT * FROM $table WHERE `custnum` IN(\".implode(\",\",array_values($salesnum)).') AND indate BETWEEN \"'.$date2.'\" AND \"'.$date1.'\"';\r\n\r\n\t\t$res = mysqli_query($mysqli,$sql2);\r\n\t\tif (mysqli_num_rows($res)==0){\r\n\t\t\t// $res[]='No Reports';\r\n\t\t\t\t\t\t$objPHPExcel->createSheet();\r\n\t\t\t\t\t\t$objPHPExcel->setActiveSheetIndex($sheet);\r\n\t\t\t\t\t\t$objPHPExcel->getActiveSheet()->setTitle($table);\r\n\t\t\t\t\t\t$objPHPExcel->getActiveSheet()->setCellValue('A1', 'No Reports for '.$table.'.');\r\n\t\t\t}\r\n\t\telse\r\n\t\t{\r\n\t\t\r\n\t\t$i=1;\r\n//  GETS ARRAY ROWS AND OUTPUTS \r\n\t\t\twhile ($newarray = mysqli_fetch_row($res)) \r\n\t\t\t{\r\n\t\t\t// echo $table.'<br>';\r\n\t\t\t// echo '========================================<br>';\r\n\t\t\t// print_r($newarray);\r\n\t\t\t// echo '<br>';\r\n\t\t\t$j=0;\r\n\t\t\t$k=1;\r\n\t\t\tforeach($newarray as $value)\r\n\t\t\t\t{\r\n\t\t\t\t\t$insert[$k] = $value;\r\n\t\t\t\t\t$k++;\r\n\r\n\t\t\t\t}\r\n\r\n\\\\  Call Functions\r\n\t\t\t\tif($table == \"lighting\")\r\n\t\t\t\t$i = lightform($insert, $xls, $sheet, $i, $table, $objPHPExcel);\r\n\t\t\t\t\r\n\t\t\t\telseif($table == \"drives\")\r\n\t\t\t\t$i = drivesform($insert, $xls, $sheet, $i, $table, $objPHPExcel);\r\n\r\n\t\t\t\telseif($table == \"invmgt\")\r\n\t\t\t\t$i = invmgtform($insert, $xls, $sheet, $i, $table, $objPHPExcel);\r\n\t\t\t\t\r\n\t\t\t\telseif($table == \"esrform\")\r\n\t\t\t\t$i = esrform($insert, $xls, $sheet, $i, $table, $objPHPExcel);\r\n\r\n\t\t\t\telseif($table == \"costsav\")\r\n\t\t\t\t$i = costsav($insert, $xls, $sheet, $i, $table, $objPHPExcel);\r\n\r\n\t\t\t\telseif($table == \"procimp\")\r\n\t\t\t\t$i = procimp($insert, $xls, $sheet, $i, $table, $objPHPExcel);\r\n\r\n\t\t\t\telseif($table == \"prodimp\")\r\n\t\t\t\t$i = prodimp($insert, $xls, $sheet, $i, $table, $objPHPExcel);\r\n\r\n\t\t\t\telseif($table == \"repair\")\r\n\t\t\t\t$i = repair($insert, $xls, $sheet, $i, $table, $objPHPExcel);\r\n\r\n\t\t\t\telseif($table == \"classes\")\r\n\t\t\t\t$i = classes($insert, $xls, $sheet, $i, $table, $objPHPExcel);\r\n\r\n\t\t\t\telseif($table == \"techsupp\")\r\n\t\t\t\t$i = techsupp($insert, $xls, $sheet, $i, $table, $objPHPExcel);\r\n\r\n\t\t\t\t$i++;\r\n\t\t\t}\r\n\t\t\t$i=0;\r\n\t\t}\r\n\t}\r\n\r\ndelivery($insert, $xls, $i, $salesnum, $date1, $date2, $objPHPExcel);\r\nsummary($insert, $xls, $i, $salesnum, $date1, $date2, $objPHPExcel);\r\n\r\n===================================================================================\r\nHere's a sample of the functions that generate the separate sheets\r\n\r\nfunction lightform($insert, $xls, $sheet, $i, $table, $objPHPExcel)\r\n// LIGHTS FUNCTION-----------------------------------------------------------------------------\r\n\t{\r\n\r\n\t$l = $i;\r\n\r\n\t\t\t\t\t\t$objPHPExcel->createSheet();\r\n\t\t\t\t\t\t$objPHPExcel->setActiveSheetIndex(0);\r\n\t\t\t\t\t$objPHPExcel->getActiveSheet()->setTitle('Lighting Savings');\r\n\r\n\r\n\t//Set Column Width\r\n$objPHPExcel->getActiveSheet()->getColumnDimension('A')->setWidth(20);\r\n$objPHPExcel->getActiveSheet()->getColumnDimension('B')->setWidth(20);\r\n$objPHPExcel->getActiveSheet()->getColumnDimension('C')->setWidth(20);\r\n$objPHPExcel->getActiveSheet()->getColumnDimension('D')->setWidth(20);\r\n\t\r\n\r\n\t\t$merge = \"A\".$i.\":D\".$i;\r\n\t$objPHPExcel->getActiveSheet()->mergeCells($merge);\r\n\t$objPHPExcel->getActiveSheet()->getStyle($merge)->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID);\r\n\t$objPHPExcel->getActiveSheet()->getStyle($merge)->getFill()->getStartColor()->setARGB('FF808080');\r\n// Info Block -----------------------------------------------------------------------------\t\r\n\r\n\t\t// Set thin black border outline around Info Block\r\n\t\r\n\t$box = $i + 5;\r\n\t$merge = \"A\".$i.\":D\".$box;\r\n$styleThinBlackBorderOutline = array(\r\n\t'borders' => array(\r\n\t\t'outline' => array(\r\n\t\t\t'style' => PHPExcel_Style_Border::BORDER_THIN,\r\n\t\t\t'color' => array('argb' => 'FF000000'),\r\n\t\t),\r\n\t),\r\n);\r\n$objPHPExcel->getActiveSheet()->getStyle($merge)->applyFromArray($styleThinBlackBorderOutline);\r\n\t\r\n$font = \"A\".$i;\r\n$objPHPExcel->getActiveSheet()->getStyle($font)->getFont()->setName('Candara');\r\n$objPHPExcel->getActiveSheet()->getStyle($font)->getFont()->setSize(20);\r\n$objPHPExcel->getActiveSheet()->getStyle($font)->getFont()->setBold(true);\r\n$objPHPExcel->getActiveSheet()->getStyle($font)->getFont()->setUnderline(PHPExcel_Style_Font::UNDERLINE_SINGLE);\r\n$objPHPExcel->getActiveSheet()->getStyle($font)->getFont()->getColor()->setARGB(PHPExcel_Style_Color::COLOR_WHITE);\r\n\t\r\n\t\r\n\t$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(0, $i, 'Lighting Improvement Report');\r\n\t$i++;\r\n\r\n\t$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(0, $i, 'Salesman Number');\r\n\t$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(3, $i, $insert[1]);\r\n\t$i++;\r\n\r\n\t$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(0, $i, 'Customer Number');\r\n\t$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(3, $i, $insert[2]);",
+      "PostedDate": "2010-03-25T06:52:45.62-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I think the problem might be in your code?\r\n\r\nwhile ($newarray = mysqli_fetch_row($res)) {\r\n\t....\r\n\r\n\tif($table == \"lighting\")\r\n\t$i = lightform($insert, $xls, $sheet, $i, $table, $objPHPExcel);\r\n\r\n\t....\r\n}\r\n\r\nSince lightform() creates a new sheet each time it is called, it creates a new sheet for each row in mysqli_fetch_row($res) which may not be what you want. Am I right?",
+      "PostedDate": "2010-03-25T19:52:34.573-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "That was it.  Thanks",
+      "PostedDate": "2010-03-26T06:28:17.337-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "OK, now it's starting to get weird.  I've got it so that it doesn't create the extra sheets if I open it with openoffice.  If I open the file with excel, it still has the extra sheets.  Starting to think it's an excel glitch.",
+      "PostedDate": "2010-03-26T09:10:50.62-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "This is very stange! Can you upload an example of such Excel file?",
+      "PostedDate": "2010-03-26T20:53:16.613-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:03:06.55-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

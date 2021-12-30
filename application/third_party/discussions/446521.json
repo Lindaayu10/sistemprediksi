@@ -1,0 +1,554 @@
+[
+  {
+    "Id": "1054698",
+    "ThreadId": "446521",
+    "Html": "Hi all,<br />\n<br />\nI have a page with a form to filter results. I have put an export button on the page. I want my users to be able to filter data and export only the results of that query (not the whole data in table) to excel.<br />\n<br />\nOf course I made a lot of searches here. And I guess I found some articles but in most of them the user ends the topic with &quot;Ok, it's working now&quot;. I couldn't find a topic with a complete solution for three days. That's why I decided to open a thread.<br />\n<br />\nI'm waiting for your help.<br />\n<br />\n__Edit: Should I have session or cookies in dreamweaver and include this (though I don't know how to create)?<br />\nIt would have been great if there were a how to page explaining with do this first, then that and that.__<br />\n",
+    "PostedDate": "2013-06-09T23:01:54.79-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1054810",
+    "ThreadId": "446521",
+    "Html": "You can find a simplistic example here: <a href=\"https://phpexcel.codeplex.com/discussions/446306#post1054008\" rel=\"nofollow\">https://phpexcel.codeplex.com/discussions/446306#post1054008</a>\r<br />\nWrite a complete table or only the result of a filter is exactly the same for PHPExcel, the difference is upstream on the definition of the query.\r<br />\nTo build it, you exploited the form data in the same way that you would do to display the results in the browser (without take care of pagination but on the other hand ensuring that criteria will not give an empty result - except in special cases, no utility to generate an Excel file - or too therefore result - you determine the acceptable volume).\r<br />\n<br />\nUse a cookie... Yes, if the generation is likely to take some time, you can see here: <a href=\"https://phpexcel.codeplex.com/discussions/429094\" rel=\"nofollow\">https://phpexcel.codeplex.com/discussions/429094</a>\r<br />\nfor a discussion on this topic, but see it after the main works.<br />\n",
+    "PostedDate": "2013-06-10T05:09:21.147-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1054821",
+    "ThreadId": "446521",
+    "Html": "Thanks for reply. In fact I've already tried the simplistic example but it gave error on Line18 and I couldn't find what to do.\r<br />\n<br />\nI checked the other link, pheeew. It seems I'm down at the mountain while you're at the top.\r<br />\n<br />\nI shouldn't take your precious time I think. Thanks anyway. <br />\n",
+    "PostedDate": "2013-06-10T05:26:31.317-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1054825",
+    "ThreadId": "446521",
+    "Html": "I added <strong><em>$host='localhost';</em></strong> to the beginnig and changed <strong><em>['Field2'))</em></strong> to that <strong><em>['Field2'])</em></strong> the error gone but the result.xls came blank.<br />\n",
+    "PostedDate": "2013-06-10T05:33:42.193-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1054829",
+    "ThreadId": "446521",
+    "Html": "Ok, I changed Field1 and 2 to the related table column names I got it listed. That's great. Now I can play with it like adding some formattings.\r<br />\n<br />\n<strong>But the biggest problem still continues. How can export the filtered data instead of getting all.</strong> Now I'll check the second link again and try to understand. I hope I can do it.<br />\n",
+    "PostedDate": "2013-06-10T05:40:38.557-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1054925",
+    "ThreadId": "446521",
+    "Html": "A little too fast in writing... Corrected.<br />\n<br />\nThere actually is no restrictive clause in this query. Just add it, a simple matter... or not, depending on the case.<br />\nAs you give no details, I'll have to invent :-)<br />\nSay that users can select a year and that they can indicate the first letters of what they seek.<br />\nYou will retrieve this information probably in $_POST:<br />\n<pre><code>$CurY = date('Y');\nIf(array_key_exists('Year', $_POST)) $Year = (int)$ _POST['Year']; else $Year = $CurY;\nif($Year&lt;1980 or $Year&gt;$CurY) $Year = $CurY;\nIf(array_key_exists('Name', $_POST)) $Name = trim(strip_tags($_POST['Name'])); else $Name = '';</code></pre>\n\nYou have your criteria in variables, with a basic cleaning. It remains only to build your query by integrating:<br />\n<pre><code>$SQL = 'SELECT TheName, aField, AnotherField FROM MyTable WHERE EXTRACT(YEAR FROM TheDate) ='. $Year.' AND TheName LIKE \\''.mysqli_real_escape_string($Link, $Name).'%\\') LIMIT 100';</code></pre>\n\n$Year is an integer, so you can use it directly. $Name, you do not know what he has, as a result, it is be sure to neutralize what may be harmful.<br />\nThe LIMIT clause avoids having too much data, especially if $Name is empty. You adapt to the need. but do not delete unless certain that the table will never contain a too large number of records.<br />\nThe suite is identical. The recordset is reduced according to the criteria of users, but this does not change anything for PHPExcel.<br />\n",
+    "PostedDate": "2013-06-10T08:52:54.58-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1054971",
+    "ThreadId": "446521",
+    "Html": "<strong>LWol, thanks for your blind help. I couldn't decide what detail I should give. So let me try to explain in detail now.</strong><br />\n<br />\nOn localhost I prepared a page with a form on the top that the user can filter data on the recordset below.<br />\nFor now the user can query a date-range on &quot;satis_tarih&quot; (date of sale) column and chooses the &quot;satis_satici&quot; (salesperson) from a dropdown list. (But I'll add some other fields to query later.)<br />\nThe recordset gets data from one table only and the result is shown 10 by 10 (repeat region behaviour). You can check the code and preview that page from those links:<br />\n<br />\nCODE: <strong>Edit: Link is deleted for security (Did I say security? :))</strong><br />\nPREV: <strong>Edit: Link is deleted for security (Did I say security? :))</strong><br />\n<br />\nThe query is working just as I wanted for now and I want my users to get the filtered data when they click the &quot;Export&quot; button below.<br />\n<br />\nI hope I managed to tell in details because as I told before I'm a baby in dynamic tables and PHP stuff. So I get dizzy when I read your replies. A full page example would be really good indeed.<br />\n<br />\n<strong>Edit: I get the results with $_GET</strong><br />\n",
+    "PostedDate": "2013-06-10T10:08:07.193-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1055316",
+    "ThreadId": "446521",
+    "Html": "I would see if I have the time and if it will be necessary to make a more elaborate response.\r<br />\n<br />\nIn the meantime:<br />\n<ul>\n<li>You already have your procedure to create the query based on user's choice (lines 56, 57).</li>\n<li>\nYou have a small form for the Export button (lines 316-318). \r<br />\nAt the time where you generate your page, you know the user's choice, you can therefore add to the form three hidden fields whose values are the user's choice.<br />\n</li>\n</ul>\nThe target page will receive these values that you can use in a manner similar to that you put in work to display data, in other words the same query except that the clause LIMIT will be set arbitrarily to avoid abuse and not to respect pagination.\r<br />\n<br />\nYou can provide a little javascript test in the form of Export, if the user clicks on the button with no criteria filled. This same test is to be performed on the target script (that generates your Excel file), in case the user's browser does not have javascript enabled or bypasses this test.<br />\n",
+    "PostedDate": "2013-06-11T04:27:34.707-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1055368",
+    "ThreadId": "446521",
+    "Html": "Thank you LWol. I hope you have time for that. Meanwhile I'll try your suggestions.<br />\n",
+    "PostedDate": "2013-06-11T06:22:52.947-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1056776",
+    "ThreadId": "446521",
+    "Html": "Hi Lwol,<br />\n<br />\nI'm still fighting with the codes, checking the other topics to see if I can find something, opening my mind wide but unfortunately it seems that my mind is not wide enough to understand these stuff. I just created the hidden fields like that and don't know what to write in &quot;benim4.php&quot; :<br />\n<pre><code>&lt;form action=&quot;Examples/benim4.php&quot; method=&quot;post&quot; name=&quot;export&quot; target=&quot;_blank&quot;&gt;\n&lt;input type=&quot;hidden&quot; name=&quot;var1&quot;\n value=&quot;&lt;?php echo $_POST['var1']; ?&gt;&quot;&gt;\n&lt;input type=&quot;hidden&quot; name=&quot;var2&quot;\n value=&quot;&lt;?php echo $_POST['var2']; ?&gt;&quot;&gt;\n&lt;input type=&quot;hidden&quot; name=&quot;satici&quot;\n value=&quot;&lt;?php echo $_POST['satici']; ?&gt;&quot;&gt;\n&lt;button type=&quot;submit&quot; class=&quot;btn btn-info&quot; style=&quot;margin:10;&quot;&gt;EXPORT&lt;/button&gt;\n&lt;/form&gt;</code></pre>\n\nAnd the query I have is:<br />\n<pre><code>SELECT *\nFROM satislar\nWHERE satis_satici LIKE v3 AND satis_tarih between v1 and v2\nORDER BY satis_tarih DESC</code></pre>\n\n",
+    "PostedDate": "2013-06-14T03:14:27.683-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1057229",
+    "ThreadId": "446521",
+    "Html": "Dear LWol,\r<br />\n<br />\n<strong>I'm still waiting for your help. Please see me.</strong><br />\n",
+    "PostedDate": "2013-06-15T07:40:32.523-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1057406",
+    "ThreadId": "446521",
+    "Html": "Let's make it simple.\r<br />\n<br />\nReplace the &lt;form&gt;...&lt;/form&gt; with this : <br />\n<pre><code>&lt;?php\nif (PHP_VERSION &lt; 6) {\n    $var1 = get_magic_quotes_gpc() ? stripslashes($v1_Recordset2) : $v1_Recordset2;\n    $var2 = get_magic_quotes_gpc() ? stripslashes($v2_Recordset2) : $v2_Recordset2;\n    $var3 = get_magic_quotes_gpc() ? stripslashes($v3_Recordset2) : $v3_Recordset2;\n  }else{\n    $var1=$v1_Recordset2;\n    $var2=$v2_Recordset2;\n    $var3=$v3_Recordset2;\n  }\n  $TheForm='&lt;form action=&quot;Examples/benim4.php&quot; method=&quot;post&quot; name=&quot;export&quot; target=&quot;_blank&quot;&gt;\n            &lt;input type=&quot;hidden&quot; name=&quot;var1&quot;\n             value=&quot;'.htmlspecialchars($var1).'&quot;&gt;\n            &lt;input type=&quot;hidden&quot; name=&quot;var2&quot;\n             value=&quot;'.htmlspecialchars($var2).'&quot;&gt;\n            &lt;input type=&quot;hidden&quot; name=&quot;satici&quot;\n             value=&quot;'.htmlspecialchars($var3).'&quot;&gt;\n            &lt;button type=&quot;submit&quot; class=&quot;btn btn-info&quot; style=&quot;margin:10;&quot;&gt;EXPORT&lt;/button&gt;\n            &lt;/form&gt;';\n    echo $TheForm;\n?&gt;</code></pre>\n\nNote : The attribute &quot;action&quot; in the form, in the file C74tables.php target the script Examples/benim4.php then the script generating the Excel file seems to be called exportXLS.php.\r<br />\nCall it as you want, but the name must be identical (script name, with path if needed, in &quot;action&quot; and the file on the server).\r<br />\n<br />\nIn exportXLS.php :\r<br />\nAdd the block (from C74tables.php) : if (!function_exists(&quot;GetSQLValueString&quot;)) {[...]}}\r<br />\nAdd this, before the query definition : <br />\n<pre><code>$v1_Recordset2 = &quot;1&quot;;\nif (isset($_POST['var1'])) {\n  $v1_Recordset2 = $_POST['var1'];\n}\n$v3_Recordset2 = &quot;1&quot;;\nif (isset($_POST['satici'])) {\n  $v3_Recordset2 = $_POST['satici'];\n}\n$v2_Recordset2 = &quot;1&quot;;\nif (isset($_POST['var2'])) {\n  $v2_Recordset2 = $_POST['var2'];\n}</code></pre>\n\nReplace the line $SQL=[...] with this : <br />\n<pre><code>$SQL = sprintf(&quot;SELECT cus_id, mus_musteriadi, mus_pstnno, urun_satilanurun, satis_satici, satis_tarih  FROM satislar WHERE satis_satici LIKE %s AND satis_tarih between %s and %s ORDER BY satis_tarih DESC LIMIT 500&quot;, GetSQLValueString($v3_Recordset2, &quot;text&quot;),GetSQLValueString($v1_Recordset2, &quot;date&quot;),GetSQLValueString($v2_Recordset2, &quot;date&quot;));</code></pre>\n\nClause LIMIT 500 is arbitrary, replaces the number by a value normal use shall not exceed.<br />\n",
+    "PostedDate": "2013-06-16T07:48:14.047-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1057412",
+    "ThreadId": "446521",
+    "Html": "<strong>HURRAY, HURRAY, HURRAY.</strong>\r<br />\n<br />\nWhere have you been LWol? I was about to die because of waiting in front the computer without sleeping and eating :) I could never solve that.\r<br />\n<br />\n<strong>It's working now.</strong>\r<br />\n<br />\n<strong>May God be with you at all times.</strong>\r<br />\n<br />\nI think I can develop the query with more fields now.\r<br />\n<br />\nThere is another thing I struggle with and couldn't find a proper solution: The Date format. It is because of the cell type mechanism of Excel I guess. I added this:<br />\n<pre><code>$objPHPExcel-&gt;getActiveSheet()-&gt;setAutoFilter($objPHPExcel-&gt;getActiveSheet()-&gt;calculateWorksheetDimension());</code></pre>\n\nto make it filtered when opened but the dates in excel aren't listed properly.  I mean they are not grouped as usual. So the user can't filter the content by year or month (example: choosing 2012 or January and February)\r<br />\n<br />\nI tried that:<br />\n<pre><code>$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('F2')-&gt;getNumberFormat()-&gt;setFormatCode('dd.mm.yyyy');</code></pre>\n\nbut didn't work. But even if it worked it would be applied to some cells not the whole F column.\r<br />\n<br />\nPS: Can I donate you a little if you don't mind?<br />\n",
+    "PostedDate": "2013-06-16T08:23:24.93-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1057441",
+    "ThreadId": "446521",
+    "Html": "Yes, you are right, it must take into account the way that Excel handles dates.\r<br />\nWhat you have achieved giving a format ([...]setFormatCode ('dd.mm.yyyy')) is a correct step. \r<br />\nNow, the value of the cell must be a number (displayed as a date with the format) , not a string. (Today is 41441)\r<br />\n<br />\nI guess the date from the database is to the universal format (YYYY-MM-DD) and that there are no hours.\r<br />\n<br />\nIn the loop (while), before filling the cell concerned, insert this code:<br />\n<pre><code>if($Trs['DateField']==''){\n        $TheDate='';\n    }else{\n        $tmpDate=explode('-', $Trs['DateField']);\n        $TheDate=PHPExcel_Shared_Date::FormattedPHPToExcel((int)$tmpDate[0],(int)$tmpDate[1],(int)$tmpDate[2]);\n    }</code></pre>\n\n'DateField' is the name of the field that contains a date, to be replaced by the real name, of course.<br />\n",
+    "PostedDate": "2013-06-16T11:13:29.937-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1057445",
+    "ThreadId": "446521",
+    "Html": "In case I may be doing something wrong here I'd like to ask:\r<br />\n<br />\nWith your code it should be like that right?<br />\n<pre><code>while($Trs=mysqli_fetch_assoc($rs)){//extract each record\n    $F-&gt;setCellValue('A'.$Line, $Trs['cus_id'])\n        -&gt;setCellValue('B'.$Line, $Trs['mus_musteriadi'])\n        -&gt;setCellValue('C'.$Line, $Trs['mus_pstnno'])\n        -&gt;setCellValue('D'.$Line, $Trs['urun_satilanurun'])\n        -&gt;setCellValue('E'.$Line, $Trs['satis_satici'])\n        -&gt;setCellValue('F'.$Line, $Trs['satis_tarih']);\n    ++$Line;\n    if($Trs['satis_tarih']==''){\n        $TheDate='';\n    }else{\n        $tmpDate=explode('-', $Trs['satis_tarih']);\n        $TheDate=PHPExcel_Shared_Date::FormattedPHPToExcel((int)$tmpDate[0],(int)$tmpDate[1],(int)$tmpDate[2]);\n    }\n}</code></pre>\n\nsatis_tarih is the field's name in the database table\r<br />\n<br />\n}<br />\n",
+    "PostedDate": "2013-06-16T11:29:03.093-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1057461",
+    "ThreadId": "446521",
+    "Html": "This way.<br />\n<pre><code> while($Trs=mysqli_fetch_assoc($rs)){//extract each record\n if($Trs['satis_tarih']==''){\n         $TheDate='';\n     }else{\n         $tmpDate=explode('-', $Trs['satis_tarih']);\n         $TheDate=PHPExcel_Shared_Date::FormattedPHPToExcel((int)$tmpDate[0],(int)$tmpDate[1],(int)$tmpDate[2]);\n     }\n     $F-&gt;setCellValue('A'.$Line, $Trs['cus_id'])\n         -&gt;setCellValue('B'.$Line, $Trs['mus_musteriadi'])\n        -&gt;setCellValue('C'.$Line, $Trs['mus_pstnno'])\n        -&gt;setCellValue('D'.$Line, $Trs['urun_satilanurun'])\n        -&gt;setCellValue('E'.$Line, $Trs['satis_satici'])\n        -&gt;setCellValue('F'.$Line, $TheDate);\n     ++$Line;\n    \n }</code></pre>\n\n",
+    "PostedDate": "2013-06-16T13:32:13.05-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1057694",
+    "ThreadId": "446521",
+    "Html": "Cool and works just as I wanted but I have to give a range I guess like F2:F5. It wouldn't be problem if I didn't delete the LIMIT in the query as the query sometimes can be a whole year or two years range.\r<br />\n<br />\nI tried to give F2:F, it gave error. I tried F2:F60000 but then the size and loading time got bigger. <strong>Can I apply that to whole column F without giving a range?</strong><br />\n",
+    "PostedDate": "2013-06-17T05:38:58.887-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1057780",
+    "ThreadId": "446521",
+    "Html": "As I wrote, you adapted the limit necessary: If a normal use can produce 5000 records, you fixed the limit to 5000 (or slightly more) the purpose is to avoid that a jokester arranges to have a full table dump so that you do not want.\r<br />\nIf this is not a problem, you delete the limit, but in this case, I strongly advise you to test an extreme case to make sure that the configuration accepts it.\r<br />\n<br />\nFor the range, you do you ask not the right question... Can you know the last line? Yes, it's $Line - 1 except if no record has been found.<br />\n",
+    "PostedDate": "2013-06-17T08:12:18.257-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1057783",
+    "ThreadId": "446521",
+    "Html": "<pre><code>As I wrote, you adapted the limit necessary: If a normal use can produce 5000 records, you fixed the limit to 5000 (or slightly more) the purpose is to avoid that a jokester arranges to have a full table dump so that you do not want. \nIf this is not a problem, you delete the limit, but in this case, I strongly advise you to test an extreme case to make sure that the configuration accepts it. </code></pre>\n\nYou're right. I try with 3.800 rows of 5 columns, I haven't tried with my real data with 56.000 + rows of at least 12 columns yet. I wish it won't be useless at the end. Better to try right now before developing more.<br />\n<pre><code>For the range, you do you ask not the right question... Can you know the last line? Yes, it's $Line - 1 except if no record has been found.</code></pre>\n\nDon't laugh at me :) but I changed to <br />\n<pre><code>//Setting Time Format of Column F\n$objPHPExcel-&gt;getActiveSheet()\n    -&gt;getStyle('F2':.$Line -1)\n    -&gt;getNumberFormat()-&gt;setFormatCode('dd.mm.yyyy');</code></pre>\n\nOf course it failed. It may involve writing a function but you spared a lot of time for me already and helped me unbelieveably. So I don't want to bother you more.<br />\n",
+    "PostedDate": "2013-06-17T08:31:17.527-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1057793",
+    "ThreadId": "446521",
+    "Html": "The colon range separator needs to be part of the string, it isn't a PHP operator<br />\n<div style=\"color:Black;background-color:White;\"><pre>\r\n$objPHPExcel-&gt;getActiveSheet()\n    -&gt;getStyle(<span style=\"color:#A31515;\">&#39;F2:F&#39;</span> . ($Line -1))\n    -&gt;getNumberFormat()-&gt;setFormatCode(<span style=\"color:#A31515;\">&#39;dd.mm.yyyy&#39;</span>);\r\n</pre></div>",
+    "PostedDate": "2013-06-17T08:41:03.64-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1057802",
+    "ThreadId": "446521",
+    "Html": "So do I have to use LIMIT in query and stick with the previous code:\r<br />\n<br />\n-&gt;getStyle('F2:F500')\r<br />\n<br />\nI was asking that because the export depends on a user's date-range and seller query. That's why the resulting excel may have 5 rows onlu but in another may be over a thousand.<br />\n",
+    "PostedDate": "2013-06-17T08:48:38.06-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1057816",
+    "ThreadId": "446521",
+    "Html": "Look at the response by Mark - I hesitate to write that he could miss a 'F':...-&gt;getStyle('F2:F'. ($Line-1)) ...\r<br />\n<br />\nFor the limit... A normal use can produce 56k rows ? Ok, fix the limit to 60k. This limit is for safety not for bothering a normal user.\r<br />\n<br />\nWith this number of rows, you must try on real case (and add a margin).<br />\n",
+    "PostedDate": "2013-06-17T09:05:16.243-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1057820",
+    "ThreadId": "446521",
+    "Html": "Yes, I tried Mark's code and it didn't work. As I can understand from his first words &quot;colon ange separatoe&quot; he should have written it quite quickly. Anyway, I'd like to thank Mark.\r<br />\n<br />\nNow it's OK.\r<br />\n<br />\n<strong>LWol, thanks a thousand times.</strong><br />\n",
+    "PostedDate": "2013-06-17T09:12:42.917-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1057821",
+    "ThreadId": "446521",
+    "Html": "Yeah, sorry.... I was typing quickly as I was on the phone to a recruitment agency<br />\nfixed now<br />\n",
+    "PostedDate": "2013-06-17T09:12:50.75-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1059567",
+    "ThreadId": "446521",
+    "Html": "Oh no!<br />\n<br />\nI did all the developments and made it work quite well on localhost but I was afraid that the system wouldn't operate on real host.<br />\n<br />\nAnd now the fear came true. I uploaded everything to the host, changed the database connection info, made the filtering and clicked the orange &quot;Rapor Oluştur&quot; button. It operates and brings up the download quite fast because the downloaded excel file is empty. The titles and others are there but there are no values from the database.<br />\n<br />\nThe strange thing is I can still have it on localhost with no change.<br />\n<br />\nIt seems to me that the cause of the problem is that the variables don't work, so no values are exported to the script. Or maybe because of any limitation on host.<br />\n<br />\n<strong>I beg you to give me a last hand?</strong><br />\n<br />\n<strong>THE LINK:</strong> <strong>Edit: Link is deleted for security (Did I say security? :))</strong><br />\n<br />\n<strong>THE FINAL CODE OF THE FIRST PAGE:</strong> <strong>Edit: Link is deleted for security (Did I say security? :))</strong><br />\n<br />\n<strong>THE FINAL CODE OF THE EXPORT PAGE:</strong> <strong>Edit: Link is deleted for security (Did I say security? :))</strong><br />\n<br />\nPS: There is another green button next to it which is expected to download the whole data without filtering and also works well on localhost. But in real world when I click it gives a &quot;benim2_Tum_Karakterproblemli.php&quot; not found error.<br />\n<br />\n<strong>EDIT: I thought enabling get_magic_quotes_gpc could solve the problem. I contacted my host-provider. They did it but it is still the same.</strong><br />\n",
+    "PostedDate": "2013-06-21T03:42:43.633-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1059606",
+    "ThreadId": "446521",
+    "Html": "I realized LWol used &quot;if (PHP_VERSION &lt; 6)&quot;.<br />\n<br />\nI think my host uses version 5.x.<br />\n<br />\n<strong>Edit: Misunderstanding. The code says below 6.</strong><br />\n",
+    "PostedDate": "2013-06-21T05:27:57.46-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1059609",
+    "ThreadId": "446521",
+    "Html": "I would go for a problem with the DBMS, directly or indirectly.\r<br />\nIn your benim6 page you use both MySQL and MySQLi interfaces. Choose one and corrected accordingly.\r<br />\nIf it still does not work, display (or writes to a file) your final request (when variables replacements are made).\r<br />\nIs this correct?\r<br />\nWhen you have executed the query, you get a resource or false? If false, that says mysql_error (mysqli_error)?\r<br />\n<br />\nmagic_quotes : the test exists because the function don't exists in PHP 6. You can't enable get_magic_quotes_gpc (well, a provider can disable the function, but none do it) but you can have a host with magic_quotes_gpc disabled (better), depending on the version of php, you can or you can't enable it.<br />\n",
+    "PostedDate": "2013-06-21T05:42:28.067-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1059622",
+    "ThreadId": "446521",
+    "Html": "Let me write what I tried:<br />\n<br />\n<strong>1-</strong> I gave a temporary name to the table on real host and imported the table on localhost. It didn't work.<br />\n<br />\n<strong>2-</strong> I changed all mysql to mysqli. It didn't work.<br />\n<br />\n<strong>3-</strong> I changed all mysqli to mysql. It didn't work, either.<br />\n<br />\nAnd yes. The first query page works good and gives me the results.<br />\n",
+    "PostedDate": "2013-06-21T06:01:02.343-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1059625",
+    "ThreadId": "446521",
+    "Html": "ON LOCALHOST: <a href=\"https://dl.dropboxusercontent.com/u/5326510/2.jpg\" rel=\"nofollow\">https://dl.dropboxusercontent.com/u/5326510/2.jpg</a>\r<br />\n<br />\nON REAL HOST: <a href=\"https://dl.dropboxusercontent.com/u/5326510/3.jpg\" rel=\"nofollow\">https://dl.dropboxusercontent.com/u/5326510/3.jpg</a><br />\n",
+    "PostedDate": "2013-06-21T06:11:15.637-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1059651",
+    "ThreadId": "446521",
+    "Html": "Hold on. If I understand you have imported the real table in your development server and it fails to give you a result?\r<br />\n<br />\nIn these cases, the question remains: mysql_query returns a resource or false? If it is false, it is the error (mysql_error)?<br />\n",
+    "PostedDate": "2013-06-21T07:00:28.223-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1059660",
+    "ThreadId": "446521",
+    "Html": "Not exactly. On localhost I was working on a database table called &quot;satislar&quot; you know. In fact on real host there is a also a table with the same name that the users add new records daily. The table I was working on localhost was a former copy of that.\r<br />\n<br />\nThat's why I just uploaded everything in the folder I have on localhost to server and changed database connection info on supr.php which was used by the first query page and on  benim.php which was used to export to Excel.\r<br />\n<br />\nWhen I saw it didn't work, I started to make some trials. One of them was changing the table on the server with the table on localhost but I saw it didn't work again and reverted the tables back.\r<br />\n<br />\nAs I wanted to show you the results in pictures of localhost and real server, there is not an error message. The Excel file is prepared and downloaded but there aren't any values from the database.<br />\n",
+    "PostedDate": "2013-06-21T07:16:48.13-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1059661",
+    "ThreadId": "446521",
+    "Html": "Sorry, I think I couldn't understand your question properly.\r<br />\n<br />\nAsking &quot;mysql_query returns a resource or false?&quot; I understood that you're asking about the first page (Filtering page). Now I see that you are asking the Excel file. The answer is no, it doesn't include resource from the first page. Just empty.<br />\n",
+    "PostedDate": "2013-06-21T07:22:07.77-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1059673",
+    "ThreadId": "446521",
+    "Html": "I will try to be precise and clear.\r<br />\n(Temporarily) change the benim6 script:\r<br />\n-Add a $SQL echo just before calling mysql_query.\r<br />\n-Change: $rs = mysql_query($SQL); in $rs = mysql_query($SQL) or die (mysql_error ());\r<br />\n(if you use MySQLi, adapted accordingly).\r<br />\n<br />\nRun your main script (C74tables_extended), valid selection that produced you the display of records then click on the Export button.\r<br />\n<br />\nYou have no Excel file (normal), but it must show you the query. Is 'clean'?\r<br />\nThe script stops on the die? In this case, you must have a SQL error message.<br />\n",
+    "PostedDate": "2013-06-21T08:06:21.96-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1059679",
+    "ThreadId": "446521",
+    "Html": "I changed <strong>$rs=mysql_query($Link, $SQL);</strong> to <strong>$rs=mysql_query($Link, $SQL)or die (mysql_error ());</strong>. No change.\r<br />\n<br />\nBy saying &quot;Add a $SQL echo&quot; do you mean I should add something before the line starting with $rs ?\r<br />\n<br />\nI'm going crazy. That's the final thing I'll do and I'm (we're) at the end of a month time job but...<br />\n",
+    "PostedDate": "2013-06-21T08:22:19.283-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1059695",
+    "ThreadId": "446521",
+    "Html": "No change ? ok. It's an answer.\r<br />\n<br />\nYes,, add before $rs=...<br />\n",
+    "PostedDate": "2013-06-21T09:16:25.18-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1059752",
+    "ThreadId": "446521",
+    "Html": "But they are already successive if I understand you correctly.<br />\n<pre><code>//your request\n$SQL = sprintf(&quot;SELECT cus_id, \n                        mus_musteriadi, \n                        mus_pstnno, \n                        urun_satilanurun, \n                        satis_satici, \n                        satis_tarih,\n                        urun_pstnadslhizturu,\n                        satis_verilentarifepstn,\n                        satis_verilentarifeadsl,\n                        satis_kampanya,\n                        satis_modem,\n                        akt_aktalan,\n                        akt_aktdurum,\n                        akt_ttonayi,\n                        akt_aktnotu\n                        FROM satislar WHERE satis_satici LIKE %s \n                                        AND urun_satilanurun LIKE %s \n                                        AND urun_pstnadslhizturu LIKE %s \n                                        AND akt_aktalan LIKE %s \n                                        AND satis_modem LIKE %s \n                                        AND akt_aktdurum LIKE %s \n                                        AND satis_tarih between %s and %s ORDER BY satis_tarih DESC &quot;, GetSQLValueString($v3_Recordset2, &quot;text&quot;), GetSQLValueString($v4_Recordset2, &quot;text&quot;), GetSQLValueString($v5_Recordset2, &quot;text&quot;), GetSQLValueString($v6_Recordset2, &quot;text&quot;), GetSQLValueString($v7_Recordset2, &quot;text&quot;), GetSQLValueString($v8_Recordset2, &quot;text&quot;), GetSQLValueString($v1_Recordset2, &quot;date&quot;),GetSQLValueString($v2_Recordset2, &quot;date&quot;));\n$rs=mysql_query($Link, $SQL)or die (mysql_error ());//get the result (ressource)</code></pre>\n\n",
+    "PostedDate": "2013-06-21T12:44:13.533-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1059755",
+    "ThreadId": "446521",
+    "Html": "My host is served with PHP 5.2.17 if that helps you.<br />\n",
+    "PostedDate": "2013-06-21T12:50:24.233-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1059768",
+    "ThreadId": "446521",
+    "Html": "There's no SQL error. But the parameters are correct? Show query will see. Eventually the request can be copied in a SQL client to check the product result.<br />\nThere is a problem whose cause is not obvious: we must explore ways to find.<br />\n<br />\nEdit : Knowing the version is always helpful, even it does not trigger the inspiration<br />\n",
+    "PostedDate": "2013-06-21T13:24:32.433-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1059771",
+    "ThreadId": "446521",
+    "Html": "I just sent the server requirements to the support service and they replied me that all 4 already exist in their shared hosting plan.\r<br />\n<br />\n» PHP version 5.2.0 or newer\r<br />\n» PHP extension php_zip enabled *)\r<br />\n» PHP extension php_xml enabled\r<br />\n» PHP extension php_gd2 enabled (if not compiled in)\r<br />\n<br />\n<strong>LWol, as I did before I'm waiting in front of the computer praying you will be able to finish this project. I wish you find.</strong><br />\n",
+    "PostedDate": "2013-06-21T13:42:46.08-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1059773",
+    "ThreadId": "446521",
+    "Html": "It would be nice to find, indeed.\r<br />\nThat give the echo of $SQL? And if no visible abnormality at the first glance, copy there in a MySQL client to verify that you have well the result expected.<br />\n",
+    "PostedDate": "2013-06-21T13:54:01.45-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1059779",
+    "ThreadId": "446521",
+    "Html": "Sorry, I couldn't understand. Did you ask me to do anything?\r<br />\n<br />\nMeanwhile I tried to make it saved in xls instead of xlsx (Excel5) but the result is the same. BLANK.<br />\n",
+    "PostedDate": "2013-06-21T14:10:28.55-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1059782",
+    "ThreadId": "446521",
+    "Html": "Please, add a line echo $SQL; before $rs=mysql_query[...] and after $SQL=sprintf([...]<br />\n",
+    "PostedDate": "2013-06-21T14:20:02.113-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1059785",
+    "ThreadId": "446521",
+    "Html": "I did that:<br />\n<pre><code>$SQL = sprintf(&quot;SELECT cus_id, \n                        mus_musteriadi, \n                        mus_pstnno, \n                        urun_satilanurun, \n                        satis_satici, \n                        satis_tarih,\n                        urun_pstnadslhizturu,\n                        satis_verilentarifepstn,\n                        satis_verilentarifeadsl,\n                        satis_kampanya,\n                        satis_modem,\n                        akt_aktalan,\n                        akt_aktdurum,\n                        akt_ttonayi,\n                        akt_aktnotu\n                        FROM satislar WHERE satis_satici LIKE %s \n                                        AND urun_satilanurun LIKE %s \n                                        AND urun_pstnadslhizturu LIKE %s \n                                        AND akt_aktalan LIKE %s \n                                        AND satis_modem LIKE %s \n                                        AND akt_aktdurum LIKE %s \n                                        AND satis_tarih between %s and %s ORDER BY satis_tarih DESC &quot;, GetSQLValueString($v3_Recordset2, &quot;text&quot;), GetSQLValueString($v4_Recordset2, &quot;text&quot;), GetSQLValueString($v5_Recordset2, &quot;text&quot;), GetSQLValueString($v6_Recordset2, &quot;text&quot;), GetSQLValueString($v7_Recordset2, &quot;text&quot;), GetSQLValueString($v8_Recordset2, &quot;text&quot;), GetSQLValueString($v1_Recordset2, &quot;date&quot;),GetSQLValueString($v2_Recordset2, &quot;date&quot;));\necho $SQL;\n$rs=mysqli_query($Link, $SQL)or die (mysqli_error ());//get the result (ressource)</code></pre>\n\nThe difference is it was coming with Excel's message box asking whether to save or not and when I clicked Yes it was opening the file with no values except the header titles.\r<br />\n<br />\nNow there comes a message box with just one option saying cannot open the file.<br />\n",
+    "PostedDate": "2013-06-21T14:28:07.297-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1059788",
+    "ThreadId": "446521",
+    "Html": "The inability to open is normal. Saves the file and open it with a text editor: at the beginning you must see the query.\r<br />\n(I would have looked well, but it tells me that it cannot find the benim6 page)<br />\n",
+    "PostedDate": "2013-06-21T14:35:38.063-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1059790",
+    "ThreadId": "446521",
+    "Html": "It is because I keep on playing with the file trying &quot;PHPExcel_Settings::setZipClass(PHPExcel_Settings::PCLZIP);&quot; and other stuff. It should work now. I mean can be downloaded at least.\r<br />\n<br />\nOk, let me open it with text editor.<br />\n",
+    "PostedDate": "2013-06-21T14:38:55.483-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1059793",
+    "ThreadId": "446521",
+    "Html": "Yes, but characters after the query are corrupted.<br />\n<pre><code>SELECT cus_id, \n                        mus_musteriadi, \n                        mus_pstnno, \n                        urun_satilanurun, \n                        satis_satici, \n                        satis_tarih,\n                        urun_pstnadslhizturu,\n                        satis_verilentarifepstn,\n                        satis_verilentarifeadsl,\n                        satis_kampanya,\n                        satis_modem,\n                        akt_aktalan,\n                        akt_aktdurum,\n                        akt_ttonayi,\n                        akt_aktnotu\n                        FROM satislar WHERE satis_satici LIKE NULL \n                                        AND urun_satilanurun LIKE NULL \n                                        AND urun_pstnadslhizturu LIKE NULL \n                                        AND akt_aktalan LIKE NULL \n                                        AND satis_modem LIKE NULL \n                                        AND akt_aktdurum LIKE NULL \n                                        AND satis_tarih between NULL and NULL ORDER BY satis_tarih DESC</code></pre>\n\n",
+    "PostedDate": "2013-06-21T14:42:42.993-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1059794",
+    "ThreadId": "446521",
+    "Html": "Ok. Something is wrong with parameters : All are NULL in the query..<br />\n",
+    "PostedDate": "2013-06-21T14:43:03.7-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1059796",
+    "ThreadId": "446521",
+    "Html": "But then how do they work quite good on localhost?<br />\n",
+    "PostedDate": "2013-06-21T14:45:09.073-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1059799",
+    "ThreadId": "446521",
+    "Html": "Forgive me to stating an obvious fact: something is different between your test server and your production server.\r<br />\n<br />\nAdded a print_r($_POST) that we check that we have the data at this location, then one or two var_dump on the variables ($ v1_Recordset2, $v2_Recordset2, for example) themselves.\r<br />\nIf everything is good up there, the culprit will be the function GetSQLValueString<br />\n",
+    "PostedDate": "2013-06-21T14:55:41.52-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1059802",
+    "ThreadId": "446521",
+    "Html": "I saw the expression var_dump in my google checks some hours ago (how to test if a variable works). In fact I built a &quot;tester.php&quot; for that and directed the form to it.<br />\n<pre><code>&lt;?php\n\n$var = '';\n\n// This will evaluate to TRUE so the text will be printed.\nif (isset($var1)) {\n    echo &quot;This var is set so I will print.&quot;;\n}\n\n// In the next examples we'll use var_dump to output\n// the return value of isset().\n\n$a = &quot;var1&quot;;\n$b = &quot;satici&quot;;\n\nvar_dump(isset($a));      // TRUE\nvar_dump(isset($a, $b)); // TRUE\n\nunset ($a);\n\nvar_dump(isset($a));     // FALSE\nvar_dump(isset($a, $b)); // FALSE\n\n$foo = NULL;\nvar_dump(isset($foo));   // FALSE\n\n?&gt;</code></pre>\n\nWhen I set this:<br />\n<pre><code>// This will evaluate to TRUE so the text will be printed.\nif (isset($var1)) {\n    echo &quot;This var is set so I will print.&quot;;\n}</code></pre>\n\nto &quot;var&quot; it printed the sentence but when I set it to var1 and then satici, it gave nothing.\r<br />\n<br />\nBut of course I didn't know about that, I couldn't be sure what that means.<br />\n",
+    "PostedDate": "2013-06-21T15:07:09.15-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1059809",
+    "ThreadId": "446521",
+    "Html": "I write you an explanation and meanwhile, you put:\r<br />\nprint_r($_POST);\r<br />\nvar_dump($v1_Recordset2, $v2_Recordset2);\r<br />\nbefore $SQL = sprintf([...]\r<br />\nOK?<br />\n",
+    "PostedDate": "2013-06-21T15:34:16.033-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1059811",
+    "ThreadId": "446521",
+    "Html": "OK.<br />\n",
+    "PostedDate": "2013-06-21T15:35:25.86-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1059813",
+    "ThreadId": "446521",
+    "Html": "That's the result without echo $SQL;<br />\n<pre><code>Array\n(\n    [var1] =&gt; 2013-06-01\n    [var2] =&gt; 2013-06-03\n    [satici] =&gt; %\n    [urunler] =&gt; %\n    [pstnadslhizmetturu] =&gt; %\n    [aktalan] =&gt; %\n    [modem] =&gt; %\n    [aktdurum] =&gt; %\n)\nstring(10) &quot;2013-06-01&quot;\nstring(10) &quot;2013-06-03&quot;</code></pre>\n\nAnd that's the result with echo $SQL;<br />\n<pre><code>Array\n(\n    [var1] =&gt; 2013-06-01\n    [var2] =&gt; 2013-06-03\n    [satici] =&gt; %\n    [urunler] =&gt; %\n    [pstnadslhizmetturu] =&gt; %\n    [aktalan] =&gt; %\n    [modem] =&gt; %\n    [aktdurum] =&gt; %\n)\nstring(10) &quot;2013-06-01&quot;\nstring(10) &quot;2013-06-03&quot;\nSELECT cus_id, \n                        mus_musteriadi, \n                        mus_pstnno, \n                        urun_satilanurun, \n                        satis_satici, \n                        satis_tarih,\n                        urun_pstnadslhizturu,\n                        satis_verilentarifepstn,\n                        satis_verilentarifeadsl,\n                        satis_kampanya,\n                        satis_modem,\n                        akt_aktalan,\n                        akt_aktdurum,\n                        akt_ttonayi,\n                        akt_aktnotu\n                        FROM satislar WHERE satis_satici LIKE NULL \n                                        AND urun_satilanurun LIKE NULL \n                                        AND urun_pstnadslhizturu LIKE NULL \n                                        AND akt_aktalan LIKE NULL \n                                        AND satis_modem LIKE NULL \n                                        AND akt_aktdurum LIKE NULL \n                                        AND satis_tarih between NULL and NULL ORDER BY satis_tarih DESC</code></pre>\n\n",
+    "PostedDate": "2013-06-21T15:40:20.09-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1059815",
+    "ThreadId": "446521",
+    "Html": "Your test script shows mainly operation of isset.<br />\nisset tests whether a variable is set and just a wee bit its contents.<br />\n<br />\nAnd you defined a variable by:<br />\n$MaVariable = &quot;Something&quot;;<br />\n<br />\nThe only other case where isset returns false while the variable is set, it is when the value of the variable is null (or NULL, but not &quot;NULL&quot; or \\0).<br />\n<br />\nvar_dump displays the contents of a variable, its type, its structure.<br />\nprint_r deals only arrays, displays only the keys, values, but not their type.<br />\nYou use one or the other as needed.<br />\n",
+    "PostedDate": "2013-06-21T15:53:54.69-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1059816",
+    "ThreadId": "446521",
+    "Html": "Thank you and instead of a whole new php file you finished it with just two lines.\r<br />\n<br />\nBut I guess the result shows us that the variables are OK, right? So is the problem because that the function GetSQLValueString not able to pass them to the query?<br />\n",
+    "PostedDate": "2013-06-21T15:59:38.733-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1059820",
+    "ThreadId": "446521",
+    "Html": "Ok. It is closer to the culprit.<br />\nIt is sure that the data arrives as we expect them in the script. Variables arising therefrom are correct (at least two dates).<br />\nSo either sprintf is a whim (unlikely), or function GetSQLValueString.<br />\nIt is getting late, we are not going to the debugger, it will make in the brutal.<br />\n<br />\nWe have text and dates, both define the same way.<br />\nReplaces them:<br />\nGetSQLValueString($v3_Recordset2, &quot;text&quot;)<br />\n<br />\nby<br />\n'\\''.mysql_real_escape_string($v3_Recordset2, $Link).'\\''<br />\n<br />\nDitto for the $v1 to $v8.<br />\nIf you use mysqli, caution, invert the variables (first the $Link, then the string).<br />\nIf it works, it will take a little narrow when even, but we will see it.<br />\n",
+    "PostedDate": "2013-06-21T16:11:25.953-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1059822",
+    "ThreadId": "446521",
+    "Html": "Yes, it is 2 a.m. here and I can't keep my eyes open even to read what you write. Although I die for the result, I have to try it after a sleep.\r<br />\n<br />\n<strong>Thanks a million times LWol</strong> (when we finish, I'll thank you billion times :)), I'll try and write the result. I hope we get it. Bye for now.<br />\n",
+    "PostedDate": "2013-06-21T16:18:10.42-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1059878",
+    "ThreadId": "446521",
+    "Html": "__LWOOOOOOOOL\r<br />\n<br />\nHIP, HIP, HURRAY...\r<br />\n<br />\nIT WORKS, IT WORKS, IT WORKS.\r<br />\n<br />\nThanks X 1,000,000,000, LWol...__\r<br />\n<br />\nJust one tiny thing left though. I've built the script to create a two-sheets excel file. A sheet for main page which lists the user's filter criteria and a second sheet for the actual details.\r<br />\n<br />\nThe second sheet is built up good now but on the main sheet we still have NULL\r<br />\n<br />\nPIC: <a href=\"https://dl.dropboxusercontent.com/u/5326510/null.jpg\" rel=\"nofollow\">https://dl.dropboxusercontent.com/u/5326510/null.jpg</a>\r<br />\n<br />\nIt is because we haven't changed that part:<br />\n<pre><code>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('C4', GetSQLValueString($v1_Recordset2, &quot;date&quot;));\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('C5', GetSQLValueString($v2_Recordset2, &quot;date&quot;));\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('B6', 'Seçilen Satıcı:');\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('C6', GetSQLValueString($v3_Recordset2, &quot;text&quot;));\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('B7', 'Seçilen Ürün:');\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('C7', GetSQLValueString($v4_Recordset2, &quot;text&quot;));\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('B8', 'Seçilen Hizmet Türü:');\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('C8', GetSQLValueString($v5_Recordset2, &quot;text&quot;));\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('B9', 'Seçilen Aktivasyoncu:');\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('C9', GetSQLValueString($v6_Recordset2, &quot;text&quot;));\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('B10', 'Seçilen Modem Durumu:');\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('C10', GetSQLValueString($v7_Recordset2, &quot;text&quot;));\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('B11', 'Seçilen Akt Durumu:');\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('C11', GetSQLValueString($v8_Recordset2, &quot;text&quot;));\n$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('B4:B11')-&gt;getFont()-&gt;setBold(true);</code></pre>\n\nOf course I played with it but again of course I couldn't make it.<br />\n",
+    "PostedDate": "2013-06-22T05:32:41.383-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1059902",
+    "ThreadId": "446521",
+    "Html": "Not going too fast. We have bypassed the function for us make sure that the problem came from it, but we have not realized fully what she does.\r<br />\nTherefore, we do a complete rewrite, either we find what is wrong.\r<br />\n<br />\nYour production server does not display errors (which is normal), but he must write down them somewhere.\r<br />\nAccessing the error file can save time. To find out where it is... The simplest: you created in the same directory as your file benim6 a small file containing &lt;?php phpinfo();?&gt;\r<br />\nYou access this file using your browser, it should show you lots of information. Audited as log_errors to On (column Local Value), notes the value of error_reporting, viewing the path indicated by error_log. Can you access this file? Contain information in relation to our problematic script?\r<br />\n<br />\nOtherwise, you must dig: display the value at the beginning of the function, after the stripslashes after mysql_real_escape_string.\r<br />\n<br />\nNote: I don't know if you're using MySQL or MySQLi, but the transition from one to the other without precaution can cause problems, so the definition of the character set:\r<br />\nmysql_set_charset ('utf8', $Link);\r<br />\nmysqli_set_charset ($Link, 'utf8');<br />\n",
+    "PostedDate": "2013-06-22T08:39:28.1-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1059908",
+    "ThreadId": "446521",
+    "Html": "Pardon me because of being quite excited.<br />\n<br />\nI did what you said but I'm scared of that big info in front of me. So I downloaded it as html file:<br />\n<strong>Edit: Link is deleted for security (Did I say security? :))</strong><br />\n<br />\nI changed all mysql to mysqli.<br />\n",
+    "PostedDate": "2013-06-22T08:54:32.97-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1059934",
+    "ThreadId": "446521",
+    "Html": "OK, no file.\r<br />\n<br />\nDo simple.\r<br />\nAt the beginning of your benim6 script, add:\r<br />\nerror_reporting(E_ALL);\r<br />\nini_set('display_errors', '1');\r<br />\n<br />\nRun your script and see what happens. If the resulting Excel file does not open, same technique as last time: open it with a text editor. There is probably an error that trolling... And that interests us.\r<br />\n<br />\nPS: Removes the export of the phpinfo.<br />\n",
+    "PostedDate": "2013-06-22T11:37:34.61-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1061316",
+    "ThreadId": "446521",
+    "Html": "Hi LWol,\r<br />\n<br />\nSorry for replying late. My 4-year-old daughter caught pneumonia. We were in the hospital. Now I'm back after an exhausting 3 days.\r<br />\n<br />\nI tried your suggestions and in the resulting excel file it says:<br />\n<pre><code>&lt;br /&gt;\n&lt;b&gt;Notice&lt;/b&gt;:  Use of undefined constant Calibri - assumed 'Calibri' in &lt;b&gt;/var/www/vhosts/turktelekomksk.com/httpdocs/HARICILER/raporlamasistemi/Examples/benim6.php&lt;/b&gt; on line &lt;b&gt;145&lt;/b&gt;&lt;br /&gt;\n&lt;br /&gt;\n&lt;b&gt;Warning&lt;/b&gt;:  mysqli_real_escape_string() expects exactly 2 parameters, 1 given in &lt;b&gt;/var/www/vhosts/turktelekomksk.com/httpdocs/HARICILER/raporlamasistemi/Examples/benim6.php&lt;/b&gt; on line &lt;b&gt;15&lt;/b&gt;&lt;br /&gt;\n&lt;br /&gt;\n&lt;b&gt;Warning&lt;/b&gt;:  mysqli_real_escape_string() expects exactly 2 parameters, 1 given in &lt;b&gt;/var/www/vhosts/turktelekomksk.com/httpdocs/HARICILER/raporlamasistemi/Examples/benim6.php&lt;/b&gt; on line &lt;b&gt;15&lt;/b&gt;&lt;br /&gt;\n&lt;br /&gt;\n&lt;b&gt;Warning&lt;/b&gt;:  mysqli_real_escape_string() expects exactly 2 parameters, 1 given in &lt;b&gt;/var/www/vhosts/turktelekomksk.com/httpdocs/HARICILER/raporlamasistemi/Examples/benim6.php&lt;/b&gt; on line &lt;b&gt;15&lt;/b&gt;&lt;br /&gt;\n&lt;br /&gt;\n&lt;b&gt;Warning&lt;/b&gt;:  mysqli_real_escape_string() expects exactly 2 parameters, 1 given in &lt;b&gt;/var/www/vhosts/turktelekomksk.com/httpdocs/HARICILER/raporlamasistemi/Examples/benim6.php&lt;/b&gt; on line &lt;b&gt;15&lt;/b&gt;&lt;br /&gt;\n&lt;br /&gt;\n&lt;b&gt;Warning&lt;/b&gt;:  mysqli_real_escape_string() expects exactly 2 parameters, 1 given in &lt;b&gt;/var/www/vhosts/turktelekomksk.com/httpdocs/HARICILER/raporlamasistemi/Examples/benim6.php&lt;/b&gt; on line &lt;b&gt;15&lt;/b&gt;&lt;br /&gt;\n&lt;br /&gt;\n&lt;b&gt;Warning&lt;/b&gt;:  mysqli_real_escape_string() expects exactly 2 parameters, 1 given in &lt;b&gt;/var/www/vhosts/turktelekomksk.com/httpdocs/HARICILER/raporlamasistemi/Examples/benim6.php&lt;/b&gt; on line &lt;b&gt;15&lt;/b&gt;&lt;br /&gt;\n&lt;br /&gt;\n&lt;b&gt;Warning&lt;/b&gt;:  mysqli_real_escape_string() expects exactly 2 parameters, 1 given in &lt;b&gt;/var/www/vhosts/turktelekomksk.com/httpdocs/HARICILER/raporlamasistemi/Examples/benim6.php&lt;/b&gt; on line &lt;b&gt;15&lt;/b&gt;&lt;br /&gt;\n&lt;br /&gt;\n&lt;b&gt;Warning&lt;/b&gt;:  mysqli_real_escape_string() expects exactly 2 parameters, 1 given in &lt;b&gt;/var/www/vhosts/turktelekomksk.com/httpdocs/HARICILER/raporlamasistemi/Examples/benim6.php&lt;/b&gt; on line &lt;b&gt;15&lt;/b&gt;&lt;br /&gt;</code></pre>\n\n",
+    "PostedDate": "2013-06-26T02:32:33.123-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1061337",
+    "ThreadId": "446521",
+    "Html": "When I look into phpinfo, magic_quotes_gpc, magic_quotes_runtime and magic_quotes_sybase all look Off. Should I contact my host provider to make them On?<br />\n",
+    "PostedDate": "2013-06-26T03:06:00.04-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1061508",
+    "ThreadId": "446521",
+    "Html": "Your little daugter has the priority, of course, no need to apologize. I hope that she will return quickly and without sequelae.\r<br />\n<br />\nDon't requests to your provider to change the magic_quote, they are fine as they are. This does not prevent your script to take precautions and to be able to treat the two cases.\r<br />\n<br />\nNotice about Calibri: you have a 'name' =&gt;Calibri line.\r<br />\nNoted as this, php seeks a constant by that name and do not find and transformed it into a string. Should be corrected to make it a string:\r<br />\n'name '=&gt;' Calibri'\r<br />\n<br />\nWarning about mysqli_real_escape_string.\r<br />\nUnlike mysql_real_escape_string, it must provide the connection to the database.\r<br />\nmysqli_real_escape_string ($GLOBALS ['Link'], $TheValue)\r<br />\n<br />\nNote the use of $GLOBALS, indeed the $Link variable is not accessible inside the function directly, the alternative would be to use global $Link before using it.<br />\n",
+    "PostedDate": "2013-06-26T08:52:48.83-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1061789",
+    "ThreadId": "446521",
+    "Html": "Hi LWol,\r<br />\n<br />\nThank you for your wishes about my daughter.\r<br />\n<br />\nI did what you told me to. Everything looks OK now.\r<br />\n<br />\nAnd thanks a zillion times for your precious help. I guess we did it finally.\r<br />\n<br />\nBut I'm a bit sad that it's over. I'm gonna miss the excitement while waiting for your replies believing LWol (I realize that I just know your username and here is the only way I can contact you) resolve it and satisfaction after applying and seeing it works. I'll always remember what you did for me. Noone would help me that much. Take good care of yourself.\r<br />\n<br />\n<strong>THANK YOU, THANK YOU, THANK YOU.</strong><br />\n",
+    "PostedDate": "2013-06-26T22:42:39.827-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1061870",
+    "ThreadId": "446521",
+    "Html": "This actually ended? :-)\r<br />\n<br />\nThink to remove the ini_set.\r<br />\n<br />\nNo problems with an export containing a lot of data?<br />\n",
+    "PostedDate": "2013-06-27T02:29:41.76-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1061887",
+    "ThreadId": "446521",
+    "Html": ":) I removed, or didn't I? Let me check. :) Don't call me names. :)\r<br />\n<br />\nOf course I have problems with making another export button to download whole sales data in case if a user is not satisfied with the info they have now and want to see other columns as well. But how can I ask you to help more while you helped that much?\r<br />\n<br />\nI'll try to get this over by omitting some columns and making more buttons to download partial queries like buttons for 2010, 2011, 2012, 2013. May look crowded but it doesn't matter. I don't want to busy you any more.\r<br />\n<br />\nIt's been a lot of thanks already but thanks <strong>gazillion</strong> times (I don't know what comes next-so don't force me) for being so helpful and offering more help.<br />\n",
+    "PostedDate": "2013-06-27T03:00:30.043-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1061894",
+    "ThreadId": "446521",
+    "Html": "Thanks for your patience LWol<br />\n",
+    "PostedDate": "2013-06-27T03:27:38.11-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1061928",
+    "ThreadId": "446521",
+    "Html": "Mark: Just a small indirect contribution to PHPExcel (which would not exist or would be not as advanced without you).\r<br />\n<br />\nCihat: from what you write, I guess a few points which can you push you scratching your head :<br />\n<ul>\n<li>Integrate in the form more choices.\r<br />\n-Get these particular elements and incorporate them into your query.\r<br />\n-Convince PHPExcel to create a file containing all your data.\r<br />\nThis last point could be insurmountable unless Mark has implemented numerous solutions to clear the obstacle. An out of memory problem, reading Chapter 4.2.1 is required.\r<br />\nStarts with this, because if you are not successful, it is pointless to create your form and manage settings.</li>\n</ul>\n",
+    "PostedDate": "2013-06-27T04:54:46.187-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

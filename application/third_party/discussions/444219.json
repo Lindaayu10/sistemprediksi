@@ -1,0 +1,90 @@
+[
+  {
+    "Id": "1045766",
+    "ThreadId": "444219",
+    "Html": "I have a PHP script that creates a XLS file for download and worked fine (IIS, PHP 5.4, Win7). Without any code change, suddenly Excel 2010 complains that the file is corrupt.\r<br />\n<br />\nI first suspected some change in the underlying data caused the problem. But then I tried 01simple-download-xls.php (test script) with the same result. I found another older post about problems with sending the xls to the browser and yes: If I save the file locally, everything is ok.\r<br />\n<br />\nI also tried 01simple-download-xlsx.php (Excel 2007 format): same problem.\r<br />\n<br />\nI can only guess that either a PHP upgrade or some Excel patch (making it more picky) cause the problem. LibreOffice can open the file just fine. But if I save it as ODS and then open that in Excel, Excel complains about invalid data (but is able to recover the document).\r<br />\n<br />\nYou can find all files (XLS downloaded to browser, locally saved XLS, and also the slightly modified test scripts (for making them create identical XLS files)) here:\r<br />\n<a href=\"http://www.polivox.ch/phpExcelTests.zip\" rel=\"nofollow\">http://www.polivox.ch/phpExcelTests.zip</a>\r<br />\n<br />\nI would really appreciate some help in this, hoping that you can make this excellent project even better!\r<br />\n<br />\nBR, Oliver<br />\n",
+    "PostedDate": "2013-05-19T14:01:28.23-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1045772",
+    "ThreadId": "444219",
+    "Html": "Both files open cleanly in Excel2013.\r<br />\n<br />\nHave there been any changes to your PHP version? Though 1.7.8 has been tested with all versions of PHP from 5.2.0 to 5.4.15 without issues, and I use a variety of versions of Excel to test.\r<br />\nAre you opening the file sent to the browser directly in Excel, or are you choosing to open and then save? Are you using SSL, and IE as your browser?<br />\n",
+    "PostedDate": "2013-05-19T14:23:08.3-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1045776",
+    "ThreadId": "444219",
+    "Html": "PHP version: there were security updates performed. Don't think this is the problem.\r<br />\n<br />\nOpening files: You are right. If I open the file from the ZIP archive I published, it works fine in my Excel 2010. This brought me to the root cause: If I go to the downloaded XLS file properties and (under Security) Unblock the file, it opens fine in Excel. (This information is removed when you add a file to a ZIP archive.)\r<br />\n<br />\nSuspected background: I use SSL (HTTPS). The certificate expired recently and so far I haven't replaced it. In Firefox, I simply created a security exception and Firefox was happy. I guess Excel checks the &quot;origin&quot; of &quot;downloaded&quot; files and refuses to open them if the certificate is expired (or invalid in general)...\r<br />\n<br />\nMany thanks for your swift response and thanks again for this great tool!\r<br />\n<br />\nBR, Oliver<br />\n",
+    "PostedDate": "2013-05-19T14:41:50.87-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1045791",
+    "ThreadId": "444219",
+    "Html": "Well.... small addition: I have replaced the SSL certificate with a StartSSL Class 1 certificate. Firefox, Chrome and IE are happy now. \r<br />\n<br />\nBut the problem with Excel persists, so the certificate is not the problem. So maybe MS increased some security level in Office for documents from untrusted sources (i.e. the Protected view)... There are several post on the Internet, e.g.\r<br />\n<a href=\"http://answers.microsoft.com/en-us/office/forum/office_2010-excel/the-file-is-corrupt-and-cannot-be-opened-error-on/93af59c1-946c-4f5f-83c1-bd6f58dbd94f\" rel=\"nofollow\">http://answers.microsoft.com/en-us/office/forum/office_2010-excel/the-file-is-corrupt-and-cannot-be-opened-error-on/93af59c1-946c-4f5f-83c1-bd6f58dbd94f</a><br />\n",
+    "PostedDate": "2013-05-19T15:47:06.663-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1046589",
+    "ThreadId": "444219",
+    "Html": "This suddenly became a problem. Last week all worked well, then now, something has happend and all files are corruped. \r<br />\nI am able to open and repair from Excel, but Without the repair, is not possible to open the file.\r<br />\n<br />\nAny ideas?<br />\n",
+    "PostedDate": "2013-05-21T08:50:28.4-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1046655",
+    "ThreadId": "444219",
+    "Html": "See my comment from Sun 23:41:<br />\n<blockquote>\nIf I go to the downloaded XLS file properties and (under Security) Unblock the file, it opens fine in Excel.<br />\n</blockquote>\n(This means you remove the information that the file was downloaded from the Internet – then Excel is &quot;less picky&quot;, it seams.)<br />\nStill I don't know why this suddenly appeared.<br />\n",
+    "PostedDate": "2013-05-21T11:07:03.837-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1046738",
+    "ThreadId": "444219",
+    "Html": "I tried Your solution. But it didn't change the outcome. \r<br />\nI tried to rename it to a .zip and open it as a compressed file. That didn't work either. I got a error on that .zip file as well.\r<br />\nVery strange behaviour.<br />\n",
+    "PostedDate": "2013-05-21T14:19:20.963-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1046746",
+    "ThreadId": "444219",
+    "Html": "@AGDev - Standard first step when you get this message when trying to open a file in MS Excel - open the file in a text editor and look for leading/trailing whitespace, BOM headers, or any obvious plaintext PHP errors, warnings, notices or messages<br />\n",
+    "PostedDate": "2013-05-21T14:29:50.077-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1046772",
+    "ThreadId": "444219",
+    "Html": "I have also done that, there is no plain text in the file, except some &quot;known&quot; Excel xml file names like: [Content_Types].xml.\r<br />\nWhen I open open and repair Excel manages to fix it. After the repair the file grew from 8kb to 10kb. It's like the file is stopped in the compress stage.\r<br />\nI dont save to disk, I pass the file directly to the browser With a Attached file. <br />\n",
+    "PostedDate": "2013-05-21T15:38:29.92-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1046927",
+    "ThreadId": "444219",
+    "Html": "In that case, I haven't got a clue what's wrong: if it won't open correctly when renamed as a zip, then it suggests that there is some corruption in the file. Rather than download to the browser, save to the server's disk then try to open... that will normally identify if it's a problem with spurious characters being injected<br />\n",
+    "PostedDate": "2013-05-22T01:26:00.36-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1046990",
+    "ThreadId": "444219",
+    "Html": "I have done some more debugging, what I have found is this:\r<br />\n<br />\nMy data is fetched by a multilevel inherited class. (a extends abstractclass, b extends a, c extends b and finally d extends c).\r<br />\nWhen I use the class normally, without any Excel generation, it Works as excepted. Data is printed to screen and no erros or notices are thrown.\r<br />\nBut as soon as I do a $a = New d() in the function that generates the Excel file, I get a corrupt Excel file. \r<br />\n<br />\nDoes this information give any Clues?<br />\n",
+    "PostedDate": "2013-05-22T02:59:53.68-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,70 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel_Reader_Excel2007",
+      "DisplayName": "PHPExcel_Reader_Excel2007"
+    },
+    "ClosedComment": "",
+    "ClosedDate": "2010-05-11T00:59:12.027-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I'm using PHPExcel to convert an XLSX file into an CSV file.\n \n$objReader = PHPExcel_IOFactory::createReader('Excel2007');\n$objReader->setReadDataOnly(true);\n$objPHPExcel = $objReader->load($filename);\t\n \nDuring the read, I'm encountering the following fatal error:\n \n[01-Mar-2010 15:02:24] PHP Fatal error:  Call to a member function getNumberFormat() on a non-object in Classes/PHPExcel/Worksheet.php on line 2158\n \nI assume that there is no styling when setReadDataOnly(true) is used.  I patched my local copy by doing the following in line 2158 of Worksheet.php:\n \nif ($style instanceof PHPExcel_Style) {\n    $returnValue[$row][$column] = PHPExcel_Style_NumberFormat::toFormattedString($returnValue[$row][$column], $style->getNumberFormat()->getFormatCode());\n} else {\n   $returnValue[$row][$column] = $nullValue;\n}",
+    "LastUpdatedDate": "2017-11-27T22:26:10.933-08:00",
+    "PlannedForRelease": "PHPExcel 1.7.3 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2010-03-01T13:12:48.35-08:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Worksheet.php throws a fatal error when styling is turned off via setReadDataOnly on the reader",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 11964
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "Hmm... I can't reproduce this error. The error happens within the toArray() method which is strange because the script is not supposed to enter that method during read.\r\nCan you upload the XLSX file you are testing with?",
+      "PostedDate": "2010-03-09T17:17:14.643-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Fixed in SVN.\r\n\r\nProbably same issue as\r\nhttp://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=201521\r\n\r\nThe problem was that Excel2007 wasn't ignoring row and column styles under setReadDataOnly(true).",
+      "PostedDate": "2010-03-18T22:56:39.44-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-05-11T00:59:12.027-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:03:09.85-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:06.553-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2017-11-27T22:26:10.933-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

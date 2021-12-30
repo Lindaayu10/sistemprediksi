@@ -1,0 +1,65 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel_Reader_Excel5",
+      "DisplayName": "PHPExcel_Reader_Excel5"
+    },
+    "ClosedComment": "Production Release 1.7.7",
+    "ClosedDate": "2012-05-20T03:07:40.53-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Bug: #REF! error when trying to calculate the value of a formula with a named reference.  Ok in .XLSX, but not .XLS.\n \nPHP 5.3.8, PHPExcel 1.7.6, Windows XP and CentOS\n \nIn this note:\n \ntrace from xls\n \ntrace from xlsx\n \nphp source code to produce\n \n \n \nI'll attach an Excel file named PHPExcelBugNamedRange.xls and one named PHPExcelBugNamedRange.xlsx.\n \nwith XLS not happy:\ntrace output from testformula()  (a function I found posted here somewhere...)\n \n> php PHPExcel_176_BugNamedRange.php PHPExcelBugNamedRange.xls\nPETest test1\n \n<b>A20 Value is </b>=EXP(-mu*(1-rho)*(7/60))<br />\n<b>A20 Expected Value is </b>0.3114032239146<br />\n<b>Parser Stack :-</b><pre>Array\n(\n    [0] => Array\n        (\n            [type] => Value\n            [value] => mu\n            [reference] =>\n        )\n \n    [1] => Array\n        (\n            [type] => Unary Operator\n            [value] => ~\n            [reference] =>\n        )\n \n    [2] => Array\n        (\n            [type] => Value\n            [value] => 1\n            [reference] =>\n        )\n \n    [3] => Array\n        (\n            [type] => Value\n            [value] => rho\n            [reference] =>\n        )\n \n    [4] => Array\n        (\n            [type] => Binary Operator\n            [value] => -\n            [reference] =>\n        )\n \n    [5] => Array\n        (\n            [type] => Binary Operator\n            [value] => *\n            [reference] =>\n        )\n \n    [6] => Array\n        (\n            [type] => Value\n            [value] => 7\n            [reference] =>\n        )\n \n    [7] => Array\n        (\n            [type] => Value\n            [value] => 60\n            [reference] =>\n        )\n \n    [8] => Array\n        (\n            [type] => Binary Operator\n            [value] => /\n            [reference] =>\n        )\n \n    [9] => Array\n        (\n            [type] => Binary Operator\n            [value] => *\n            [reference] =>\n        )\n \n    [10] => Array\n        (\n            [type] => Operand Count for Function EXP()\n            [value] => 1\n            [reference] =>\n        )\n \n    [11] => Array\n        (\n            [type] => Function\n            [value] => EXP(\n            [reference] =>\n        )\n \n)\n</pre>\nWarning: exp() expects parameter 1 to be double, string given in C:\\Documents and Settings\\Brent\\My Documents\\data\\proje\ncts\\Chexel 10\\PHPExcel\\c10\\harness\\PHPExcel\\Calculation.php on line 3343\n<b>A20 Calculated Value is </b>0<br />\n<h3>Evaluation Log:</h3><pre>Array\n(\n    [0] => DS11-10ab!A20 -> Evaluating Named Range mu\n    [1] => DS11-10ab!A20 -> Evaluation Result for named range mu is a #REF! error\n    [2] => DS11-10ab!A20 -> Evaluating Negation of #REF!\n    [3] => DS11-10ab!A20 -> Evaluation Result is a #REF! error\n    [4] => DS11-10ab!A20 -> Evaluating Named Range rho\n    [5] => DS11-10ab!A20 -> Evaluation Result for named range rho is a #REF! error\n    [6] => DS11-10ab!A20 -> Evaluating 1 - #REF!\n    [7] => DS11-10ab!A20 -> Evaluation Result is a #REF! error\n    [8] => DS11-10ab!A20 -> Evaluating #REF! * #REF!\n    [9] => DS11-10ab!A20 -> Evaluation Result is a #REF! error\n    [10] => DS11-10ab!A20 -> Evaluating 7 / 60\n    [11] => DS11-10ab!A20 -> Evaluation Result is a floating point number with a value of 0.11666666666667\n    [12] => DS11-10ab!A20 -> Evaluating #REF! * 0.11666666666667\n    [13] => DS11-10ab!A20 -> Evaluation Result is a #REF! error\n    [14] => DS11-10ab!A20 -> Evaluating Function EXP() with 1 argument\n    [15] => DS11-10ab!A20 -> Evaluating EXP( #REF! )\n    [16] => DS11-10ab!A20 -> Evaluation Result for EXP() function call is a NULL value\n)\n</pre>\n>\n \n \n \nwith XLSX happy\n \n<b>A20 Value is </b>=EXP(-mu * (1-rho) * (7/60))<br />\n<b>A20 Expected Value is </b>0.31140322391459768<br />\n<b>Parser Stack :-</b><pre>Array\n(\n    [0] => Array\n        (\n            [type] => Value\n            [value] => mu\n            [reference] =>\n        )\n \n    [1] => Array\n        (\n            [type] => Unary Operator\n            [value] => ~\n            [reference] =>\n        )\n \n    [2] => Array\n        (\n            [type] => Value\n            [value] => 1\n            [reference] =>\n        )\n \n    [3] => Array\n        (\n            [type] => Value\n            [value] => rho\n            [reference] =>\n        )\n \n    [4] => Array\n        (\n            [type] => Binary Operator\n            [value] => -\n            [reference] =>\n        )\n \n    [5] => Array\n        (\n            [type] => Binary Operator\n            [value] => *\n            [reference] =>\n        )\n \n    [6] => Array\n        (\n            [type] => Value\n            [value] => 7\n            [reference] =>\n        )\n \n    [7] => Array\n        (\n            [type] => Value\n            [value] => 60\n            [reference] =>\n        )\n \n    [8] => Array\n        (\n            [type] => Binary Operator\n            [value] => /\n            [reference] =>\n        )\n \n    [9] => Array\n        (\n            [type] => Binary Operator\n            [value] => *\n            [reference] =>\n        )\n \n    [10] => Array\n        (\n            [type] => Operand Count for Function EXP()\n            [value] => 1\n            [reference] =>\n        )\n \n    [11] => Array\n        (\n            [type] => Function\n            [value] => EXP(\n            [reference] =>\n        )\n \n)\n</pre><b>A20 Calculated Value is </b>0.3114032239146<br />\n<h3>Evaluation Log:</h3><pre>Array\n(\n    [0] => DS11-10ab!A20 -> Evaluating Named Range mu\n    [1] => DS11-10ab!A20 -> Evaluation Result for named range A5 is a floating point number with a value of 40\n    [2] => DS11-10ab!A20 -> Evaluating Negation of 40\n    [3] => DS11-10ab!A20 -> Evaluation Result is a floating point number with a value of -40\n    [4] => DS11-10ab!A20 -> Evaluating Named Range rho\n    [5] => DS11-10ab!A20 -> DS11-10ab!A6 -> Evaluating Named Range lambda\n    [6] => DS11-10ab!A20 -> DS11-10ab!A6 -> Evaluation Result for named range A4 is a floating point number with a value\n of 30\n    [7] => DS11-10ab!A20 -> DS11-10ab!A6 -> Evaluating Named Range mu\n    [8] => DS11-10ab!A20 -> DS11-10ab!A6 -> Evaluation Result for named range A5 is a floating point number with a value\n of 40\n    [9] => DS11-10ab!A20 -> DS11-10ab!A6 -> Evaluating 30 / 40\n    [10] => DS11-10ab!A20 -> DS11-10ab!A6 -> Evaluation Result is a floating point number with a value of 0.75\n    [11] => DS11-10ab!A20 -> Evaluation Result for named range A6 is a floating point number with a value of 0.75\n    [12] => DS11-10ab!A20 -> Evaluating 1 - 0.75\n    [13] => DS11-10ab!A20 -> Evaluation Result is a floating point number with a value of 0.25\n    [14] => DS11-10ab!A20 -> Evaluating -40 * 0.25\n    [15] => DS11-10ab!A20 -> Evaluation Result is a floating point number with a value of -10\n    [16] => DS11-10ab!A20 -> Evaluating 7 / 60\n    [17] => DS11-10ab!A20 -> Evaluation Result is a floating point number with a value of 0.11666666666667\n    [18] => DS11-10ab!A20 -> Evaluating -10 * 0.11666666666667\n    [19] => DS11-10ab!A20 -> Evaluation Result is a floating point number with a value of -1.1666666666667\n    [20] => DS11-10ab!A20 -> Evaluating Function EXP() with 1 argument\n    [21] => DS11-10ab!A20 -> Evaluating EXP( -1.1666666666667 )\n    [22] => DS11-10ab!A20 -> Evaluation Result for EXP() function call is a floating point number with a value of 0.3114\n032239146\n)\n</pre>\n \n \n \n<?php\n/**\n * PHPExcel_176_BugNamedRange.php\n *\n * @author Brent Reeves <brent@twinbear.com>\n * tests PHPExcel named range parsing / calculating\n * seems to parse ok\n */ \nerror_reporting(E_ALL);\n \nClass PETest\n{\n  private $CLASSDIR = '';\n \n  public function test1($aCell, $aSheetName, $aFileName)\n  {\n    print (\"PETest test1\");\n    require_once ($this->CLASSDIR . 'PHPExcel.php');\n    $wkb = $this->readExcelFile($aFileName);\n    $wks = $wkb->getSheetByName($aSheetName);\n    \n    PHPExcel_Calculation::getInstance()->writeDebugLog = true;\n    \n    $this->testFormula($wks,$aCell);\n  }\n \n  function testFormula($sheet,$cell) {\n    $formulaValue = $sheet->getCell($cell)->getValue();\n    echo '<b>'.$cell.' Value is </b>'.$formulaValue.\"<br />\\n\";\n    $expectedValue = $sheet->getCell($cell)->getOldCalculatedValue();\n    echo '<b>'.$cell.' Expected Value is </b>'.$expectedValue.\"<br />\\n\";\n    \n    $calculate = false;\n    try {\n      $tokens = PHPExcel_Calculation::getInstance()->parseFormula($formulaValue,$sheet->getCell($cell));\n      echo '<b>Parser Stack :-</b><pre>';\n      print_r($tokens);\n      echo '</pre>';\n      $calculate = true;\n    } catch (Exception $e) {\n      echo \"PARSER ERROR: \".$e->getMessage().\"<br />\\n\";\n      echo '<b>Parser Stack :-</b><pre>';\n      print_r($tokens);\n      echo '</pre>';\n    }\n    if ($calculate) {\n      try {\n    $cellValue = $sheet->getCell($cell)->getCalculatedValue();\n    echo '<b>'.$cell.' Calculated Value is </b>'.$cellValue.\"<br />\\n\";\n    echo '<h3>Evaluation Log:</h3><pre>';\n    print_r(PHPExcel_Calculation::getInstance()->debugLog);\n    echo '</pre>';\n      } catch (Exception $e) {\n    echo \"CALCULATION ENGINE ERROR: \".$e->getMessage().\"<br />\\n\";\n    echo '<h3>Evaluation Log:</h3><pre>';\n    print_r(PHPExcel_Calculation::getInstance()->debugLog);\n    echo '</pre>';\n      }\n    }\n  }\n  \n  function readExcelFile($file) {\n    $px = new PHPExcel();\n    try {\n      $px = PHPExcel_IOFactory::load($file);\n    } catch (Exception $e) {\n      print \"IOFactory::load had trouble: \". $e->getMessage();\n      return NULL;\n    }\n    PHPExcel_Calculation::getInstance()->clearCalculationCache();\n \n    return $px;\n  }\n} \n \n$o1 = new PETest();\nif (!empty($argc) && $argc > 1) {\n  $filename  = $argv[1];\n} else {\n  $filename  = \"PHPExcelBugNamedRange.xls\";\n}\n \n$o1->test1('A20', \"DS11-10ab\", $filename)\n \n?>",
+    "LastUpdatedDate": "2013-05-16T05:41:37.29-07:00",
+    "PlannedForRelease": "PHPExcel 1.7.7 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2012-01-15T03:48:09.18-08:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Named Range definition in .xls when sheet reeference is quote wrapped",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 17262
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "Fixed in SVN",
+      "PostedDate": "2012-01-15T04:47:50.363-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-05-19T16:34:53.747-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-05-20T03:07:40.53-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:02:06.12-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:41:37.29-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "925812",
+    "ThreadId": "399119",
+    "Html": "\r\n<p>Hi gyus. I am writing with writer an excel5 sheet which queries a database. I cant get the file though even if the file appears to be written to excel from php.</p>\r\n<p>&nbsp;</p>\r\n<pre> $excel = new PHPExcel();\n $excel-&gt;setActiveSheetIndex(0);\n   $worksheet = $excel-&gt;getActiveSheet();\n while($rows=@mysqli_fetch_array($result,MYSQLI_NUM)){\n                   $r[]=$rows;\n               }\n                     for($col=0; $col&lt;$a2; $col&#43;&#43;){\n                    for($row=1; $row&lt;count($r);$row&#43;&#43;){<br>$worksheet-&gt;setCellValueByColumnAndRow($col,$row,$r[$row][$col]);\n                             }}\n               header(\\&quot;Content-Type: application/vnd.ms-excel\\&quot;);\n        header(\\&quot;Content-Disposition: attachment; filename=$legit\\&quot;);\n$objWriter = PHPExcel_IOFactory::createWriter($excel, 'Excel5');\n        ob_end_clean();\n    $objWriter-&gt;save('php://output');\n   $excel-&gt;disconnectWorksheets();\n    unset($excel);      \n     }                      \n                  ob_end_flush();?&gt;</pre>\r\n<p>&nbsp;</p>\r\n<p>from the client i send a request with headers&nbsp;</p>\r\n<p>'Accept' :'application/vnd.ms-excel',//'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'Accept-Encoding':'gzip, deflate'</p>\r\n<p>&nbsp;</p>\r\n<p>the response seems fine with content length written and all my response headers correctly returned but i dont see a prompt for downloading the file. I trimmed the whitespace from the start of the file.Mind the backslashes before the quotes in the code;its\r\n a file written dynamically from php as a string its not faulty.</p>\r\n<p>Yeah and php version is 5.3.8 and PHPExcel 1.7.4 or 1.7.7 anyway the one without the charts support. That code used to work i dont know what happened now.</p>\r\n",
+    "PostedDate": "2012-10-12T06:56:07.91-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "926164",
+    "ThreadId": "399119",
+    "Html": "<p>Headers should not be:</p>\r\n<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;header(\\\"Content-Type: application/vnd.ms-excel\\\");<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; header(\\\"Content-Disposition: attachment; filename=$legit\\\");<br />but</p>\r\n<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;header(\"Content-Type: application/vnd.ms-excel\");<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; header(\"Content-Disposition: attachment; filename=$legit\");</p>\r\n<p>Look at 01simple-download-xls.php in /Tests for an example</p>",
+    "PostedDate": "2012-10-13T09:35:12.437-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "926199",
+    "ThreadId": "399119",
+    "Html": "<p>Thanks for replying. This code is part of a fwrite calling parameter hence the backslashes (It is a string, i forgot to leave the slashes off when pasting the code here). Adding an exit call as the tests file shows doesnt work for me .Do we have to explicity set metadata like creator, etc? The request and response are working fine and i can see them in firebug but i wont get a prompt for downloading. The response is binary. I can see in my mysql log that the queries to the db have been executed correctly. I am working on linux and tried with oasis format to set the headers in client and server in case phpexcel wont render a correct file because no ms excel is available but that doesnt work either. Any other advice Mark?</p>",
+    "PostedDate": "2012-10-13T11:57:17.213-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "926211",
+    "ThreadId": "399119",
+    "Html": "<p>This isn't an issue with PHPExcel: but something with the headers... Metadata in the generated file is completely optional; and&nbsp;PHPExcel has no external dependencies&nbsp;- it's deliberately designed to run without MS Excel so that it can be used on any platform</p>\r\n<p>Test by writing the output to a file on disk rather than php://output, and open it normally to verify the state of the file that is being generated.</p>",
+    "PostedDate": "2012-10-13T13:11:44.103-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "926304",
+    "ThreadId": "399119",
+    "Html": "\r\n<p>Yes you are totally correct. It is written in the file. And congrats for such a well written and documented project. I thought it was the filename the header problem&nbsp; but writing 'simple.xls' doesn't solve it. I still cant get a prompt for downloading.\r\n It appears this is my last bug, i have a deadline till Tuesday night.</p>\r\n<p>I think i am gonna just send the saved file to the client, thanks.</p>\r\n",
+    "PostedDate": "2012-10-14T02:22:10.567-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "926356",
+    "ThreadId": "399119",
+    "Html": "\r\n<p>I saw your answer in</p>\r\n<p><a title=\"stackoverflow\" href=\"http://stackoverflow.com/questions/5999939/how-to-download-excel-file-in-internet-explorer-browser-with-phpexcel-library\" target=\"_blank\">http://stackoverflow.com/questions/5999939/how-to-download-excel-file-in-internet-explorer-browser-with-phpexcel-library</a></p>\r\n<p>and i am using ssl, does this have anything to do with my problem? I can't get a prompt for downloading with readfile()&nbsp; either. What a mess! Oh and Mark sorry for disturbing you.</p>\r\n<p>&nbsp;</p>\r\n<pre>$objWriter-&gt;save($path);\n$excel-&gt;disconnectWorksheets(); \nunset($excel);    \n    if (file_exists($path)) {\n       header('Content-Description: File Transfer');\n           header('Content-Transfer-Encoding: binary');\n header('Content-Disposition: attachment;filename=$legit');\n  header('Content-Type: application/vnd.ms-excel;charset=UTF-8;');\n header('Content-Length: ' . filesize($path));\n  header('Pragma: no-cache');\n  header('Expires: 0');\n  ob_clean();\n    flush();\n  @readfile($path);\n  exit;\n}</pre>\r\n<p>I can upload a screenshot of firebug's console if you like to see that everything is done right.</p>\r\n",
+    "PostedDate": "2012-10-14T07:43:04.767-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

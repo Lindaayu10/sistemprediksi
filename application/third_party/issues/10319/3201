@@ -1,0 +1,338 @@
+Index: changelog.txt
+===================================================================
+--- changelog.txt	(revision 1036)
++++ changelog.txt	(working copy)
+@@ -47,6 +47,7 @@
+ - Feature:  (ET) Work item 10251 - Eliminate dependency of an include path pointing to class directory
+ - Feature:  (ET) Work item 10292 - Method for getting the correct reader for a certain file (contribution)
+ - Feature:  (ET) Work item 10287 - Choosing specific row in fromArray method
++- Feature:  (ET) Work item 10319 - Shared formula support in PHPExcel_Reader_Excel5
+ - Bugfix:   (ET) Work item  9824 - PHPExcel_Reader_Excel5 not reading PHPExcel_Style_NumberFormat::FORMAT_NUMBER ('0')
+ - Bugfix:   (ET) Work item  9858 - Fractional row height in locale other than English results in corrupt output using PHPExcel_Writer_Excel2007
+ - Bugfix:   (ET) Work item  9846 - Fractional (decimal) numbers not inserted correctly when locale is other than English
+Index: Classes/PHPExcel/Reader/Excel5.php
+===================================================================
+--- Classes/PHPExcel/Reader/Excel5.php	(revision 1034)
++++ Classes/PHPExcel/Reader/Excel5.php	(working copy)
+@@ -183,6 +183,7 @@
+ 	const XLS_Type_RK					= 0x027e;
+ 	const XLS_Type_STYLE				= 0x0293;
+ 	const XLS_Type_FORMAT				= 0x041e;
++	const XLS_Type_SHAREDFMLA			= 0x04bc;
+ 	const XLS_Type_BOF					= 0x0809;
+ 	const XLS_Type_RANGEPROTECTION		= 0x0868;
+ 	const XLS_Type_UNKNOWN				= 0xffff;
+@@ -371,6 +372,21 @@
+ 	private $_mapCellStyleXfIndex = array();
+ 
+ 	/**
++	 * The shared formulas in a sheet. One SHAREDFMLA record contributes with one value.
++	 *
++	 * @var array
++	 */
++	private $_sharedFormulas = array();
++
++	/**
++	 * The shared formula parts in a sheet. One FORMULA record contributes with one value if it
++	 * refers to a shared formula.
++	 *
++	 * @var array
++	 */
++	private $_sharedFormulaParts = array();
++
++	/**
+ 	 * Read data only?
+ 	 *
+ 	 * @return boolean
+@@ -616,6 +632,12 @@
+ 			// Initialize objs
+ 			$this->_objs = array();
+ 
++			// Initialize shared formula parts
++			$this->_sharedFormulaParts = array();
++
++			// Initialize shared formulas
++			$this->_sharedFormulas = array();
++
+ 			while ($this->_pos < $this->_dataSize) {
+ 				$code = $this->_GetInt2d($this->_data, $this->_pos);
+ 
+@@ -663,6 +685,7 @@
+ 					case self::XLS_Type_MULRK:					$this->_readMulRk();					break;
+ 					case self::XLS_Type_NUMBER:					$this->_readNumber();					break;
+ 					case self::XLS_Type_FORMULA:				$this->_readFormula();					break;
++					case self::XLS_Type_SHAREDFMLA:				$this->_readSharedFmla();				break;
+ 					case self::XLS_Type_BOOLERR:				$this->_readBoolErr();					break;
+ 					case self::XLS_Type_MULBLANK:				$this->_readMulBlank();					break;
+ 					case self::XLS_Type_LABEL:					$this->_readLabel();					break;
+@@ -774,6 +797,11 @@
+ 				}
+ 			}
+ 
++			// treat SHAREDFMLA records
++			foreach ($this->_sharedFormulaParts as $cell => $baseCell) {
++				$formula = $this->_getFormulaFromStructure($this->_sharedFormulas[$baseCell], $cell);
++				$this->_phpSheet->getCell($cell)->setValueExplicit('=' . $formula, PHPExcel_Cell_DataType::TYPE_FORMULA);
++			}
+ 		}
+ 
+ 		// add the named ranges (defined names)
+@@ -2745,30 +2773,79 @@
+ 			}
+ 
+ 			// offset: 14: size: 2; option flags, recalculate always, recalculate on open etc.
++			$options = $this->_GetInt2d($recordData, 14);
++			
++			// bit: 0; mask: 0x0001; 1 = recalculate always
++			// bit: 1; mask: 0x0002; 1 = calculate on open
++			// bit: 2; mask: 0x0008; 1 = part of a shared formula
++			$isPartOfSharedFormula = (bool) (0x0008 & $options);
+ 
+ 			// offset: 16: size: 4; not used
+ 
+ 			// offset: 20: size: variable; formula structure
+ 			$formulaStructure = substr($recordData, 20);
+ 
+-			// add cell value. If we can read formula, populate with formula, otherwise just used cached value
+-			try {
+-				if ($this->_version != self::XLS_BIFF8) {
+-					throw new Exception('Not BIFF8. Can only read BIFF8 formulas');
++			// store the formula
++			if (!$isPartOfSharedFormula) {
++				// not part of shared formula
++				// add cell value. If we can read formula, populate with formula, otherwise just used cached value
++				try {
++					if ($this->_version != self::XLS_BIFF8) {
++						throw new Exception('Not BIFF8. Can only read BIFF8 formulas');
++					}
++					$formula = $this->_getFormulaFromStructure($formulaStructure); // get formula in human language
++					$this->_phpSheet->getCell($columnString . ($row + 1))->setValueExplicit('=' . $formula, PHPExcel_Cell_DataType::TYPE_FORMULA);
++
++				} catch (Exception $e) {
++					$this->_phpSheet->setCellValueExplicit($columnString . ($row + 1), $value, $dataType);
+ 				}
+-				$formula = $this->_getFormulaFromStructure($formulaStructure); // get human language
+-				$this->_phpSheet->getCell($columnString . ($row + 1))->setValueExplicit('=' . $formula, PHPExcel_Cell_DataType::TYPE_FORMULA);
++			} else {
++				// part of shared formula which means there will be a formula with a tExp token and nothing else
++				// get the base cell, grab tExp token
++				$baseRow = $this->_GetInt2d($formulaStructure, 3);
++				$baseCol = $this->_GetInt2d($formulaStructure, 5);
++				$this->_baseCell = PHPExcel_Cell::stringFromColumnIndex($baseCol). ($baseRow + 1);
+ 
+-			} catch (Exception $e) {
+-				$this->_phpSheet->setCellValueExplicit($columnString . ($row + 1), $value, $dataType);
++				// formula is added to this cell after the sheet has been read
++				$this->_sharedFormulaParts[$columnString . ($row + 1)] = $this->_baseCell;
+ 			}
+ 
+-			// also grab the stored cached calculated value
++			// store the cached calculated value
+ 			$this->_phpSheet->getCell($columnString . ($row + 1))->setCalculatedValue($value);
+ 		}
+ 	}
+ 
+ 	/**
++	 * Read a SHAREDFMLA record. This function just stores the binary shared formula in the reader,
++	 * which usually contains relative references.
++	 * These will be used to construct the formula in each shared formula part after the sheet is read.
++	 */
++	private function _readSharedFmla()
++	{
++		$length = $this->_GetInt2d($this->_data, $this->_pos + 2);
++		$recordData = substr($this->_data, $this->_pos + 4, $length);
++
++		// move stream pointer to next record
++		$this->_pos += 4 + $length;
++
++		// offset: 0, size: 6; cell range address of the area used by the shared formula, not used for anything
++		$cellRange = substr($recordData, 0, 6);
++		$cellRange = $this->_readBIFF5CellRangeAddressFixed($cellRange); // note: even BIFF8 uses BIFF5 syntax
++
++		// offset: 6, size: 1; not used
++
++		// offset: 7, size: 1; number of existing FORMULA records for this shared formula
++		$no = ord($recordData{7});
++
++		// offset: 8, size: var; Binary token array of the shared formula
++		$formula = substr($recordData, 8);
++
++		// at this point we only store the shared formula for later use
++		$this->_sharedFormulas[$this->_baseCell] = $formula;
++
++	}
++
++	/**
+ 	 * Read a STRING record from current stream position and advance the stream pointer to next record
+ 	 * This record is used for storing result from FORMULA record when it is a string, and
+ 	 * it occurs directly after the FORMULA record
+@@ -3457,9 +3534,10 @@
+ 	 * Convert formula structure into human readable Excel formula like 'A3+A5*5'
+ 	 *
+ 	 * @param string $formulaStructure The complete binary data for the formula
++	 * @param string $baseCell Base cell, only needed when formula contains tRefN tokens, e.g. with shared formulas
+ 	 * @return string Human readable formula
+ 	 */
+-	private function _getFormulaFromStructure($formulaStructure)
++	private function _getFormulaFromStructure($formulaStructure, $baseCell = 'A1')
+ 	{
+ 		// offset: 0; size: 2; size of the following formula data
+ 		$sz = $this->_GetInt2d($formulaStructure, 0);
+@@ -3487,7 +3565,7 @@
+ 			$additionalData = '';
+ 		}
+ 
+-		return $this->_getFormulaFromData($formulaData, $additionalData);
++		return $this->_getFormulaFromData($formulaData, $additionalData, $baseCell);
+ 	}
+ 
+ 	/**
+@@ -3495,14 +3573,15 @@
+ 	 *
+ 	 * @param string $formulaData The binary data for the formula itself
+ 	 * @param string $additionalData Additional binary data going with the formula
++	 * @param string $baseCell Base cell, only needed when formula contains tRefN tokens, e.g. with shared formulas
+ 	 * @return string Human readable formula
+ 	 */
+-	private function _getFormulaFromData($formulaData,  $additionalData = '')
++	private function _getFormulaFromData($formulaData,  $additionalData = '', $baseCell = 'A1')
+ 	{
+ 		// start parsing the formula data
+ 		$tokens = array();
+ 
+-		while (strlen($formulaData) > 0 and $token = $this->_getNextToken($formulaData)) {
++		while (strlen($formulaData) > 0 and $token = $this->_getNextToken($formulaData, $baseCell)) {
+ 			$tokens[] = $token;
+ 			$formulaData = substr($formulaData, $token['size']);
+ 
+@@ -3520,6 +3599,7 @@
+ 	 *
+ 	 * @param array $tokens
+ 	 * @param array $additionalData Additional binary data going with the formula
++	 * @param string $baseCell Base cell, only needed when formula contains tRefN tokens, e.g. with shared formulas
+ 	 * @return string Human readable formula
+ 	 */
+ 	private function _createFormulaFromTokens($tokens, $additionalData)
+@@ -3641,6 +3721,7 @@
+ 			case 'tRef': // single cell reference
+ 			case 'tRef3d': // 3d cell reference
+ 			case 'tArea3d': // 3d cell range reference
++			case 'tRefN':
+ 			case 'tStr': // string
+ 				$formulaStrings[] = "$space1$space0{$token['data']}";
+ 				unset($space0, $space1);
+@@ -3660,10 +3741,11 @@
+ 	 * Fetch next token from binary formula data
+ 	 *
+ 	 * @param string Formula data
++	 * @param string $baseCell Base cell, only needed when formula contains tRefN tokens, e.g. with shared formulas
+ 	 * @return array
+ 	 * @throws Exception
+ 	 */
+-	private function _getNextToken($formulaData)
++	private function _getNextToken($formulaData, $baseCell = 'A1')
+ 	{
+ 		// offset: 0; size: 1; token id
+ 		$id = ord($formulaData[0]); // token id
+@@ -4127,6 +4209,13 @@
+ 			$size = 3 + $subSize;
+ 			$data = $this->_getFormulaFromData(substr($formulaData, 3, $subSize));
+ 			break;
++			
++		case 0x4C: // Relative reference, used in shared formulas and some other places
++			$name = 'tRefN';
++			$size = 5;
++			$data = $this->_readBIFF8CellAddressB(substr($formulaData, 1, 4), $baseCell);
++			break;
++
+ 		case 0x3A: // 3d reference to cell
+ 		case 0x5A:
+ 			$name = 'tRef3d';
+@@ -4195,6 +4284,87 @@
+ 	}
+ 
+ 	/**
++	 * Reads a cell address in BIFF8 for shared formulas. Uses positive and negative values for row and column
++	 * to indicate offsets from a base cell
++	 * section 3.3.4
++	 *
++	 * @param string $cellAddressStructure
++	 * @param string $baseCell Base cell, only needed when formula contains tRefN tokens, e.g. with shared formulas
++	 * @return string
++	 */
++	private function _readBIFF8CellAddressB($cellAddressStructure, $baseCell = 'A1')
++	{
++		list($baseCol, $baseRow) = PHPExcel_Cell::coordinateFromString($baseCell);
++		$baseCol = PHPExcel_Cell::columnIndexFromString($baseCol) - 1;
++		
++		// offset: 0; size: 2; index to row (0... 65535) (or offset (-32768... 32767))
++			$rowIndex = $this->_GetInt2d($cellAddressStructure, 0);
++			$row = $this->_GetInt2d($cellAddressStructure, 0) + 1;
++
++		// offset: 2; size: 2; index to column or column offset + relative flags
++
++			// bit: 7-0; mask 0x00FF; column index
++			$colIndex = 0x00FF & $this->_GetInt2d($cellAddressStructure, 2);
++
++			// bit: 14; mask 0x4000; (1 = relative column index, 0 = absolute column index)
++			if (!(0x4000 & $this->_GetInt2d($cellAddressStructure, 2))) {
++				$column = PHPExcel_Cell::stringFromColumnIndex($colIndex);
++				$column = '$' . $column;
++			} else {
++				$colIndex = ($colIndex <= 127) ? $colIndex : $colIndex - 256;
++				$column = PHPExcel_Cell::stringFromColumnIndex($baseCol + $colIndex);
++			}
++
++			// bit: 15; mask 0x8000; (1 = relative row index, 0 = absolute row index)
++			if (!(0x8000 & $this->_GetInt2d($cellAddressStructure, 2))) {
++				$row = '$' . $row;
++			} else {
++				$rowIndex = ($rowIndex <= 32767) ? $rowIndex : $rowIndex - 65536;
++				$row = $baseRow + $rowIndex;
++			}
++
++		return $column . $row;
++	}
++
++	/**
++	 * Reads a cell range address in BIFF5 e.g. 'A2:B6' or 'A1'
++	 * always fixed range
++	 * section 2.5.14
++	 *
++	 * @param string $subData
++	 * @return string
++	 * @throws Exception
++	 */
++	private function _readBIFF5CellRangeAddressFixed($subData)
++	{
++		// offset: 0; size: 2; index to first row
++		$fr = $this->_GetInt2d($subData, 0) + 1;
++
++		// offset: 2; size: 2; index to last row
++		$lr = $this->_GetInt2d($subData, 2) + 1;
++
++		// offset: 4; size: 1; index to first column
++		$fc = ord($subData{4});
++
++		// offset: 5; size: 1; index to last column
++		$lc = ord($subData{5});
++
++		// check values
++		if ($fr > $lr || $fc > $lc) {
++			throw new Exception('Not a cell range address');
++		}
++
++		// column index to letter
++		$fc = PHPExcel_Cell::stringFromColumnIndex($fc);
++		$lc = PHPExcel_Cell::stringFromColumnIndex($lc);
++
++		if ($fr == $lr and $fc == $lc) {
++			return "$fc$fr";
++		}
++		return "$fc$fr:$lc$lr";
++	}
++
++	/**
+ 	 * Reads a cell range address in BIFF8 e.g. 'A2:B6' or 'A1'
+ 	 * always fixed range
+ 	 * section 2.5.14

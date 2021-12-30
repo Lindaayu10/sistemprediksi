@@ -1,0 +1,60 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "All",
+      "DisplayName": "All"
+    },
+    "ClosedComment": "Fixed in SVN",
+    "ClosedDate": "2008-05-20T11:35:49.93-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I fill my $objPHPExcel as this :\n$objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow($iCol,$iRow,$val,PHPExcel_Cell_DataType::TYPE_STRING);\n \nAnd out with :\nif( $format == \"csv\" ) {\n\tinclude 'PHPExcel/Writer/CSV.php';\n\t$objWriter = new PHPExcel_Writer_CSV($objPHPExcel);\n\t$objWriter->setDelimiter(';');\n\t$objWriter->setEnclosure('\"');\n\t$objWriter->setLineEnding(\"\\r\\n\");\n\t$objWriter->setSheetIndex(0);\n\t\n}elseif( $format == \"xls\" ) {\n\tinclude 'PHPExcel/Writer/Excel5.php';\n\t$objWriter = new PHPExcel_Writer_Excel5($objPHPExcel);\n\t\n}elseif( $format == \"xlsx\" ) {\n \tinclude 'PHPExcel/Writer/Excel2007.php';\n\t$objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel);\n \n}elseif( $format == \"html\" ) {\n\tinclude 'PHPExcel/Writer/HTML.php';\n\t$objWriter = new PHPExcel_Writer_HTML($objPHPExcel);\n \n}\n \n$objWriter->save(\"php://output\");\nor\n$objWriter->save('/tmp/test.'.$format);\n \nThe problem is : \nWe need to encode in UTF-8 format as it's explain in http://www.codeplex.com/PHPExcel/Wiki/View.aspx?title=FAQ\n\"It is necessary to use UTF-8 encoding for all texts in PHPExcel. If the script uses different encoding then it is possible to convert the texts with PHP's iconv() function.\"\n \nBut, depending on the case, the out is bad formatted. In fact to have the good encoding ;\n* with XLS Writer, you need encode in UTF-8, otherwise the end of word is truncated after the accent : \"intégration\" --> \"int\"\n* with CSV and HTML Writer, you must NOT encode in UTF-8, otherwise \"intégration\" --> \"intÃ©gration\"\n \nHow do I use the same data without worrying about the Writer ?",
+    "LastUpdatedDate": "2013-05-16T05:43:36.483-07:00",
+    "PlannedForRelease": "PHPExcel 1.6.2 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2008-05-20T08:46:40.54-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "CSV and HTML need no UTF8 encode",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 6193
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "Thanks for your fast reply, but i try your last version : 11391\r\nhttp://www.codeplex.com/PHPExcel/SourceControl/FileView.aspx?itemId=172230&changeSetId=11391\r\n\r\nAnd the problem stay, always the same error...",
+      "PostedDate": "2008-05-21T01:38:09.52-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Updated the version, utf8 detection seemed to fails in some cases.",
+      "PostedDate": "2008-05-21T04:56:24.363-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:05:16.66-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:43:36.483-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

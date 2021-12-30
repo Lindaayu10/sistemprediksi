@@ -1,0 +1,246 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel",
+      "DisplayName": "PHPExcel"
+    },
+    "ClosedComment": "Fixed in SVN",
+    "ClosedDate": "2009-05-11T19:48:01.263-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hi\n \nI generate documents in Excel2007 format. I set some columns width with setAutoSize(true) function \n     getActiveSheet()->getColumnDimension($k)->setAutoSize(true);  // where $k = column name;\n \nWhen I open document  with OpenOffice3.01, I see numeric data in 'xxx' format ( width too narrow ) .\n \nI made some tests and I discover that value of 'width' cause trouble ( see piece  of sheet1.xml below)\n \nsheet1.xml \n...\n <col min=\"3\" max=\"3\" width=\"9.38\" bestFit=\"true\" customWidth=\"true\"/>\n <col min=\"4\" max=\"4\" width=\"9.38\" bestFit=\"true\" customWidth=\"true\"/>\n...\n \nWhy width with value \"9.38\" ( and other calulated by PHPExcel) cause trouble? \nI can place \"9.875\"( value calculated by MS Office2007)  instead of \"9.38\" and so on  .... and all is ok\n \n \nMS Officce displays xlsx documet without problem.",
+    "LastUpdatedDate": "2013-05-16T05:42:40.77-07:00",
+    "PlannedForRelease": "PHPExcel 1.7.0 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-05-06T05:54:43.993-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Bad calculation of column width setAutoSize(true) function",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 9940
+  },
+  "FileAttachments": [
+    {
+      "FileId": 3062,
+      "FileName": "phpexcel_demo.xlsx",
+      "DownloadUrl": ".\\3062"
+    },
+    {
+      "FileId": 3063,
+      "FileName": "phpexcel1.jpg",
+      "DownloadUrl": ".\\3063"
+    },
+    {
+      "FileId": 3064,
+      "FileName": "wi-9940.patch",
+      "DownloadUrl": ".\\3064"
+    },
+    {
+      "FileId": 3065,
+      "FileName": "phpexcel2_str.jpg",
+      "DownloadUrl": ".\\3065"
+    },
+    {
+      "FileId": 3066,
+      "FileName": "phpexcel_2.xlsx",
+      "DownloadUrl": ".\\3066"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "Could it be possible that OO expects 3 decimals for width? Can you save a file with OO and check what it puts in there?",
+      "PostedDate": "2009-05-06T06:53:42.65-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Also, can you upload a sample of the generated Excel file?",
+      "PostedDate": "2009-05-06T16:12:59.943-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": ">Could it be possible that OO expects 3 decimals for width? \r\nNo.  '9.88\" works too\r\n>Can you save a file with OO and check what it puts in there?\r\nYes,  I'll  prepare file ( Now I use my company data  and I can not send it)\r\n",
+      "PostedDate": "2009-05-06T22:09:29.993-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Attached file xlsx  saved directly from Firefox ( OpenOffice can not save in xlsx format)",
+      "PostedDate": "2009-05-07T00:20:15.57-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-05-07T00:20:17.303-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Screenshoot  - OpenOffice window",
+      "PostedDate": "2009-05-07T00:22:31.06-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-05-07T00:22:32.343-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "File opens perfectly in my Office 2007 (SP2)",
+      "PostedDate": "2009-05-07T02:08:32.737-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": ">File opens perfectly in my Office 2007 (SP2)\r\nOffice2007 displays all ok, but I need 'perfect open' in OpenOffice 3.x too.\r\nDid you try open document in OpenOffice 3.01?\r\n\r\nnow I modified  temporarily  Writer/Excel2007/Worksheet.php  -  function _writeCols(...)   \r\n// my change\r\n$objWriter->writeAttribute('width',\t\tPHPExcel_Shared_String::FormatNumber($colDimension->getWidth()+0.5));\r\n// was\r\n//$objWriter->writeAttribute('width',\t\tPHPExcel_Shared_String::FormatNumber($colDimension->getWidth())); ",
+      "PostedDate": "2009-05-07T03:07:57.573-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": ">> File opens perfectly in my Office 2007 (SP2)\r\nYeah, sort of ok... but there truncation of one decimal when column width is narrow.\r\n\r\nI think it is PHPExcel_Shared_Font::fontSizeToPixels we should look at.\r\n\r\nReally, this function should depend on which font we have in question. Calibri is a bit wider than Arial. Maarten, I will check if it can be adjusted a bit to get better results.",
+      "PostedDate": "2009-05-07T04:21:23.683-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I'll correct myself, it is not PHPExcel_Shared_Font::fontSizeToPixels, that one is for height, should look at PHPExcel_Shared_Font::calculateColumnWidth",
+      "PostedDate": "2009-05-07T04:33:28.43-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Does that fix work?",
+      "PostedDate": "2009-05-07T04:41:45.193-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Attaching the correct fix for better approximation:\r\n\r\n$columnWidth = 1.025 * strlen($columnText) + 0.584; // Excel adds some padding\r\n\r\nValues 1.025 and 0.584 determined as follows:\r\n\r\nCreate xlsx file in Microsoft Office Excel with 1 \"n\" glyph in cell A1\r\nCreate xlsx file in Microsoft Office Excel with 100 \"n\" glyphs in cell A1\r\n\r\nset column to autosize in Microsoft Office Excel\r\n\r\nOpen xlsx file and inspect the column width:\r\n\r\n1 glyph:     1.609375\r\n100 glyphs:  103.1015625\r\n\r\nInterpolation:\r\n\r\nglyph width:\r\n(103.1015625 - 1.609375) / (100 - 1) = 1.025 (approx)\r\n\r\ntotal padding:\r\n1.609375 - 1.025 = 0.584 (approx)\r\n\r\nWe can improve this later for other fonts.\r\n",
+      "PostedDate": "2009-05-07T06:08:50.69-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-05-07T06:08:54.72-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "> $columnWidth = 1.025 * strlen($columnText) + 0.584; // Excel adds some padding\r\nit's only good  for Calibri 10 \r\n\r\n$objWriter->writeAttribute('width',  PHPExcel_Shared_String::FormatNumber($colDimension->getWidth()))   give us  2 decimal digits",
+      "PostedDate": "2009-05-07T23:38:40.74-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": ">> $objWriter->writeAttribute('width', PHPExcel_Shared_String::FormatNumber($colDimension->getWidth()))\r\n>> give us 2 decimal digits\r\nCan you try with latest source code, it should give you more decimals\r\nhttp://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx\r\n\r\n>> it's only good for Calibri 10\r\nIt should be good for Calibri, any size, I think. No?\r\n\r\n",
+      "PostedDate": "2009-05-07T23:55:04.03-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": ">http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx\r\nlatest 'Change set' 27420 doesn't contain patch",
+      "PostedDate": "2009-05-08T00:09:49.68-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": ">> latest 'Change set' 27420 doesn't contain patch\r\nCorrect, try to apply patch on 'Change set' 27420. If it's better we'll put it in the next change set.",
+      "PostedDate": "2009-05-08T00:42:28.48-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": ">Correct, try to apply patch on 'Change set' 27420. If it's better we'll put it in the next change set.\r\nChange set 27420 works bad - numbers are string \r\nSVN version 27433 too :(",
+      "PostedDate": "2009-05-08T00:56:05.21-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": ">> numbers are string \r\nThey are in fact supposed to be, for writing the attribute\r\n\r\n>> Change set 27420 works bad\r\nCan you upload an example showing what's bad?",
+      "PostedDate": "2009-05-08T01:05:10.567-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "See attach -  OO3 screenshot ( file genereated by ver. 27433)\r\nNow numbers in cell are strings ( see red marked area)\r\n",
+      "PostedDate": "2009-05-08T01:41:27.193-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-05-08T01:41:30.647-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": ">> Now numbers in cell are strings ( see red marked area)\r\nOk, I see what you mean, can you also upload the xlsx file? Need to look inside of it.",
+      "PostedDate": "2009-05-08T02:01:00.73-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": ">Ok, I see what you mean, can you also upload the xlsx file? Need to look inside of it.\r\nattach : phpexcel_2.xlsx ",
+      "PostedDate": "2009-05-08T02:07:01.433-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-05-08T02:07:02.933-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": ">> attach : phpexcel_2.xlsx\r\nYou're right, numbers are strings in that file, which is not good. This is a consequence of some changes in PHPExcel's behavior in non-English locale after PHPExcel 1.6.7:\r\nhttp://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=9846\r\n\r\nHow to insert numbers:\r\n\r\n1. In English locale:\r\nsetValue(123.45); // ok\r\nsetValue('123.45'); // ok\r\nsetValue('123,45'); // not ok, becomes string\r\n\r\n2. In e.g. German locale:\r\nsetValue(123.45); // ok\r\nsetValue('123.45'); // not ok, becomes string\r\nsetValue('123,45'); // ok\r\n\r\nI think you have a German (or some other non-English locale) and inserting numbers like this setValue('123.45'). Is this correct?\r\n\r\nWill see if we can add this to the documentation, previously, there were no guidelines regarding how to insert numbers in various locales. Sorry for the confusion.",
+      "PostedDate": "2009-05-08T02:27:06.893-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Thx for info - I use 'non English locale' and  'English numeric string'. \r\n\r\nI like  PHPExcel 1.6.7 approach.\r\nI think that only display functions should present 'non English locale';",
+      "PostedDate": "2009-05-08T03:57:33.25-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": ">> I like PHPExcel 1.6.7 approach.\r\n>> I think that only display functions should present 'non English locale';\r\nThe motivation for going with setValue('123,45'); in non-English locale is that we would have a consistent philosophy, easy to explain: When you set a value via a string like '123,45' you get exactly what you get in MS Office Excel when you type that string in a cell. And in non-English Excel, you are required to type ',' for decimal point (with default settings).\r\n\r\nIf one day you want a graphical interface for PHPExcel, localization will be easier that way. There is also AdvancedValueBinder.php which is work in progress for imitating Excel behavior for user input.\r\n\r\nOk, will apply the patch wi-9940.patch in source code and see what it brings. Note that setAutoSize(true) is still not perfect, it counts characters and assumes all of them are characters are 'n' glyphs, so if there are some 'i' glyphs the column size may get a bit wider that it should. In your case you could also try to set the columns at some fixed width to get around this trouble.",
+      "PostedDate": "2009-05-08T04:15:46.48-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-05-08T04:45:22.433-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": ">> I like PHPExcel 1.6.7 approach.\r\n>> I think that only display functions should present 'non English locale';\r\nOk, I have evaluated that approach again. I think after all it should be possible to use setValue('123.45') in non-English locale and get a number. Since formulas are always required to be typed as English formulas in PHPExcel, at least at the moment, then it confuses more than it helps. Will re-open\r\n\r\nhttp://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=9846\r\n\r\nand change behavior back to behavior back to the one of PHPExcel 1.6.7.",
+      "PostedDate": "2009-05-08T07:07:40.163-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "> I think after all it should be possible to use setValue('123.45') in non-English locale and get a number\r\nGood news. I'm waiting \"Change set' with 'English numeric string' and patch 9940 applied.",
+      "PostedDate": "2009-05-11T00:18:31.61-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Has this patch already been applied?",
+      "PostedDate": "2009-05-11T09:20:20.96-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Patch applied:\r\nhttp://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx",
+      "PostedDate": "2009-05-11T19:47:36.653-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-05-11T19:48:01.263-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:04:02.697-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:40.77-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

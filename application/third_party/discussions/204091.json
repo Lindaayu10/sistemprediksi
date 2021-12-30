@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "415139",
+    "ThreadId": "204091",
+    "Html": "<p>I've got an issue with this:</p>\r\n<p>I am using this command:</p>\r\n<pre><div style=\"color:Black;background-color:White\"><pre>$objCalc = PHPExcel_Calculation::getInstance()-&gt;setCalculationCacheEnabled(false);<br></pre>\r\n<br>but it take too long to finish the script since I presume there is no cache. I put in htaccess:</div>\r\n<pre><div style=\"color:Black;background-color:White\"><pre>php_value max_execution_time 200<br></pre>\r\n<br>And still the script does not finish.. <br><br>Now using the</div>\r\n</pre>\r\n<pre><div style=\"color:Black;background-color:White\"><pre>$objCalc = PHPExcel_Calculation::getInstance();<br><br>Produces wrong results.. Any suggestions?</pre>\r\nThis is about this thread: <a href=\"http://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=178242\">http://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=178242</a><br><br>Thanks</div>\r\n<br></pre>\r\n<br></pre>",
+    "PostedDate": "2010-03-07T03:59:46.627-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "415198",
+    "ThreadId": "204091",
+    "Html": "<p>The calculation cache stores the results of previous calculations within the PHPExcel_Calculation instance. This allows better execution when you have calculated cells that are themselves dependent on the results of other calculated cells (e.g. A1 = B1+C1; B1 = B2+B3 and C1 = C2 / B1). With calculation caching disabled, and requesting the result for cell A1, B1 will be calculated twice (even though the result should be the same each time): with it enabled&nbsp;it will only be calculated the once. The cache has a default timeout that is set at 2.5 seconds, and can be changed using PHPExcel_Calculation::getInstance()-&gt;setCalculationCacheExpirationTime(). Normally, you should leave the calculation cache enabled to improve performance when calculating formulae that make nested calls, although if your script is long running, you may want to change the calculation cache expiration time.</p>\r\n<p>If you want to calculate results, then change the underlying data and recalculate the results, then the PHPExcel_Calculation::getInstance()-&gt;clearCalculationCache() method should be used to clear any calculation results from the initial calculation before the second series of calls to calculate the formulae.</p>\r\n<p>&nbsp;</p>\r\n<p>I'm not sure what you're trying to accomplish with the call to $objCalc = PHPExcel_Calculation::getInstance(); The Calculation engine implements the singleton class, so you're simply retrieving that singleton instance.</p>\r\n<p>&nbsp;</p>\r\n<p>One thought is that you might have cyclic references in your&nbsp;formulae (e.g A1 = B1+C1 and B1 = A1+C1), something that the PHPExcel calculation engine cannot handle cleanly and that does lead to timeouts.</p>",
+    "PostedDate": "2010-03-07T11:34:22.023-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "415284",
+    "ThreadId": "204091",
+    "Html": "<p>Well I really didn't find any documentation explaining how to work with phpexcel, apart from the examples.. So I'm just copying the lines that look relevant.</p>\r\n<p>The $objCalc = PHPExcel_Calculation::getInstance() call from my understanding make the different calculations work so I'm using it, and the&nbsp;</p>\r\n<pre><pre>$objCalc = PHPExcel_Calculation::getInstance()-&gt;setCalculationCacheEnabled(false); disables the cache (I found it in the forum)..<br><br>So basically I am just looking into what others did and using it in my project. I there documentation other then the list of classes<br>included in the distribution?<br><br>Anyway I'll take another look into calculations and get back to you on that.<br><br>Thanks</pre>\r\n</pre>",
+    "PostedDate": "2010-03-07T18:57:24.593-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "415344",
+    "ThreadId": "204091",
+    "Html": "<p>The file &quot;PHPExcel developer documentation.doc&quot; in the /Documentation directory of the PHPExcel distribution is the main document, which is pretty comprehensive; together with &quot;PHPExcel Function Reference developer documentation.doc&quot; (not as up-to-date as it should be). Then there's the API documentation in /Documentation/API</p>",
+    "PostedDate": "2010-03-08T01:02:08.72-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "544315",
+    "ThreadId": "204091",
+    "Html": "\r\n<p>I've tried using PHPExcel_Calculation::getInstance()-&gt;disableCalculationCache(), and then PHPExcel_Calculation::getInstance()-&gt;clearCalculationCache(). I've realized that the first take longer to complete that the second (over 8 minutes).</p>\r\n<p>So, I think it's better to use clearCalculationCache, each time you want to get a calculated value.</p>\r\n",
+    "PostedDate": "2011-01-05T06:42:22.707-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "544578",
+    "ThreadId": "204091",
+    "Html": "\r\n<p>The calculation cache is worth using if you have calculated cells that are dependent on the value of other calculated cells. How much it will benefit depends on the network of calculated cells. It is turned on by default.</p>\r\n<p>If you do&nbsp;leave calculation cache enabled, then you only need to clear the cache if you&nbsp;get a calculated cell value, change the values of the cells that affect&nbsp;that calculation, and then want to recalculate... if you don't clear the cache,\r\n then you'll get the same result (unless the cache has timed out).</p>\r\n<p>The latest version of PHPExcel does handle cyclic references in calculations.</p>\r\n",
+    "PostedDate": "2011-01-05T15:24:01.01-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

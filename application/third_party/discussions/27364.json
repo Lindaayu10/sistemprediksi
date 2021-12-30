@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "91243",
+    "ThreadId": "27364",
+    "Html": "\r\nSo I have a document that I'm doing several functions like this: =IF(B5&gt;0,D5/B5-1,\"n/a\")<br /><br />You can see that the condition is checking to see if the cell is greater than zero, and if it's not it defaults to \"n/a\".  This does not work at all however, as I get the following errors:<br /><br /><a href=\"http://www.codeplex.com/PHPExcel/Wiki/View.aspx?title=08-May-2008%2009%3a19%3a00\">08-May-2008 09:19:00</a> Error Caught: 2 Division by zero /Users/cendrizzi/Zend/workspaces/DefaultWorkspace/R3D0/ThirdPartyLibs/php_excel/Classes/PHPExcel/Calculation.php(673) : runtime-created function 1 Array<br /><a href=\"http://www.codeplex.com/PHPExcel/Wiki/View.aspx?title=08-May-2008%2009%3a19%3a02\">08-May-2008 09:19:02</a> PHP Fatal error:  Allowed memory size of 268435456 bytes exhausted (tried to allocate 80367424 bytes) in /Users/cendrizzi/Zend/workspaces/DefaultWorkspace/R3D0/include/cor/class/COR.class.php on line 323<br /><br />So phpexcel seems to be calculating it anyway, and ignoring the condition.  Looking through the code, it looks like A LOT of work has gone into this function stuff.<br /><br />I'm not yet totally aware of how phpexcel works, but I was most troubled to see this didn't even work on the spreadsheet (as opposed to just spitting it out to html as I do by default).  Why is phpexcel parsing and computing functions on the spreadsheet?  Doesn't excel do it for you if you just pass it through to the cell?<br /><br />Thanks,<br />Clark<br />",
+    "PostedDate": "2008-05-08T08:29:07.017-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "91382",
+    "ThreadId": "27364",
+    "Html": "\r\nSeems like you are having 2 problems.<br />1) The \"division by zero\" warning is actually the PHP compiler that's going \"wrong\": it yields this message everytime it suspects a possible division by zero. It does not execute the code, but does warn you about a possible bug.<br /><br />Try the following code on PHP to reproduce this behaviour:<br /><pre style=\"background-color:#ECECEC; border:dashed .1em #3E62A6; font-family:Consolas, Courier New, Courier, Monospace; font-size:1em; margin-top:0; padding:.5em; height:auto; overflow:auto; overflow-x:auto; overflow-y:auto;\">\r\n&lt;?php\r\nfunction STATEMENT_IF($condition, $onTrue, $onFalse) {\r\n   return $condition ? $onTrue : $onFalse;\r\n}\r\n \r\n$x = create_function('', 'return STATEMENT_IF(0&gt;0, 5/0, \"n/a\");');\r\necho call_user_func($x);\r\n?&gt;\r\n</pre><br />I suppressed this error in the calculation engine, so you should not be seeing it anymore.<br /><br />2) Can you provide some more details on your script? (number of rows, number of columns, PHP version, PHPExcel version, ...)<br />",
+    "PostedDate": "2008-05-08T23:24:43.807-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "91527",
+    "ThreadId": "27364",
+    "Html": "<div class=\"quote\" style=\"border: dotted .1em #aaa; border-left: none; border-right: none; font-style: italic; margin: 1em 0em 2.5em 3em;padding: .2em;\"><br />cendrizzi wrote:<br />I'm not yet totally aware of how phpexcel works, but I was most troubled to see this didn't even work on the spreadsheet (as opposed to just spitting it out to html as I do by default).  Why is phpexcel parsing and computing functions on the spreadsheet?  Doesn't excel do it for you if you just pass it through to the cell?<br /><br /></div>Because if you want to read an Excel spreadsheet, and write it out to HTML (showing values rather than formulae), and don't have MS Excel installed to do all the work for you, then you need PHPExcel to do the calcs.<br />",
+    "PostedDate": "2008-05-09T10:18:39.977-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "91554",
+    "ThreadId": "27364",
+    "Html": "\r\nYou can disable formula calculation (see documentation). Under the hood, OpenXML supports caching formula results which allows faster opening of Excel documents in the real Excel.<br /><br />Can you send me your script (maarten ---AT--- phpexcel ---DOT--- NET)? Maybe there's an easy solution to your problem.<br />",
+    "PostedDate": "2008-05-09T12:35:30.903-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "91569",
+    "ThreadId": "27364",
+    "Html": "\r\nThanks for the comments. Disabling functions should work for doing the spreadsheet, I'll have to test that.<br /><br />I will provide some examples at the start of next week.  <br />",
+    "PostedDate": "2008-05-09T13:34:22.7-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

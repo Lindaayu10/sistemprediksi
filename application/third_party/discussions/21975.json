@@ -1,0 +1,66 @@
+[
+  {
+    "Id": "73261",
+    "ThreadId": "21975",
+    "Html": "\r\nSince moving server I am having trouble creating using Excel5.<br /><br />I have placed the test sheet at the following address <a href=\"http://www.doctorscareerchoices.com/excel\" class=\"externalLink\">http://www.doctorscareerchoices.com/excel<span class=\"externalLinkIcon\" style=\"font-family:Consolas, Courier New, Courier, Monospace;\"></span></a> but it displays an error starting with <b>\"Fatal error: Uncaught exception 'Exception' with message 'Can't create temporary file' in D:\\Inetpub\\vhosts\\doctorscareerchoices.com\\httpdocs\\Excel\\PHPExcel\\Shared\\OLE\\OLE_File.php:90 Stack trace: #0\"</b><br /><br />I have then tried using setTempDir as per <a href=\"View.aspx?ThreadId=17955\" class=\"externalLink\">View.aspx?ThreadId=17955<span class=\"externalLinkIcon\" style=\"font-family:Consolas, Courier New, Courier, Monospace;\"></span></a> but it then displays <b>\"Fatal error: Call to undefined method PHPExcel<i>Writer</i>Excel5::setTempDir() in D:\\Inetpub\\vhosts\\doctorscareerchoices.com\\httpdocs\\Excel\\index.php on line 56\"</b><br /><br />Does anyone know of this problem or if I have old files etc.<br /><br />Thanks<br />",
+    "PostedDate": "2008-02-12T05:34:58.93-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "73281",
+    "ThreadId": "21975",
+    "Html": "\r\nAre you sure the directory passed to setTempDir() is writable? Looking at http://www.doctorscareerchoices.com/excel/ seems like this is not the case.<br />",
+    "PostedDate": "2008-02-12T07:04:02.093-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "73307",
+    "ThreadId": "21975",
+    "Html": "\r\nHi maartenba, the directory is writable.<br /><br />I have these lines in my script...<br /><br />$objWriter = new PHPExcel<i>Writer</i>Excel5($objPHPExcel);<br />$objWriter-&gt;setTempDir(\"D:\\Inetpub\\vhosts\\doctorscareerchoices.com\\httpdocs\\excel\");<br />$objWriter-&gt;save($filename);<br /><br />...and the 'call to undefined method' error mentioned earlier appears?!?<br /><br />",
+    "PostedDate": "2008-02-12T08:33:30.69-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "73323",
+    "ThreadId": "21975",
+    "Html": "\r\nWhat version of PHPExcel are you using?<br />",
+    "PostedDate": "2008-02-12T09:23:12.89-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "73421",
+    "ThreadId": "21975",
+    "Html": "\r\nVersion 5.2.5<br />",
+    "PostedDate": "2008-02-12T15:11:34.387-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "73431",
+    "ThreadId": "21975",
+    "Html": "\r\nI'm still not quite sure what was causing my problem on my new server but I managed to get around it by changing line 87 of OLE_FILE.php found in the Shared\\OLE folder.<br /><br />I replaced <b>$this-&gt;<i>tmp</i>dir</b> with <b>'test'</b> and the error went away &amp; the file was created as normal in the test folder.<br />",
+    "PostedDate": "2008-02-12T16:56:38.373-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "73488",
+    "ThreadId": "21975",
+    "Html": "\r\nWill check this and fix if possible.<br />",
+    "PostedDate": "2008-02-13T00:52:16.857-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "74611",
+    "ThreadId": "21975",
+    "Html": "\r\nthe path you set for tmpDir ist not valid...<br /><br />if you use double quote, you have to escape the \\ character with \\\\ (or better use single quotes).<br /><br />so:<br />$objWriter-&gt;setTempDir(\"D:\\\\Inetpub\\\\vhosts\\\\doctorscareerchoices.com\\\\httpdocs\\\\excel\");<br />or <br />$objWriter-&gt;setTempDir('D:\\Inetpub\\vhosts\\doctorscareerchoices.com\\httpdocs\\excel');<br /><br />.. should work<br />",
+    "PostedDate": "2008-02-18T04:13:01.813-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "454476",
+    "ThreadId": "215741",
+    "Html": "I'm trying to use php excel to grab certain rows from a sheet and columns in that row to a database.\r\nThe issue is that the rows will always be contiguous but have a different starting point in each sheet.\r\nThere is a cell in the sheet that tells me which rows to grab.\r\nSo I can loop through the cells until I can find the correct Row to start  but then I'm unsure as to the next step to use on the following rows if I want say columns 16,18,24...\r\nRight now I'm considering writing the dataset I've found to a csv and then reading the csv into the db, but is there a better way?\r\n\r\nphpexcel is amazing but is there an honest to goodness api?  ",
+    "PostedDate": "2010-06-11T09:00:18.94-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "455067",
+    "ThreadId": "215741",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>cvken wrote:</strong><br>is there an honest to goodness api?</blockquote>\r\n<p>&nbsp;/Documentation/API/index.html in the standard distribution for any production release</p>",
+    "PostedDate": "2010-06-14T00:57:56.403-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "455231",
+    "ThreadId": "215741",
+    "Html": "<p>When I go there I get this page cannot be displayed.</p>\r\n<p>When I try to go through the links I get to the How do you page, but not an API with a complete list of functions and what they do.</p>\r\n<p>It's possible (highly) that I'm just inept, but&nbsp;I can't find a full API.</p>\r\n<p>There is a ton of stuff in the php excel developer documentation mind you.</p>\r\n<p>&nbsp;</p>\r\n<p>Here is what I have to date, comment telling me where I'm a dunce and can improve would be appreciated. To date I've had to massivly increase the timeout values. For this to run as where looping through at least 30 files.</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre><span style=\"color:blue\">function</span> ProcessFolder($masterid,$settingsid,$folderid)\r\n{\r\n\t<span style=\"color:blue\">try</span> {\r\n    $dbh = <span style=\"color:blue\">new</span> PDO(<span style=\"color:#a31515\">&quot;odbc:Driver={Microsoft Access Driver (*.mdb)};Dbq=c:\\\\inetpub\\\\wwwroot\\\\fileprocessor\\\\data\\\\fp.mdb;Uid=Admin&quot;</span>);\r\n    }\r\n\t<span style=\"color:blue\">catch</span> (PDOException $e)\r\n    {\r\n    <span style=\"color:blue\">echo</span> $e-&gt;getMessage();\r\n    }\r\n\t$sqlM = <span style=\"color:#a31515\">'SELECT settings.FormatName, settings.Ftype, settings.xlsSheet, settings.startString,'</span>.\r\n\t\t\t<span style=\"color:#a31515\">'settings.endString, folders.Folder '</span>.\r\n\t\t\t<span style=\"color:#a31515\">'FROM (master INNER JOIN settings ON master.ID = settings.masterID) '</span>.\r\n\t\t\t<span style=\"color:#a31515\">'INNER JOIN folders ON settings.ID = folders.settingsid '</span>.\r\n\t\t\t<span style=\"color:#a31515\">'WHERE (((settings.ID)='</span>.$masterid.<span style=\"color:#a31515\">'));'</span>;\r\n\t<span style=\"color:blue\">if</span> ($masterid = 1)\r\n\t{\r\n\t\t<span style=\"color:blue\">if</span> ($settingsid = 1)\r\n\t\t{\r\n\t\t\t<span style=\"color:blue\">foreach</span> ($dbh-&gt;query($sqlM) <span style=\"color:blue\">as</span> $rowM)\r\n\t\t\t{\r\n\t\t\t\t$newpath = <span style=\"color:#a31515\">'c:/AchFiles'</span>.str_replace(<span style=\"color:#a31515\">&quot;\\\\&quot;,&quot;</span>/&quot;,$rowM[<span style=\"color:#a31515\">'Folder'</span>]);\r\n\t\t\t\t<span style=\"color:blue\">if</span> ($handle = opendir($newpath)) \r\n\t\t\t\t{\r\n\t\t\t\t   <span style=\"color:blue\">while</span> (false !== ($<span style=\"color:blue\">file</span> = readdir($handle)))\r\n\t\t\t\t   {\r\n\t\t\t\t\t  <span style=\"color:blue\">if</span> ($<span style=\"color:blue\">file</span> != <span style=\"color:#a31515\">&quot;.&quot;</span> &amp;&amp; $<span style=\"color:blue\">file</span> != <span style=\"color:#a31515\">&quot;..&quot;</span> &amp;&amp; $<span style=\"color:blue\">file</span> != <span style=\"color:#a31515\">&quot;QCFiles&quot;</span>)\r\n\t\t\t\t\t  {</pre>\r\n<pre>\t\t\t\t\t\t <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;br&gt;'</span>.$rowM[<span style=\"color:#a31515\">'Folder'</span>];\r\n\t\t\t\t\t\t $thisarray = findRange($newpath.<span style=\"color:#a31515\">'/'</span>.$<span style=\"color:blue\">file</span>,$rowM[<span style=\"color:#a31515\">'startString'</span>],$rowM[<span style=\"color:#a31515\">'endString'</span>]);\r\n\t\t\t\t\t\t For($i = 0 ; $i &lt;= 1 ; $i++) { <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">&quot; &quot;</span> . $thisarray[$i] . <span style=\"color:#a31515\">&quot; &quot;</span>; }\r\n\t\t\t\t\t  }\r\n\t\t\t\t   }\r\n\t\t\t\t}\r\n\t\t\t\tclosedir($handle);\r\n\t\t\t}\r\n\t\t}\r\n\t}\r\n}\r\n\r\n<span style=\"color:blue\">function</span> findRange($<span style=\"color:blue\">file</span>,$value1,$value2)\r\n{\r\n \r\n\t$objReader = PHPExcel_IOFactory::createReader(<span style=\"color:#a31515\">'Excel5'</span>);<span style=\"color:green\">//excel2007</span>\r\n\t$objPHPExcel = $objReader-&gt;load($<span style=\"color:blue\">file</span>); <span style=\"color:green\">//ARCHIVE excel2007 dir</span>\r\n\t$val = ($objPHPExcel-&gt;getActiveSheet()-&gt;getCell(<span style=\"color:#a31515\">'AB31'</span>)); <span style=\"color:green\">//CELL</span>\r\n\t$temp = $val-&gt;getvalue();<span style=\"color:green\">//returns the value in the cell</span>\r\n\t$objWorksheet = $objPHPExcel-&gt;getActiveSheet();\r\n\t$rowNumber = 0;\r\n\t$x = 0; \r\n\t<span style=\"color:blue\">foreach</span> ($objWorksheet-&gt;getRowIterator() <span style=\"color:blue\">as</span> $row) \r\n\t{\r\n\t  $cellIterator = $row-&gt;getCellIterator();\r\n\t  $cellIterator-&gt;setIterateOnlyExistingCells(false); <span style=\"color:green\">// This loops all cells, even if it is not set.  By default, only cells that are set will be         </span>\r\n\t  <span style=\"color:blue\">foreach</span> ($cellIterator <span style=\"color:blue\">as</span> $cell) \r\n\t  {\r\n\t\t$searchedvalue = $cell-&gt;getValue();\r\n\t\t<span style=\"color:blue\">if</span> ($searchedvalue===$value1) \r\n\t\t\t{ \r\n\t\t\t$cellcoord = $cell-&gt;getCoordinate(); \r\n\t\t\t$arr[0] = $cellcoord;\r\n\t\t\t}\t\t\r\n\t\t<span style=\"color:blue\">if</span> ($searchedvalue===$value2) \r\n\t\t\t{ \r\n\t\t\t$cellcoorde = $cell-&gt;getCoordinate();\r\n\t\t\t$arr[1] = $cellcoorde;\r\n\t\t\t<span style=\"color:blue\">break</span>;\r\n\t\t\t}\t\t\t\r\n\t  } \r\n\t}\r\n\t<span style=\"color:blue\">if</span> (count($arr) &gt; 0) { <span style=\"color:blue\">return</span> $arr; } <span style=\"color:blue\">else</span> { <span style=\"color:blue\">return</span> <span style=\"color:#a31515\">&quot;null&quot;</span>; }\r\n\t<span style=\"color:blue\">unset</span>($objReader);\r\n\t<span style=\"color:blue\">unset</span>($objPHPExcel);\r\n\t<span style=\"color:blue\">unset</span>($objWorksheet);\r\n}\r\n</pre>\r\n</div>",
+    "PostedDate": "2010-06-14T07:58:38.243-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "455295",
+    "ThreadId": "215741",
+    "Html": "<p>I added this between the if statements in findRange:</p>\r\n<pre>if (isset($cellcoord)) { \r\n\t\t$row ++;\r\n\t\techo $objPHPExcel-&gt;getActiveSheet()-&gt;getCellByColumnAndRow(19, $row)-&gt;getValue(); \r\n\t\t}</pre>\r\n<pre>And it will process about half of one file and then throw this error:</pre>\r\n<pre>&quot;</pre>\r\n<pre>Catchable fatal error: Object of class PHPExcel_Worksheet_Row could not be converted to string in C:\\inetpub\\wwwroot\\Classes\\PHPExcel\\Worksheet.php on line 980</pre>\r\n<pre>&quot;</pre>\r\n<pre>I think I'm actually really close, any ideas why this error. It does not appear to be timing out as it returns the information in about a second.</pre>",
+    "PostedDate": "2010-06-14T10:03:40.26-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "455343",
+    "ThreadId": "215741",
+    "Html": "<p>Without being whiny, could someone give me a clue of which way to look?</p>",
+    "PostedDate": "2010-06-14T11:56:28.927-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "458059",
+    "ThreadId": "215741",
+    "Html": "<p>I've found a way around by using the following for loop's:</p>\r\n<p>\r\n<pre>for ($row = 1; $row &lt;= $highestRow; ++$row)     {      for ($col = 0; $col &lt;= $highestColumnIndex; ++$col)       {         ....     }}</pre>\r\n</p>\r\n<p>Apparently it's a way faster way to loop through the data. &nbsp;Hopefully if anyone else is trying to process a lot of excel sheets this will help them.</p>",
+    "PostedDate": "2010-06-21T07:55:49.21-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,106 @@
+[
+  {
+    "Id": "927112",
+    "ThreadId": "399497",
+    "Html": "\r\n<p>Hi</p>\r\n<p>Is there a function that we can get the number of rows in a CSV file?&nbsp; I am using the below code to read the data of the CSV file.&nbsp;</p>\r\n<p>$sheetData = $objPHPExcel-&gt;getActiveSheet()-&gt;toArray(null, true, true, true);</p>\r\n<p>Thanks,</p>\r\n<p>aobs</p>\r\n",
+    "PostedDate": "2012-10-15T22:23:15.867-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "927134",
+    "ThreadId": "399497",
+    "Html": "<p>count($sheetData);</p>\r\n<p>or</p>\r\n<p>$objPHPExcel-&gt;getActiveSheet()-&gt;getHighestRow();</p>",
+    "PostedDate": "2012-10-15T23:32:25.47-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "927249",
+    "ThreadId": "399497",
+    "Html": "<p>If the file is csv, all rows are concatenated into one long string.&nbsp; That is, $sheetData only contains one long row.&nbsp; Is there a function to get the actual number of rows?&nbsp; or we have to write our own code to count the rows?</p>",
+    "PostedDate": "2012-10-16T03:29:20.077-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "927312",
+    "ThreadId": "399497",
+    "Html": "<p>If the CSV is being loaded as a single row, then there's something wrong with the loader function, or the line ending isn't being recognised. Can you please provide an example of this CSV (sanitized if necessary)</p>",
+    "PostedDate": "2012-10-16T05:28:45.153-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "927396",
+    "ThreadId": "399497",
+    "Html": "\r\n<p>I am using Excel 2007 running on Windows XP Pro and save the file as CSV file.&nbsp; You can download it here:\r\n<a href=\"http://www.abacusinmotion.com/PHPExcel/testartsy1.csv\">http://www.abacusinmotion.com/PHPExcel/testartsy1.csv</a>.</p>\r\n<p>I use this code to create the object:</p>\r\n<p>$objPHPExcel = PHPExcel_IOFactory::load($filename);</p>\r\n<p>This is what I got in the array:</p>\r\n<p>array(1) { [1]=&gt;array(1) { [&quot;A&quot;]=&gt;string(50) &quot;A bb,d@d.com,123abc123,20 b b,B@b.com,123abc123,40&quot; } }</p>\r\n",
+    "PostedDate": "2012-10-16T07:05:15.677-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "927529",
+    "ThreadId": "399497",
+    "Html": "\r\n<p>Very weird: CSV loading is pretty standard, so I can't see why this isn't working.... it's not as if PHPExcel tries to do anything clever with CSV, simply uses&nbsp;PHP's built-in fgetcsv() function.... will need to investigate what could have broken such\r\n a basic piece of functionality</p>\r\n",
+    "PostedDate": "2012-10-16T09:35:16.947-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "927596",
+    "ThreadId": "399497",
+    "Html": "<p>Does your csv file have a file extension when you're loading it into PHPExcel?</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/workitem/18794\">http://phpexcel.codeplex.com/workitem/18794</a></p>",
+    "PostedDate": "2012-10-16T11:50:36.317-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "927770",
+    "ThreadId": "399497",
+    "Html": "\r\n<p>The file uploaded to the server has .csv as the file extension.&nbsp; The server script will change its filename, keep the file extension type and move it to a directory.&nbsp;&nbsp;The file with name changed is&nbsp;&nbsp;21aa24fbdb1ec5d576c6f666b1f2d494.csv.&nbsp;\r\n It has the same contents as the original file.&nbsp; The file has csv extension when passed to PHPExcel.</p>\r\n<p>I use fgetcsv to read the file and the file can be read properly identifying 4 fields and 2 rows.</p>\r\n",
+    "PostedDate": "2012-10-16T18:59:28.877-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "927838",
+    "ThreadId": "399497",
+    "Html": "<p>OK, so I need to identify a weird bug somewhere in the Excel CSV Reader! &lt;sigh&gt; If you were loading to PHPExcel while the file was still in PHP's temporary upload directory before being moved, then I could understand this.</p>\r\n<p>I can't reproduce it: it loads cleanly for me using both the 1.7.7 and 1.7.8 code. Can you try using</p>\r\n<p>$reader = PHPExcel_IOFactory::identify($filename);</p>\r\n<p>and then echoing the value of $reader just to confirm.</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2012-10-16T23:39:15.88-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "928030",
+    "ThreadId": "399497",
+    "Html": "<p>$reader is HTML</p>",
+    "PostedDate": "2012-10-17T06:45:40.417-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "928110",
+    "ThreadId": "399497",
+    "Html": "<p>Try with the bugfix I listed previously:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/workitem/18794\">http://phpexcel.codeplex.com/workitem/18794</a></p>\r\n<p>This bugfix was to prevent CSV files being wrongly identified as HTML</p>\r\n<p>&nbsp;</p>\r\n<p>Code is on the develop branch of github</p>",
+    "PostedDate": "2012-10-17T08:55:33.047-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "930127",
+    "ThreadId": "399497",
+    "Html": "<p>Looks like the same problem is happening with TXT files -- The Identify method says it's an HTML file, and only one line gets loaded.</p>",
+    "PostedDate": "2012-10-21T12:50:41.747-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "930145",
+    "ThreadId": "399497",
+    "Html": "<p>Then try the same solution.... this bug has been fixed in the develop branch on github.... but a txt file is pretty meaningless in spreadsheet terms</p>",
+    "PostedDate": "2012-10-21T13:38:57.767-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "568590",
+    "ThreadId": "246640",
+    "Html": "<p>I have a scripting writing a spread sheet with 13,200 rows and 30-40 columns. &nbsp;Performance is TERRIBLE. &nbsp;It takes well over an hour to write the spreadsheet. &nbsp;I am using the GZip caching.</p>\n<p>What gives? &nbsp;Are there any tips or steps I can take to improve performance? &nbsp;I found some posts about helping performance with reads, and maybe I am missing them, but I haven't seen much about improving performance with writes.&nbsp;</p>\n<p>Running PHP 5.3.3 on a Power6 processor (which tends to makes short order of most of these PHP Scripts FYI).</p>",
+    "PostedDate": "2011-02-18T08:08:12.41-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "568616",
+    "ThreadId": "246640",
+    "Html": "<p>There are plenty of things that can be done to improve performance, but is it purely the writer that is taking time, or is it population of the PHPExcel object?</p>\r\n<p>If it's the writing, and your workbook has a lot of formulae, you can disable precalculation by using:</p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>$objWriter-&gt;setPreCalculateFormulas(false);\r\n</pre>\r\n</div>\r\n<p>More information might help, such as the format that you're writing; or whether you're styling each cell individually, or using row/column styling; how many autofit columns do your have? etc.</p>",
+    "PostedDate": "2011-02-18T08:39:27.603-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "568622",
+    "ThreadId": "246640",
+    "Html": "<p>I am using a lot of formulas so &nbsp;I added the setPreCalculateFormulas(<strong>false)&nbsp;</strong>just now and will run another test. &nbsp;I am also having memory issues still as my current test just failed with this:</p>\n<p style=\"padding-left: 30px;\">PHP Fatal error: &nbsp;Out of memory (allocated 226230272) (tried to allocate 15630559 bytes) in /phpscripts/cli/includes/PHPExcel/Shared/XMLWriter.php on line 100</p>\n<p>&nbsp;</p>\n<p>As for the other things, I am not using autofit, I am applying styles by range, and my formats are mostly currency with custom format codes. &nbsp;</p>\n<p><strong>EDIT:</strong><br /> Also, guess I need to figure out if the writer or the building of the object is my hold up, but my initial tests lead me to believe that populating the PHPExcel object is going very slowly - so it could be a little of both</p>\n<p><strong>EDIT 2:</strong></p>\n<p>OK, after digging a little deeper the issue is the&nbsp;DEFINITELY&nbsp;writing. &nbsp;It populates the object in an acceptable amount of time.</p>",
+    "PostedDate": "2011-02-18T08:46:35.02-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "568664",
+    "ThreadId": "246640",
+    "Html": "<p>Disregard&nbsp;the memory error above, after digging around some more I stumbled upon code I added this morning that caused that issue.</p>\r\n<p>Setting preCalculateFormulas to false seems to have helped dramatically. &nbsp; The report is now running in about 15-20 minute, which is much more reasonable. &nbsp;Populating the object takes only a minute or two, so if you can think of anything else that might speed up the writer even more, let me know.</p>\r\n<p>Thanks for the help!</p>",
+    "PostedDate": "2011-02-18T09:58:03.98-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

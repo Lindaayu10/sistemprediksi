@@ -1,0 +1,114 @@
+[
+  {
+    "Id": "84601",
+    "ThreadId": "25232",
+    "Html": "\r\nAfter running the 01simple.php with output:<br /><br />15:42:35 Create new PHPExcel object 15:42:35 Set properties 15:42:35 Add some data 15:42:35 Rename sheet 15:42:35 Write to Excel2007 format 15:42:35 Done writing file.   (I commented out the peak_memory line - only change made)<br /><br />I get the following error when attempting to open the created xlsx:<br />\"Excel found unreadable content in '01simple.xlsx'.  Do you want to recover the contents of this workbook?  If you trust the source of this workbook, click Yes\".  <br /><br />After clicking 'Yes':<br />\"The workbook cannot be opened or repaired by Microsoft Excel because it is corrupt\".<br /><br />I have set the folder permissions to full control for the user needed.<br /><br />Any ideas?<br /><br /><br />",
+    "PostedDate": "2008-04-02T14:49:39.137-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "84678",
+    "ThreadId": "25232",
+    "Html": "\r\nProbably something wrong with your php<i>zip module... Can you rename the .xlsx to .zip and try opening the ZIP file? If that fails, php</i>zip should be updated. If it succeeds, can you  me the file?<br />",
+    "PostedDate": "2008-04-02T23:08:36.447-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "84815",
+    "ThreadId": "25232",
+    "Html": "\r\nI can explore through the zip file without any problems.  Where would you like me to send the file to?<br /><br />Thanks for all of your help<br />",
+    "PostedDate": "2008-04-03T10:09:16.31-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "84847",
+    "ThreadId": "25232",
+    "Html": "\r\nYou can use maarten AT the name of this project (phpexcel) DOT net. Can you also send me a copy of your PHPInfo and the PHPExcel version number?<br />",
+    "PostedDate": "2008-04-03T11:44:57.697-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "84930",
+    "ThreadId": "25232",
+    "Html": "\r\nSeems the zip file is corrupt... Try extracting some files in it, it does not work. Can you try upgrading PHP to 5.2.2 ?<br />",
+    "PostedDate": "2008-04-03T22:56:36.217-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "85432",
+    "ThreadId": "25232",
+    "Html": "\r\nI upgraded PHP to the latest version (5.2.5) and the xlsx file comes out as expected.  All of the test files ran and there were no errors/corruption with any of the newly created files.<br /><br />Thank you for help, it is very appreciated.<br />",
+    "PostedDate": "2008-04-07T13:02:14.433-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "85435",
+    "ThreadId": "25232",
+    "Html": "\r\nWell, it appears I was just joking when I said there were no errors.  Or at least there weren't any \"actual\" errors.  <br /><br />When I run 08conditionalformatting.php I am having some problems applying styles to some of the cells. Specifically:<br /><br />B2, B6 and B7 (which would use $objConditional2), the font is green, but the euro symbol is not applied.  <br /><br />Conversely, on cells B3:B5 (the cells using $objConditional1) <i>does</i> apply the euro symbol, however the $objConditional1-&gt;getStyle()-&gt;getFont()-&gt;getColor()-&gt;setARGB(PHPExcel<i>Style</i>Color::COLOR_RED); does not result in a red color format.<br /><br /><br />In addition, none of the cells are bold, though this line is present:  $objConditional1-&gt;getStyle()-&gt;getFont()-&gt;setBold(true); (there is an identical line for $objConditional2)<br />I have added the following to determine if there is a problem setting the bold, but no Exception is thrown<br />try<br />{<br />\t$objConditional1-&gt;getStyle()-&gt;getFont()-&gt;setBold(true);<br />}<br />catch(Exception $e) { print_r($e); }<br /><br /><br />I tried to search for something of this nature in the other posts, but could not find one.  Should I post this as a new thread or just leave it here?<br /><br />Again, I really appreciate all of your guys obvious hard work.  This class has amazing potential.<br />",
+    "PostedDate": "2008-04-07T13:37:54.407-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "85437",
+    "ThreadId": "25232",
+    "Html": "\r\nOn a similar note:<br /><br />$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('A1')-&gt;getFont()-&gt;setBold(true);<br />$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('B1')-&gt;getFont()-&gt;setBold(true);<br />$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('A7')-&gt;getFont()-&gt;setBold(true);<br />$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('B7')-&gt;getFont()-&gt;setBold(true);<br /><br />does result in the above cells to be bold.  <br /><br />Maybe I am mis-reading the code and the lines in the previous post should not be bold?  Either way, the color and euro-symbol still persist.<br /><br />I hope I am making sense :-)<br />",
+    "PostedDate": "2008-04-07T13:42:25.02-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "85441",
+    "ThreadId": "25232",
+    "Html": "\r\nI think I may be onto something here.  The lines here:<br /><br />$conditionalStyles = $objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('B2')-&gt;getConditionalStyles();<br />array_push($conditionalStyles, $objConditional1);<br />array_push($conditionalStyles, $objConditional2);<br />$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('B2')-&gt;setConditionalStyles($conditionalStyles);<br /><br />$objPHPExcel-&gt;getActiveSheet()-&gt;duplicateStyle( $objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('B2'), 'B3:B7' );<br /><br />are setting all of the cells B2:B7 to use the conditional formatting. However, something seems odd with applying both of the conditions.  In the excel file, editing any of the numbers in B2:B6 will produce the following results:<br /><br />If the number is positive, or zero<br />{<br />     the font will be green, but no euro-symbol is present.  <br />} else {<br />     the euro-symbol will be present, but the font color (red in this case) will not be set<br />}<br /><br />Also, within Excel, going to:<br />     \"Conditional Formatting\" -&gt; \"Manage Rules\" -&gt; Show rules for \"This Worksheet\" <br />will only show the rules where \"Cell Value &gt;= 0\" -&gt; Green font<br />It appears there is no conditional format rule for $objConditional1 at all<br /><br />I hope this helps in some way...<br /><br />",
+    "PostedDate": "2008-04-07T13:53:23.143-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "85449",
+    "ThreadId": "25232",
+    "Html": "\r\nI know I am posting a lot, and it may not help with finding my issue, but....<br /><br />If I change the order in which the $objConditional's are pushed onto the array:<br />array_push($conditionalStyles, $objConditional2);<br />array_push($conditionalStyles, $objConditional1);<br /><br />instead of: <br />array_push($conditionalStyles, $objConditional1);<br />array_push($conditionalStyles, $objConditional2);<br /><br />the lessthan (red) conditional will work (without the euro-symbol).  At the same time the GreaterThanOrEqual (green) condition will not work (though the euro-symbol then appears).<br /><br />Basically it looks like the second condition in the array_push is applied, while the other is not.  <br /><br />As a work around for this, I added the following:<br />$objConditional3 = new PHPExcel<i>Style</i>Conditional();  //nothing else was done to this object, it was just instanciated<br />//follow that line with these:<br />$conditionalStyles = $objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('B2')-&gt;getConditionalStyles();<br />array_push($conditionalStyles, $objConditional3); //push the empty object first<br />array_push($conditionalStyles, $objConditional1);<br />array_push($conditionalStyles, $objConditional2);<br /><br />Doing this did in fact apply both of the conditions to the cells in need.  However, none of them have the applied euro-symbol.<br /><br />I hope that this can help you find this problem if in fact it is a bug.<br /><br /><br />I'll really try to stop posting until I hear back from someone...<br /><br /><br />Thanks a bunch for the help!<br />",
+    "PostedDate": "2008-04-07T15:17:55.22-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "85499",
+    "ThreadId": "25232",
+    "Html": "\r\nThis discussion has been copied to a work item. Click here to <a href=\"http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=5914\">go to the work item and continue the discussion</a>.<br />",
+    "PostedDate": "2008-04-07T23:36:25.173-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "85501",
+    "ThreadId": "25232",
+    "Html": "\r\nYou spotted an error :-) Fixed in SVN.<br />",
+    "PostedDate": "2008-04-07T23:45:03.473-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "85592",
+    "ThreadId": "25232",
+    "Html": "\r\nGlad I could help (and that I made sense :-) )<br /><br />I believe that for this test example, you may also remove lines 82 and 83 (the original setting of the number format)  Given that the two conditions will encompass all possible numbers, the setting of the style format which is now done in the $objCondition1/2 should take care of the formatting.<br /><br />This should not really be a big deal, but it would make for some cleaner code with less processing time.<br /><br />Just an idea.<br /><br />Thanks again for your quick help and resolution.<br />",
+    "PostedDate": "2008-04-08T08:58:37.573-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "85640",
+    "ThreadId": "25232",
+    "Html": "\r\nRight on that one too! Fixed in SVN, will be uploaded here tomorrow morning.<br />",
+    "PostedDate": "2008-04-08T11:42:27.657-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

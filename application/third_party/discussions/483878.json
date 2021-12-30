@@ -1,0 +1,66 @@
+[
+  {
+    "Id": "1150159",
+    "ThreadId": "483878",
+    "Html": "not getting all cell formats the excel is created but some cell show as 17 not 17.00\r<br />\n<br />\nhere is the code\r<br />\n<br />\n$sql2 =&quot;\tSELECT expense_data_info_id, expense_data_info_member_id, expense_data_info_date, expense_data_info_name,\r<br />\n expense_data_info_cust_notes, expense_data_info_business_note \r<br />\nFROM expense_data_info \r<br />\nwhere   \r<br />\n<pre><code>expense_data_info_member_id ='&quot;.$member_id.&quot;' \nAND expense_data_info_date = '&quot;.$enddate.&quot;'&quot;;\n    $rslt2 = mysql_query($sql2 )  or die(&quot; 407 expense_data_info Failed\\n&lt;br&gt;&quot;.$sql2.&quot;&lt;br&gt;\\n&quot;.mysql_errno().&quot;:&quot;.mysql_error().&quot;\\n&quot;);\n\n    while ($row2 = mysql_fetch_array($rslt2))\n        {   \n            $expense_data_info_cust_notes =  $row2['expense_data_info_cust_notes'] ;\n            $expense_data_info_business_note =  $row2['expense_data_info_business_note'] ;\n    }\n      mysql_free_result($rslt2);\n\n\n$path = &quot;/httpdocs/backoffice/documents/&quot;.$name.&quot;/&quot;;\n$fromfile= catPaths('/home/vhosts/greatgrow.com/httpdocs/backoffice/documents/folder0011/Expense_Report.xlsx');\n$excel2 = PHPExcel_IOFactory::load($fromfile);\nPHPExcel_Shared_String::setDecimalSeparator('.');\nPHPExcel_Shared_String::setThousandsSeparator(',');</code></pre>\n\n//  print( &quot;path is $path &lt;br&gt;fromfile is $fromfile &lt;br&gt;&quot;);               \r<br />\n<pre><code> $sql =&quot;SELECT expense_data_id , expense_data_name , expense_data_member_id , expense_data_date , expense_data_amount , expense_data_number , expense_data_cell , expense_data_row</code></pre>\n\nFROM expense_data\r<br />\nwhere expense_data_member_id ='&quot;. $member_id.&quot;' <br />\n<pre><code>    AND expense_data_date = '&quot;.$enddate.&quot;' </code></pre>\n\nORDER BY expense_data_row , expense_data_cell &quot;;\r<br />\n// print(&quot;$sql &lt;br&gt;&quot;);\r<br />\n$rslt2 = mysql_query($sql )  or die(&quot; 429 expense_data Query Failed\\n&lt;br&gt;&quot;.$sql.&quot;&lt;br&gt;\\n&quot;.mysql_errno().&quot;:&quot;.mysql_error().&quot;\\n&quot;);<br />\n<pre><code>    while ($row2 = mysql_fetch_array($rslt2))\n        {    \n        $expense_data_amount    = $row2['expense_data_amount'] ;\n        $expense_data_name  = $row2['expense_data_name'] ;\n        $expense_data_number    = $row2['expense_data_number'] ;\n        $cell = $row2['expense_data_cell'].$row2['expense_data_row'] ;\n\n        $amount = 0;\n\n        switch($expense_data_name )\n                                {\n        case 'MilesDriven[1]':\n        $amount =  $row2['expense_data_number'] ;\n        break; \n        case 'MilesDriven[2]':\n        $amount =  $row2['expense_data_number'] ;\n        break;\n        case 'MilesDriven[3]':\n        $amount =  $row2['expense_data_number'] ;\n        break; \n        case 'MilesDriven[4]':\n        $amount =  $row2['expense_data_number'] ;\n        break;\n        case 'MilesDriven[5]':\n        $amount =  $row2['expense_data_number'] ;\n        break; \n        case 'MilesDriven[6]':\n        $amount =  $row2['expense_data_number'] ;\n        break;\n        case 'MilesDriven[7]':\n        $amount =  $row2['expense_data_number'] ;\n        break;\n        case 'MilesDriven[8]':\n        $amount =  $row2['expense_data_number'] ;\n        break; \n        default:\n        $amount = '$' . number_format($row2['expense_data_amount'], 2);\n         $amount =  $row2['expense_data_amount'];\n        }\n        //Print( &quot; 277 expense_data_name is $expense_data_name  amount is $amount&lt;br&gt;&quot;);\n        $findme = 'TOTAL';\n        $ptotal = strpos($expense_data_name,$findme );\n        if ($ptotal === false) {$pos1 =0;} else {    $pos1 =1;}\n        $findme = 'total';\n        $ptotal = strpos($expense_data_name,$findme );\n        if ($ptotal === false) { $pos2 =0;} else { $pos2 =1;}\n\n        $pos = $pos1 +$pos2 ;\n        if (($pos  == 0) and ($amount == '0.00'))\n            {\n                if ($amount == '0.00') {$amount = ''; }\n                if ($amount == 0) {$amount = ''; }\n            }\n\n//print(&quot;485 cell is $cell  amount is $amount&lt;br&gt;&quot;);\n\n     if ($sict == '')\n        {   \n            $sict = 'y';\n            $excel2-&gt;setActiveSheetIndex(0) \n             -&gt;setCellValue('C4', $name_full)\n             -&gt;setCellValue('h6', $datemdy)\n              -&gt;setCellValue('c6', $datemdy);\n\n\n\n$i = $dstart;\n//echo  $dstart .' '.$dend; \n</code></pre>\n\n$ix = 1;\r<br />\n $s = 2;\r<br />\n while($i&lt;=$dend )\r<br />\n  {\t<br />\n<pre><code>$datet = cal_from_jd($i, CAL_GREGORIAN);\n$datemdya  = $datet[year].'-'.$datet[month].'-'.$datet[day]; \n$pdate = $datet[abbrevdayname] . '  '.$datet[date] ; \n$cella =$cellarray[$s];\n$cella .=8;\n//echo $pdate. ' ' .$cella . ' '.$s . '&lt;br&gt;';  \n$excel2-&gt;setActiveSheetIndex(0) \n-&gt;setCellValue($cella, $pdate);\n\n\n $i++;  $ix++; $s++;\n</code></pre>\n\n}  \r<br />\n<pre><code>}\n\n            //echo $cell .' '.$amount .'&lt;br&gt;' ;\n\n            if($cell == 'J36') \n            { \n            $sql5 = &quot;UPDATE expense_detail SET expense_detail_amount='&quot;.$amount.&quot;' \n            WHERE  expense_detail_member_id ='&quot;. $member_id.&quot;' and expense_detail_date ='&quot;.$enddate.&quot;' &quot;;\n                     $rslt5 = mysql_query($sql5)    \n    or die(&quot; 525 expense_detail update Query failed\\n&lt;br&gt;&quot;.$sql5.&quot;&lt;br&gt;\\n&quot;.mysql_errno().&quot;:&quot;.mysql_error().&quot;\\n&quot;);\n    //mysql_free_result($rslt5);\n\n\n            }\n\n            if (($cell != 'B46') and  ($cell != 'B40'))\n            {\n              $excel2-&gt;setActiveSheetIndex(0) \n              -&gt;setCellValue($cell, $amount);\n            }\n\n            if  ($cell == 'B40')\n            {\n            // print(&quot;530 cell is $cell  expense_data_info_cust_notes is $expense_data_info_cust_notes&lt;br&gt;&quot;);\n              $excel2-&gt;setActiveSheetIndex(0) \n              -&gt;setCellValue($cell, $expense_data_info_cust_notes );\n            }\n\n            if  ($cell == 'B46')\n            {\n            //  print(&quot;537 cell is $cell  expense_data_info_business_note is $expense_data_info_business_note&lt;br&gt;&quot;);\n              $excel2-&gt;setActiveSheetIndex(0) \n              -&gt;setCellValue($cell, $expense_data_info_business_note );\n            }\n        }\n\n      mysql_free_result($rslt2);\n\n     // die;\n</code></pre>\n\n$objWriter = PHPExcel_IOFactory::createWriter($excel2, 'Excel5');\r<br />\n$objWriter-&gt;save($path.$enddate.'.xls');\r<br />\n$wfile =$enddate.'.xls';\r<br />\n<br />\n<br />\n$q1c = &quot;SELECT COUNT(*) as Num FROM expense_detail \r<br />\nWHERE expense_detail_date = '&quot;.$enddate.&quot;' AND expense_detail_member_id ='&quot;.$member_id.&quot;' &quot;;\r<br />\n$COUNT = mysql_result(mysql_query($q1c),0);\r<br />\n \r<br />\n//print(&quot;$COUNT &lt;br&gt;&quot;); die;\r<br />\nif ($COUNT == 0)\r<br />\n {\r<br />\n $q1 = &quot;INSERT INTO expense_detail  (expense_detail_id,expense_detail_member_id,expense_detail_date,expense_detail_file_name)\r<br />\nVALUES ( '',  '$member_id','$enddate','$wfile' )&quot;; \r<br />\n//  print(&quot; $q1 &lt;BR&gt;&quot;); die;<br />\n<pre><code>        $rslt1 = mysql_query($q1)     or die(&quot; expense_detail add Query failed\\n&lt;br&gt;&quot;\n        .$q1.&quot;&lt;br&gt;\\n&quot;.mysql_errno().&quot;:&quot;.mysql_error().&quot;\\n&quot;);\n\n        mysql_free_result($rslt1);</code></pre>\n\n}\r<br />\n\t\t\t          <br />\n          <br />\n\r<br />\n }<br />\n",
+    "PostedDate": "2014-01-06T14:07:39.27-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1150384",
+    "ThreadId": "483878",
+    "Html": "Don't use PHP's number_Format() to format your cells.... you're creating an Excel file not HTML markup, use the Excel number format masks\r<br />\n<br />\ne.g.<br />\n<div style=\"color:Black;background-color:White;\"><pre>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(<span style=\"color:#A31515;\">&#39;A1:C3&#39;</span>)\n    -&gt;getNumberFormat()\n    -&gt;setFormatCode(<span style=\"color:#A31515;\">&#39;#,##0.00&#39;</span>);\r\n</pre></div>",
+    "PostedDate": "2014-01-07T05:25:50.693-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1150670",
+    "ThreadId": "483878",
+    "Html": "I tried \r<br />\n{<br />\n<pre><code>              $objPHPExcel-&gt;getActiveSheet()-&gt;getStyle($cell)\n                -&gt;getNumberFormat()\n                -&gt;setFormatCode('#,##0.00');\n              $excel2-&gt;setActiveSheetIndex(0) \n              -&gt;setCellValue($cell, $amount);\n\n</code></pre>\n\ndid not work<br />\n",
+    "PostedDate": "2014-01-07T16:28:14.58-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1150671",
+    "ThreadId": "483878",
+    "Html": "I also tried<br />\n$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle($cell)<br />\n<pre><code>                -&gt;getNumberFormat()\n                -&gt;setFormatCode('#,##0.00')\n              -&gt;setCellValue($cell, $amount);\n</code></pre>\n\ndid not work<br />\n",
+    "PostedDate": "2014-01-07T16:31:09.737-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1150673",
+    "ThreadId": "483878",
+    "Html": "If your PHPExcel object is $excel2, then it's<br />\n<div style=\"color:Black;background-color:White;\"><pre>\r\n\n$excel2-&gt;getActiveSheet() \n    -&gt;getStyle($cell)\n    -&gt;getNumberFormat()\n    -&gt;setFormatCode(<span style=\"color:#A31515;\">&#39;#,##0.00&#39;</span>);\r\n</pre></div>",
+    "PostedDate": "2014-01-07T16:41:39.447-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1150940",
+    "ThreadId": "483878",
+    "Html": "I now get this error <br />\n<br />\ncell is C10 <br />\n Fatal error: Call to undefined method PHPExcel_Style_NumberFormat::setCellValue() in /home/vhosts/greatgrow.com/httpdocs/backoffice/expense_report_post.php on line 554 <br />\n<br />\nthe code is <br />\nprint(&quot;cell is $cell &lt;br&gt;&quot;);<br />\n<pre><code>            if (($cell != 'B46') and  ($cell != 'B40'))\n            {\n                 $excel2-&gt;getActiveSheet()-&gt;getStyle($cell)                \n                -&gt;getNumberFormat()\n                -&gt;setFormatCode('#,##0.00')\n              -&gt;setCellValue($cell, $amount); \n            }\n</code></pre>\n\nif you want to see the excel sheet let me know how to send it to you<br />\n",
+    "PostedDate": "2014-01-08T08:15:30.83-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1150959",
+    "ThreadId": "483878",
+    "Html": "setFormatCode return PHPExcel_Style_NumberFormat, not a PHPExcel_Worksheet.\r<br />\n<br />\nif yo want to use fluent interface :<br />\n<pre><code>$excel2-&gt;getActiveSheet()-&gt;setCellValue($cell, $amount)-&gt;getStyle($cell)-&gt;getNumberFormat()-&gt;setFormatCode('#,##0.00');\n// or\n$excel2-&gt;getActiveSheet()-&gt;setCellValue($cell, $amount, true)-&gt;getStyle()-&gt;getNumberFormat()-&gt;setFormatCode('#,##0.00');</code></pre>\n\nsetCellValue return the PHPExcel_Worksheet (third parameter to false or omitted) and you can chain to call getStyle($cell) (the worksheet's method), or return PHPExcel_Cell (third parameter to true) and you can call getStyle() (without coordinate : it's the style of the cell)<br />\n",
+    "PostedDate": "2014-01-08T08:50:06.1-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1151139",
+    "ThreadId": "483878",
+    "Html": "\r\n<div>\r\n<p><span style=\"font-size:11.0pt; font-family:\">Yes it worked </span></p>\r\n<p><span style=\"font-size:11.0pt; font-family:\">Thank you </span></p>\r\n<pre><code><span style=\"font-size:10.0pt\">$excel2-&gt;getActiveSheet()</span></code></pre>\r\n<pre><code><span style=\"font-size:10.0pt\">-&gt;setCellValue($cell, $amount, true)</span></code></pre>\r\n<pre><code><span style=\"font-size:10.0pt\">-&gt;getStyle()-&gt;getNumberFormat()</span></code></pre>\r\n<pre><code><span style=\"font-size:10.0pt\">-&gt;setFormatCode('#,##0.00');</span></code><span style=\"font-size:11.5pt\"></span></pre>\r\n<p><span style=\"font-size:11.0pt; font-family:\"></span></p>\r\n<p><span style=\"font-size:11.0pt; font-family:\"></span></p>\r\n<div>\r\n<div style=\"border:none; border-top:solid #E1E1E1 1.0pt; padding:3.0pt 0in 0in 0in\">\r\n<p><b><span style=\"font-size:11.0pt; font-family:\"></span></b></p>\r\n</div>\r\n</div>\r\n</div>\r\n",
+    "PostedDate": "2014-01-08T16:59:53.167-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

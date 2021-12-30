@@ -1,0 +1,65 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hello...\n\nI would so much like to resolve this most annoying issue.\nMy project was flying along joyously until hitting this wall.\n\nI seek to load a 4 sheet Excel file and produce 4 separate csv files from it.\n\nThe original Excel file has 2 columns formatted as mm/dd/yyyy on each sheet.\n\nI am surprised (and bewildered) to find that PHPExcel has taken it upon itself to change the format of these dates to...    mm/dd/yy\n\nSo I created my own constant and tried the FORMAT_DATE thing, but it is apparently not supported as part of the writer function.  Not even the predefined constants will work.\n\nHere's what I have:\n--------------------------------------------------------------------------------------------------------------------------\n$objPHPExcel = PHPExcel_IOFactory::load($newlogpath);\n\nforeach ($sheetIndex as $i => $county){\n\n                $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'CSV')->setDelimiter(\"\\t\")\n\t\t\t\t\t  ->setEnclosure('')\t\n\t\t\t\t\t  ->setLineEnding(\"\\r\\n\")\n\t\t\t\t\t  ->setSheetIndex($i)\n\t\t\t\t\t  ->save(str_replace(' ','-',$county) . '.csv');\n\n}\n--------------------------------------------------------------------------------------------------------------------------\nThis produces my four files, but not faithfully.\nAs stated, the dates are wrong, and nothing I have tried will retain them in their original format.\nIs there not some simple flag which will tell phpExcel to leave the data alone?\n\nCan anyone help resolve?\n\nThank you!\n\nPaul G",
+    "LastUpdatedDate": "2014-12-24T14:22:02.13-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2014-12-22T17:34:36.793-08:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Excel 4-digit year truncated to 2-digits by PHPExcel",
+    "Type": {
+      "Name": "Unassigned",
+      "Id": 5
+    },
+    "VoteCount": 1,
+    "Id": 21621
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "So how are you actually setting these dates in your code, and how do they appear in the raw csv file - not as shown in MS Excel, but as shown in a text editor?",
+      "PostedDate": "2014-12-23T00:14:19.227-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "\nThanks for your response.\r\n\r\n I was just letting the code above use its default settings to start.\r\n\r\nThen I tried including this in the loop:\n$objPHPExcel->getActiveSheet($i)->getStyle(\"A1\")->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_DATE_LOGFILE);\r\n\r\nWhere \"LOGFILE\" was my own constant definition.  None of the default constants worked either for this.\nThe line had no effect.\r\n\r\nThen late yesterday I stumbled onto this alternate method, which DOES fix the date issue.... but unfortunately, this method doesn't seem to accept a user defined enclosure, delimiter, or line break, which just makes extra work for me in the end.\r\n\r\nThis was included in the for loop:\r\n\r\n$excel = PHPExcel_IOFactory::load($newlogpath);\n\t\t\t\t$worksheet = $excel->getActiveSheet();\n\t\t\t\t$highestRow = $worksheet->getHighestRow();\n\t\t\t\t$worksheet->getStyle(\"A1:A$highestRow\")->getNumberFormat()->setFormatCode('mm/dd/yyyy');\n\t\t\t\t$worksheet->getStyle(\"C1:C$highestRow\")->getNumberFormat()->setFormatCode('mm/dd/yyyy');\n\t\t\t\t#$worksheet->setEnclosure('');\n\t\t\t\t#$worksheet->setDelimiter(\"\\t\");\n\t\t\t\t#$worksheet->setLineEnding(\"\\r\\n\");\n\t\t\t\t$writer = PHPExcel_IOFactory::createWriter($excel, 'CSV');\n\t\t\t\t$writer->save($county.\"TEST.csv\");\r\n\r\n\nAm I overlooking something obvious about how to get the best of both methods?\r\n\r\nThanks\r\n\r\nPaul",
+      "PostedDate": "2014-12-23T07:03:26.393-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "\r\n\r\nAhhh....   (d'oh!)\r\n\r\nI see the structure now...\nand I can now combine the best of both!\r\n\r\nThanks for helping me work through that!",
+      "PostedDate": "2014-12-23T07:13:38.067-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "\r\n\r\nI spoke too soon!\r\n\r\nThe issue lives...  IT  LIVES!!!   \r\n\r\nsorry.\r\n\r\nThe formatting applied within the loop only applies to the default active sheet, because the worksheet that gives me the highest linecount data does not seem to have a method for getting the next work sheet in the loop.\r\n\r\nSo, I get 4 files, but only the first has correct formatting.\r\n\r\nDo I need to forget about doing this elegantly and just separate the two functions (saving CSVs and formatting the dates) into two different loops?\r\n\r\nThanks\r\n\r\nLatest code in trail\r\n\r\n\nPaul G\r\n\r\nforeach ($sheetIndex as $i => $county){\n\t\t\n\t\t\t\t$writer = PHPExcel_IOFactory::createWriter($excel, 'CSV')->setDelimiter(\"\\t\");\n\t\t\t\t$writer->setSheetIndex($i);\n\t\t\t\t\n\t\t\t\t$worksheet = $excel->getActiveSheet();\n\t\t\t\t$highestRow = $worksheet->getHighestRow();\n\t\t\t\t$worksheet->getStyle(\"A1:A$highestRow\")->getNumberFormat()->setFormatCode('yyyy/mm/dd');\n\t\t\t\t$worksheet->getStyle(\"C1:C$highestRow\")->getNumberFormat()->setFormatCode('yyyy/mm/dd');\r\n\r\n\t\t\t\t$writer->setEnclosure('');\n\t\t\t\t$writer->setLineEnding(\"\\r\\n\");\n\t\t\t\t$writer->save($county.\".csv\");\n\t\t\t\t\n\t\t\t\t/*\n\t\t\t\t$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'CSV')->setDelimiter(\"\\t\")\n\t\t\t\t\t  ->setEnclosure('')\t\n\t\t\t\t\t  ->setLineEnding(\"\\r\\n\")\n\t\t\t\t\t  ->setSheetIndex($i)\n\t\t\t\t\t  ->save(str_replace(' ','-',$county) . '.csv');\n\t\t\t\t*/\n\t\t\t\t\t  \t\n\t\t\t}\t\r\n\r\n",
+      "PostedDate": "2014-12-23T14:35:55.92-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "\nFinally... the issue has been resolved.\r\n\r\nIt came down to a slight variation in the function names depending on what type of object you are working with.\r\n\r\nthe writer uses \"setSheetIndex()\"\r\n\r\nwhereas the phpExcel object uses \"setActiveSheetIndex()\"\r\n\r\nwhich is rather annoying since they both essentially do the same thing, and one expects a class of this caliber to be more consistent.\r\n\r\nAnyway...  the matter is now in hand!\r\n\r\nHave a great holiday\r\n\r\nPaul\r\n\r\n\r\n\r\n",
+      "PostedDate": "2014-12-24T14:22:02.13-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

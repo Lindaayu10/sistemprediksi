@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "533819",
+    "ThreadId": "237846",
+    "Html": "\r\n<p>Hi all,</p>\r\n<p>I am getting&nbsp;a blank page when I try to write more than 100 rows into a .xls file. 96 rows is fine and works good. Here's my script.</p>\r\n<p>&nbsp;</p>\r\n<p>$data = getProducts();<br>\r\n//&nbsp; # filename for download<br>\r\n&nbsp; $filename = &quot;Products .xls&quot;;<br>\r\n// Create new PHPExcel object<br>\r\n$objPHPExcel = new PHPExcel();</p>\r\n<p>// Set properties<br>\r\n$objPHPExcel-&gt;getProperties()-&gt;setCreator(&quot;test&quot;)<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -&gt;setLastModifiedBy(&quot;test&quot;)<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -&gt;setTitle(&quot;Office 2007 XLSX Document&quot;)<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -&gt;setSubject(&quot;Office 2007 XLSX Document&quot;)<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -&gt;setDescription(&quot;Document for Office 2007 XLSX, generated using PHP classes.&quot;)<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -&gt;setKeywords(&quot;office 2007 openxml php&quot;)<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -&gt;setCategory(&quot;Product Setup Data&quot;);</p>\r\n<p>//Assuming that we will never cross more than 26 columns.<br>\r\n$cell_name = array('A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z');<br>\r\n$total_cols = count($data[0]);<br>\r\n// Add data<br>\r\n$i = 1;<br>\r\nforeach($data as $row) {<br>\r\n&nbsp;$j = 0;<br>\r\n&nbsp;foreach($row as $val){<br>\r\n&nbsp;&nbsp;$objPHPExcel-&gt;setActiveSheetIndex(0)<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -&gt;setCellValue($cell_name[$j].$i, $val);<br>\r\n&nbsp;&nbsp;if($i==1){<br>\r\n&nbsp;&nbsp;&nbsp;$objPHPExcel-&gt;setActiveSheetIndex(0)-&gt;getStyle($cell_name[$j].$i)-&gt;getFont()-&gt;setBold(true);<br>\r\n&nbsp;&nbsp;}&nbsp;&nbsp;<br>\r\n&nbsp;&nbsp;$objPHPExcel-&gt;setActiveSheetIndex(0)-&gt;getColumnDimension($cell_name[$j].$i)-&gt;setWidth(30);<br>\r\n&nbsp;&nbsp;$j&#43;&#43;;<br>\r\n&nbsp;}<br>\r\n&nbsp;$i&#43;&#43;;<br>\r\n}<br>\r\n// Rename sheet<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setTitle('Products');<br>\r\n// Set active sheet index to the first sheet, so Excel opens this as the first sheet<br>\r\n$objPHPExcel-&gt;setActiveSheetIndex(0);<br>\r\n// Redirect output to a client&rsquo;s web browser (Excel5)<br>\r\nheader('Content-Type: application/vnd.ms-excel');<br>\r\nheader(&quot;Content-Disposition: attachment; filename=\\&quot;$filename\\&quot;&quot;);<br>\r\nheader('Cache-Control: max-age=0');<br>\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');<br>\r\n$objWriter-&gt;save('php://output');<br>\r\nexit;</p>\r\n<p>No errors are reported in either PHP or Apache.&nbsp; Any suggestions ?? or any idea what&nbsp; the problem is?</p>\r\n<p>Thanks,</p>\r\n<p>Vani</p>\r\n",
+    "PostedDate": "2010-12-10T02:51:37.14-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "534167",
+    "ThreadId": "237846",
+    "Html": "\r\n<p>Obvious possibilities ar timeout or running into memory limits.</p>\r\n<p>Note that you don't need the $cell_name array if you use the built in methods of PHPExcel_Cell::stringFromColumnIndex() to convert 0 to 'A', 1 to 'B', 26 to 'AA', etc; or setCellValueByColumnAndRow() rather than setCellValue()</p>\r\n",
+    "PostedDate": "2010-12-10T14:28:08.25-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

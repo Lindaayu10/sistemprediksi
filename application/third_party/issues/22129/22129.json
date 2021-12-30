@@ -1,0 +1,95 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I'm new at this. While running a script using PHPExcel_1.8.0 I got\n\nFatal Error: Allowed Memory Size of 134217728 Bytes Exhausted\n\nI tracked the problem down to \n\n1 [02-Jan-2016 09:46:26] PHP Warning: A non well formed numeric value encountered in /Users/denny/Sites/PHPExcel_1.8.0/Classes/PHPExcel/Shared/trend/exponentialBestFitClass.php on line 127 \n\nwhich created a huge php.log error file that used up all the memory.\n\n```\n\tprivate function _exponential_regression($yValues, $xValues, $const) {\n\t\tforeach($yValues as &$value) {\n\t\t\tif ($value < 0.0) {\n\t\t\t\t$value = 0 - log(abs($value));\n\t\t\t} elseif ($value > 0.0) {\n\t\t\t\t$value = log($value);\n\t\t\t}\n\t\t}\n\t\tunset($value);\n\n\t\t$this->_leastSquareFit($yValues, $xValues, $const);\n\t}\t//\tfunction _exponential_regression()\n\n```\n\n$value = log($value); is expecting a float but my input number seems to be a string. My fix was to type cast the variable\n\n$value = log((float) $value);\n\nThere are a large number of private functions that have this same code and potential bug.",
+    "LastUpdatedDate": "2016-01-03T04:51:33.153-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2016-01-02T12:47:24.973-08:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Bug: Error log eats up all the memory",
+    "Type": {
+      "Name": "Unassigned",
+      "Id": 5
+    },
+    "VoteCount": 1,
+    "Id": 22129
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "Can you identify what version of PHP you're running, because you seem to have encountered a serious error in PHP, because it's PHP that should be responsible for handling that casting from string to float automatically without the need for PHPExcel to explicitly do so",
+      "PostedDate": "2016-01-02T13:46:00.46-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "On my home development machine (Mac) I have v. 5.5.29 and on the web server v. 5.3.29. Same problem on both.",
+      "PostedDate": "2016-01-02T13:58:55.22-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Let me add that it's a \"PHP Warning\" and the code executes properly but since I'm reporting (recording) the warnings as part of my website error management, the warnings are added to the php.log file. I could turn the error reporting off and it would work but I like to clean up my php code so it has no warnings. As new versions of php come out stuff that used to work sometimes stops working or issues warnings.\r\n\r\nI have the error reporting code on all my websites. It emails me fatal errors and records the warnings which can be dealt with in good time. If the script didn't loop through that code so often it would not be a problem. The warning is recorded a gazillion times. ",
+      "PostedDate": "2016-01-02T14:25:07.71-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Can you debug what the actual value of `$value` is when this occurs? Standard PHP behaviour should be to cast it automatically to a float. Is it possible that the string values somehow cannot be cleanly cast?",
+      "PostedDate": "2016-01-02T15:47:36.48-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "`$value` is a number (i.e. 58.1) but it was created as type string.\r\n\r\n`log()` expects a float, if it gets a string it will cast is as a float but it will issue a warning.\r\n\r\nI have now type cast `$value` to float when creating the array for phpExcel and the problem disappeared\r\n\r\n```\n$close[] = (float) $row[1];\n```\r\n\r\nThanks for your help!",
+      "PostedDate": "2016-01-02T16:45:41.47-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Unable to replicate\r\n\r\n```\nerror_reporting(E_ALL);\nini_set('display_errors', TRUE);\r\n\r\n\n$value = 58.1;\nvar_dump($value);\necho log($value), PHP_EOL;\r\n\r\n$value = '58.1';\nvar_dump($value);\necho log($value), PHP_EOL;\n```\r\n\r\nPHP casts the string to a float automatically when the `log()` function is called. No warnings are generated, and the correct result is returned. This is as expected with a loose-typed language like PHP.\r\n\r\n[Demo](https://3v4l.org/SmnTc)\n",
+      "PostedDate": "2016-01-02T17:17:00.58-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "From the error message that you are getting `A non well formed numeric value encountered` it really sounds as though the problem isn't the implicit casting, but that the value isn't what it should be (__non well formed__) suggests that the string doesn't contain a valid numeric value",
+      "PostedDate": "2016-01-02T17:20:05.277-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "In you demo the value is an assignment and it is immediately cast as a float. In my code the value comes from loading a foreign file into an array. The array is processed into other arrays. All this time the \"value\" is a string.\nNow it has to be processed in the array that will be input to phpExcel. Here is where the type casting has to be done.\r\n\r\nMake the following change to your demo to see what happens:\r\n\r\n```\n$value = (string) 58.1;\n```\r\n\r\n",
+      "PostedDate": "2016-01-02T18:01:58.447-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Just to be sure I checked it with\r\n\r\n```\necho \"Type \" . gettype($row[1]) . \"<br>\\n\";\n```\r\n\r\nSure enough \"Type string\"",
+      "PostedDate": "2016-01-02T18:15:48.987-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "In my demo, I use two values..... one a float, the second a string; and both produce the expected output.\r\n\r\nDo a var_dump() of your value to show what it really is (a var_dump also shows length as well as displayable value).... don't simply check the datatype, I already know that it's a string.... that's what the error message you're getting is saying, but it's also saying that it can't be cast to a float..... that's what \"non well formed\" suggests.",
+      "PostedDate": "2016-01-03T03:24:25.457-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "You are right! There is a space at the end of the string, trim() takes care of it. Thanks for your persistence.",
+      "PostedDate": "2016-01-03T04:51:33.153-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

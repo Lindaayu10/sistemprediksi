@@ -1,0 +1,86 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel_Reader_Excel2007",
+      "DisplayName": "PHPExcel_Reader_Excel2007"
+    },
+    "ClosedComment": "Fixed in SVN",
+    "ClosedDate": "2009-06-17T10:26:52.26-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I get this error when opening a Excel 2007 spreadsheet.\n \nUncaught exception 'Exception' with message 'Column string index can not be empty.' in C:\\wamp\\www\\php\\PHPExcel\\Classes\\PHPExcel\\Cell.php:610 Stack trace: \n \n#0 C:\\wamp\\www\\php\\PHPExcel\\Classes\\PHPExcel\\ReferenceHelper.php(557): PHPExcel_Cell::columnIndexFromString('') \n#1 C:\\wamp\\www\\php\\PHPExcel\\Classes\\PHPExcel\\ReferenceHelper.php(477): PHPExcel_ReferenceHelper->_updateSingleCellReference('Resource', 'A1', 0, 1) \n#2 C:\\wamp\\www\\php\\PHPExcel\\Classes\\PHPExcel\\ReferenceHelper.php(368): PHPExcel_ReferenceHelper->updateCellReference('Resource', 'A1', 0, 1) \n#3 C:\\wamp\\www\\php\\PHPExcel\\Classes\\PHPExcel\\Reader\\Excel2007.php(664): PHPExcel_ReferenceHelper->updateFormulaReferences('=IF($A14=\"\",0,V...', 'A1', 0, 1) \n#4 C:\\wamp\\www\\php\\ReadResourceSheet.php(13): PHPExcel_Reader_Excel2007->load('../ResourceShee...') \n#5 {main} thrown in C:\\wamp\\www\\php\\PHPExcel\\Classes\\PHPExcel\\Cell.php on line 610\n \nFrom some minor investiagation it appears that this is caused by sharedFormulas\n \nThe first row works fine as this is not shared\n \nI changed Excel2007.php where it says // Shared formula? to show this behaviour\n \necho \"<p>\" . (string)$c->f['si'] . \" </p>\";\nif (!isset($sharedFormulas[(string)$c->f['si']])) {                                                \n        echo \"<p> testing \" . $c->f['t'] . \" </p>\";\n}\nelse {\n        echo \"<p> not testing \" . $c->f['t'] . \" </p>\";\n}\n \nFormula going wrong is =IF($A15=\"\",0,VLOOKUP($A15,Resource,2,FALSE))\n \nMy questions are\n- Can you avoid shared formulas?\n- Do you need more info\n \nThanks,\nIain",
+    "LastUpdatedDate": "2013-05-16T05:42:36.567-07:00",
+    "PlannedForRelease": "PHPExcel 1.7.0 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-06-16T21:27:26.263-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "'Column string index can not be empty.'",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 10149
+  },
+  "FileAttachments": [
+    {
+      "FileId": 3154,
+      "FileName": "Test v2.0.xlsx",
+      "DownloadUrl": ".\\3154"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "Mark, can you look into this?",
+      "PostedDate": "2009-06-17T10:25:46.903-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-06-17T10:26:40.26-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-06-17T10:26:52.26-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Hi,\r\n\r\nNot fixed for me. Thanks for the quick response. I have added an attachment to demonstrate the problem using 27960 build.\r\n\r\nI have again changed Excel 2007.php and added \r\n\r\nif($r == \"B15\" || $r == \"B14\") {                                                \r\n\r\n    echo \"<p> Size of sharedFormulas \" . sizeof($sharedFormulas) . \" </p>\";\r\n    echo \"<p> Shared Formula 2 \" . $sharedFormulas[2] . \" </p>\";\r\n\r\necho \"<p>\" . $r . \" </p>\";\r\necho \"<p>\" . $cellDataType . \" </p>\";\r\necho \"<p> Here is the value of c->f['si'] \" . (string)$c->f['si'] . \" </p>\";\r\necho \"<p> Here is the value of c->f['t'] \" .  (string)$c->f['t']  . \" </p>\";\r\nif (!isset($sharedFormulas[(string)$c->f['si']])) {\r\necho \"<p> testing \" . $c->f['t'] . \" </p>\";\r\n}\r\nelse {\r\necho \"<p> not testing \" . $c->f['t'] . \" </p>\";\r\n}\r\n}          \r\n\r\nBefore // Shared Formula\r\n\r\n--- output below - thanks again\r\n\r\nHere is the value of c->f['t'] shared\r\n\r\ntesting shared\r\n\r\nSize of sharedFormulas 3\r\n\r\nShared Formula 2 Array\r\n\r\nB15\r\n\r\nf\r\n\r\nHere is the value of c->f['si'] 2\r\n\r\nHere is the value of c->f['t'] shared\r\n\r\nnot testing shared\r\n\r\nFatal error: Uncaught exception 'Exception' with message 'Column string index can not be empty.' in C:\\wamp\\www\\php\\PHPExcel\\Classes\\PHPExcel\\Cell.php:610 Stack trace: #0 C:\\wamp\\www\\php\\PHPExcel\\Classes\\PHPExcel\\ReferenceHelper.php(536): PHPExcel_Cell::columnIndexFromString('') #1 C:\\wamp\\www\\php\\PHPExcel\\Classes\\PHPExcel\\ReferenceHelper.php(457): PHPExcel_ReferenceHelper->_updateSingleCellReference('Resource', 'A1', 0, 1) #2 C:\\wamp\\www\\php\\PHPExcel\\Classes\\PHPExcel\\ReferenceHelper.php(368): PHPExcel_ReferenceHelper->updateCellReference('Resource', 'A1', 0, 1) #3 C:\\wamp\\www\\php\\PHPExcel\\Classes\\PHPExcel\\Reader\\Excel2007.php(648): PHPExcel_ReferenceHelper->updateFormulaReferences('=IF($A14=\"\",0,V...', 'A1', 0, 1) #4 C:\\wamp\\www\\php\\ReadResourceSheet.php(13): PHPExcel_Reader_Excel2007->load('../ResourceShee...') #5 {main} thrown in C:\\wamp\\www\\php\\PHPExcel\\Classes\\PHPExcel\\Cell.php on line 610\r\n",
+      "PostedDate": "2009-06-17T16:39:02.07-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-06-17T16:39:03.93-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "PS.\r\n\r\nMy php looks like\r\n\r\nerror_reporting(E_ALL);\r\n\r\ninclude (\"PHPExcel.php\");\r\ninclude (\"PHPExcel/IOFactory.php\");\r\ninclude (\"PHPExcel/Reader/Excel2007.php\");\r\n\r\n$objReader = PHPExcel_IOFactory::createReader(\"Excel2007\");\r\n$objPHPExcel = $objReader->load(\"../ResourceSheet/Test v2.0.xlsx\");\r\n",
+      "PostedDate": "2009-06-17T17:28:46.193-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:03:56.36-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:36.567-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

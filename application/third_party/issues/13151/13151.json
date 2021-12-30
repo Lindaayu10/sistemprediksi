@@ -1,0 +1,155 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "Try reading up on cell caching.... it is described in the documentation, and an &#34;issue&#34; is not the place to give a tutorial",
+    "ClosedDate": "2012-01-22T10:35:50.367-08:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "We use PHPExcel (1.7.3) to export the large block of data (10000 rows * 20 columns), but memory leak is not fixed in this version core. \n \nrequire_once 'phpexcel/Classes/PHPExcel.php';\nrequire_once 'phpexcel/Classes/PHPExcel/IOFactory.php';\n \n$objPHPExcel = new PHPExcel();                        \n \n$cacheMethod = PHPExcel_CachedObjectStorageFactory:: cache_to_phpTemp;\n$cacheSettings = array( ' memoryCacheSize '  => '8MB');\nPHPExcel_Settings::setCacheStorageMethod($cacheMethod, $cacheSettings);\n \nfor ($j=0; $j<10000; $j++)\n{\n  $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(0,($i+1),'Test');\n  $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(1,($i+1),'Test');\n}\n                 \n$objPHPExcel->setActiveSheetIndex(0);\n \nheader('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');\nheader('Content-Disposition: attachment;filename=\"Test.xlsx\"');\nheader('Cache-Control: max-age=0');\n \n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');\n$objWriter->save('php://output');\n       \nPlease help.",
+    "LastUpdatedDate": "2014-01-30T03:11:40.07-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2010-05-19T03:13:47.14-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Memory leak",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 5,
+    "Id": 13151
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "Caching must be enabled/configured before you load or instantiate any PHPExcel object",
+      "PostedDate": "2010-05-19T14:47:54.28-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "$cacheMethod = PHPExcel_CachedObjectStorageFactory:: cache_to_phpTemp;\r\n$cacheSettings = array( ' memoryCacheSize ' => '8MB');\r\nPHPExcel_Settings::setCacheStorageMethod($cacheMethod, $cacheSettings);\r\n\r\n$objPHPExcel = new PHPExcel();\r\n\r\nthis code doesn't work too :(\r\n\r\ncan you write an example working with export the large block of data (10000 rows * 20 columns) ?",
+      "PostedDate": "2010-05-19T22:33:54.59-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "OK, I've identified the leaks in the Excel2007 and Excel5 writers, and made a couple of changes that are in the latest SVN code.\r\n\r\nI've modified your example, making it 3 columns (1 string, 1 number and 1 formula based on the first 2). I've also reset the PHPTemp default memory cache size to 1MB (the default), and rerun the 10,000 row test against v1.7.2, the v1.7.3 production release, and my modified SVN code for the Excel5, Excel2007 and CSV writers. \r\n\r\nThe code I've used for these tests is as follows:\r\n\r\nerror_reporting(E_ALL);\r\nset_time_limit(0);\r\n\r\n\r\n/** Include path **/\r\nset_include_path(get_include_path() . PATH_SEPARATOR . './Classes/');\r\n\r\nrequire_once 'PHPExcel.php';\r\n\r\n\r\n$cacheMethod = PHPExcel_CachedObjectStorageFactory:: cache_to_phpTemp;\r\n$cacheSettings = array( ' memoryCacheSize ' => '1MB');\r\nPHPExcel_Settings::setCacheStorageMethod($cacheMethod, $cacheSettings);\r\n\r\n\r\n$callStartTime = microtime(true);\r\n$objPHPExcel = new PHPExcel();\r\n$callEndTime = microtime(true);\r\n$callTime = $callEndTime - $callStartTime;\r\necho 'PHPExcel Object Instantiated:- Current memory usage: ' . (memory_get_usage(true) / 1024 / 1024) . ' MB; Execution time: '.sprintf('%.4f',$callTime).' seconds<br />';\r\n\r\n\r\n$callStartTime = microtime(true);\r\nfor ($j=0; $j<10000; $j++) {\r\n\t$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(0,($j+1),'TestA');\r\n\t$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(1,($j+1),($j+1));\r\n\t$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(2,($j+1),'=CONCATENATE(A'.($j+1).',B'.($j+1).')');\r\n}\r\n$callEndTime = microtime(true);\r\n$callTime = $callEndTime - $callStartTime;\r\necho 'Data Written to PHPExcel Object:- Current memory usage: ' . (memory_get_usage(true) / 1024 / 1024) . ' MB; Execution time: '.sprintf('%.4f',$callTime).' seconds<br />';\r\n\r\n\r\n$writeFileType = 'HTML';\r\n$writeFileExtension = 'html';\r\n\r\n$callStartTime = microtime(true);\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, $writeFileType);\r\n$callEndTime = microtime(true);\r\n$callTime = $callEndTime - $callStartTime;\r\necho 'PHPExcel '.$writeFileType.' Writer Instantiated: Current memory usage: ' . (memory_get_usage(true) / 1024 / 1024) . ' MB; Execution time: '.sprintf('%.4f',$callTime).' seconds<br />';\r\n\r\n\r\n$callStartTime = microtime(true);\r\n$objWriter->save('writeTest.'.$writeFileExtension);\r\n$callEndTime = microtime(true);\r\n$callTime = $callEndTime - $callStartTime;\r\necho 'Workbook written to '.$writeFileType.' file: Current memory usage: ' . (memory_get_usage(true) / 1024 / 1024) . ' MB; Execution time: '.sprintf('%.4f',$callTime).' seconds<br />';\r\n\r\n\r\n// Echo memory peak usage\r\necho 'Peak memory usage: ' . (memory_get_peak_usage(true) / 1024 / 1024) . ' MB<br />';\r\n\r\n\r\n\r\n\r\nI'm getting the following results:\r\n\r\nPHPExcel 1.7.2\r\nPHPExcel Object Instantiated:- Current memory usage: 7.5 MB; Execution time: 0.0014 seconds\r\nData Written to PHPExcel Object:- Current memory usage: 35 MB; Execution time: 6.3370 seconds\r\n\r\nPHPExcel 1.7.3 (Production Release)\r\nPHPExcel Object Instantiated:- Current memory usage: 2.25 MB; Execution time: 0.8383 seconds\r\nData Written to PHPExcel Object:- Current memory usage: 16.75 MB; Execution time: 10.4522 seconds\r\n\r\nPHPExcel 1.7.3 (latest SVN code)\r\nPHPExcel Object Instantiated:- Current memory usage: 2.25 MB; Execution time: 0.7386 seconds\r\nData Written to PHPExcel Object:- Current memory usage: 16.5 MB; Execution time: 10.1371 seconds\r\n\r\n\r\nPHPExcel 1.7.2\r\nPHPExcel Excel2007 Writer Instantiated: Current memory usage: 36.25 MB; Execution time: 0.4973 seconds\r\nWorkbook written to Excel2007 file: Current memory usage: 50.25 MB; Execution time: 26.8469 seconds\r\nPeak memory usage: 54.75 MB\r\n\r\nPHPExcel 1.7.3 (Production Release)\r\nPHPExcel Excel2007 Writer Instantiated: Current memory usage: 18 MB; Execution time: 0.5624 seconds\r\nWorkbook written to Excel2007 file: Current memory usage: 64.75 MB; Execution time: 50.3283 seconds\r\nPeak memory usage: 69.25 MB\r\n\r\nPHPExcel 1.7.3 (latest SVN code)\r\nPHPExcel Excel2007 Writer Instantiated: Current memory usage: 17.75 MB; Execution time: 0.5011 seconds\r\nWorkbook written to Excel2007 file: Current memory usage: 34.5 MB; Execution time: 50.6703 seconds\r\nPeak memory usage: 39 MB\r\n\r\n\r\nPHPExcel 1.7.2\r\nPHPExcel Excel5 Writer Instantiated: Current memory usage: 31.5 MB; Execution time: 0.5991 seconds\r\nWorkbook written to Excel5 file: Current memory usage: 34.5 MB; Execution time: 54.7769 seconds\r\nPeak memory usage: 35.75 MB\r\n\r\nPHPExcel 1.7.3 (Production Release)\r\nPHPExcel Excel5 Writer Instantiated: Current memory usage: 11.75 MB; Execution time: 0.0716 seconds\r\nWorkbook written to Excel5 file: Current memory usage: 36.5 MB; Execution time: 109.4665 seconds\r\nPeak memory usage: 38.5 MB\r\n\r\nPHPExcel 1.7.3 (latest SVN code)\r\nPHPExcel Excel5 Writer Instantiated: Current memory usage: 11.75 MB; Execution time: 0.0953 seconds\r\nWorkbook written to Excel5 file: Current memory usage: 38 MB; Execution time: 107.2670 seconds\r\nPeak memory usage: 40 MB\r\n\r\n\r\nPHPExcel 1.7.2\r\nPHPExcel CSV Writer Instantiated: Current memory usage: 29.5 MB; Execution time: 0.0390 seconds\r\nWorkbook written to CSV file: Current memory usage: 36.5 MB; Execution time: 20.0004 seconds\r\nPeak memory usage: 36.5 MB\r\n\r\nPHPExcel 1.7.3 (Production Release)\r\nPHPExcel 1.7.3 (latest SVN code)\r\nPHPExcel CSV Writer Instantiated: Current memory usage: 11.25 MB; Execution time: 0.0349 seconds\r\nWorkbook written to CSV file: Current memory usage: 19 MB; Execution time: 32.9619 seconds\r\nPeak memory usage: 19 MB\r\n\r\n\r\n\r\nThe modified code is accessible via SVN, and should appear in the next daily download. We'll also prepare a patched release to include these changes.\r\n\r\n",
+      "PostedDate": "2010-05-21T15:34:59.377-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I'll continue to work with the Excel5 writer to identify where that's leaking memory, and post here when I have something to report",
+      "PostedDate": "2010-05-21T15:45:53.97-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "ok, with 10000 records*3 rows it works fine\r\nthank you\r\n\r\nbut I change it to 50000 records and Excel2007 filetype\r\nand the problem consists on 256Mb:\r\n\r\nPHPExcel Object Instantiated:- Current memory usage: 2.25 MB; Execution time: 0.3084 seconds\r\nData Written to PHPExcel Object:- Current memory usage: 92.25 MB; Execution time: 31.7322 seconds\r\nPHPExcel Excel2007 Writer Instantiated: Current memory usage: 93.75 MB; Execution time: 0.0301 seconds\r\n\r\nFatal error: Allowed memory size of 268435456 bytes exhausted (tried to allocate 10962663 bytes) in /home/www/html/fpo/site/worktool/phpexcel/Classes/PHPExcel/Writer/Excel2007.php on line 258\r\n\r\nis the limit of usage data size in phpExcel class ?",
+      "PostedDate": "2010-05-25T00:45:10.843-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "We're actively working on reducing the memory footprint: the lazy loader and cell caching in 1.7.3 (and latest SVN code) have significantly increased the size of worksheets that PHPExcel can work with. There are still leaks in the writers that I'm trying to eliminate.\r\n\r\nIn the interim, you could try adding $objWriter->setUseDiskCaching(true) before the call to the save method.\r\n\r\nWe will continue to improve both the memory usage and speed of execution in future releases, but we'll never be able to completely eliminate memory requirements. ",
+      "PostedDate": "2010-05-27T15:35:43.54-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Hi, \r\n\r\nAs per your following comment, \r\n\"Caching must be enabled/configured before you load or instantiate any PHPExcel object \"\r\n\r\nI tried to add Caching code before the \"$objPHPExcel = new PHPExcel();\" line, but its giving me following error. If I add the Caching code after the \"$objPHPExcel = new PHPExcel();\" line then it works but the memory usage not seems to be decrease, even it uses more memory then without the Caching code.\r\n\r\nFatal error: Call to a member function getCellCacheController() on a non-object in C:\\Program Files\\path to this dir\\PHPExcel\\Cell.php on line 100\r\n\r\nDo I need include any other file/code except the \"PHPExcel.php\"?\r\n\r\nI am using the stable version 1.7.3c.\r\n",
+      "PostedDate": "2010-07-16T05:46:37.167-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-08-02T18:57:41.183-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "hi mark. i would like to know for the fix of this issue as well. as i'm also using PHPExcel in a way where i'm looping through a 2d array and using setCellValueByColumnAndRow per cell, .. but brings me to a fatal error exceeded memory limit problem.\r\n\r\nby \"Caching must be enabled/configured before you load or instantiate any PHPExcel object\" do you mean that we need to set something in the php.ini or apache? or is it in the code usage.. since i can see from sergey's last message that he did set the cache before creating an instance of PHPExcel:\r\n\r\n\"$cacheMethod = PHPExcel_CachedObjectStorageFactory:: cache_to_phpTemp;\r\n$cacheSettings = array( ' memoryCacheSize ' => '8MB');\r\nPHPExcel_Settings::setCacheStorageMethod($cacheMethod, $cacheSettings);\r\n\r\n$objPHPExcel = new PHPExcel();\"\r\n\r\nhope to hear from you soon :)",
+      "PostedDate": "2010-08-03T01:06:08.767-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I think there is still a Mem Leak.\r\n\r\nI try to put a little over 4000 rows into an excel file with 17 columns and I get this error (on phplogcon):\r\n\r\nPHP Fatal error: Allowed memory size of 134217728 bytes exhausted (tried to allocate 71 bytes) in /Lib/PHPExcel/Classes/PHPExcel/Cell.php on line 502\r\n\r\nGot the latest 1.7.3 version\r\n\r\n\r\n\r\n",
+      "PostedDate": "2011-03-15T08:24:02.79-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2011-03-15T08:33:36.51-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "1.7.6 is latest. ",
+      "PostedDate": "2011-03-15T09:32:24.75-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "1.7.6 is not the latest version: 1.7.6 is the latest, and many of the memory tweaks were added after 1.7.3\r\n\r\nThe problem is not a \"memory leak\", it's a memory limit... and the limit is imposed by PHP, not by PHPExcel. PHPExcel simply has to work within the limits imposed by PHP, and there have been reams written on the message board about how to get better memory usage when using PHPExcel.\r\n\r\nWhat have you tried? Are you using cell caching? Are you applying any styles by row/column, or by individual cell? Are you using applyFromArray() for styles?",
+      "PostedDate": "2011-03-15T09:33:09.05-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Sorry my bad, Im using 1.7.6\r\n\r\nOnly use styling on the first row. The other 3999 rows are just inserted (no styling)\r\n\r\nWhat can caching do for me ?",
+      "PostedDate": "2011-03-15T11:15:51.033-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2011-06-16T23:10:25.067-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-01-21T04:03:10.947-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-01-22T10:35:50.367-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "i have the following error\r\n\r\nFatal error: Allowed memory size of 134217728 bytes exhausted (tried to allocate 7 bytes) in /var/www/class/PHPExcel/CachedObjectStorage/CacheBase.php on line 130\r\n\r\nplease help",
+      "PostedDate": "2012-04-05T07:58:20.537-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Try ini_set(\"memory_limit\", \"256M\") or something else higher than 128M.",
+      "PostedDate": "2012-04-11T07:48:39.11-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "adding this line in my config file has resolved the memory issue on linux server",
+      "PostedDate": "2012-12-28T04:42:43.18-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:02:57.38-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:41:58.807-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "i have 7lkh number of rows, but i cannot generate the excel file any remedy??\ni have tried ini_set(\"memory_limit\",\"-1\");\nbut same thing happens",
+      "PostedDate": "2014-01-30T03:11:40.07-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

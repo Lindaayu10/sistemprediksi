@@ -1,0 +1,66 @@
+[
+  {
+    "Id": "986206",
+    "ThreadId": "429477",
+    "Html": "\r\n<p>Good Am. I am new to PHPExcel. I'm Just wondering, how can I make multiple worksheets from my data retrieved from MySQL and at the same time each new sheet must use the same template.</p>\r\n<p>For example, I have 3 employee information in my database and when I generate them to excel using PHPExcel, they would create an excel file with 3 worksheets and each worksheet use the same template.</p>\r\n<p>Currently, the template is just applied to the first sheet.</p>\r\n<p>Thank you in advance.</p>\r\n",
+    "PostedDate": "2013-01-13T15:30:06.737-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "986216",
+    "ThreadId": "429477",
+    "Html": "\r\n<p>Look to the worksheet copy() method to create copies of your template worksheet, then use the PHPExcel objects addSheet() method to add each copy to the workbook you're creating</p>\r\n",
+    "PostedDate": "2013-01-13T16:40:24.683-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "986270",
+    "ThreadId": "429477",
+    "Html": "\r\n<p>Thank you for the reply.</p>\r\n<p>By the way, can you provide a sample of how to use the copy() method?</p>\r\n<p>Currently, here is my code:</p>\r\n<p>&nbsp;</p>\r\n<p><span></span>$objPHPExcel = new PHPExcel();<span> </span></p>\r\n<p><span>&nbsp;</span><span> </span>$ws_name = &quot;Worksheet_&quot;;<span> </span></p>\r\n<p><span>&nbsp;</span>$i=0;<span> </span><span></span>while ($i &lt; 2) {<span> </span></p>\r\n<p>$objWorksheet = new PHPExcel_Worksheet($objPHPExcel);<span> </span></p>\r\n<p>$objPHPExcel-&gt;addSheet($objWorksheet);<span> </span></p>\r\n<p>$objWorksheet-&gt;setTitle($ws_name.$i);<span> </span></p>\r\n<p>$objWorksheet-&gt;setCellValue('A1', 'Something_'.$i);<span> </span>$i++; //Assuming that this is the data from the database</p>\r\n<p>}</p>\r\n<p><span></span>$objPHPExcel-&gt;removeSheetByIndex(0);&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>I do not know how to load the template through the copy() method.</p>\r\n",
+    "PostedDate": "2013-01-13T22:44:10.98-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "986735",
+    "ThreadId": "429477",
+    "Html": "\r\n<p>Thanks for your suggestion.</p>\r\n<p>I have already figured it out.</p>\r\n<p>Thanks for your help!</p>\r\n<p>By the way, now I am having a problem loading my template file which has a formatted Japanese character.</p>\r\n<p>For example, in cell A1, i have there 「My <span style=\"text-decoration:underline\">\r\n<strong>日本語</strong></span> template」 (that is, in cell A1 there is this text with Japanese characters and a different font-style). When I used this as template, the output excel file is corrupted. But when I removed the formatting, the ouput excel file is\r\n ok.</p>\r\n<p>Any suggestions? Thanks in advance.</p>\r\n",
+    "PostedDate": "2013-01-14T14:44:03.003-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "986774",
+    "ThreadId": "429477",
+    "Html": "\r\n<p>PHPExcel 1.7.8 doesn't support &quot;Rich Text&quot; containing non-ASCII characters in the Excel5 Writer. There have been some changes in the latest github that go some way to fixing this issue, although it isn't yet fully resolved. Non-ASCII Rich Text is not an\r\n issue with the Excel2007 Writer.</p>\r\n",
+    "PostedDate": "2013-01-14T16:30:52.943-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "987911",
+    "ThreadId": "429477",
+    "Html": "\r\n<p>So using Excel5 writer, I can not accomplish this output?</p>\r\n<p>Also, if my template file has a box or a line (drawing objects), will these objects be loaded?</p>\r\n<p>Thanks in advance.</p>\r\n",
+    "PostedDate": "2013-01-16T21:00:57.387-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1018091",
+    "ThreadId": "429477",
+    "Html": "Hi Mark (&amp;egocentric13)<br />\n<br />\nI also have the same issue has 1 you had before. Do you mind posting some sample code on how you using the copy ()  and addSheet methods?<br />\n<br />\nHere is link for the discusion that i have posted - <a href=\"http://phpexcel.codeplex.com/discussions/437280\" rel=\"nofollow\">http://phpexcel.codeplex.com/discussions/437280</a><br />\n<br />\nThanks in advance<br />\n",
+    "PostedDate": "2013-03-20T01:01:25.287-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1018587",
+    "ThreadId": "429477",
+    "Html": "To jaahvicky,\r<br />\n<br />\nHere's what I did:\r<br />\n<br />\n$xls = new PHPExcel();\r<br />\n<br />\n$objReader = PHPExcel_IOFactory::createReader('Excel5'); \r<br />\n$objPHPExcel = $objReader-&gt;load(&quot;templates/mytemplate.xls&quot;); \r<br />\n$sheetTemplate = $objPHPExcel-&gt;getSheet(0);  <br />\n\r<br />\n$i=0;\r<br />\nwhile ($i &lt; 10)\r<br />\n{\r<br />\n$sheet = clone $sheetTemplate; // cloning the template active sheet\r<br />\n$sheet-&gt;setTitle('Cloned Sheet'.$i); //title\r<br />\n$sheet-&gt;setCellValue(&quot;A1&quot;, &quot;Hello World &quot;.$i); //data\r<br />\n$xls-&gt;addExternalSheet( $sheet, 0 ); //adding new sheet\r<br />\n$i++;\r<br />\n} \r<br />\n$xls-&gt;removeSheetByIndex($i);\r<br />\n<br />\nheader(&quot;Content-Type: application/vnd.ms-excel&quot;);\r<br />\nheader(&quot;Content-Disposition: attachment; filename=\\&quot;&quot;.&quot;Sample.xls&quot;.&quot;\\&quot;&quot;);\r<br />\nheader(&quot;Cache-Control: max-age=0&quot;);\r<br />\n$objWriter = PHPExcel_IOFactory::createWriter($xls, 'Excel5');\r<br />\n$objWriter-&gt;save(&quot;php://output&quot;);<br />\n",
+    "PostedDate": "2013-03-20T15:53:03.157-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

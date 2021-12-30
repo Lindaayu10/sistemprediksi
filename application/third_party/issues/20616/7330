@@ -1,0 +1,179 @@
+<?
+include ("class/PHPExcel.php");
+include ("class/PHPExcel/IOFactory.php");
+include ("config.php");
+include ("function.php");
+
+			$objPHPExcel = new PHPExcel();
+			$objPHPExcel->getActiveSheet();
+			
+			$objPHPExcel->getActiveSheet()->getColumnDimension('A')->setWidth(15); 
+			$objPHPExcel->getActiveSheet()->getColumnDimension('B')->setWidth(15); 
+			$objPHPExcel->getActiveSheet()->getColumnDimension('C')->setWidth(15); 
+			$objPHPExcel->getActiveSheet()->getColumnDimension('D')->setWidth(15); 
+			$objPHPExcel->getActiveSheet()->getColumnDimension('E')->setWidth(15); 
+			$objPHPExcel->getActiveSheet()->getColumnDimension('F')->setWidth(15); 
+			$objPHPExcel->getActiveSheet()->getColumnDimension('G')->setWidth(15); 
+			$objPHPExcel->getActiveSheet()->getColumnDimension('H')->setWidth(15); 
+			$objPHPExcel->getActiveSheet()->getColumnDimension('I')->setWidth(15); 
+			$objPHPExcel->getActiveSheet()->getColumnDimension('J')->setWidth(15); 
+			
+			
+
+	if($_POST["station"]==""){
+		$y=5;
+		}else{
+		$y=1;
+	}
+	
+	for($i=0;$i<$y;$i++) {
+		
+			$sql = "select * from station where gid='".($i+1)."'";
+		
+	if($_POST["station"]){
+			$sql = "select * from station where gid='".$_POST["station"]."'";
+			}
+			$query = pg_query(getDB_Connection(),$sql);
+			$row = pg_fetch_assoc($query);
+			$station_fet = $row['gid'];
+			$address = iconv("TIS-620" , "UTF-8" ,$row['address']);
+		
+			$current_character = 'B';
+			$next_character = chr(ord($current_character) + count($_POST["param_id"]));
+
+			$objPHPExcel->getActiveSheet()->setCellValue('A1',$address);
+			$objPHPExcel->getActiveSheet()->getStyle('A1')->getFont()->setBold(true);
+			$objPHPExcel->getActiveSheet()->getStyle('A1:'.$next_character.'1')->getFont()->setSize(14); 
+			$objPHPExcel->getActiveSheet()->mergeCells('A1:'.$next_character.'1');
+			$objPHPExcel->getActiveSheet()->getStyle('A1:'.$next_character.'1')->getAlignment()
+			->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+			
+			$myWorkSheet = new PHPExcel_Worksheet($objPHPExcel, $address);//Start setting worksheet
+			
+			$objPHPExcel->addSheet($myWorkSheet, $i);	//Add new sheet form $myWorkSheet	
+			$objPHPExcel->createSheet($i); //Setting index when creating
+
+			$objPHPExcel->getActiveSheet()->setCellValue('A2', 'Date/Time');
+			$objPHPExcel->getActiveSheet()->mergeCells('A2:B2');
+
+	if($_POST["param_id"]) {
+	
+	for($i=0;$i<count($_POST["param_id"]);$i++){
+			$param_name2 = get_parameter_name($_POST["param_id"][$i]);
+			$param_unit2 = get_parameter_unit($_POST["param_id"][$i]);
+			$objPHPExcel->getActiveSheet()->getStyle('A2:'.$next_character.'2')->getAlignment()
+			->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+	if($param_unit2==''){
+			$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($i+2, 2, $param_name2);
+				}
+				else
+				{
+			$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($i+2, 2, $param_name2."\n(".$param_unit2.")");
+						}
+			}
+			$objPHPExcel->getActiveSheet()->getStyle('A2:'.$next_character.'2') ->
+			getAlignment()->setWrapText(true); 
+			$objPHPExcel->getActiveSheet()->getStyle('A2:'.$next_character.'2')->getFill()
+			->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
+			$objPHPExcel->getActiveSheet()->getStyle('A2:'.$next_character.'2')->
+			getBorders()->getAllBorders()
+			->setBorderStyle(PHPExcel_Style_Border	::BORDER_THIN);
+			$objPHPExcel->getActiveSheet()->getStyle('A2:'.$next_character.'2')->
+			getFill()->getStartColor()->setRGB('FF9900');
+			}
+	
+			$date1=$_POST["date1"];
+			$date_edit1=explode("/",$date1);
+			$date_real1=$date_edit1[2]."-".$date_edit1[0]."-".$date_edit1[1];
+			
+			$date2=$_POST["date2"];
+			$date_edit2=explode("/",$date2);
+			$date_real2=$date_edit2[2]."-".$date_edit2[0]."-".$date_edit2[1];
+			
+			$station=$_POST["station"];
+			
+			$parameter=$_POST["param_id"];
+			
+	
+	if($station) {
+			$sql1="select to_char(inform_date,'dd/mm/yyyy')as change_date,inform_time ";
+			if (in_array(1, $parameter)) {
+					$sql1 .= ",sum(case when parameter_id = 1 then param_value end) as do";
+			}
+			if (in_array(2, $parameter)) {
+					$sql1 .= ",sum(case when parameter_id = 2 then param_value end) as ph";
+			}
+			if (in_array(3, $parameter)) {
+					$sql1 .= ",sum(case when parameter_id = 3 then param_value end) as nh3";
+			}
+			if (in_array(4, $parameter)) {
+					$sql1 .= ",sum(case when parameter_id = 4 then param_value end) as no3";
+			}
+			if (in_array(5, $parameter)) {
+					$sql1 .= ",sum(case when parameter_id = 5 then param_value end) as temp";
+			}
+			if (in_array(6, $parameter)) {
+					$sql1 .= ",sum(case when parameter_id = 6 then param_value end) as conduct";
+			}
+			if (in_array(7, $parameter)) {
+					$sql1 .= ",sum(case when parameter_id = 7 then param_value end) as lev_high";
+			}	
+			if (in_array(8, $parameter)) {
+					$sql1 .= ",sum(case when parameter_id = 8 then param_value end) as water_rate";
+			}	
+		
+			$sql1 .= " from station_value where id is not null ";
+			$sql1 .= " and station_id = $station_fet";
+			if($date_real1 !="--" and $date_real2 !="--") {
+				$sql1 .= "and (inform_date BETWEEN '$date_real1' and '$date_real2') ";
+			}
+			if($date_real1!="--" and $date_real2 =="--") {
+				$sql1 .= "and inform_date='$date_real1' ";
+			}
+		
+			$sql1 .= " group by inform_date,inform_time";
+			$sql1 .= " order by inform_date desc,inform_time";
+		
+	}
+	else {
+			$sql1="select to_char(inform_date,'dd/mm/yyyy')as change_date,inform_time,
+			sum(case when parameter_id = 1 then param_value end) as do,
+			sum(case when parameter_id = 2 then param_value end) as ph,
+			sum(case when parameter_id = 3 then param_value end) as nh3,
+			sum(case when parameter_id = 4 then param_value end) as no3,
+			sum(case when parameter_id = 5 then param_value end) as temp,
+			sum(case when parameter_id = 6 then param_value end) as conduct,
+			sum(case when parameter_id = 7 then param_value end) as lev_high,
+			sum(case when parameter_id = 8 then param_value end) as water_rate
+			from station_value 
+			where station_id = $station_fet 
+			group by inform_date,inform_time
+			order by inform_date desc,inform_time";
+	}
+	
+	$query1 = pg_query(getDB_Connection(),$sql1);
+			$row = 3; 
+	while($row_data = pg_fetch_assoc($query1)) {
+			$col = 0;
+    foreach($row_data as $key=>$value) {
+			$objPHPExcel->getActiveSheet()->getStyle('A3:'.$next_character.'2')->getFill()
+			->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
+			$objPHPExcel->getActiveSheet()->getStyle('A3:'.$next_character.'2')->
+			getBorders()->getAllBorders()->setBorderStyle(PHPExcel_Style_Border	::BORDER_THIN);
+			$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($col, $row, $value);
+			$col++;
+    									}
+    				$row++;		
+			
+				}
+		
+		}
+			$objPHPExcel->setActiveSheetIndex(0);
+			header('Content-Type: application/vnd.ms-excel');
+			header('Content-Disposition: attachment;filename="ข้อมูลคุณภาพน้ำ.xls"');
+			header('Cache-Control: max-age=0');
+
+			$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
+			$objWriter->save('php://output');
+
+?>

@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "806335",
+    "ThreadId": "347529",
+    "Html": "\r\n<p>I am attempting to create a dropdown validation for cell A1 (to simply see if I can get it to work) and when I open the created spreadsheet, I am getting a message that it is corrupt. I have tried to output the spreadsheet to Excel2007 as well as Excel5\r\n with the same result. Here is my code:</p>\r\n<p>&nbsp;</p>\r\n<p></p>\r\n<pre>\theader(&quot;Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet&quot;);\r\n    header(&quot;Content-Disposition: attachment;filename=\\&quot;TEST_template.xlsx\\&quot;&quot;);\r\n    header(&quot;Cache-Control: max-age=0&quot;);\r\n\r\n    require_once &quot;PHPExcel.php&quot;;\t\r\n\r\n\t$objPHPExcel = new PHPExcel();\r\n\r\n    $objPHPExcel-&gt;getProperties()-&gt;setCreator( &quot;TEST&quot; );\r\n    $objPHPExcel-&gt;getProperties()-&gt;setLastModifiedBy( &quot;TEST&quot; );\r\n    $objPHPExcel-&gt;getProperties()-&gt;setTitle( &quot;Test Template&quot; );\r\n    $objPHPExcel-&gt;getProperties()-&gt;setSubject( &quot;Test Template&quot; );\r\n    $objPHPExcel-&gt;getProperties()-&gt;setDescription( &quot;Test Template&quot; );\r\n\r\n    $objPHPExcel-&gt;setActiveSheetIndex(0);\r\n    $objPHPExcel-&gt;getActiveSheet()-&gt;setTitle( &quot;Test Template&quot; );\r\n\t\t\r\n    $objValidation = $objPHPExcel-&gt;getActiveSheet()-&gt;getCell(&quot;A1&quot;)-&gt;getValidation();\r\n\r\n    $objValidation-&gt;setType( PHPExcel_Cell_DataValidation::TYPE_LIST );\r\n    $objValidation-&gt;setErrorStyle( PHPExcel_Cell_DataValidation::STYLE_INFORMATION );\r\n    $objValidation-&gt;setAllowBlank(false);\r\n    $objValidation-&gt;setShowInputMessage(true);\r\n    $objValidation-&gt;setShowErrorMessage(true);\r\n    $objValidation-&gt;setShowDropDown(true);\r\n    $objValidation-&gt;setErrorTitle('Input error');\r\n    $objValidation-&gt;setError('Value is not in list.');\r\n    $objValidation-&gt;setPromptTitle('Pick from list');\r\n    $objValidation-&gt;setPrompt('Please pick a value from the drop-down list.');\r\n\r\n\t$objValidation-&gt;setFormula1( '&quot;A,C&quot;' );\r\n\t\t\t\t\t\r\n\t$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');\r\n\t$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');\r\n    $objWriter-&gt;save('php://output');\r\n    $objPHPExcel-&gt;disconnectWorksheets();\r\n</pre>\r\n<p></p>\r\n<p>When I attempt to open the file, I get the following:</p>\r\n<p>Excel cannot open the file 'TEST_template,xlsx' because the file format or file extension is not valid. Verify that the file has not been corrupted and that the file extension matches the format of the file.</p>\r\n<p>Any help is appreciated</p>\r\n<p>Jack</p>\r\n",
+    "PostedDate": "2012-03-06T10:02:50.297-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "806370",
+    "ThreadId": "347529",
+    "Html": "<p>More Information: I am running PHPExcel 1.7.6 on Zend Framework 1.11. If I do not use the validation and simply set values and style a cell, it works fine. I only get the corrupt error message when I attempt to use validation.</p>\r\n<p>&nbsp;</p>\r\n<p>Thank you</p>\r\n<p>Jack</p>",
+    "PostedDate": "2012-03-06T10:52:31.333-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "806392",
+    "ThreadId": "347529",
+    "Html": "<p>Ok, I am reviewing other posts and am seeing what other people include as relevant information. I see that people are including the version of Excel that they are attempting to open the excel spreadsheet with, so I figured I would provide that too.</p>\r\n<p>I have attempted to open the spreadsheet(s) with Excel 2003 and Excel 2010 with same results.</p>\r\n<p>-Jack-</p>",
+    "PostedDate": "2012-03-06T11:20:40.68-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "806465",
+    "ThreadId": "347529",
+    "Html": "<p>Ok, I found this in the webserver error log:</p>\r\n<p>Call to undefined method PHPExcel_Cell::getValidation()</p>\r\n<p>I have added require_once \"PHPExcel/Cell.php\"; and it still did not fix the issue. Does anyone have an example of using Data Validation with the Zend framework? Can anyone provide any direction on resolving the undefined method error?</p>\r\n<p>Thanks in advance</p>\r\n<p>Jack</p>",
+    "PostedDate": "2012-03-06T13:02:26.837-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "806469",
+    "ThreadId": "347529",
+    "Html": "<p>Ok, I figured it out. There is a type, getValidation above should be getDataValidation.</p>\r\n<p>Thanks</p>\r\n<p>Jack</p>",
+    "PostedDate": "2012-03-06T13:11:32.12-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "816800",
+    "ThreadId": "347529",
+    "Html": "<p>You may try <a href=\"http://www.recoverytoolbox.com/repair_excel.html\">http://www.recoverytoolbox.com/repair_excel.html</a>&nbsp;Software repairs excel worksheets, fonts, formulas, cells, columns, rows and etc. It handles such Excel errors as: Microsoft Excel unable to read file or This file is not in a recognizable format. Tool has the compatibility with Windows 98 and higher.</p>",
+    "PostedDate": "2012-03-28T13:31:11.807-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "917084",
+    "ThreadId": "347529",
+    "Html": "\r\n<p>the above code does work, but instead of</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>$objValidation = $objPHPExcel-&gt;getActiveSheet()-&gt;getCell(<span style=\"color:#a31515\">&quot;A1&quot;</span>)-&gt;getValidation();\n</pre>\r\n</div>\r\n<p>i used</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>$objValidation = $objPHPExcel-&gt;getActiveSheet()-&gt;getCell(<span style=\"color:#a31515\">&quot;A1&quot;</span>)-&gt;getValidationData();\n</pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n<p>may i know if anyone have tried one with selected value?</p>\r\n",
+    "PostedDate": "2012-09-25T01:11:39.963-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

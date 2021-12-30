@@ -1,0 +1,106 @@
+[
+  {
+    "Id": "245457",
+    "ThreadId": "71912",
+    "Html": "<p>Hello,</p>\r\n<p>on my system ( php 5.2.4 ) all my generated excel files( excel5 ) have errors and can't be opened with excel 2003.<br>Even the examples are not working on my system...</p>\r\n<p>What can I check to solve this problem?</p>\r\n<p>Thanks for your Help,</p>\r\n<p>Urkman</p>",
+    "PostedDate": "2009-10-14T01:58:16.06-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "245461",
+    "ThreadId": "71912",
+    "Html": "<p>Are you opening the files on Windows 7? Then that could be the problem.</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10059\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10059</a></p>\r\n<p>Try upgrading to latest source code:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx\">http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx</a></p>",
+    "PostedDate": "2009-10-14T02:06:58.097-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "245464",
+    "ThreadId": "71912",
+    "Html": "<p>Hello,</p>\r\n<p>thanks for your answer.</p>\r\n<p>I'm opening the files on a Window XP SP2 Box.</p>\r\n<p>Files generated on my Development Box( Window XP SP2 ) with php 5.2.9 are working fine.</p>\r\n<p>Files generated on my Testing Box( Ubuntu 8.04 ) with php 5.2.4 are not working.</p>\r\n<p>On both Boxes I use the same code with phpExcel Version 1.7.0</p>\r\n<p>Thanks and Greetings,</p>\r\n<p>Urkman</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-10-14T02:14:08.393-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "245474",
+    "ThreadId": "71912",
+    "Html": "<p><em>&gt;&gt; Files generated on my Development Box( Window XP SP2 ) with php 5.2.9 are working fine.</em></p>\r\n<p><em>&gt;&gt; Files generated on my Testing Box( Ubuntu 8.04 ) with php 5.2.4 are not working.</em></p>\r\n<p>You are using identical code to create xls files on those two systems? One is corrupt and the other is not, right?</p>\r\n<p>Can you create two simple xls files by running the same script on those two platforms. Upload the files <a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10749\">here</a> with one corrupt file and one  not corrupt. I will check in a hex editor what the difference is. It should reveal something. Right now I have no idea what the problem is.</p>",
+    "PostedDate": "2009-10-14T02:30:44.917-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "245475",
+    "ThreadId": "71912",
+    "Html": "<p>Hello,</p>\r\n<p>I just changed this two lines in the 01simple.php file:</p>\r\n<pre>$objWriter = PHPExcel_IOFactory::createWriter( $objPHPExcel, <span style=\"color:#A31515\">'Excel5'</span> );<br>$objWriter-&gt;save( <span style=\"color:#A31515\">'php://output'</span> ); <br></pre>\r\n<p><br>How can I add an attachment to my posts, so I could upload the corrupt file?</p>\r\n<p>Thanks and Greetings,</p>\r\n<p>Urkman</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-10-14T02:34:13.833-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "245476",
+    "ThreadId": "71912",
+    "Html": "<p>Hello koyama,</p>\r\n<p>I will create this two files und upload it.</p>\r\n<p>Thanks for your answer,</p>\r\n<p>Urkman</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-10-14T02:37:07.477-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "245491",
+    "ThreadId": "71912",
+    "Html": "<p>Hello koyama,</p>\r\n<p>I uploaded the two files. Both files are created using the same script( 01simple.php ) with the following canges:</p>\r\n<p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$objWriter = PHPExcel_IOFactory::createWriter( $objPHPExcel, <span style=\"color:#A31515\">'Excel5'</span> );\r\n$objWriter-&gt;save( <span style=\"color:#A31515\">'php://output'</span> ); \r\n</pre>\r\n</div>\r\n</p>\r\n<p>Thanks and greetings,</p>\r\n<p>Urkman</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-10-14T03:26:53.147-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "245497",
+    "ThreadId": "71912",
+    "Html": "<p>I think it is a problem with the iconv extension. All text strings are blank in the binary file! Which is why the file is corrupt.</p>\r\n<p>Can you try to run this simple script on both servers and post back the result:</p>\r\n<p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>&lt;?php\r\nvar_dump(iconv(<span style=\"color:#A31515\">'UTF-8'</span>, <span style=\"color:#A31515\">'UTF-16LE'</span>, <span style=\"color:#A31515\">'hello'</span>));\r\n?&gt;\r\n</pre>\r\n</div>\r\n</p>\r\n<p>Expected result on a functioning server is this:</p>\r\n<p>\r\n<pre>string(10) &quot;h�e�l�l�o�&quot;</pre>\r\n</p>",
+    "PostedDate": "2009-10-14T03:45:07.817-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "245507",
+    "ThreadId": "71912",
+    "Html": "<p>Output on the Windows Box( Working File ):</p>\r\n<p>string(10) &quot;h�e�l�l�o�&quot;</p>\r\n<p>&nbsp;</p>\r\n<p>Output on the UbuntuBox( Corrupt File ):</p>\r\n<p>bool(false)</p>\r\n<p>&nbsp;</p>\r\n<p>ICONV Part of phpinfo() on ubuntu box:</p>\r\n<p>\r\n<pre>iconv\r\niconv support \tenabled\r\niconv implementation \tglibc\r\niconv library version \t2.3.5\r\n\r\nDirective\tLocal Value\tMaster Value\r\niconv.input_encoding\tISO-8859-1\tISO-8859-1\r\niconv.internal_encoding\tISO-8859-1\tISO-8859-1\r\niconv.output_encoding\tISO-8859-1\tISO-8859-1</pre>\r\n</p>\r\n<p>ICONV Part of phpinfo() on Windows box:</p>\r\n<p>\r\n<pre>iconv\r\niconv support \tenabled\r\niconv implementation \t&quot;libiconv&quot;\r\niconv library version \t1.9\r\n\r\nDirective\tLocal Value\tMaster Value\r\niconv.input_encoding\tISO-8859-1\tISO-8859-1\r\niconv.internal_encoding\tISO-8859-1\tISO-8859-1\r\niconv.output_encoding\tISO-8859-1\tISO-8859-1</pre>\r\n</p>\r\n<p>Hope, this helps...</p>\r\n<p>&nbsp;</p>\r\n<p>Greetings,</p>\r\n<p>Urkman</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-10-14T04:06:22.067-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "245513",
+    "ThreadId": "71912",
+    "Html": "<p>What do you get for this?</p>\r\n<p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>&lt;?php\r\nvar_dump(mb_convert_encoding(<span style=\"color:#A31515\">'hello'</span>, <span style=\"color:#A31515\">'UTF-16LE'</span>, <span style=\"color:#A31515\">'UTF-8'</span>));\r\n?&gt;\r\n</pre>\r\n</div>\r\n</p>",
+    "PostedDate": "2009-10-14T04:27:19.393-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "245519",
+    "ThreadId": "71912",
+    "Html": "<p>Now i get</p>\r\n<p>string(10) &quot;h�e�l�l�o�&quot;</p>\r\n<p>on both maschines...</p>\r\n<p>Urkman</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-10-14T04:46:23.717-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "245525",
+    "ThreadId": "71912",
+    "Html": "<p>I will make a simple fix today so PHPExcel detected when there is a problem with iconv and fall back to mbstring if it is available. Will post back here.<br><br>Related threads:<br><a href=\"http://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=33773\">http://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=33773</a><br><a href=\"http://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=61184\">http://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=61184</a></p>",
+    "PostedDate": "2009-10-14T05:02:43.493-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "245545",
+    "ThreadId": "71912",
+    "Html": "<p>This should fix the problem:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10761\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10761</a></p>\r\n<p>Look at patch at that link, or just wait for source code release tomorrow from here:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx\">http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx</a></p>",
+    "PostedDate": "2009-10-14T05:51:58.29-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

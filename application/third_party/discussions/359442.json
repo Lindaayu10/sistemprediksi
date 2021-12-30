@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "848420",
+    "ThreadId": "359442",
+    "Html": "\r\n<p>Hi,</p>\r\n<p>When I modify a value of cellule, my style (borders, alignments...) is erased.</p>\r\n<p>So I have to remake the style with phpExcel but there isn't another solution ?</p>\r\n<p>Thanks</p>\r\n",
+    "PostedDate": "2012-06-13T06:31:29.367-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "848613",
+    "ThreadId": "359442",
+    "Html": "<p>This shouldn't occur, and I have been unable to replicate it. Can you please generate&nbsp;a simple script that will demonstrate this problem so that I can investigate. Thanks.</p>",
+    "PostedDate": "2012-06-13T13:08:53.867-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "848959",
+    "ThreadId": "359442",
+    "Html": "\r\n<p>There are borders (for example) around cell k9 but after modifications, all styles are removed (font size, font style, borders...).<br>\r\n<br>\r\nThis my script simplified :</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>&lt;?php\n\n<span style=\"color:green\">// Cr&eacute;ation de l'objet Reader pour un fichier Excel 2007</span>\n$objReader = <span style=\"color:blue\">new</span> PHPExcel_Reader_Excel5();\n\n<span style=\"color:green\">// Lecture du fichier.</span>\n$objPHPExcel = $objReader-&gt;load(<span style=\"color:#a31515\">&quot;../originaux/original_notice.xls&quot;</span>);\n\n$objPHPExcel-&gt;getDefaultStyle()-&gt;applyFromArray(<span style=\"color:blue\">array</span>(\n<span style=\"color:#a31515\">'font'</span>=&gt;<span style=\"color:blue\">array</span>(\n<span style=\"color:#a31515\">'name'</span>      =&gt;  <span style=\"color:#a31515\">'Times News Roman'</span>,\n<span style=\"color:#a31515\">'size'</span>      =&gt;  12,\n<span style=\"color:#a31515\">'bold'</span>      =&gt; false)));\n\n<span style=\"color:green\">// Modification</span>\n\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(<span style=\"color:#a31515\">'k9'</span>, <span style=\"color:#a31515\">'test'</span>);\n\n$objWriter = <span style=\"color:blue\">new</span> PHPExcel_Writer_Excel5($objPHPExcel);\n$objWriter-&gt;save(<span style=\"color:#a31515\">'../files/'</span>.$donnees_info[<span style=\"color:#a31515\">'IDpersonne'</span>].<span style=\"color:#a31515\">'_notice.xls'</span>);\n\n?&gt;<br></pre>\r\n</div>\r\n",
+    "PostedDate": "2012-06-14T06:06:16.513-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "849004",
+    "ThreadId": "359442",
+    "Html": "<p>I still can't replicate this unless I set readDataOnly to true... when I would expect styling to be lost because I'm telling the reader to ignore styling.</p>\r\n<p>Unfortunately, if I can't replicate a problem, it's almost impossible to fix because it becomes a case of guessing.</p>",
+    "PostedDate": "2012-06-14T07:32:58.537-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "849040",
+    "ThreadId": "359442",
+    "Html": "\r\n<p>Ok..</p>\r\n<p>So, to reset my borders i write :</p>\r\n<p></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(<span style=\"color:#a31515\">'k15'</span>)-&gt;getBorders()-&gt;getBottom()-&gt;setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);\n$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(<span style=\"color:#a31515\">'k15'</span>)-&gt;getBorders()-&gt;getRight()-&gt;setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);\n$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(<span style=\"color:#a31515\">'k15'</span>)-&gt;getBorders()-&gt;getLeft()-&gt;setBorderStyle(PHPExcel_Style_Border::BORDER_HAIR);\n$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(<span style=\"color:#a31515\">'k15'</span>)-&gt;getBorders()-&gt;getTop()-&gt;setBorderStyle(PHPExcel_Style_Border::BORDER_HAIR);\n</pre>\r\n</div>\r\n<p></p>\r\n<p><br>\r\n<span id=\"result_box\" lang=\"en\"><span>Is there</span> <span>another faster method\r\n</span><span>?</span></span></p>\r\n",
+    "PostedDate": "2012-06-14T08:15:04.6-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "849168",
+    "ThreadId": "359442",
+    "Html": "<p>I've not worked with formatting Excel 5 files but don't quite understand why your styles are being lost. If you remove the lines writing data are your styles preserved? What about removing the lines to set the default style. Anyway, something like:</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(<span style=\"color: #a31515;\">'k15'</span>)-&gt;\r\napplyFromArray(\r\n  <span style=\"color: blue;\">array</span>(\r\n    <span style=\"color: #a31515;\">'borders'</span> =&gt; <span style=\"color: blue;\">array</span>(\r\n      <span style=\"color: #a31515;\">'bottom'</span> =&gt; <span style=\"color: blue;\">array</span>(<span style=\"color: #a31515;\">'style'</span> =&gt; PHPExcel_Style_Border::BORDER_THIN),\r\n      <span style=\"color: #a31515;\">'left'</span> =&gt; <span style=\"color: blue;\">array</span>(<span style=\"color: #a31515;\">'style'</span> =&gt; PHPExcel_Style_Border::BORDER_THIN),\r\n      <span style=\"color: #a31515;\">'right'</span> =&gt; <span style=\"color: blue;\">array</span>(<span style=\"color: #a31515;\">'style'</span> =&gt; PHPExcel_Style_Border::BORDER_HAIR),\r\n      <span style=\"color: #a31515;\">'top'</span> =&gt; <span style=\"color: blue;\">array</span>(<span style=\"color: #a31515;\">'style'</span> =&gt; PHPExcel_Style_Border::BORDER_HAIR),\r\n    ),\r\n  )\r\n);\r\n</pre>\r\n</div>\r\n</p>\r\n<p>should be be a faster way to set styles. Faster still if you operate on the range of cells that you want to reset instead of individually (there are also 'vertical' and 'horizontal' border types to make use of for the internal borders)</p>",
+    "PostedDate": "2012-06-14T11:00:19.717-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "849223",
+    "ThreadId": "359442",
+    "Html": "<p>If I remove the lines writing data, my styles are preserved... I don't understand :(</p>",
+    "PostedDate": "2012-06-14T13:25:21.26-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,140 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "All",
+      "DisplayName": "All"
+    },
+    "ClosedComment": "Fixed in SVN",
+    "ClosedDate": "2008-10-26T01:54:09.13-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "See thread:\nhttp://www.codeplex.com/PHPExcel/Thread/View.aspx?ThreadId=37804\n \nSimilar feature request for the SourceForge PHP-ExcelReader:\nhttp://sourceforge.net/forum/forum.php?thread_id=1384877&forum_id=343882\n \nWe already have an options for restricting which sheets to read\nhttp://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=7557\nnamely methods setLoadOnlySheets(), getLoadOnlySheets(), setLoadAllSheets()\n \nBut there seems to be a need for refining the restriction to loading only specified rows within a sheet.\n \nQuestions?\n1. Are there any pitfalls? Is it possible?\n2. If yes, what new methods would be needed? And how to name them?\n3. How should any new methods play together with setLoadOnlySheets(), getLoadOnlySheets(), setLoadAllSheets()",
+    "LastUpdatedDate": "2013-05-16T05:43:11.157-07:00",
+    "PlannedForRelease": "PHPExcel 1.6.4 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2008-10-15T21:58:24.12-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Option for reading only specified interval of rows in a sheet",
+    "Type": {
+      "Name": "Feature",
+      "Id": 1
+    },
+    "VoteCount": 1,
+    "Id": 7828
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "1) Seems perfectly possible in Excel 2007, not sure about Excel 5\r\n2) We'll have to discuss this one\r\n3) We'll have to discuss this one\r\n4) How does this play with PHPExcel? If I tell the reader to read lines 20.000 - 40.000, will PHPExcel contain only data in A20.000 - A40.000 or will it be A1 - A20.000?",
+      "PostedDate": "2008-10-15T23:19:56.98-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "1. Right now, I don't see any problems for Excel5.\r\n2. ok\r\n3. ok\r\n4. At first I would have thought that if you tell the reader to read lines 20.000 - 40.000 then the lines would go to the top: A1-A20.000. But then I start seeing all the problems.\r\n4a) For example, if cell A20000 contains a formula referencing cell A1, then what should the formula be in the resulting sheet? That would have to be something involving A(-20000), but such thing does not exist. We would need extra rules to determine how this should be resolved.\r\n4b) Feature can be thought of as a filter: Read only this, skip everything else. This concept is seem to be the simplest.\r\n4c) If one wants to use this feature for reading large Excel files in parts, then I even guess that it would be most convenient if cell references are unaltered in the resulting object after read.\r\n",
+      "PostedDate": "2008-10-16T00:05:51.467-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "And would the next request be to read a set of columns rather than rows, or a defined range",
+      "PostedDate": "2008-10-16T00:49:11.61-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I see what you mean Mark, but I think that it is legitimate to ask for restriction of read rows. Otherwise how can one read a large worksheet when we don't have memory optimizations in place? Most worksheets probably don't have as many columns as rows so not many would need a restriction on read columns, I think. Not sure if you are suggesting a generalized method for reading any range or if you are saying that the whole idea wrong :)",
+      "PostedDate": "2008-10-16T01:36:37.33-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I was actually suggesting a generalised method rather than suggesting we shouldn't implement this; though it's not something I'd use myself.\r\n\r\nThe same formula issues apply regardless of whether it's implemented for rows, columns or a named range. If you can resolve that, then a generalised method would surely offer more flexibility for people who do need the feature, and pre-empt any future requests for implementing it by columns or by range",
+      "PostedDate": "2008-10-16T02:45:12.87-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Ah ok. Well, then there is the also the next question\r\n5) Should there be a possibility to read split ranges like e.g. sheet1!A1:G500 + sheet2!C500:H1000 + ...\r\n",
+      "PostedDate": "2008-10-16T03:42:26.3-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "For reference: There was one more request for the SourceForge PHP-ExcelReader:\r\nhttp://sourceforge.net/tracker/index.php?func=detail&aid=1552830&group_id=99160&atid=623332",
+      "PostedDate": "2008-10-16T22:04:35.087-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "5) Should there be a possibility to read split ranges like e.g. sheet1!A1:G500 + sheet2!C500:H1000 + \r\nPersonally, I'd say no: a single, simple range... otherwise you're running into complexities like:\r\n\r\nsheet1!A1:G500 + sheet2!C500:H1000 - does the user want these both loading into the same sheet, or into different sheets?\r\nsheet1!A1:G500 + sheet2!B100:F400 - If answer to above is \"same sheet\" are these meant to be overlapping areas or not?",
+      "PostedDate": "2008-10-17T02:33:26.153-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "How about indeed doing this as a filter?\r\n\r\nConsider this:\r\nclass MyFilter implements IReadFilter {\r\n  function ReadCell($column, $row) {\r\n    return true;\r\n  }\r\n}\r\n\r\nThis way, you can specify which cells to load in this filter implementation. No problem with where to put a cell (e.g. A20.000 is A20.000, not A1). Formulas referencing unknown cells should contain the value from Excel2007 file (it is precalculated in most files) or evaluate to #N/A if the fixed value is not available.",
+      "PostedDate": "2008-10-17T09:16:35.69-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Yeah, I'd be open to this although I must admit I don't have the experience to judge what kind of solution is good. You guys are much better. I am really poor in OOP:(  So can you explain how it would look when one applies the filter class look in practical usage? The filter should be applied on the reader somehow, right?\r\n|\r\nProbably, I would have come up with something like this:\r\n|\r\nsetLoadCellRangesOnly(array('SheetX!A10000:H20000', 'SheetY!A500:C1000'));\r\ngetLoadCellRangesOnly(); // returns the array\r\n// also possibility to do this if one only needs a single range:\r\nsetLoadCellRangesOnly('SheetX!A10000:H20000');\r\n|\r\nsetLoadSheetsOnly(array('SheetX', 'SheetY'));\r\n// now becomes a shortcut method for this:\r\n// setLoadCellRangesOnly(array('SheetX!A1:XFD1048576', 'SheetY!A1:XFD1048576'));\r\n|\r\ngetLoadSheetsOnly() // no longer in use since corresponding setter is just a shortcut method\r\n|\r\nAlso I would perhaps suggest that one can specify the restrictions using numeric sheet and cell indexes. Otherwise, if one for example has just one sheet, one is requried to know the sheet name to specify the restriction.\r\n|\r\nsetLoadCellRangesOnlyBySheetColumnAndRow(array(array(0,1,0), array(1,1,0)));\r\nsetLoadCellRangesOnlyBySheetColumnAndRow(array(0,1,0));\r\n|\r\nI think the idea with offering the option to displace cells from say row 20000 to row 1 needs to be dumped, but it may be just me. In my opinion, it is important that the classes provide an orthogonal set of methods and not too many nice-to-have methods. If one wants row/column to be displaced in the resulting object, then one can already do this using the removeRow(), removeColumn() methods.\r\n|\r\nAs for the calculated cell values stored in the Excel spreadsheet. Currently, these values seem to be destroyed during read, right? Should they not be saved somewhere in the resulting object? They may still be of interest. Maybe provide setters, getters to interact with the stored calculated value. This is a separate question, but still somewhat related to this issue.",
+      "PostedDate": "2008-10-17T14:21:16.337-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I have started to worry a bit about this feature. Implementing it may give false hope that one can read a large workbook by constructing a loop reading a fraction in each cycle. There will be the same \"memory leak\" problem as described in this recent thread:\r\nhttp://www.codeplex.com/PHPExcel/Thread/View.aspx?ThreadId=38176\r\n",
+      "PostedDate": "2008-10-23T22:19:35.59-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2008-10-23T23:01:14.91-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Will implement a proof of concept in 1.6.4, let's see what it brings. More info upon completion!",
+      "PostedDate": "2008-10-23T23:01:40.41-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Erik, can you implement this on Excel5 reader? Check Excel2007 reader for implementation details (SVN changeset 586)\r\n\r\nHere's an example of usage of this feature:\r\nYou can set an the option setReadFilter on the reader, to instruct the reader to only load the cells which match a given rule. A read filter can be any class which implements PHPExcel_Reader_IReadFilter. By default, all cells are read using the PHPExcel_Reader_DefaultReadFilter.\r\n\r\nThe following code will only read row 1 and rows 20 – 30 of any sheet in the Excel file:\r\nclass MyReadFilter implements PHPExcel_Reader_IReadFilter\r\n{\r\n\tpublic function readCell($column, $row, $worksheetName = '') {\r\n\t\t// Read title row and rows 20 - 30\r\n\t\tif ($row == 1 || ($row >= 20 && $row <= 30)) {\r\n\t\t\treturn true;\r\n\t\t}\r\n\t\t\r\n\t\treturn false;\r\n\t}\r\n}\r\n\r\n$objReader = new PHPExcel_Reader_Excel2007();\r\n$objReader->setReadFilter( new MyReadFilter() );\r\n$objPHPExcel = $objReader->load(\"06largescale.xlsx\");",
+      "PostedDate": "2008-10-23T23:49:13.827-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Note that this only affects data and style loading of the cells. Images, cell merges, protection, ... are still being read until we are 100% sure this feature is the way to go.",
+      "PostedDate": "2008-10-23T23:50:09.89-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Indeed looks promising although I haven't looked at the details... Will implement this in Excel5 reader and make sure it goes into the PHPExcel 1.6.4 release.",
+      "PostedDate": "2008-10-24T00:11:46.71-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Added support for this feature in PHPExcel_Reader_Excel5 (SVN changeset 591)",
+      "PostedDate": "2008-10-25T02:23:05.997-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2008-10-26T01:54:09.13-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:04:41.883-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:43:11.157-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

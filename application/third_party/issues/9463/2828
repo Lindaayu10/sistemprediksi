@@ -1,0 +1,33 @@
+Index: PHPExcel/Worksheet.php
+===================================================================
+--- PHPExcel/Worksheet.php	(revision 853)
++++ PHPExcel/Worksheet.php	(working copy)
+@@ -2052,12 +2052,6 @@
+ 	public function copy() {
+ 		$copied = clone $this;
+ 
+-		foreach ($copied->_cellCollection as $coordinate => $cell) {
+-			$newCell = clone $cell;
+-			$newCell->rebindParent($copied);
+-			$copied->_cellCollection[$coordinate] = $newCell;
+-		}
+-
+ 		return $copied;
+ 	}
+ 
+@@ -2065,12 +2059,9 @@
+ 	 * Implement PHP __clone to create a deep clone, not just a shallow copy.
+ 	 */
+ 	public function __clone() {
+-		$vars = get_object_vars($this);
+-		foreach ($vars as $key => $value) {
+-			if (is_object($value)) {
+-				$this->$key = clone $value;
+-			} else {
+-				$this->$key = $value;
++		foreach ($this as $key => $val) {
++			if (is_object($val) || (is_array($val))) {
++				$this->{$key} = unserialize(serialize($val));
+ 			}
+ 		}
+ 	}

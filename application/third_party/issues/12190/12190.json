@@ -1,0 +1,65 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "&#62;&#62; we were trying to guess how did you increment the col in an easy way.My original response here demonstrates two methods that you can use to increment the col in an easy way&#58; the first using the PHPExcel_Cell&#58;&#58;stringFromColumnIndex&#40;&#41; method to convert a numeric column number to a string value &#40;use &#36;col &#61; PHPExcel_Cell&#58;&#58;stringFromColumnIndex&#40;&#36;i&#41;&#59; &#36;i&#43;&#43;&#59; insted of &#36;col &#61; chr&#40;&#36;i&#41;&#59; &#36;i&#43;&#43;&#59;&#41; starting with a &#36;i of 0 for column A&#59; the second taking advantage of PHP&#39;s perl-style character incrementing.",
+    "ClosedDate": "2010-03-23T05:27:58.52-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hi guys,\n \nFirst of all thanks for the amazing PHPExcel lib\nI found out that we were outputing a lot of columns and so we would get into this error: Message: Invalid cell coordinate\nAnd the error was here\nPHPExcel/Worksheet.php(991): PHPExcel_Cell::coordinateFromString('[1')\n \nDo you not allow more than the Z column? Can you test it out?",
+    "LastUpdatedDate": "2013-05-16T05:42:04.967-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2010-03-22T10:58:10.66-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Column After Z should be AA and not [1 Message: Invalid cell coordinate.",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 12190
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "We've never had problems with more than 26 columns before: I've worked with up to 256 columns (IV).\r\nHow are you generating the cell reference? specifically the column ID?\r\n\r\n/** Error reporting */\r\nerror_reporting(E_ALL);\r\n\r\n/** PHPExcel */\r\nrequire_once './Classes/PHPExcel.php';\r\n\r\nfor ($i=0; $i < 256; ++$i) {\r\n\techo PHPExcel_Cell::stringFromColumnIndex($i).'<br />';\r\n}\r\n\r\necho '<hr />';\r\n\r\nfor ($x='A'; $x != 'IW'; $x++) {\r\n\techo $x.'<br />';\r\n}\r\n\r\nIV (256 columns is the limit for Excel5), you can go much higher with Excel2007",
+      "PostedDate": "2010-03-22T13:50:54.44-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Hi  Mark,\r\nYou were right it is possible to add more rows.  It was our mistake.\r\nWe were adding cell values like this:\r\n\r\nforeach($setup['fields'] as $key){ \r\n\t\t\t\r\n\t\t\t$col = chr($i); $i++;\r\n\t\t\t\t\r\n\t\t\t$sheet->setCellValue(\"{$col}1\", $availableFields[$key]->getLabel());\t\t\r\n\r\nAnd then after Z it was [ so that was our mistake.\r\n\r\nWe decided to make a quick fix like this\r\n\r\nforeach($setup['fields'] as $key)\r\n\t\t{ \r\n\t\t\tif($i > 90){\r\n\t\t\t\t$i = 65;\r\n\t\t\t\t$second_level = true;\r\n\t\t\t}\r\n\t\t\tif($second_level){\r\n\t\t\t\t$col = chr($i); $i++;\r\n\t\t\t\t$col = \"A\".$col; \r\n\t\t\t}\r\n\t\t\telse{\r\n\t\t\t\t$col = chr($i); $i++;\r\n\t\t\t}\r\n\t\t\t\t\r\n\t\t\t$sheet->setCellValue(\"{$col}1\", $availableFields[$key]->getLabel());\t\t\r\n\r\nSo our users could get at least two times the alphabet but we were trying to guess how did you increment the col in an easy way.\r\n\r\nAnyway you can close this issue.\r\nThanks very much for the fast reply and again for your  amazing lib.\r\n\r\nAndré Moniz\r\n\r\n",
+      "PostedDate": "2010-03-23T03:45:42.177-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-03-23T05:27:58.52-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:03:07.29-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:04.967-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

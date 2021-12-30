@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "1012230",
+    "ThreadId": "435860",
+    "Html": "Hello , \r<br />\ni tried below code and my worksheet is opening with blank:\r<br />\n<br />\n&lt;?php\r<br />\n<br />\n/*<em> require the PHPExcel file 1.0 </em>/<br />\n<pre><code>require 'Classes/PHPExcel.php';\n</code></pre>\n\n/*<em> Set Memory Limit 1.0 </em>/<br />\n<pre><code>ini_set(&quot;memory_limit&quot;,&quot;500M&quot;); // set your memory limit in the case of memory problem\n</code></pre>\n\n/*<em> Caching to discISAM 1.0</em>/\r<br />\n$cacheMethod = PHPExcel_CachedObjectStorageFactory:: cache_to_discISAM;\r<br />\n$cacheSettings = array( 'dir'  =&gt; '/usr/local/tmp' // If you have a large file you can cache it optional<br />\n<pre><code>                  );</code></pre>\n\nPHPExcel_Settings::setCacheStorageMethod($cacheMethod, $cacheSettings);\r<br />\n$objPHPExcel = new PHPExcel();\r<br />\n   $objPHPExcel-&gt;getActiveSheet()-&gt;setTitle('Data');\r<br />\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('A1','hello');\r<br />\n header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');<br />\n<pre><code>header('Content-Disposition: attachment;filename=&quot;Technical.xlsx&quot;');\nheader('Cache-Control: max-age=0');\n$objPHPExcel = new PHPExcel();</code></pre>\n\n/<em> $objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel);</em>/\r<br />\n \r<br />\n   $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');<br />\n<pre><code>$objWriter-&gt;save('php://output');</code></pre>\n\nexit;\r<br />\n?&gt;\r<br />\n<br />\nPlease help\r<br />\n<br />\nThanks<br />\n",
+    "PostedDate": "2013-03-08T01:04:38.037-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1012240",
+    "ThreadId": "435860",
+    "Html": "Hi,\r<br />\n<br />\ni have the same problem if i send the file directly to browser with Excel2007, so i change my export and save it first to disk<br />\n<pre><code>$objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel);\n$objWriter-&gt;setPreCalculateFormulas(false);\nob_end_clean();\n$filename = 'Technical.xlsx';\n\n$objWriter-&gt;save($filename);\nheader('Content-disposition: attachment; filename='.$filename);\nheader('Content-type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');\nheader('Content-Length: ' . filesize($filename));\nheader('Content-Transfer-Encoding: binary');\nheader('Cache-Control: must-revalidate');\nheader('Pragma: public');\nif(ob_get_length() &gt; 0) {\n    ob_clean();\n}\nflush();\nreadfile($filename);\n</code></pre>\n\nHope it helps.<br />\n",
+    "PostedDate": "2013-03-08T01:21:50.447-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1012243",
+    "ThreadId": "435860",
+    "Html": "I having the same problem i tries changing the code\r<br />\n<br />\n&lt;?php\r<br />\n<br />\n/*<em> require the PHPExcel file 1.0 </em>/<br />\n<pre><code>require 'Classes/PHPExcel.php';\n</code></pre>\n\n/*<em> Set Memory Limit 1.0 </em>/<br />\n<pre><code>ini_set(&quot;memory_limit&quot;,&quot;500M&quot;); // set your memory limit in the case of memory problem\n</code></pre>\n\n/*<em> Caching to discISAM 1.0</em>/\r<br />\n$cacheMethod = PHPExcel_CachedObjectStorageFactory:: cache_to_discISAM;\r<br />\n$cacheSettings = array( 'dir'  =&gt; '/usr/local/tmp' // If you have a large file you can cache it optional<br />\n<pre><code>                  );</code></pre>\n\nPHPExcel_Settings::setCacheStorageMethod($cacheMethod, $cacheSettings);\r<br />\n$objPHPExcel = new PHPExcel();\r<br />\n   $objPHPExcel-&gt;getActiveSheet()-&gt;setTitle('Data');\r<br />\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('A1','hello');\r<br />\n/* header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');<br />\n<pre><code>header('Content-Disposition: attachment;filename=&quot;Technical.xlsx&quot;');\nheader('Cache-Control: max-age=0');*/\n$objPHPExcel = new PHPExcel();</code></pre>\n\n$objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel);\r<br />\n \r<br />\n   //$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');\r<br />\n   $objWriter-&gt;setPreCalculateFormulas(false);\r<br />\nob_end_clean();\r<br />\n$filename = 'Technical.xlsx';\r<br />\n<br />\n$objWriter-&gt;save($filename);\r<br />\nheader('Content-disposition: attachment; filename='.$filename);\r<br />\nheader('Content-type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');\r<br />\nheader('Content-Length: ' . filesize($filename));\r<br />\nheader('Content-Transfer-Encoding: binary');\r<br />\nheader('Cache-Control: must-revalidate');\r<br />\nheader('Pragma: public');\r<br />\nif(ob_get_length() &gt; 0) {<br />\n<pre><code>ob_clean();</code></pre>\n\n}\r<br />\nflush();\r<br />\nreadfile($filename);\r<br />\n<br />\n  //  $objWriter-&gt;save('php://output');\r<br />\nexit;\r<br />\n?&gt;<br />\n",
+    "PostedDate": "2013-03-08T01:33:37.107-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1012282",
+    "ThreadId": "435860",
+    "Html": "HI,\r<br />\n<br />\ncan you post the error message you get in log files?\r<br />\n<br />\nif often show where you find the solution<br />\n",
+    "PostedDate": "2013-03-08T03:49:57.123-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1012284",
+    "ThreadId": "435860",
+    "Html": "i am newbie to this can you please let me know where actually we can find the log file<br />\n",
+    "PostedDate": "2013-03-08T03:53:00.55-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

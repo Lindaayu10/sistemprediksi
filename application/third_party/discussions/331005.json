@@ -1,0 +1,106 @@
+[
+  {
+    "Id": "783851",
+    "ThreadId": "331005",
+    "Html": "\r\n<p>Hello,</p>\r\n<p>I've some data that i wanted to write in an xls file, but can't find anywhere how to format a cell to TIME :</p>\r\n<p>what i want :</p>\r\n<p>$time = '03:30:00' i'd like to have in the xls file : 3:30</p>\r\n<p>$time = '07:00:00' -&gt; 7</p>\r\n<p>finally, i will add the value with SUM formula wich is working with the test n&deg;2 if time is a rounded value, otherwise no (because of TYPE_NUMERIC of course)</p>\r\n<p>here are my differents tests, but not working :</p>\r\n<p>1 : $sheet-&gt;setCellValueExplicitByColumnAndRow($row, $num, PHPExcel_Style_NumberFormat::toFormattedString($time));</p>\r\n<p><br>\r\n2: $sheet-&gt;setCellValueExplicitByColumnAndRow($row, $num, '03:30:00', PHPExcel_Cell_DataType::TYPE_NUMERIC); // if only i could do a FORMAT_DATE_TIME6, but not working</p>\r\n<p><br>\r\n//$sheet-&gt;getStyleByColumnAndRow($row, $num)-&gt;setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_DATE_TIME6);<br>\r\n//$sheet-&gt;setCellValueExplicitByColumnAndRow($row, $num, $time, PHPExcel_Style_NumberFormat::FORMAT_DATE_TIME6);</p>\r\n<p>Thx for helping me or redirect me to an answer</p>\r\n<p>Julien &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>\r\n",
+    "PostedDate": "2012-02-20T05:38:38.847-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "790680",
+    "ThreadId": "331005",
+    "Html": "<p>Up !</p>\r\n<p>Is my question stupid ?</p>\r\n<p>tell me if u need more informations.</p>\r\n<p>&nbsp;</p>\r\n<p>thank you !</p>",
+    "PostedDate": "2012-02-21T09:56:03.467-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "791939",
+    "ThreadId": "331005",
+    "Html": "<p>Section 4.6.3.&nbsp;entitled \"Write a date into a cell\" covers exactly this topic, with sample code showing three different methods of writing a date to a cell.</p>\r\n<p><span style=\"font-size: 10pt;\">In Excel, dates and Times are stored as numeric values counting the number of days elapsed since 1900-01-01. For example, the date '2008-12-31' is represented as 39813. You can verify this in Microsoft Office Excel by entering that date in a cell and afterwards changing the number format to 'General' so the true numeric value is revealed.</span></p>\r\n<div>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre><span style=\"color: green;\">/* PHPExcel_Cell_AdvanceValueBinder required for this sample */</span>\r\n<span style=\"color: blue;\">require_once</span> <span style=\"color: #a31515;\">'PHPExcel/Cell/AdvancedValueBinder.php'</span>;\r\n\r\n<span style=\"color: green;\">// MySQL-like timestamp '2008-12-31' or date string</span>\r\nPHPExcel_Cell::setValueBinder( <span style=\"color: blue;\">new</span> PHPExcel_Cell_AdvancedValueBinder() );\r\n$objPHPExcel-&gt;getActiveSheet()\r\n           -&gt;setCellValue(<span style=\"color: #a31515;\">'D1'</span>, <span style=\"color: #a31515;\">'2008-12-31'</span>);\r\n$objPHPExcel-&gt;getActiveSheet()\r\n           -&gt;getStyle(<span style=\"color: #a31515;\">'D1'</span>)\r\n           -&gt;getNumberFormat()\r\n           -&gt;setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_DATE_YYYYMMDDSLASH);\r\n</pre>\r\n</div>\r\n<p class=\"Code\">&nbsp;or</p>\r\n</div>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre><span style=\"color: green;\">// PHP-time (Unix time)</span>\r\n$time = gmmktime(0,0,0,12,31,2008); <span style=\"color: green;\">// int(1230681600)</span>\r\n$objPHPExcel-&gt;getActiveSheet()\r\n           -&gt;setCellValue(<span style=\"color: #a31515;\">'D1'</span>, PHPExcel_Shared_Date::PHPToExcel($time));\r\n$objPHPExcel-&gt;getActiveSheet()\r\n           -&gt;getStyle(<span style=\"color: #a31515;\">'D1'</span>)\r\n           -&gt;getNumberFormat()\r\n           -&gt;setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_DATE_YYYYMMDDSLASH);\r\n</pre>\r\n</div>\r\n<p>or&nbsp;</p>\r\n<div>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre><span style=\"color: green;\">// Excel-date/time</span>\r\n$objPHPExcel-&gt;getActiveSheet()\r\n           -&gt;setCellValue(<span style=\"color: #a31515;\">'D1'</span>, 39813)\r\n$objPHPExcel-&gt;getActiveSheet()\r\n           -&gt;getStyle(<span style=\"color: #a31515;\">'D1'</span>)\r\n           -&gt;getNumberFormat()\r\n           -&gt;setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_DATE_YYYYMMDDSLASH);\r\n</pre>\r\n</div>\r\n<p class=\"Code\">The PHPExcel_Shared_Date::PHPToExcel() method will also work with a PHP DateTime object.</p>\r\n</div>\r\n<p>&nbsp;</p>\r\n<p>And because Excel holds dates/times as numeric values, it is possible to SUM them: this works well with time values, though not so well with dates. Just set the appropriate number format mask for the cell with the formula.</p>\r\n<p>&nbsp;</p>\r\n<p>While I appreciate that many people dislike reading documentation, or consider that the PHPExcel documentation is \"rubbish\"; it does answer a lot of these basic questions, and I'm not on call for immediate support 24 hours a day every day.</p>",
+    "PostedDate": "2012-02-21T14:53:02.5-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "794745",
+    "ThreadId": "331005",
+    "Html": "<p>First of all, a big thanks for your explanation, and sorry for the up but i really tought that i missed something and made a stupid question.</p>\r\n<p>I go try these solutions and i'll paste my choice.</p>\r\n<p>Thank a lot for the support !</p>",
+    "PostedDate": "2012-02-22T05:21:17.363-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "794951",
+    "ThreadId": "331005",
+    "Html": "<p>Well, i tried to adapte your propositions to my case but no success :x</p>\r\n<p>Ok with the excel's date system but i dont want a date from but only a time like 3:30 or 07:00</p>\r\n<p>Your second example may be the best for me, so :</p>\r\n<p><br />$duree = '08:00:00';<br />list($hour, $min, $sec) = explode(':', $duree);<br />$time = gmmktime($hour,$min);</p>\r\n<p><br />$sheet-&gt;setCellValueByColumnAndRow($row, $num, PHPExcel_Shared_Date::PHPToExcel($time));<br />$sheet-&gt;getStyleByColumnAndRow($row, $num)<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -&gt;getNumberFormat()<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -&gt;setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_DATE_TIME3);</p>\r\n<p>and in my cell i can see 08:00 wich is ok but in the formula cell the data is 983072:00:03 and so the \"SUM\" don't work.</p>\r\n<p>what am i doing wrong ?</p>",
+    "PostedDate": "2012-02-22T07:01:33.217-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "795571",
+    "ThreadId": "331005",
+    "Html": "<p>That's because gmmktime() defaults the missing arguments to today. Either set the year,month,day arguments to PHP's base date (1970,1,1) or just feed the time string to PHPExcel_Shared_Date::PHPToExcel();</p>\n<div style=\"color: black; background-color: white;\">\n<pre>PHPExcel_Shared_Date::PHPToExcel($duree);\r\n</pre>\n</div>\n<p>This is where PHPExcel tries to be cleverer than Excel itself.</p>\n<p>&nbsp;</p>\n<p>or</p>\n<div style=\"color: black; background-color: white;\">\n<pre>$time = gmmktime($hour,$min) - gmmktime(0,0,0);\r\n</pre>\n</div>",
+    "PostedDate": "2012-02-22T09:41:19.447-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "796130",
+    "ThreadId": "331005",
+    "Html": "<p>I tried your 2 solutions but that don't work better :</p>\r\n<p>1st try :</p>\r\n<p>$sheet-&gt;setCellValueByColumnAndRow($row, $num, PHPExcel_Shared_Date::PHPToExcel('07:00:00'));</p>\r\n<p>$sheet-&gt;getStyleByColumnAndRow($row, $num)<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -&gt;getNumberFormat()<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -&gt;setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_DATE_TIME3);</p>\r\n<p>In my Excel file i only get \"=FAUX()\" (=FALSE() ? i use a french openoffice, perhaps the trouble come from here)</p>\r\n<p>2nd try :</p>\r\n<p>list($hour, $min, $sec) = explode(':', '07:00:00');<br />$time = gmmktime($hour,$min) - gmmktime(0,0,0);</p>\r\n<p>$sheet-&gt;setCellValueByColumnAndRow($row, $num, PHPExcel_Shared_Date::PHPToExcel($time));<br />$sheet-&gt;getStyleByColumnAndRow($row, $num)<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -&gt;getNumberFormat()<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -&gt;setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_DATE_TIME3);</p>\r\n<p>This give me the same result as in my previous post</p>\r\n<p>&nbsp;</p>\r\n<p>thx again for your appreciate help !</p>",
+    "PostedDate": "2012-02-22T12:26:06.247-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "796470",
+    "ThreadId": "331005",
+    "Html": "<div style=\"color: black; background-color: white;\">\r\n<pre>PHPExcel_Cell::setValueBinder( <span style=\"color: blue;\">new</span> PHPExcel_Cell_AdvancedValueBinder() );\r\n$sheet-&gt;setCellValueByColumnAndRow($row, $num, <span style=\"color: #a31515;\">'07:00:00'</span>);\r\n$sheet-&gt;getStyleByColumnAndRow($row, $num)\r\n      -&gt;getNumberFormat()\r\n      -&gt;setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_DATE_TIME3);\r\n</pre>\r\n</div>\r\n<p>and you're right: $time = gmmktime($hour,$min) - gmmktime(0,0,0); will give time on 1st Jan 1970... you only want the fractional part so:</p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre><span style=\"color: blue;\"><div style=\"color: black; background-color: white;\"><pre><span style=\"color: blue;\">list</span>($hour, $min, $sec) = explode(<span style=\"color: #a31515;\">':'</span>, <span style=\"color: #a31515;\">'07:00:00'</span>); \r\n$time = gmmktime($hour,$min); \r\n$sheet-&gt;setCellValueByColumnAndRow($row, $num, fmod(PHPExcel_Shared_Date::PHPToExcel($time),1));\r\n$sheet-&gt;getStyleByColumnAndRow($row, $num)\r\n      -&gt;getNumberFormat()\r\n      -&gt;setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_DATE_TIME3);\r\n</pre>\r\n</div>\r\n</span><br /></pre>\r\n</div>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2012-02-22T16:18:33.357-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "796557",
+    "ThreadId": "331005",
+    "Html": "<p>So cool !</p>\n<p>your first solution work very well !</p>\n<p>I tried the second but the result is still wrong : this is the cell value for '07:00:00' is 07:00:17 certainly a small conversion problem.</p>\n<p>Thank you very much and he ll come more often to view if i can help others !</p>\n<p>Maybe a suggestion for future it would be great to have a FORMAT_DATE_TIME9 ;) for 07:00:00 -&gt; 7&nbsp; and 03:30:00 -&gt; 3:30 dont think it is actually possible.</p>",
+    "PostedDate": "2012-02-22T17:19:57.873-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "797035",
+    "ThreadId": "331005",
+    "Html": "<p>You can actually set whatever format masks you want, you're not limited to the predefined set. This mimics MS Excel itself, which has a number of predefined date masks, but you can also apply \"custom\" masks as well.</p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>$sheet-&gt;getStyleByColumnAndRow($row, $num)\r\n      -&gt;getNumberFormat()\r\n      -&gt;setFormatCode(<span style=\"color: #a31515;\">\"hh\"</span>);\r\n</pre>\r\n</div>\r\n<p>will give you just the hours</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2012-02-22T23:42:34.99-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "797990",
+    "ThreadId": "331005",
+    "Html": "<p>Nice to know, after try it appears that Excel doesn' know this format -&gt; like the php date('G'). 07:00:00 can't be only 7, at best 07:00</p>",
+    "PostedDate": "2012-02-23T10:36:43.907-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "798210",
+    "ThreadId": "331005",
+    "Html": "<p>My version of MS Excel allows both \"h\" and \"hh\" as format masks, the former will show only 1 digit if the hours to display is &lt;= 9, the latter will show a leading 0.</p>",
+    "PostedDate": "2012-02-23T13:00:14.04-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "798279",
+    "ThreadId": "331005",
+    "Html": "<p>yes this work for the hour : setFormatCode(\"H:MM\");</p>\r\n<p>but can t round minutes because i ve got 2 possibles case : time can be like 07:00:00 or like 01:30:00 so i ve to use MM.</p>",
+    "PostedDate": "2012-02-23T13:47:12.69-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

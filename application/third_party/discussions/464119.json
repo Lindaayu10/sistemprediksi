@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "1113813",
+    "ThreadId": "464119",
+    "Html": "I am using PHPExcel v1.7.9 with PHP v5.3.1.\r<br />\n<br />\nI am trying to read data from a CSV file that has cells which contain large text strings.  I am able to read all of the data expected from the file successfully, but all of the large text strings are all being truncated at 32,767 bytes.\r<br />\n<br />\nIt looks like the CSV reader is using the PHP fgetcsv call to read each row of data, and is also using a zero for the length parameter which should not limit the maximum line length.\r<br />\n<br />\nDoes anybody have any insight as to why text data read from a CSV file would be getting truncated at a fixed size?  Is this due to some underlying PHP setting or is there a default cell size in PHPExcel that I need to override to read in large strings?\r<br />\n<br />\nHere is a summary of the PHP logic I'm using to read in the CSV file:<br />\n<pre><code>$inputFileType = 'CSV';\n$objReader = PHPExcel_IOFactory::createReader($inputFileType);\n$objReader-&gt;setDelimiter(&quot;\\t&quot;); \n$objReader-&gt;setEnclosure('');\n$objPHPExcel = $objReader-&gt;load($fullPath);\n$objWorksheet = $objPHPExcel-&gt;getActiveSheet();\nforeach ($objWorksheet-&gt;getRowIterator() as $row) {\n    $cellIterator = $row-&gt;getCellIterator();\n    $cellIterator-&gt;setIterateOnlyExistingCells(false);\n    foreach ($cellIterator as $cell) {\n        $cell_value = $cell-&gt;getValue();\n    }\n}\n</code></pre>\n\nWhen $cell_value is set to one of the large text strings it is always truncated at 32,767 bytes.\r<br />\n<br />\nAny ideas?<br />\n",
+    "PostedDate": "2013-10-29T13:25:51.227-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1115034",
+    "ThreadId": "464119",
+    "Html": "From what I've read PHP doesn't enforce a limit on the length of any string data.  The max size is based off of the amount of memory available to PHP, which is well over the 32K limit I'm seeing.\r<br />\n<br />\nI've been reviewing the PHPExcel code to try and identify any potential sources of the 32k limit but have been unable to identify anything so far.\r<br />\n<br />\nThe fgetcsv function that PHPExcel uses to read the next line of data from the CSV file includes a parameter that can be used to limit line length, but in the PHPExcel CSV logic this is being set to 0 which designates unlimited size.  Plus, I know the line length isn't being limited because I am reading in multiple cells with text on the same row (and they are all being truncated to 32K).\r<br />\n<br />\nPHPExcel also potentially calls some string handling and character encoding functions like str_replace, iconv, and mb_convert_encoding, but all of these PHP functions should preserve the string length and don't include options for limiting length.\r<br />\n<br />\nHas anybody encountered issues with text (or other) data being truncated in size when read in from a CSV file?<br />\n",
+    "PostedDate": "2013-10-31T07:56:34.733-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,141 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel_Reader_Excel2007",
+      "DisplayName": "PHPExcel_Reader_Excel2007"
+    },
+    "ClosedComment": "Fixed in SVN",
+    "ClosedDate": "2009-08-18T17:21:40.99-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Test (plain read/write test):\n----\n$reader = new PHPExcel_Reader_Excel2007();\n$PHPExcel = $reader->load('read.xlsx');\n$writer = new PHPExcel_Writer_Excel2007($PHPExcel);\n$writer->save('write.xlsx');\n \nread.xlsx\n----\nfit-to-width: 1\nfit-to-height: blank (automatic)\n \nwrite.xlsx\n----\nfit-to-width: blank (automatic) (unexpected, should have stayed 1)\nfit-to-height: blank (automatic)\n \nEnvironment:\n----\nPHPExcel: Latest source from SVN (1.6.3+)",
+    "LastUpdatedDate": "2013-05-16T05:43:18.103-07:00",
+    "PlannedForRelease": "PHPExcel 1.7.1 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2008-09-16T06:10:14.98-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Fit-to-width value of 1 is lost after read/write of Excel2007 spreadsheet",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 7610
+  },
+  "FileAttachments": [
+    {
+      "FileId": 2118,
+      "FileName": "fit-to-width-value-1.zip",
+      "DownloadUrl": ".\\2118"
+    },
+    {
+      "FileId": 3271,
+      "FileName": "wi-7610.patch",
+      "DownloadUrl": ".\\3271"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "This is similar, but not identical to previous issue (now fixed)\r\nhttp://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=7600",
+      "PostedDate": "2008-09-16T06:13:20.23-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2008-09-16T08:53:41.79-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2008-09-16T08:54:23.15-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Fixed in SVN\r\n\r\n** Closed by maartenba 9/16/2008 8:54 AM",
+      "PostedDate": "2008-09-16T09:56:14.033-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Re-opening issue. Sorry for being imprecise. This issue persists. I have no idea what the problem is?",
+      "PostedDate": "2008-09-16T09:56:14.253-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2008-09-17T02:40:16.58-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Oh, sorry I missed that. I see that you are right. I had no idea that there was anything like printersettings.bin. Hmm..., that makes it harder to create templates in MS Office Excel for read/write manipulation with PHPExcel. Ok, will have to add fit-to-width = 1 manually using PHPExcel after the read operation.",
+      "PostedDate": "2008-09-17T22:40:37.757-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "It actually just works. Excel2007 seems to ignore fit to width 1 after saving. If you make it 2, everything is fine. \n\nTry this in Excel:\n- Fit to width: 1; fit to height: blank\n- Save the file\n- Open it in Package Explorer (or unzip it and check sheet1.xml)\n- Notice it is not saved! Fit to width is not in there!\n- Seems like it is stored in printersettings.bin, some binary stuff Excel adds\n\n** Closed by maartenba 9/17/2008 2:40 AM",
+      "PostedDate": "2009-08-16T17:36:28.69-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Re-opening issue after thread:\r\nhttp://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=65879\r\n\r\nTODO: Omitted fitToWidth perhaps really means 1.\r\n\r\nThere is also <sheetPr><pageSetUpPr fitToPage=\"1\" /></sheetPr> to decide whether page scaling or fit-to-page is in effect. Something that PHPExcel does not currently support.\r\n\r\nMaarten, do you think something can be done after all? I can try to check this and look for a solution?",
+      "PostedDate": "2009-08-16T17:36:30.227-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-08-16T17:37:54.053-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Ok, hopefully this should now be fixed.\r\n\r\nI introduced $pageSetup->setFitToPage(<boolean>) to control whether scale or fitToHeight/fitToWidth applies. This corresponds to the radio button for toggling between the choice scale / fitToPage in MS Office Excel 2007:\r\nhttp://img197.imageshack.us/img197/4063/ss20090817035838.png\r\n\r\nPHPExcel has previously not reflected that sheets could simultaneously store a scale value and a set of fitToWidth/fitToHeight values. This should also be fixed now.",
+      "PostedDate": "2009-08-16T19:06:13.733-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-08-16T19:09:39.82-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-08-16T19:09:42.04-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-08-16T19:10:18.237-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-08-16T19:10:39.093-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-08-18T17:21:40.99-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:04:50.84-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:43:18.103-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

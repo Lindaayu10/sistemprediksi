@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "447510",
+    "ThreadId": "213885",
+    "Html": "<p>Hi,</p>\r\n<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; I am now trying to have a three sheet&nbsp; template file where the first sheet and last should be there as such, but the middle one&nbsp; should be copied and there should be ten cloned sheets between the first and third,</p>\r\n<p>But the problem is i could clone the sheets but the cloned sheets always comes at the first position even when the sheet index is changed. I tried with various combination of fixing the sheet in the right position.</p>\r\n<p>For ex :&nbsp; Template File will have =&gt; FIRST MIDDLE LAST</p>\r\n<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Template File will have =&gt; FIRST MIDDLE(1-10)&nbsp; LAST</p>\r\n<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Output File I Get =&gt;FIRST OVERRIDDEN MIDDLE, MIDDLE CLONE 1, LAST OVERRIDDENT MIDDLE, MIDDLE CLONE 4-7</p>\r\n<p>Is this possible&nbsp; to i do, what i am expecting.</p>\r\n<p>Plese help me</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks</p>",
+    "PostedDate": "2010-05-26T02:40:09.777-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "448031",
+    "ThreadId": "213885",
+    "Html": "<div style=\"color:black;background-color:white\">\r\n<pre>$objPHPExcel = PHPExcel_IOFactory::load(<span style=\"color:#a31515\">'Template.xls'</span>);\r\n$sheet = $objPHPExcel-&gt;getSheetByName(<span style=\"color:#a31515\">'Middle'</span>)-&gt;setTitle(<span style=\"color:#a31515\">'Middle 1'</span>);\r\n<span style=\"color:blue\">for</span> ($i = 2; $i &lt; 5; $i++) {\r\n    $sheet = $objPHPExcel-&gt;getSheetByName(<span style=\"color:#a31515\">'Middle 1'</span>)-&gt;copy();\r\n    $sheet-&gt;setTitle(<span style=\"color:#a31515\">'Middle '</span>.$i);\r\n    $sheet-&gt;setCellValue(<span style=\"color:#a31515\">'A1'</span>, <span style=\"color:#a31515\">'B'</span>.$i);\r\n    $objPHPExcel-&gt;addSheet($sheet);\r\n    $objPHPExcel-&gt;setIndexByName(<span style=\"color:#a31515\">'Middle '</span>.$i,$i);\r\n}\r\n$objPHPExcel-&gt;setActiveSheetIndex(0);\r\n\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, <span style=\"color:#a31515\">'Excel5'</span>);\r\n$objWriter-&gt;save(<span style=\"color:#a31515\">'NewTemplate.xls'</span>);\r\n</pre>\r\n</div>",
+    "PostedDate": "2010-05-27T01:00:20.303-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

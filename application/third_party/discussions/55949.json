@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "188906",
+    "ThreadId": "55949",
+    "Html": "<p>I am having a problem with getting the correct dates from the cell using the 1.6.6 .&nbsp; I have two cells in the worksheet.&nbsp; One is 06/07/2009 and the other is a function with =Today().</p>\r\n<p>The first problem is determining when to use PHPExcel_Shared_Date::ExcelToPHP and when not to.&nbsp; For instance when =Today you don;t; but for 06/07/2009 you do??</p>\r\n<p>cell1 = =Today()</p>\r\n<p>cell2 = 06/07/2009</p>\r\n<p>Expected Results: Today = 2009-05-11</p>\r\n<p>&nbsp;print &quot;date1: &quot; . date ( 'Y-m-d', $cell1-&gt;getCalculatedValue());&nbsp; shows 2009-05-10</p>\r\n<p>&nbsp;print &quot;date2:&quot; . date ( 'Y-m-d', PHPExcel_Shared_Date::ExcelToPHP( $cell2-&gt;getCalculatedValue()));</p>\r\n<p>The results are that both dates are off by one.</p>\r\n<p>date1: 2009-05-10</p>\r\n<p>date2: 2009-06-06</p>\r\n<p>&nbsp;</p>\r\n<p>Any ideas on what I am doing wrong?&nbsp;</p>\r\n<p>What is the best logic to determine if need to use  PHPExcel_Shared_Date::ExcelToPHP to calculate the date.</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks</p>",
+    "PostedDate": "2009-05-11T09:21:56.413-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "189006",
+    "ThreadId": "55949",
+    "Html": "<p>I am able to get the correct dates if I modify PHPExcel/Shared/Date.php&nbsp;</p>\r\n<p>function ExcelToPHP</p>\r\n<p>and change</p>\r\n<p>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; //$myExcelBaseDate = 25569;</p>\r\n<p><br>to &nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $myExcelBaseDate = 25568;</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-05-11T12:26:53.623-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "189103",
+    "ThreadId": "55949",
+    "Html": "<blockquote><em>The first problem is determining when to use PHPExcel_Shared_Date::ExcelToPHP and when not to.&nbsp; For instance when =Today you don;t; but for 06/07/2009 you do??</em><br></blockquote>\r\n<p>Yes, there is ambiguity, and it should probably be removed. Work item created for this:<br><a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=9960\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=9960</a><br><br>Your solution for now is to put this at the beginning of your script:<br><br><span style=\"font-family:Courier New\">PHPExcel_Calculation_Functions::setReturnDateType(PHPExcel_Calculation_Functions::RETURNDATE_EXCEL);</span><br></p>\r\n<blockquote><em>The results are that both dates are off by one.</em><br></blockquote>\r\n<p>The problem is that the <span style=\"font-family:Courier New\">date()</span> function in PHP uses your system time zone setting.<br><a href=\"http://php.net/manual/en/function.date.php\">http://php.net/manual/en/function.date.php</a><br><br><span style=\"font-family:Courier New\">PHPExcel_Shared_Date::ExcelToPHP()</span> assumes that the date supplied is GMT and returns the Unix time accordingly.<br><br>As a consequence, you should use <span style=\"font-family:Courier New\">gmdate()</span> instead of <span style=\"font-family:Courier New\">date()</span>, otherwise you may get a 1 day offset.<br><a href=\"http://php.net/manual/en/function.gmdate.php\">http://php.net/manual/en/function.gmdate.php</a><br><br><span style=\"font-family:Courier New\">print &quot;date1: &quot; . gmdate ( 'Y-m-d', $cell1-&gt;getCalculatedValue());</span><br><span style=\"font-family:Courier New\">print &quot;date2:&quot; . gmdate ( 'Y-m-d', PHPExcel_Shared_Date::ExcelToPHP( $cell2-&gt;getCalculatedValue()));</span><br></p>\r\n<blockquote><em>I am able to get the correct dates if I modify PHPExcel/Shared/Date.php <br></em></blockquote>\r\n<p>Ugg... Not recommended.</p>",
+    "PostedDate": "2009-05-11T19:43:41.11-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

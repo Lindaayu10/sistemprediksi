@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "550440",
+    "ThreadId": "242063",
+    "Html": "\r\n<p>I'm sure its something stupid but.....</p>\r\n<p>&nbsp;</p>\r\n<p>this was working fine, until my table got tol large ie my&nbsp; chr($starting_pos&#43;$index_pos) was more than Z &nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;</p>\r\n<p>&nbsp;$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(chr($starting_pos&#43;$index_pos) . $rowcounter, $showmonth);</p>\r\n<p>so i thought no problems i'll use setCellValueByColumnAndRow, but this writes NOTHING into the cells.<br>\r\nWhats wrong please ?</p>\r\n<p>&nbsp;$posnow = $starting_pos&#43;$index_pos;<br>\r\n&nbsp;$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow($posnow,$rowcounter, $showmonth);</p>\r\n<p>&nbsp;</p>\r\n<p>EDIT - i'm wrong it is writing stuff just in a totally wrong place.'<br>\r\nwhereas previously the first call of this&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(chr($starting_pos&#43;$index_pos) . $rowcounter, $showmonth);<br>\r\nwould write in D4</p>\r\n<p>this&nbsp; $posnow = $starting_pos&#43;$index_pos;<br>\r\n&nbsp;$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow($posnow,$rowcounter, $showmonth);</p>\r\n<p>writes into CJ4 .......so the next question is why ?</p>\r\n<p>Ok got it, this may help someone</p>\r\n<p>Its to do with the asci charset, where A is 65, so you need to do this</p>\r\n<p><br>\r\n$posnow = $starting_pos&#43;$index_pos-65;<br>\r\n&nbsp;$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow($posnow,$rowcounter, $showmonth);</p>\r\n<p>and then everythings good</p>\r\n<p>&nbsp;</p>\r\n<p>EDIT - new question - is there an easy way to convert between these ie how can i get AB as column when i know the column number ?<br>\r\nI am trying to write in the formula =SUM(A1 : AB1) as example and so need the excel lettering, or can you write the formula without the lettering ?</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2011-01-17T03:31:40.24-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "550509",
+    "ThreadId": "242063",
+    "Html": "\r\n<p>this works</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;&nbsp;&nbsp; function getColumnLetter($columnNumber) {<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; if ($columnNumber &gt; 26) {<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $columnLetter = Chr(intval(($columnNumber - 1) / 26) &#43; 64) . Chr((($columnNumber - 1) % 26) &#43; 65);<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; } else {<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $columnLetter = Chr($columnNumber &#43; 64);<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }<br>\r\n&nbsp;&nbsp;&nbsp; return $columnLetter;<br>\r\n&nbsp;&nbsp;&nbsp; }</p>\r\n",
+    "PostedDate": "2011-01-17T05:21:49.833-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "550522",
+    "ThreadId": "242063",
+    "Html": "\r\n<p>So does using the built-in functions designed for just this purpose:</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>PHPExcel_Cell::stringFromColumnIndex();\r\n</pre>\r\n</div>\r\n<p>Or you could be clever, and take advantage of PHP's character incrementor:</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>$col = <span style=\"color:#a31515\">'A'</span>\r\n<span style=\"color:blue\">for</span>($x = 1; $x &lt; 256; $x&#43;&#43;) {\r\n   <span style=\"color:blue\">echo</span> $col&#43;&#43;,<span style=\"color:#a31515\">'&lt;br /&gt;'</span>;\r\n}\r\n</pre>\r\n</div>\r\n",
+    "PostedDate": "2011-01-17T05:46:05.907-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

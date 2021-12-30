@@ -1,0 +1,55 @@
+Index: PHPExcel.php
+===================================================================
+--- PHPExcel.php	(revision 98152)
++++ PHPExcel.php	(working copy)
+@@ -90,6 +90,7 @@
+ 	 * @var PHPExcel_Style[]
+ 	 */
+ 	private $_cellXfCollection = array();
++	private $_cellXfHashCache = array();
+ 
+ 	/**
+ 	 * CellStyleXf collection
+@@ -596,8 +597,13 @@
+ 	 */
+ 	public function getCellXfByHashCode($pValue = '')
+ 	{
+-		foreach ($this->_cellXfCollection as $cellXf) {
++		if (isset($this->_cellXfHashCache[$pValue]) && isset($this->_cellXfCollection[$this->_cellXfHashCache[$pValue]])) {
++			//logger()->info('ret from cache');
++			return $this->_cellXfCollection[$this->_cellXfHashCache[$pValue]];
++		}
++		foreach ($this->_cellXfCollection as $i => $cellXf) {
+ 			if ($cellXf->getHashCode() == $pValue) {
++				$this->_cellXfHashCache[$pValue] = $i;
+ 				return $cellXf;
+ 			}
+ 		}
+@@ -627,6 +633,8 @@
+ 	{
+ 		$this->_cellXfCollection[] = $style;
+ 		$style->setIndex(count($this->_cellXfCollection) - 1);
++		// clear cellXfHashCache
++		$this->_cellXfHashCache = array();
+ 	}
+ 
+ 	/**
+@@ -640,6 +648,8 @@
+ 		if ($pIndex > count($this->_cellXfCollection) - 1) {
+ 			throw new Exception("CellXf index is out of bounds.");
+ 		} else {
++			// clear cellXfHashCache
++			$this->_cellXfHashCache = array();
+ 			// first remove the cellXf
+ 			array_splice($this->_cellXfCollection, $pIndex, 1);
+ 
+@@ -789,6 +799,9 @@
+ 			$this->_cellXfCollection[] = new PHPExcel_Style();
+ 		}
+ 
++		// clear xf hash cache
++		$this->_cellXfHashCache = array();
++
+ 		// update the xfIndex for all cells, row dimensions, column dimensions
+ 		foreach ($this->getWorksheetIterator() as $sheet) {
+ 

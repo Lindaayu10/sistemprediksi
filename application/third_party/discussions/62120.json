@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "210850",
+    "ThreadId": "62120",
+    "Html": "<p>Hi,</p>\r\n<p>I am using following generated filenames:</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$objWriter = <span style=\"color:Blue\">new</span> PHPExcel_Writer_Excel2007($objPHPExcel);\r\n$objWriter-&gt;save($description.<span style=\"color:#A31515\">'.xlsx'</span>);\r\n</pre>\r\n</div>\r\n<p>Variable $description is string (utf8) and is shown regurarly in browser (&quot;žlut&eacute; portfolio&quot;). But when I save it as filename, there is encoding problem with this filename (&quot;ĹľlutĂ&copy; portfolio&quot;).</p>\r\n<p>Thank you for your help...</p>",
+    "PostedDate": "2009-07-10T07:53:19.717-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "211033",
+    "ThreadId": "62120",
+    "Html": "<p>Based on the result, it looks like the operating system expects Windows-1250 rather than UTF-8.<br><br>Try to save your PHP-script in UTF-8 (without BOM) and encode the filename in Windows-1250 as follows:</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$description = mb_convert_encoding(<span style=\"color:#A31515\">'žlut&eacute; portfolio'</span>, <span style=\"color:#A31515\">'CP1250'</span>, <span style=\"color:#A31515\">'UTF-8'</span>);\r\n$objWriter = <span style=\"color:Blue\">new</span> PHPExcel_Writer_Excel2007($objPHPExcel);\r\n$objWriter-&gt;save($description.<span style=\"color:#A31515\">'.xlsx'</span>);\r\n</pre>\r\n</div>\r\n<p><br>I have not tried to save Unicode filenames myself, but according to comment by tony2001 at php dot net<br><a href=\"http://bugs.php.net/43148\">http://bugs.php.net/43148</a><br><br><em>&quot;PHP doesn't care if it's Unicode or not, it just passes the filename to<br>the OSes filesystem func and if it fails - we can do nothing about it.</em>&quot;<br><br>I take this as a statement that such PHP-scripts are not portable and that you need to use for the filename the character encoding expected by the operating system on the particular server where PHP is running.</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-07-10T21:13:23.95-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "1135431",
+    "ThreadId": "473476",
+    "Html": "Hi all,\r<br />\n<br />\nI am trying to use PHPExcel to read an .xls file and use the data to populate a MySQL DB. I am finding however that the text in the DB is not being returned accurately as expected.\r<br />\nThe code I am using is quite simple and an extract of the relevant bits is shown below.<br />\n<pre><code>$inputFileName = 'Capital20131209.xls';\necho 'Loading file ',pathinfo($inputFileName,PATHINFO_BASENAME),' using PHPExcel_Reader_Excel5&lt;br /&gt;';\n$inputFileType = PHPExcel_IOFactory::identify($inputFileName);\n$objReader = PHPExcel_IOFactory::createReader($inputFileType); \n\necho ' File type is '.$inputFileType;\n$objPHPExcel = $objReader-&gt;load($inputFileName);\n\n$worksheet = $objPHPExcel-&gt;getActiveSheet();\n\n$cells = array('A1','B1','C1','A2','B2','C2');\nforeach($cells as $cell) {\n   $value = $worksheet-&gt;getCell($cell)-&gt;getValue();\n   echo '&lt;b&gt;'.$cell.' Value is &lt;/b&gt;'.$value.&quot;&lt;br /&gt;\\n&quot;;\n}</code></pre>\n\nThe output is below\r<br />\nFile type is CSV\r<br />\n<br />\nA1 Value is PK\u0003\u0004\u0014\u0006\b!\r<br />\nB1 Value is \r<br />\nC1 Value is \r<br />\nA2 Value is p\r<br />\nB2 Value is \r<br />\nC2 Value is \r<br />\n<br />\nThe  actual excel text is below\r<br />\nP_DATE\tCAP\tASINDEX\r<br />\n2013-12-05\t12430964103763.236000\t38864.840000\r<br />\n<br />\nAny ideas please?<br />\n",
+    "PostedDate": "2013-12-13T02:53:59.103-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1136103",
+    "ThreadId": "473476",
+    "Html": "It would seem that PHPExcel does not correctly identify the file type, it relies partly on the extension and my assumption is that it is wrong (xls-&gt; he tries a reader Excel5, finds that it does not, it considers that this is a csv).\r<br />\nThe first two characters displayed as PK, renames your file in xlsx or force the use of an Excel 2007 reader<br />\n",
+    "PostedDate": "2013-12-15T07:27:03.64-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1140829",
+    "ThreadId": "473476",
+    "Html": "Thanks for your response. Is there a way to correctly identify the file type? I have a feeling this document I am trying to read was a .dbf.<br />\n",
+    "PostedDate": "2013-12-23T04:23:31.317-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1140844",
+    "ThreadId": "473476",
+    "Html": "Open the file with a hex editor or a simple viewer of DBase files. If he tells you that he cannot open it, is that it is not a DBase file. If you use the first, look if the signature matches (see <a href=\"http://www.dbf2002.com/dbf-file-format.html\" rel=\"nofollow\">http://www.dbf2002.com/dbf-file-format.html</a> for information on the format).\r<br />\nIf you case a file of this format, PHPExcel will not handle it directly, however, there is a php extension that knows how to handle it. Conjunction with PHPExcel, you can transform the original file in Excel file.<br />\n",
+    "PostedDate": "2013-12-23T05:14:36.907-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1144033",
+    "ThreadId": "473476",
+    "Html": "I believe this file is originally a binary excel workbook (.xlsb) and that is the reason it cannot be read using the phpexcel module. I'm digging around to see if I can convert it programatically into .xls before processing it in PHP.\r<br />\n<br />\nThanks<br />\n",
+    "PostedDate": "2013-12-30T14:37:50.22-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

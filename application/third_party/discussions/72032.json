@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "245829",
+    "ThreadId": "72032",
+    "Html": "<p>I am making a excel spreadsheet uploader using phpExcel and noticed an issue when allowing people to upload Excel files saved in Mac Excel. (has to do with UTF-8).</p>\r\n<p>This line:</p>\r\n<p>$objPHPExcel = $objReader-&gt;load($_FILES['uploaded']['name']);</p>\r\n<p>needs to be</p>\r\n<p>$objPHPExcel = $objReader-&gt;load(utf8_encode($_FILES['uploaded']['name']));</p>\r\n<p>&nbsp;</p>\r\n<p>Yuck but there ya go.</p>",
+    "PostedDate": "2009-10-14T17:48:45.587-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "246021",
+    "ThreadId": "72032",
+    "Html": "<p>Thanks for your note, but do you mean there are problems with Excel files uploaded from Mac, or Excel files created in Mac and uploaded from any platform?<br> <br> If you just need to read the Excel file, then can you not base your script on<br> <br></p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$_FILES[<span style=\"color:#A31515\">&quot;uploaded&quot;</span>][<span style=\"color:#A31515\">&quot;tmp_name&quot;</span>]\r\n</pre>\r\n</div>\r\n<p><br> instead of<br> <br></p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$_FILES[<span style=\"color:#A31515\">&quot;uploaded&quot;</span>][<span style=\"color:#A31515\">&quot;name&quot;</span>]\r\n</pre>\r\n</div>\r\n<p><br> If you are trying to obtain the <strong>original file name</strong> then you must ask what encoding is used for <span style=\"font-family:Courier New\">$_FILES[&quot;uploaded&quot;][&quot;name&quot;]</span>. This entry is controlled by the browser from which the file was uploaded. As far as I remember from my tests, it will be encoded using the particular state of encoding the page is viewed when the form is submitted. But this should be tested across various browser on various platforms.<br> <br> This means that you will want to set the appropriate encoding for the HTML page holding the form with the file select field<br> <br></p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>header(<span style=\"color:#A31515\">'Content-Type: text/html; charset=UTF-8'</span>)\r\n</pre>\r\n</div>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre><span style=\"color:Blue\">&lt;</span><span style=\"color:#A31515\">meta</span> <span style=\"color:Red\">http-equiv</span><span style=\"color:Blue\">=</span><span style=\"color:Blue\">&quot;Content-Type&quot;</span> <span style=\"color:Red\">content</span><span style=\"color:Blue\">=</span><span style=\"color:Blue\">&quot;text/html; charset=utf-8&quot;</span><span style=\"color:Blue\">&gt;</span>\r\n</pre>\r\n</div>\r\n<p><br> Did you do that? Otherwise it will not be UTF-8 encoded which is what you want.</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-10-15T06:36:46.25-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "246113",
+    "ThreadId": "72032",
+    "Html": "yeap that worked just fine. I had a page that had no content Type as it was actually doing no rendering of  any kind (just processing)<br><br>oh and the Excel files were being saved out from Mac Excel and they can upload these to a db directly.<br>",
+    "PostedDate": "2009-10-15T09:22:36.73-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

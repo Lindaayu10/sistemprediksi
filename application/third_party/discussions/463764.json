@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "1112615",
+    "ThreadId": "463764",
+    "Html": "I need to import an excel file into database. Issue is with the date. The date can be in any format in excel file. I need to convert it to timestamp to store in database. I am using PHPExcel_Shared_Date::isDateTime to check whether cell is having a date value or not. If yes then I use PHPExcel_Shared_Date::ExcelToPHP to convert the date value to time. My problem is that PHPExcel_Shared_Date::isDateTime is recognising non date cells as date as well. Below is my code.\r<br />\n<br />\n$objReader = PHPExcel_IOFactory::createReaderForFile($this-&gt;getTempFileName());\r<br />\n$objReader-&gt;setReadDataOnly(false);\r<br />\n$objPHPExcel = $objReader-&gt;load($this-&gt;getTempFileName());\r<br />\n$objPHPExcel-&gt;setActiveSheetIndex(0);\r<br />\n$worksheet = $objPHPExcel-&gt;getActiveSheet();\r<br />\n<br />\n$highestRow = $worksheet-&gt;getHighestRow();\r<br />\n$highestColumn = $worksheet-&gt;getHighestColumn();\r<br />\n$highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn);\r<br />\n<br />\nfor ($row = 1; $row &lt;= $highestRow; ++$row) {<br />\n<pre><code>$cellRow = array();\n$formatedCellRow = array();\nfor ($col = 0; $col &lt; $highestColumnIndex; $col++) {\n    $cell = $worksheet-&gt;getCellByColumnAndRow($col, $row);\n\n    $val = $cell-&gt;getValue();\n\n    if (PHPExcel_Shared_Date::isDateTime($cell))\n        $time = PHPExcel_Shared_Date::ExcelToPHP($val);\n    else\n        $normal_value = $val;\n}\n$cellData[] = $cellRow;</code></pre>\n\n}\r<br />\n<br />\nHelp much appreciated.<br />\n",
+    "PostedDate": "2013-10-27T02:20:06.983-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1112773",
+    "ThreadId": "463764",
+    "Html": "Can you identify the formats that are being incorrectly identified as dates?<br />\n<br />\nThe functions tests for the existence of any of the following characters - e, y, m, d, H or s (all case insensitive) - in the numberformat mask, unless they're enclosed in square braces (to prevent values like <code>[red]</code> from being identified as dates, or enclosed in double quotes.<br />\n",
+    "PostedDate": "2013-10-27T13:51:06.133-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1112781",
+    "ThreadId": "463764",
+    "Html": "Thanks for reply.\r<br />\n<br />\nWhen I see the formats of the cell in the excel file using $cell-&gt;getParent()-&gt;getStyle($cell-&gt;getCoordinate())-&gt;getNumberFormat()-&gt;getFormatCode()) I see that there are cells having format as GENERAL and numeric cells having format like #,##0.00. But even they are also considered as dates by PHPExcel_Shared_Date::isDateTime($cell) function.<br />\n",
+    "PostedDate": "2013-10-27T14:38:41.87-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1113324",
+    "ThreadId": "463764",
+    "Html": "The test for General was case-sensitive, so GENERAL wasn't being rejected as a date format, and I've added a trap for scientific format masks that would have been raised as false positives.... changes made to the develop branch on github.\r<br />\n<br />\nHowever, I can't replicate a scenario where #,##0.00 will return a false positive as a date<br />\n",
+    "PostedDate": "2013-10-28T12:26:11.297-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1113443",
+    "ThreadId": "463764",
+    "Html": "So should I wait for the changes to be published in next stable branch or is the development branch stable as well?<br />\n",
+    "PostedDate": "2013-10-28T17:36:48.853-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1113511",
+    "ThreadId": "463764",
+    "Html": "\r\n<div>On 29/10/2013 00:36, samirhshaikh wrote:<br>\r\n</div>\r\n<blockquote type=\"cite\">\r\n<p>From: samirhshaikh</p>\r\n<div id=\"ThreadNotificationPostBody\">So should I wait for the changes to be published in next stable branch or is the development branch stable as well?<br>\r\n</div>\r\n</blockquote>\r\nThe develop branch is stable, so you can use that; although you could always replace just the PHPExcel_Shared_Date.php file from github.<br>\r\n<br>\r\n<pre cols=\"72\">-- \r\nMark Baker</pre>\r\n",
+    "PostedDate": "2013-10-29T01:04:24.903-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

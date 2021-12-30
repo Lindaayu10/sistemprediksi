@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "924685",
+    "ThreadId": "398823",
+    "Html": "\r\n<p>I have an excel, with an adapted inputmask for a date: dd.mm.yyyy</p>\r\n<p>When I'm trying to import it, or even just echo it with php, it doesn't show the value, but the input mask! In my database, there is a column with all values dd.mm.yyy, and not the date that is put in Excel...</p>\r\n<p>Help?</p>\r\n<p>This is what I allready tried:&nbsp;</p>\r\n<p>1)&nbsp;</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>$data-&gt;sheets[0][<span style=\"color:#a31515\">'cells'</span>][$x][$j]-&gt;setValueExplicit(<span style=\"color:#a31515\">'25'</span>, PHPExcel_Cell_DataType::TYPE_NUMERIC);</pre>\r\n</div>\r\n<p>2)&nbsp;</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>$objPHPExcel-&gt;getActiveSheet()-&gt;getCell($x.$j)-&gt;setValueExplicit(<span style=\"color:#a31515\">'25'</span>, PHPExcel_Cell_DataType::TYPE_NUMERIC);</pre>\r\n</div>\r\n<p>3)</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>date(<span style=\"color:#a31515\">'Y-m-d'</span>,strtotime($data-&gt;sheets[0][<span style=\"color:#a31515\">'cells'</span>][$x][$j]))</pre>\r\n</div>\r\n",
+    "PostedDate": "2012-10-10T07:14:29.557-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "925094",
+    "ThreadId": "398823",
+    "Html": "<p>I'm trying to understand what you want here.... what do you expect when you store 25 in a cell and format it as a date?</p>\r\n<p>&nbsp;</p>\r\n<p>EXcel stores \"dates\" as a float serial number (number of days since 1st Jan 1900, or 1st Jan 1904 depending on Windows or Mac calendar) so when you store a date in a cell you need to convert it to that float value. There's a couple of helper functions in the PHPExcel_Shared_Date class that can be used for this conversion: PHPToExcel() and FormattedPHPToExcel() to convert PHP/unix timestamps, DateTime objects or strings to an excel timestamp, and ExcelToPHP() and ExcelToPHPObject() for the reverse.</p>\r\n<p>You then need to set the cell's number format mask to an appropriate mask for a date, such as the masks defined in the PHPExcel_Style_NumberFormat class, or your adapted mask of dd.mm.yyyy.</p>",
+    "PostedDate": "2012-10-11T01:01:26.713-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "925108",
+    "ThreadId": "398823",
+    "Html": "\r\n<p>The 25 was just to test how that function worked. But it just inputted dd.mm.yyyy.</p>\r\n<p>The problem is, that in Excel, the date is shown, but in PHP, dd.mm.yyyy is shown. I want to add an excel file to a mysql-table, with the correct dates. I think you're seeing it the opposite way.</p>\r\n<p>Now, in my MYSQL, there is dd.mm.yyyy (I formatted the mysql-table to text, just as a test, so I can exactly see what is added.)</p>\r\n<p>If you want me to add (a part of) the excel file, feel free to ask!</p>\r\n",
+    "PostedDate": "2012-10-11T01:25:45.58-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "925123",
+    "ThreadId": "398823",
+    "Html": "\r\n<p>Please don't use textual representation for dates, either in PHPExcel, in PHP, or in a database... if you're working with proper Unix/PHP datetimestamps or with DateTime objects, then you have the tools to format however you wish.</p>\r\n<p>I'm having difficulty understanding whether &nbsp;you're trying to read a date from an Excel file and store it in a database; or the reverse.</p>\r\n<p>&nbsp;</p>\r\n<p><strong>Reading a date from Excel:</strong></p>\r\n<div style=\"background-color:white; color:black\">\r\n<pre>$excelDateValue = $objPHPExcel-&gt;getActiveSheet()-&gt;getCell(<span style=\"color:#a31515\">'A1'</span>)-&gt;getValue();\r\n$phpDateValue = PHPExcel_Shared_Date::ExcelToPHP($excelDateValue);\r\n<span style=\"color:blue\">echo</span> date(<span style=\"color:#a31515\">'Y-m-d'</span>, $phpDateValue);\r\n</pre>\r\n</div>\r\n<p>or</p>\r\n<div style=\"background-color:white; color:black\">\r\n<pre>$excelDateValue = $objPHPExcel-&gt;getActiveSheet()-&gt;getCell(<span style=\"color:#a31515\">'A1'</span>)-&gt;getValue();\r\n$phpDateTimeObject = PHPExcel_Shared_Date::ExcelToPHPObject($excelDateValue);\r\n<span style=\"color:blue\">echo</span> phpDateTimeObject-&gt;format(<span style=\"color:#a31515\">'Y-m-d'</span>);\r\n</pre>\r\n</div>\r\n<p><strong>Writing a date to Excel</strong></p>\r\n<div style=\"background-color:white; color:black\">\r\n<pre>$phpDateValue = gmmktime(0,0,0,10,11,2012);\r\n$excelDateValue = PHPExcel_Shared_Date::PHPToExcel($phpDateValue);\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(<span style=\"color:#a31515\">'A1'</span>, $excelDateValue);\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(<span style=\"color:#a31515\">'A1'</span>)-&gt;getNumberFormat()\r\n    -&gt;setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_DATE_YYYYMMDD2);\r\n</pre>\r\n</div>\r\n<p><span>or</span></p>\r\n<p><span>&nbsp;</span></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>$phpDateTimeObject = <span style=\"color:blue\">new</span> DateTime(<span style=\"color:#a31515\">'2012-11-10'</span>);\r\n$excelDateValue = PHPExcel_Shared_Date::PHPToExcel($phpDateTimeObject);\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(<span style=\"color:#a31515\">'A1'</span>, $excelDateValue);\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(<span style=\"color:#a31515\">'A1'</span>)-&gt;getNumberFormat()\r\n    -&gt;setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_DATE_YYYYMMDD2);\r\n</pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2012-10-11T01:58:54.1-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "927970",
+    "ThreadId": "398823",
+    "Html": "\r\n<p>I'm trying to read data from Excel, and store it in a database.</p>\r\n<p>It doesn't work what you proposed. He hangs on the one line of code:</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>$phpDateTimeObject = PHPExcel_Shared_Date::ExcelToPHPObject($excelDateValue);</pre>\r\n</div>\r\n<p>Or&nbsp;</p>\r\n<pre>$phpDateValue = PHPExcel_Shared_Date::ExcelToPHP($excelDateValue);</pre>\r\n<p>What can I do now? This is my code:</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><span style=\"color:blue\">include</span>(<span style=\"color:#a31515\">'excel_reader2.php'</span>);\n$data = <span style=\"color:blue\">new</span> Spreadsheet_Excel_Reader();\n$data-&gt;setOutputEncoding(<span style=\"color:#a31515\">'UTF-8'</span>);\n$data-&gt;read($<span style=\"color:blue\">file</span>);\n\n$sql= <span style=\"color:#a31515\">&quot;INSERT INTO table (xx,xxx,xxx,...) VALUES &quot;</span>;\n\n<span style=\"color:blue\">for</span> ($x = 2; $x &lt;= count($data-&gt;sheets[0][<span style=\"color:#a31515\">&quot;cells&quot;</span>]); $x&#43;&#43;) \n{\n\t$sql .= <span style=\"color:#a31515\">&quot;(&quot;</span>;\n\t<span style=\"color:blue\">for</span> ($j = 1; $j &lt;= $data-&gt;sheets[0][<span style=\"color:#a31515\">'numCols'</span>]; $j&#43;&#43;)\n\t{\n\t\t<span style=\"color:blue\">if</span>($j==4 || $j==16 || $j==17 || $j==21 || $j==22) \n\t\t{<span style=\"color:green\">//cell with date</span>\n\t\t\t$excelDateValue = $data-&gt;sheets[0][<span style=\"color:#a31515\">'cells'</span>][$x][$j];\n\t\t\t$phpDateTimeObject = PHPExcel_Shared_Date::ExcelToPHP($excelDateValue);\n\t\t\t$sql .= date(<span style=\"color:#a31515\">'Y-m-d'</span>, $phpDateTimeObject);\n\t\t}\n\t\t<span style=\"color:blue\">else</span>\n\t\t{\n\t\t\t$sql .= <span style=\"color:#a31515\">&quot;'&quot;</span> . mysql_escape_string($data-&gt;sheets[0][<span style=\"color:#a31515\">'cells'</span>][$x][$j]) . <span style=\"color:#a31515\">&quot;',&quot;</span>;\n\t\t}\n\t}\n\t$sql = substr($sql, 0, -1) . <span style=\"color:#a31515\">&quot;),&quot;</span>;\n}\t\n$sql =  substr($sql, 0, -1);\n</pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n<p>When I just try to echo the query ($sql), at the end of this code, nothing happens...</p>\r\n",
+    "PostedDate": "2012-10-17T04:47:39.34-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "927999",
+    "ThreadId": "398823",
+    "Html": "<p>You realise that Spreadsheet_Excel_Reader !== PHPExcel ?</p>",
+    "PostedDate": "2012-10-17T05:44:48.54-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "928004",
+    "ThreadId": "398823",
+    "Html": "<p>Ow jeah, sorry... Didn't notice that one.</p>\r\n<p>So I'm on the wrong forum all this time?</p>",
+    "PostedDate": "2012-10-17T05:52:57.383-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

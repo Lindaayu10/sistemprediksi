@@ -1,0 +1,146 @@
+[
+  {
+    "Id": "161619",
+    "ThreadId": "48411",
+    "Html": "Is there any future plans to add Chart support for Excel 2007?<br><div>Has anybody started working on chart support?</div><div>I am just looking to use existing charts in template and not create new ones.</div><div>Thanks</div><div><br></div>",
+    "PostedDate": "2009-02-24T13:07:09.617-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "161643",
+    "ThreadId": "48411",
+    "Html": "It's something planned for this year. I've been reading the relevant sections of the MS file format specifications that have recently been released into the public domain, and Maarten &quot;twittered&quot; that he would be reading them tonight as well... that's all about identifying how Excel maintains it's definition of charts.<br>\r\nAnd the trend classes included in the current SVN code are intended to provide the framework for calculating trend lines (currently there's basic code there for Linear, Logarithmic, Exponential, Power and 2nd-6th order Polynomials). While I've been implementing the functions such as LINEST and TREND that use the Linear trend class, the other trends are explicitely intended as a first step toward providing the underlying functions needed to replicate Excel chart features. <br>\r\nInitial tests of these methods have been plotted in my testbed using jpGraph, and look quite good; but we'll almost certainly need to provide wrappers/drivers for several different charting libraries such as jpGraph, pChart, Graphpite or LibChart (different developers all have their own preferences: we'd prefer not to write our own library, and it's unlikely that we'd bundle a 3rd-party charting library with PHPExcel).<br>\r\n<br>\r\nHowever, it's quite a complicated sub-project, so it's likely to be the tail-end of the year before there's much to show. \r\n",
+    "PostedDate": "2009-02-24T14:10:48.163-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "164470",
+    "ThreadId": "48411",
+    "Html": "<p><span style=\"font-family:'courier new';font-size:13px\">Thanks for the reply.  I found a temp solution that seems to work.  Use PHPExcel to update the data and create a new excel document, then modify all the sheets sheetData in the original workbook with the updated file.  Finally replace the original's file sharedStrings.xml with the updated sharedStrings.xml.  Seems to work so far.</span></p><p><span style=\"font-size:10pt;font-family:'courier new';color:black\">      </span><span style=\"font-size:10pt;font-family:'courier new';color:blue\">public function </span><span style=\"font-size:10pt;font-family:'courier new';color:black\">updateOriginalFile(</span><span style=\"font-size:10pt;font-family:'courier new';color:rgb(102, 0, 0)\">$originalFile</span><span style=\"font-size:10pt;font-family:'courier new';color:black\">, </span><span style=\"font-size:10pt;font-family:'courier new';color:rgb(102, 0, 0)\">$updatedFile</span><span style=\"font-size:10pt;font-family:'courier new';color:black\">) {</span><span style=\"font-size:10pt;font-family:'courier new'\">&lt;o:p&gt;&lt;/o:p&gt;</span></p><p><span style=\"font-size:10pt;font-family:'courier new';color:black\">           </span><span style=\"font-size:10pt;font-family:'courier new';color:rgb(102, 0, 0)\">$zipUpdated</span><span style=\"font-size:10pt;font-family:'courier new';color:black\">= </span><span style=\"font-size:10pt;font-family:'courier new';color:blue\">new </span><span style=\"font-size:10pt;font-family:'courier new';color:black\">ZipArchive ( );</span><span style=\"font-size:10pt;font-family:'courier new'\">&lt;o:p&gt;&lt;/o:p&gt;</span></p><p><span style=\"font-size:10pt;font-family:'courier new';color:black\">           </span><span style=\"font-size:10pt;font-family:'courier new';color:rgb(102, 0, 0)\">$zipUpdated</span><span style=\"font-size:10pt;font-family:'courier new';color:black\">-&gt;open ( </span><span style=\"font-size:10pt;font-family:'courier new';color:rgb(102, 0, 0)\">$updatedFile </span><span style=\"font-size:10pt;font-family:'courier new';color:black\">);</span><span style=\"font-size:10pt;font-family:'courier new'\">&lt;o:p&gt;&lt;/o:p&gt;</span></p><p><span style=\"font-size:10pt;font-family:'courier new';color:black\">           </span><span style=\"font-size:10pt;font-family:'courier new';color:rgb(102, 0, 0)\">$zipOriginal</span><span style=\"font-size:10pt;font-family:'courier new';color:black\">= </span><span style=\"font-size:10pt;font-family:'courier new';color:blue\">new </span><span style=\"font-size:10pt;font-family:'courier new';color:black\">ZipArchive ( );</span><span style=\"font-size:10pt;font-family:'courier new'\">&lt;o:p&gt;&lt;/o:p&gt;</span></p><p><span style=\"font-size:10pt;font-family:'courier new';color:black\">           </span><span style=\"font-size:10pt;font-family:'courier new';color:rgb(102, 0, 0)\">$zipOriginal</span><span style=\"font-size:10pt;font-family:'courier new';color:black\">-&gt;open ( </span><span style=\"font-size:10pt;font-family:'courier new';color:rgb(102, 0, 0)\">$originalFile </span><span style=\"font-size:10pt;font-family:'courier new';color:black\">);</span><span style=\"font-size:10pt;font-family:'courier new'\">&lt;o:p&gt;&lt;/o:p&gt;</span></p><p><span style=\"font-size:10pt;font-family:'courier new';color:black\">           </span><span style=\"font-size:10pt;font-family:'courier new';color:rgb(102, 0, 0)\">$xmlWorkbook</span><span style=\"font-size:10pt;font-family:'courier new';color:black\">=simplexml_load_string(</span><span style=\"font-size:10pt;font-family:'courier new';color:rgb(102, 0, 0)\">$zipUpdated</span><span style=\"font-size:10pt;font-family:'courier new';color:black\">-&gt;getFromName(</span><span style=\"font-size:10pt;font-family:'courier new';color:rgb(0, 130, 0)\">&quot;xl/_rels/workbook.xml.rels&quot;</span><span style=\"font-size:10pt;font-family:'courier new';color:black\">));</span><span style=\"font-size:10pt;font-family:'courier new'\">&lt;o:p&gt;&lt;/o:p&gt;</span></p><p><span style=\"font-size:10pt;font-family:'courier new';color:black\">           </span><span style=\"font-size:10pt;font-family:'courier new';color:blue\">foreach</span><span style=\"font-size:10pt;font-family:'courier new';color:black\">( </span><span style=\"font-size:10pt;font-family:'courier new';color:rgb(102, 0, 0)\">$xmlWorkbook</span><span style=\"font-size:10pt;font-family:'courier new';color:black\">-&gt;Relationship</span><span style=\"font-size:10pt;font-family:'courier new';color:blue\">as </span><span style=\"font-size:10pt;font-family:'courier new';color:rgb(102, 0, 0)\">$ele </span><span style=\"font-size:10pt;font-family:'courier new';color:black\">) {</span><span style=\"font-size:10pt;font-family:'courier new'\">&lt;o:p&gt;&lt;/o:p&gt;</span></p><p><span style=\"font-size:10pt;font-family:'courier new';color:black\">                 </span><span style=\"font-size:10pt;font-family:'courier new';color:blue\">if </span><span style=\"font-size:10pt;font-family:'courier new';color:black\">(</span><span style=\"font-size:10pt;font-family:'courier new';color:rgb(102, 0, 0)\">$ele</span><span style=\"font-size:10pt;font-family:'courier new';color:black\">[</span><span style=\"font-size:10pt;font-family:'courier new';color:rgb(0, 130, 0)\">&quot;Type&quot;</span><span style=\"font-size:10pt;font-family:'courier new';color:black\">] == </span><span style=\"font-size:10pt;font-family:'courier new';color:rgb(0, 130, 0)\">&quot;<a href=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet\">http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet</a>&quot;</span><span style=\"font-size:10pt;font-family:'courier new';color:black\">) {</span><span style=\"font-size:10pt;font-family:'courier new'\">&lt;o:p&gt;&lt;/o:p&gt;</span></p><p><span style=\"font-size:10pt;font-family:'courier new';color:black\">                       </span><span style=\"font-size:10pt;font-family:'courier new';color:rgb(102, 0, 0)\">$currentSheetName</span><span style=\"font-size:10pt;font-family:'courier new';color:black\">= </span><span style=\"font-size:10pt;font-family:'courier new';color:rgb(0, 130, 0)\">&quot;xl/&quot;</span><span style=\"font-size:10pt;font-family:'courier new';color:black\">. </span><span style=\"font-size:10pt;font-family:'courier new';color:rgb(102, 0, 0)\">$ele</span><span style=\"font-size:10pt;font-family:'courier new';color:black\">[</span><span style=\"font-size:10pt;font-family:'courier new';color:rgb(0, 130, 0)\">&quot;Target&quot;</span><span style=\"font-size:10pt;font-family:'courier new';color:black\">];</span><span style=\"font-size:10pt;font-family:'courier new'\">&lt;o:p&gt;&lt;/o:p&gt;</span></p><p><span style=\"font-size:10pt;font-family:'courier new';color:black\">                       </span><span style=\"font-size:10pt;font-family:'courier new';color:rgb(102, 0, 0)\">$updatedSheet</span><span style=\"font-size:10pt;font-family:'courier new';color:black\">=simplexml_load_string ( </span><span style=\"font-size:10pt;font-family:'courier new';color:rgb(102, 0, 0)\">$zipUpdated</span><span style=\"font-size:10pt;font-family:'courier new';color:black\">-&gt;getFromName ( </span><span style=\"font-size:10pt;font-family:'courier new';color:rgb(102, 0, 0)\">$currentSheetName </span><span style=\"font-size:10pt;font-family:'courier new';color:black\">) );</span><span style=\"font-size:10pt;font-family:'courier new'\">&lt;o:p&gt;&lt;/o:p&gt;</span></p><p><span style=\"font-size:10pt;font-family:'courier new';color:black\">                       </span><span style=\"font-size:10pt;font-family:'courier new';color:rgb(102, 0, 0)\">$origSheet</span><span style=\"font-size:10pt;font-family:'courier new';color:black\">=simplexml_load_string ( </span><span style=\"font-size:10pt;font-family:'courier new';color:rgb(102, 0, 0)\">$zipOriginal</span><span style=\"font-size:10pt;font-family:'courier new';color:black\">-&gt;getFromName ( </span><span style=\"font-size:10pt;font-family:'courier new';color:rgb(102, 0, 0)\">$currentSheetName </span><span style=\"font-size:10pt;font-family:'courier new';color:black\">) );</span><span style=\"font-size:10pt;font-family:'courier new'\">&lt;o:p&gt;&lt;/o:p&gt;</span></p><p><span style=\"font-size:10pt;font-family:'courier new';color:black\">                       </span><span style=\"font-size:10pt;font-family:'courier new';color:rgb(102, 0, 0)\">$origSheet</span><span style=\"font-size:10pt;font-family:'courier new';color:black\">-&gt;sheetData =</span><span style=\"font-size:10pt;font-family:'courier new';color:rgb(0, 130, 0)\">&quot;&quot;</span><span style=\"font-size:10pt;font-family:'courier new';color:black\">;</span><span style=\"font-size:10pt;font-family:'courier new'\">&lt;o:p&gt;&lt;/o:p&gt;</span></p><p><span style=\"font-size:10pt;font-family:'courier new';color:black\">                       </span><span style=\"font-size:10pt;font-family:'courier new';color:rgb(102, 0, 0)\">$str</span><span style=\"font-size:10pt;font-family:'courier new';color:black\">=str_replace ( </span><span style=\"font-size:10pt;font-family:'courier new';color:rgb(0, 130, 0)\">&quot;&lt;sheetData&gt;&lt;/sheetData&gt;&quot;</span><span style=\"font-size:10pt;font-family:'courier new';color:black\">, </span><span style=\"font-size:10pt;font-family:'courier new';color:rgb(102, 0, 0)\">$updatedSheet</span><span style=\"font-size:10pt;font-family:'courier new';color:black\">-&gt;sheetData-&gt;asXml(), </span><span style=\"font-size:10pt;font-family:'courier new';color:rgb(102, 0, 0)\">$origSheet</span><span style=\"font-size:10pt;font-family:'courier new';color:black\">-&gt;asXml () );</span><span style=\"font-size:10pt;font-family:'courier new'\">&lt;o:p&gt;&lt;/o:p&gt;</span></p><p><span style=\"font-size:10pt;font-family:'courier new';color:black\">                       </span><span style=\"font-size:10pt;font-family:'courier new';color:rgb(102, 0, 0)\">$zipOriginal</span><span style=\"font-size:10pt;font-family:'courier new';color:black\">-&gt;addFromString( </span><span style=\"font-size:10pt;font-family:'courier new';color:rgb(102, 0, 0)\">$currentSheetName</span><span style=\"font-size:10pt;font-family:'courier new';color:black\">, </span><span style=\"font-size:10pt;font-family:'courier new';color:rgb(102, 0, 0)\">$str </span><span style=\"font-size:10pt;font-family:'courier new';color:black\">);</span><span style=\"font-size:10pt;font-family:'courier new'\">&lt;o:p&gt;&lt;/o:p&gt;</span></p><p><span style=\"font-size:10pt;font-family:'courier new';color:black\">                 }</span><span style=\"font-size:10pt;font-family:'courier new'\">&lt;o:p&gt;&lt;/o:p&gt;</span></p><p><span style=\"font-size:10pt;font-family:'courier new';color:black\">           }</span><span style=\"font-size:10pt;font-family:'courier new'\">&lt;o:p&gt;&lt;/o:p&gt;</span></p><p><span style=\"font-size:10pt;font-family:'courier new';color:black\">           </span><span style=\"font-size:10pt;font-family:'courier new';color:rgb(102, 0, 0)\">$updatedStrings</span><span style=\"font-size:10pt;font-family:'courier new';color:black\">=simplexml_load_string ( </span><span style=\"font-size:10pt;font-family:'courier new';color:rgb(102, 0, 0)\">$zipUpdated</span><span style=\"font-size:10pt;font-family:'courier new';color:black\">-&gt;getFromName ( </span><span style=\"font-size:10pt;font-family:'courier new';color:rgb(0, 130, 0)\">&quot;xl/sharedStrings.xml&quot;</span><span style=\"font-size:10pt;font-family:'courier new';color:black\">));</span><span style=\"font-size:10pt;font-family:'courier new'\">&lt;o:p&gt;&lt;/o:p&gt;</span></p><p><span style=\"font-size:10pt;font-family:'courier new';color:black\">           </span><span style=\"font-size:10pt;font-family:'courier new';color:rgb(102, 0, 0)\">$zipOriginal</span><span style=\"font-size:10pt;font-family:'courier new';color:black\">-&gt;addFromString( </span><span style=\"font-size:10pt;font-family:'courier new';color:rgb(0, 130, 0)\">&quot;xl/sharedStrings.xml&quot;</span><span style=\"font-size:10pt;font-family:'courier new';color:black\">, </span><span style=\"font-size:10pt;font-family:'courier new';color:rgb(102, 0, 0)\">$updatedStrings</span><span style=\"font-size:10pt;font-family:'courier new';color:black\">-&gt;asXML () );</span><span style=\"font-size:10pt;font-family:'courier new'\">&lt;o:p&gt;&lt;/o:p&gt;</span></p><p><span style=\"font-size:10pt;font-family:'courier new';color:black\">           </span><span style=\"font-size:10pt;font-family:'courier new';color:rgb(102, 0, 0)\">$zipOriginal</span><span style=\"font-size:10pt;font-family:'courier new';color:black\">-&gt;close ();</span><span style=\"font-size:10pt;font-family:'courier new'\">&lt;o:p&gt;&lt;/o:p&gt;</span></p><p><span style=\"font-size:10pt;font-family:'courier new';color:black\">           </span><span style=\"font-size:10pt;font-family:'courier new';color:rgb(102, 0, 0)\">$zipUpdated</span><span style=\"font-size:10pt;font-family:'courier new';color:black\">-&gt;close();</span><span style=\"font-size:10pt;font-family:'courier new'\">&lt;o:p&gt;&lt;/o:p&gt;</span></p><p><span style=\"font-size:10pt;font-family:'courier new';color:black\">      }</span><span style=\"color:rgb(31, 73, 125)\">&lt;o:p&gt;&lt;/o:p&gt;</span></p>",
+    "PostedDate": "2009-03-04T11:33:18.373-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "470613",
+    "ThreadId": "48411",
+    "Html": "<p>The above function works for us as well.&nbsp; We did come across an issue where named ranges were not being updated when using this function.&nbsp; A similar approach to updating the worksheet's sheetData element resolved the problem:</p>\r\n<p>&nbsp;</p>\r\n<p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>  $workbookXML = <span style=\"color:#a31515\">&quot;xl/workbook.xml&quot;</span>;\r\n  $origNames = simplexml_load_string($zipOriginal-&gt;getFromName($workbookXML));\r\n  $updatedNames = simplexml_load_string($zipUpdated-&gt;getFromName($workbookXML));\r\n\r\n  $origNames-&gt;definedNames = <span style=\"color:#a31515\">&quot;&quot;</span>;\r\n  $nRanges = str_replace(<span style=\"color:#a31515\">&quot;&lt;definedNames&gt;&lt;/definedNames&gt;&quot;</span>, $updatedNames-&gt;definedNames-&gt;asXML(), $origNames-&gt;asXML());\r\n  $boolResult = $zipOriginal-&gt;addFromString($workbookXML, $nRanges);\r\n</pre>\r\n</div>\r\n</p>",
+    "PostedDate": "2010-07-21T17:19:09.663-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "470619",
+    "ThreadId": "48411",
+    "Html": "It worked for many workbooks.  But as they got more complicated, I found that I would eventually get corrupt workbooks due to the styles being the same but the strings referencing new style ids.  In the end I found that PHPExcel removes all functionality that it does not know with charts just being one of them, causing what seemed like an endless amount of issues when attempting to open the workbook after the save. \r\n\r\n I just needed to open an existing unknown workbook and insert data into the cells, and not change, or remove anything else in the workbook.  My end solution was to use PHPExcel to read the file, evaluate all the named ranges, build rich text cells, and attempt to evaluate all the functions in the cells that I needed to get.  Then once the workbook was updated in memory,  I used some private code that opened the original workbook. rebuilt the sheet.xml and the SharedStrings.xml with the new updated values.  This left the workbook with all the features it started with such as charts and chart sheets and all my problems were gone :)   ",
+    "PostedDate": "2010-07-21T18:08:48.037-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "473234",
+    "ThreadId": "48411",
+    "Html": "I tried the solution of frank_s, but when I try to open the $updatedFile I get an error that this file is no zip file, even it is saved as zip, at least it seems so, when I looked at the Writer2007 class. \r\nIs there anything I missed ? This is the code:\r\n<pre>\r\n.....\r\n$writer = PHPExcel_IOFactory::createWriter($this-&gt;xls, &quot;Excel2007&quot;);\r\n...\r\n$sendFile = tempnam(sys_get_temp_dir(), 'sendxls');\r\n$writer-&gt;save($sendFile);\r\n\r\n$this-&gt;updateOriginalFile($file, $sendFile);\r\n....\r\n</pre>\r\n\r\nI am running PHP5.3.2 on a Ubuntu 64Bit.\r\n\r\nRegards\r\n Martin",
+    "PostedDate": "2010-07-27T08:27:00.037-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "499121",
+    "ThreadId": "48411",
+    "Html": "<p>@MarkBaker, has this been started yet?</p>\r\n<p>I keep looking for it in the change logs over the last few months haven't seen anything come through. If it is a lot of work maybe you could publish what you have and have the community help out.</p>",
+    "PostedDate": "2010-09-27T13:21:47.41-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "499137",
+    "ThreadId": "48411",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>jshaw86 wrote:</strong><br>\r\n<p>@MarkBaker, has this been started yet?</p>\r\n<p>I keep looking for it in the change logs over the last few months haven't seen anything come through. If it is a lot of work maybe you could publish what you have and have the community help out.</p>\r\n</blockquote>\r\n<p>&nbsp;I updated the <a href=\"http://phpexcel.codeplex.com/workitem/16\">Work Item </a>with the current status just a few days ago, and have been working on the Excel2007 Chart Writer over the weekend (when my laptop wasn't furry, feline and purring). I hope to have the basis of that writer completed by the end of next weekend, whereupon I'll be checking the whole into SVN. This is very much a first pass and just for Excel2007 initially, with only very basic methods for building/editing charts, and minimal validation (and no documentation until I've written that).</p>",
+    "PostedDate": "2010-09-27T13:41:13.373-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "499568",
+    "ThreadId": "48411",
+    "Html": "<p>Great thanks for the update and the Work Item link. Looking forward to this functionality.</p>",
+    "PostedDate": "2010-09-28T11:05:38.627-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "502398",
+    "ThreadId": "48411",
+    "Html": "<p>Hi!</p>\r\n<p>And what about situation when I'll create template with table and chart for this table manualy?&nbsp; Is graph will be changed when I'll set new data to table by means PHPExcel?</p>",
+    "PostedDate": "2010-10-05T03:26:45.023-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "503201",
+    "ThreadId": "48411",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>Castro wrote:</strong><br>\r\n<p>And what about situation when I'll create template with table and chart for this table manualy?&nbsp; Is graph will be changed when I'll set new data to table by means PHPExcel?</p>\r\n</blockquote>\r\n<p>The Excel xlsx format holds both formulae and values for all appropriate chart elements (dataseries, labels, title, etc). The model that I've adopted for reading from file reads both sets of values to store in the chart objects. The purpose in storing both is to simplify use of the object. If you call the render() method for the chart, it will generate a gif/jpg file using the stored values (far quicker than processing all the stored formulae. When saving a workbook with charts, then the formulae will take precedence, and the values will be recalculated based on the formula at that point.</p>\r\n<p>I'm providing public methods for setting either values or formulae within user code, and these methods will automatically refresh the other set of stored data. (e.g. if you set a dataseries by calling the setValues() method of the dataseries object, then the method also builds a formula from those values; while if you set&nbsp;the dataseries using&nbsp;the setFormula() method, then the values will be automatically populated from that formula based on the current data in the workbook...&nbsp;unless you explicitly choose to suppress this behaviour. A refresh() method refreshes all values from the stored formulae when called, and this method is always called by the writer before saving the chart data, so it's saved with the correct values at the point of saving.</p>\r\n<p>This means that if you load a template that contains charts, and populate data cells within a worksheet that affect the chart, you'll need to execute a manual refresh() if you plan to render it as an image file within your code (I may reconsider this and force&nbsp;a refresh later, but my current code requires a manual refresh); but if you save the workbook to file (for file formats that support charts such as Excel2007, Excel5, OOCalc and Gnumeric), then the chart data will be refreshed automatically before the save so the file will be populated with the correct chart data.</p>\r\n<p>Note that at present I've implemented charts in the Excel2007 Reader and am working on completing the Excel2007 Writer so that I can get this code integrated with the current SVN code. My target for this was last weekend, but unfortunately I've been distracted by a few things (and I'll be attending the PHPNW 2010 conference&nbsp;this weekend, so it's likely to be another two weeks before I can integrate it all into SVN). Other Readers/Writers will follow: probably OOCalc and Gnumeric first (Readers then Writers), as these are relatively straightforward to code; and I'm hoping that I'll be able to make both of these formats available by the end of December. I'm still trying to understand the way charts are stored for Excel5, so that is significantly more complicated and is unlikely to be available until next year. I'm debating with myself whether I want to target writing graph data as embedded image data for the HTML Writer; and may choose to make this a configurable option, disabled by default... but I'm not making any firm commitments for this.</p>\r\n<p>&nbsp;</p>\r\n<p>Charting&nbsp;implements quite a complex set of inter-related objects, and will need extensive documentation and examples for creating or modifying charts from within user code, so I'll be taking advantage to do an overhaul of the PHPExcel documentation over the next six months. Charting will get its own dedicated document, and I'll be doing some major rewriting of the core PHPExcel documentation and the calculation engine and function reference document as well.</p>",
+    "PostedDate": "2010-10-06T13:33:33.923-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "550287",
+    "ThreadId": "48411",
+    "Html": "\r\n<p>Has their been any updates with this? I'm dying for chart/graph functionality or just the ability for my charts to stay in my excel files I edited instead of it disappearing.<span style=\"white-space:pre\">\r\n</span></p>\r\n",
+    "PostedDate": "2011-01-16T18:40:23.787-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "550529",
+    "ThreadId": "48411",
+    "Html": "\r\n<p>Charts for the Excel2007 format are targetted for the next release, within the next month.</p>\r\n",
+    "PostedDate": "2011-01-17T05:57:54.4-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "578268",
+    "ThreadId": "48411",
+    "Html": "<p>Thanks mark, we are waiting for a great code.</p>\r\n<p>Thanks a lot for give such a wonderful code.</p>\r\n<p>&nbsp;</p>\r\n<p>thanks in advance,</p>\r\n<p>thenndral.</p>",
+    "PostedDate": "2011-03-10T01:14:19.647-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "997346",
+    "ThreadId": "48411",
+    "Html": "Hi !\r<br />\n<br />\nDoes Charts for Excel2007 format was include in the last release ?\r<br />\n<br />\nCharts are still missing when i open then write a template with 1.7.8 version.\r<br />\n<br />\nThanks<br />\n",
+    "PostedDate": "2013-02-06T07:45:43.357-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "997678",
+    "ThreadId": "48411",
+    "Html": "..<br />\n",
+    "PostedDate": "2013-02-06T22:07:42.133-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "997707",
+    "ThreadId": "48411",
+    "Html": "<strong>MarkBaker wrote:</strong><br />\n<blockquote>\nCharts for the Excel2007 format are targetted for the next release, within the next month.<br />\n</blockquote>\nCharts are still missing when i open then write a template with 1.7.8 version <br />\nPlease help<br />\n",
+    "PostedDate": "2013-02-06T23:20:57.503-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "997717",
+    "ThreadId": "48411",
+    "Html": "The read the examples that use charts, and look at my other answer to this question<br />\n",
+    "PostedDate": "2013-02-06T23:33:27.99-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

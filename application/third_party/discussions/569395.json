@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "1311823",
+    "ThreadId": "569395",
+    "Html": "I have a problem with reading only the rows in a sheet which contains data. I have a sheet with 38 rows. But when I use <br />\n<pre><code>$rows = count($objPHPExcel-&gt;getActiveSheet()-&gt;toArray()); </code></pre>\n\nI get 65382 rows and not 38 rows. And trying to iterate the sheet kills the webserver.\r<br />\n<br />\nThere is not 65382 rows of data, I have checked :)<br />\n",
+    "PostedDate": "2014-10-09T04:30:34.073-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1311904",
+    "ThreadId": "569395",
+    "Html": "I have this problem a lot, especially in .xlsx spreadsheets. First of all, make sure there is not a row 65382 rows down with something in it. I've seen that, I think even a space can cause this. What usually happens, though, is the internal pointers in the spreadsheet think there is something way out down there when there isn't, and it loads all of the empty or non-existent rows between, times out, and bye bye program. I have critical processes that absolutely must complete, and this is a real show stopper.\r<br />\n<br />\nWhat I do that solves this is to load the spreadsheet into LibreOffice ( I suppose you can use Excel if you must, I personally avoid Microsoft products but that is another story) and then just save it again. I save it as an .XLS, <em>not</em> .XLSX, and this fixes the problem most of the time. For reasons unknown to me, saving as .XLS instead of .XLSX can fix the problem. On those rare occasions when it doesn't, I have to copy/paste the contents of the spreadsheet into a new blank spreadsheet, and that fixes it.\r<br />\n<br />\nOne of the above fixes it 100% of the time.\r<br />\n<br />\nI really wish we could specify a limit to the number of rows/columns when we do toArray because otherwise it times out. Sometimes I do this in an unattended session via ssh, and I don't know it failed until my users complain.<br />\n",
+    "PostedDate": "2014-10-09T08:53:35.877-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1311923",
+    "ThreadId": "569395",
+    "Html": "Using the <code>rangeToArray()</code> method allows you to set a limit on <code>toArray()</code>; and use <code>getHighestDataRow()</code> and <code>getHighestDataColumn()</code> to find the highest row and column that actually contain data (though even a space in a cell qualifies as data<br />\n",
+    "PostedDate": "2014-10-09T10:03:06.257-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1311927",
+    "ThreadId": "569395",
+    "Html": "Another problem I run into on some spreadsheets isn't when I get to the toArray point, it is here:\r<br />\n<br />\n$objPHPExcel = PHPExcel_IOFactory::load($filename);\r<br />\n<br />\nSometimes this is where it goes south, uses up obscene amounts of memory, and then times out. I never get to this point:\r<br />\n<br />\n$data = $objPHPExcel-&gt;getActiveSheet()-&gt;toArray(...\r<br />\n<br />\nHowever, rangeToArray is awesome, and will solve a lot of these, as most of the time that is where it chokes.\r<br />\n<br />\nThanks!<br />\n",
+    "PostedDate": "2014-10-09T10:15:20.583-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1311940",
+    "ThreadId": "569395",
+    "Html": "There's a whole host of advice on how to reduce memory when using load, from setting the Reader to only load data (ignoring styles, etc) to reading individual worksheets and/or only selected blocks of cells in the Reader documentation, and there's cell caching to reduce the memory used to store each cell<br />\n",
+    "PostedDate": "2014-10-09T11:09:43.13-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1312064",
+    "ThreadId": "569395",
+    "Html": "<strong>Zootal wrote:</strong><br />\n<blockquote>\nI have this problem a lot, especially in .xlsx spreadsheets. First of all, make sure there is not a row 65382 rows down with something in it. I've seen that, I think even a space can cause this. What usually happens, though, is the internal pointers in the spreadsheet think there is something way out down there when there isn't, and it loads all of the empty or non-existent rows between, times out, and bye bye program. I have critical processes that absolutely must complete, and this is a real show stopper.<br />\n<br />\nWhat I do that solves this is to load the spreadsheet into LibreOffice ( I suppose you can use Excel if you must, I personally avoid Microsoft products but that is another story) and then just save it again. I save it as an .XLS, <em>not</em> .XLSX, and this fixes the problem most of the time. For reasons unknown to me, saving as .XLS instead of .XLSX can fix the problem. On those rare occasions when it doesn't, I have to copy/paste the contents of the spreadsheet into a new blank spreadsheet, and that fixes it.<br />\n<br />\nOne of the above fixes it 100% of the time.<br />\n<br />\nI really wish we could specify a limit to the number of rows/columns when we do toArray because otherwise it times out. Sometimes I do this in an unattended session via ssh, and I don't know it failed until my users complain.<br />\n</blockquote>\nYes, you're right. Strange things happened to the sheet when the user edited in Office for OS X. I don't have these problems in Libre Office.\r<br />\n<br />\nOne should not use MS products in a professional environment :)<br />\n",
+    "PostedDate": "2014-10-09T23:36:01.37-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

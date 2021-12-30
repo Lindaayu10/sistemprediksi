@@ -1,0 +1,75 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel_Reader_CSV",
+      "DisplayName": "PHPExcel_Reader_CSV"
+    },
+    "ClosedComment": "Fixed in SVN",
+    "ClosedDate": "2009-08-25T10:56:48.663-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "From thread:\nhttp://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=66619\n-----\n \nIn Excel it is possible to set an input encoding when importing a CSV file. At least when one uses the \"Import wizard\". PHPExcel_Reader_CSV currently assumes that CSV files are encoded as UTF-8 (without BOM).\n \nAn option to set input encoding for the CSV file would be useful.",
+    "LastUpdatedDate": "2013-05-16T05:42:28.217-07:00",
+    "PlannedForRelease": "PHPExcel 1.7.1 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-08-21T09:52:32.683-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Input encoding option for PHPExcel_Reader_CSV",
+    "Type": {
+      "Name": "Feature",
+      "Id": 1
+    },
+    "VoteCount": 1,
+    "Id": 10500
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "How about this?\r\n\r\n$objReader = new PHPExcel_Reader_CSV();\r\n$objReader->setInputEncoding('ISO-8859-1'); // <--- new method ?\r\n\r\n$objPHPExcel = $objReader->load('my.csv');",
+      "PostedDate": "2009-08-21T10:11:24.637-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Looks good, Erik.",
+      "PostedDate": "2009-08-23T23:28:06.433-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "A little Workaround is to put t6he following code into line 193\r\n\r\n\t\t\tforeach($rowData as $key => $wert) {\r\n\t\t\t\t$rowData[$key] = trim(iconv(\"ISO-8859-1\", \"UTF-8\", $wert));\r\n\t\t\t}",
+      "PostedDate": "2009-08-24T05:19:39.17-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "cfreak, slightly modified version of your fix has been applied.\r\n\r\nWe can now use setInputEncoding() method for the CSV reader.\r\n\r\nAdded the following note in \"PHPExcel developer documentation\":\r\n\r\n----------\r\nNote that PHPExcel_Reader_CSV by default assumes that the loaded CSV file is UTF-8 encoded. If you are reading CSV files that were created in Microsoft Office Excel the correct input encoding may rather be Windows-1252 (CP1252). Always make sure that the input encoding is set appropriately.\r\n\r\n$objReader = new PHPExcel_Reader_CSV();\r\n$objReader->setInputEncoding('CP1252');\r\n...\r\n-----------\r\n\r\n",
+      "PostedDate": "2009-08-25T10:55:54.627-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-08-25T10:56:48.663-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:03:43.813-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:28.217-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

@@ -1,0 +1,122 @@
+[
+  {
+    "Id": "719715",
+    "ThreadId": "284799",
+    "Html": "\r\n<p>Hello,</p>\r\n<p>I have a PHP&nbsp;app that must run on a solaris10 server, and needs to create excel files. I had some problems with Spreadsheet_Excel_Writer-0.9.2 and I'm trying to switch to PHPExcel (1.7.6). Is it a windows-only php project maybe? I can't get it to work\r\n and get segfaults already when trying to instantiate a phpexcel object with either $objPHPExcel = new PHPExcel(); or with a filename $objPHPExcel = new PHPExcel(&quot;$filename&quot;);</p>\r\n<p>I have PHP 5.3.8 installed within the xampp&nbsp; 1.7.7&nbsp; for solaris (so it does not have php_zip.dll&nbsp; but I am trying to use Excel5 or CSV).<br>\r\nI downloaded PHPExcel-1.7.6.tgz from <a href=\"http://webscripts.softpedia.com/script/PHP-Clases/PHPExcel-70114.html\">\r\nhttp://webscripts.softpedia.com/script/PHP-Clases/PHPExcel-70114.html</a>&nbsp;so this seems to be written for *nix anyway.<br>\r\nAlternatively I downloaded the zipfile from codeplex and tried it after&nbsp; mkdir and copy-ing the Classes files into my /opt/xampp/lib/php/PHPExcel-1.7.6 directory.<br>\r\nNothing works.</p>\r\n<p>Has someone ever managed to get it installed and running on solaris?</p>\r\n<p>Is something badly wrong in my code perhaps? (below an excerpt)</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><span style=\"color:blue\">require_once</span> <span style=\"color:#a31515\">&quot;PHPExcel-1.7.6/PHPExcel.php&quot;</span>;\r\n<span style=\"color:blue\">require_once</span> <span style=\"color:#a31515\">&quot;PHPExcel-1.7.6/PHPExcel/IOFactory.php&quot;</span>;\r\n\r\n$filename = $_SERVER{<span style=\"color:#a31515\">&quot;DOCUMENT_ROOT&quot;</span>} . <span style=\"color:#a31515\">&quot;/MyProject/uploadFiles/someExcelFile.xls&quot;</span>;\r\n\r\n$objPHPExcel = <span style=\"color:blue\">new</span> PHPExcel();                         <span style=\"color:green\">// this already gives the segmentation fault</span>\r\n\r\nheader(<span style=\"color:#a31515\">'Content-Type: application/vnd.ms-excel'</span>);\r\nheader(<span style=\"color:#a31515\">'Content-Disposition: attachment;filename=&quot;$filename&quot;'</span>);\r\nheader(<span style=\"color:#a31515\">'Cache-Control: max-age=0'</span>);\r\n\r\n$objPHPExcel-&gt;setActiveSheetIndex(0);\r\n$worksheet = $objPHPExcel-&gt;getActiveSheet();\r\n$worksheet-&gt;setTitle(<span style=\"color:#a31515\">&quot;MySheet&quot;</span>);\r\n\r\n$worksheet-&gt;setCellValueByColumnAndRow(0, 1, <span style=\"color:#a31515\">&quot;Some DATA&quot;</span>);\r\n\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, <span style=\"color:#a31515\">'Excel5'</span>);\r\n$objWriter-&gt;save(<span style=\"color:#a31515\">&quot;$filename&quot;</span>);\r\n\r\n<span style=\"color:blue\">if</span> ((file_exists(<span style=\"color:#a31515\">&quot;$filename&quot;</span>)) &amp;&amp; (is_readable(<span style=\"color:#a31515\">&quot;$filename&quot;</span>))) {\r\n                @readfile($filename);\r\n                <span style=\"color:blue\">exit</span>(0);\r\n} <span style=\"color:blue\">else</span> {\r\n                $error = <span style=\"color:#a31515\">&quot;File $filename not found or not readable&quot;</span>;\r\n}\r\n\r\n\r\n<br></pre>\r\n</div>\r\n<p>Thanks for help!<br>\r\nRoger</p>\r\n",
+    "PostedDate": "2012-01-03T01:37:30.07-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "719721",
+    "ThreadId": "284799",
+    "Html": "<p>definitely not a windows only project. I've been using it for years in a linux and osx environment. Since PHP is an interpreted language, a segfault suggests the interpreter segfaults, which seems to be as a bug in PHP itself, not in PHPExcel.</p>\r\n<p>&nbsp;</p>\r\n<p>I personally haven't tried it on Solaris, but perhaps one of the libraries PHP uses &nbsp;(like zip/xml, etc) is the culprit. If you're up for it, try running it in GDB and make a stack trace to see where it crashes!</p>",
+    "PostedDate": "2012-01-03T01:54:37.227-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "719802",
+    "ThreadId": "284799",
+    "Html": "<p>thanks, I will try this asap (maybe I will use truss as I am unfamiliar with gdb)<br />Anyway I made some&nbsp;progress: I managed to install xampp on windows, struggled somewhat with ENV vars and ldap and include-paths, but managed to get PHPExcel working on windows. Will keep you posted!</p>\n<p><strong>Edit</strong>: since the segfault does not give me a core dump, I tried the following:</p>\n<p>gdb /opt/xampp/bin/httpd<br />(gdb) run -X</p>\n<p>and before I could even start the php script with the PHPExcel code on my browser window, it already gave me the following error:</p>\n<p>httpd: Syntax error on line 507 of /opt/xampp/etc/httpd.conf: Syntax error on line 1 of /opt/xampp/etc/extra/httpd-xampp.conf: Cannot load /opt/xampp/modules/libphp5.so into server: ld.so.1: httpd: fatal: relocation error: file /opt/xampp/modules/libphp5.so: symbol xmlTextReaderSetup: referenced symbol not found</p>\n<p>Line 507 of httpd.conf is added by the installation of xampp and reads as follows:<br /><em>Include etc/extra/httpd-xampp.conf</em><br />which has the following on line 1:<br /><em>LoadModule php5_module&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; modules/libphp5.so</em><br />which is a 10Meg file in /opt/xampp/modules.</p>\n<p>I'm not sure if this is the reason for the segfault, and I have no idea how to solve the relocation error...</p>\n<p>Anyone?</p>",
+    "PostedDate": "2012-01-03T06:09:26.123-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "720197",
+    "ThreadId": "284799",
+    "Html": "<p>after some struggle to get the script authenticated with ldap, I could start it from the php command line. According to gdb man page, it does not support debugging php scripts. So I used truss and here is the last 115 lines of output. The segfault is still there but the truss doesn't make me any wiser. Is there someone who could help, please?</p>\r\n<pre>lstat(\"/opt/xampp/lib/php/PHPExcel.php\", 0xFFBFCBB8) = 0\r\ntime()                                          = 1325669685\r\nopen(\"/opt/xampp/lib/php/PHPExcel.php\", O_RDONLY) = 5\r\nfstat(5, 0x00BC25E0)                            = 0\r\nfstat(5, 0x00BC25E0)                            = 0\r\nfstat(5, 0x00BC25E0)                            = 0\r\nmmap(0x00000000, 18921, PROT_READ, MAP_SHARED, 5, 0) = 0xFEDA0000\r\nmunmap(0xFEDA0000, 18921)                       = 0\r\nclose(5)                                        = 0\r\ntime()                                          = 1325669685\r\nlstat(\"/opt/xampp/lib/php/PHPExcel/Autoloader.php\", 0xFFBFC588) = 0\r\nlstat(\"/opt/xampp/lib/php/PHPExcel\", 0xFFBFC450) = 0\r\nopen(\"/opt/xampp/lib/php/PHPExcel/Autoloader.php\", O_RDONLY) = 5\r\nfstat(5, 0x00BC25E0)                            = 0\r\nfstat(5, 0x00BC25E0)                            = 0\r\nfstat(5, 0x00BC25E0)                            = 0\r\nmmap(0x00000000, 1963, PROT_READ, MAP_SHARED, 5, 0) = 0xFEE90000\r\nmunmap(0xFEE90000, 1963)                        = 0\r\nclose(5)                                        = 0\r\naccess(\"/opt/xampp/lib/php/PHPExcel/Shared/ZipStreamWrapper.php\", F_OK) = 0\r\naccess(\"/opt/xampp/lib/php/PHPExcel/Shared/ZipStreamWrapper.php\", R_OK) = 0\r\ntime()                                          = 1325669685\r\nlstat(\"/opt/xampp/lib/php/PHPExcel/Shared/ZipStreamWrapper.php\", 0xFFBFBFD0) = 0\r\nlstat(\"/opt/xampp/lib/php/PHPExcel/Shared\", 0xFFBFBE90) = 0\r\nopen(\"/opt/xampp/lib/php/PHPExcel/Shared/ZipStreamWrapper.php\", O_RDONLY) = 5\r\nfstat(5, 0x00BC25E0)                            = 0\r\nfstat(5, 0x00BC25E0)                            = 0\r\nfstat(5, 0x00BC25E0)                            = 0\r\nmmap(0x00000000, 4161, PROT_READ, MAP_SHARED, 5, 0) = 0xFEE90000\r\nmunmap(0xFEE90000, 4161)                        = 0\r\nclose(5)                                        = 0\r\naccess(\"/opt/xampp/lib/php/PHPExcel/Shared/String.php\", F_OK) = 0\r\naccess(\"/opt/xampp/lib/php/PHPExcel/Shared/String.php\", R_OK) = 0\r\ntime()                                          = 1325669685\r\nlstat(\"/opt/xampp/lib/php/PHPExcel/Shared/String.php\", 0xFFBFBFE0) = 0\r\nopen(\"/opt/xampp/lib/php/PHPExcel/Shared/String.php\", O_RDONLY) = 5\r\nfstat(5, 0x00BC25E0)                            = 0\r\nfstat(5, 0x00BC25E0)                            = 0\r\nfstat(5, 0x00BC25E0)                            = 0\r\nmmap(0x00000000, 20787, PROT_READ, MAP_SHARED, 5, 0) = 0xFEDA0000\r\nbrk(0x00CD2628)                                 = 0\r\nbrk(0x00D12628)                                 = 0\r\nmunmap(0xFEDA0000, 20787)                       = 0\r\nclose(5)                                        = 0\r\ntime()                                          = 1325669685\r\nlstat(\"/opt/xampp/lib/php/PHPExcel/IOFactory.php\", 0xFFBFCBB8) = 0\r\ntime()                                          = 1325669685\r\nopen(\"/opt/xampp/lib/php/PHPExcel/IOFactory.php\", O_RDONLY) = 5\r\nfstat(5, 0x00BC25E0)                            = 0\r\nfstat(5, 0x00BC25E0)                            = 0\r\nfstat(5, 0x00BC25E0)                            = 0\r\nmmap(0x00000000, 7120, PROT_READ, MAP_SHARED, 5, 0) = 0xFEE90000\r\nmunmap(0xFEE90000, 7120)                        = 0\r\nclose(5)                                        = 0\r\nsend(4, \"07\\0\\0\\002 S C M S S A\", 11, 128)      = 11\r\npollsys(0xFFBFD1B8, 1, 0xFFBFD148, 0x00000000)  = 1\r\nrecv(4, \"07\\0\\001\\0\\0\\002\\0\\0\\0\", 98, 128)      = 11\r\nsend(4, \"\\b01\\0\\003 s e l e c t  \".., 268, 128) = 268\r\npollsys(0xFFBFD938, 1, 0xFFBFD8C8, 0x00000000)  = 1\r\nrecv(4, \"01\\0\\001\\t 4\\0\\00203 d e\".., 87, 128)  = 87\r\npollsys(0xFFBFD8C8, 1, 0xFFBFD858, 0x00000000)  = 1\r\nrecv(4, \" _ 0 606 D E S C R 206 D\".., 154, 128) = 154\r\npollsys(0xFFBFD850, 1, 0xFFBFD7E0, 0x00000000)  = 1\r\nrecv(4, \"\\00603 d e f06 S C M S S\".., 154, 128) = 154\r\npollsys(0xFFBFD8C8, 1, 0xFFBFD858, 0x00000000)  = 1\r\nrecv(4, \" S S A06 D N R _ 0 606 D\".., 154, 128) = 154\r\npollsys(0xFFBFD8C8, 1, 0xFFBFD858, 0x00000000)  = 1\r\nrecv(4, \" I T I O N\\f\\b\\003\\0\\0\\0\".., 154, 128) = 154\r\nbrk(0x00D12628)                                 = 0\r\nbrk(0x00D16628)                                 = 0\r\npollsys(0xFFBFD9A8, 1, 0xFFBFD938, 0x00000000)  = 1\r\nrecv(4, \"  03 0 0 F05\\0\\0\\rFE\\0\\0\".., 154, 128) = 14\r\nsend(4, \"07\\0\\0\\002 S C M S S A\", 11, 128)      = 11\r\npollsys(0xFFBFD1B8, 1, 0xFFBFD148, 0x00000000)  = 1\r\nrecv(4, \"07\\0\\001\\0\\0\\002\\0\\0\\0\", 140, 128)     = 11\r\nsend(4, \"FC\\0\\0\\003 s e l e c t  \".., 256, 128) = 256\r\npollsys(0xFFBFD938, 1, 0xFFBFD8C8, 0x00000000)  = 1\r\nrecv(4, \"01\\0\\00106 B\\0\\00203 d e\".., 129, 128) = 129\r\npollsys(0xFFBFD8C8, 1, 0xFFBFD858, 0x00000000)  = 1\r\nrecv(4, \" E\\f ?\\0\\n\\0\\0\\0\\n81\\0\\0\".., 154, 128) = 154\r\npollsys(0xFFBFD850, 1, 0xFFBFD7E0, 0x00000000)  = 1\r\nrecv(4, \"\\00603 d e f06 S C M S S\".., 154, 128) = 154\r\npollsys(0xFFBFD9A8, 1, 0xFFBFD938, 0x00000000)  = 1\r\nrecv(4, \" 0 0 6 - 1 2 - 0 407 C B\".., 154, 128) = 52\r\naccess(\"/opt/xampp/lib/php/PHPExcel/Worksheet.php\", F_OK) = 0\r\naccess(\"/opt/xampp/lib/php/PHPExcel/Worksheet.php\", R_OK) = 0\r\ntime()                                          = 1325669685\r\nlstat(\"/opt/xampp/lib/php/PHPExcel/Worksheet.php\", 0xFFBFBFE0) = 0\r\nopen(\"/opt/xampp/lib/php/PHPExcel/Worksheet.php\", O_RDONLY) = 5\r\nfstat(5, 0x00BC25E0)                            = 0\r\nfstat(5, 0x00BC25E0)                            = 0\r\nfstat(5, 0x00BC25E0)                            = 0\r\nmmap(0x00000000, 67544, PROT_READ, MAP_SHARED, 5, 0) = 0xFCE60000\r\nbrk(0x00D16628)                                 = 0\r\nbrk(0x00D52628)                                 = 0\r\nbrk(0x00D52628)                                 = 0\r\nbrk(0x00D92628)                                 = 0\r\nmunmap(0xFCE60000, 67544)                       = 0\r\nclose(5)                                        = 0\r\naccess(\"/opt/xampp/lib/php/PHPExcel/IComparable.php\", F_OK) = 0\r\naccess(\"/opt/xampp/lib/php/PHPExcel/IComparable.php\", R_OK) = 0\r\ntime()                                          = 1325669685\r\nlstat(\"/opt/xampp/lib/php/PHPExcel/IComparable.php\", 0xFFBFBA40) = 0\r\nopen(\"/opt/xampp/lib/php/PHPExcel/IComparable.php\", O_RDONLY) = 5\r\nfstat(5, 0x00BC25E0)                            = 0\r\nfstat(5, 0x00BC25E0)                            = 0\r\nfstat(5, 0x00BC25E0)                            = 0\r\nmmap(0x00000000, 1315, PROT_READ, MAP_SHARED, 5, 0) = 0xFEE90000\r\nmunmap(0xFEE90000, 1315)                        = 0\r\nclose(5)                                        = 0\r\n    Incurred fault #6, FLTBOUNDS  %pc = 0x2F000370\r\n      siginfo: SIGSEGV SEGV_MAPERR addr=0x2F000370\r\n    Received signal #11, SIGSEGV [default]\r\n      siginfo: SIGSEGV SEGV_MAPERR addr=0x2F000370\r\n&gt;\r\n</pre>",
+    "PostedDate": "2012-01-04T01:47:18.337-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "720237",
+    "ThreadId": "284799",
+    "Html": "<p>With a lot of print statements in the constructors, I found that commenting the line <em><strong>$this-&gt;setTitle($pTitle);&nbsp; </strong></em>inside <em><strong>Worksheet.php </strong></em>(about on line 331) makes the script run quite a lot further.&nbsp; The next segfault is now caused by my function call&nbsp; $worksheet = $objPHPExcel-&gt;getActiveSheet();&nbsp;&nbsp;&nbsp; (that may be caused by the fact that I commented the setting of the worksheet title?).</p>\r\n<p>Any thoughts, anyone?&nbsp; It's quite important for my company to be able to solve this issue.&nbsp; Thanks for helping further!</p>",
+    "PostedDate": "2012-01-04T04:00:58.577-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "720254",
+    "ThreadId": "284799",
+    "Html": "<p>verry sorry, but no clue here. However, If &nbsp;your code works on a windows host, but crashes PHP on the Solaris host, maybe the PHP install on Solaris is somehow broken? Are there any other PHP projects hosted on the Solaris machine? And/or are you in the opportunity to install a different version of PHP on it?</p>",
+    "PostedDate": "2012-01-04T04:47:31.287-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "720256",
+    "ThreadId": "284799",
+    "Html": "<p>The next step: since the public function setActiveSheetIndex returns a worksheet object&nbsp; ( $this-&gt;getActiveSheet();&nbsp; )&nbsp; there is no point in doing the following:</p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>$objPHPExcel-&gt;setActiveSheetIndex(0);\r\n$worksheet = $objPHPExcel-&gt;getActiveSheet();\r\n$worksheet-&gt;setTitle(<span style=\"color: #a31515;\">\"MySheet\"</span>);\r\n\r\nI replaced this by:</pre>\r\n<pre><div style=\"color: black; background-color: white;\"><pre>$worksheet = $objPHPExcel-&gt;setActiveSheetIndex(0);\r\n$worksheet-&gt;setTitle(<span style=\"color: #a31515;\">\"HAsheet\"</span>);\r\n\r\n</pre>\r\n</div>\r\nNow (still with setTitle commented out in the constructor!) I almost get where I want. The error I'm getting now is fatal:</pre>\r\n<pre>Fatal error: Interface 'PHPExcel_Writer_IWriter' not found in /opt/xampp/lib/php/PHPExcel/Writer/Excel5.php on line 37</pre>\r\n<pre>Guess I have something missing in the include path?  But first I'm going to read borft's reply ;-)<br /></pre>\r\n</div>",
+    "PostedDate": "2012-01-04T04:50:41.683-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "720259",
+    "ThreadId": "284799",
+    "Html": "<p>hello, borft...&nbsp; the php (5.3.8)&nbsp;on the solaris host is the one which is included inside the xampp (1.7.7) package.</p>\r\n<p>Something must be wrong with phpexcel autoloader on the solaris machine: the fatal error about the missing interface is&nbsp;gone when I explicitly include everything:</p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre><span style=\"color: blue;\">require_once</span> <span style=\"color: #a31515;\">\"PHPExcel/Writer/IWriter.php\"</span>;\r\n<span style=\"color: blue;\">require_once</span> <span style=\"color: #a31515;\">\"PHPExcel/Writer/Excel5.php\"</span>;\r\n<span style=\"color: blue;\">require_once</span> <span style=\"color: #a31515;\">\"PHPExcel/IOFactory.php\"</span>;\r\n<span style=\"color: blue;\">require_once</span> <span style=\"color: #a31515;\">\"PHPExcel/Worksheet.php\"</span>;\r\n<span style=\"color: blue;\">require_once</span> <span style=\"color: #a31515;\">\"PHPExcel.php\"</span>;</pre>\r\n<pre><hr /></pre>\r\n<pre>Unfortunately, I'm back to the segfault now. Maybe I will need more includes?</pre>\r\n<pre>Thanks for coop, hope to solve this soon.</pre>\r\n</div>",
+    "PostedDate": "2012-01-04T05:02:59.907-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "720263",
+    "ThreadId": "284799",
+    "Html": "<p>more progress: adding require_once \"PHPExcel/Autoloader.php\" to bypass the above problem, I found out that I also need to define PHPEXCEL_ROOT in scripts that want to use PHPExcel. Now I'm getting the next fatal error:</p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>access(<span style=\"color: #a31515;\">\"/opt/xampp/lib/phpPHPExcel/Shared/ZipStreamWrapper.php\"</span>, F_OK) Err<span style=\"color: green;\">#2 ENOENT</span>\r\n\r\nFatal error: Class <span style=\"color: #a31515;\">'PHPExcel_Shared_ZipStreamWrapper'</span> not found in /opt/xampp/lib/php/PHPExcel/Autoloader.php on line 29\r\n\r\n</pre>\r\n</div>\r\n<p>although there is a file ZipStreamWrapper.php in the Shared directory. What shall I do next?</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2012-01-04T05:21:42.78-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "720296",
+    "ThreadId": "284799",
+    "Html": "<p>re: I found that commenting the line <em><strong>$this-&gt;setTitle($pTitle); </strong></em>inside <em><strong>Worksheet.php </strong></em>(about on line 331) makes the script run quite a lot further.</p>\n<p>This is known, and has been modified in the latest SVN code for precisely the reasons of performance.</p>\n<p>re: Autoloader</p>\n<p>It shouldn't be necessary to include every file, only PHPExcel.php itself, or a few other class files that might be directly accessed (such as Readers or the Calculation Engine) that automatically define PHPEXCEL_ROOT and&nbsp;include the autoloader. Note that the autoloader can clash with autoloaders used by other library scripts... latest SVN code has a modified version of the autoloader class to try and alleviate this problem.</p>\n<p>&nbsp;</p>\n<p>I also set up the PHPExcel root directory in the include path in all my scripts before including the library, although this should not be necessary.</p>",
+    "PostedDate": "2012-01-04T06:35:22.253-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "720300",
+    "ThreadId": "284799",
+    "Html": "<p>hi Mark.</p>\n<p>Thanks for info. I think maybe you slightly misunderstood my remark on the setTitle:&nbsp; I didn't say 'faster', I said 'further' ;-), meaning that I get the segmentation fault when I keep the setTitle function.&nbsp; Meanwhile I found that calling $cell-&gt;setValue also makes the php crash with segfault. I have the impression that somehow the $objPHPExcel is being created as read-only !&nbsp; Is that possible?&nbsp; if so, how do I solve that?</p>\n<p>thanks again,<br />Roger</p>\n<p>&nbsp;EDIT: anything that writes to a sheet, results in segfault, though I can delete and create a sheet::</p>\n<div style=\"color: black; background-color: white;\">\n<pre> $filename = $_SERVER{<span style=\"color: #a31515;\">\"DOCUMENT_ROOT\"</span>}.<span style=\"color: #a31515;\">\"/myproject/uploadFiles/blahblah.xls\"</span>;   <span style=\"color: green;\">// OK</span>\r\n\r\n header(<span style=\"color: #a31515;\">'Content-Type: application/vnd.ms-excel'</span>);              <span style=\"color: green;\">// OK</span>\r\n header(<span style=\"color: #a31515;\">\"Content-Disposition: attachment;filename=$filename\"</span>);  <span style=\"color: green;\">// OK, note double quotes!</span>\r\n header(<span style=\"color: #a31515;\">'Cache-Control: max-age=0'</span>);     // does not give an error, but is it ok?\r\n\r\n $objPHPExcel = <span style=\"color: blue;\">new</span> PHPExcel();         <span style=\"color: green;\">// OK</span>\r\n\r\n $objPHPExcel-&gt;removeSheetByIndex(0);           <span style=\"color: green;\">// OK!</span>\r\n $worksheet = $objPHPExcel-&gt;createSheet();      <span style=\"color: green;\">// OK!</span>\r\n\r\n<span style=\"color: green;\">// $worksheet-&gt;setTitle('Mysheet');             // segfault! :-(</span>\r\n<span style=\"color: green;\">// $worksheet-&gt;setCellValue('A1', 'Test');      // segfault! :-(</span>\r\n<span style=\"color: green;\">// $worksheet-&gt;setCellValueByColumnAndRow(1, 1, \"REMARK\");      // segfault! :-(</span>\r\n\r\n\r\n</pre>\n</div>\n<p>Does this help?</p>",
+    "PostedDate": "2012-01-04T06:50:48.92-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "720381",
+    "ThreadId": "284799",
+    "Html": "<p>No ideas.... this sounds like PHP is failing to execute correctly, as though it's memory handling is messed up....&nbsp;the truss trace is failing on memory allocation... but it's been a long time since I worked with Solaris (and never with PHP on Solaris)</p>",
+    "PostedDate": "2012-01-04T09:37:20.687-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "720693",
+    "ThreadId": "284799",
+    "Html": "<p>Mark,&nbsp; I've got a phpexcel-84644.zip&nbsp; (v2.1) from somewhere on the codeplex web, would it be worth a try to install that, or is it likely a waste of time?</p>",
+    "PostedDate": "2012-01-05T01:25:42.897-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "720734",
+    "ThreadId": "284799",
+    "Html": "<p>Possibly, it certainly includes code changes for the aforementioned setTitle() speed improvement when reading a workbook, and the changes to the autoloader; though I think your problem is more likely to be in the xampp build of PHP.</p>\r\n<p>&nbsp;</p>\r\n<p>It might be worthwhile trying to do a build of PHP from source rather than installing from xampp</p>",
+    "PostedDate": "2012-01-05T03:37:56.737-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "720830",
+    "ThreadId": "284799",
+    "Html": "<p>OK,&nbsp; I migrated to a <strong><em>Linux </em></strong>machine, fresh install&nbsp; xampp-for-linux&nbsp; (lampp) and extracted the \"trunk/Classes\" files of&nbsp; PHPExcel&nbsp; (v2.1)&nbsp; into /opt/lampp/lib/php/PHPExcel.&nbsp; Changed back my code&nbsp; (because I got a fatal error &nbsp;invalid index -1&nbsp; in Worksheet.php ,&nbsp; probably due to the removeSheetByIndex).&nbsp; <strong><em>Now it works fine</em></strong>!&nbsp; Unfortunately the linux machine is a production server so I will continue other development on solaris with my local sparc machine). I hope to get a working PHPExcel on solaris too, now I can wait for a few more months.&nbsp; Thanks everyone.&nbsp; Roger</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2012-01-05T07:27:33.05-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

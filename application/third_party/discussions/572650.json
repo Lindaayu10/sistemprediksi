@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "1324314",
+    "ThreadId": "572650",
+    "Html": "Hello,<br />\n<br />\na quick (dirty) fix to greatly speedup styles assignment. What do you think about it?<br />\n<br />\nThe method getCellXfByHashCode() is awfully slow, so I tried to replace it with a cache array.<br />\n<br />\nversion: 1.8.0<br />\nfile: PHPExcel/Style.php<br />\nmethod: applyFromArray()<br />\n<br />\nnew code:<br />\n<pre><code>global $__cache;\nif (!isset($__cache)) {\n    $__cache = array();\n}\n\n        $hashCode = $newStyle-&gt;getHashCode();\n        if (isset($__cache[$hashCode])) {\n            $newXfIndexes[$oldXfIndex] = $__cache[$hashCode];\n        } else {\n            // we don't have such a cell Xf, need to add\n            $workbook-&gt;addCellXf($newStyle);\n            $newXfIndexes[$oldXfIndex] = $newStyle-&gt;getIndex();\n            $__cache[$hashCode] = $newStyle-&gt;getIndex();\n        }</code></pre>\n\nold code:<br />\n<pre><code>if ($existingStyle = $workbook-&gt;getCellXfByHashCode($newStyle-&gt;getHashCode())) {\n    $newXfIndexes[$oldXfIndex] = $existingStyle-&gt;getIndex();\n} else {\n    // we don't have such a cell Xf, need to add\n    $workbook-&gt;addCellXf($newStyle);\n    $newXfIndexes[$oldXfIndex] = $newStyle-&gt;getIndex();\n}</code></pre>\n\n",
+    "PostedDate": "2014-11-20T07:56:52.027-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1325329",
+    "ThreadId": "572650",
+    "Html": "The biggest problem with this is the use of a global for the cache, which would break if more than one workbook was loaded at the same time as they would both be sharing the same cache space... to make this work, the cache would need to be a workbook property so that it was unique to each loaded workbook<br />\n<br />\nAnd yes, it would add memory overhead<br />\n",
+    "PostedDate": "2014-11-23T13:26:35.737-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

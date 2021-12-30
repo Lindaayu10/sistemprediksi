@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "502900",
+    "ThreadId": "229779",
+    "Html": "<p>Hello,</p>\r\n<p><span id=\"result_box\" lang=en><span>I get the file .xls with the form and I would like to convert it to .csv and save it. Then I would like to save datas of .csv file in a MySQL database.<br></span><span>I looked at the documentation and I make this code change that does not work.</span></span></p>\r\n<p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>&lt;?php\r\n$path = <span style=\"color:#a31515\">'./'</span>;\r\nset_include_path(get_include_path() . PATH_SEPARATOR . $path);\r\n\r\n<span style=\"color:blue\">function</span> __autoload($<span style=\"color:blue\">class</span>){\r\n    $<span style=\"color:blue\">file</span>= str_replace(\r\n        <span style=\"color:#a31515\">'_'</span>,\r\n        DIRECTORY_SEPARATOR,\r\n        $<span style=\"color:blue\">class</span>\r\n    ) . <span style=\"color:#a31515\">'.php'</span>;\r\n   \r\n    <span style=\"color:blue\">require_once</span>($<span style=\"color:blue\">file</span>);\r\n}\r\n\r\n$objet = <span style=\"color:blue\">new</span> PHPExcel_Reader_Excel5();\r\n$xls = $objet-&gt;load(<span style=\"color:#a31515\">'Providers.xls'</span>);\r\n$writer = <span style=\"color:blue\">new</span> PHPExcel_Writer_CSV($xls);\r\n$writer-&gt;save(<span style=\"color:#a31515\">'Providers.csv'</span>);\r\n?&gt;\r\n</pre>\r\n</div>\r\nThank you =)</p>",
+    "PostedDate": "2010-10-06T03:25:58.493-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "503131",
+    "ThreadId": "229779",
+    "Html": "<p>Your&nbsp;autoloader may well be conflicting with the PHPExcel autoloader</p>\r\n<p>Are you getting any errors.</p>",
+    "PostedDate": "2010-10-06T11:29:27.47-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "503485",
+    "ThreadId": "229779",
+    "Html": "<p>Not error, but&nbsp; notices.</p>\r\n<p>﻿﻿﻿﻿﻿﻿<strong>Notice</strong>:  Undefined property: PHPExcel_Shared_OLERead::$wrkbook in <strong>C:\\wamp\\www\\Classes\\PHPExcel\\Shared\\OLERead.php</strong> on line <strong>174</strong><br> <br> <strong>Notice</strong>:  Undefined index:  in <strong>C:\\wamp\\www\\Classes\\PHPExcel\\Shared\\OLERead.php</strong> on line <strong>174</strong><br> <br> <strong>Notice</strong>:  Undefined property: PHPExcel_Shared_OLERead::$wrkbook in <strong>C:\\wamp\\www\\Classes\\PHPExcel\\Shared\\OLERead.php</strong> on line <strong>178</strong><br> <br> <strong>Notice</strong>:  Undefined index:  in <strong>C:\\wamp\\www\\Classes\\PHPExcel\\Shared\\OLERead.php</strong> on line <strong>178</strong><br> <br> <strong>Notice</strong>:  Undefined index:  in <strong>C:\\wamp\\www\\Classes\\PHPExcel\\Shared\\OLERead.php</strong> on line <strong>185</strong></p>\r\n<p>Have any idea please ?</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-10-07T01:46:48.767-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "503494",
+    "ThreadId": "229779",
+    "Html": "<p>From the messages, it looks like the file you're loading isn't actually an Excel workbook file, just a file with an extension of xls. Try opening it in a text editor, and post the first hundred or so characters of the file.</p>",
+    "PostedDate": "2010-10-07T02:06:23.483-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "503512",
+    "ThreadId": "229779",
+    "Html": "<p>It seems you were right, thank you Mark =)</p>\r\n<p>I opened the file with a text editor, but I could not copy/paste here, because of special characters not understood by the charset of this forum.</p>\r\n<p>So I reopened the file with open office and saved it with the right extention (.xls).</p>\r\n<p>The code in my first post works =) I got the output in .csv</p>\r\n<p>Thanks again Mark =)</p>\r\n<p>\r\n<pre><br></pre>\r\n</p>",
+    "PostedDate": "2010-10-07T02:39:19.443-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "503517",
+    "ThreadId": "229779",
+    "Html": "<p>Instead of creating a specific writer and then loading like</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>$objet = <span style=\"color:blue\">new</span> PHPExcel_Reader_Excel5();\r\n$xls = $objet-&gt;load(<span style=\"color:#a31515\">'Providers.xls'</span>);\r\n</pre>\r\n</div>\r\n<p>you use</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>$objPHPExcel = PHPExcel_IOFactory::load(<span style=\"color:#a31515\">'Providers.xls'</span>);\r\n</pre>\r\n</div>\r\n<p>then PHPExcel will attempt to identify the file type (irrespective of the file extension) and use the appropriate reader for that file.</p>\r\n<p>There is also an identify() method</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>$objPHPExcel = PHPExcel_IOFactory::identify(<span style=\"color:#a31515\">'Providers.xls'</span>);\r\n</pre>\r\n</div>\r\n<p>that uses the same identification logic as PHPExcel_IOFactory::load()&nbsp;and returns the name of the reader that should be instantiated to load the named file. The automatic identification logic isn't perfect, but it can help to avoid problems with misnamed files in future.</p>",
+    "PostedDate": "2010-10-07T02:52:17.483-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "503532",
+    "ThreadId": "229779",
+    "Html": "<p>If I understand well, i can do this too with your code:</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre><div style=\"color:black;background-color:white\"><pre>$objPHPExcel = PHPExcel_IOFactory::load(<span style=\"color:#a31515\">'Providers.xls'</span>);\r\n\r\n</pre>\r\n</div>\r\n<br></pre>\r\n</div>\r\n<p>adding:</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>$writer = PHPExcel_IOFactory::createWriter($objPHPExcel); <br>$writer-&gt;save(<span style=\"color:#a31515\">'Providers.csv'</span>);</pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n<p>Finally, my code could appear like that:</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>&lt;?php\r\n$path = <span style=\"color:#a31515\">'./'</span>;\r\nset_include_path(get_include_path() . PATH_SEPARATOR . $path);\r\n\r\n<span style=\"color:blue\">function</span> __autoload($<span style=\"color:blue\">class</span>){\r\n    $<span style=\"color:blue\">file</span>= str_replace(\r\n        <span style=\"color:#a31515\">'_'</span>,\r\n        DIRECTORY_SEPARATOR,\r\n        $<span style=\"color:blue\">class</span>\r\n    ) . <span style=\"color:#a31515\">'.php'</span>;\r\n   \r\n    <span style=\"color:blue\">require_once</span>($<span style=\"color:blue\">file</span>);\r\n}\r\n\r\n$objPHPExcel = PHPExcel_IOFactory::load(<span style=\"color:#a31515\">'Providers.xls'</span>);\r\n$writer = PHPExcel_IOFactory::createWriter($objPHPExcel);<br>$writer-&gt;save(<span style=\"color:#a31515\">'Providers.csv'</span>);</pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>?&gt;<br><br><br><br><br><br>\r\n</pre>\r\n</div>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-10-07T03:29:13.12-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "226335",
+    "ThreadId": "66603",
+    "Html": "<p>I start to use PHP Excel some weeks ago. Everythig is fine, this is a great php class. But I have a problem. I'm trying to export all products from my database and convert it in to 2007 Excel file. If I put in my MySQL query  LIMIT 392, everything is ok. The log for this is: Peak memory usage: 43 MB. But for all products export, ~4000 items, I have a problem. When I try to open the resulted file, the error messages is in the fallow images:</p>\r\n<p>http://chiriluta.ro/x/error1.jpg</p>\r\n<p>http://chiriluta.ro/x/error2.jpg</p>\r\n<p>and this is the rezulted excel file:</p>\r\n<p>http://chiriluta.ro/x/excel_file.xlsx</p>\r\n<p>In my php script, I use</p>\r\n<p>ini_set('memory_limit', -1);<br>set_time_limit(0);</p>\r\n<p>but this doesn't help me so much..</p>\r\n<p>The problem exist just on a public hosting server, in my http://localhost everything is ok.</p>\r\n<p>So, that's all.. Do you have any ideea what I have to do in order to resolve my problem..?!!</p>\r\n<p>Waiting for some answers, thanks a lot..</p>",
+    "PostedDate": "2009-08-21T07:21:14.303-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "226341",
+    "ThreadId": "66603",
+    "Html": "<p><em>&gt;&gt; and this is the rezulted excel file:</em><br> <br> I think you posted the &quot;recovered&quot; file. We will unfortunately need to see the original file before it is opened in MS Office Excel. Can you post that one?<br> <br> The usual cause of encoding errors when retrieving from MySQL database is that data isn't retrieved as UTF-8. Remember to use <span style=\"font-family:Courier New\">&quot;set names&quot;</span>. There is a thread here:<br> <a href=\"View.aspx?ThreadId=50415\">http://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=50415</a></p>",
+    "PostedDate": "2009-08-21T07:37:37.787-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "226345",
+    "ThreadId": "66603",
+    "Html": "<p>The original file is here:</p>\r\n<p>http://chiriluta.ro/x/original_excel_file.xlsx</p>\r\n<p>How can I set names to UTF8 in my PHP script? Not in php.ini or .htaccess.</p>\r\n<p>But I don't think the problem is from here. My database have MySQL charset:          <strong> UTF-8 Unicode (utf8)</strong> , maybe is something about the memory used ot I don't know..</p>\r\n<p>Thanks for help..</p>",
+    "PostedDate": "2009-08-21T07:48:23.777-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "226363",
+    "ThreadId": "66603",
+    "Html": "<p><em>&gt;&gt; The original file is here:</em><br> <br> That's definitely ISO-8859-1 like I expected. If you change the extension from <span style=\"font-family:Courier New\">.xlsx</span> file to <span style=\"font-family:Courier New\">.zip</span>, unzip it and inspect <span style=\"font-family:Courier New\">xl/sharedStrings.xml</span> at the position it is complaining about you will notice symbol &quot;&reg;&quot; which is encoded as ISO-8859-1 when it should really be UTF-8<br> <br> <em>&gt;&gt; But I don't think the problem is from here. My database have MySQL charset:<strong><br> &gt;&gt; UTF-8 Unicode (utf8)</strong></em><br> <br> It is the connection character set between PHP and MySQL that is the problem. Not the database character set. By default connection characer set is ISO-8859-1 which is annoying for those who prefer UTF-8. Look at that thread I linked to, it will solve your problem.<br> <br> P.S. What version of PHPExcel are you using? I think you are not using PHPExcel 1.7.0. There are many improvements, please try it, it also strips illegal UTF-8 characters so you will not experience this problem.</p>",
+    "PostedDate": "2009-08-21T08:21:25.713-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "227491",
+    "ThreadId": "66603",
+    "Html": "<p>Hi again,</p>\r\n<p>Everything it's ok now. I used</p>\r\n<p>$product_name = str_replace(array('&amp;quot;', '&amp;amp;', '&amp;reg;', '&amp;Acirc;', '&amp;gt;'), &quot;&quot;, $product_name);</p>\r\n<p>Anybody know how to remove all the expressions &quot;&amp;...;&quot; from a string, using regular expressions, ereg or preg_match? Thanks again for all..!</p>",
+    "PostedDate": "2009-08-25T07:59:46.26-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "227512",
+    "ThreadId": "66603",
+    "Html": "<p>Try like this:<br>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$str = <span style=\"color:#A31515\">'abcd&amp;quot;efg&amp;reg;'</span>;\r\n$str = preg_replace(<span style=\"color:#A31515\">'/&amp;[^;]+;/'</span>, <span style=\"color:#A31515\">''</span>, $str);\r\n</pre>\r\n</div>\r\n</p>",
+    "PostedDate": "2009-08-25T08:40:50.733-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

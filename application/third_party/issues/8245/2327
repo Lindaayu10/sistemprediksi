@@ -1,0 +1,58 @@
+Index: PHPExcel/Writer/CSV.php
+===================================================================
+--- PHPExcel/Writer/CSV.php	(revision 637)
++++ PHPExcel/Writer/CSV.php	(working copy)
+@@ -90,6 +90,13 @@
+ 	private $_preCalculateFormulas = true;
+ 	
+ 	/**
++	 * Whether to write a BOM (for UTF8).
++	 *
++	 * @var boolean
++	 */
++	private $_useBOM = false;
++
++	/**
+ 	 * Create a new PHPExcel_Writer_CSV
+ 	 *
+ 	 * @param 	PHPExcel	$phpExcel	PHPExcel object
+@@ -117,6 +124,11 @@
+ 		if ($fileHandle === false) {
+ 			throw new Exception("Could not open file $pFilename for writing.");
+ 		}
++			
++		if ($this->_useBOM) {
++			// Write the UTF-8 BOM code
++			fwrite($fileHandle, "\xEF\xBB\xBF");
++		}
+ 		
+ 		// Convert sheet to array
+ 		$cellsArray = $sheet->toArray('', $this->_preCalculateFormulas);
+@@ -188,6 +200,15 @@
+ 	}
+ 	
+ 	/**
++	 * Set whether to write a BOM.
++	 * 
++	 * @param	string	$pValue		Enclosure, defaults to "
++	 */
++	public function setUseBOM($pValue = true) {
++		$this->_useBOM = $pValue;
++	}
++	
++	/**
+ 	 * Get sheet index
+ 	 * 
+ 	 * @return int
+Index: PHPExcel/Writer/HTML.php
+===================================================================
+--- PHPExcel/Writer/HTML.php	(revision 637)
++++ PHPExcel/Writer/HTML.php	(working copy)
+@@ -202,6 +202,7 @@
+ 		$html .= '<html>' . "\r\n";
+ 		$html .= '  <head>' . "\r\n";
+ 		$html .= '    <title>' . $this->_phpExcel->getProperties()->getTitle() . '</title>' . "\r\n";
++		$html .= '    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">' . "\r\n";
+ 		$html .= '  </head>' . "\r\n";
+ 		$html .= '' . "\r\n";
+ 		$html .= '  <body>' . "\r\n";

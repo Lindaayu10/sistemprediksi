@@ -1,0 +1,61 @@
+Index: Classes/PHPExcel/Reader/Excel5.php
+===================================================================
+--- Classes/PHPExcel/Reader/Excel5.php	(revision 1007)
++++ Classes/PHPExcel/Reader/Excel5.php	(working copy)
+@@ -3127,7 +3127,11 @@
+ 
+ 		if (!$this->_readDataOnly) {
+ 			// offset: 0; size: 8; cell range address of all cells containing this hyperlink
+-			$cellRange = $this->_readBIFF8CellRangeAddressFixed($recordData, 0, 8);
++			try {
++				$cellRange = $this->_readBIFF8CellRangeAddressFixed($recordData, 0, 8);
++			} catch (Exception $e) {
++				return;
++			}
+ 
+ 			// offset: 8, size: 16; GUID of StdLink
+ 
+@@ -3268,7 +3272,11 @@
+ 			// offset: 27; size: 8 * $cref; list of cell ranges (like in hyperlink record)
+ 			$cellRanges = array();
+ 			for ($i = 0; $i < $cref; ++$i) {
+-				$cellRange = $this->_readBIFF8CellRangeAddressFixed(substr($recordData, 27 + 8 * $i, 8));
++				try {
++					$cellRange = $this->_readBIFF8CellRangeAddressFixed(substr($recordData, 27 + 8 * $i, 8));
++				} catch (Exception $e) {
++					return;
++				}
+ 				$cellRanges[] = $cellRange;
+ 				$offset += 8;
+ 			}
+@@ -4194,6 +4202,7 @@
+ 	 *
+ 	 * @param string $subData
+ 	 * @return string
++	 * @throws Exception
+ 	 */
+ 	private function _readBIFF8CellRangeAddressFixed($subData)
+ 	{
+@@ -4204,11 +4213,20 @@
+ 		$lr = $this->_GetInt2d($subData, 2) + 1;
+ 
+ 		// offset: 4; size: 2; index to first column
+-		$fc = PHPExcel_Cell::stringFromColumnIndex($this->_GetInt2d($subData, 4));
++		$fc = $this->_GetInt2d($subData, 4);
+ 
+ 		// offset: 6; size: 2; index to last column
+-		$lc = PHPExcel_Cell::stringFromColumnIndex($this->_GetInt2d($subData, 6));
++		$lc = $this->_GetInt2d($subData, 6);
+ 
++		// check values
++		if ($fr > $lr || $fc > $lc) {
++			throw new Exception('Not a cell range address');
++		}
++
++		// column index to letter
++		$fc = PHPExcel_Cell::stringFromColumnIndex($fc);
++		$lc = PHPExcel_Cell::stringFromColumnIndex($lc);
++
+ 		if ($fr == $lr and $fc == $lc) {
+ 			return "$fc$fr";
+ 		}

@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "641031",
+    "ThreadId": "264815",
+    "Html": "\r\n<p>In an .xls file, I need to make the distinction between a '0' (zero) value and an empty string when parsing the file with PHPExcel. However, if the value is '0' (number, text, decimal, whatever) the getValue() method always returns an empty string. When\r\n a cell is empty but has some (invisible) styling applied to it, you also end up with an empty string. Like that I don't see a way to detect a real '0' value.</p>\r\n<p>PHPExcel_Reader_Excel2007 has a setReadDataOnly() method, but the default PHPExcel object hasn't, so that seems no solution either.<br>\r\n<br>\r\nAnyone with a suggestion?</p>\r\n",
+    "PostedDate": "2011-07-12T05:48:58.083-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "763336",
+    "ThreadId": "264815",
+    "Html": "<p>definitely need to be sure of this too</p>",
+    "PostedDate": "2012-02-14T07:02:12.56-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "765177",
+    "ThreadId": "264815",
+    "Html": "<p>The PHPExcel object doesn't have a readDataOnly setting because it's meaningless: readDataOnly identifies to the reader whether the workbook should be loaded with data formatting, or without formatting, but datatypes still apply.</p>\n<p>The cell getValue() method returns the raw data from a cell; getCalculatedValue() returns the calculated value if the cell contains a formula, or the raw data if it isn't a formula cell; getFormattedValue() returns the calculated data according to the cell formatting if the workbook was loaded with readDataOnly(false), or the calculated data if readDataOnly(true) when the workbook was loaded.</p>\n<p>getValue() also returns data in the appropriate PHP type. If the cell contains a 0, then a 0 will be returned; an Excel numeric will be returned as a PHP Integer or float (as appropriate); if it contains an empty string, then an empty string will be returned; if it contains a NULL, then a NULL will be returned; while an Excel boolean will be returned as a PHP Boolean.</p>\n<p>If this isn't the case, then can you please provide an example workbook that demonstrates where this behaviour is incorrect.</p>",
+    "PostedDate": "2012-02-14T14:21:24.643-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "802226",
+    "ThreadId": "264815",
+    "Html": "<p>How does the&nbsp;fromArray() function work with zeros? &nbsp;I'm exporting an array where some attendance data is zero, but on the sheet, those cells are blank.</p>",
+    "PostedDate": "2012-02-27T13:19:57.763-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "803251",
+    "ThreadId": "264815",
+    "Html": "<p>fromArray() should store a any numeric value as a numeric value using the standard DefaultValueBinder:</p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>  <span style=\"color: blue;\">if</span> (is_null($pValue)) {\r\n   <span style=\"color: blue;\">return</span> PHPExcel_Cell_DataType::TYPE_NULL;\r\n  } <span style=\"color: blue;\">elseif</span> ($pValue === <span style=\"color: #a31515;\">''</span>) {\r\n   <span style=\"color: blue;\">return</span> PHPExcel_Cell_DataType::TYPE_STRING;\r\n  } <span style=\"color: blue;\">elseif</span> ($pValue <span style=\"color: blue;\">instanceof</span> PHPExcel_RichText) {\r\n   <span style=\"color: blue;\">return</span> PHPExcel_Cell_DataType::TYPE_STRING;\r\n  } <span style=\"color: blue;\">elseif</span> ($pValue{0} === <span style=\"color: #a31515;\">'='</span> &amp;&amp; strlen($pValue) &gt; 1) {\r\n   <span style=\"color: blue;\">return</span> PHPExcel_Cell_DataType::TYPE_FORMULA;\r\n  } <span style=\"color: blue;\">elseif</span> (is_bool($pValue)) {\r\n   <span style=\"color: blue;\">return</span> PHPExcel_Cell_DataType::TYPE_BOOL;\r\n  } <span style=\"color: blue;\">elseif</span> (is_float($pValue) || is_int($pValue)) {\r\n   <span style=\"color: blue;\">return</span> PHPExcel_Cell_DataType::TYPE_NUMERIC;\r\n  } <span style=\"color: blue;\">elseif</span> (preg_match(<span style=\"color: #a31515;\">'/^\\-?([0-9]+\\\\.?[0-9]*|[0-9]*\\\\.?[0-9]+)$/'</span>, $pValue)) {\r\n   <span style=\"color: blue;\">return</span> PHPExcel_Cell_DataType::TYPE_NUMERIC;\r\n  } <span style=\"color: blue;\">elseif</span> (is_string($pValue) &amp;&amp; array_key_exists($pValue, PHPExcel_Cell_DataType::getErrorCodes())) {\r\n   <span style=\"color: blue;\">return</span> PHPExcel_Cell_DataType::TYPE_ERROR;\r\n  } <span style=\"color: blue;\">else</span> {\r\n   <span style=\"color: blue;\">return</span> PHPExcel_Cell_DataType::TYPE_STRING;\r\n  }\r\n</pre>\r\n</div>",
+    "PostedDate": "2012-02-29T09:57:24.97-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

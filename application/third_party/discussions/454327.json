@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "1084045",
+    "ThreadId": "454327",
+    "Html": "Hello,\r<br />\n<br />\nI want to format a cell with backgroundcolor and borders <strong>and</strong> use richtext to style a partitial word.\r<br />\n<br />\nAt the moment, when I just use the richtext, the text is formated as expected. When I just format the cell, the cell gets formatted as expected. When I'm doing both, the formatting of the cell wins.\r<br />\n<br />\nHas someone a hint?\r<br />\n<br />\nI'm using PHPExcel 1.7.9 with PHP 5.3.3 on Debian Linux.\r<br />\n<br />\nThanks in advance,\r<br />\nMarc<br />\n",
+    "PostedDate": "2013-08-23T02:09:49.817-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1084990",
+    "ThreadId": "454327",
+    "Html": "There shouldn't be any clash when doing this:<br />\n<div style=\"color:Black;background-color:White;\"><pre>\r\n<span style=\"color:Green;\">// Create a rich text run</span>\n$objRichText = <span style=\"color:Blue;\">new</span> PHPExcel_RichText();\n$objRichText-&gt;createText(<span style=\"color:#A31515;\">&#39;Hello &#39;</span>);\n\n$objRichTextStyled = $objRichText-&gt;createTextRun(<span style=\"color:#A31515;\">&#39;World&#39;</span>);\n$objRichTextStyled-&gt;getFont()-&gt;setBold(true);\n$objRichTextStyled-&gt;getFont()-&gt;setItalic(true);\n$objRichTextStyled-&gt;getFont()-&gt;setColor( <span style=\"color:Blue;\">new</span> PHPExcel_Style_Color( PHPExcel_Style_Color::COLOR_DARKGREEN ) );\n\n<span style=\"color:Green;\">// Write the rich text run to a cell</span>\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(<span style=\"color:#A31515;\">&#39;A1&#39;</span>, $objRichText);\n\n<span style=\"color:Green;\">// Set the cell background colour</span>\n$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(<span style=\"color:#A31515;\">&#39;A1&#39;</span>)-&gt;getFill()\n    -&gt;setFillType(PHPExcel_Style_Fill::FILL_SOLID)\n    -&gt;getStartColor()-&gt;setARGB( PHPExcel_Style_Color::COLOR_RED );\r\n</pre></div>",
+    "PostedDate": "2013-08-26T09:14:04.897-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1085289",
+    "ThreadId": "454327",
+    "Html": "Yes you're right, your example is working. The problem was in my (more complex) code! Thanks!\r<br />\n<br />\nBut one more question:\r<br />\n<br />\nwhen I'm adding the line\r<br />\n<br />\n$objRichText-&gt;createText(' another Text. ');\r<br />\n<br />\nafter creating the textRun, 'another Text' also appears in bold, italic and green. Why the text isn't styled in the cells default style?\r<br />\n<br />\nWhat made me wondering too was the fact, that it isn't possible to first create a textRun and afterwards create a normal text. I'm writing a little parser which parses: '[b]hello[/b] World' into the bold word '<strong>hello</strong>' <em>(-&gt;createTextRun()</em>) and then the default styled word ' World' (<em>-&gt;createText()</em>). This won't work unfortunately. \r<br />\n<br />\nThanks in advance,\r<br />\nMarc<br />\n",
+    "PostedDate": "2013-08-27T01:31:56.983-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1085297",
+    "ThreadId": "454327",
+    "Html": "Only the actual text is modified from the examples in 02types.php and 05featuredemo.inc.php<br />\n<div style=\"color:Black;background-color:White;\"><pre>\r\n<span style=\"color:Green;\">// Create a rich text run</span>\n$objRichText = <span style=\"color:Blue;\">new</span> PHPExcel_RichText();\n$objRichText-&gt;createText(<span style=\"color:#A31515;\">&#39;Goodbye &#39;</span>);\n\n$objRichTextStyled = $objRichText-&gt;createTextRun(<span style=\"color:#A31515;\">&#39;cruel &#39;</span>);\n$objRichTextStyled-&gt;getFont()-&gt;setBold(true);\n$objRichTextStyled-&gt;getFont()-&gt;setItalic(true);\n$objRichTextStyled-&gt;getFont()-&gt;setColor( <span style=\"color:Blue;\">new</span> PHPExcel_Style_Color( PHPExcel_Style_Color::COLOR_DARKGREEN ) );\n\n$objRichText-&gt;createText(<span style=\"color:#A31515;\">&#39;world!&#39;</span>);\n\n<span style=\"color:Green;\">// Write the rich text run to a cell</span>\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(<span style=\"color:#A31515;\">&#39;A1&#39;</span>, $objRichText);\n\n<span style=\"color:Green;\">// Set the cell background colour</span>\n$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(<span style=\"color:#A31515;\">&#39;A1&#39;</span>)-&gt;getFill()\n    -&gt;setFillType(PHPExcel_Style_Fill::FILL_SOLID)\n    -&gt;getStartColor()-&gt;setARGB( PHPExcel_Style_Color::COLOR_RED );\r\n</pre></div>",
+    "PostedDate": "2013-08-27T01:52:40.99-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

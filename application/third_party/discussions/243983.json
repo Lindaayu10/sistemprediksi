@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "558068",
+    "ThreadId": "243983",
+    "Html": "\r\n<div style=\"color:black; background-color:white\">\r\n<pre>Dear all,</pre>\r\n</div>\r\n<p>i have a problem using the great PHPExcel library.</p>\r\n<p>I read data from Oracle database and I would like to write them into Excel.</p>\r\n<p>if I write:</p>\r\n<p>$objPHPExcel-&gt;setActiveSheetIndex(0)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\r\n<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>\r\n&nbsp;&nbsp;&nbsp;&nbsp; -&gt;setCellValue(<span style=\"color:#a31515\">'E1'</span>, $row[<span style=\"color:#a31515\">'CURRENT_VALUE'</span>]);</p>\r\n<p><br>\r\nr$row[C<span style=\"color:#a31515\">URRENT_VALUE'] is my variable from database that contains 291,083751927132 (number)</span></p>\r\n<p>&nbsp;The result on Excel is a text cell instead of a number cell.</p>\r\n<p>If i write</p>\r\n<p>&nbsp;$objPHPExcel-&gt;setActiveSheetIndex(0)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\r\n<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -&gt;getCell('E'. $count)-&gt;setValueExplicit($row['CURRENT_VALUE'], PHPExcel_Cell_DataType::TYPE_NUMERIC);<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>\r\n<p>The result on Excel is a number Cell (as I want) but without decimal part like this:&nbsp; 291</p>\r\n<p>I'm desperate</p>\r\n<p>Can anyone help me?</p>\r\n<p>Thanks</p>\r\n",
+    "PostedDate": "2011-01-31T05:56:17.837-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "558079",
+    "ThreadId": "243983",
+    "Html": "\r\n<p>The value you're getting from your database (<span style=\"color:#a31515\">291,083751927132</span>) is not a PHP number, but a string containing a locale-formatted numeric value... recognisable by the comma (&quot;,&quot;) decimal separator rather than the point (&quot;.&quot;).\r\n When you do</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>setCellValue(<span style=\"color:#a31515\">'E1'</span>, $row[<span style=\"color:#a31515\">'CURRENT_VALUE'</span>]);\r\n</pre>\r\n</div>\r\n<p>with this value, then PHPExcel treats it as the string that it really is.</p>\r\n<p>When you do</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>setValueExplicit($row[<span style=\"color:#a31515\">'CURRENT_VALUE'</span>], PHPExcel_Cell_DataType::TYPE_NUMERIC);\r\n</pre>\r\n</div>\r\n<p>then PHPExcel casts the string to a numeric using standard PHP casting rules, which basically strips everything following the first non-numeric character... the comma (&quot;,&quot;).</p>\r\n<p>&nbsp;</p>\r\n<p>You'll need to convert the string to a normal PHP&nbsp;floating-point&nbsp;value using something like:</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>$numberAsFloat = (float) str_replace(<span style=\"color:#a31515\">','</span>,<span style=\"color:#a31515\">'.'</span>,$row[<span style=\"color:#a31515\">'CURRENT_VALUE'</span>]);\r\n</pre>\r\n</div>\r\n<p>and then you can assign it to the cell normally</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>setCellValue(<span style=\"color:#a31515\">'E1'</span>, $numberAsFloat);\r\n</pre>\r\n</div>\r\n",
+    "PostedDate": "2011-01-31T06:13:18.48-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "558086",
+    "ThreadId": "243983",
+    "Html": "\r\n<p>Thank you very much MarkBaker! It works fine!!!</p>\r\n<p>Any idea to format an entire column with:</p>\r\n<p>&#65279;&#65279;</p>\r\n<pre>$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('E2')-&gt;getNumberFormat()-&gt;setFormatCode('#.##');</pre>\r\n<p>&nbsp;</p>\r\n<p>istead to specify each Cell can I specify entire column 'E' ?</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks!</p>\r\n<p>&#65279;&#65279; &#65279;&#65279;</p>\r\n",
+    "PostedDate": "2011-01-31T06:29:39.86-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "558552",
+    "ThreadId": "243983",
+    "Html": "\r\n<p>You should be able to specify a row, column or range of cells, or a range of rows or columns.</p>\r\n<pre style=\"color:black; background-color:white\"><pre>$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(<span style=\"color:#a31515\">'2'</span>)-&gt;getNumberFormat()-&gt;setFormatCode(<span style=\"color:#a31515\">'#.##'</span>);\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(<span style=\"color:#a31515\">'A'</span>)-&gt;getNumberFormat()-&gt;setFormatCode(<span style=\"color:#a31515\">'#.##'</span>);\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(<span style=\"color:#a31515\">'A1:C3'</span>)-&gt;getNumberFormat()-&gt;setFormatCode(<span style=\"color:#a31515\">'#.##'</span>);\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(<span style=\"color:#a31515\">'1:2'</span>)-&gt;getNumberFormat()-&gt;setFormatCode(<span style=\"color:#a31515\">'#.##'</span>);\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(<span style=\"color:#a31515\">'A:B'</span>)-&gt;getNumberFormat()-&gt;setFormatCode(<span style=\"color:#a31515\">'#.##'</span>);\r\n</pre>\r\n</pre>\r\n<pre>However, there are some issues with row and column ranges, but cell ranges such as</pre>\r\n<pre style=\"color:black; background-color:white\"><pre>$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(<span style=\"color:#a31515\">'A1:C3'</span>)-&gt;getNumberFormat()-&gt;setFormatCode(<span style=\"color:#a31515\">'#.##'</span>);\r\n</pre>\r\n</pre>\r\n<pre>work without any known problems</pre>\r\n",
+    "PostedDate": "2011-02-01T02:07:23.103-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "631704",
+    "ThreadId": "243983",
+    "Html": "<p>Hi Mark,</p>\n<p>I suffer from a similar problem just vice versa: In my database I have values stored like 4.1 (basically an expression for software version) as a varchar. When I now output it to excel i get 4,1 - with a comma. I tried everything from setting the format  code to text (@) or from various conversion attempts like settype or quoting the variabe.</p>\n<p>I also tried:</p>\n<p>$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueExplicitByColumnAndRow(23, $row, $incomingloader, PHPExcel_Cell_DataType::TYPE_STRING);</p>\n<p>In this case the cell is empty!</p>\n<p>When I enter the value 4.1 manually in Excel it works fine.&nbsp; I am really despaired. Have you got another hint for me?</p>\n<p>Thanks in advance</p>\n<p>Michael</p>",
+    "PostedDate": "2011-06-23T02:28:34.417-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

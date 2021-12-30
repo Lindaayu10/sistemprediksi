@@ -1,0 +1,82 @@
+[
+  {
+    "Id": "204175",
+    "ThreadId": "60296",
+    "Html": "<p>I'm passing in a style array to my custom function for adding rows; this works fine for pretty much anything style-wise I throw at it.</p>\r\n<p>However, number styles seemingly are ignored by PHPExcel.&nbsp; Am I doing something wrong?</p>\r\n<p>Here's my style array, passed to applyFromArray():</p>\r\n<p>\r\n<pre>array('numberFormat' =&gt; array('code' =&gt; PHPExcel_Style_NumberFormat::FORMAT_CURRENCY_USD))</pre>\r\nThe only thing that shows up in the resuling XLSX file as &quot;properly&quot; formatted are dates, and then only because Excel seems smart enough to display them--everything else (mainly USD currency) shows up with the green triangle in the upper-left corner, warning me that the cell is formatted as &quot;General&quot; and not a number.</p>\r\n<p>Is my syntax wrong somewhere in the style array?&nbsp; Any help is appreciated.</p>\r\n<p>(If more of the code is required, let me know; it's kinda long...)</p>",
+    "PostedDate": "2009-06-22T11:55:55.01-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "204677",
+    "ThreadId": "60296",
+    "Html": "<p>I think you need to use the correct case:<br> <br> <span style=\"font-family:Courier New\">'numberformat' =&gt;</span><br> <br> instead of<br> <br> <span style=\"font-family:Courier New\">'numberFormat' =&gt;</span><br> <br> for the array key.</p>",
+    "PostedDate": "2009-06-23T14:51:48.387-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "204928",
+    "ThreadId": "60296",
+    "Html": "<p>'numberformat' is actually what I have in the most recent code; it doesn't work that way either.</p>",
+    "PostedDate": "2009-06-24T04:40:49.573-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "204962",
+    "ThreadId": "60296",
+    "Html": "<p>In that case, it sounds like the values are not being stored as numbers. Can you show us some code where you are inserting the values?</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-06-24T06:03:41.307-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "204966",
+    "ThreadId": "60296",
+    "Html": "<p>Sure.&nbsp; Keep in mind that this is using my addRowToSheet function, at least for now--I may or may not switch to the fromArray() (or whatever it was) that was referenced in another thread.</p>\r\n<p>\r\n<pre>$workingRowFields = array(\r\n                        array('contents' =&gt; $position['title'] . &quot; &quot; . $position['posNum']),\r\n                        array('contents' =&gt; $position['startDate'],                         'styles' =&gt; array('numberformat' =&gt; array('code' =&gt; PHPExcel_Style_NumberFormat::FORMAT_DATE_YYYYMMDD2))),\r\n                        array('contents' =&gt; '$' . $position['overallSalary'],               'styles' =&gt; array('numberformat' =&gt; array('code' =&gt; PHPExcel_Style_NumberFormat::FORMAT_CURRENCY_USD))),\r\n                        array('contents' =&gt; $position['percentOnThisAccount'] . &quot;%&quot;,        'styles' =&gt; array('numberformat' =&gt; array('code' =&gt; PHPExcel_Style_NumberFormat::FORMAT_NUMBER))),\r\n                        array('contents' =&gt; '$' . round($position['salaryOnThisAccount']),  'styles' =&gt; array('numberformat' =&gt; array('code' =&gt; PHPExcel_Style_NumberFormat::FORMAT_CURRENCY_USD))),\r\n                        array('contents' =&gt; '$' . round($position['accountHit']),           'styles' =&gt; array('numberformat' =&gt; array('code' =&gt; PHPExcel_Style_NumberFormat::FORMAT_CURRENCY_USD))),\r\n                    );\r\n                    addRowToSheet($objPHPExcel, $workingRowFields, $currentRow);</pre>\r\n</p>\r\n<p>All of the stuff in the $position[] array comes from a MySQL database, where the values are stored as follows:</p>\r\n<p>startDate: date<br>overallSalary: float<br>percentOnThisAccount: int<br>salaryOnThisAccount: computed in PHP based on overallSalary, percentOnThisAccount, and some funky date computations (don't ask...took me a long time to figure that bit out!)</p>\r\n<p>Let me know if you need anything more.</p>",
+    "PostedDate": "2009-06-24T06:08:15.443-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "204972",
+    "ThreadId": "60296",
+    "Html": "<p>It looks like you have a dollar sign that shouldn't be there.<br><br>Try to change this:<br> <br> <span style=\"font-family:Courier New\">'$' . $position['overallSalary']</span><br> <br> to this<br> <br> <span style=\"font-family:Courier New\">$position['overallSalary']</span><br style=\"font-family:Courier New\"> <br> (and similar places)</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-06-24T06:21:50.11-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "204976",
+    "ThreadId": "60296",
+    "Html": "<p>Still no-go.&nbsp; I'd tried that before too (and also tried removing the % sign in the percentOnThisAccount row).</p>\r\n<p>The only thing that gets properly formatted (at least according to Excel, mind you) is the date.</p>",
+    "PostedDate": "2009-06-24T06:24:51.32-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "204983",
+    "ThreadId": "60296",
+    "Html": "<p>It is for sure that the %-sign and $-sign needs to be removed.</p>\r\n<p>Can you try to run this:<br><br><span style=\"font-family:Courier New\">$excel = new PHPExcel();</span><br style=\"font-family:Courier New\"><span style=\"font-family:Courier New\">$sheet = $excel-&gt;getActiveSheet();</span><br style=\"font-family:Courier New\"><br style=\"font-family:Courier New\"><span style=\"font-family:Courier New\">$sheet-&gt;getCell('A1')-&gt;setValue(123.45);</span><br style=\"font-family:Courier New\"><span style=\"font-family:Courier New\">$sheet-&gt;getStyle('A1')-&gt;applyFromArray(array(</span><br style=\"font-family:Courier New\"><span style=\"font-family:Courier New\">&nbsp;&nbsp;&nbsp; 'numberformat' =&gt; array(</span><br style=\"font-family:Courier New\"><span style=\"font-family:Courier New\">&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; 'code' =&gt; PHPExcel_Style_NumberFormat::FORMAT_CURRENCY_USD</span><br style=\"font-family:Courier New\"><span style=\"font-family:Courier New\">&nbsp;&nbsp;&nbsp; ),</span><br style=\"font-family:Courier New\"><span style=\"font-family:Courier New\">));</span><br style=\"font-family:Courier New\"><br style=\"font-family:Courier New\"><span style=\"font-family:Courier New\">$writer = PHPExcel_IOFactory::createWriter($excel, 'Excel2007');</span><br style=\"font-family:Courier New\"><span style=\"font-family:Courier New\">$writer-&gt;save('dollar.xlsx');</span><br><br>Work ok? :<br><br> <a href=\"http://img268.imageshack.us/img268/3443/dollar.png\"><img src=\"http://img268.imageshack.us/img268/3443/dollar.th.png\" border=0 alt=\"\"></a></p>",
+    "PostedDate": "2009-06-24T06:36:38.493-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "204988",
+    "ThreadId": "60296",
+    "Html": "<p>That worked...and your code gave me a clue.</p>\r\n<p>I changed my 'contents' check in the addRowToSheet function FROM:</p>\r\n<p>\r\n<pre>$ssObj-&gt;getActiveSheet()-&gt;setCellValueExplicit($cell, $element['contents']);</pre>\r\n</p>\r\n<p>TO this:</p>\r\n<p>\r\n<pre>$ssObj-&gt;getActiveSheet()-&gt;getCell($cell)-&gt;setValue($element['contents']);</pre>\r\nAll is well!&nbsp; Thank you for your assistance.</p>",
+    "PostedDate": "2009-06-24T06:45:18.343-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "205000",
+    "ThreadId": "60296",
+    "Html": "<p>Just a note to others. Instead of this:<br> <br> <span style=\"font-family:Courier New\">$sheet-&gt;getCell('A1')-&gt;setValue(123.45);</span><br> <br> you may want to use this, which is slightly faster:<br> <br> <span style=\"font-family:Courier New\">$sheet-&gt;getCell('A1')-&gt;setValueExplicit(123.45, PHPExcel_Cell_DataType::TYPE_NUMERIC);</span></p>",
+    "PostedDate": "2009-06-24T07:18:21.643-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

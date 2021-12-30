@@ -1,0 +1,56 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I was wondering if it was possible to conditional format a cell as a data bar to indicate progress.\nUnder the conditional formatting menu in excel there is a data bars section above the color scales which adds a \"progress bar\" in the cells as a background.",
+    "LastUpdatedDate": "2013-02-21T19:02:34.05-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2011-02-08T01:52:04.943-08:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Conditional Formatting: Data Bars",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 15266
+  },
+  "FileAttachments": [
+    {
+      "FileId": 5741,
+      "FileName": "FormatConditionsDatabar.xlsx",
+      "DownloadUrl": ".\\5741"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "SampleCode:  \r\n\r\n  arr_search = Array(\"[%v1%]\", \"[%v2%]\", \"[%v3%]\", \"[%v4%]\")\r\n    \r\n    For Each searchval In arr_search\r\n        Do While True\r\n            Set c = Cells.Find(What:=searchval, After:=ActiveCell, LookIn:=xlFormulas, LookAt:=xlPart, SearchOrder:=xlByColumns, SearchDirection:=xlNext, MatchCase:=False, SearchFormat:=False)\r\n            If Not c Is Nothing Then\r\n                Cells.Find(What:=searchval, After:=ActiveCell, LookIn:=xlFormulas, LookAt:=xlPart, SearchOrder:=xlByColumns, SearchDirection:=xlNext, MatchCase:=False, SearchFormat:=False).Activate\r\n                Z1Row = ActiveCell.Row\r\n                Z1Col = ActiveCell.Column\r\n                \r\n                Selection.Replace What:=searchval, Replacement:=\"\", LookAt:=xlPart, SearchOrder:=xlByColumns, MatchCase:=False, SearchFormat:=False, ReplaceFormat:=False\r\n                \r\n                Cells.Find(What:=searchval, After:=ActiveCell, LookIn:=xlFormulas, LookAt:=xlPart, SearchOrder:=xlByColumns, SearchDirection:=xlNext, MatchCase:=False, SearchFormat:=False).Activate\r\n                Z2Row = ActiveCell.Row\r\n                Z2Col = ActiveCell.Column\r\n                Selection.Replace What:=searchval, Replacement:=\"\", LookAt:=xlPart, SearchOrder:=xlByColumns, MatchCase:=False, SearchFormat:=False, ReplaceFormat:=False\r\n                \r\n                Range(Cells(Z1Row, Z1Col), Cells(Z2Row, Z2Col)).Select\r\n            \r\n                Selection.FormatConditions.AddDatabar\r\n                Selection.FormatConditions(Selection.FormatConditions.Count).ShowValue = True\r\n                Selection.FormatConditions(Selection.FormatConditions.Count).SetFirstPriority\r\n                With Selection.FormatConditions(1)\r\n                    .MinPoint.Modify newtype:=xlConditionValueLowestValue\r\n                    .MaxPoint.Modify newtype:=xlConditionValueHighestValue\r\n                End With\r\n                With Selection.FormatConditions(1).BarColor\r\n                    If searchval = \"[%v1%]\" Then\r\n                        .Color = RGB(255, 85, 90)\r\n                    ElseIf searchval = \"[%v2%]\" Then\r\n                        .Color = RGB(99, 142, 198)\r\n                    ElseIf searchval = \"[%v3%]\" Then\r\n                        .Color = RGB(250, 192, 144)\r\n                    ElseIf searchval = \"[%v4%]\" Then\r\n                        .Color = RGB(231, 244, 189)\r\n                    End If\r\n                End With\r\n        \r\n                'Rand ziehen\r\n                Selection.Borders(xlDiagonalDown).LineStyle = xlNone\r\n                Selection.Borders(xlDiagonalUp).LineStyle = xlNone\r\n                With Selection.Borders(xlEdgeLeft)\r\n                    .LineStyle = xlContinuous\r\n                    .Color = RGB(108, 126, 111)\r\n                    .TintAndShade = 0\r\n                    .Weight = xlMedium 'xlThick 'xlThin\r\n                End With\r\n                Selection.Borders(xlEdgeTop).LineStyle = xlNone\r\n                Selection.Borders(xlEdgeBottom).LineStyle = xlNone\r\n                Selection.Borders(xlEdgeRight).LineStyle = xlNone\r\n                Selection.Borders(xlInsideVertical).LineStyle = xlNone\r\n                Selection.Borders(xlInsideHorizontal).LineStyle = xlNone\r\n                \r\n                '[A1].Select\r\n            Else\r\n                Exit Do\r\n            End If\r\n        Loop\r\n    Next searchval\r\n",
+      "PostedDate": "2011-07-04T07:32:37.233-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:02:34.05-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

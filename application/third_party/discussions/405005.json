@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "948914",
+    "ThreadId": "405005",
+    "Html": "\r\n<p>First of all, I have to say that I've read a lot of post about this problem, but I think I'm not getting the point about techniques when loading big files.</p>\r\n<p>I have an excel file of 65000 rows (aprox) and 164 columns (EX column is the last one), that's give me a 10.660.000 cells.</p>\r\n<p>I'm trying to load it to get values (only for reading) and I've tryed a lot of alternatives but none of them has worked (sometimes because memory limits and sometimes because time_execution).</p>\r\n<p>I'm running a local server with WAMP, 640M of memory_limit and 3000 for time_execution.&nbsp;<br>\r\nI've tried the following techniques:</p>\r\n<ol>\r\n<li>Basic loading: problems with memory usage. </li><li>Basic loading with cache methods (disk, sqlite3,...): Problems with memory usage.\r\n</li><li>Chunks loading (with a ReadFilter): problems with time_execution&nbsp; </li></ol>\r\n<p>I think I'm not understanding the load by chunks method, because I've tried to load only 20 rows, or 50 and it takes the same amount of time.. which has sense for me because is an unique load task (I write this attempt outside of a bucle).</p>\r\n<p>I've tried to load a 1000 rows with this technique and the server goes down after two intensive memory usages... (I've seen that in the performance pannel at windows task manager)</p>\r\n<p>I need to know if my excel is too big for PHPExcel library, if there is an specific format of excel documents that works better in terms of performance... all the info you can give me is much appreciated... :(</p>\r\n<p>I'm using other optimizing techniques like:</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>$objReader-&gt;setReadDataOnly(true);\r\n$objReader-&gt;setLoadSheetsOnly(SHEET_NAME);\r\n</pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n<p>Thanks in advance,<br>\r\nMarcos.&nbsp;</p>\r\n",
+    "PostedDate": "2012-11-29T04:11:30-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "948941",
+    "ThreadId": "405005",
+    "Html": "\r\n<p>Hi,</p>\r\n<p>&nbsp;</p>\r\n<p>I've got some experience with large excelsheet, using the PHPExcel library. But rather than reading I used PHPExcel for writing. The biggest files I worked with had around 30 columns with 150K rows, giving less than half the number of cells you have. With\r\n these kind of numers, I was really pushin the limit of my hardware:</p>\r\n<p>2x quadcore xeon + 24GB memory (memory being the main bottleneck).</p>\r\n<p>&nbsp;</p>\r\n<p>As you have more than twice the number of cells, I fear you are trying to push PHPExcel a little too far, but perhaps Mark has some tips for you!</p>\r\n<p>&nbsp;</p>\r\n<p>(I eventually ended up writing my own xlsx writer as datasets became to big. It employs streaming to insert data into the xlsx file, so memory is not an issue anymore)</p>\r\n",
+    "PostedDate": "2012-11-29T05:02:17.54-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "948955",
+    "ThreadId": "405005",
+    "Html": "\r\n<p>Hi borft,</p>\r\n<p>Thanks a lot for your numbers, are really interesting.</p>\r\n<p>Finally I'm being able to deal with this &quot;little monster&quot; :) <br>\r\nThe key was to really understand how PHPExcel works when loading files and working with chunks. I noticed that the same excel file takes the same time (more or less) when loading, not depending of the chunk size that will be applied later to process data. Memory\r\n limits and chunksize are important, when working with data (after the loading is completed) to allow filters to read in chunks and do the work without errors.</p>\r\n<p>At this moment my findings are the followings:</p>\r\n<p><strong>Common enviroment</strong></p>\r\n<ul>\r\n<li>max_execution_time = 600 (php.ini) </li><li>max_input_time = 600&nbsp;(php.ini) </li><li>memory_limit = 512M&nbsp;(php.ini) </li><li>excel file 52MB size, with 65000 rows and 164 columns (<span>10.660.000 cells)</span>\r\n</li><li><span>Common Loading time, about 170s.</span> </li></ul>\r\n<p><strong>Test A. With cache_to_sqlite3&nbsp;method</strong></p>\r\n<ul>\r\n<li>1000 rows / +4s aprox. </li><li>2000 rows / +18s aprox. </li><li>4000 rows / +50s aprox. </li><li>5000 rows / +67s aprox. </li><li>6000 rows / +88s aprox. </li></ul>\r\n<p><strong>Test B. With cache_in_memory_serialized&nbsp;method</strong></p>\r\n<ul>\r\n<li>6000 rows / +52s aprox (40% speed improvement against cache_to_sqlite3) </li><li>10000 rows / +70s aprox&nbsp; </li></ul>\r\n<p>There is not significant differences talking about speed, between using cache_in_memory_serialized and not using a caché method, but if you don't use a cache method you get a memory limit error.</p>\r\n<p>So this way I can setup a session based process to do the work step by step reloading the page (not in a loop) and get the file fully processed in about 24 minutes (6 steps of 10.000 rows each one).</p>\r\n<p>When I complete my test (I'm going to reduce memory setup values), I'll post the final code here.</p>\r\n<p>Thanks a lot,<br>\r\nMarcos.&nbsp;</p>\r\n",
+    "PostedDate": "2012-11-29T05:34:24.347-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

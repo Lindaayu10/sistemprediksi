@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "208015",
+    "ThreadId": "61324",
+    "Html": "<p>Hi,</p>\r\n<p>I understand that the code paths are reliant on the PHPExcel directory being within the include_path environment variable, where we can't simply link to &quot;includes/PHPExcel&quot; or &quot;classes/PHPExcel&quot;.</p>\r\n<p>If I may ask, why are the paths not relative to each other?&nbsp; A user would have to muck about to include the path to PHPExcel in the include_path (either hardcoding within php.ini, or using ini_set())</p>\r\n<p>For example: in Writer/PDF.php, there are includes to &quot;PHPExcel/Writer/IWriter.php&quot; and &quot;PHPExcel/Cell.php&quot;.&nbsp; Typically, I would expect to see these be relative paths: &quot;./IWriter.php&quot; and &quot;../Cell.php&quot;.</p>\r\n<p>&nbsp;</p>\r\n<p>If this is a matter of &quot;That's the way it is and nobody wants to go through and change it&quot;, I'll gladly take the 20 minutes to change it for the project.&nbsp; ?</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks,</p>\r\n<p>Trevor</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-07-02T09:11:11.12-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "208033",
+    "ThreadId": "61324",
+    "Html": "<p>The problem is that in PHP the included file is taken relative to the executed script, not relative to the file where the include statement occurs. If A includes B and B includes C, then your method will not work in general if A and B are in different directories. This is a big pain in PHP.<br> <br> One can get around this problem by using absolute path together with magical constant <span style=\"font-family:Courier New\">__FILE__</span><br> <br> <span style=\"font-family:Courier New\">require_once dirname(__FILE__) . '/IWriter.php';</span><br> <br> This is perhaps an option, and one would not have to set up an include path. Last time I looked at this, I came across posts saying that this was bad practice presumably because of extra function calls with <span style=\"font-family:Courier New\">dirname(__FILE__)</span>. But how much will this be slowing down the script?<br> <br> Maybe we should discuss this option. I agree that it is annoying to deal with include paths. Maybe Maarten or Mark has an opinion about this.</p>",
+    "PostedDate": "2009-07-02T09:40:41.837-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "208045",
+    "ThreadId": "61324",
+    "Html": "<p>I just ran a quick test, with the following directory structure: <br>inc.php<br>include\\1.php<br>include\\2.php<br>include\\first\\11.php<br>include\\first\\12.php<br>include\\second\\21.php<br>include\\second\\22.php<br><br>Each has essentially the same format: <br>&lt;?<br>&nbsp; print &quot;We're currently at &quot; . __FILE__ . &quot;&lt;BR&gt;&quot;;<br>&nbsp; include(&quot;2.php&quot;)<br>?&gt;</p>\r\n<p>You can guess how this goes - inc calls &quot;include/1.php&quot;, which calls &quot;2.php&quot;, which calls &quot;first/11.php&quot;, which calls &quot;12.php&quot;, no problems.&nbsp; The stack breaks when I hit &quot;../second/21.php&quot; - I have some module which handled this kind of thing on the server (A coworker implemented this, not sure the module / code that does it, definitely a &quot;nice to have&quot; that I never even think about).</p>\r\n<p>One other option which I've seen in a variety of 3rd party scripts would be to have a constant defined with root path configured.&nbsp; Within PHPExcel.php, you could have the following simple line:</p>\r\n<p>&nbsp; define(&quot;PHPEXCELPATH&quot;, dirname(__FILE__) . &quot;/PHPExcel/&quot;);</p>\r\n<p><br>Using this idea, you only run the function of dirname(__FILE__) once, store the result in a constant, have a fairly accessible system.. but this is reliant on calling PHPExcel.php to initiate the PHPExcel scripts.</p>",
+    "PostedDate": "2009-07-02T10:20:36.003-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "208055",
+    "ThreadId": "61324",
+    "Html": "<p>Ok, I have posted this as a feature request:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10251\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10251</a></p>\r\n<p>Let's see what inputs we get for this.</p>",
+    "PostedDate": "2009-07-02T10:47:13.55-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

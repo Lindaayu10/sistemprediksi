@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "1449503",
+    "ThreadId": "646564",
+    "Html": "Hello, \r<br />\n<br />\nIm making an export for my company which takes soma data, given through PHP, and outputs them to a excel spreadsheet.\r<br />\n<br />\nEverything works well, except for one little thing. Im conditionally formatting some cells to have a specific color. Neither I get an error, nor i get the right background color for the other cells, they just stay white.\r<br />\n<br />\nI'm using PHPExcel to create the output, the following is my Code:<br />\n<pre><code>&lt;?php\n\n// Import PHPExcel class:\ninclude(&quot;./PHPExcel/Classes/PHPExcel.php&quot;);\n\n// Create a workbook :\n$workbook = new PHPExcel;\n\n// Create a sheet :\n$sheet = $workbook-&gt;getActiveSheet();\n\n// Set to A4 page size :\n$sheet-&gt;getPageSetup()-&gt;setPaperSize(9);\n\n// Set to landcape orientation, but it doesn't work :\n$sheet-&gt;getPageSetup()-&gt;setOrientation(&quot;landscape&quot;);\n\n/*Create style1 for A1 cell :*/\n$style1 = $sheet-&gt;getStyle('A1');\n\n$style1-&gt;applyFromArray(\n\n    array(\n            'fill' =&gt; array(\n                                'type' =&gt; 'solid', \n                                //Color filling :\n                                'color' =&gt; array('rgb' =&gt; 'ff0000')\n                            )\n        )\n);\n\n/*Create style2 for B1 cell :*/\n$style2 = $sheet-&gt;getStyle('B1');\n\n$style2-&gt;applyFromArray(\n\n    array(\n            'fill' =&gt; array(\n                                'type' =&gt; 'solid', \n                                //Green filling :\n                                'color' =&gt; array('rgb' =&gt; '00ff00')\n                            )\n        )\n);\n\n//Duplicate style1 to A2 :\n$sheet-&gt;duplicateStyle($style1, &quot;A2&quot;);\n\n//Write in A2 cell. Bug : red filling doesn't work :\n$sheet-&gt;setCellValue(&quot;A2&quot;, &quot;Must be red&quot;);\n\n\n//Duplicate style2 to B2 :\n$sheet-&gt;duplicateStyle($style2, &quot;B2&quot;);\n\n//Write in B2 cell :\n$sheet-&gt;setCellValue(&quot;B2&quot;, &quot;Must be green&quot;);\n\n//Output to brower :\nheader('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'); \nheader('Content-Disposition: attachment;filename=&quot;file.xlsx&quot;'); \nheader('Cache-Control: max-age=0'); \n\n\n$writer = new PHPExcel_Writer_Excel2007($workbook);\n\n//Office 2003 compatibilty :\n$writer-&gt;setOffice2003Compatibility(true);\n$writer-&gt;save('php://output');\n\n?&gt;</code></pre>\n\nSo What's the problem ? Any Idea ? Thank you in advance.<br />\n",
+    "PostedDate": "2015-10-23T06:15:47.45-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": "2015-10-23T06:49:39.933-07:00"
+  },
+  {
+    "Id": "1449512",
+    "ThreadId": "646564",
+    "Html": "I find the problem : \r<br />\n<br />\nUse $style1 = new PHPExcel_Style(); instead of $style1 = $sheet-&gt;getStyle('A1');\r<br />\n<br />\nThank you very much.<br />\n",
+    "PostedDate": "2015-10-23T06:51:01.773-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

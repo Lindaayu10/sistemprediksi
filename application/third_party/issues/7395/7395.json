@@ -1,0 +1,91 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": "2008-08-26T01:24:50.82-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Some weird things are happening when one tries to read/write just about any cell containing a date entry.\n \nCheck the attached files to see what I get for a plain read/write. I have used MS Office Excel 2007 to enter the number 39813 which in Excel's 1900 date system is equal to 2008-12-31.\n \nBut in the written file the number 39813 has changed to 1230681600 which is the date in Unixtime.\n \nApparently, the Excel time is being converted to Unixtime during read, but not converted back during write? I would expect to get the number 39813 back again, no matter whether PHPExcel understands that it is a date or a number.",
+    "LastUpdatedDate": "2013-05-16T05:43:23.617-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2008-08-22T10:22:59.64-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "PHP-time / Excel date problems with Excel2007 reader/writer",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 7395
+  },
+  "FileAttachments": [
+    {
+      "FileId": 2051,
+      "FileName": "unixtime-phptime.zip",
+      "DownloadUrl": ".\\2051"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "The writeback works on the premise that if the value is a PHP Float, then it's already an Excel date/time, so no conversion needed; but if it's an PHP Integer value, then it's a PHP timestamp, and needs converting to an Excel date/time value. It would appear that something is setting the PHP type to float when it should be integer, or vice versa",
+      "PostedDate": "2008-08-22T10:48:01.313-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Ok, Mark, thanks for clarifying. It is beginning to make sense what you're saying.  Will try to dig deeper down into this logic.",
+      "PostedDate": "2008-08-22T15:11:22.747-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Erik, dos this issue need to stay open? It's all normal behaviour of the PHPExcel reader/writer?",
+      "PostedDate": "2008-08-24T23:05:42.393-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Yes, I definitely think this needs to stay open because all dates are broken after a read-write. I am really sorry for all of my complaints.\r\nThe good news is that I think I tracked down the problem. Thanks to this thread\r\nhttp://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=7355\r\nI now understand that float / integer makes a difference. So PHP-time needs to be integer. But PHPExcel_Shared_Date::ExcelToPHP is returning float which does not fit with the model. So I added this in the function and it now works splendidly\r\n//$returnValue = round($utcDays * 24 * 60 * 60);\r\n$returnValue = (integer) round($utcDays * 24 * 60 * 60);\r\nMark, could this be the problem? I haven't changed anything in the source because I am not entirely sure if the function needs to return float in other cases. Thank for your very much for your guidance towards the critical parts.",
+      "PostedDate": "2008-08-25T03:22:27.02-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I thought I'd modified those functions to explicitely typecast the return value: looks like I didn't, or I managed to overwrite that version. Mea culpa.",
+      "PostedDate": "2008-08-26T01:07:17.397-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2008-08-26T01:19:33.787-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2008-08-26T01:24:50.82-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:04:58.29-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:43:23.617-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

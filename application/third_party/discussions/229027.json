@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "500005",
+    "ThreadId": "229027",
+    "Html": "<p>Hi,</p>\r\n<p>I'm using PHPExcel 1.7.4 to read an excel 2003 file.</p>\r\n<p>I experience major slowness : a 2Mo file takes 30 secondes to read.</p>\r\n<p>The code I use is extremely basic :</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre><span style=\"color:blue\">require_once</span> <span style=\"color:#a31515\">'PHPExcel/PHPExcel.php'</span>;\r\n$objPHPExcel = <span style=\"color:blue\">new</span> PHPExcel();\r\n$reader = PHPExcel_IOFactory::createReader(<span style=\"color:#a31515\">'Excel5'</span>);\r\n$objPHPExcel = $reader-&gt;load(<span style=\"color:#a31515\">'C:\\xampplite\\htdocs\\ca.xls'</span>);\r\n$objWorksheet = $objPHPExcel-&gt;getActiveSheet(<span style=\"color:#a31515\">&quot;stats&quot;</span>);\r\n$cell = $objWorksheet-&gt;getCell(<span style=\"color:#a31515\">'A1'</span>);\r\n<span style=\"color:blue\">echo</span>  $cell-&gt;getCalculatedValue();\r\n<br><br><br>I tested the same using fopen/fgetcsv on the same 2Mo file converted to CSV and it took 0,2s to open and browse the entire file.<br><br>Does someone have an idea ? <br><br>Thank you.</pre>\r\n</div>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-09-29T07:20:38.373-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "500012",
+    "ThreadId": "229027",
+    "Html": "<p>There is a little bit of difference between reading a simple text-only CSV file using PHP's built-in functions compared with reading a proprietary binary file with datatyping and&nbsp;formatting information using code written in PHP. Comparing reading CSV using fopen/fgetcsv and reading XLS using PHPExcel is like comparing a ferrari with a giraffe.</p>\r\n<p>If you don't need the formatting information, then do</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>$reader-&gt;setReadDataOnly(true);\r\n</pre>\r\n</div>\r\n<p>between creating the reader and loading the file</p>\r\n<p>&nbsp;</p>\r\n<p>and you don't need to instantiate a PHPExcel object when reading a file: the reader does that for you</p>",
+    "PostedDate": "2010-09-29T07:31:32.337-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "500234",
+    "ThreadId": "229027",
+    "Html": "<p>Well the CSV test was here to ensure there was no performance issue reading the file.</p>\r\n<p>I formerly worked with PHPExcel for creating file and was very satisfied ; ff PHPExcel can't allow to read files bigger than 10mo (which is my case whatever memory or time I allow PHP) , there's no big deal,&nbsp; I just want to know.</p>",
+    "PostedDate": "2010-09-29T14:38:00.753-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "500258",
+    "ThreadId": "229027",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>sabotagex wrote:</strong><br>\r\n<p>ff PHPExcel can't allow to read files bigger than 10mo (which is my case whatever memory or time I allow PHP) , there's no big deal,&nbsp; I just want to know.</p>\r\n</blockquote>\r\n<p>&nbsp;Can you please advise me of where this limit is imposed by PHPExcel. This is the second time that somebody has mentioned a 10Meg limit in threads here; and I'm not aware of any such limit. If I know where the limit is set, then I can remove it. The only limits imposed are those of Excel (e.g. 65536 rows and 256 columns per worksheet when using Excel5) or of PHP (memory_limit).</p>",
+    "PostedDate": "2010-09-29T15:34:21.023-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "500362",
+    "ThreadId": "229027",
+    "Html": "<p>My initial file was 30Mo large and is nothing more than datas without calcutations or formating.</p>\r\n<p>Having my issue, I cropped 2/3 of the lignes, giving&nbsp; a10Mo.</p>\r\n<p>I first outpassed the 256Mo PHP memory limit on my server so I set to no memory limit.</p>\r\n<p>I then outpasses the 60s PHP time execution for a script, so I set to no time limit.</p>\r\n<p>The PHP process the took around 300Mo memory and between 50 and 90% of processor capacity and I choose to stop it after 5min running.</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-09-29T23:36:44.857-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "500429",
+    "ThreadId": "229027",
+    "Html": "<p>Yes, PHPExcel is memory hungry; and because it's written in PHP rather than (for example) C or C++ like many of the PHP modules, it's slower than compiled code would be.</p>\r\n<p>File size isn't a good measure for workbook files when working with PHPExcel. The number of rows and columns (ie cells) is more important. You might also say that your worksheet has no formatting, but that isn't strictly true: Excel applies a default formatting to all cells, so it is there.</p>\r\n<p>The PHPExcel code itself has a footprint of between 10 and 25MB, depending on which components are being accessed.</p>\r\n<p>At present, each cell in a workbook takes on average 1k of memory (without any caching) or 1.6k on 64-bit PHP - I'll assume 32-bit PHP for the moment - so (for example) a worksheet of 8000 lines with 31 columns (248,000 cells) will be about 242MB. With cell cacheing (such as php://temp or DiskISAM), that can be reduced to about a third, so the 8000 lines by 31 columns will require about 80MB.</p>\r\n<p>As a typical rule of thumb, I'll double that value if you need to write the workbook as well, so that 80MB would become 160MB, plus the code footprint of 10-25M... giving an expected memory requirement of 185MB.</p>\r\n<p>There are a number of options available to help you reduce the memory usage:</p>\r\n<p>Cell caching reduces memory usage, but at a cost in speed?</p>\r\n<p>\r\n<p><code><span>\r\n<div style=\"color:black;background-color:white\">\r\n<pre><span style=\"color:blue\">require_once</span> <span style=\"color:#a31515\">'./Classes/PHPExcel.php'</span>; \r\n \r\n$cacheMethod = PHPExcel_CachedObjectStorageFactory:: cache_to_phpTemp; \r\n$cacheSettings = <span style=\"color:blue\">array</span>( <span style=\"color:#a31515\">' memoryCacheSize '</span> =&gt; <span style=\"color:#a31515\">'8MB'</span>); \r\nPHPExcel_Settings::setCacheStorageMethod($cacheMethod, $cacheSettings); \r\n \r\n$objReader = PHPExcel_IOFactory::createReader(<span style=\"color:#a31515\">'Excel2007'</span>); \r\n$objPHPExcel = $objReader-&gt;load(<span style=\"color:#a31515\">&quot;test.xlsx&quot;</span>); \r\n</pre>\r\n</div>\r\n</span></code></p>\r\n<p>Additionally, there are a host of other techniques for reducing memory usage described in <a href=\"http://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=225579\">this thread</a></p>\r\n<p>&nbsp;</p>\r\n</p>\r\n<p>A lot of factors can affect speed of execution. I've created a simple Excel5 workbook with a single worksheet comprising 32769 rows and 17 columns (total 557073 cells, and a file size of 28MB) and run some tests:</p>\r\n<p>Total time to read the workbook was 491 seconds, and Peak memory usage was&nbsp;731.75 MB (no caching, and full workbook read)<br>Total time to read the workbook was&nbsp;469 seconds, and Peak memory usage was&nbsp;718 MB (no caching, but with ReadDataOnly set to true)<br>Total time to read the workbook was&nbsp;802 seconds, and Peak memory usage was&nbsp;319.75 MB (with&nbsp;phpTemp caching using a 32MB memory cache, and full workbook read)<br>Total time to read the workbook was&nbsp;840 seconds, and Peak memory usage was&nbsp;290.25 MB (with&nbsp;phpTemp caching using a 32MB memory cache, and with ReadDataOnly set to true)</p>\r\n<p>Admittedly, this is on a heavily loaded server, with a slower processor and only 2GB memory. However, it gives a general feel for the effects of using cell caching and/or ReadDataOnly.</p>\r\n<p>Believe me: if I could figure out a way of loading workbooks more quickly, and of using less memory, it would already be implemented</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-09-30T02:57:26.97-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

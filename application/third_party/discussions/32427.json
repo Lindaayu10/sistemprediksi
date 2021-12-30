@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "107551",
+    "ThreadId": "32427",
+    "Html": "Hi,<br>\r\n<br>\r\nI'm trying to <strong>create a new line in a cell</strong><br>\r\neg: $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('A1', &quot;first line<strong>\\n</strong>second line&quot;);<br>\r\n<br>\r\nbut \\n is not interpreted<br>\r\nHow could I do this please ?<br>\r\nI tried \\n \\r\\n but nothing :(<br>\r\n",
+    "PostedDate": "2008-07-28T13:19:44.307-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "107618",
+    "ThreadId": "32427",
+    "Html": "Your methods looks correct, but Microsoft Office Excel 2007 only seems to (visually) render the new line whenever &quot;Wrap Text&quot; is set to true for the cell. Therefore you need to do like this:<br>\r\n<br>\r\n<code>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('A1', &quot;first line\\nsecond line&quot;);<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('A1')-&gt;getAlignment()-&gt;setWrapText(true);<br>\r\n</code>\r\n<br>\r\nIn Microsoft Office Excel 2007 you insert a new line via <code>ALT+Enter</code> and, as can be tried, when you do that, the software will automatically set &quot;Wrap Text&quot; to true.\r\n",
+    "PostedDate": "2008-07-28T18:15:28.367-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "107679",
+    "ThreadId": "32427",
+    "Html": "Thx very much koyama, it's working :D<br>\r\n",
+    "PostedDate": "2008-07-29T03:46:05.31-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "174200",
+    "ThreadId": "32427",
+    "Html": "yeah, setting Wrap property to true helped me too.<br>\r\n<br>\r\nI tried &quot;\\r\\n&quot;, &quot;\\n&quot;, tried chr() instead of 'values', tried just everything I can imagine. in excel it represented like a box at the place, where &quot;\\n&quot; should be.<br>\r\nthen I searched the discussions and found an answer and it works. thank you! :)<br>\r\n",
+    "PostedDate": "2009-04-01T00:29:49.677-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1112898",
+    "ThreadId": "32427",
+    "Html": "hi, I tried &quot;\\r&quot; or &quot;\\n&quot; but i doesn't work. here my script. help me please .. :D<br />\n<pre><code>//create excel\n        $filepath = &quot;resource/doc/excel/fileexcel.xls&quot;;\n        //---\n        $objReader = PHPExcel_IOFactory::createReader('Excel5');\n        $this-&gt;phpexcel = $objReader-&gt;load($filepath);\n        $this-&gt;phpexcel-&gt;setActiveSheetIndex(0);\n        $objWorksheet = $this-&gt;phpexcel-&gt;getActiveSheet();  \n        \n        $nama_bulan = $this-&gt;datetimemanipulation-&gt;get_month_name($filter['k_filter_month']);\n        $objWorksheet-&gt;setCellValue('A5', 'PERIODE : \\nBULAN '.  strtoupper($nama_bulan).' '.$filter['k_filter_years']);\n        $objWorksheet-&gt;getStyle('A5')-&gt;getAlignment()-&gt;setWrapText(true);\n\n       $file_name = 'TESTING';\n        if($filter['k_filter_month']!='' &amp;&amp; $filter['k_filter_years']!=''){\n            $file_name .= $filter['k_filter_month'].'_'.$filter['k_filter_years'];\n        }\n        //--\n        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');\n        header('Content-Disposition: attachment;filename=' . strtoupper($file_name) . '.xlsx');\n        header('Cache-Control: max-age=0');\n        // output\n        $obj_writer = PHPExcel_IOFactory::createWriter($this-&gt;phpexcel, 'Excel2007');\n        $obj_writer-&gt;save('php://output'); </code></pre>\n\n",
+    "PostedDate": "2013-10-28T00:45:42.083-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

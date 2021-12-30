@@ -1,0 +1,45 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I've found very interesting bug and I'm striving to solve this for hours. The problem is if I call\n```\n$excel->setActiveSheetIndex(0);\n```\nIt gives Fatal error: Maximum function nesting level of '100' reached, aborting, However, if I changed 0 to 1,\n```\n$excel->setActiveSheetIndex(1);\n```\nIt works flawlessly. \nI'm not php guru but when I look to stack it seems like an infinite loop call. Please find the attachement.\n\nThe code I'm using is\n\n```\n<?php\n\nrequire '../lib/generalConfiguration.php';\nrequire_once '../phpexcel/Classes/PHPExcel.php';\n\n\nerror_reporting(E_ALL);\nini_set('display_errors', TRUE);\nini_set('display_startup_errors', TRUE);\ndefine('EOL', (PHP_SAPI == 'cli') ? PHP_EOL : '<br/>');\n\n//you simply change this values as you want\n$data = json_decode($_POST['xlsdata'], true);\n$file_type = $_POST['filetype'];\n$module = $_POST['module'];\n\n$excel = null;\n$filename = '';\n$name = 'test';\n\ncreate_file();\n//print_date();\n//print_header();\n//print_body();\nset_properties();\noutput_file();\nreturn_file();\nexit;\n\nfunction create_file() {\n    global $excel, $lang, $module;\n    $inputFileType = 'Excel2007';\n    $inputFileName = $module . '_' . $lang . '_' . $_SESSION['hostname'] . '.xlsx';\n    $objReader = PHPExcel_IOFactory::createReader($inputFileType);\n    $excel = $objReader->load($inputFileName);\n}\n\nfunction set_properties() {\n    global $excel;\n    $excel->setActiveSheetIndex(0);\n    $excel->getProperties()->setCreator(\"Untitled\")\n            ->setLastModifiedBy(\"Untitled\")\n            ->setTitle(\"Untitled\")\n            ->setSubject(\"Untitled\")\n            ->setDescription(\"Untitled\")\n            ->setKeywords(\"Untitled\")\n            ->setCategory(\"Untitled\");\n}\n\nfunction output_file() {\n    global $file_type, $name, $excel, $filename;\n\n    switch ($file_type) {\n// Save Excel 2007 file\n        case 'xls':\n            $filename = $name . '.xls';\n            $objWriter = PHPExcel_IOFactory::createWriter($excel, 'Excel5');\n\n            break;\n        case 'xlsx':\n            $filename = $name . '.xlsx';\n            $objWriter = PHPExcel_IOFactory::createWriter($excel, 'Excel2007');\n            break;\n        case 'pdf':\n            $filename = $name . '.pdf';\n            require_once '../Classes/PHPExcel/IOFactory.php';\n\n            $rendererName = PHPExcel_Settings::PDF_RENDERER_TCPDF;\n            $rendererLibrary = 'tcpdf';\n\n            if (!PHPExcel_Settings::setPdfRenderer(\n                            $rendererName, $rendererLibrary\n                    )) {\n                die(\n                        'NOTICE: Please set the $rendererName and $rendererLibraryPath values at the top of this script as appropriate for your directory structure'\n                );\n            }\n\n            $objWriter = PHPExcel_IOFactory::createWriter($excel, 'PDF');\n            $objWriter->setSheetIndex(0);\n            break;\n    }\n    $objWriter->save($filename);\n}\n\nfunction return_file() {\n    global $filename;\n    $result = \"http://\" . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . \"/\" . $filename;\n    echo $result;\n}\n\n?>\n```\n\nAny help would be very appreciated. Thanks.",
+    "LastUpdatedDate": "2013-09-14T01:34:41.57-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2013-09-14T01:34:36.153-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "PHP Excel gives \"Maximum function nesting level reached\" error after calling setActiveSheetIndex(0)",
+    "Type": {
+      "Name": "Unassigned",
+      "Id": 5
+    },
+    "VoteCount": 1,
+    "Id": 20193
+  },
+  "FileAttachments": [
+    {
+      "FileId": 7168,
+      "FileName": "error.html",
+      "DownloadUrl": ".\\7168"
+    }
+  ],
+  "Comments": []
+}

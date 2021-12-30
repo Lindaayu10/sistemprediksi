@@ -1,0 +1,50 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hi there,\nso when I try to get a calculated value (for AE3) I get a parse error.\nBut when I obtain it's value by using getOldCalculatedValue it works just fine.\n\nAny help would be appreciated.\n\nThis is my code:\n```\nfunction testFormula($sheet,$cell) {\n\t$formulaValue = $sheet->getCell($cell)->getValue();\n\techo ''.$cell.' Value is '.$formulaValue.\"\n\\n\";\n\t$expectedValue = $sheet->getCell($cell)->getOldCalculatedValue();\n\techo ''.$cell.' Expected Value is '.$expectedValue.\"\n\\n\";\n\n\n\ttry {\n\t\t$tokens = PHPExcel_Calculation::getInstance()->parseFormula($formulaValue,$sheet->getCell($cell));\n\n\t\techo 'Parser Stack :-';\n\t\tprint_r($tokens);\n\t\techo '';\n\t} catch (Exception $e) {\n\t\techo \"CALCULATION PARSER ERROR: \".$e->getMessage().\"\n\\n\";\n\n\t\techo 'Parser Stack :-';\n\t\tprint_r($tokens);\n\t\techo '';\n\t}\n\n\ttry {\n\t\t$cellValue = $sheet->getCell($cell)->getCalculatedValue();\n\t\techo ''.$cell.' Calculated Value is '.$cellValue.\"\n\\n\";\n\n\t\techo 'Evaluation Log:';\n\t\tprint_r(PHPExcel_Calculation::getInstance()->debugLog);\n\t\techo '';\n\t} catch (Exception $e) {\n\t\techo \"CALCULATION ENGINE ERROR: \".$e->getMessage().\"\n\\n\";\n\n\t\techo 'Evaluation Log:';\n\t\tprint_r(PHPExcel_Calculation::getInstance()->debugLog);\n\t\techo '';\n\t}\n}\n$objPHPExcel = PHPExcel_IOFactory::load(\"asce_712.xls\");\nPHPExcel_Calculation::getInstance()->writeDebugLog = true;\n$worksheet = $objPHPExcel->setActiveSheetIndex(0); // first sheet\n\necho \"C10 is \" . $worksheet->getCell('C10')->getValue() . \"\\n\";\n$worksheet->setCellValue('C10', '170'); // Set windspeed to 170\necho \"C10 is \" . $worksheet->getCell('C10')->getValue() . \"\\n\";\n\ntestFormula($objPHPExcel->getActiveSheet(),'AE3');\n```\n\nThis is my result:\n```\n16:46:54 Load workbook from Excel5 file\nCurrent windspeed is 160\nCurrent windspeed is 170\nAE3 Value is =0.00256*$AD3*C11*C10^2\n\nAE3 Expected Value is 47.287601022\n\nParser Stack :-Array\n(\n    [0] => Array\n        (\n            [type] => Value\n            [value] => 0.00256\n            [reference] => \n        )\n\n    [1] => Array\n        (\n            [type] => Cell Reference\n            [value] => $AD3\n            [reference] => $AD3\n        )\n\n    [2] => Array\n        (\n            [type] => Binary Operator\n            [value] => *\n            [reference] => \n        )\n\n    [3] => Array\n        (\n            [type] => Cell Reference\n            [value] => C11\n            [reference] => C11\n        )\n\n    [4] => Array\n        (\n            [type] => Binary Operator\n            [value] => *\n            [reference] => \n        )\n\n    [5] => Array\n        (\n            [type] => Cell Reference\n            [value] => C10\n            [reference] => C10\n        )\n\n    [6] => Array\n        (\n            [type] => Value\n            [value] => 2\n            [reference] => \n        )\n\n    [7] => Array\n        (\n            [type] => Binary Operator\n            [value] => ^\n            [reference] => \n        )\n\n    [8] => Array\n        (\n            [type] => Binary Operator\n            [value] => *\n            [reference] => \n        )\n\n)\nCALCULATION ENGINE ERROR: Inputs!AE3 -> Inputs!AD3 -> Inputs!AC3 -> Formula Error: Unexpected operator '<='\n\nEvaluation Log:Array\n(\n    [0] => Inputs!AE3 -> Evaluating Cell AD3 in current worksheet\n    [1] => Inputs!AE3 -> Inputs!AD3 -> Evaluating Cell AC3 in current worksheet\n)\n\n```",
+    "LastUpdatedDate": "2013-02-21T19:01:28.32-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2013-02-07T14:21:50.933-08:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "getOldCalculatedValue works but getCalculatedValue does not",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 19320
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "Can you identify the formulae in AD3 and particularly in AC3: the formula in AE3 references cell AD3, and AD3 is a formula referencing cell AC3, and the problem seems to be with the formula in AC3",
+      "PostedDate": "2013-02-07T15:54:31.747-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:01:28.32-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

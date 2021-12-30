@@ -1,0 +1,81 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel",
+      "DisplayName": "PHPExcel"
+    },
+    "ClosedComment": "Fixed in SVN",
+    "ClosedDate": "2009-08-20T23:06:06.353-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "In CellIterator, the default is IterateOnlyExistingCells.  If this is cleared (E.g as in the documentation example 4.3.5 code), a clearly unintended sequence of events leads to unnecessarily appalling performance on some spreadsheets.\n \nThe problem is, Worksheet::getHighestColumn() is called for every iterated cell.  This method is extremely expensive on the very first call, but the value is cached so that only the first call incurs the high cost.\n \nThe cached value is discarded in a variety of circumstances.  One of those circumstances is that Worksheet::getCellByColumnAndRow() is called on a cell that doesn't exist, obviously due to the possibility that the newly synthesised cell may have a column exceeding the current highest column.  If IterateOnlyExistingCells is clear, CellIterator will do this - a lot!\n \nOn a spreadsheet I'm developing against, this is the difference between a few seconds of run time and in excess of 10 minutes run time (the limit).\n \nIn CellIterator, obviously the requested cell will never ever be past the current highest column, so the discarding the cache is totally unnecessary.\n \nThere are a few ways of fixing it, depending on taste.  Making Worksheet::getCellByColumnAndRow() only discard the cache if the requested column exceeds the cached value is a pretty obvious and clean fix.  The down side is that the cached value is a column string, not a number, so comparisons are... expensive.\n \nI would be tempted to cache the highest column numerically too, making this operation very cheap, whilst not affecting the API.\n \nAnother option is to add an internal Worksheet::getContainedCellByColumnAndRow(), that should only ever be called by internal code like CellIterator, that guarantee not to exceed existing limits.  That's more efficient, but exposes internals in a somewhat untidy manner - even if the call is not part of the public API.\n \nNo patch - my solution is to stop using IterateOnlyExistingCells=false :)",
+    "LastUpdatedDate": "2013-05-16T05:42:29.22-07:00",
+    "PlannedForRelease": "PHPExcel 1.7.1 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-08-19T23:59:52.527-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Optimisation subverted to devastating effect if IterateOnlyExistingCells is clear",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 10486
+  },
+  "FileAttachments": [
+    {
+      "FileId": 3292,
+      "FileName": "patch-10486.patch",
+      "DownloadUrl": ".\\3292"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "Can you try using the attached patch?",
+      "PostedDate": "2009-08-20T02:48:22.803-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-08-20T02:48:24.767-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Hi Maarten,\r\n\r\nThanks, that seems to work well, the problem .xls file is processed in a few seconds with this change and IterateOnlyExistingCells clear.\r\n\r\nThe patch does functionally change the code a bit though.  In particular, removed cells (Worksheet::garbageCollect()) may cause the lowest column to decrease, but the patch will never decrease the highest column.\r\n\r\nI guess since Worksheet::garbageCollect() is already traversing every single cell it could also update the highest column/row.  Though converting every cell's column to an integer is not without cost!\r\n\r\nThis isn't something that affects me, I just thought I'd mention it :)",
+      "PostedDate": "2009-08-20T19:39:33.997-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-08-20T23:05:41.557-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-08-20T23:06:06.353-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:03:45.12-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:29.22-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

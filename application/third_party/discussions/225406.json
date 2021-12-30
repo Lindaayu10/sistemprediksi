@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "486811",
+    "ThreadId": "225406",
+    "Html": "<p>I am new to PHPExcel using it to display a spreadsheet as a web page where visitors can enter values and calculate the results.</p>\r\n<p>Everything seems to be working OK except for calculations including cells formatted as percentages.</p>\r\n<p>For example, if I enter '4' in a cell formatted as a percentage, the real value that should be used in a calculation is 0.04 but 4 is being used instead.</p>\r\n<p>What do I need to do for PHPExcel to handle percentage formatted cells properly?</p>\r\n<p>The spreadsheet is at: <strong>http://tinyurl.com/22udfl3</strong></p>\r\n<p>The web page is here: <strong>http://tinyurl.com/2f6qlwg</strong></p>\r\n<p>I have searched the discussions and the web and have not been able to find an answer so hopefully someone here can help me!</p>\r\n<p>Thanks,</p>\r\n<p>Neil.</p>",
+    "PostedDate": "2010-08-31T02:34:59.973-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "487532",
+    "ThreadId": "225406",
+    "Html": "<p>Within Excel, when you enter 4 in a cell (A2), then format it as a percentage,&nbsp;the cell still contains the value 4 rather than 400%. If you use that cell value in a calculation =A1*A2 where A1 contains 10, your answer will be 40. If you have a cell that is formatted as a percentage, and enter a 4 in that cell, Excel automatically divides the number that you have entered by 4, so your cell will contain 0.04 instead of the 4 that you entered.</p>\r\n<p>This behaviour can be emulated in PHPExcel if you use a value binder.&nbsp;I've not tested this, but something like:</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre><span style=\"color:blue\">class</span> PHPExcel_Cell_AdvancedValueBinder <span style=\"color:blue\">extends</span> PHPExcel_Cell_DefaultValueBinder <span style=\"color:blue\">implements</span> PHPExcel_Cell_IValueBinder\r\n{\r\n   <span style=\"color:blue\">public</span> <span style=\"color:blue\">function</span> bindValue(PHPExcel_Cell $cell, $value = null)\r\n   {\r\n      <span style=\"color:green\">// Find out data type</span>\r\n      $dataType = parent::dataTypeForValue($value);\r\n      <span style=\"color:blue\">if</span> ($dataType == PHPExcel_Cell_DataType::TYPE_NUMERIC) {\r\n         <span style=\"color:blue\">if</span> ($cell-&gt;getParent()-&gt;getStyle( $cell-&gt;getCoordinate() )-&gt;getNumberFormat() == PHPExcel_Style_NumberFormat::FORMAT_PERCENTAGE ) {\r\n            $cell-&gt;setValueExplicit( $value / 100, PHPExcel_Cell_DataType::TYPE_NUMERIC);\r\n            <span style=\"color:blue\">return</span> true;\r\n         }\r\n      }\r\n\r\n      <span style=\"color:green\">// Not bound yet? Use parent...</span>\r\n      <span style=\"color:blue\">return</span> parent::bindValue($cell, $value);\r\n   }\r\n}\r\n\r\nPHPExcel_Cell::setValueBinder( <span style=\"color:blue\">new</span> PHPExcel_Cell_AdvancedValueBinder() );\r\n$objPHPExcel = <span style=\"color:blue\">new</span> PHPExcel();\r\n</pre>\r\n</div>\r\n<p>Note that using the AdvancedValueBinder provided in the distribution would allow you to set a cell value to a string '4%', and would automatically convert this to 0.04 and apply percentage formatting to that cell.</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-09-01T05:08:25.05-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "487572",
+    "ThreadId": "225406",
+    "Html": "<p>Hi Mark!</p>\r\n<p>Thanks for the prompt and useful response!</p>\r\n<p>I was aware of the value binder from the documentation included in the PHPExcel download but there's no detailed example as you have shown!</p>\r\n<p>I'll give it a try again,</p>\r\n<p>Thanks,</p>\r\n<p>Neil.</p>",
+    "PostedDate": "2010-09-01T06:24:09.46-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

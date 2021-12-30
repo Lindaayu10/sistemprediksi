@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "107768",
+    "ThreadId": "32487",
+    "Html": "Is there an easy way to iterate over rows when reading data from a spreadsheet?<div><br></div><div>So far, all I can find is something like:</div><div><br></div><div>$cells = $worksheet-&gt;getCellCollection();<br></div><div>foreach ($cells as $key =&gt; $cell) {</div><div><span style=\"white-space:pre\">\t</span>// do something<br></div><div>}</div><div><br></div><div>The problem is, I constantly have to examine $key to see if I'm in a new row.</div><div><br></div><div>Is there a way to end up with something like the following?</div><div><br></div><div>// give multidimensional array $rows</div><div>foreach ($rows as $row) {</div><div><span style=\"white-space:pre\">\t</span>foreach ($row as $cell) {<br></div><div><span style=\"white-space:pre\">\t\t</span>// do something with $cell<br></div><div><span style=\"white-space:pre\">\t</span>}<br></div><div>}</div><div><br></div><div>Thanks</div>",
+    "PostedDate": "2008-07-29T10:43:00.543-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "107796",
+    "ThreadId": "32487",
+    "Html": "Maybe a construction like this will suffice:<br>\r\n<br>\r\n<code>\r\nfor ($i = 1; $i &lt;= $worksheet-&gt;getHighestRow(); $i++) {<br>\r\n&nbsp;&nbsp; &nbsp;$cell = $worksheet-&gt;getCellByColumnAndRow(0, $i);<br>\r\n&nbsp;&nbsp;&nbsp; // do something<br>\r\n}\r\n</code>\r\n<br>\r\n<br>\r\n",
+    "PostedDate": "2008-07-29T12:25:28.323-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "107832",
+    "ThreadId": "32487",
+    "Html": "Thank you for your suggestion. For those interested, I also found another way to iterate over rows/cells when I was reminded that, in PHP, you can increment letters the same as numbers.<div><br></div><div>http://us2.php.net/manual/en/language.operators.increment.php<br></div><div><br></div><div><div>To echo out a column of values starting row 5:</div><div>&lt;?php</div><div>$lastRow = $worksheet-&gt;getHighestRow();</div><div>$cells = $worksheet-&gt;getCellCollection();</div><div>for ($row = 5; $row &lt;= $numRows; $row++) {</div><div><span style=\"white-space:pre\">\t</span>echo $cells[&quot;B$row&quot;]-&gt;getValue();</div><div>}</div><div>?&gt;</div><div><br></div><div>To echo out a row of values starting column C:</div><div>&lt;?php</div><div>$numCols = $worksheet-&gt;getHighestColumn();</div><div>$cells = $worksheet-&gt;getCellCollection();</div><div>for ($col = 'C'; $col &lt;= $numCols; $col++) {</div><div><span style=\"white-space:pre\">\t</span>echo $cells[$col . &quot;5&quot;]-&gt;getValue();</div><div>}</div><div>?&gt;</div><div><br></div><div>To build an HTML table:</div><div>&lt;table&gt;</div><div>&lt;?php</div><div>$lastRow = $worksheet-&gt;getHighestRow();</div><div>$lastCol = $worksheet-&gt;getHighestColumn();</div><div>$cells = $worksheet-&gt;getCellCollection();</div><div>for ($row = 1; $row &lt;= $lastRow; $row++):</div><div>?&gt;</div><div><span style=\"white-space:pre\">\t</span>&lt;tr&gt;</div><div><span style=\"white-space:pre\">\t</span>&lt;?php for ($col = 'A'; $col &lt;= $lastCol; $col++): ?&gt;</div><div><span style=\"white-space:pre\">\t\t</span>&lt;td&gt;&lt;?php echo $cells[$col . $row]-&gt;getValue(); ?&gt;&lt;/td&gt;</div><div><span style=\"white-space:pre\">\t</span>&lt;?php endfor; ?&gt;</div><div><span style=\"white-space:pre\">\t</span>&lt;/tr&gt;</div><div>&lt;?php endfor; ?&gt;</div><div>&lt;/table&gt;</div><div><br></div><div><br></div></div>",
+    "PostedDate": "2008-07-29T15:49:44.597-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "147487",
+    "ThreadId": "44310",
+    "Html": "Hey guys,<br>\r\n<br>\r\nGreat job with the classes, they work very well.&nbsp; I ran into an odd problem though.&nbsp; I'm looping through the excel file trying to output it into the browser and whenever the loop gets to a cell which is empty in the excel file it just dies.&nbsp; So for example, suppose $lastRow is 20, $lastCol is 'D'.&nbsp; If everything has data except for B10, it will work up until B9 and then completely die without an error or anything.&nbsp; Is there a way around this?&nbsp; It seems that even when I call it outside the loop if the cell is empty it will call die() and not execute anything else.<br>\r\n<br>\r\nHere's the code I'm using:<br>\r\n$objReader = PHPExcel_IOFactory::createReader('Excel2007');<br>\r\n$objReader-&gt;setReadDataOnly(true);<br>\r\n$objPHPExcel = $objReader-&gt;load(&quot;test.xlsx&quot;);<br>\r\n$worksheet=$objPHPExcel-&gt;getActiveSheet();<br>\r\n?&gt;<br>\r\n&lt;table&gt;<br>\r\n&lt;?php<br>\r\n$lastRow = $worksheet-&gt;getHighestRow();<br>\r\n$lastCol = $worksheet-&gt;getHighestColumn();<br>\r\n$cells = $worksheet-&gt;getCellCollection();<br>\r\nfor ($row = 1; $row &lt;= $lastRow; $row++){<br>\r\n?&gt;<br>\r\n&lt;tr&gt;<br>\r\n&lt;?php for ($col = 'A'; $col &lt;= $lastCol; $col++){ ?&gt;<br>\r\n&lt;td&gt;&lt;?php echo $cells[$col . $row]-&gt;getValue(); ?&gt;&lt;/td&gt;<br>\r\n&lt;?php } ?&gt;<br>\r\n&lt;/tr&gt;<br>\r\n&lt;?php <br>\r\n}<br>\r\n<br>\r\n?&gt;<br>\r\n&lt;/table&gt;<br>\r\n",
+    "PostedDate": "2009-01-15T13:53:56.66-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "147497",
+    "ThreadId": "44310",
+    "Html": "Found a way around it, I guess that code was using the class incorrectly.&nbsp; The code below should work.&nbsp; <br>\r\n<br>\r\nAlso, I know you guys are still working hard at this but in the documentation you should include similar code to the one below so users can know how to use the class.&nbsp; All the reading example does is load the information into memory but it does not show how to get the actual data.&nbsp; It took me a couple hours to get it to work.. maybe im just slow though :)&nbsp; Anyway, thanks again, and keep up the good work.<br>\r\n<br>\r\n$objReader = PHPExcel_IOFactory::createReader('Excel2007');<br>\r\n$objReader-&gt;setReadDataOnly(true);<br>\r\n$objPHPExcel = $objReader-&gt;load(&quot;test.xlsx&quot;);<br>\r\n$worksheet=$objPHPExcel-&gt;getActiveSheet();<br>\r\n?&gt;<br>\r\n&lt;table&gt;<br>\r\n&lt;?php<br>\r\n$lastRow = $worksheet-&gt;getHighestRow();<br>\r\n$lastCol = $worksheet-&gt;getHighestColumn();<br>\r\n<br>\r\nfor ($row = 1; $row &lt;= $lastRow; $row++){<br>\r\n?&gt;<br>\r\n&lt;tr&gt;<br>\r\n&lt;?php for ($col = 'A'; $col &lt;= $lastCol; $col++){ ?&gt;<br>\r\n&lt;td&gt;&lt;?php echo $worksheet-&gt;getCell($col . $row)-&gt;getValue(); ?&gt;&lt;/td&gt;<br>\r\n&lt;?php } ?&gt;<br>\r\n&lt;/tr&gt;<br>\r\n&lt;?php <br>\r\n}<br>\r\n<br>\r\n?&gt;<br>\r\n&lt;/table&gt;<br>\r\n",
+    "PostedDate": "2009-01-15T14:21:38.56-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "147531",
+    "ThreadId": "44310",
+    "Html": "I have put forward a suggestion for an update of the documentation:<br>\r\n<a href=\"http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=8931\">http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=8931</a><br>\r\n<br>\r\nPlease note that your example will not work if your sheet contains cells above column <code>'Z'</code>. Problem is this:<br>\r\n<br>\r\n<code>\r\nif ('I' &lt; 'AJ') {<br>\r\n&nbsp;&nbsp; &nbsp;echo 'I is less than AJ';<br>\r\n} else {<br>\r\n&nbsp;&nbsp; &nbsp;echo 'I is not less than AJ';<br>\r\n}<br>\r\n</code>\r\n<br>\r\nIn this above example PHP will say that <code>'I'</code> is greater than <code>'AJ'</code> because it sorts strings like in a dictionary which is not what we want in this case. Go to the link and look at the example how to properly loop through the cells in the sheet.<br>\r\n<br>\r\nThanks for your feedback! <br>\r\n<br>\r\n",
+    "PostedDate": "2009-01-15T16:10:13.423-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "147621",
+    "ThreadId": "44310",
+    "Html": "You may also be pleased to see that there is already a work item to introduce row and column iterators to simplify the task of looping through and series of rows and/or columns<br>\r\n<a href=\"http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=8770\">http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=8770</a>\r\n",
+    "PostedDate": "2009-01-16T00:34:19.953-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

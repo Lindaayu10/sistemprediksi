@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "250143",
+    "ThreadId": "73213",
+    "Html": "<p>Hi, I'm having a problem with using PHPExcel to convert from .xls and .xlsx to csv, which is that dates often end up being written like 12/10/09 or something equally ambigious. This then causes problems when reading the CSV file as the program reading it isn't able to determine exactly what date it is.</p>\r\n<p>So I'm wondering, is there a (preferably easy) way of setting what format is used for dates when writing CSV files? I'd really like all dates to be written in ISO-format YYYY-MM-DD in the CSV file.</p>\r\n<p>I suppose iterating over the entire file and setting the cell to text, converting the value from Excel's timestamp format to a Unix timestamp and then setting the cell's value manually using date() could do the trick, but is there perhaps an easier way?</p>\r\n<p>And my apologies if this has been answered somewhere else, I was unable to find something that was quite the same as this.</p>",
+    "PostedDate": "2009-10-27T05:34:30.053-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "251000",
+    "ThreadId": "73213",
+    "Html": "<p>Question 1:</p>\r\n<p>Do you know in advance which columns in the xls/xlsx file contain dates? Or are they scattered all around in the worksheet?</p>\r\n<p>Question 2:</p>\r\n<p>Do you have a recipe how you to achieve this using MS Office Excel? That is how to save the desired CSV file by using functionality in MS Office Excel. If so, maybe we can better find the correct solution within PHPExcel.</p>",
+    "PostedDate": "2009-10-28T20:00:38.06-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "251098",
+    "ThreadId": "73213",
+    "Html": "<p>Answer 1:</p>\r\n<p>Yes, the file has to be according to our specification, with only certain columns containing dates.</p>\r\n<p>Answer 2:</p>\r\n<p>At least in OpenOffice Calc (don't have MS Office available right now) I can select the whole column, choose &quot;format cells&quot;, and then select category &quot;date&quot; and the correct date format YYYY-MM-DD. If I then save this file as .xls and send it through my xls2csv PHP script the dates are formatted correctly in the CSV file. So it's clearly possible to save the date format in the xls file somehow, and PHPExcel does treat it right as far as I can see.</p>\r\n<p>Formatting cells:</p>\r\n<p><a href=\"http://media.qj.no/phpexcel/ooocalc_dateformat.jpg\">http://media.qj.no/phpexcel/ooocalc_dateformat.jpg</a></p>\r\n<p>XLS file:</p>\r\n<p><a href=\"http://media.qj.no/phpexcel/dateformat.xls\">http://media.qj.no/phpexcel/dateformat.xls</a></p>",
+    "PostedDate": "2009-10-29T03:02:34.91-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "251693",
+    "ThreadId": "73213",
+    "Html": "<p>Let's say the dates are in column F. Can you try like this?</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$<span style=\"color:Blue\">file</span> = <span style=\"color:#A31515\">'read.xls'</span>;\r\n$excel = PHPExcel_IOFactory::load($<span style=\"color:Blue\">file</span>);\r\n\r\n$worksheet = $excel-&gt;getActiveSheet();\r\n\r\n$highestRow = $worksheet-&gt;getHighestRow();\r\n\r\n$worksheet-&gt;getStyle(<span style=\"color:#A31515\">&quot;F1:F$highestRow&quot;</span>)-&gt;getNumberFormat()-&gt;setFormatCode(<span style=\"color:#A31515\">'yyyy\\-mm\\-dd'</span>);\r\n\r\n$writer = PHPExcel_IOFactory::createWriter($excel, <span style=\"color:#A31515\">'CSV'</span>);\r\n$writer-&gt;save(<span style=\"color:#A31515\">'write.csv'</span>);\r\n</pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n<p>Note: In the future it should be possible to do like this instead:</p>\r\n<pre>$worksheet-&gt;getStyle(<span style=\"color:#A31515\">&quot;F&quot;</span>)-&gt;getNumberFormat()-&gt;setFormatCode(<span style=\"color:#A31515\">'yyyy\\-mm\\-dd'</span>);<br></pre>\r\n<p>but there are still a couple of details that need fixing before column styles are working 100% in PHPExcel</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=7333\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=7333</a></p>",
+    "PostedDate": "2009-10-30T11:30:30.42-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "480425",
+    "ThreadId": "73213",
+    "Html": "<p>Thanks Koyoma,</p>\r\n<p>I applied your sample and it worked. I did some date formatting like this:</p>\r\n<pre>$worksheet-&gt;getStyle(&quot;E2:E$highestRow&quot;)-&gt;getNumberFormat()-&gt;setFormatCode('mm/dd/yyyy');<br><br>Thanks Again<br>Yamin</pre>",
+    "PostedDate": "2010-08-13T16:48:34.367-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

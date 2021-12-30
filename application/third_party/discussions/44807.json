@@ -1,0 +1,74 @@
+[
+  {
+    "Id": "149222",
+    "ThreadId": "44807",
+    "Html": "I cannot get my worksheet to open when I attempt to download it through the browser. I am passing the download headers, saving to disk and using fpassthru to try to send it to the user. The version I pull directly off the server gets the unreadable content errors, but it does open. The version that I save or open through the browser gives me an invalid file format error and will not open. any ideas?<br>\r\n",
+    "PostedDate": "2009-01-21T06:02:34.923-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "149229",
+    "ThreadId": "44807",
+    "Html": "Try to make it work first where you save ordinarily to disk on server (not sending to client browser). Sending file to browser there are many more pitfalls.<br>\r\n<br>\r\nIf you get corrupt xlsx file saving ordinarily to disk it could be a defective zip extension, or it could be your coding. There is a thread about defective zip extension:<br>\r\n<a href=\"http://www.codeplex.com/PHPExcel/Thread/View.aspx?ThreadId=42854\">http://www.codeplex.com/PHPExcel/Thread/View.aspx?ThreadId=42854</a> <br>\r\n<br>\r\n\r\n",
+    "PostedDate": "2009-01-21T06:13:32.71-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "149237",
+    "ThreadId": "44807",
+    "Html": "When I save directly to the server the only error I get with the file is an unreadable content error. The file opens and cleans up fine when I get the file from the server.&nbsp; I am on a Unix/Apache server if that helps anything.<br>\r\n<br>\r\nBasic server info<br>\r\n&nbsp; PHP version: 5.2.6<br>\r\n&nbsp; Zip version: 1.8.11<br>\r\n",
+    "PostedDate": "2009-01-21T06:24:49.287-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "149248",
+    "ThreadId": "44807",
+    "Html": "Ugh... if you are getting &quot;unreadable content error&quot; from MS Office Excel then something is wrong and needs to be fixed.<br>\r\n<br>\r\nDoes this happen for all files you generate? Can you try to change extension from xlsx to zip and see if the file can be unzipped without any errors?<br>\r\n<br>\r\n<br>\r\n",
+    "PostedDate": "2009-01-21T06:41:57.873-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "149251",
+    "ThreadId": "44807",
+    "Html": "What is it supposed to look like when it is zipped? I extract and it just dumps three folders and an xml file into my destination that I choose.<br>\r\n",
+    "PostedDate": "2009-01-21T06:52:07.557-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "149256",
+    "ThreadId": "44807",
+    "Html": "And when I just make a quick document similar to example 1 I don't get an unreadable content error, so I'm guessing that it is a problem with my code<br>\r\n",
+    "PostedDate": "2009-01-21T06:56:25.23-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "149257",
+    "ThreadId": "44807",
+    "Html": "Yeah, then it's probably your code. Try to remove statements and isolate the problem. For example, you can get corrupt xlsx file if you are not using UTF-8.<br>\r\n<br>\r\n",
+    "PostedDate": "2009-01-21T07:00:26.82-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "149282",
+    "ThreadId": "44807",
+    "Html": "Ok I fixed the part where it was saving to the server with the unreadable content, now when I download it, it will open and get the unreadable content error<br>\r\n",
+    "PostedDate": "2009-01-21T07:52:08.42-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "149285",
+    "ThreadId": "44807",
+    "Html": "In that case you may have missed the guidelines from the documentation when sending files directly to browser:<br>\r\n<ul>\r\n    <li>Make sure not to include any echo statements or output any other\r\n    contents than the Excel file. There should be no whitespace before the\r\n    opening <code>&lt;?php</code> tag and at most one line break after the closing <code>?&gt;</code>\r\n    tag (which can also be omitted to avoid problems).</li>\r\n    <li>Make sure that your script is saved without a BOM (Byte-order mark). (Because this counts as echoing output)</li>\r\n    <li>Same things apply to all included files</li>\r\n</ul>\r\nIf you think you are doing everything right, compare downloaded file with file saved on server disk. They should look the same in a HEX editor. Try to find out how they differ. Usually there is prepended or appended some stray characters (may even be just white space) because one or more of the above guidelines are violated.<br>\r\n",
+    "PostedDate": "2009-01-21T08:05:14.063-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

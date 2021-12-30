@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "1013135",
+    "ThreadId": "436110",
+    "Html": "Hi there,\r<br />\n<br />\nI'm REALLY stuck with something that shouldn't be that complicated... I'm using the Yii Framework and trying to export a Excel file containing data from a database. The only method that actually generates a correct Excel file with the expected data involves saving the file automatically, which saves it in the directory where the PHP file is stored, which is the server. As I want this file to be saved for the client where they want to, I want to show a kind of &quot;open/save as&quot; dialog... Yes, I've already read like 20 threads about it, but none of them seems to solve my case...\r<br />\n<br />\nI've tried basically two different approaches: The first one, which saves the correct Excel file to the server directory, is this one:\r<br />\n<br />\n[code]\r<br />\n...\r<br />\n$objPHPExcel = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');\r<br />\n$objWriter-&gt;save(str_replace('.php', '.xlsx', <strong>FILE</strong>));\r<br />\n[\\code]\r<br />\n<br />\nThis method saves an excel file called like the PHP file (changing the extension) that actually works fine, but it is automatically saved in the same directory where the PHP file is without even notifying it (nor letting the user select where to save it).\r<br />\n<br />\nFollowing some existing threads on this topic, I've tried a second approach:\r<br />\n<br />\n[code]\r<br />\nheader('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');\r<br />\nheader('Content-Disposition: attachment;filename=&quot;my-file.xlsx&quot;');\r<br />\nheader('Cache-Control: max-age=0');\r<br />\n<br />\n$objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel);\r<br />\n$objWriter-&gt;save('php://output');\r<br />\n[\\code]\r<br />\n<br />\nThis method saves the file automatically to the default download folder, but saves a kind of messy excel document containing the header of the page, plenty of strange, chinese characters, every echo contained in the page and other weird things that would make anyone cry.\r<br />\n<br />\nAny idea of what to do? I'm working within the Yii Framework, so I understand that the default header included in the page can be giving me some trouble, though I don't understand why the first way generates a correct file but the second do not... However, I can't use an &quot;external&quot; PHP (I mean not &quot;included&quot; within the Yii-generated pages) because i get a forbidden access error...\r<br />\n<br />\nSome has some clues about this?\r<br />\n<br />\nThanks in advance!<br />\n",
+    "PostedDate": "2013-03-11T02:29:30.56-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1013777",
+    "ThreadId": "436110",
+    "Html": "Finally I've been able to kind-of solve it... If anyone ever encounters the same problem that I've been facing, check out this Yii Extension (which is, in fact, an extension of an extension that extends PhpExcel): <a href=\"http://www.yiiframework.com/extension/yiireport/\" rel=\"nofollow\">http://www.yiiframework.com/extension/yiireport/</a><br />\n",
+    "PostedDate": "2013-03-12T02:58:13.837-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

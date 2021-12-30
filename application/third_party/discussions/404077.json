@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "945067",
+    "ThreadId": "404077",
+    "Html": "\r\n<p>Hi All - I know there have been previous posts on this but it seems they have been resolved by a change in permissions. The problem I have is that this error is sporadic, I can get the following error form my web app and then simply hit refresh on the browser\r\n and the next time it's OK - sometimes I get the error first time round and sometimes I don't.</p>\r\n<p><strong>Fatal error</strong>: Uncaught exception 'Exception' with message 'Could not close zip file ../data/product/Client US/output/a0f89rcierlpspo83qg1vcni27/Client US_Gloss 6.0.11.13 TB6-Gloss 6.0.11.13 TB6_RIG.xlsx.' in C:\\sambar60-1\\docs\\QA\\classes\\PHPExcel-latest\\PHPExcel\\Writer\\Excel2007.php:352\r\n Stack trace: #0 C:\\sambar60-1\\docs\\QA\\RIG\\code\\sign_off_generator_gloss.php(217): PHPExcel_Writer_Excel2007-&gt;save('../data/product/C...') #1 {main} thrown in\r\n<strong>C:\\sambar60-1\\docs\\QA\\classes\\PHPExcel-latest\\PHPExcel\\Writer\\Excel2007.php</strong> on line\r\n<strong>352</strong></p>\r\n<p>I'm running Sambar on Windows Server 2003, PhpExcel 1.7.8</p>\r\n<p>Has anyone seen this error sporadically and found a solution or workaround?</p>\r\n<p>Many thanks</p>\r\n<p>DAve</p>\r\n",
+    "PostedDate": "2012-11-21T03:47:43.87-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "945382",
+    "ThreadId": "404077",
+    "Html": "\r\n<p>Three possible causes that I'm aware of:</p>\r\n<ul>\r\n<li>Invalid directory path </li><li>File permissions </li><li>File is open within another application </li></ul>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2012-11-21T15:03:47.58-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "945538",
+    "ThreadId": "404077",
+    "Html": "\r\n<p>Thanks Mark - your point about 'Invalid Directory Paths' made me convert the relative paths that I had been using to absolute paths and for now that seems to have fixed it.</p>\r\n<p>So for any relative php newbies I was using this to save:</p>\r\n<p>$xlsPath = '../data/' . PRODUCT . '/' . $client . '/output/'.session_id().'/';</p>\r\n<p>$objWriter-&gt;save($xlsPath.$xlsFilename);</p>\r\n<p>now I'm using:</p>\r\n<p>$xlsPath = $_SERVER['DOCUMENT_ROOT'].&quot;/QA/RIG/data/&quot; . PRODUCT .&quot;/&quot;. $client . '/output/'.session_id().'/';</p>\r\n<p>$objWriter-&gt;save($xlsPath.$xlsFilename);</p>\r\n<p>So far this seems to have worked, will post here again if the error re-occurs.</p>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2012-11-22T01:39:10.577-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "945548",
+    "ThreadId": "404077",
+    "Html": "\r\n<p>Spoke too soon. Just seen the same error again..</p>\r\n",
+    "PostedDate": "2012-11-22T02:13:35.51-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "954970",
+    "ThreadId": "404077",
+    "Html": "\r\n<p>Have wrapped the save() function in try / catch and put that inside a loop so that it tretires if the exception is thrown, seems to have worked and I can see from my log files that when the error has been thrown on the first attempt, the second attempt saves\r\n successfully.:</p>\r\n<p>&nbsp;</p>\r\n<p></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>        $i = 1;\r\n        <span style=\"color:blue\">while</span> ($i &lt;= 5)\r\n        {\r\n\r\n            <span style=\"color:blue\">try</span> {\r\n                $logger-&gt;info(<span style=\"color:#a31515\">&quot;Saving the xls file&quot;</span>);\r\n                $objWriter-&gt;save($xlsPath.$xlsFilename);\r\n                $logger-&gt;info(<span style=\"color:#a31515\">&quot;xls file save successful&quot;</span>);\r\n                <span style=\"color:blue\">break</span>;\r\n            }\r\n            Catch (Exception $e){\r\n\r\n                $i++;\r\n\r\n                <span style=\"color:blue\">if</span> ($i == 5)\r\n                {\r\n                    $logger-&gt;err(<span style=\"color:#a31515\">&quot;Error message: &quot;</span>. $e-&gt;getMessage());\r\n                    $logger-&gt;err(<span style=\"color:#a31515\">&quot;Error code: &quot;</span>. $e-&gt;getCode());\r\n                    $logger-&gt;err(<span style=\"color:#a31515\">&quot;Error full string: &quot;</span>. $e-&gt;__toString());\r\n\r\n                    <span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">&quot;<br> EXITING - Full error string: <br>&quot;</span>;\r\n                    <span style=\"color:blue\">die</span> ( $e-&gt;__toString() );\r\n                }\r\n\r\n                sleep(5);\r\n                $logger-&gt;warning(<span style=\"color:#a31515\">&quot;Caught Error message: &quot;</span>.$e-&gt;getMessage());\r\n                $logger-&gt;warning(<span style=\"color:#a31515\">&quot;Re-attempting the save&quot;</span>);\r\n            }\r\n        }\r\n</pre>\r\n</div>\r\n<p></p>\r\n",
+    "PostedDate": "2012-12-12T01:07:22.22-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

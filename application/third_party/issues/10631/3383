@@ -1,0 +1,93 @@
+<?php
+/**
+ * PHPExcel
+ *
+ * Copyright (C) 2006 - 2009 PHPExcel
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * @category   PHPExcel
+ * @package    PHPExcel
+ * @copyright  Copyright (c) 2006 - 2009 PHPExcel (http://www.codeplex.com/PHPExcel)
+ * @license    http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt	LGPL
+ * @version    ##VERSION##, ##DATE##
+ */
+
+/** Error reporting */
+error_reporting(E_ALL);
+
+
+$style = array(	'alignment'	=> array(	'vertical'		=> 'center',
+										'horizontal'	=> 'center'
+									),
+				'font'		=> array(	'name'			=> 'Arial',
+										'size'			=> 12,
+										'color'			=> array(	'rgb'	=> '000000' )
+									),
+				'borders'	=> array(	'bottom'		=> array(	'style'	=> 'medium',
+																	'color'	=> array(	'rgb'	=> '00B050' ),
+																),
+										'left'			=> array(	'style'	=> 'medium',
+																	'color'	=> array(	'rgb'	=> '0070C0' ),
+																),
+										'right'			=> array(	'style'	=> 'medium',
+																	'color'	=> array(	'rgb'	=> 'FFFF00' ),
+																),
+										'top'			=> array(	'style'	=> 'medium',
+																	'color'	=> array(	'rgb'	=> 'FF0000' )
+																)
+									)
+			  );
+
+
+/** PHPExcel */
+require_once '../Classes/PHPExcel.php';
+
+/** PHPExcel_IOFactory */
+require_once '../Classes/PHPExcel/IOFactory.php';
+
+// Create new PHPExcel object
+echo date('H:i:s') . " Create new PHPExcel object\n";
+$objPHPExcel = new PHPExcel();
+
+// Add some data
+echo date('H:i:s') . " Add some data\n";
+$objPHPExcel->setActiveSheetIndex(0);
+
+$objPHPExcel->getActiveSheet()->setCellValue('B2', 'Hello World!');
+$objPHPExcel->getActiveSheet()->mergeCells('B2:C3');
+$objPHPExcel->getActiveSheet()->getStyle('B2')->applyFromArray($style);
+
+
+$objPHPExcel->getActiveSheet()->setCellValue('E2', 'Hello World!');
+$objPHPExcel->getActiveSheet()->getStyle('E2')->applyFromArray($style);
+$objPHPExcel->getActiveSheet()->mergeCells('E2:F3');
+
+
+$objPHPExcel->getActiveSheet()->setCellValue('H2', 'Hello World!');
+$objPHPExcel->getActiveSheet()->getStyle('H2:I3')->applyFromArray($style);
+$objPHPExcel->getActiveSheet()->mergeCells('H2:I3');
+
+
+// Save Excel 2007 file
+echo date('H:i:s') . " Write to Excel2007 format\n";
+$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+$objWriter->save(str_replace('.php', '.xlsx', __FILE__));
+
+// Echo memory peak usage
+echo date('H:i:s') . " Peak memory usage: " . (memory_get_peak_usage(true) / 1024 / 1024) . " MB\r\n";
+
+// Echo done
+echo date('H:i:s') . " Done writing file.\r\n";

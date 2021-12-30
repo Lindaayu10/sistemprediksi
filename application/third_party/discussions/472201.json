@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "1132837",
+    "ThreadId": "472201",
+    "Html": "My needs currently with PHPExcel are very basic.  Within my web application I want to provide users with an &quot;Export to Excel&quot; option. When selected I just need to extract data from mySQL and save it as Excel or CSV for the user.\r<br />\n<br />\nThe challenge is that in some cases there will be 50,000 rows, possibly more. I am very surprised to see how much memory this takes up and am looking for a solution to minimizing the memory footprint.\r<br />\n<br />\nI did a lot of research and reading past posts on the topic, and see a lot of talk about using different types of cache.  Also the documentation states that using caching instead of memory can reduce the memory footprint by 66%.\r<br />\n<br />\nHowever that is not my finding. I am using memory_get_peak_usage() before and after the call to generateReport().  What I find is that using the default of cache_in_memory provides the smallest footprint and fastest time. Using cache_to_discISAM actually takes up 30% MORE memory and ran 38% LONGER.  I tried cache_to_sqlite and cache_to_sqlite3 and they gave the same result as cache_in_memory. \r<br />\n<br />\nI basically went through all caching options, and nothing was faster than cache_in_memory.  This is confusing because the docs are very clear that by using the caching options you can reduce the memory and time.\r<br />\n<br />\nCan someone please explain what may be going on and provide some things that may help me optimize the memory usage, even at the expense of slower processing time?  I really don't need to do anything other than write the SQL data set to Excel or CSV and have it save it in that format.\r<br />\n<br />\nThank you!<br />\n",
+    "PostedDate": "2013-12-07T14:34:19.73-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1133519",
+    "ThreadId": "472201",
+    "Html": "SQLite3 is one of the most efficient cache methods in terms of memory. Get the same result as for cache_in_memory would assume that PHPExcel to meet a problem to use it. What is the return of setCacheStorageMethod in this case?\r<br />\nWithout being able to give accurate values, I know that one of my scripts work when I use sqlite3 while it fails with the in-memory cache.\r<br />\nIf you want to produce the CSV from a database, a simple script will be certainly more effective.<br />\n",
+    "PostedDate": "2013-12-10T03:02:20.917-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1134745",
+    "ThreadId": "472201",
+    "Html": "Thank you LWol! Based on your feedback I did some digging. It turns out that although PHPInfo showed the PDO and modules for SQLite3, PHP wasn't recognizing the SQLite3 class, and as a result setCacheStorageMethod was returning false.  Once I installed php5-sqlite package on Ubuntu then it started working. The first test I ran involved 31,000 rows. Using SQLite3 it took 206MB and 193 seconds to finish. With in-memory cache it took 380MB and 107 seconds.\r<br />\n<br />\nI am wondering if there are any SQLite3 optimizations I can make, either to its memory size or anything else for that matter, that would make it run faster.\r<br />\n<br />\nAny ideas? Thanks again!<br />\n",
+    "PostedDate": "2013-12-11T16:41:27.553-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

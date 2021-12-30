@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "1076529",
+    "ThreadId": "452380",
+    "Html": "Hello,\r<br />\n<br />\nPHP 5.4\r<br />\nPHPExcel 1.7.8\r<br />\nFreeBSD 9 i386\r<br />\n<br />\nI need to dump a MySQL database into an xlsx file and I'm hitting memory limits. I'm hitting vm.kmem_size_max, 512M I think, which requires a reboot to change, which isn't easy in production (I'm running on a test box now)... My script runs a few statements, clearing memory in between, creating Excel files for each result set. The biggest one is ~180k rows but the script is breaking before that on a ~100k statement in which I select nine small columns. If it's 1 KB per cell, which I've read, it should be roughly 900 MB? This is on a 32-bit VM. This is the error:\r<br />\n<br />\nFatal error: Allowed memory size of 402653184 bytes exhausted (tried to allocate 36 bytes) in /.../CachedObjectStorage/CacheBase.php on line 142\r<br />\n<br />\nThis is using phpTemp cache; I've tried most of them. I'm using the built-in Excel2007 writer.\r<br />\n<br />\nI found another thread that had interesting stuff in it, but that was about <em>reading</em> from a large Excel file and <em>writing</em> into a <em>database</em>--my problem is in the opposite direction. The script basically runs a select statement and then iterates through each row, passing the data through a number of filters which do things like sanitize data, count rows, etc., one of which (the last one) is PHPExcel. In the PHPExcel filter it writes that row to the worksheet. <em>In the filter destructor</em>, PHPExcel saves the sheet to a file. In other words:<br />\n<pre><code>foreach filter (\n    init (create PHPExcel object)\n}\nforeach row {\n    foreach filter {\n        run filter on row (set cell value and advance row iterator)\n    }\n}\nforeach filter (\n    finish (save file)\n}</code></pre>\n\nIs there any way to unset a row once it's written, or something else I can do, aside from selecting fewer rows? If I comment out the PHPExcel filter, it runs fine just outputting or counting rows. Reorganizing the script isn't as big a problem as rebooting.\r<br />\n<br />\nThanks,\r<br />\nJosh<br />\n",
+    "PostedDate": "2013-08-04T14:08:02.23-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1076535",
+    "ThreadId": "452380",
+    "Html": "Ugh, false alarm. I found a latter memory_limit setting buried in another script. Raising that made the error go away. Sorry!<br />\n",
+    "PostedDate": "2013-08-04T15:11:35.8-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "496818",
+    "ThreadId": "228098",
+    "Html": "<p>In short I am trying to copy a cell with a date value from one .xls to another. Problem I am having is date formatting is not being maintained, instead I get a number like 40422. I found a way around it by explicitely defining the format, but this could change. Ideally I'd like to use the source formatting.</p>\r\n<p>Here is what I am doing now:</p>\r\n<p>$objReader = PHPExcel_IOFactory::createReaderForFile($inputfile);<br>$objReader-&gt;setReadDataOnly(false);<br>$objPHPExcelInput = $objReader-&gt;load($inputfile);<br>$activeSheetInput=$objPHPExcelInput-&gt;getActiveSheet();</p>\r\n<p>...</p>\r\n<p>//Get the date value from the input .xls<br>$val = ($activeSheetInput-&gt;getCell($inputCell));<br>$data = $val-&gt;getvalue();//returns the value in the cell</p>\r\n<p>if (PHPExcel_Shared_Date::isDateTime($val))<br>{<br>&nbsp;&nbsp;&nbsp;//Write the data from the input file to the output .xls<br>&nbsp;&nbsp; $activeSheetOutput-&gt;setCellValue($outputCell,$data);<br><br>&nbsp;&nbsp; //Fix date formatting as it is not being maintained from input&nbsp;getValue<br>&nbsp;&nbsp;&nbsp;$activeSheetOutput-&gt;getStyle($outputCell)-&gt;getNumberFormat()-&gt;setFormatCode('d-mmm-yy');<br>}</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks</p>",
+    "PostedDate": "2010-09-21T21:32:38.983-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "496896",
+    "ThreadId": "228098",
+    "Html": "<p>The only way that PHPExcel (or even Excel itself) can differentiate between a number and a date is the format mask</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>$data = $val-&gt;getvalue();\r\n$activeSheetOutput-&gt;setCellValue($outputCell,$data);\r\n</pre>\r\n</div>\r\n<p>only copies the cell value (40422), not the format mask.</p>\r\n<p>You also need to copy the formatting mask as well</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>$data = $val-&gt;getvalue();\r\n<span style=\"color:blue\">if</span> (PHPExcel_Shared_Date::isDateTime($val))\r\n{\r\n   $format = $val-&gt;getParent()-&gt;getStyle($val-&gt;getCoordinate())-&gt;getNumberFormat();\r\n   $activeSheetOutput-&gt;setCellValue($outputCell,$data);\r\n   $activeSheetOutput-&gt;getStyle($outputCell)-&gt;getNumberFormat()-&gt;setFormatCode($format);\r\n}\r\n</pre>\r\n</div>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-09-22T01:35:32.05-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "497652",
+    "ThreadId": "228098",
+    "Html": "<p>Thanks for the explanation!</p>\r\n<p>The code you supplied got me on the right track, but was missing one small piece:</p>\r\n<p>$format = $val-&gt;getParent()-&gt;getStyle($val-&gt;getCoordinate())-&gt;getNumberFormat();</p>\r\n<p>needs to be:</p>\r\n<p>$format = $val-&gt;getParent()-&gt;getStyle($val-&gt;getCoordinate())-&gt;getNumberFormat()<strong>-&gt;getFormatCode();</strong><br><br>Thanks!</p>",
+    "PostedDate": "2010-09-23T09:41:22.277-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "497653",
+    "ThreadId": "228098",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>master44 wrote:</strong><br>\r\n<p>The code you supplied got me on the right track, but was missing one small piece:</p>\r\n</blockquote>\r\n<p>&nbsp;&lt;blush&gt;</p>\r\n<p>Glad you got it working anyway</p>",
+    "PostedDate": "2010-09-23T09:43:46.123-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

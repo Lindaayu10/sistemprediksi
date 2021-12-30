@@ -1,0 +1,65 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "Calculation_Engine",
+      "DisplayName": "Calculation_Engine"
+    },
+    "ClosedComment": "Fixed in SVN.",
+    "ClosedDate": "2010-05-11T00:45:48.703-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "PHPExcel fails when SUMIF is used with a range of values on a different worksheet which also contains a few empty cell values.\n \n=SUMIF(Sheet2!A1:A6, \">0\", Sheet2!A1:A6)\n \nPlacing these values on the same sheet as SUMIF works.\n \n=SUMIF(A4:A9, \">0\", A4:A9)\n \nThe exception error is \"Cyclic Reference in Formula\" for PHPExcel_Cell->getCalculatedValue( )\n \nThe values I used for SUMIF were\n \nA1 = NULL\nA2 = 5\nA3 = 10\nA4 = 20\nA5 = NULL\nA6 = 30\n \nHope this helps!\n \nDan",
+    "LastUpdatedDate": "2013-05-16T05:42:00.73-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2010-05-04T04:46:03.167-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Cyclic Reference in Formula",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 12935
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "Problem relates to the empty cell as the first value in the range. If Sheet2!A1 contains a value, then there's no problem. If Sheet2!A1 is an empty cell, then the calc engine is losing track of the worksheet reference when it tries to evaluate A1:A6 and treating it as the current worksheet.... which is where it detects the cyclic reference, because the formula is somewhere in the A1:A6 range of the current worksheet.\r\n\r\nModified code to ensure that calc engine retains worksheet reference when accessing empty cells. Checked code into SVN, where it should be available for tomorrows daily download.",
+      "PostedDate": "2010-05-04T06:10:58.573-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Thanks Mark, will give it a go tomorrow.",
+      "PostedDate": "2010-05-04T06:30:27.787-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-05-11T00:45:48.703-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:03:00.9-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:00.73-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

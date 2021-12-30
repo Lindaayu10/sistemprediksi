@@ -1,0 +1,98 @@
+[
+  {
+    "Id": "191085",
+    "ThreadId": "56548",
+    "Html": "<p>I am trying to read in a spreadsheet and display it via HTML</p>\r\n<p>Is there a way to determine the size of the Excel column and then set the &lt;TD&gt;</p>\r\n<p>element</p>\r\n<p>for ($col = 0; $col &lt;= $highestColumnIndex; ++$col) {</p>\r\n<p>$columnsize = <span style=\"font-family:'Trebuchet MS','sans-serif';font-size:10pt\" lang=NL>$objPHPExcel-&gt;getActiveSheet()-&gt;getColumnDimension('$col')</span></p>\r\n<p>&nbsp; echo '&lt;td width=' . $columnsize . '&gt;' . $objWorksheet-&gt;getCellByColumnAndRow($col, $row)-&gt;getValue() . '&lt;/td&gt;' . &quot;\\n&quot;;</p>\r\n<p>&nbsp; }</p>\r\n<p>&nbsp; echo '&lt;/tr&gt;' . &quot;\\n&quot;;</p>\r\n<p>&nbsp;</p>\r\n<p>I know I am missing something because <span style=\"font-family:'Trebuchet MS','sans-serif';font-size:10pt\" lang=NL>$objPHPExcel-&gt;getActiveSheet()-&gt;getColumnDimension('$col') is a object and I can not covert it to a string</span></p>\r\n<p><span style=\"font-family:'Trebuchet MS','sans-serif';font-size:10pt\" lang=NL>but I am trying to the HTML columns to match the spreadsheet cell widths</span></p>",
+    "PostedDate": "2009-05-16T15:00:16.737-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "191099",
+    "ThreadId": "56548",
+    "Html": "<p>Instead of this:<br> <br style=\"font-family:Courier New\"> <span style=\"font-family:Courier New\">$columnsize = </span><span style=\"font-family:'Trebuchet MS','sans-serif';font-size:10pt\" lang=NL><span style=\"font-family:Courier New\">$objPHPExcel-&gt;getActiveSheet()-&gt;getColumnDimension('$col')</span><br> <br> </span>Try something like this:<br> <br> <span style=\"font-family:Courier New\">$columnsize = ($width = </span><span style=\"font-family:Courier New;font-size:10pt\" lang=NL>$objPHPExcel-&gt;getActiveSheet()</span><span style=\"font-family:Courier New\">-&gt;getColumnDimensionByColumn($col)-&gt;getWidth()) &gt; 0</span><br style=\"font-family:Courier New\"> <span style=\"font-family:Courier New\">&nbsp;&nbsp;&nbsp; ? $width : 10;</span><br> <br> Here 10 is just some fallback width for columns with no explicitly set width (they will return a width of -1).</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-05-16T16:22:59.053-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "191104",
+    "ThreadId": "56548",
+    "Html": "<p>All&nbsp;the columns are defaulting to whatever value the fallback setting is ie 10</p>\r\n<p>I am not sure why its unable to determine the width of the excel column and</p>\r\n<p>put that in the $columnsize variable for use in the &lt;td&gt; element?&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>// Data Loop<br>for ($row = 2; $row &lt;= $highestRow; ++$row) {<br>&nbsp; echo '&lt;tr&gt;' . &quot;\\n&quot;;</p>\r\n<p>&nbsp; for ($col = 0; $col &lt;= $highestColumnIndex; ++$col) <br>&nbsp; {</p>\r\n<p>&nbsp;&nbsp; $columnsize = ($width = $objPHPExcel-&gt;getActiveSheet()-&gt;getColumnDimensionByColumn($col)-&gt;getWidth()) &gt; 0 ? $width : 10;<br>&nbsp;&nbsp; echo '&lt;td width=' . $columnsize . '&gt;' . $objWorksheet-&gt;getCellByColumnAndRow($col, $row)-&gt;getValue() . '&amp;nbsp&lt;/td&gt;' . &quot;\\n&quot;;&nbsp;&nbsp;&nbsp;&nbsp;</p>\r\n<p>&nbsp; }</p>\r\n<p>&nbsp; echo '&lt;/tr&gt;' . &quot;\\n&quot;;<br>}</p>\r\n<p>&nbsp;</p>\r\n<p>HTML SOURCE</p>\r\n<div style=\"text-indent:-0.5em;padding-left:1em\"><span><span><span style=\"color:#0000ff\">&lt;</span><span><span style=\"color:#800000\">td</span></span><span style=\"color:#0000ff\"> </span><span><span style=\"color:#ff0000\">width</span></span><span style=\"color:#0000ff\">=<span>10</span>&gt;</span></span>490000004&amp;nbsp<span><span style=\"color:#0000ff\">&lt;/</span><span><span style=\"color:#800000\">td</span></span><span style=\"color:#0000ff\">&gt;</span></span></span></div>\r\n<div style=\"text-indent:-0.5em;padding-left:1em\"><span><span><span style=\"color:#0000ff\">&lt;</span><span><span style=\"color:#800000\">td</span></span><span style=\"color:#0000ff\"> </span><span><span style=\"color:#ff0000\">width</span></span><span style=\"color:#0000ff\">=<span>10</span>&gt;</span></span>6/08&amp;nbsp<span><span style=\"color:#0000ff\">&lt;/</span><span><span style=\"color:#800000\">td</span></span><span style=\"color:#0000ff\">&gt;</span></span></span></div>\r\n<div style=\"text-indent:-0.5em;padding-left:1em\"><span><span><span><span style=\"color:#800000\">&lt;td</span></span><span style=\"color:#0000ff\"> </span><span><span style=\"color:#ff0000\">width</span></span><span style=\"color:#0000ff\">=<span>10</span>&gt;</span></span>39611&amp;nbsp<span><span style=\"color:#0000ff\">&lt;/</span><span><span style=\"color:#800000\">td</span></span><span style=\"color:#0000ff\">&gt;</span></span></span></div>\r\n<div style=\"text-indent:-0.5em;padding-left:1em\"><span><span><span style=\"color:#0000ff\">&lt;</span><span><span style=\"color:#800000\">td</span></span><span style=\"color:#0000ff\"> </span><span><span style=\"color:#ff0000\">width</span></span><span style=\"color:#0000ff\">=<span>10</span>&gt;</span></span>39624&amp;nbsp<span><span style=\"color:#0000ff\">&lt;/</span><span><span style=\"color:#800000\">td</span></span><span style=\"color:#0000ff\">&gt;</span></span></span></div>\r\n<div style=\"text-indent:-0.5em;padding-left:1em\"><span><span><span><span style=\"color:#800000\">&lt;td</span></span><span style=\"color:#0000ff\"> </span><span><span style=\"color:#ff0000\">width</span></span><span style=\"color:#0000ff\">=<span>10</span>&gt;</span></span>6&amp;nbsp<span><span style=\"color:#0000ff\">&lt;/</span><span><span style=\"color:#800000\">td</span></span><span style=\"color:#0000ff\">&gt;</span></span></span></div>\r\n<div style=\"text-indent:-0.5em;padding-left:1em\"><span><span><span style=\"color:#0000ff\">&lt;</span><span><span style=\"color:#800000\">td</span></span><span style=\"color:#0000ff\"> </span><span><span style=\"color:#ff0000\">width</span></span><span style=\"color:#0000ff\">=<span>10</span>&gt;</span></span>&amp;nbsp<span><span style=\"color:#0000ff\">&lt;/</span><span><span style=\"color:#800000\">td</span></span><span style=\"color:#0000ff\">&gt;</span></span></span></div>\r\n<div style=\"text-indent:-0.5em;padding-left:1em\"><span><span><span style=\"color:#0000ff\">&lt;</span><span><span style=\"color:#800000\">td</span></span><span style=\"color:#0000ff\"> </span><span><span style=\"color:#ff0000\">width</span></span><span style=\"color:#0000ff\">=<span>10</span>&gt;</span></span>TM1&amp;nbsp<span><span style=\"color:#0000ff\">&lt;/</span><span><span style=\"color:#800000\">td</span></span></span></span></div>",
+    "PostedDate": "2009-05-16T17:35:49.31-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "191107",
+    "ThreadId": "56548",
+    "Html": "<p>Sounds strange. Do the columns in the sheet have different widths? Or have you set a default width for all columns?</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-05-16T17:47:00.853-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "191108",
+    "ThreadId": "56548",
+    "Html": "<p>The column widths in the spreadsheet are&nbsp; (11.14 , 12.43 , 13.29 , 12.14 , 15.57 , 10.29 , 9.14)</p>",
+    "PostedDate": "2009-05-16T17:50:42.583-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "191110",
+    "ThreadId": "56548",
+    "Html": "<p>I can't see whether you are retrieving data from the active sheet or some other sheet.<br> <br> Can you try to replace this<br> <br style=\"font-family:Courier New\"> <span style=\"font-family:Courier New\">$objPHPExcel-&gt;getActiveSheet()</span><br> <br> with this in your loop<br> <br> <span style=\"font-family:Courier New\">$objWorksheet</span><br> <br> If this doesn't work, try to send me the Excel file (erik at phpexcel dot net).</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-05-16T18:01:30.717-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "191114",
+    "ThreadId": "56548",
+    "Html": "<p>[File received]</p>\r\n<p>The problem is that you have this:<br> <span style=\"font-family:Courier New\"><br> $objReader-&gt;setReadDataOnly(true);</span><br> <br> Column widths are ignored when you use that.<br> <br> You could also try to use <span style=\"font-family:Courier New\">PHPExcel_Writer_HTML</span> to convert your Excel file to HTML?</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-05-16T18:22:46.803-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "191116",
+    "ThreadId": "56548",
+    "Html": "\r\nKind of an object rookie - how would I go about using the Writer to accomplish this?<br>\r\nAlso without setReadOnly(true) I burn more RAM than my hoster will let me allocate<br>\r\nand this is only a sample dataset and not even the full spreadsheet<br>\r\n <br>\r\n<hr id=stopSpelling>\r\nFrom: [email removed]<br>To: [email removed]<br>Date: Sat, 16 May 2009 18:22:49 -0700<br>Subject: Re: getColumnDimension [PHPExcel:56548]<br><br>\r\n\r\n\r\nFrom: koyama<br>\r\n<div id=\"EC_ThreadNotificationPostBody\">\r\n[File received]<br>\r\nThe problem is that you have this:<br><span style=\"font-family:Courier New\"><br>$objReader-&gt;setReadDataOnly(true);</span><br><br>Column widths are ignored when you use that.<br><br>You could also try to use <span style=\"font-family:Courier New\">PHPExcel_Writer_HTML</span> to convert your Excel file to HTML?<br>\r\n <br></div>\r\n<br><hr>Hotmail® has ever-growing storage! Don’t worry about storage limits. <a href=\"http://windowslive.com/Tutorial/Hotmail/Storage?ocid=TXT_TAGLM_WL_HM_Tutorial_Storage1_052009\">Check it out.</a>",
+    "PostedDate": "2009-05-16T18:27:59.433-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "191117",
+    "ThreadId": "56548",
+    "Html": "\r\nI also chose to it the way I was I was because I need to write a header sort function<br>\r\nand also try to develop a filter routine in HTML so I emulate much of the sheet functionality<br> <br>\r\n<hr id=stopSpelling>\r\nFrom: [email removed]<br>To: [email removed]<br>Date: Sat, 16 May 2009 18:22:49 -0700<br>Subject: Re: getColumnDimension [PHPExcel:56548]<br><br>\r\n\r\n\r\nFrom: koyama<br>\r\n<div id=\"EC_ThreadNotificationPostBody\">\r\n[File received]<br>\r\nThe problem is that you have this:<br><span style=\"font-family:Courier New\"><br>$objReader-&gt;setReadDataOnly(true);</span><br><br>Column widths are ignored when you use that.<br><br>You could also try to use <span style=\"font-family:Courier New\">PHPExcel_Writer_HTML</span> to convert your Excel file to HTML?<br>\r\n <br></div>\r\n<br><hr>Hotmail® has a new way to see what's up with your friends. <a href=\"http://windowslive.com/Tutorial/Hotmail/WhatsNew?ocid=TXT_TAGLM_WL_HM_Tutorial_WhatsNew1_052009\">Check it out.</a>",
+    "PostedDate": "2009-05-16T18:37:49.267-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "191118",
+    "ThreadId": "56548",
+    "Html": "<p>Do like this to convert from xlsx to HTML:<br> <br> <span style=\"font-family:Courier New\">$objReader = PHPExcel_IOFactory::createReader('Excel2007');</span><br style=\"font-family:Courier New\"> <span style=\"font-family:Courier New\">$objPHPExcel = $reader-&gt;load('headings.xlsx');</span><br style=\"font-family:Courier New\"> <br style=\"font-family:Courier New\"> <span style=\"font-family:Courier New\">$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'HTML');</span><br style=\"font-family:Courier New\"> <span style=\"font-family:Courier New\">$objWriter-&gt;save('write.html');</span><br></p>\r\n<blockquote><em>Also without setReadOnly(true) I burn more RAM than my hoster will let me allocate<br> and this is only a sample dataset and not even the full spreadsheet<br> </em></blockquote>\r\n<p>Use latest source code from here:<br> <a href=\"../SourceControl/ListDownloadableCommits.aspx\">http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx</a><br> <br> I tried with the file you sent me, here is the difference (both tests with full styles):<br> <br> Latest source code (Change Set 27516)<br> - read took: 4 seconds<br> - write took: 2 seconds<br> - Peak memory usage: 12.5 MB <br> <br> PHPExcel 1.6.7<br> - read took: 24 seconds<br> - write took: 11 seconds<br> - Peak memory usage: 58.5 MB</p>",
+    "PostedDate": "2009-05-16T18:43:07.853-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "191120",
+    "ThreadId": "56548",
+    "Html": "\r\nStill not respecting the columns... using new code and commented out the<br>\r\nsetReadDataOnly(true)<br>\r\n <br>\r\n<a href=\"http://www.daguild.org/soramin/soramin.php\">http://www.daguild.org/soramin/soramin.php</a><br>\r\n <br>\r\n <br>\r\n <br>\r\n&lt;?php<br>error_reporting(E_ALL);<br>ini_set('memory_limit', '768M');<br>set_include_path(get_include_path() . PATH_SEPARATOR . '../Classes/');<br>\r\ninclude 'PHPExcel.php';<br>include 'PHPExcel/IOFactory.php';<br>\r\n<br>$objPHPExcel = new PHPExcel();<br>\r\n$objReader = PHPExcel_IOFactory::createReader('Excel2007');<br>// $objReader-&gt;setReadDataOnly(true);<br>\r\n$objPHPExcel = $objReader-&gt;load(&quot;headings.xlsx&quot;);<br>$objWorksheet = $objPHPExcel-&gt;getActiveSheet();<br>\r\n$highestRow = $objWorksheet-&gt;getHighestRow(); <br>$highestColumn = $objWorksheet-&gt;getHighestColumn();<br>\r\n$highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn);<br>\r\n<br>echo '<table border=1>' . &quot;\\n&quot;;<br>//Header ONLY Loop<br>  echo '<tr>' . &quot;\\n&quot;;  <br>  for ($col = 0; $col &lt;= $highestColumnIndex; ++$col) {<br>  echo '<th><a href=\" . $_SERVER[\">' . $objWorksheet-&gt;getCellByColumnAndRow($col, 1)-&gt;getValue() . '</a></th>' . &quot;\\n&quot;;<br>  }<br>  echo '</tr>' . &quot;\\n&quot;;<br>\r\n// Data Loop<br>for ($row = 2; $row &lt;= $highestRow; ++$row) {<br>  echo '<tr>' . &quot;\\n&quot;;<br>\r\n  for ($col = 0; $col &lt;= $highestColumnIndex; ++$col) <br>  {<br>\r\n   $columnsize = ($width = $objWorksheet-&gt;getColumnDimensionByColumn($col)-&gt;getWidth()) &gt; 0 ? $width : 10;<br>   echo '<td width=\" . $columnsize . \">' . $objWorksheet-&gt;getCellByColumnAndRow($col, $row)-&gt;getValue() . '&nbsp</td>' . &quot;\\n&quot;;     <br>\r\n  }<br>\r\n  echo '</tr>' . &quot;\\n&quot;;<br>}<br>echo '</table>' . &quot;\\n&quot;;<br>\r\n// Echo memory peak usage<br>echo &quot;Peak memory usage: &quot; . (memory_get_peak_usage(true) / 1024 / 1024) . &quot; MB&quot;;<br>\r\n?&gt;<br>\r\n<br> <br>\r\n<hr id=stopSpelling>\r\nFrom: [email removed]<br>To: [email removed]<br>Date: Sat, 16 May 2009 18:43:10 -0700<br>Subject: Re: getColumnDimension [PHPExcel:56548]<br><br>\r\n\r\n\r\nFrom: koyama<br>\r\n<div id=\"EC_ThreadNotificationPostBody\">\r\nDo like this to convert from xlsx to HTML:<br><br><span style=\"font-family:Courier New\">$objReader = PHPExcel_IOFactory::createReader('Excel2007');</span><br style=\"font-family:Courier New\"><span style=\"font-family:Courier New\">$objPHPExcel = $reader-&gt;load('headings.xlsx');</span><br style=\"font-family:Courier New\"><br style=\"font-family:Courier New\"><span style=\"font-family:Courier New\">$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'HTML');</span><br style=\"font-family:Courier New\"><span style=\"font-family:Courier New\">$objWriter-&gt;save('write.html');</span><br><br>\r\n<blockquote><em>Also without setReadOnly(true) I burn more RAM than my hoster will let me allocate<br>and this is only a sample dataset and not even the full spreadsheet<br></em></blockquote>\r\nUse latest source code from here:<br><a href=\"http://../SourceControl/ListDownloadableCommits.aspx\">http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx</a><br><br>I tried with the file you sent me, here is the difference (both tests with full styles):<br><br>Latest source code (Change Set 27516)<br>- read took: 4 seconds<br>- write took: 2 seconds<br>- Peak memory usage: 12.5 MB <br><br>PHPExcel 1.6.7<br>- read took: 24 seconds<br>- write took: 11 seconds<br>- Peak memory usage: 58.5 MB<br></div>\r\n<br><hr>Hotmail® goes with you.  <a href=\"http://windowslive.com/Tutorial/Hotmail/Mobile?ocid=TXT_TAGLM_WL_HM_Tutorial_Mobile1_052009\">Get it on your BlackBerry or iPhone.</a>",
+    "PostedDate": "2009-05-16T18:58:59.233-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "191121",
+    "ThreadId": "56548",
+    "Html": "<blockquote><em>Still not respecting the columns... using new code and commented out the</em><br></blockquote>\r\n<p>Column widths are actually picked up. It is correct that <span style=\"font-family:Courier New\">getWidth()</span> does not return exactly what you see in the dialog. There is an explanation for that if you have time to learn:<br> <a href=\"View.aspx?ThreadId=43265\">http://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=43265</a><br> <br> Best advice it to adjust columns in you Excel file by experimenting until they come out right in the HTML. Pixel-perfection is hard to achieve with HTML/CSS and may not even be wanted.</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-05-16T19:18:15.797-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

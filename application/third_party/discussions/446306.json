@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "1053917",
+    "ThreadId": "446306",
+    "Html": "I'm new with php. Can you explain how to use PHP Excel to generate excel report from SQL database. Basically it should work like this:<br />\n<ul>\n<li>Read the data from database</li>\n<li>Transfer all data in database to excel - report.xsl</li>\n<li>\nDownload report.xsl file..<br />\n</li>\n</ul>\nPlease help me with this.. TQ..<br />\n",
+    "PostedDate": "2013-06-07T01:38:25.577-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1054008",
+    "ThreadId": "446306",
+    "Html": "A basic example : <br />\n<pre><code>&lt;?php\n$host='localhost'; $user='me'; $pass='mypassword'; $DataBase='mydatabase';//define the correct values\n// open the connexion to the databases server\n$Link=@mysqli_connect($host,$user,$pass,$DataBase) or die('Can\\'t connect !');\nmysqli_set_charset($Link, 'utf8');//if not by default\n//your request\n$SQL='SELECT Field1, Field2 FROM MyTable';\n$rs=mysqli_query($Link, $SQL);//get the result (ressource)\n/** Include PHPExcel */\nrequire_once '../Classes/PHPExcel.php';//change if necessary\n\n// Create new PHPExcel object\n$objPHPExcel = new PHPExcel();\n$F=$objPHPExcel-&gt;getActiveSheet();\n$Line=1;\nwhile($Trs=mysqli_fetch_assoc($rs)){//extract each record\n    $F-&gt;setCellValue('A'.$Line, $Trs['Field1'])\n        -&gt;setCellValue('B'.$Line, $Trs['Field2']);//write in the sheet\n    ++$Line;\n}\n// Redirect output to a client’s web browser (Excel5)\nheader('Content-Type: application/vnd.ms-excel');\nheader('Content-Disposition: attachment;filename=&quot;report.xls&quot;');\nheader('Cache-Control: max-age=0');\n\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');\n$objWriter-&gt;save('php://output');\nexit;</code></pre>\n\n",
+    "PostedDate": "2013-06-07T05:33:11.973-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

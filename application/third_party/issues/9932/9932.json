@@ -1,0 +1,145 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "All",
+      "DisplayName": "All"
+    },
+    "ClosedComment": "",
+    "ClosedDate": "2009-12-16T00:37:35.187-08:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "In MS Office Excel you can select a range of cells, say B1:F25, by e.g. click-dragging the mouse from B1 to F25.\n \nYou can add more cells to the selection by using CTRL + click-drag so you might end up with a selection like:\n'B1:F25 J14:M29'.\n \nExcel seems to force the selection so merged cells are never split.\n \nIf the Excel file is saved at this point, the current selection is saved too, and when the file is opened again, the selection is still there.\n \nIs there some way we can implement support for this in PHPExcel? This may not be trivial, but this could be a door opener to a wide range of features.",
+    "LastUpdatedDate": "2013-05-16T05:42:41.213-07:00",
+    "PlannedForRelease": "PHPExcel 1.7.2 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-05-04T20:36:42-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Cell range selection",
+    "Type": {
+      "Name": "Feature",
+      "Id": 1
+    },
+    "VoteCount": 1,
+    "Id": 9932
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "May I add that we already have method $objWorksheet->setSelectedCell('A1') which sets the single active cell for the worksheet. We could consider renaming this to setActiveCell('A1').\r\n\r\nIn the long we could then end up having methods\r\n$objPHPExcel->setActiveSheet() \r\n$objPHPExcel->setSelectedSheets()\r\n\r\n$objWorksheet->setActiveCell()\r\n$objWorksheet->setSelectedCells()\r\n\r\nor even for a future application object...\r\nsetActiveWorkbook()\r\nsetSelectedWorkbooks()\r\n",
+      "PostedDate": "2009-05-04T20:45:57.823-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-05-04T20:48:39.293-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "setSelectedCell and setActiveSheet already work at the moment, this should not be considered an issue I think?",
+      "PostedDate": "2009-05-04T23:27:58.67-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Oh, I didn't explain well enough. I am asking for a feature so we can do like this:\r\nhttp://i43.tinypic.com/1zb3s43.png\r\n\r\nPEAR::Spreadsheet_Excel_Writer supports this via:\r\nworksheet->setSelection($first_row,$first_column,$last_row,$last_column)\r\n\r\nbut PHPExcel does not have this feature.",
+      "PostedDate": "2009-05-05T03:49:14.967-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Should be possible. Let's say we keep setSelectedCell as deprecated and add setSelectedRange()?\r\n\r\nI'll add this as soon as possible for PHPExcel + PHPExcel_*_Excel2007, probably tomorrow.",
+      "PostedDate": "2009-05-05T04:41:49.12-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": ">>Let's say we keep setSelectedCell as deprecated and add setSelectedRange()?\r\n\r\n1.\r\nI think we somehow need both, but setSelectedCell() should perhaps be renamed to setActiveCell(). Why need both? Consider this:\r\n\r\nHere I have selected B4:E11 click-dragging from B4 to E11. This at the same time sets the active cell to B4 because I started dragging from that corner.\r\nhttp://i43.tinypic.com/2hs811z.png\r\n\r\nHere I have now pressed the TAB key 5 times, now the active cell has advanced 5 positions from B4,C4,D4,E4,B2,C2. \r\nhttp://i40.tinypic.com/s2zas4.png\r\n\r\nI think the active cell is always constrained in Excel to be within the selection.\r\n\r\n2.\r\nIf we can figure out something so we one can also select something like this (B4:E11 G7:G16), then it would be absolutely brilliant. This is something which PEAR::Spreadsheet_Excel_Writer does not have.\r\nhttp://i41.tinypic.com/2u9q34w.png\r\n\r\n3.\r\nOnce this is in place, I am thinking about adding support for something like this (will only take minor work):\r\n\r\n$objWorksheet->getStyle('A1:B10')\r\n->getBorders()\r\n->getOutline()\r\n->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK)\r\n\r\nwhich would be a shortcut for something like this:\r\n$objWorksheet->setSelectedRange('A1:B10');\r\n$objPHPExcel->getStyleSupervisor()\r\n->getBorders()\r\n->getOutline()\r\n->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK)\r\n",
+      "PostedDate": "2009-05-05T05:16:41.98-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Hmm... there is a further tweak to it. The active cell is not uniquely identified by the coordinate, say 'B1'. Why? Because if you have two overlapping selections like 'A1:B1 B1:C1', then as you TAB through the selection the active cell jumps like this:\r\nA1,B1,B1,C1\r\n\r\nThat means it goes twice through B1.",
+      "PostedDate": "2009-05-05T05:31:29.1-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "So we'll be adding setSelectedCells() and getSelectedCells()?",
+      "PostedDate": "2009-05-05T06:08:31.337-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Note: Excel requires selected cell to be in active cells range.",
+      "PostedDate": "2009-05-05T06:14:17.38-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": ">> So we'll be adding setSelectedCells() and getSelectedCells()?\r\nYeah, and how about if we say that\r\n\r\nsetSelectedCells('A1:B10')\r\n\r\nautomatically sets the active cell to be 'A1', just like in MS Office Excel when you select cells by click-dragging from A1 to B10.",
+      "PostedDate": "2009-05-05T06:55:15.207-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Ok. If setting active cell, shall we set selected cells to the active cell too or another option?",
+      "PostedDate": "2009-05-05T08:01:39.603-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": ">> Ok. If setting active cell, shall we set selected cells to the active cell too or another option?\r\n\r\nGood question. As I think about it, maybe, for now, we should not allow the user to directly set the active cell, but just keep that piece of information hidden as a private variable - to avoid having to deal with exactly the problem you are mentioning. Moreover, a hypothetical setActiveCell() method would have no counterpart in MS Office Excel (as far as I am aware of), and that breaks the philosophy of modeling the application rather than the file format.\r\n\r\nIf we deprecate setSelectedCell('A1') and instead map that to selecting the (1x1) range 'A1:A1' (which at the same time automatically set the active cell to A1) then it looks like we get around the problem.\r\n\r\nIf we later want to implement what corresponds to tabbing through a selection (moving the active cell), would that not be mapped better using some kind of iterator?\r\n\r\nIt would still be nice if we have getActiveCell() returning e.g. 'A1'. That is a renaming of the current getSelectedCell().",
+      "PostedDate": "2009-05-05T08:43:26.34-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Erik, is it possible you check this in the Worksheet class? Noticed the style functionality depends on the selected cell currently.",
+      "PostedDate": "2009-05-06T03:24:36.8-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Yes, getStyle('A1') returns a handle to the style supervisor while at the same time setting the \"active\" cell (currently called $this->_selectedCell) and ensuring that the current sheet is set active.\r\n\r\nThe style classes Alignment, Borders, etc. also  have methods getSelectedCell() for looking up the active cell in the active sheet.\r\n\r\nDon't worry about these parts, I will update/rename methods as necessary.",
+      "PostedDate": "2009-05-06T04:52:36.487-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": ">> Erik, is it possible you check this in the Worksheet class?\r\n>> Noticed the style functionality depends on the selected cell currently.\r\nOk, I have just removed the style functionality's dependency from current setSelectedCell() method. (By creating some other temporary methods). There should be no conflict now.",
+      "PostedDate": "2009-05-16T20:24:55.997-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "This doesn't work:\r\n\r\n$sheet_1->getStyle(\"A\")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);\r\n\r\nBut this does:\r\n\r\n$sheet_1->getStyle(\"A1:A{$row_count}\")->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);\r\n\r\nI am using the latest SVN version.",
+      "PostedDate": "2009-09-30T09:53:58.883-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "@ecoleman:\r\n\r\nYeah, column and row styles only work partially at the moment. Right now, when you call e.g. getCell('A1'), cell A1 gets assigned its own cell style which effectively overrides the column style for that cell.\r\n\r\nColumn and row styles are being dealt with in this work item:\r\nhttp://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=7333",
+      "PostedDate": "2009-09-30T20:20:38.947-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Fixed in SVN for PHPExcel core + Excel2007/Excel5 reader/writer.\r\n\r\nImplemented in the most basic form so one can select a range of cells like this:\r\n\r\n$worksheet->setSelectedCells('A3:G10');\r\nhttp://img297.imageshack.us/img297/5977/ss20091121215552.png\r\n\r\nAlso works for entire columns:\r\n\r\n$worksheet->setSelectedCells('A:G');\r\nhttp://img297.imageshack.us/img297/1413/ss20091121215628.png\r\n\r\nand entire rows:\r\n\r\n$worksheet->setSelectedCells('3:8');\r\nhttp://img297.imageshack.us/img297/9408/ss20091121215657.png\r\n\r\nRemarks:\r\n\r\n(1)\r\nWe already have method $worksheet->setSelectedCell(). This is not needed anymore, but still works.\r\n\r\n(2)\r\nSelection of multiple cell ranges like when you use CTRL+mouse-drag in MS Office Excel for adding more cells ranges to the selection is still not supported. This can be solved later in a separate work item.\r\nExample: Multiple cell ranges 'B2:D9,F4:G13'\r\nhttp://img297.imageshack.us/img297/336/ss20091121215739.png\r\n\r\n(3)\r\nThings may not work as expected when there are multiple panes. This can be solved later in a separate work item.\r\n\r\n(4)\r\nIn Excel, there is also something called the \"active cell\". One move the active cell in a selection using TAB once one has selected some cell range. There is only one active cell in a sheet. The active cell can be any cell in the selection. In PHPExcel there is not yet a way to set which cell in the selection that is the active cell. (It is always the upper-left cell in the cell range.) This can be solved later in a separate work item.\r\nExample: Active cell 'E7'\r\nhttp://img180.imageshack.us/img180/3421/ss20091121215815.png\r\n\r\n(5)\r\nChanges have been made so that e.g. $worksheet->getStyle('A1:D25')->...\r\nis realized via a cell range selection. As a consequence, if this is the last operation that is done before saving the workbook, then one will see A1:D25 as selected cell in the generated workbook. This was the original intention how getStyle() should work since PHPExcel 1.7.0.",
+      "PostedDate": "2009-11-21T13:12:44.857-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-12-16T00:37:35.187-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:04:03.223-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:41.213-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

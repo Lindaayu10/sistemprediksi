@@ -1,0 +1,106 @@
+[
+  {
+    "Id": "165387",
+    "ThreadId": "49436",
+    "Html": "Hi\r\n<p><span>I would like to copy a rich text from one Excel document to a document I’m writing. </span></p>\r\n<p><span>I have tried with getValue() and then insert the field to the other spread sheet with setValue()? Bu I only get the plain value. If I test with instanceof PHPExcel_RichText, I get the object/string that I’m inserting to a RichText. Is there another way to use the setValue and inform that this is a RichText. </span></p>\r\n<p><span>Is there a way to see if two RichText objects differes ie. boldness or text strings. &nbsp;&nbsp;</span></p>\r\n<p><span>&nbsp;</span></p>\r\n<p>Thanks</p>\r\n<p>Daniel</p>\r\n<br>\r\n",
+    "PostedDate": "2009-03-06T08:37:47.877-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "165561",
+    "ThreadId": "49436",
+    "Html": "The reason why you are getting plain text could be that PHPExcel_Writer_Excel5 does not yet support Rich-Text. Which writer are you using?<br>\r\n<br>\r\nTo compare two Rich-Text objects you could try to compare their hash codes<br>\r\n<br>\r\n<code>\r\nif ($richText1-&gt;getHashCode() == $richText2-&gt;getHashCode()) {<br>\r\n&nbsp; echo 'Rich-Text strings are similar';<br>\r\n}<br>\r\n</code>\r\n<br>\r\n",
+    "PostedDate": "2009-03-06T16:53:05.793-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "165605",
+    "ThreadId": "49436",
+    "Html": "I'm using Excel2007 both from the document that I'm reading and writing to. <br>\r\n",
+    "PostedDate": "2009-03-06T23:07:01.917-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "165876",
+    "ThreadId": "49436",
+    "Html": "I couldn't replicate the behavior you're mentioning with getting just plain text?<br>\r\n<br>\r\nThe straightforward method seems to be working for me:<br>\r\n<br>\r\n<code>\r\n$reader = PHPExcel_IOFactory::createReader('Excel2007');<br>\r\n$excel0 = $reader-&gt;load('old.xlsx');<br>\r\n$value = $excel0-&gt;getSheet(0)-&gt;getCell('A1')-&gt;getValue();<br>\r\n<br>\r\n$excel1 = new PHPExcel();<br>\r\n$excel1-&gt;getSheet(0)-&gt;getCell('B5')-&gt;setValue($value);<br>\r\n<br>\r\n$writer = PHPExcel_IOFactory::createWriter($excel1, 'Excel2007');<br>\r\n$writer-&gt;save('new.xlsx');<br>\r\n</code>\r\n<br>\r\n",
+    "PostedDate": "2009-03-08T16:52:02.163-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "166280",
+    "ThreadId": "49436",
+    "Html": "<br>\r\nThe hashcode comparison works fine. <br>\r\nThe problem I have is that Excel complains and says that /xl/sharedStrings.xml was repaired.<br>\r\nIs this error because I'm missing a field somewhere. <br>\r\n<br>\r\n/daniel&nbsp; <br>\r\n",
+    "PostedDate": "2009-03-09T15:04:42.923-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "166333",
+    "ThreadId": "49436",
+    "Html": "I think you may need to show us some of your code to get this solved. There could be a number of reasons why you are getting that error.<br>\r\n<br>\r\n",
+    "PostedDate": "2009-03-09T20:02:07.147-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "166640",
+    "ThreadId": "49436",
+    "Html": "Hi Koyama,<br>\r\n<br>\r\nI have extracted the places where I'm generating the code, this still create the problem.&nbsp; I hope you are able to find the problem. <br>\r\n<br>\r\n/daniel <br>\r\n<br>\r\n&lt;?php<br>\r\n<br>\r\n$dirname= '../../testdata/test2';<br>\r\n&nbsp;$mapDiff= new MappingDifferance($dirname&nbsp;&nbsp; &nbsp;);<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;$mapDiff-&gt;run();<br>\r\n/**<br>\r\n&nbsp;* Writes the difference between two mappings. <br>\r\n&nbsp;*/<br>\r\n&nbsp;<br>\r\nclass MappingDifferance{<br>\r\n&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp; &nbsp;/**<br>\r\n&nbsp;&nbsp; &nbsp; * @var documenter variable for create documentation<br>\r\n&nbsp;&nbsp; &nbsp; */<br>\r\n&nbsp;&nbsp; &nbsp;private $documenter;<br>\r\n&nbsp;&nbsp; &nbsp;const STARTLINE=10;<br>\r\n&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;/**<br>\r\n&nbsp;&nbsp; &nbsp; * Directory for where the files are stored<br>\r\n&nbsp;&nbsp; &nbsp; *<br>\r\n&nbsp;&nbsp; &nbsp; * @var String<br>\r\n&nbsp;&nbsp; &nbsp; */<br>\r\n&nbsp;&nbsp; &nbsp;private $directory;<br>\r\n&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;public function __construct($dir){<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;echo &quot;MappingDifferance called &quot;;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;set_include_path(get_include_path() . PATH_SEPARATOR . '../../lib/');<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;/** PHPExcel */<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;include_once(&quot;PHPExcel.php&quot;) ;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br>\r\n<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;/** PHPExcel_IOFactory */<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;include_once 'PHPExcel/IOFactory.php' ;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$this-&gt;directory = $dir;<br>\r\n<br>\r\n<br>\r\n<br>\r\n&nbsp;&nbsp; &nbsp;}<br>\r\n&nbsp;&nbsp; &nbsp;public function run(){<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;echo &quot;running \\n&quot;;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp; list( $oldMap, $oldPath) = $this-&gt;prepareFile(&quot;old&quot;);<br>\r\n<br>\r\n&nbsp;&nbsp; &nbsp;$paths = $oldPath;<br>\r\n&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp; &nbsp;$objPHPExcel = new PHPExcel();<br>\r\n<br>\r\n<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// Set active sheet index to the first sheet, so Excel opens this as the first sheet<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$objPHPExcel-&gt;setActiveSheetIndex(0);<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$oldMapping;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for( $i = 0;$i&lt; count($paths); $i++ ) {<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$path = $paths[$i];<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$index = $i+ self::STARTLINE;<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('A'.$index, $path);<br>\r\n&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if(array_key_exists($path,$oldMap)){<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; $oldMapping= $oldMap[$path];<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;else{<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp; $oldMapping=&quot;&quot;;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('B'.$index, $oldMapping );<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;//format current line<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('A'.$index)-&gt;getAlignment()-&gt;setVertical(PHPExcel_Style_Alignment::VERTICAL_TOP);<br>\r\n<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('B'.$index)-&gt;getAlignment()-&gt;setWrapText(true);<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('B'.$index)-&gt;getAlignment()-&gt;setVertical(PHPExcel_Style_Alignment::VERTICAL_TOP);<br>\r\n<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$objWriter-&gt;save($this-&gt;directory .'/diff.xlsx');<br>\r\n&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp; &nbsp;}<br>\r\n&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp; private&nbsp;&nbsp; &nbsp;function prepareFile($prefix){<br>\r\n&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $pathArray = array();<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp; $mapArray&nbsp;&nbsp; &nbsp;= array();<br>\r\n<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$objReaderOld = PHPExcel_IOFactory::createReader('Excel2007');<br>\r\n&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$objExcelReaderOld = $objReaderOld-&gt;load($this-&gt;directory.&quot;/$prefix.xlsx&quot; );<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$objExcelReaderOld-&gt;setActiveSheetIndex(0);<br>\r\n<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;for($i=10;$i&lt;&nbsp; $objExcelReaderOld-&gt;getActiveSheet()-&gt;getHighestRow( ); $i++){<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$cell = $objExcelReaderOld-&gt;getActiveSheet()-&gt;getCell(&quot;B&quot;.$i);<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$path = ($cell-&gt;getValue() instanceof PHPExcel_RichText) ?&nbsp; $cell-&gt;getValue()-&gt;getPlainText() : $cell-&gt;getValue();<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$mapArray[ $path] = $objExcelReaderOld-&gt;getActiveSheet()-&gt;getCell(&quot;C&quot;.$i)-&gt;getValue();<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$pathArray[] =$path;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp; return&nbsp; array($mapArray,$pathArray);<br>\r\n&nbsp;&nbsp; }<br>\r\n}<br>\r\n&nbsp;&nbsp; &nbsp;<br>\r\n?&gt;<br>\r\n",
+    "PostedDate": "2009-03-10T15:38:45.947-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "167131",
+    "ThreadId": "49436",
+    "Html": "If I understand your code correctly, then you're extracting values from your old spreadsheet's column C and using those for the new one. So there are Rich-Text strings in column C?<br>\r\n<br>\r\nIt would be helpful if you could check where the Rich-Text is lost. For example by using:<br>\r\n<br>\r\n<code>\r\nvar_dump($oldMapping);<br>\r\n</code>\r\n<br>\r\nin your run() function. Can you try that?<br>\r\n<br>\r\n",
+    "PostedDate": "2009-03-11T16:23:38.33-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "167385",
+    "ThreadId": "49436",
+    "Html": "Hi,<br>\r\n<br>\r\nThe var_dump command returnd a quite large file with references to the excel document. The first element looked like this but the full dump was&nbsp; 80 Mb when I stoped the execution.<br>\r\n/daniel&nbsp; <br>\r\nobject(PHPExcel_RichText)#723 (3) {<br>\r\n&nbsp; [&quot;_richTextElements:private&quot;]=&gt;<br>\r\n&nbsp; array(1) {<br>\r\n&nbsp;&nbsp;&nbsp; [0]=&gt;<br>\r\n&nbsp;&nbsp;&nbsp; object(PHPExcel_RichText_Run)#27 (2) {<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [&quot;_font:private&quot;]=&gt;<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; object(PHPExcel_Style_Font)#28 (12) {<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [&quot;_name:private&quot;]=&gt;<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; string(7) &quot;Calibri&quot;<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [&quot;_bold:private&quot;]=&gt;<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; bool(false)<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [&quot;_italic:private&quot;]=&gt;<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; bool(false)<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [&quot;_superScript:private&quot;]=&gt;<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; bool(false)<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [&quot;_subScript:private&quot;]=&gt;<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; bool(false)<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [&quot;_underline:private&quot;]=&gt;<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; string(4) &quot;none&quot;<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [&quot;_striketrough:private&quot;]=&gt;<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; bool(false)<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [&quot;_color:private&quot;]=&gt;<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; object(PHPExcel_Style_Color)#29 (2) {<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [&quot;_argb:private&quot;]=&gt;<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; string(8) &quot;FF000000&quot;<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [&quot;_hashIndex:private&quot;]=&gt;<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; NULL<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [&quot;_parent:private&quot;]=&gt;<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; NULL<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [&quot;_parentPropertyName:private&quot;]=&gt;<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; NULL<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [&quot;_hashIndex:private&quot;]=&gt;<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; NULL<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [&quot;_size&quot;]=&gt;<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int(10)<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [&quot;_text:private&quot;]=&gt;<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; string(42) &quot;/ns0:Messages/ns0:Message1/ns1:PackingList&quot;<br>\r\n&nbsp;&nbsp;&nbsp; }<br>\r\n&nbsp; }<br>\r\n&nbsp; [&quot;_parent:private&quot;]=&gt;<br>\r\n&nbsp; object(PHPExcel_Cell)#741 (8) {<br>\r\n&nbsp;&nbsp;&nbsp; [&quot;_column:private&quot;]=&gt;<br>\r\n&nbsp;&nbsp;&nbsp; string(1) &quot;C&quot;<br>\r\n&nbsp;&nbsp;&nbsp; [&quot;_row:private&quot;]=&gt;<br>\r\n&nbsp;&nbsp;&nbsp; string(2) &quot;10&quot;<br>\r\n&nbsp;&nbsp;&nbsp; [&quot;_value:private&quot;]=&gt;<br>\r\n&nbsp;&nbsp;&nbsp; object(PHPExcel_RichText)#723 (3) {<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [&quot;_richTextElements:private&quot;]=&gt;<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; array(1) {<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [0]=&gt;<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; object(PHPExcel_RichText_Run)#27 (2) {<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [&quot;_font:private&quot;]=&gt;<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; object(PHPExcel_Style_Font)#28 (12) {<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [&quot;_name:private&quot;]=&gt;<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; string(7) &quot;Calibri&quot;<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [&quot;_bold:private&quot;]=&gt;<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; bool(false)<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [&quot;_italic:private&quot;]=&gt;<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; bool(false)<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [&quot;_superScript:private&quot;]=&gt;<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; bool(false)<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [&quot;_subScript:private&quot;]=&gt;<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; bool(false)<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [&quot;_underline:private&quot;]=&gt;<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; string(4) &quot;none&quot;<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [&quot;_striketrough:private&quot;]=&gt;<br>\r\n<br>\r\n",
+    "PostedDate": "2009-03-12T07:58:04.793-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "167722",
+    "ThreadId": "49436",
+    "Html": "This is strange, I tried your script as is, and it seems to be working as expected.<br>\r\n<br>\r\nThe original cells from column C go into the new column B and survive as Rich-Text.<br>\r\n<br>\r\nThe original cells from column B go into the new column A and are converted to plain text because you have this:<br>\r\n<br>\r\n<code>$path = ($cell-&gt;getValue() instanceof PHPExcel_RichText) ?&nbsp; $cell-&gt;getValue()-&gt;getPlainText() : $cell-&gt;getValue();<br>\r\n</code>\r\n<br>\r\nNot sure if you were expecting Rich-Text here?<br>\r\n<br>\r\n",
+    "PostedDate": "2009-03-13T06:02:33.4-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "168342",
+    "ThreadId": "49436",
+    "Html": "Hi Koyama,<br>\r\n<br>\r\nThanks for the help, i appreciate it. <br>\r\nNo it works as expected the B column should be a plain text one. <br>\r\n<br>\r\nI manage to get it solved. I first generatede the document with one script and the opened the documents again with this script. When I instead just read the document from memory it worked without any problems. <br>\r\n<br>\r\n<br>\r\n/daniel <br>\r\n",
+    "PostedDate": "2009-03-15T13:50:54.867-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "243528",
+    "ThreadId": "49436",
+    "Html": "<p>Hi,</p>\r\n<p>I am a new guy to the PHPExcel, the one of the best excel report generator, I ever seen.</p>\r\n<p>But I have faced one problem .</p>\r\n<p>The problem is:-</p>\r\n<p>I have some data in MySql database in rich text format like -&nbsp; &lt;b&gt;test test test&lt;/b&gt;&lt;b&gt;test test test&lt;/b&gt;&lt;b&gt;test test test&lt;/b&gt;</p>\r\n<p>But when I want them to write in an excel file through the PHPExcel API , the rich text format is not rendered properly as in the HTML format.</p>\r\n<p>Please give me an example or any suggesstions about how to write the excel which will be rendered from the MySql database containing the</p>\r\n<p>rich text data properly.</p>\r\n<p>I am really unable to do this.</p>\r\n<p>Please help</p>\r\n<p>Thanks</p>\r\n<p>Sanjoy</p>",
+    "PostedDate": "2009-10-08T09:54:12.473-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "243830",
+    "ThreadId": "49436",
+    "Html": "<p>@sanjoyde: Sorry, but we do not have a solution for inserting Rich-Text as HTML. MS Office Excel is capable of reading HTML of the type you are showing so maybe it will be implemented one day in PHPExcel. But right now there is no battle plan.</p>",
+    "PostedDate": "2009-10-09T04:35:10.093-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

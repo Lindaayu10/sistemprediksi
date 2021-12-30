@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "1028998",
+    "ThreadId": "439932",
+    "Html": "I have an application that exports an Excel spreadsheet with no problem, but when I try to get it to export in pdf I get the error message that the file is either not supported or has been damaged. I've checked other discussions and have not seen any solution or any solutions I've seen, when tried haven't worked. I did see in one discussion a mention that pdf export was no longer supported in PHPExcel. Is that true? I have version 1.7.6.\r<br />\n<br />\nI have tried different approaches to get this pdf export to work. For properties I have used this method:<br />\n<pre><code>protected function set_pdf_properties(){\n        $title = ucfirst($this-&gt;region) . &quot;-&quot; . strtoupper($this-&gt;type) . &quot; Video Upstream Capacity Report&quot;;\n        $this-&gt;vce-&gt;getProperties()-&gt;setCreator(&quot;David Newey&quot;)\n                                     -&gt;setLastModifiedBy(&quot;David Newey&quot;)\n                                     -&gt;setTitle($title)\n                                     -&gt;setSubject($title)\n                                     -&gt;setDescription(&quot;PDF document for &quot;. $this-&gt;last_we)\n                                     -&gt;setKeywords(&quot;PDF, php capacity &quot; . $this-&gt;last_we)\n                                     -&gt;setCategory(strtoupper($this-&gt;type) . &quot; Capacity &quot; . $this-&gt;last_we);    \n        $this-&gt;vce-&gt;setActiveSheetIndex(0);                              \n        }\n\n//NOTE: earlier in this file the PHPExcel Object is set to $this-&gt;vce as in:\n//$this-&gt;vce = new PHPExcel();</code></pre>\n\nI set the headers with this method:<br />\n<pre><code>protected function set_pdf_headers(){\n        header('Content-Type: application/pdf');\n        header('Content-Disposition: attachment;filename=&quot;' . ucfirst($this-&gt;region) . &quot;-&quot; . $this-&gt;type . '_up_cap_report.pdf&quot;');\n        header('Cache-Control: max-age=0');    \n    }</code></pre>\n\nAnd I attempted to write the file with variations of the following method - note the commented lines are the variations I used.<br />\n<pre><code>public function write_pdf(){\n        //$this-&gt;vce-&gt;objWriter = PHPExcel_IOFactory::createWriter($this-&gt;vce, 'PDF');\n        $this-&gt;vce-&gt;objWriter = new PHPExcel_Writer_PDF($this-&gt;vce);\n        $this-&gt;vce-&gt;objWriter-&gt;setPreCalculateFormulas(false);      \n        $this-&gt;vce-&gt;objWriter-&gt;save('Up_Cap_Report.pdf');\n        //$this-&gt;vce-&gt;objWriter-&gt;save('php://output');\n        }</code></pre>\n\nIs there anything in my above code that looks incorrect. I think the other code for the creation of the output is fine, since it exports in excel, so I think the problem is in my setting of the properties, headers and write method.<br />\n",
+    "PostedDate": "2013-04-11T06:39:23.71-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1029685",
+    "ThreadId": "439932",
+    "Html": "<strong>denewey wrote:</strong><br />\n<blockquote>\nI have an application that exports an Excel spreadsheet with no problem, but when I try to get it to export in pdf I get the error message that the file is either not supported or has been damaged. I've checked other discussions and have not seen any solution or any solutions I've seen, when tried haven't worked. I did see in one discussion a mention that pdf export was no longer supported in PHPExcel. Is that true? I have version 1.7.6.<br />\n</blockquote>\nNot strictly accurate. We've dropped the distribution of tcPDF within the PHPExcel distribution; but we haven't dropped PDF export.\r<br />\ntcPDF isn't a good renderer (not to mention it took up nearly 20x as much space in the distribution as PHPExcel did), but none of the alternatives had a license that we could work with, so we rewrote the PDF export in such a way that you can choose between using tcPDF, mPDF or DomPDF as the rendering engine; but you have to install the appropriate library yourself and tell PHPExcel which you wish to use, and where it's installed before doing an export to PDF.<br />\n<blockquote>\nIs there anything in my above code that looks incorrect. I think the other code for the creation of the output is fine, since it exports in excel, so I think the problem is in my setting of the properties, headers and write method.<br />\n</blockquote>\nNothing obvious; but as always when you get a corrupted file being generated, open the file in a text editor and look for leading/trailing whitespace characters, BOM header, or any obvious plaintext PHP error messages<br />\n",
+    "PostedDate": "2013-04-12T09:24:36.773-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1029742",
+    "ThreadId": "439932",
+    "Html": "\r\n<div dir=\"ltr\">Thank you. Is there somewhere I can find a discussion about which of the three choices would be best to use? And where would I find documentation on hooking one of these rendering engines to PHPExcel?\r\n<div><br>\r\n</div>\r\n<div style=\"\">- David</div>\r\n</div>\r\n<div><br>\r\n<br>\r\n<div></div>\r\n</div>\r\n",
+    "PostedDate": "2013-04-12T10:41:54.523-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

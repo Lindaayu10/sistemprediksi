@@ -1,0 +1,90 @@
+[
+  {
+    "Id": "673683",
+    "ThreadId": "273074",
+    "Html": "\r\n<p>Hi,</p>\r\n<p>I am not sure how simple this might be but I need to be able to copy a worksheet from an excel file and create a separate excel file from it. I currently have an excel file that has like 100&#43; worksheets in it. What I need to be able to do is search for a\r\n specific worksheet, which seems simple enough using the examples, and then duplicate that worksheet from the file and place it in a new file that then gets exported to a user. The original file needs to stay unchanged though</p>\r\n<p>I dont need to read any specific data from the worksheet or change anything, I just need an exact copy of it. I can't give users the whole excel file with over 100 worksheets in it because each user will just need one sheet depending on what they are doing\r\n or looking for. Each user will know the name of specific worksheet they need so I will use that to search the file. So the 100&#43; worksheet excel file will be a master file that everyone can pull different worksheets from.</p>\r\n<p>Thanks in advanced for any help anyone can provide in this.</p>\r\n",
+    "PostedDate": "2011-09-19T07:35:02.153-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "673686",
+    "ThreadId": "273074",
+    "Html": "<p>You should be able to just...</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>$objReader-&gt;setLoadSheetsOnly($sheetname)\r\n</pre>\r\n</div>\r\n...load your spreadsheet, which will then load only this sheet, then save it as a new spreadsheet.</p>",
+    "PostedDate": "2011-09-19T07:40:32.24-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "673811",
+    "ThreadId": "273074",
+    "Html": "<p>Thanks. I will give this a try and see if it works.</p>",
+    "PostedDate": "2011-09-19T11:54:04.613-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "711850",
+    "ThreadId": "273074",
+    "Html": "<p>Hello Lifegiver36,</p>\r\n<p>I need to do the same, did you figured it out? I would appreciate your help.</p>\r\n<p>Regards</p>",
+    "PostedDate": "2011-12-13T17:26:51.03-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "712116",
+    "ThreadId": "273074",
+    "Html": "<p>Hi,</p>\r\n<p>Here is what I did, hopefully it works for you:</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;&nbsp;&nbsp; require_once 'phpExcel/PHPExcel.php';<br />&nbsp;&nbsp;&nbsp; include 'phpExcel/PHPExcel/IOFactory.php';<br />&nbsp;&nbsp;&nbsp; <br />&nbsp;&nbsp;&nbsp; // Create new PHPExcel object<br />&nbsp;&nbsp;&nbsp; $objPHPExcel = new PHPExcel();<br />&nbsp;&nbsp;&nbsp; // Set properties<br />&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getProperties()-&gt;setCreator(\"Me\")<br />&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;-&gt;setTitle(\"Spec Sheet\")<br />&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;-&gt;setSubject(\"Spec Sheet\")<br />&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;-&gt;setDescription(\"some description\");<br />&nbsp;&nbsp;&nbsp; <br />&nbsp;&nbsp;&nbsp; // Set active sheet index to the first sheet, so Excel opens this as the first sheet<br />&nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;setActiveSheetIndex(0);<br />&nbsp;&nbsp;&nbsp; <br />&nbsp;&nbsp;&nbsp; $inputFileType = 'Excel2007'; <br />&nbsp;&nbsp;&nbsp; $inputFileName = 'specSheetName.xlsx'; <br />&nbsp;&nbsp;&nbsp; <br />&nbsp;&nbsp;&nbsp; /**&nbsp; Create a new Reader of the type defined in $inputFileType&nbsp; **/ <br />&nbsp;&nbsp;&nbsp; $objReader = PHPExcel_IOFactory::createReader($inputFileType); <br />&nbsp;&nbsp;&nbsp; /**&nbsp; $code is the name of the worksheet I want to grab from the main file&nbsp; **/ <br />&nbsp;&nbsp;&nbsp; $objReader-&gt;setLoadSheetsOnly($code); <br />&nbsp;&nbsp;&nbsp; /**&nbsp; Load $inputFileName to a PHPExcel Object&nbsp; **/ <br />&nbsp;&nbsp;&nbsp; $objPHPExcel = $objReader-&gt;load($inputFileName);</p>\r\n<p><br />//what the file will be called when exported out</p>\r\n<p>$filename = $code.\".xlsx\";<br />&nbsp;&nbsp;&nbsp; <br />&nbsp;&nbsp;&nbsp; // Redirect output to a client&rsquo;s web browser (Excel2007)<br />&nbsp;&nbsp;&nbsp; header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');<br />&nbsp;&nbsp;&nbsp; header('Content-Disposition: attachment;filename=\"'.$filename.'\"');<br />&nbsp;&nbsp;&nbsp; header('Cache-Control: max-age=0');<br />&nbsp;&nbsp;&nbsp; <br />&nbsp;&nbsp;&nbsp; $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');<br />&nbsp;&nbsp;&nbsp; $objWriter-&gt;save('php://output');</p>",
+    "PostedDate": "2011-12-14T06:42:57.523-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "713726",
+    "ThreadId": "273074",
+    "Html": "<p>Hello Lifegiver,</p>\n<p>&nbsp;</p>\n<p>Thanks for your help! One more question, how do you search thru the worksheets, in other word how do you iterate thru all the worksheets. In my case I will have to duplicate/copy all the worksheet into another one</p>\n<p>Thnaks again for your help..</p>\n<p>Best regards.</p>",
+    "PostedDate": "2011-12-17T20:23:21.617-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "713929",
+    "ThreadId": "273074",
+    "Html": "<div style=\"color: black; background-color: white;\">\r\n<pre><span style=\"color: blue;\">foreach</span> ($objPHPExcel-&gt;getWorksheetIterator() <span style=\"color: blue;\">as</span> $worksheet) {\r\n    <span style=\"color: green;\">//do your work with each $worksheet here</span>\r\n}\r\n</pre>\r\n</div>",
+    "PostedDate": "2011-12-18T12:46:17.35-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "714306",
+    "ThreadId": "273074",
+    "Html": "<p>Hello Mark,</p>\r\n<p>Thanks for the help, my issue is really when the sheets are being created, I am getting a&nbsp;</p>\r\n<p>PHP Fatal error:&nbsp; Uncaught exception 'Exception' with message 'Active sheet index is out of bounds.'</p>\r\n<p>Here is what I am doing:</p>\r\n<p>&nbsp;</p>\r\n<p>$objReader = PHPExcel_IOFactory::createReader('Excel5');</p>\r\n<p>$sheetIdx = 0;</p>\r\n<p>$worksheetNames = $objReader-&gt;listWorksheetNames($value);</p>\r\n<p><span> </span>foreach ($worksheetNames as $sheetName) {</p>\r\n<p><span> </span>&nbsp; &nbsp; $objPHPExcel-&gt;setActiveSheetIndex($sheetIdx);</p>\r\n<p><span> </span>&nbsp; &nbsp; $objReader-&gt;setLoadSheetsOnly($sheetName);</p>\r\n<p><span> </span>&nbsp; &nbsp; $objPHPExcel = $objReader-&gt;load($content);</p>\r\n<p><span> </span>&nbsp; &nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setTitle($sheetName);</p>\r\n<p>&nbsp; &nbsp; $sheetIdx++;</p>\r\n<p><span> </span>}</p>\r\n<p>&nbsp;</p>\r\n<p>It works fine where there is only one worksheet, but when I am trying to read several file and duplicate the worksheet, it is throwing the above exception.</p>\r\n<p>What I am trying to do is to read several xls file, and combine all their worksheet into one els document, so I want to create to read all the sheets and create one document.&nbsp;</p>\r\n<p>Thanks for your help.</p>\r\n<p>Regards</p>",
+    "PostedDate": "2011-12-19T09:04:09.547-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "714319",
+    "ThreadId": "273074",
+    "Html": "<p>Did you create the additional worksheets in your new document? You are iterating over the worksheets in the objReader, but you are trying to set an active sheet on another object. But nowhere do you seem to create the new worksheets.</p>\r\n<p>&nbsp;</p>\r\n<p>it works for one sheet, because that is created by default ;)</p>",
+    "PostedDate": "2011-12-19T09:33:12.297-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "714321",
+    "ThreadId": "273074",
+    "Html": "<p>Hell Borft,</p>\r\n<p>Thanks for your reply, isn't the&nbsp;$objReader-&gt;load($content); doing the creation? Please advise.</p>\r\n<p>Thanks!</p>",
+    "PostedDate": "2011-12-19T09:39:46.93-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "714519",
+    "ThreadId": "273074",
+    "Html": "<p>The load() method creates a new $objPHPExcel object in each iteration, overwriting the existing object instance in $objPHPExcel, it doesn't append to an existing object.</p>\r\n<p>You'd need to create a new PHPExcel object $newPHPExcel, then do your loop and clone the loaded $objPHPExcel worksheet into $newPHPExcel using the addExternalSheet() method. But if you're going to loop through all worksheets in your file, why not simply load the whole workbook in the first place? Otherwise, if you just want one specific worksheet from the original in your new file, load that single sheet only, and save to a different filename (or php://output)</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2011-12-19T15:19:31.78-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

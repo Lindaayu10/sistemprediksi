@@ -1,0 +1,66 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "That's quite horrifying :-) Perhaps the PHP code is not yet built with final optimizations and therefore consumes more memory?",
+    "ClosedDate": "2008-08-18T00:27:01.52-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hi,\nI compiled the new PHP version 5.3.0alpha2-dev, Zend version 2.3.0.\nI tried it against PHPExcel and was a bit surprised.\nThe time it took to --- new PHPExcel_Reader_Excel2007 --- increased from 37s to 2m 12s, and memory increase from 261.5MB to 438.5MB  for the job.\nAnd the result is consistent, I run the tests a number of time and it was about the same.\n \nIncluded is the code snippet and the two logs (columns (date, time, processid and text)), and attached excel file.\n \nNote! The result is the same and OK from both runs :-), and 5.3 is still an alpha release.\nTake it for what its worth, I can live with the increased resource consumption!\n \n \n \ncode snippet\n//PHP code corresponding to the entries in log1 and log2\n \n$log->logit('Info',\"new PHPExcel_Reader_Excel2007\");\n$objReader = new PHPExcel_Reader_Excel2007;\n$objReader->setReadDataOnly(true);\n$objPHPExcel = $objReader->load(\"$wbname\");\n$log->logit('Info','new PHPExcel_Writer_CSV($objPHPExcel)');\n$objWriter = new PHPExcel_Writer_CSV($objPHPExcel);\n$objWriter->setDelimiter(';');\n$objWriter->setEnclosure('');\n$objWriter->setLineEnding(\"\\n\");\n$log->logit('Info',\"start unloading to CSV files\");\nfor ($si = $wbsheets[0]; $si <= $wbsheets[1];$si++) {\n\t$objWriter->setSheetIndex($si);\n\t$objPHPExcel->setActiveSheetIndex($si);\n\t$wsName =$objPHPExcel->getActiveSheet()->getTitle();\n\t$log->logit('Note',\"INDEX=$si, NAME=$wsName\");\n\t$objWriter->save('excel2csv'.\"$si.csv\");\n}\n$log->logit('Note',sprintf(\"Done, writing csv files,peak memory usage=%sMB\",(memory_get_peak_usage(true) / 1024 / 1024)));\n \n \n----------------------------------------\n \n \nlog1\n080802 103020 11401 Log PHP version 5.2.2, Zend version 2.2.0\n080802 103020 11401 Info Uname=(Linux,2.6.17-5mdventerprise,#1 SMP \n...\n080802 103020 11401 Info Requiring PHPExcel files\n080802 103020 11401 Info new PHPExcel_Reader_Excel2007\n080802 103057 11401 Info new PHPExcel_Writer_CSV($objPHPExcel)\n080802 103057 11401 Info start unloading to CSV files\n080802 103057 11401 Note INDEX=0, NAME=Tools\n080802 103057 11401 Note INDEX=1, NAME=Sub-accessories\n080802 103057 11401 Note INDEX=2, NAME=Torque arms\n080802 103057 11401 Note INDEX=3, NAME=Accessories\n080802 103057 11401 Note INDEX=4, NAME=Attachments\n080802 103057 11401 Note INDEX=5, NAME=Balancers\n080802 103057 11401 Note INDEX=6, NAME=Torque arm-acc\n080802 103057 11401 Note INDEX=7, NAME=Assemblies\n080802 103106 11401 Note INDEX=8, NAME=Tool_torquearms\n080802 103107 11401 Note INDEX=9, NAME=Comments\n080802 103107 11401 Note INDEX=10, NAME=Arms-accessories\n080802 103107 11401 Note INDEX=11, NAME=TA_Arms-accessories\n080802 103107 11401 Note Done, writing csv files,peak memory usage=261.5MB\n \n----------------------------------------\n \nlog2\n080802 103907 11424 Log PHP version 5.3.0alpha2-dev, Zend version 2.3.0\n080802 103907 11424 Info Uname=(Linux,2.6.17-5mdventerprise,#1 SMP Wed Sep 13 14:50:48 EDT \n...\n080802 103907 11424 Info Requiring PHPExcel files\n080802 103907 11424 Info new PHPExcel_Reader_Excel2007\n080802 104119 11424 Info new PHPExcel_Writer_CSV($objPHPExcel)\n080802 104119 11424 Info start unloading to CSV files\n080802 104119 11424 Note INDEX=0, NAME=Tools\n080802 104119 11424 Note INDEX=1, NAME=Sub-accessories\n080802 104119 11424 Note INDEX=2, NAME=Torque arms\n080802 104119 11424 Note INDEX=3, NAME=Accessories\n080802 104119 11424 Note INDEX=4, NAME=Sub-accessories 1\n080802 104119 11424 Note INDEX=5, NAME=Torque arms 1\n080802 104120 11424 Note INDEX=6, NAME=Accessories 1\n080802 104120 11424 Note INDEX=7, NAME=Attachments\n080802 104120 11424 Note INDEX=8, NAME=Balancers\n080802 104120 11424 Note INDEX=9, NAME=Torque arm-acc\n080802 104120 11424 Note INDEX=10, NAME=Assemblies\n080802 104129 11424 Note INDEX=11, NAME=Tool_torquearms\n080802 104130 11424 Note Done, writing csv files,peak memory usage=438.5MB",
+    "LastUpdatedDate": "2013-05-16T05:43:29.18-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2008-08-02T02:43:16.04-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "FYI: premature test with PHP 5.3 alpha",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 7175
+  },
+  "FileAttachments": [
+    {
+      "FileId": 1985,
+      "FileName": "DB_FZ_080729.xlsx",
+      "DownloadUrl": ".\\1985"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "That's quite horrifying :-) Perhaps the PHP code is not yet built with final optimizations and therefore consumes more memory?",
+      "PostedDate": "2008-08-11T09:59:38.84-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2008-08-18T00:27:01.52-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:05:06.67-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:43:29.18-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

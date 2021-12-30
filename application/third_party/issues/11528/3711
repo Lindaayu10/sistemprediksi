@@ -1,0 +1,47 @@
+Index: Classes/PHPExcel/Reader/Excel5.php
+===================================================================
+--- Classes/PHPExcel/Reader/Excel5.php	(revision 1300)
++++ Classes/PHPExcel/Reader/Excel5.php	(working copy)
+@@ -4048,17 +4048,20 @@
+ 		$length = $this->_GetInt2d($this->_data, $this->_pos + 2);
+ 		$recordData = substr($this->_data, $this->_pos + 4, $length);
+ 
+-		// move stream pointer to next record
+-		$this->_pos += 4 + $length;
+-
+ 		// check if we are reading drawing data
+ 		// this is in case a free CONTINUE record occurs in other circumstances we are unaware of
+ 		if ($this->_drawingData == '') {
++			// move stream pointer to next record
++			$this->_pos += 4 + $length;
++
+ 			return;
+ 		}
+ 
+ 		// check if record data is at least 4 bytes long, otherwise there is no chance this is MSODRAWING data
+-		if (strlen($recordData) < 4) {
++		if ($length < 4) {
++			// move stream pointer to next record
++			$this->_pos += 4 + $length;
++
+ 			return;
+ 		}
+ 
+@@ -4072,8 +4075,16 @@
+ 
+ 		$splitPoint = $this->_GetInt2d($recordData, 2);
+ 		if (in_array($splitPoint, $validSplitPoints)) {
+-			$this->_drawingData .= $recordData;
++			// get spliced record data (and move pointer to next record)
++			$splicedRecordData = $this->_getSplicedRecordData();
++			$this->_drawingData .= $splicedRecordData['recordData'];
++
++			return;
+ 		}
++
++		// move stream pointer to next record
++		$this->_pos += 4 + $length;
++
+ 	}
+ 
+ 

@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "1305282",
+    "ThreadId": "567592",
+    "Html": "I have a VERY BIG EXCEL FILE, and need to read it into an php array, then format it using my rules, finnaly I need write the formatted data into a new excel file.\r<br />\n  I implemented the action into 3 functions, as I said just now. But the problem is: when I successfully loaded the source excel file, read all data from it, and exit the function, the memory allocated while I load it does not released; then when I try to write the data into a new file, the memory usage doubled! and crached at CacheBase.php!\r<br />\n  So I guess the memory is used by the cache system, and not released when the file unloaded. Then I have 2 choices: one is to release all unused cached memory, the second is disable the cache function.\r<br />\n  Can you give me some advises?\r<br />\n  Regards,\r<br />\n  Dany.<br />\n",
+    "PostedDate": "2014-09-16T10:31:52.59-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1305294",
+    "ThreadId": "567592",
+    "Html": "Disable the cache function, and nothing at all will work.... try using some of the alternatives to the default &quot;cache in memory&quot; that are described in the manual, because these should the reduce memory usage of PHPExcel. The whole point of the cache is to provide options to reduce memory, but you have to specify which caching method to use before loading the file.<br />\n<br />\nMemory used when the file is loaded <strong><em>is</em></strong> released, the loader does clear its memory usage... but the PHPExcel object holds data in memory (the default caching method).<br />\n<br />\nDon't transfer data to an array: work with it directly in the PHPExcel object. Transferring data to an array will use a lot of memory, because you'll be duplicating data between the PHPExcel object and the array, which will take a lot more memory.<br />\n",
+    "PostedDate": "2014-09-16T11:11:46.857-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1305419",
+    "ThreadId": "567592",
+    "Html": "So glad for your help, many thanks.<br />\n  I'm using the method cache_in_memory_gzip now, and the memory usage is reduced 1/2 more, but accordingly,  the speed reduced too :)<br />\n  I know this is not the best solution, or I can split the excel file into more smaller pieces.<br />\n  What I'm still confused is, I created the PHPExcel object in a function, as a local class instance, It should automatically destructed and release it's memory as soon as the function returned. But I could see the memory usage is still keep at the top value. How can I free all the memory used by the destroyed instance?<br />\n  My code works with the following logic, and I would not change it in order to  reducing the coupling degree:<br />\n  Load some useful fileds from the excel file into an array and return it (funcation 1) -&gt; format loaded fields and insert some new fields (function 2) (before do this I would like to release all memory holded by the phpexcel object in function 1) -&gt; write the array into a new excel file (function 3).<br />\n<br />\n  Regards,<br />\n  Dany.<br />\n",
+    "PostedDate": "2014-09-16T19:31:30.723-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1305464",
+    "ThreadId": "567592",
+    "Html": "A PHPExcel object can't easily be destroyed because the hierarchy of spreadsheet-&gt;worksheets-&gt;cells contains cyclic references in that the cell also references the worksheet, and the worksheet references the spreadsheet, so special methods are needed to clear it from memory (as described in section 4.3 of the developer documentation, <code>Clearing a Workbook from memory</code>).<br />\n<div style=\"color:Black;background-color:White;\"><pre>\r\n$objPHPExcel-&gt;disconnectWorksheets();\n<span style=\"color:Blue;\">unset</span>($objPHPExcel);\r\n</pre></div>This should free up a more memory from the PHPExcel object for you<br />\n",
+    "PostedDate": "2014-09-17T00:15:11.683-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": "2014-09-17T02:47:49.937-07:00"
+  },
+  {
+    "Id": "1305492",
+    "ThreadId": "567592",
+    "Html": "Thanks for your kindness! I'll try it later.<br />\n<br />\n  Regards,<br />\n  Dany.<br />\n<br />\n  It works! Great!<br />\n",
+    "PostedDate": "2014-09-17T01:54:04.983-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

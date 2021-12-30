@@ -1,0 +1,66 @@
+[
+  {
+    "Id": "443085",
+    "ThreadId": "212704",
+    "Html": "<p>First off: <strong>Really great Excel API for PHP !!!</strong></p>\r\n<p>In general, everything is documented well inside the docs and also the API-Reference.</p>\r\n<p>I also found enough samples about the RichText stuff, but I'm looking  for a way to set cells with raw rich text a'la:</p>\r\n<pre><pre>{\\rtf1<br> Hello World!<br> \\par<br> {\\i What} a nice {\\b day}.<br>}<br></pre>\r\n</pre>\r\n<p>is it possible ?</p>\r\n<p>Why I'm looking for such thing ?</p>\r\n<p>Well, I've (x)html formatted text blocks, which I wanna put into Excel cells. Cause I'm lazy I'm trying to go around parsing my (x)html for further RichText -&gt;getFont()-&gt;setBold() conversion. Instead of I thought to use some kind of html2RTF converter/parser and put that &quot;raw&quot; RTF via some kind of -&gt;setValue($rawRTF) into the Sheet. Is it possible ?</p>\r\n<p>Thanks in advance for your help !</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-05-14T14:39:22.877-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "443102",
+    "ThreadId": "212704",
+    "Html": "<p>There is no way of doing this at the moment, although it should be possible to provide a static method that would return a <span style=\"font-size:10pt\" lang=NL>PHPExcel_RichText object when passed a block of rtf or html text.</span></p>\r\n<p>\r\n<p><span style=\"font-size:10pt\" lang=NL><span style=\"font-size:10pt\" lang=NL><span style=\"font-size:10pt\" lang=NL>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>$RTF = '{\\rtf1\r\n Hello World!\r\n \\par\r\n {\\i What} a nice {\\b day}.\r\n}';\r\n$objRichText = PHPExcel_RichText::createRichTextFromRTF($RTF);\r\n</pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n<span style=\"font-size:10pt\" lang=NL><span style=\"font-size:10pt\" lang=NL>or</span></span></span></span></span></p>\r\n</p>\r\n<p><span style=\"font-size:10pt\" lang=NL><span style=\"font-size:10pt\" lang=NL><span style=\"font-size:10pt\" lang=NL><span style=\"font-size:10pt\" lang=NL><span style=\"font-size:10pt\" lang=NL><span style=\"font-size:10pt\" lang=NL>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>$HTML = 'Hello World!\r\n&lt;br /&gt;\r\n&lt;i&gt;What&lt;/i&gt; a nice &lt;b&gt;day&lt;b&gt;.';\r\n$objRichText = PHPExcel_RichText::createRichTextFromHTML($HTML);\r\n</pre>\r\n</div>\r\n</span></span></span></span></span></span></p>",
+    "PostedDate": "2010-05-14T15:53:00.97-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "443103",
+    "ThreadId": "212704",
+    "Html": "This discussion has been copied to a work item. Click <a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=13048\">here</a> to go to the work item and continue the discussion.",
+    "PostedDate": "2010-05-14T15:54:20.01-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "443130",
+    "ThreadId": "212704",
+    "Html": "<p>Hi Mark,</p>\r\n<p>lot thanks for the fast answer !! which sounds great ! - BUT I just recognized that I also need to display &quot;list like&quot; structures (i.e. &lt;ul&gt;&lt;li&gt;... and also cascaded &lt;ul&gt;&lt;li&gt;...&lt;/li&gt;&lt;ul&gt;&lt;li&gt;..&lt;/li&gt;&lt;/ul&gt;&lt;/ul&gt;).</p>\r\n<p>If such structures couldn't be used within within the mentioned static methods (doesn't matter if ::...FromRTF or ::...FromHTML), then I have to build my manual parser anyway !</p>",
+    "PostedDate": "2010-05-14T16:57:01.253-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "443207",
+    "ThreadId": "212704",
+    "Html": "<p>It's something that would need to be worked out. We'd need to write the convertor methods anyway, and while getting the simple bold, italic, underline and breaks might be a simple initial step, it's something that could be expanded to cover all the key elemenst of rtf/html (such as lists)&nbsp;in a fairly straightforward manner, as long as the rtf/html markup wasn't malformed.</p>\r\n<p>I've been playing with parsers already (looking at what we can do to support VBA macros within PHPExcel, including running them in a sandbox), so a more structured conversion from rtf or html to a PHPExcel_RichText object. Not a task I could do before the next release, but certainly within a couple of months.</p>",
+    "PostedDate": "2010-05-15T04:01:59.52-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "443482",
+    "ThreadId": "212704",
+    "Html": "<p>Sounds great ! ... even if I don't understand why you need a RTF to PHPExcel_RichText object/conversion... which probably is founded in my wrong assumption that MS is storing text cells internally in RTF.</p>\r\n<p>Sure, that was a greenly assumption ;-)</p>\r\n<p>&nbsp;</p>\r\n<p>However, I'll start some quick-and-dirty conversions on my side... in the hope that they remain stable for some months ;-)...</p>\r\n<p>So, please don't forget to drop a note in the news or history, when you've made anything into the direction PHPExcel_RichText::...</p>\r\n<p>&nbsp;</p>\r\n<p>Lot thanks for your informations and effort !!</p>\r\n<p><span style=\"font-size:10pt\" lang=NL><span style=\"font-size:10pt\" lang=NL><span style=\"font-size:10pt\" lang=NL><span style=\"font-size:10pt\" lang=NL><span style=\"font-size:10pt\" lang=NL><span style=\"font-size:10pt\" lang=NL> </span></span></span></span></span></span></p>",
+    "PostedDate": "2010-05-16T11:41:14.29-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "443510",
+    "ThreadId": "212704",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>JoergE wrote:</strong><br>\r\n<p>Sounds great ! ... even if I don't understand why you need a RTF to PHPExcel_RichText object/conversion... which probably is founded in my wrong assumption that MS is storing text cells internally in RTF.</p>\r\n</blockquote>\r\n<p>The Rich Text content is stored as a series of text &quot;runs&quot;, each associated with a series of font style settings:</p>\r\n<ul>\r\n<li>Font Name default is Calibri</li>\r\n<li>Font Size default is&nbsp;11</li>\r\n<li>Bold default is&nbsp;false</li>\r\n<li>Italic default is&nbsp;false</li>\r\n<li>SuperScript default is&nbsp;false</li>\r\n<li>SubScript&nbsp;default is&nbsp;false</li>\r\n<li>Underline default is&nbsp;PHPExcel_Style_Font::UNDERLINE_NONE</li>\r\n<li>Strikethrough default is&nbsp;false</li>\r\n<li>Color&nbsp;default is&nbsp;PHPExcel_Style_Color::COLOR_BLACK</li>\r\n</ul>\r\n<p>So your example would comprise 5 runs:</p>\r\n<ol>\r\n<li>&quot;Hello World!\\n&quot; with all defaults</li>\r\n<li>&quot;What&quot; with defaults except for italic=true</li>\r\n<li>&quot;&nbsp;a nice &quot;&nbsp;with all defaults</li>\r\n<li>&quot;day&quot; with defaults except for bold=true</li>\r\n<li>&quot;.&quot;&nbsp;with all defaults</li>\r\n</ol>\r\n<p>What we need to do is provide a mechanism to convert RTF/HTML to that series of runs, as implemented by PHPExcel, so that it can be written correctly.</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-05-16T13:31:42.57-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "444777",
+    "ThreadId": "212704",
+    "Html": "<p>Hi Mark,</p>\r\n<p>thanks a lot for your detailed response.</p>\r\n<p>I'll take a detailed look in the next 2-3 weeks into it.</p>\r\n<p>May be I should try to build such a static method instead of doing my initial mentioned &quot;quick and dirty&quot; in-between conversion.</p>\r\n<p>When talking about &quot;PHPExcel_RichText::createRichTextFromHTML($HTML)&quot;.</p>\r\n<p>How do you suggest or prefer to parse the (x)html ? Via a simple xml parser like expat, or by a more complex dom API, or as simple as possible with some kind of stream parsing ?</p>\r\n<p>When thinking about &quot;lists&quot;, which are as far as I could see, don't have text-style-setting equivalents within Excel/xlsx. How would you suggest/prefer to build/convert those ?</p>\r\n<p>As simple text-parts with leading &quot;list- bullet characters&quot; and leading space or tab indents ?</p>\r\n<p><span style=\"font-size:10pt\" lang=NL><span style=\"font-size:10pt\" lang=NL><span style=\"font-size:10pt\" lang=NL><span style=\"font-size:10pt\" lang=NL><span style=\"font-size:10pt\" lang=NL><span style=\"font-size:10pt\" lang=NL> </span></span></span></span></span></span></p>",
+    "PostedDate": "2010-05-19T03:02:12.38-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

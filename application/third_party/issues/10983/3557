@@ -1,0 +1,90 @@
+Index: Classes/PHPExcel/Worksheet.php
+===================================================================
+--- Classes/PHPExcel/Worksheet.php	(revision 1264)
++++ Classes/PHPExcel/Worksheet.php	(working copy)
+@@ -608,6 +608,7 @@
+ 	 */
+ 	public function calculateColumnWidths($calculateMergeCells = false)
+ 	{
++		// initialize $autoSizes array
+ 		$autoSizes = array();
+ 		foreach ($this->getColumnDimensions() as $colDimension) {
+ 			if ($colDimension->getAutoSize()) {
+@@ -615,35 +616,41 @@
+ 			}
+ 		}
+ 
+-		foreach ($this->getCellCollection() as $cell) {
+-			if (isset($autoSizes[$cell->getColumn()])) {
+-				// Calculated value
+-				$cellValue = $cell->getCalculatedValue();
++		// There is only something to do if there are some auto-size columns
++		if (count($autoSizes) > 0) {
++			// loop though all cells in sheet expand $autoSizes
++			foreach ($this->getCellCollection(false) as $cell) {
++				if (isset($autoSizes[$cell->getColumn()])) {
++					// Calculated value
++					$cellValue = $cell->getCalculatedValue();
+ 
+-				// To formatted string
+-				$cellValue = PHPExcel_Style_NumberFormat::toFormattedString($cellValue, $this->getParent()->getCellXfByIndex($cell->getXfIndex())->getNumberFormat()->getFormatCode());
++					// To formatted string
++					$cellValue = PHPExcel_Style_NumberFormat::toFormattedString($cellValue, $this->getParent()->getCellXfByIndex($cell->getXfIndex())->getNumberFormat()->getFormatCode());
+ 
+-				foreach ($this->getMergeCells() as $cells) {
+-					if ($cell->isInRange($cells) && !$calculateMergeCells) {
+-						$cellValue = ''; // do not calculate merge cells
++					foreach ($this->getMergeCells() as $cells) {
++						if ($cell->isInRange($cells) && !$calculateMergeCells) {
++							$cellValue = ''; // do not calculate merge cells
++						}
+ 					}
++
++					$autoSizes[$cell->getColumn()] = max(
++						(float)$autoSizes[$cell->getColumn()],
++						(float)PHPExcel_Shared_Font::calculateColumnWidth(
++							$this->getParent()->getCellXfByIndex($cell->getXfIndex())->getFont(),
++							$cellValue,
++							$this->getParent()->getCellXfByIndex($cell->getXfIndex())->getAlignment()->getTextRotation(),
++							$this->getDefaultStyle()->getFont()
++						)
++					);
+ 				}
++			}
+ 
+-				$autoSizes[$cell->getColumn()] = max(
+-					(float)$autoSizes[$cell->getColumn()],
+-					(float)PHPExcel_Shared_Font::calculateColumnWidth(
+-						$this->getParent()->getCellXfByIndex($cell->getXfIndex())->getFont(),
+-						$cellValue,
+-						$this->getParent()->getCellXfByIndex($cell->getXfIndex())->getAlignment()->getTextRotation(),
+-						$this->getDefaultStyle()->getFont()
+-					)
+-				);
++			// adjust column widths
++			foreach ($autoSizes as $columnIndex => $width) {
++				if ($width == -1) $width = $this->getDefaultColumnDimension()->getWidth();
++				$this->getColumnDimension($columnIndex)->setWidth($width);
+ 			}
+ 		}
+-		foreach ($autoSizes as $columnIndex => $width) {
+-			if ($width == -1) $width = $this->getDefaultColumnDimension()->getWidth();
+-			$this->getColumnDimension($columnIndex)->setWidth($width);
+-		}
+ 
+ 		return $this;
+     }
+Index: Classes/PHPExcel/Writer/HTML.php
+===================================================================
+--- Classes/PHPExcel/Writer/HTML.php	(revision 1264)
++++ Classes/PHPExcel/Writer/HTML.php	(working copy)
+@@ -339,9 +339,6 @@
+ 		// Loop all sheets
+ 		$sheetId = 0;
+ 		foreach ($sheets as $sheet) {
+-			// Get cell collection
+-			$cellCollection = $sheet->getCellCollection();
+-
+ 			// Write table header
+ 			$html .= $this->_generateTableHeader($sheet);
+ 

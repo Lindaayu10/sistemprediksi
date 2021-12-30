@@ -1,0 +1,82 @@
+[
+  {
+    "Id": "143778",
+    "ThreadId": "43265",
+    "Html": "Hi All,<br>\r\n<br>\r\nFirst off, love the project. Meets a very big need in the PHP community.<br>\r\n<br>\r\nI am trying to set the width of each column in a spreadsheet to meet a very strict format. The actual value for the widths are off by a various amount (can't find a pattern). Using paper size of A4 and displaying to the browser using the code below. I found a suggestion that it may be related to font so tried setting the default font to a monospace font (Courier New) and found no difference. The file is being opened using Excel 2007.<br>\r\n<br>\r\nAny ideas? Need any additional info?<br>\r\n<br>\r\n//Set column widths&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp; //ACTUAL<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getColumnDimension('A')-&gt;setWidth(0.54);&nbsp; //0.33<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getColumnDimension('B')-&gt;setWidth(12.75); //12<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getColumnDimension('C')-&gt;setWidth(16);&nbsp;&nbsp;&nbsp; //15.29<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getColumnDimension('D')-&gt;setWidth(12.5);&nbsp; //11.71<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getColumnDimension('E')-&gt;setWidth(5.88);&nbsp; //5.14<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getColumnDimension('F')-&gt;setWidth(0.92);&nbsp; //0.5<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getColumnDimension('G')-&gt;setWidth(9.63);&nbsp; //8.86<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getColumnDimension('H')-&gt;setWidth(4.88);&nbsp; //4.14<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getColumnDimension('I')-&gt;setWidth(14.25); //13.57<br>\r\n<br>\r\nPaper size code<br>\r\n<br>\r\n//Set paper size to A4<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getPageSetup()-&gt;setPaperSize(PHPExcel_Worksheet_PageSetup::PAPERSIZE_A4);<br>\r\n<br>\r\nFile serving code<br>\r\n<br>\r\n// Save Excel 2007 file<br>\r\nheader(&quot;Pragma: public&quot;);<br>\r\nheader(&quot;Expires: 0&quot;);<br>\r\nheader(&quot;Cache-Control: must-revalidate, post-check=0, pre-check=0&quot;); <br>\r\nheader(&quot;Content-Type: application/force-download&quot;);<br>\r\nheader(&quot;Content-Type: application/octet-stream&quot;);<br>\r\nheader(&quot;Content-Type: application/download&quot;);<br>\r\nheader(&quot;Content-Disposition: attachment;filename=testing.xlsx&quot;); <br>\r\nheader(&quot;Content-Transfer-Encoding: binary &quot;);<br>\r\n<br>\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007'); <br>\r\n<br>\r\n<br>\r\n<br>\r\n<br>\r\n<br>\r\n\r\n",
+    "PostedDate": "2008-12-31T14:04:38.21-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "143881",
+    "ThreadId": "43265",
+    "Html": "You are right that the column width set using PHPExcel does not correspond to the value seen when one opens the Excel file in MS Office Excel.<br>\r\n<br>\r\nYour best option is probably to read off the widths from a template and then use those values when you set the widths.<br>\r\n<br>\r\nThe steps would be as follows:<br>\r\n<br>\r\n1) Create in MS Office Excel 2007 your template document where you set the widths accurately. For example, that means a width of 0.54 for column 'A' from your example. Save the document as template.xlsx<br>\r\n<br>\r\n2) Read the template.xlsx using PHPExcel_Reader_Excel2007 and write down the values you get for the widths.<br>\r\n<code>$objPHPExcel-&gt;getActiveSheet()-&gt;getColumnDimension('A')-&gt;getWidth();</code><br>\r\nThese will differ slightly from the values seen in MS Office Excel.<br>\r\n<br>\r\n3) Use the values from 2) in your <code>setWidth(&lt;width&gt;)</code> methods for the final generation of your xlsx file.<br>\r\n<br>\r\n<strong>Why is column width not the same?</strong><br>\r\n<br>\r\nColumn width is really a big mess in Excel. MS Office Excel is operating with several different measures for column width. Let's try out a simple experiment. Create a blank Excel document in MS Office Excel 2007 and save it as xlsx and xls. We set the width of column 'D' to 22.14 (160 px), just an arbitrary width.<br>\r\n<a href=\"http://img145.imageshack.us/img145/5615/rendering.png\">http://img145.imageshack.us/img145/5615/rendering.png</a><br>\r\n<br>\r\nIf you change file extension from xlsx to zip, unzip it, and look at the stored value for width of column 'D' it says instead 22.85546875 which is obviously different from 22.14.<br>\r\n<a href=\"http://img145.imageshack.us/img145/1671/xlsx.png\">http://img145.imageshack.us/img145/1671/xlsx.png</a><br>\r\n<br>\r\nIf you look at the xls document in a BIFF8 viewer the story is the same. You find the value 0x16DB = 5851. This column width measure is in fractions of 1/256, so we get 5851 / 256 = 22.85546875 which is the same as in xlsx.<br>\r\n<a href=\"http://img145.imageshack.us/img145/3077/xls.png\">http://img145.imageshack.us/img145/3077/xls.png</a><br>\r\n<br>\r\nThe point is that there is no place in the Excel document you will find the value 22.14 (or 160 px) stored. Those values are computed by the specific application MS Office Excel 2007.<br>\r\n<br>\r\nIf you don't have this algorithm, then this is a big problem when you programatically want to set a column width to a fixed number of pixels. I am not sure whether the algorithm is being kept secret by Microsoft or not.<br>\r\n<br>\r\nThere is some more info here, but it does not seem to suffice for the construction of the algorithm.<br>\r\n<a href=\"http://support.microsoft.com/kb/214123\">http://support.microsoft.com/kb/214123</a><br>\r\n<br>\r\nIf someone knows more, please post.<br>\r\n",
+    "PostedDate": "2009-01-01T11:37:53.987-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "144471",
+    "ThreadId": "43265",
+    "Html": "Thanks for the quick reply. One of the best forum replies I have ever seen. I will give it a shot!<br>\r\n",
+    "PostedDate": "2009-01-05T10:51:45.33-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "144612",
+    "ThreadId": "43265",
+    "Html": "I forgot to mention one thing. When you create your template, make sure that the workbook's normal (default) font matches the default font you intend to use in your final workbook. Otherwise, the method will not work.<br>\r\n<br>\r\nThe font I am talking about is the font that is used for the column and row headings (A, B, C,... 1, 2,...). In MS Office Excel 2007, to my knowledge, you can only set this default font before you create the workbook. Method is described here:<br>\r\n<a href=\"http://www.dummies.com/how-to/content/changing-excel-2007s-default-font-and-font-size.html\">http://www.dummies.com/how-to/content/changing-excel-2007s-default-font-and-font-size.html</a><br>\r\nIf you have a workbook and you are not sure what the default font is, hit the button to create a new sheet and look at what it says for the font in the style toolbar. This reveals the default font.<br>\r\n<br>\r\nIn PHPExcel you can change this font from any sheet using for example<br>\r\n<code>\r\n$sheet-&gt;getDefaultStyle()-&gt;getFont()-&gt;setName('Arial');<br>\r\n$sheet-&gt;getDefaultStyle()-&gt;getFont()-&gt;setSize(20);<br>\r\n</code>\r\n<br>\r\nNotice, in PHPExcel this font defaults to Calibri 10. In MS Office Excel 2007, this is usually Calibri 11; in earlier versions of MS Office Excel this is typically Arial 10.<br>\r\n<br>\r\n",
+    "PostedDate": "2009-01-05T21:12:36.25-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "215445",
+    "ThreadId": "43265",
+    "Html": "<p>I'm running into a similar issue as the above where if I set the width of my columns in PHP, then in the generated Excel file, the columns are exactly 0.71 less than what I entered. I see in the developer documentation it mentions this and recommends to change the default font to Arial, but I tried this and I wasn't able to get it to work.&nbsp; Is anyone else running into this issue?&nbsp; I noticed that if I downgrade to PHPExcel 1.6.4, then my columns widths in the PHP match directly with the generated Excel file.&nbsp; This behavior of the columns being 0.71 less started in PHPExcel 1.6.5.&nbsp; The code I have been using to test is:</p>\r\n<p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$workbook = <span style=\"color:Blue\">new</span> PHPExcel;\r\n$workbook-&gt;getActiveSheet()-&gt;getDefaultStyle()-&gt;getFont()-&gt;setName(<span style=\"color:#A31515\">'Arial'</span>);\r\n$workbook-&gt;getActiveSheet()-&gt;getColumnDimensionByColumn(0)-&gt;setWidth(10);\r\n\r\n$writer = PHPExcel_IOFactory::createWriter($workbook, <span style=\"color:#A31515\">'Excel5'</span>);\r\n$writer-&gt;save(<span style=\"color:#A31515\">'write.xls'</span>);\r\n<br></pre>\r\n</div>\r\n</p>\r\n<p>Thanks for your help.</p>\r\n<p>Ryan</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-07-23T12:05:37.557-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "215869",
+    "ThreadId": "43265",
+    "Html": "<p>@rbro: Column width is unfortunately a mess in Excel. When you use <span style=\"font-family:Courier New\">setWidth(10)</span> in PHPExcel, the width 10 does <strong>not</strong> correspond to the column width as shown in Microsoft Office Excel. See explanation in my above reply.<br> <br> <em>&gt;&gt; I see in the developer documentation it mentions this and recommends to change<br> &gt;&gt; the default font to Arial, but I tried this and I wasn't able to get it to work.<br> </em><br> You are probably right on this, I think the documentation is wrong here and we should remove the advice if it is wrong.<br> <br> <em>&gt;&gt; I noticed that if I downgrade to PHPExcel 1.6.4, then my columns widths in the PHP<br> &gt;&gt; match directly with the generated Excel file.&nbsp; This behavior of the columns being 0.71 less<br> &gt;&gt; started in PHPExcel 1.6.5.<br> </em><br> Yes, I understand the confusion. If I remember correctly, what you are describing holds for Excel5 writer, but not Excel2007 writer. From 1.6.4 to 1.6.5 Excel5 writer was modified to match the same units as Excel2007 writer. The change was intentional.</p>",
+    "PostedDate": "2009-07-24T14:33:58.553-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "216770",
+    "ThreadId": "43265",
+    "Html": "<p>Thanks for your help.&nbsp; I will check through your source code history, but do you happen to know what file or files were changed between 1.6.4 and 1.6.5 to have setWidth match the same units as the Excel2007 writer?&nbsp; In my particular case, I am only generating Excel5 files, so I was thinking I could run a locally modified version of PHPExcel that has the version of setWidth where the column widths match the generated files.</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks,</p>\r\n<p>Ryan</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-07-28T06:28:55.827-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "216865",
+    "ThreadId": "43265",
+    "Html": "<p><em>&gt;&gt; but do you happen to know what file or files were changed between 1.6.4 and<br>&gt;&gt; 1.6.5 to have setWidth match the same units as the Excel2007 writer?<br></em><br>The change was made here:<br><a href=\"../WorkItem/View.aspx?WorkItemId=7944\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=7944</a><br><br>What was done was to remove this line in the _storeColinfo() method in <span style=\"font-family:Courier New\">Classes\\PHPExcel\\Writer\\Excel5\\Worksheet.php</span><br><span style=\"font-family:Courier New\">\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$coldx   += 0.72;            <span style=\"color:Green\">// Fudge. Excel subtracts 0.72 !?</span>\r\n</pre>\r\n</div>\r\n</span></p>",
+    "PostedDate": "2009-07-28T09:44:53.923-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "236799",
+    "ThreadId": "43265",
+    "Html": "<p>Hi All,</p>\r\n<p>If i set:</p>\r\n<p>$objPHPExcel-&gt;getActiveSheet()-&gt;getColumnDimension('A')-&gt;setWidth(4);&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; =&gt; 3,29</p>\r\n<p>$objPHPExcel-&gt;getActiveSheet()-&gt;getColumnDimension('A')-&gt;setWidth(4,1);&nbsp;&nbsp;&nbsp;&nbsp; =&gt; 3,43</p>\r\n<p>$objPHPExcel-&gt;getActiveSheet()-&gt;getColumnDimension('A')-&gt;setWidth(4,2);&nbsp;&nbsp;&nbsp;&nbsp; =&gt; 3,43</p>\r\n<p>$objPHPExcel-&gt;getActiveSheet()-&gt;getColumnDimension('A')-&gt;setWidth(4,3);&nbsp;&nbsp;&nbsp;&nbsp; =&gt; 3,57</p>\r\n<p>$objPHPExcel-&gt;getActiveSheet()-&gt;getColumnDimension('A')-&gt;setWidth(4,4);&nbsp;&nbsp;&nbsp;&nbsp; =&gt; 3,71</p>\r\n<p>$objPHPExcel-&gt;getActiveSheet()-&gt;getColumnDimension('A')-&gt;setWidth(4,5); &nbsp; &nbsp; =&gt; 3,71</p>\r\n<p>$objPHPExcel-&gt;getActiveSheet()-&gt;getColumnDimension('A')-&gt;setWidth(4,6);&nbsp;&nbsp;&nbsp;&nbsp; =&gt; 3,86</p>\r\n<p>$objPHPExcel-&gt;getActiveSheet()-&gt;getColumnDimension('A')-&gt;setWidth(4,7);&nbsp;&nbsp;&nbsp;&nbsp; =&gt; 4</p>\r\n<p>$objPHPExcel-&gt;getActiveSheet()-&gt;getColumnDimension('A')-&gt;setWidth(4,8);&nbsp;&nbsp;&nbsp;&nbsp; =&gt; 4,14</p>\r\n<p>$objPHPExcel-&gt;getActiveSheet()-&gt;getColumnDimension('A')-&gt;setWidth(4,9);&nbsp;&nbsp;&nbsp;&nbsp; =&gt; 3,14</p>\r\n<p>and if i set:</p>\r\n<p>$objPHPExcel-&gt;getActiveSheet()-&gt;getColumnDimension('A')-&gt;setWidth(15,5)&nbsp;&nbsp;&nbsp; =&gt; 14,71</p>\r\n<p>$objPHPExcel-&gt;getActiveSheet()-&gt;getColumnDimension('A')-&gt;setWidth(16,5)&nbsp;&nbsp;&nbsp; =&gt; 15,71</p>\r\n<p>...</p>\r\n<p>you want to set ???</p>\r\n<p>have fun ^^</p>\r\n<p>^^! sorry, my english very bad</p>",
+    "PostedDate": "2009-09-21T02:16:09.187-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "236851",
+    "ThreadId": "43265",
+    "Html": "<p>I will see if I can add some explanation about column widths in the PHPExcel developer documentation for next release PHPExcel 1.7.1.</p>",
+    "PostedDate": "2009-09-21T05:29:23.857-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

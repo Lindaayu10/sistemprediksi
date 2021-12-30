@@ -1,0 +1,90 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": "2007-04-25T14:29:13.537-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hi,\nIt's a problem to supply the full code, it's a lot but supplied code (at bottom) is the wrapper around your code.\n(Mind you, this is a rough prototype just to test your code.)\nThis is part of a job control system we use for a data warehouse application.\nI used a snippet out of the 5featuredemo.php to create the new sheet.\nIn this actual case I run a series of sql select's each one generate a new sheet.\nThe supplied code is included once per select. The statment \"if ($fpc_flag == 'FILE_APPEND')\" is only false the first invocation. \nI should also add I run this in a Mandriva 2007 Linux environment and mail the Excel file as an attachment to my Windows XP pro Excel 2003. PHP version = PHP 5.2.1-dev (cli) (built: Mar  3 2007 15:32:21).\n \n \nThe job definition that drives this execution looks like:\n \n<?xml version='1.0' encoding='ISO-8859-1' standalone='yes'?>\n<!-- Save SAP project in the CPDPRJ database -->\n<schedule name='ExelTest' mustcomplete='yes' logresult='no' period='day' notify='admfail.xml' logmsg='Test av Excel 2007'>\n\t<job name='generate_report' type='sql'>\n\t\t<sql>\n\t\t\tUSE OPS;\n\t\t\tselect * from OPS.schedule where scheduleid > 8812;\n\t\t</sql>\n\t\t<sql>\n\t\t\tselect * from OPS.schedule where scheduleid > 8812;\n\t\t</sql>\n\t\t<sql>\n\t\t\tselect * from OPS.schedule where scheduleid > 8812;\n\t\t</sql>\n\t\t<sql>\n\t\t\tselect * from OPS.job where scheduleid > 8812;\n\t\t</sql>\n\t\t<sql>\n\t\t\tselect * from OPS.schedule newQuery where scheduleid > 8811;\n\t\t</sql>\n\t\t<sqlconverter>\n\t\t\t<name>sqlconverter_PHPExcel01.php</name> <!-- This points to the supplied code at bottom -->\n\t\t\t<target>report0</target>\n\t\t</sqlconverter>\n\t</job>\n\t<job name='send_mail' type='sendmail'>\n\t\t<mailer>phpmailer</mailer>\n\t\t<recipients>lars.a.johansson@se.atlascopco.com</recipients>\n\t\t<subject>Project @S_PROJ</subject>\n\t\t<body>\n\t\t\tExcel attached with all info found on project=@S_PROJ.\n\t\t</body>\n\t\t<attachment>\n\t\t\t<name>project.xlsx</name><file>@J_generate_report/report0.xlsx</file>\n\t\t</attachment>\n\t</job>\n</schedule>\n \n \n-------------------------------------------\nThis is the PHP code that generates the invalid code\nNote the $fti switch is a workaround to avoid corrupted Excel files\n-------------------------------------------\n \n<?php\n/**\n* SQL result converter - dynamically included in function {@link execSql()}\n*\n* This SQL converter converts a mysqli select result into a Excel 2007 worksheet.\n* This code is a wrapper to the program product {@link http://www.codeplex.com/PHPExcel/Wiki/View.aspx PHP Excel 2007 classes} \n* I assume this program product was developed by {@link http://www.balliauw.be/maarten Maarten Balliauw}\n*\n* I assembled this code by looking at some examples in the Tests directory. You should probably enjoy the {@link sqlconverter_default.php OPS default sql converter documentation} first, before you digest this.\n*\n* Processing: \n* 1 - Initializing, we set up constants, check for file(s) existance etc.\n* 2 - Get meta data from the result set.\n* 3 - Include necessary PHP Excel 2007 classes files. For reasons not clear to me yet, I have to change include-path and set PWD to install library of PHP Excel 2007 classes to get things going. (I reset those before saving the Excel sheet.)\n* 4 - Create the Excel sheet\n* 5 - Post edit the Excel sheet and save\n*\n* @see sqlconverter_default.php\n* @author Lasse Johansson <lars.a.johansson@se.atlascopco.com>\n* @version  1.0.0\n* @package OPS\n* @subpackage sqlconverter\n* @uses getCustomXml()\n*/\n \n$sqllog->logit('Note',\"Enter sqlconverter_PHPExcel01.php using target=$sqltarget\");\n$sheetName=$sqltarget;\n$C_company = $context['_xlate']['C_company'];\n$C_application = $context['_xlate']['C_application'];\n$jobname = $job['name'];\n$schedname = $schedule['name'];\n//print \"company=$C_company,appl=$C_application,job=$jobname,sched=$schedname\\n\";\n \nif(is_numeric(substr($sqltarget, -1,1))) {\n\t$metafile = \"$metafile$filePfx\";\n\t$sqltarget = \"$sqltarget.xlsx\";\n} else {\n\tclearstatcache();\n\tfor ($x=0; 1==1; $x++){\n\t\tif (!file_exists(\"$metafile$x$filePfx\")){\n\t\t\t$metafile = \"$metafile$x$filePfx\";\n\t\t\t$sqltarget = \"$sqltarget$x.xlsx\";\n\t\t\tbreak;\n\t\t}\n\t}\n}\n$sqllog->logit('Note',\"sqlconverter writing output to $sqltarget\");\n \nif (file_exists($sqltarget)) $fpc_flag = 'FILE_APPEND';\nelse $fpc_flag = NULL;\n \n$Ecols = array('A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','X','Y','Z',\n'AA','AB','AC','AD','AE','AF','AG','AH','AI','AJ','AK','AL','AM','AN','AO','AP','AQ','AR','AS','AT','AU','AV','AX','AY','AZ',\n'BA','BB','BC','BD','BE','BF','BG','BH','BI','BJ','BK','BL','BM','BN','BO','BP','BQ','BR','BS','BT','BU','BV','BX','BY','BZ');\n$EcolsA = count($Ecols);\n \n/** Get meta data **/\n \n$trow = array();\n//if ($fpc_flag == NULL){;\n\t$meta = '';\n\twhile ($finfo = $result->fetch_field()) {\n\t\t$trow[] = (array) $finfo;\n\t\t$meta .= sprintf(\"Name:    %s;\", $finfo->name);\n\t\t$meta .= sprintf(\"Table:    %s;\", $finfo->table);\n\t\t$meta .= sprintf(\"max. Len:    %d;\", $finfo->max_length);\n\t\t$meta .= sprintf(\"Flags:    %d;\", $finfo->flags);\n\t\t$meta .= sprintf(\"Type:    %d;\", $finfo->type);\n\t\t$meta .= \"\\n\";\n\t\t$tcols = count($trow) - 1;\n\t\t$trow[$tcols]['ExcelCol'] = $Ecols[$tcols];\n\t}\n/*\n$mysqli_type = array();\n $mysqli_type[0] = \"decimal\";\n $mysqli_type[1] = \"tinyint\";\n $mysqli_type[2] = \"smallint\";\n $mysqli_type[3] = \"int\";\n $mysqli_type[4] = \"float\";\n $mysqli_type[5] = \"double\";\n $mysqli_type[7] = \"timestamp\";\n $mysqli_type[8] = \"bigint\";\n $mysqli_type[9] = \"mediumint\";\n $mysqli_type[10] = \"date\";\n $mysqli_type[11] = \"time\";\n $mysqli_type[12] = \"datetime\";\n $mysqli_type[13] = \"year\";\n $mysqli_type[252] = \"blob\"; // text, blob, tinyblob,mediumblob, etc...\n $mysqli_type[253] = \"string\"; // varchar and char\n $mysqli_type[254] = \"enum\";\n// file_put_contents($metafile,$meta);\n*/\n//print_r($trow);\nunset($meta);\n//}\n \n/** Fix include path & pwd, grab PHP Excel 2007 classes and instantiate a worksheet **/\nif(!$xml = getCustomXml($context, 'PHPExcel')){\n\treturn FALSE;\n}\n$epath = $xml->install;\n$wd_was = getcwd();\n$ip_was = ini_get('include_path');\nchdir(\"$epath/Classes\"); // It's not clear to me why I have to do this\nini_set('include_path', ini_get('include_path').';../Classes/');\n$ipath = ini_get('include_path');\n \n/** PHP Excel 2007 classes - PHPExcel */\ninclude_once \"PHPExcel.php\";\n/** PHP Excel 2007 classes - PHPExcel_Writer_Excel2007 */\ninclude_once 'PHPExcel/Writer/Excel2007.php';\n$fti = TRUE; // posit this is the First Time In\nif ($fpc_flag == 'FILE_APPEND') {\n\t$fti = FALSE;\n/** PHP Excel 2007 classes - PHPExcel_Reader_Excel2007 */\n\trequire_once 'PHPExcel/Reader/Excel2007.php';\n\t$sqllog->logit('Note',\"Load from Excel2007 file=$wd_was/$sqltarget\");\n\t$objReader1 = new PHPExcel_Reader_Excel2007;\n\t$objPHPExcel = $objReader1->load(\"$wd_was/$sqltarget\");\n\t$objPHPExcel->createSheet();\n\t$sheetCount =$objPHPExcel->getSheetCount();\n\t$sheetCount--;\n//print_r($sheetCount);\n\t$objPHPExcel->setActiveSheetIndex($sheetCount);\n} else { \n\t$sqllog->logit('Note',\"Create new Excel2007 worksheet\");\n\t$objPHPExcel = new PHPExcel();\n\t$objPHPExcel->getProperties()->setCreator(\"$C_application - $schedname\");\n\t$objPHPExcel->getProperties()->setLastModifiedBy(\"$C_application - $jobname\");\n\t$objPHPExcel->getProperties()->setTitle(\"$schedname - $jobname\");\n\t//$objPHPExcel->getProperties()->setSubject(\"Office 2007 XLSX Document produced by $C_application\");\n\t$objPHPExcel->getProperties()->setDescription(\"Excel 2007 spreadsheet produced by $C_application for $C_company.\");\n\t$objPHPExcel->getActiveSheet()->getPageSetup()->setOrientation(PHPExcel_Worksheet_PageSetup::ORIENTATION_PORTRAIT);\n\t$objPHPExcel->getActiveSheet()->getPageSetup()->setPaperSize(PHPExcel_Worksheet_PageSetup::PAPERSIZE_A4);\n} //($fpc_flag == 'FILE_APPEND')\n \n/** Create the Excel sheet **/\n \n// Insert title row\n$rows = 1;\nforeach ($trow as $tcol) {\n\t$coltitle = ucfirst($tcol['name']);\n\t$cell = $tcol['ExcelCol'] . $rows;\n\t$celln = $tcol['ExcelCol'] . $rows + 1;\n//\tprint \"coltitle=$coltitle, Cell=$cell\\n\";\n\t$objPHPExcel->getActiveSheet()->SetCellValue(\"$cell\", \"$coltitle\");\n\tif ($fti) { // bug!? can only run these methods against the initial worksheet, otherwise...\n\t\t$objPHPExcel->getActiveSheet()->getStyle(\"$cell\")->getFont()->setName('Arial');\n\t\t$objPHPExcel->getActiveSheet()->getStyle(\"$cell\")->getFont()->setBold(true);\n\t\t$objPHPExcel->getActiveSheet()->getStyle(\"$cell\")->getFont()->setUnderline(PHPExcel_Style_Font::UNDERLINE_SINGLE);\n\t\t$objPHPExcel->getActiveSheet()->getStyle(\"$cell\")->getFont()->getColor()->setARGB(PHPExcel_Style_Color::COLOR_BLUE);\n\t}\n}\n// Add data rows\n$fstDatarow = $rows + 1;\n \nwhile ($row = $result->fetch_row()) {\n\t$rows++;\n\t$cols = 0;\n\t$rowstr='';\n\tforeach($row as $value) {\n\t\t$cell = $trow[$cols]['ExcelCol'] . $rows;\n//\t\tprint \"Excel cell $cell=$value,\\n\";\n\t\t$objPHPExcel->getActiveSheet()->SetCellValue(\"$cell\", \"$value\");\n\t\t$cols++;\n\t}\n}\n$lstDatarow = $rows;\n//print \"FIRST DATA ROW WRITTEN=$fstDatarow,LAST DATA ROW WRITTEN=$lstDatarow\\n\";\n \n/** Post edit and save **/\n \n// traverse all columns\nforeach($trow as $col) {\n/*\n\t$col['name']; //=> library\n\t$col['orgname']; //=> library\n\t$col['table']; //=> schedule\n\t$col['orgtable']; //=> schedule\n\t$col['def']; //=>\n\t$col['max_length']; //=> 58\n\t$col['length']; //=> 64\n\t$col['charsetnr']; //=> 8\n\t$col['flags']; => 1\n\t$col['type']; //=> 254\n\t$col['decimals']; //=> 0\n\t$col['ExcelCol']; // => J\n*/\n \n\t$fstCell = $col['ExcelCol'].$fstDatarow;\n\t$lstCell = $col['ExcelCol'].$fstDatarow;\n \n//$objPHPExcel->getActiveSheet()->getStyle(\"$fstCell\")->getFont()->setBold(true);\n//$objPHPExcel->getActiveSheet()->duplicateStyle( $objPHPExcel->getActiveSheet()->getStyle(\"$fstCell\"), \"$fstCell:$lstCell\" );\n}\n \n// Rename sheet\n$sheetTmp = $trow[0]['table'];\nif(strlen($sheetTmp) < 3) $sheetTmp = $trow[0]['orgtable'];\nif($sheetTmp != '') $sheetName = $sheetTmp;\n$sheetName = ucfirst(strtolower($sheetName));\n$sheetNames =$objPHPExcel->getSheetNames();\nwhile (in_array(\"$sheetName\",$sheetNames)) { //We append an 'X' to name if already exists\n\t$sheetName .= 'X';\n}\n \n$objPHPExcel->getActiveSheet()->setTitle(\"$sheetName\");\n \n// Save Excel 2007 file\n$objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel);\n \n$efile = $sqltarget;\nini_set('include_path',$ip_was); //reset\nchdir($wd_was);\t\t\t //reset\n \n$objWriter->save($efile);\n$sqllog->logit('Note',\"Exit sqlconverter_ExcelBasic.php, writing file $efile\");\n?>",
+    "LastUpdatedDate": "2013-05-16T05:44:01.723-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2007-04-25T14:29:10.3-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Style information results in unreadable file",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 1092
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "Can you try replacing PHPExcel/Writer/Excel2007/Worksheet.php with the file attached to this comment?I guess this should solve the problem, if so, please confirm.",
+      "PostedDate": "2007-04-25T14:29:10.91-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Hi,I was not so successful, replacing the Worksheet.php resulted in:PHP Fatal error:  Call to undefined method PHPExcel_Worksheet::getBreaks() in /home/tooljn/PHPExcel/prod/Classes/PHPExcel/Writer/Excel2007/Worksheet.php on line 415\r\n\r\nBut I have problems downloading worksheet.php my browser(s) I tried IE7, firefox and Konqueror. They  stall before the download is finished.What I have is a file with 612 lines that looks complete and ends with \r\n\r\nprivate function _writeDrawings($objWriter = null, $pSheet = null)\t{\t\tif ($objWriter instanceof xmlWriter && $pSheet instanceof PHPExcel_Worksheet) {\t\t\t// If sheet contains drawings, add the relationships\t\t\tif ($pSheet->getDrawingCollection()->count() > 0) {\t\t\t\t$objWriter->startElement('drawing');\t\t\t\t$objWriter->writeAttribute('r:id', 'rId1');\t\t\t\t$objWriter->endElement();\t\t\t}\t\t\t\t\t} else {\t\t\tthrow new Exception(\"Invalid parameters passed.\");\t\t}\t}}",
+      "PostedDate": "2007-04-25T14:29:11.287-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Hi again,Finally I had a successful download. The result however is the same. I seem to be missing the getBreaks() method.",
+      "PostedDate": "2007-04-25T14:29:11.647-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Well, another try then :-)In Worksheet.php (get a clean copy from Codeplex), around line 482, replace the line \"$objWriter->writeAttribute('s', $this->getParentWriter()->getStylesHashTable()->getIndexForHashCode( $aStyles[$pCell->getCoordinate()]->getHashCode() ));\" with the following construct:\r\n\r\nif ($this->getParentWriter()->getStylesHashTable()->getIndexForHashCode( $aStyles[$pCell->getCoordinate()]->getHashCode() ) !== false) {\t$objWriter->writeAttribute('s', $this->getParentWriter()->getStylesHashTable()->getIndexForHashCode( $aStyles[$pCell->getCoordinate()]->getHashCode() ));}",
+      "PostedDate": "2007-04-25T14:29:12.02-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Hi,Thanx for your efforts.Now I can run the methods against all worksheets! However the result is not what I expected, the attributes seem to be set only for the last sheet Irun the methods for (which normally is the last sheet in the xlsx file, see attached file). I had expected the attribute to be set for all sheets.",
+      "PostedDate": "2007-04-25T14:29:12.38-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "The Reader is not 100% finished, so I assume the problem is in there. I'll close this issue, best way to do is to reset all style information for evey sheet before saving.",
+      "PostedDate": "2007-04-25T14:29:12.753-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2007-04-25T14:29:13.537-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Hi,I'm eager for the next release. This seems to be a great program.What I like to see is docs about extending the classes.I'm terribly busy, but I can probably give a hand beta testing if you think it's of any value.",
+      "PostedDate": "2007-04-25T14:29:13.927-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:05:48.82-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:44:01.723-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

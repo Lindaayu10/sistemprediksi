@@ -1,0 +1,106 @@
+[
+  {
+    "Id": "578009",
+    "ThreadId": "249093",
+    "Html": "\r\n<p>Hi everybody,</p>\r\n<p>I have a problem with the objet Reader. I would like to read a specific sheet on a workbook but I have this error :</p>\r\n<p>exception 'Exception' with message 'Sheet index is out of bounds.' in [...]Classes\\PHPExcel.php:259 Stack trace: #0 [...]\\Classes\\PHPExcel\\Reader\\Excel2007.php(1379): PHPExcel-&gt;getSheet('10') #1 PHPExcel_Reader_Excel2007-&gt;load('...') #2 {main}</p>\r\n<p>What does it mean ? What could be the reason ?</p>\r\n<p>I try to find out. I check the title and the size of the sheet. The sheet is also in the middle of the workbook and not at the end. I try with the other sheets of the workbook but everything works fine.</p>\r\n<p>Versions :</p>\r\n<p>Apache 2.2.11</p>\r\n<p>PHP 5.3.0</p>\r\n<p>My code using objet Reader, the name of the sheet is in a array called $namesheet[] :</p>\r\n<p></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><span style=\"color:blue\">require_once</span> <span style=\"color:#a31515\">'Classes/PHPExcel/IOFactory.php'</span>;\r\n\t\t\t\r\n\t\t\t<span style=\"color:blue\">class</span> MyReadFilter <span style=\"color:blue\">implements</span> PHPExcel_Reader_IReadFilter\r\n\t\t\t{\r\n\t\t\t\t<span style=\"color:blue\">public</span> <span style=\"color:blue\">function</span> readCell($column, $row, $worksheetName = <span style=\"color:#a31515\">''</span>) {\r\n\t\t\t\t\t<span style=\"color:blue\">if</span> ($column &lt;= 11 &amp;&amp; $row &lt;= 65 &amp;&amp; $row &gt;= 4) {\r\n\t\t\t\t\t\t<span style=\"color:blue\">return</span> true;\r\n\t\t\t\t\t}\r\n\t\t\t\t\t\r\n\t\t\t\t\t<span style=\"color:blue\">return</span> false;\r\n\t\t\t\t}\r\n\t\t\t}\r\n\r\n\t\t\t$objReader= PHPExcel_IOFactory::createReader(<span style=\"color:#a31515\">'Excel2007'</span>);\r\n\t\t\t$objReader-&gt;setLoadSheetsOnly($namesheet[$p]);\r\n\t\t\t$objReader-&gt;setReadFilter( <span style=\"color:blue\">new</span> MyReadFilter() );\r\n\t\t\t\t\r\n\t\t\t<span style=\"color:blue\">try</span> \r\n\t\t\t{\r\n\t\t\t\t$objPHPExcel = $objReader-&gt;load($dir_fichier);\r\n\t\t\t} <span style=\"color:blue\">catch</span>(Exception $e) {\r\n\t\t\t\t<span style=\"color:blue\">die</span>(<span style=\"color:#a31515\">'Erreur chargement du fichier'</span>.$e);\r\n\t\t\t}\r\n<br>Thank you for your help.</pre>\r\n</div>\r\n<p></p>\r\n",
+    "PostedDate": "2011-03-09T12:55:42.313-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "831422",
+    "ThreadId": "249093",
+    "Html": "<p>Sorry to bump such an old topic, but I have a similar/related problem, and searching the discussions has not netted me a solution. So...</p>\n<p>For almost all of my applications, <em>setLoadSheetsOnly&nbsp;</em>works correctly. However, sometimes, even though the sheet name parameter that I am supplying to <em>setLoadOnlySheets </em>does in fact exist and does show up in <em>listWorksheetNames</em>, it gives me a \"sheet index out of bounds\" error. I haven't figured out the specifics, but sometimes I can avoid the error for that particular sheet by moving it earlier  or later in the list of sheet tabs in my Excel file, but this is not reliable, I cannot predict it, and it is certainly no solution.</p>\n<p>Thus my question is... Does anybody know why the \"sheet index out of bounds\" error occurs when using&nbsp;<em>setLoadSheetsOnly</em>&nbsp;for what should be a valid sheet name?</p>\n<p>I am using PHPExcel 1.7.6 under PHP 5.3.</p>\n<p>Example code...</p>\n<p>\n<div style=\"color: black; background-color: white;\">\n<pre>$reader = PHPExcel_IOFactory::createReader(<span style=\"color: #a31515;\">'Excel2007'</span>);\n\t\t\t\t\t\t\t\n$contained_sheets = $reader-&gt;listWorksheetNames($tempfile);\n<span style=\"color: blue;\">if</span> (array_search($sheet, $contained_sheets)) {\n\t$reader-&gt;setLoadSheetsOnly($sheet); <span style=\"color: green;\">// this is where the error happens</span>\n\t$reader = $reader-&gt;load($tempfile); <span style=\"color: green;\">// on one of these two lines</span>\n\t<span style=\"color: green;\">/// and so on</span>\n</pre>\n</div>\n</p>",
+    "PostedDate": "2012-05-02T19:46:40.537-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "989294",
+    "ThreadId": "249093",
+    "Html": "\r\n<p>I am running into a similar Problem.</p>\r\n<p>I get the following Message (Fatal error: Uncaught exception 'Exception' with message 'Sheet index is out of bounds. ...) when I try to run the code below:</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>$inputFileName = $name;\n$objReader = <span style=\"color:blue\">new</span> PHPExcel_Reader_Excel2007();\n$objReader-&gt;setReadDataOnly(true);\n$objReader-&gt;setLoadSheetsOnly(<span style=\"color:#a31515\">&quot;pricelist&quot;</span>);\n\n$objPHPExcel = $objReader-&gt;load($inputFileName); <span style=\"color:green\">// this is the place where the error occurs</span>\n\n$objWorksheet = $objPHPExcel-&gt;getActiveSheet();</pre>\r\n</div>\r\n<p>The error occurs when the worksheet I try to load is not the first sheet in the collection.</p>\r\n<p>If I delete all sheets standing in front of my desired sheet everything works fine.</p>\r\n<p>I am using PHPExcel 1.7.8 under PHP 5.3</p>\r\n",
+    "PostedDate": "2013-01-20T02:08:42.373-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "989665",
+    "ThreadId": "249093",
+    "Html": "\r\n<p>I've not been able to recreate this. There was a problem with this in the 1.7.7 release, but it should have been resolved in the 1.7.8 release.</p>\r\n<p>&nbsp;</p>\r\n<p>Can you try dumping the value of $objPHPExcel-&gt;getSheetNames() and $objPHPExcel-&gt;getActiveSheetIndex();</p>\r\n<p>&nbsp;</p>\r\n<p>I have tweaked the Develop branch to correctly set the correct active sheet if setReadDataOnly(true) and the active sheet isn't the first sheet you're loading (if you load multiple sheets) since then, but it should still return a 0 value for the sheet index\r\n in the 1.7.8 release.</p>\r\n",
+    "PostedDate": "2013-01-21T04:48:39.16-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "997295",
+    "ThreadId": "249093",
+    "Html": "I'm having this issue as well with the 1.7.8 release.\r<br />\n<br />\nThis is my code:<br />\n<pre><code>$filename = &quot;/home/rob/Desktop/protected.xlsx&quot;;\n$objReader = PHPExcel_IOFactory::createReader(&quot;Excel2007&quot;);\n\n$worksheetNames = $objReader-&gt;listWorksheetNames($filename);\nprint_r($worksheetNames);\n\n$objReader-&gt;setLoadSheetsOnly( array(&quot;Sales Dashboard&quot;) );\n$objPHPExcel = $objReader-&gt;load( $filename );</code></pre>\n\nThis is the output of worksheetNames<br />\n<pre><code>Array\n(\n    [0] =&gt; Reference\n    [1] =&gt; BBNS\n    [2] =&gt; Revisions\n    [3] =&gt; Mini Transfer\n    [4] =&gt; Customer Details\n    [5] =&gt; StarRecovery Contract\n    [6] =&gt; Basic Configuration\n    [7] =&gt; New Calcs\n    [8] =&gt; Dashboard Calcs\n    [9] =&gt; Sales Dashboard\n    [10] =&gt; Comparison\n    [11] =&gt; Quote\n    [12] =&gt; Beta Contract Rider\n    [13] =&gt; Order Detail\n    [14] =&gt; All S2S Choices\n    [15] =&gt; New Tables\n    [16] =&gt; Dlr Comp Disbur\n    [17] =&gt; Dealer Net Inv\n    [18] =&gt; Reseller Summary\n    [19] =&gt; Monthly Service\n    [20] =&gt; PBX &amp; Infrastructure\n    [21] =&gt; Phones\n    [22] =&gt; Lease App\n    [23] =&gt; New Services\n    [24] =&gt; Rent Quote Data\n    [25] =&gt; New Products\n    [26] =&gt; Prof Serv\n)</code></pre>\n\nHere's the error it throws<br />\n<pre><code>PHP Fatal error:  Uncaught exception 'Exception' with message 'Sheet index is out of bounds.' in /var/www/includes/PHPExcel.php:286\nStack trace:\n#0 /var/www/includes/PHPExcel/Reader/Excel2007.php(1751): PHPExcel-&gt;getSheet('9')\n#1 /var/www/portal/tester.php(37): PHPExcel_Reader_Excel2007-&gt;load('/home/rob/Deskt...')\n#2 {main}\n  thrown in /var/www/includes/PHPExcel.php on line 286</code></pre>\n\n",
+    "PostedDate": "2013-02-06T06:35:36.93-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "997722",
+    "ThreadId": "249093",
+    "Html": "If you're using <br />\n<pre><code>$objReader-&gt;setLoadSheetsOnly( array(&quot;Sales Dashboard&quot;) );</code></pre>\n\nthen it will be sheet 0\r<br />\n<br />\nIf you're not loading sheets 0 through 8, then sheet 9 will become the new sheet 0<br />\n",
+    "PostedDate": "2013-02-06T23:40:43.85-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "997900",
+    "ThreadId": "249093",
+    "Html": "That makes sense, but that's not what's happening here.  PHPExcel fails while loading.\r<br />\n<br />\nI am using this code and it fails right when trying to load.<br />\n<pre><code>$objReader-&gt;setLoadSheetsOnly( array(&quot;Sales Dashboard&quot;) );\n$objPHPExcel = $objReader-&gt;load($filename);  &lt;-- failure\n$objWorksheet = $objPHPExcel-&gt;getSheetByName(&quot;Sales Dashboard&quot;);</code></pre>\n\nThe 'PHPExcel-&gt;getSheet('9')' in the exception is something internal to the load() function.<br />\n",
+    "PostedDate": "2013-02-07T05:41:51.697-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "998761",
+    "ThreadId": "249093",
+    "Html": "I narrowed down my problem to defined names.<br />\n<br />\nin Excel2007.php line 1717<br />\n<pre><code>if ($xmlWorkbook-&gt;definedNames) {\n      foreach ($xmlWorkbook-&gt;definedNames-&gt;definedName as $definedName) {\n      ....\n    if ($worksheet = $docSheet-&gt;getParent()-&gt;getSheetByName($range[0])) {\n        $extractedRange = str_replace('$', '', $range[1]);\n        $scope = $docSheet-&gt;getParent()-&gt;getSheet((string)$definedName['localSheetId']);\n\n        $excel-&gt;addNamedRange( new PHPExcel_NamedRange((string)$definedName['name'], $worksheet, $extractedRange, true, $scope) );\n    }\n      ....</code></pre>\n\nBasically, i think the $definedName['localSheetId'] is pulling directly from the workbook and doesn't have a modified 'localSheetId'.  It seems to be using the same sheet ID's regardless of the setLoadSheetsOnly() function.<br />\n<br />\nIf I comment out this entire block of code, I'm able to load my workbook and view data properly.<br />\n",
+    "PostedDate": "2013-02-08T14:29:24.053-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "999624",
+    "ThreadId": "249093",
+    "Html": "Can you generate a small demo workbook to demonstrate this problem?<br />\n",
+    "PostedDate": "2013-02-11T08:55:50.643-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1006734",
+    "ThreadId": "249093",
+    "Html": "Hi guys,<br />\n<br />\nWe've encountered this problem too, and the workaround of commenting out lines 1717 to 1780 solved it. <br />\n<br />\nWe've cross posted this to <a href=\"https://github.com/PHPOffice/PHPExcel/issues/80#issuecomment-14100285\" rel=\"nofollow\">Github</a> as well.<br />\n<br />\nNot sure if removing these lines will affect future codes...<br />\n<br />\nWe're using version 1.7.8.<br />\n<br />\nWe have a workbook with 2 sheets, one which is fine, the other triggers this error. Should/Can we upload it here?<br />\n",
+    "PostedDate": "2013-02-26T00:13:54.36-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1006793",
+    "ThreadId": "249093",
+    "Html": "Simply commenting out that block of lines will have adverse effects with some worksheets, especially if they contain formulae using defined names.\r<br />\n<br />\nYou can upload a file to <a href=\"http://phpexcel.codeplex.com/workitem/10749?ProjectName=phpexcel\" rel=\"nofollow\">http://phpexcel.codeplex.com/workitem/10749?ProjectName=phpexcel</a> which will certainly help me to isolate the exact cause of the problem and look at identifying a clean fix that cause other problems.<br />\n",
+    "PostedDate": "2013-02-26T01:40:24.59-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1007321",
+    "ThreadId": "249093",
+    "Html": "Hi MarkBaker,\r<br />\n<br />\nThanks! I've uploaded the file called LTETestFile (2sheets 1prob).xlsx<br />\n",
+    "PostedDate": "2013-02-26T18:06:35.403-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1008134",
+    "ThreadId": "249093",
+    "Html": "There should now be a working fix for this in the develop branch on github<br />\n",
+    "PostedDate": "2013-02-28T04:32:06.69-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

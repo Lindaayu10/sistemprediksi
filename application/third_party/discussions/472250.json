@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "1132996",
+    "ThreadId": "472250",
+    "Html": "When you save an excel spreadsheet, it remembers that exact horizontal and vertical scroll positions. It doesn't seem like it is possible to set this with PHPExcel. Perhaps the easiest way would be to define the top-left most cell in the initial view. Of course this would need to consider any frozen pane settings.\r<br />\n<br />\nThanks.<br />\n",
+    "PostedDate": "2013-12-08T18:58:10.927-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1133469",
+    "ThreadId": "472250",
+    "Html": "For the 2007 writer, this seems not complicated to implement. This is the same technique as for freeze panes, by setting the topLeftCell, but without the &quot;split&quot;<br />\n",
+    "PostedDate": "2013-12-10T00:48:03.36-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1135011",
+    "ThreadId": "472250",
+    "Html": "The code below should help implement the functionality for the Writer Excel 2007\r<br />\n<br />\n1 - Edit the PHPExcel_Worksheet class (PHPExcel/Worksheet.php)<br />\n<ul>\n<li>Add a property class $_topLeftCellView:</li>\n</ul>\n<pre><code>/**\n    * topLeftCellView\n    *\n    * @var string\n    */\n    private $_topLeftCellView = null;</code></pre>\n\n<ul>\n<li>Add both setTopLeftCellView and getTopLeftCellView methods:</li>\n</ul>\n<pre><code>/**\n     * Define the Top Left visible Cell\n     *\n     * @param string        $pCoord\n     */\n    public function setTopLeftCellView($pCoord = null){\n        if($pCoord=='' or strtoupper($pCoord)=='A1') $pCoord=null;\n        $this-&gt;_topLeftCellView=$pCoord;\n        return $this;\n    }\n    /**\n     * get the Top Left visible Cell\n     *\n     * @return   string || null\n     */\n    public function getTopLeftCellView(){\n        return $this-&gt;_topLeftCellView;\n    }</code></pre>\n\n2 - Edit the class PHPExcel_Writer_Excel2007_Worksheet (PHPExcel/Writer/Excel2007/Worksheet.php<br />\n<ul>\n<li>Search (it's a &quot;tab&quot; between the two params):</li>\n</ul>\n<pre><code>$objWriter-&gt;writeAttribute('topLeftCell',   $topLeftCell);</code></pre>\n\n<ul>\n<li>Replace by: </li>\n</ul>\n<pre><code>$objWriter-&gt;writeAttribute('topLeftCell',   (is_null($pSheet-&gt;getTopLeftCellView())?$topLeftCell:$pSheet-&gt;getTopLeftCellView()));</code></pre>\n\n<ul>\n<li>Search the end of if corresponding to : </li>\n</ul>\n<pre><code>if (($topLeftCell != '') &amp;&amp; ($topLeftCell != 'A1')) {</code></pre>\n\n<ul>\n<li>Add a 'else' to this test:</li>\n</ul>\n<pre><code>}else{\n                    //initial visible (top left) cell\n                    if(!is_null($pSheet-&gt;getTopLeftCellView())){\n                        $objWriter-&gt;writeAttribute('topLeftCell', $pSheet-&gt;getTopLeftCellView());\n                    }\n                }</code></pre>\n\nIf you want the corresponding Reader read the value into an existing file:\r<br />\n1 - Edit the PHPExcel_Reader_Excel2007 class (PHPExcel/Reader/Excel2007.php)<br />\n<ul>\n<li>Search : </li>\n</ul>\n<pre><code>if (isset($xmlSheet-&gt;sheetViews-&gt;sheetView-&gt;pane['topLeftCell'])) {</code></pre>\n\nComment (or remove) the 'end of if' (only the '}') of this test, comment (or remove) the 'else' (only the 'else{')\r<br />\nNote : Of origin, there is a small mistake here: topLeftCell does not always correspond to xSplit and ySplit, for example when the user has moved the view after a freeze pane.<br />\n<ul>\n<li>Search : </li>\n</ul>\n<pre><code>$docSheet-&gt;freezePane( (string)$xmlSheet-&gt;sheetViews-&gt;sheetView-&gt;pane['topLeftCell'] );</code></pre>\n\n<ul>\n<li>and replace with : </li>\n</ul>\n<pre><code>$docSheet-&gt;setTopLeftCellView((string)$xmlSheet-&gt;sheetViews-&gt;sheetView-&gt;pane['topLeftCell'] );</code></pre>\n\n",
+    "PostedDate": "2013-12-12T05:32:32.887-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,71 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I have added a read filter to load a worksheet in blocks.  I am expecting that during each loop, the Row Iterator would only have the rows loaded, not the complete document.<?phpdefine('NEW_LINE', \"\\n\");define('TAB', \"\\t\");require_once(dirname(__FILE__) . '/ExternalLibraries/PHPExcel/Classes/PHPExcel.php');require_once(dirname(__FILE__) . '/ExternalLibraries/PHPExcel/Classes/PHPExcel/IOFactory.php');class READ_CHUNKS implements PHPExcel_Reader_IReadFilter{    private $StartRow_;    private $EndRow_;        public function setRows($StartingRow, $MaxRowsPerRead)    {        $this->StartRow_ = $StartingRow;        $this->EndRow_   = $StartingRow + $MaxRowsPerRead;    }        public function readCell($Column, $Row, $WorksheetName = '')    {        if($Row >= $this->StartRow_ && $Row <= $this->EndRow_)        {            return TRUE;        }        return FALSE;    }}try{    $ReadFilter = new READ_CHUNKS();        $FileName = 'Sample.xlsx';    $WorksheetType = PHPExcel_IOFactory::identify($FileName);    $ExcelReader = PHPExcel_IOFactory::createReader($WorksheetType);            $ExcelReader->setReadDataOnly(TRUE);    $ExcelReader->setReadFilter($ReadFilter);    echo 'Row' . TAB . 'Data' . NEW_LINE;    $MaxRowsPerRead = 10;    $MaxRows = 100;    for($StartRow = 1; $StartRow <= $MaxRows; $StartRow += $MaxRowsPerRead)    {        $ReadFilter->setRows($StartRow, $MaxRowsPerRead);        $ExcelWorksheet = $ExcelReader->load($FileName);        $ExcelWorksheet->setActiveSheetIndex(0);        // Go to first sheet        foreach ($ExcelWorksheet->getActiveSheet()->getRowIterator() as $RowIterator)        {        \techo $RowIterator->getRowIndex() . TAB;\t\t\t$CellIterator = $RowIterator->getCellIterator();\t\t\tforeach ($CellIterator as $Cell)\t\t\t{\t\t\t\tif (!is_null($Cell))\t\t\t\t{\t\t\t\t\techo $Cell->getValue() . TAB;\t\t\t\t}\t\t\t}\t\t\techo NEW_LINE;\t\t}\t}}catch (Exception $e){    echo $e->getMessage() . NEW_LINE;}?>I would expect the output to be only the rows of the document, 10 at a time, not the first pass counting the first 11 rows, then the next pass restarting from 1 (albeit without processing the data in the worksheet) and continuing to 21, then 21 to 31, etc...I was expecting to see 1-10, 11-20, 21-30...Am I doing something wrong, or is this a bug, or even a buf (Bloody Unfortunate Feature)?",
+    "LastUpdatedDate": "2013-02-21T19:01:31.253-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2013-01-08T08:10:13.423-08:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "RowIterator does not iterate through read filtered rows only",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 2,
+    "Id": 19156
+  },
+  "FileAttachments": [
+    {
+      "FileId": 6760,
+      "FileName": "Sample.php",
+      "DownloadUrl": ".\\6760"
+    },
+    {
+      "FileId": 6761,
+      "FileName": "Sample.xlsx",
+      "DownloadUrl": ".\\6761"
+    },
+    {
+      "FileId": 6762,
+      "FileName": "Sample.txt",
+      "DownloadUrl": ".\\6762"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "The row iterator is only aware of the read filter if you tell it when you instantiate it, check the second argument:\r\n\r\n    /**\n     * Create a new row iterator\n     *\n     * @param\tPHPExcel_Worksheet\t$subject\tThe worksheet to iterate over\n     * @param\tinteger\t\t\t\t$startRow\tThe row number at which to start iterating\n     */\n",
+      "PostedDate": "2013-01-08T23:43:44.837-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-01-21T20:42:24.81-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:01:31.253-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

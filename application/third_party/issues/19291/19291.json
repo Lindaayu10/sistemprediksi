@@ -1,0 +1,55 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I understand the possibility of this method not been implemented completely. \n\nFollowing is my test case which should return the average but it returns #DIV/0!\n\nFile : /Classes/PHPExcel/Calculation/Statistical.php.\n```\n$objPHPExcel = new PHPExcel();\n$aArgs=array('no','yes','no','yes');\n$condition='yes';\n$averageArgs=array('a'=>'1.2','b'=>'2.5','c'=>'3.5','d'=>'4.1');\n\n$ret=PHPExcel_Calculation_Statistical::AVERAGEIF($aArgs,$condition,$averageArgs);\necho $ret;\n```\nI made the following changes and it is working for me now.\n\n```\npublic static function AVERAGEIF($aArgs, $condition, $averageArgs = array()) {\n        // Return value\n        $returnValue = 0;\n\n        $aArgs       = PHPExcel_Calculation_Functions::flattenArray($aArgs);\n        $averageArgs = PHPExcel_Calculation_Functions::flattenArray($averageArgs);\n        \n        if (empty($averageArgs)) {\n            $averageArgs = $aArgs;\n        }\n        $condition   = PHPExcel_Calculation_Functions::_ifCondition($condition);\n\n        // Loop through arguments\n        $aCount = 0;\n\n        foreach ($aArgs as $key => $arg) {\n            if (!is_numeric($arg)) {\n                $arg = PHPExcel_Calculation::_wrapResult(strtoupper($arg));\n            }\n            if (array_key_exists($key, $averageArgs) && is_numeric($averageArgs[$key])) {\n                $avgArg        = $averageArgs[$key];\n                $testCondition = '=' . $arg . $condition;\n                if (PHPExcel_Calculation::getInstance()->_calculateFormulaValue($testCondition)) {\n                    $returnValue += $avgArg;\n                    ++$aCount;\n                }\n            }\n        }\n\n        // Return\n        if ($aCount > 0) {\n            return $returnValue / $aCount;\n        } else {\n            return PHPExcel_Calculation_Functions::DIV0();\n        }\n    }\n```",
+    "LastUpdatedDate": "2013-02-21T19:01:29.423-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2013-02-01T12:23:08.73-08:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "AVERAGEIF not working",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 19291
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "OK, I'll take a look; but how would you handle empty cells in this change?",
+      "PostedDate": "2013-02-01T14:09:38.583-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I just tested this with empty cells and it does work. \nWhat I did is, I voluntary added a empty cell in the range and used AVERAGEIF for Charting dataSeries value and it does seems to show the right data.\r\n\r\nThe is_numeric($averageArgs[$key]) check should take care of that. There might be some edge cases I am not aware of.\r\n\r\nCan you provide more information about the test case where this would break?\r\n\r\nThank you.",
+      "PostedDate": "2013-02-01T15:17:03.863-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:01:29.423-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

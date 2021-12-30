@@ -1,0 +1,101 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I have this file (attached) ... it seems to be an OLE file. I can open it with Excel but not with PHPExcel. Should be very basic file, only few data in columns without formating.\nI need to parse this file programaticly without loading and resaving it in Excel. Can anybody help me or advise some programatic workaround if there is a problem with the file?\nThe file is attached.",
+    "LastUpdatedDate": "2013-02-21T19:02:01.133-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2012-03-06T01:39:43.633-08:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Problem opening xls file",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 2,
+    "Id": 17534
+  },
+  "FileAttachments": [
+    {
+      "FileId": 6292,
+      "FileName": "file.xls",
+      "DownloadUrl": ".\\6292"
+    },
+    {
+      "FileId": 6313,
+      "FileName": "CN859248_6.xls",
+      "DownloadUrl": ".\\6313"
+    },
+    {
+      "FileId": 6374,
+      "FileName": "918807.xls",
+      "DownloadUrl": ".\\6374"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "This file is an Excel version 2 file (OLE1, BIFF2), and OLE1 is not supported by PHPExcel, which only supports OLE2 (BIFF5 and above). You'd need to open this in a more recent version of MSExcel, and resave it using an OLE2 format (Excel 95 or above)",
+      "PostedDate": "2012-03-06T05:04:04.963-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-03-21T23:46:22.653-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "How can i recognise a excel file to be OLE2 or OLE2 ?\r\nRecently, i also met this problem. However, it could be read (by PHPExcel_Reader_Excel2003XML) and output (to .xml by PHPExcel_Writer_Excel5) without style. If i resave it, it would be ok.\r\nIs there any method to solve this problem ?\r\n\r\nI have look up much information about but without solution.\r\nThe attachment is my file(Maybe some chinese character can be show). It would be very much thanks for any suggestion.\r\n",
+      "PostedDate": "2012-03-21T23:46:24.963-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-03-21T23:51:18.72-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "It seems that i havn't make it clear about my problem.\r\nMy story is like that:\r\nI have to copy many excel sheets from different excel file, which was produced by another app automaticly, into a new excel file. In this progress, the style of the origin should be kept. However, i lost the style during reading(by PHPExcel_Reader_Excel2003XML)  and writing  (to .xml by PHPExcel_Writer_Excel5). It could be ok if i resave the original excel file. The original excel is too much and produced everyday, i coud not resave it one by one.\r\nHow can i keep the style automaticly?\r\nAny suggestion would be be greatly appreciated.\r\nMy attachment is named CN859248_6.xls",
+      "PostedDate": "2012-03-22T00:08:30.22-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "You can identify which reader PHPExcel will use to read the file before actually loading it using the identify() method of the IO Factory: which will return the name of the reader that it can use. This file (CN859248_6.xls) can be read using the Excel2003XML Reader, but the reader doesn't support all features of that format, so some elements may be lost, though all data and most of the formatting should be read correctly. Style elements that can be read should be maintained when writing using the Excel5 writer. Please explain how you are reading the Excel2003XML and writing using Excel5.",
+      "PostedDate": "2012-03-23T00:40:55.217-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-04-23T02:56:35.353-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Reference(from http://phpexcel.codeplex.com/discussions/249298):\r\nMS Excel 2003 also introduced a new file format: XML Spreadsheet (aka XMLSS) which we can read using the Excel2003XML Reader, but we haven't yet written a writer for this format. However, this is not the default format for MS Excel 2003, it still uses BIFF version 8 as its default format, so we use the Excel5 Reader/Writer.\r\n\r\nNow, my file is Excel2003XML. It can be loaded with PHPExcel_IOFactory or PHPExcel_Reader_Excel2003XML(If load it by PHPExcel_Reader_Excel5, it happened error \"The filename aaa.xls is not recognised as an OLE file\"). However, it doesn't have a writer to Excel2003, i write it into bbb.xls with PHPExcel_Writer_Excel5. Normally, It works.  some warnings as follow:\r\n\r\nNotice: Undefined index: Default in D:\\xampp\\htdocs\\autoreport\\Classes\\PHPExcel\\Reader\\Excel2003XML.php on line 415\r\nCall Stack\r\n#\tTime\tMemory\tFunction\tLocation\r\n1\t0.0040\t412232\t{main}( )\t..\\access_test.php:0\r\n2\t0.2426\t3402608\tPHPExcel_Reader_Excel2003XML->load( )\t..\\access_test.php:341\r\n3\t0.2439\t3464040\tPHPExcel_Reader_Excel2003XML->loadIntoExisting( )\t..\\Excel2003XML.php:244\r\n\r\nThe warning is not import. However, It will lose style once the cell is empty and i need to keep the style(The final output file as attachment). What else i can do?\r\n\r\nThanks very much for your response, MarkBaker.",
+      "PostedDate": "2012-04-23T02:56:37.52-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:02:01.133-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

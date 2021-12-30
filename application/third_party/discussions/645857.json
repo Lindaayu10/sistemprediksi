@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "1447222",
+    "ThreadId": "645857",
+    "Html": "Hello.\r<br />\nI'm having a problem in one of xlsx file, that gives an error when I try to catch values of concrete cells.\r<br />\nFirst need to say that we have three different processes with PHPExcel and a spreadsheet in each of it. First and second works absoluty great, but third (which have a more complex spreadsheet, with tabs and lot of formulas, it's size is 700kb) is giving us a real pain.\r<br />\n<br />\nThe point is that I can write in spreadsheet I suppose all writed are ok (we haven't xmlwriter on server to test finnish document yet), but when I try to take values calculated with getCalculatedValue there are a number of cells that I cant retrieve it's value because throw this error:\r<br />\n<br />\nFatal error: Uncaught exception 'PHPExcel_Calculation_Exception' with message 'Consumos!FG6 -&gt; Consumos!FG6 -&gt; Consumos!FG6 -&gt; MaxIrrad!A4 -&gt; MaxIrrad!A4 -&gt; MaxIrrad!A4 -&gt; MaxIrrad!A4 -&gt; MaxIrrad!A4 -&gt; MaxIrrad!A4 -&gt; MaxIrrad!A4 -&gt; Consumos!FG6 -&gt; Consumos!FG6 -&gt; Consumos!FG6 -&gt; Consumos!FG6 -&gt; Invalid cell coordinate GH' in /var/www/html/clientes/generahogar/class/PHPExcel/Cell.php:300 \r<br />\n<br />\nThe error says that there are not GH column but really exists, and the whole calculation in Microsoft excel directly are not showing any error... \r<br />\nIt's interesting that this only happend when I try take some values, but another values (calculated with internal functions too) I can take it without problems, here some example of code:\r<br />\n<br />\n$result1 = $objPHPExcel-&gt;getActiveSheet()-&gt;getCell('AO22')-&gt;getCalculatedValue();\r<br />\n$result2 = $objPHPExcel-&gt;getActiveSheet()-&gt;getCell('AC38')-&gt;getCalculatedValue();\r<br />\n<br />\nIf I execute only result1, all are fine. But if want to get result2 too this cause error. This is a short example, I can take more than 1 value, the problem are happening in few cells that I need, 4 or 5 cells I think.\r<br />\n<br />\nI know this can be really concrete and difficult to fix for anybody that doesn't develop our project, but I wonder if it can be a more general problem that I guess and somebody can light my path, because I'm totally mired...\r<br />\n<br />\nAny help would be appreciated. Thanks for your time\r<br />\nBest regards\r<br />\nAle<br />\n",
+    "PostedDate": "2015-10-06T02:54:48.5-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1447232",
+    "ThreadId": "645857",
+    "Html": "Knowing the actual formula might help diagnose the problem, but I'm guessing that you have a column reference to column GH somewhere in a formula....<br />\nPHPExcel's calculation engine supports cell ranges (e.g. 'A1:C10'), but column and row ranges (e.g. 'A:B' or '1:3') are not fully supported.<br />\n<br />\nThis <a href=\"https://gist.github.com/MarkBaker/5908357\" rel=\"nofollow\">gist</a> might help you diagnose the problem more accurately<br />\n",
+    "PostedDate": "2015-10-06T03:28:39.857-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1447260",
+    "ThreadId": "645857",
+    "Html": "Thank you for your answer.\r<br />\nThis tool that you gave me is a better way to debug, i'm pretty sure that documentation contains it but I never see it before. Sorry\r<br />\n<br />\nNow I can see some of things that I guess if it causing the problem. I think that all problems start on line 397 when program says:\r<br />\nEvaluating Range &quot;Consumos!AC51&quot; : &quot;Consumos!AK52&quot;\r<br />\nThis is an example of bad support range that you said to me? in next example are the first lines where I found #N/A error value.\r<br />\n<br />\n[357] =&gt; Consumos!A55 -&gt; [...] -&gt; Consumos!AB24 =&gt; Evaluating Range &quot;Consumos!AC51&quot; : &quot;Consumos!AK52&quot;\r<br />\n[358] =&gt; Consumos!A55 -&gt; [...] -&gt; Consumos!AB24 =&gt; Evaluating Function VLOOKUP() with 3 arguments\r<br />\n[359] =&gt; Consumos!A55 -&gt; [...] -&gt; Consumos!AB24 =&gt; Evaluating VLOOKUP( 48, { 12, &quot;Panel solar policristalino LLGCP 150W-12V&quot;, 150, 12, 18.23, 8.23, 21.97, 8.56, 36; 24, &quot;Panel solar policristalino LLGCP 260W-24V&quot;, 260, 24, 30.41, 8.55, 37.27, 8.74, 60 }, 2 )\r<br />\n[360] =&gt; Consumos!A55 -&gt; [...] -&gt; Consumos!AB24 =&gt; Evaluation Result for VLOOKUP() function call is a #N/A error\r<br />\n[361] =&gt; Consumos!A55 -&gt; [...] -&gt; Consumos!AC27 =&gt; Evaluation Result for cell Consumos!AB24 is a #N/A error\r<br />\n<br />\nAfter that, I can see #N/A value in some parts of the log.\r<br />\n<br />\nI think that whole GH is a bad range, because we are not indicating the number of cells?\r<br />\n<br />\nYou can see if you want full log in a pastebin\r<br />\n<a href=\"http://pastebin.com/vb33EHtm\" rel=\"nofollow\">http://pastebin.com/vb33EHtm</a>\r<br />\n<br />\nCan you confirm so that the problem is the support of the range that you told me? In this case are not another way that change formulas\r<br />\nCan I do anything to help as php developer that have not so much idea of spreadsheets?\r<br />\n<br />\nbest regards\r<br />\nAle<br />\n",
+    "PostedDate": "2015-10-06T05:35:23.937-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

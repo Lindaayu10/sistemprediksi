@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "284462",
+    "ThreadId": "82797",
+    "Html": "<p>Hi I have just started with PHPExcel and am trying to read a time value from an xlsx but the data I'm extracted isn't correct.&nbsp; In Excel I have set the cell format as &quot;1:30:00 PM&quot; from the Time tab of the Format Cells option and entered a date of 8:30:00 AM.&nbsp; I'm using the following code to extract the cell data -</p>\r\n<p>$start = ($objPHPExcel-&gt;getActiveSheet()-&gt;getCell('D7'));<br>echo 'start '.$start-&gt;getValue();</p>\r\n<p>What actually gets echo'd to the screen is -</p>\r\n<p>0.3541666666666667</p>\r\n<p>Do I have to perform a formatting operation on this return value?&nbsp; Or is how I'm extracting the data wrong?&nbsp; I greatly appreciate any help that can be given.</p>",
+    "PostedDate": "2010-02-01T16:09:54.957-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "284544",
+    "ThreadId": "82797",
+    "Html": "<p>Do like this for now:</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$value = $objPHPExcel-&gt;getActiveSheet()-&gt;getCell(<span style=\"color:#A31515\">'D7'</span>)-&gt;getValue());\r\nvar_dump($value); <span style=\"color:Green\">// float(0.3541666666666667)</span>\r\n\r\n$formatCode = $objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(<span style=\"color:#A31515\">'D7'</span>)-&gt;getNumberFormat()-&gt;getFormatCode();\r\nvar_dump($formatCode); <span style=\"color:Green\">// string(13) &quot;h:mm:ss AM/PM&quot;</span>\r\n\r\n$formattedString = PHPExcel_Style_NumberFormat::toFormattedString($value, $formatCode);\r\nvar_dump($formattedString); <span style=\"color:Green\">// string(10) &quot;8:30:00 AM&quot;</span>\r\n\r\n</pre>\r\n</div>\r\n<p>In the future there may be an easier way to accomplish this.</p>",
+    "PostedDate": "2010-02-01T21:21:16.557-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "284913",
+    "ThreadId": "82797",
+    "Html": "<p>Koyama, thank you for your help.&nbsp; Your solution solves the problem perfectly.</p>",
+    "PostedDate": "2010-02-02T12:00:09.95-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

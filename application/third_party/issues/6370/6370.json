@@ -1,0 +1,121 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel",
+      "DisplayName": "PHPExcel"
+    },
+    "ClosedComment": "Fixed in SVN",
+    "ClosedDate": "2008-06-16T23:34:42.057-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Mailed by whisper:\n---------------------------------------------------------------------------------------------------\nIt's raining outside so I've decided to do a bit of extra unplanned work. I'm sending you the result by mail as opposed to posting it on the site. It includes files and I've read in the posts that you usually ask people to email them to you.\n \nMy latest post in the Memory Leak discussion addresses the creation of many objects and the subsequent allocation of large amounts of memory. You seems to address this too in a thread called '1500M for writing a 30k rows file?' with your quote 'Major problem is we are using too much objects under the hood.' It prompted me to see if I could make a Proof Of Concept that adresses this issue.\n \nI'm sending you the source code files that display the result. I hope you find them usefull in some way. If we believe it's actually a viable solution we could see how to fit this in into PHPExcel. I will admit that has some level of 'patchwork'. It's not glamerous for the internals of PHPExcel. However, it does maintain API compatibility and with that the glamer of the outside. The result is up to 70% memory saving on sheets where styles are not explicitly set (and thus default back to the default style). The price is increased creation and destruction of PHPExcel_Style_<SubStyle> classes, probably more CPU consumption and added synchronisation code.\n \nLet me talk you through it. All files are single stand alone test cases.\n \nPhpexcelobjredux01.php: Basically implements a very much simplied version of PHPExcel_Worksheet, PHPExcel_Style and PHPExcel_Style_Substyle. The latter represents Fill, Font, etc. The implementation is as much identical to the source code PHPExcel 1.6.1 as I could get it but just focussing on object creation. It displays the creation of many objects under the hood by running a look from A1 to K500 simply getting a style which is behaviour that happens in the real PHPExcel_Worksheet:: duplicateStyleArray();\nThis file basicaly states the case and gets us started.\n \nPhpexcelobjredux03.php: Proves hat if PHPExcel_Style would not create PHPExcel_Style_SubStyle's during Construction then we would save memory (duh!)\nWhat I suggest is that if something is default in the Excel document, then we do not need to create extra memory to store additional instances for that. So I start by not creating the PHPExcel_Style_Substyle objects during the Construction of PHPExcel_Style.\nObviously this damages the operation of PHPExcel_Style::getFont() (and others). So step is to make sure these still work.\n \nPhpexcelobjredux03imp01.php: Reestablishes PHPExcel_Style::getFont(). It now chooses to either return an already existing PBPExcel_Style_SubStyle or to return a default one. This may and actually will create multiple instances of PBPExcel_Style_SubStyle for the same cell but that's ok. It's just an interface. That's all.\nObviously if any of the properties of the PHPExcel_Style_SubStyle are modified they must eventually be reflected in the PHPExcel_Style object.\n \nPhpexcelobjredux03imp02.php: Does just that. getFont() not only returns a default PHPExcel_Style_SubStyle but also creates a reference back to the PHPExcel object. If setProperty() is called for the first time by any single one of the instances that were created by getFont() then it will cause it to become referenced by PHPExcel_Style. In subsequent calls by any of the instances that were created by getFont() the setProperty() will always set the property of the SubStyle object referenced by the Style object, thus maintaining synchronicity between the different interfaces. Any getProperty() calls first check if any SubStyle interface has already been referenced by the Style object. If so, that object's property is returned. Otherwise it's own (which would always be the default value).\n \nResult: If you compare default memory consumption for phpexcelobjreduc01.php and phpexcelobjreduc03imp03.php you will find a +/- 70% reduction in memory consumption.\nIf you open phpexcelobjreduc03imp03.php and go to the bottom of the file and un-comment the four lines that modify the font properties from two difference SubStyle interfaces you will find results that match the original API. Ofcourse, memory consumption will jump, but only for the creation of the Font property object. There should be no circular references at all.\n \nOh, ofcourse the *real* solution would be to make memory requirements per object smaller, etc. Also, in terms of php requiring overhead for each created object. Eliminating the storage of objects would address this and we could potentially do this by consolidating the properties of the PHPExcel_Style_Substyle classes into PHPExcel_Style and making the Substyles just interfaces only but I just really like the way you've set up the design and would rather find ways to make that work than to alter it.",
+    "LastUpdatedDate": "2013-05-16T05:43:33.587-07:00",
+    "PlannedForRelease": "PHPExcel 1.6.2 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Medium",
+      "Severity": 100,
+      "Id": 2
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2008-06-16T09:55:04.307-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Implement late-binding mechanisms to reduce memory footprint",
+    "Type": {
+      "Name": "Feature",
+      "Id": 1
+    },
+    "VoteCount": 1,
+    "Id": 6370
+  },
+  "FileAttachments": [
+    {
+      "FileId": 1556,
+      "FileName": "phpexcelobjreduc01.php",
+      "DownloadUrl": ".\\1556"
+    },
+    {
+      "FileId": 1557,
+      "FileName": "phpexcelobjreduc03.php",
+      "DownloadUrl": ".\\1557"
+    },
+    {
+      "FileId": 1558,
+      "FileName": "phpexcelobjreduc03imp01.php",
+      "DownloadUrl": ".\\1558"
+    },
+    {
+      "FileId": 1559,
+      "FileName": "phpexcelobjreduc03imp02.php",
+      "DownloadUrl": ".\\1559"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "Extra file",
+      "PostedDate": "2008-06-16T09:55:31.68-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2008-06-16T09:55:31.853-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Extra file",
+      "PostedDate": "2008-06-16T09:55:39.18-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2008-06-16T09:55:39.73-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Extra file",
+      "PostedDate": "2008-06-16T09:55:49.73-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2008-06-16T09:55:50.243-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2008-06-16T09:57:16.777-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Implemented and committed to SVN for testing.",
+      "PostedDate": "2008-06-16T15:41:41.54-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2008-06-16T23:34:33.913-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2008-06-16T23:34:42.057-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:05:13.037-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:43:33.587-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

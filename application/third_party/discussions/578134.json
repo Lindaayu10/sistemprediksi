@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "1343480",
+    "ThreadId": "578134",
+    "Html": "Hi,\r<br />\n<br />\nI'm wondering, how it's possible to help with such issue.\r<br />\nLet's say, I have an excel with such info in it (it could be much more info):\r<br />\n<strong>Country\t    Currency</strong>\r<br />\nGermany   \tEUR\r<br />\nUSA\t                USD\r<br />\nRussia       \tRUB\r<br />\n<br />\nand I'm entering in input form &quot;USA&quot;, and I want to see the result USD from excel. \r<br />\nIs there some kind of function in PHP, which allows to search for a value in excel? \r<br />\n<br />\nOr at least, if there existing such function, which returns in which cell (e.g. B2) such value exists?\r<br />\n<br />\nThank you very much in advance!<br />\n",
+    "PostedDate": "2015-01-20T04:07:40.397-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1343638",
+    "ThreadId": "578134",
+    "Html": "There's nothing built-in to PHPExcel to do a search, but it's pretty straightforward to write something yourself based around the iterators.... take a look at <code>28iterator.php</code> in <code>/Examples</code><br />\n<div style=\"color:Black;background-color:White;\"><pre>\r\n    $foundInCells = <span style=\"color:Blue;\">array</span>();\n    $searchValue = <span style=\"color:#A31515;\">&#39;USA&#39;</span>;\n    <span style=\"color:Blue;\">foreach</span> ($objPHPExcel-&gt;getWorksheetIterator() <span style=\"color:Blue;\">as</span> $worksheet) {\n        $ws = $worksheet-&gt;getTitle();\n        <span style=\"color:Blue;\">foreach</span> ($worksheet-&gt;getRowIterator() <span style=\"color:Blue;\">as</span> $row) {\n            $cellIterator = $row-&gt;getCellIterator();\n            $cellIterator-&gt;setIterateOnlyExistingCells(true);\n            <span style=\"color:Blue;\">foreach</span> ($cellIterator <span style=\"color:Blue;\">as</span> $cell) {\n                <span style=\"color:Blue;\">if</span> ($cell-&gt;getValue() == $searchValue) {\n                    $foundInCells[] = $ws . <span style=\"color:#A31515;\">&#39;!&#39;</span> . $cell-&gt;getCoordinate();\n                }\n            }\n        }\n    }\n    var_dump($foundInCells);\r\n</pre></div>Of course, if you're only wanting to search a specific column in a specific worksheet, you can simplify this a great deal, e.g. using <code>rangeToArray()</code> and then searching the array using standard PHP array functions.<br />\n",
+    "PostedDate": "2015-01-20T14:10:41.18-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

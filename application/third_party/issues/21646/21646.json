@@ -1,0 +1,80 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "We recently started using PHPExcel where I work to generate excel reports, some of these reports have a tendancy to get very large. We have an issue when creating large reports where PHPExcel takes a long time to generate and then runs out of memory before completion. I've looked at similar issues on this site but haven't been able to find a solution.\nFor what it's worth our old system, which ran php4 and used the PEAR Spreadsheet_Excel_Writer library, was able to run the report much quicker and didn't run out of memory.\nWe recently upgraded our codebase to php5.3 and and PHPExcel because the PEAR library is no longer maintained (it also helped that PHPExcel uses Excel 2007 format which we hoped would allow us to run some of our bigger reports in one file rather than multiple files due to the row limitation in older versions of Excel). However the long processing time and out of memory issues are something we didn't anticipate. The large report in question is over 80k rows with up to 99 columns in each row. On the old system we could run this report in about an hour (up to the Excel row limit of 65k+ rows), on PHPExcel we don't even get to the 65k-th row before running out of memory and it takes roughly 6 hours before we run out of memory.\n\nThe System we are now on is a Zend Server 6.0.1 on RedHat with 6GB RAM and 4GB of Swap space (this is one of our test environments). \n\nThe old System was a RedHat server with vanilla Apache, PHP, Mysql installed. It has 3GB of RAM and 6GB of Swap Space.\n\nThe questions at hand are:\n1. how can we reduce the amount of processing time?\n2. how can we resolve the out of memory issue?\n\nObviously we can add more memory but I don't see that significantly reducing the amount of processing time.\n\nHere is a test script I wrote to test the Excel generation performance.\n\n```\ndefine('MAX_ROWS', 80249);//80249\ndefine('MAX_COLS', 99);\n// define('NEW_FILE', 'C:\\logs\\large_excel_test.xlsx');\ndefine('NEW_FILE', '/tmp/large_excel_test.xlsx');\n\n$data = array();\n\necho \"creating data array\\n\";\n\nfor($i = 0; $i < MAX_ROWS; $i++) {\n\t$data[$i] = array();\n\tfor($j = 0; $j < MAX_COLS; $j++) {\n\t\t$data[$i][$j] = $i . ':' . $j;\n\t}\n}\n\n//cached method\necho \"starting phpexcel (sans adapter)\\n\";\n$export = new PHPExcel();\n\necho \"setting caching method\\n\";\nPHPExcel_Settings::setCacheStorageMethod(PHPExcel_CachedObjectStorageFactory::cache_to_phpTemp, array('memoryCacheSize' => '1024MB'));\n\necho \"setting active sheet to 0\\n\";\n$sheet = $export->setActiveSheetIndex(0);\n\necho \"setting value binder to leading zero\\n\";\nPHPExcel_Cell::setValueBinder(new PHPExcel_Cell_LeadingZeroBinder());\n\necho \"generating rows and columns\\n\";\n$sheet->fromArray($data);\n\necho \"writing excel file\\n\";\n$write = PHPExcel_IOFactory::createWriter($export, 'Excel2007');\n$write->save(NEW_FILE);\n```",
+    "LastUpdatedDate": "2015-01-09T06:15:42.46-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2015-01-07T06:43:52.173-08:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Running out of Memory when creating large spreadsheet",
+    "Type": {
+      "Name": "Unassigned",
+      "Id": 5
+    },
+    "VoteCount": 1,
+    "Id": 21646
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "You quote all the details about how much physical memory your server has, but what is the PHP memory limit defined in your php.ini file",
+      "PostedDate": "2015-01-07T08:08:04.3-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "You quote all the details about how much physical memory your server has, but what is the PHP memory limit defined in your php.ini file",
+      "PostedDate": "2015-01-07T08:13:13.513-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Sorry, I meant to include that. php.ini is set to -1 for memory_limit, effectively giving php no limit on memory.",
+      "PostedDate": "2015-01-07T08:45:42.63-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Have you looked at any of the options that PHPExcel provides for reducing its memory footprint, such as cell caching and/or read chunking.... \r\n\r\nyes, PHPExcel uses an __in memory__ model, as explained in the documentation, but we did implement various options for storing all or part of the cell data outside of memory, or reducing its in-memory size with cell caching; and read chunking allows you to load a file in segments",
+      "PostedDate": "2015-01-07T09:45:32.28-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I have looked into Cell Caching, in fact in the code above I am using phpTemp, but I've also tried diskIsam. in both cases I still run out of memory. However in re-reading the documentation I'm not sure I'm setting memoryCacheSize large enough. Is that setting for the size of the index in memory (RAM) or is it for the size of the file in php://temp?\r\n\r\n\n",
+      "PostedDate": "2015-01-07T12:11:11.547-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "In the case of `phpTemp`, the `memoryCacheSize` argument tells PHPExcel how much PHP memory can be used for cell data before it starts using disk.... if you're still hitting memory limits, then you need to set it lower rather than higher.\r\n\r\nIn the case of both `phpTemp` and `diskIsam`, a \"map\" of the file is maintained in memory, telling PHPExcel what offset in file and size of data is used for every cell; so while it reduces memory usage for cells, it doesn't eliminate it. The only options that eliminate memory usage for cells are SQLite and SQLite 3, because they can use the database index as their \"map\"",
+      "PostedDate": "2015-01-07T13:39:39.39-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "ok, I've now tried both phpTemp with a lower setting on memoryCacheSize and sqlite3. Both still run out of memory. Are there any other tricks to try?",
+      "PostedDate": "2015-01-09T04:54:24.153-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "The most significant change you can make is to modify your code so that you don't create a large array of data using \n```php\nfor($i = 0; $i < MAX_ROWS; $i++) {\n    $data[$i] = array();\n    for($j = 0; $j < MAX_COLS; $j++) {\n        $data[$i][$j] = $i . ':' . $j;\n    }\n}\n```\nwhich is also going to be consuming a very large chunk of your available php memory (at least 1GB just for the array); but to use that looping function to store those values directly in PHPExcel cells",
+      "PostedDate": "2015-01-09T06:15:42.46-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

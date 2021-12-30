@@ -1,0 +1,60 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "&#62;&#62; This array is store in memory &#40;have information for all rows in sheet&#41; &#61;&#62; for more rows is problem with memory limit.Correct, the index is stored in memory, and as more cells are added this memory usage increases&#59; but it is NOT a &#34;memory leak&#34;. A memory leak is when memory isn&#39;t being freed at the end of a function call, or when unsetting a variable&#47;object, even though it should be.Cell caching reduces the memory usage... it doesn&#39;t eliminate the need for any memory. This use of &#36;this-&#62;_cellCache is very deliberate&#59; and is a trade-off between speed and memory usage. Keeping &#36;this-&#62;_cellCache in memory uses a lot less memory than holding the objects themselves. I did write some code that completely eliminated the need for &#36;this-&#62;_cellCache, but it ran so slowly that reading&#47;writing even small workbooks took minutes.",
+    "ClosedDate": "2010-06-03T02:57:15.183-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hello I have problem with generate xlsx file - export more rows (storage method cache_to_discISAM).\n \n \nMemory leaks is in private function _storeData()  in class PHPExcel_CachedObjectStorage_DiscISAM\n \n$this->_cellCache[$this->_currentObjectID]\t= array (\n                                                                                                  'ptr' => $offset,\n\t\t\t\t\t\t\t'sz'  => ftell($this->_fileHandle) - $offset\n\t\t\t\t\t\t );\nThis array is store in memory (have information for all rows in sheet) => for more rows is  problem with memory limit.\n \n \nexample code:\n \ninclude \"PHPExcel.php\";\ninclude \"PHPExcel/Writer/Excel2007.php\";\n \n$quotations = array();\n \nset_time_limit(0);\nini_set('memory_limit', '50M');\n \n$cacheMethod = PHPExcel_CachedObjectStorageFactory::cache_to_discISAM; \nPHPExcel_Settings::setCacheStorageMethod($cacheMethod);\n$excel = new PHPExcel;\n \n \n$excel->getProperties()->setCreator(\"Jozko Mrkvicka\");\n \n$excel->getProperties()->setLastModifiedBy(\"Jozko Mrkvicka\");\n$excel->getProperties()->setTitle(\"Export \");\n \n$excel->removeSheetByIndex(0);\n \n$sheet = $excel->createSheet();\n$sheet->setTitle('Title set');\n \nfor ($i = 1 ; $i <10000 ; $i++) {\n\t\n    \n    $mem_old =  memory_get_usage();\n    $sheet->setCellValue(\"A\".$i, \"num = $i\");\n    $sheet->setCellValue(\"B\".$i, md5(\"cell B\"));\n    $sheet->setCellValue(\"C\".$i, md5(\"cell C\"));\n    $sheet->setCellValue(\"D\".$i, md5(\"cell D\"));\n    $sheet->setCellValue(\"E\".$i, md5(\"cell E\"));\n    $mem_new = memory_get_usage();\n    $act =  $mem_new -  $mem_old;\n \n}\n$writer = new PHPExcel_Writer_Excel2007($excel);\n$writer->save(\"export.xlsx\");",
+    "LastUpdatedDate": "2013-05-16T05:41:57.47-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2010-06-03T01:48:24.747-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Memory leak in class PHPExcel_CachedObjectStorage_DiscISAM",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 13431
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "i have some idea $this->_cellCache write to file, but when working with file is very slowly that is not accepted for normal working.  \r\nI must generate in php lagre file( export from database to excel - not limited) that must find eny new idea\r\n\r\nthx ",
+      "PostedDate": "2010-06-03T05:16:40.76-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "APC, Memcache and WinCache caching engines work without using $this->_cellCache, and are as close to zero memory uasge as we can get, but they're also significantly slower than php://temp or DiskISAM caching (more than 5x slower).\r\nYour memory limit of 50MB isn't particularly high, even when using caching; so the simplest solution is to increase that limit to 64MB or even 128MB, and to use DiskISAM or php://temp caching.",
+      "PostedDate": "2010-06-03T05:49:56.29-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:02:55.2-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:41:57.47-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

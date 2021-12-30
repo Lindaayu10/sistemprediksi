@@ -1,0 +1,86 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "Calculation_Engine",
+      "DisplayName": "Calculation_Engine"
+    },
+    "ClosedComment": "Fixed for Release 1.7.1",
+    "ClosedDate": "2009-11-04T03:42:21.093-08:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hi!\n \nWhen using PHPExcel 1.7.0 I detected some small error in calculation functions. \nI wanted to calculate a given formula:\n \n=VLOOKUP(N5;named_range;2;0)\nIn OpenOffice Calc the formula got calculated, but when reading the same spreadsheet in PHPExcel and using $sheet->getCalculatedValue() , I got #n/a error. Hovever, when I replaced named_range with exact cell reference, I got the correct result.\n \nWhile digging for the issue, I noticed that the vlookup() function received different matrix values - one time they were ordered by columns, another time - by rows. Invalid order caused this function to fail. Looking for the error cause I saw that PHPExcel_Calculation::extractNamedRange() and extractCellRange() methods were indeed returning cells indexed in different orders. I attach the diff file that corrects extractNamedRange() method. It helped in my case, but I don't know if there are no regressions though.\n \nCheers, \nKrzysztof Kotowicz",
+    "LastUpdatedDate": "2013-05-16T05:42:24.697-07:00",
+    "PlannedForRelease": "PHPExcel 1.7.1 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-09-14T17:09:24.393-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Invalid results in formulas with named ranges",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 10629
+  },
+  "FileAttachments": [
+    {
+      "FileId": 3382,
+      "FileName": "patch.diff",
+      "DownloadUrl": ".\\3382"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "I'll take a look at both the HLOOKUP and the VLOOKUP functions. Any fault with one is likely to be reflected in the other as well",
+      "PostedDate": "2009-09-15T02:26:00.067-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "As far as I know the vlookup implementation is correct, it's just that due to the code in extractNamedRange() it receives the transposed matrix ( http://en.wikipedia.org/wiki/Transpose ) so the results can't be correct. extractNamedRange(<name>) returns matrix transposed to extractCellRange(<the-same-fields-as-named-range>).",
+      "PostedDate": "2009-09-15T02:50:47.093-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Thanks kkotowicz.... I'll need to regression test against other functions and formulae using named ranges, particularly basic matrix arithmetic",
+      "PostedDate": "2009-09-15T04:43:04.767-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Failed regression testing.... I'll need to look at other ways of handling this, or at least the scope required for other changes to ensure full compatibility with other formulae.",
+      "PostedDate": "2009-09-18T09:23:30.447-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-11-01T12:09:20.97-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-11-04T03:42:21.093-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:03:39.07-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:24.697-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

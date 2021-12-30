@@ -1,0 +1,85 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I hide some row '10' and col 'C'\n \n$objPHPExcel->getActiveSheet()->getColumnDimension('C')->getVisible();\n$objPHPExcel->getActiveSheet()->getRowDimension('10')->getVisible();\n \nMethod getVisible() always return 'true'\nI need to know which col & row be hidden",
+    "LastUpdatedDate": "2013-11-28T07:22:30.79-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2011-11-18T21:40:08.337-08:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "getVisible() always return 'true'",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 3,
+    "Id": 16921
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "Similar situation:\r\n$coord = PHPExcel_Cell::coordinateFromString($cells[0]);\r\nif($sheet->getColumnDimension($coord[0])->getVisible() && $sheet->getRowDimension($coord[1])->getVisible())\r\n\r\nAs above, getVisible() always returns true.\r\nUnfortunately I rely on this for processing.\r\nIs there a work around?",
+      "PostedDate": "2012-02-17T08:56:18.993-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-02-17T08:56:25.223-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Have just found a possible work around.\r\n\r\nI replaced cached reader with just loading:\r\n\r\n\t\t$this->objPHPExcel = PHPExcel_IOFactory::load($this->filename);\r\n\t\t/*\r\n\t\t$cacheMethod = PHPExcel_CachedObjectStorageFactory:: cache_to_phpTemp;\r\n\t\t$cacheSettings = array( ' memoryCacheSize ' => '8MB');\r\n\t\tPHPExcel_Settings::setCacheStorageMethod($cacheMethod, $cacheSettings);\r\n\t\t$reader = PHPExcel_IOFactory::createReaderForFile($this->filename);\r\n\t\t$reader->setReadDataOnly( true );\r\n\t\t$this->objPHPExcel = $reader->load($this->filename);\r\n\t\t*/\r\n\r\nI hope this helps tease out the bug.\r\n\r\nBTW: Apart from this bug (minor for most but a show stopper for me) it is a brilliant bit of coding - thanks.",
+      "PostedDate": "2012-02-17T09:07:25.24-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "It appears that:\r\n    $reader = PHPExcel_IOFactory::createReaderForFile($this->filename);\r\n    $reader->setReadDataOnly( true );\r\n    $this->objPHPExcel = $reader->load($this->filename);\r\nwill cause getVisible() to always return true",
+      "PostedDate": "2012-02-20T01:17:59.807-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:02:10.887-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Actually, it seems there is another problem.\r\n\r\nWhen reading using the Excel2007 reader, Visible is always set to true because of a bug in the code.\r\n\r\nWhen rows are processed, the \"hidden\" attribute is check by passing it to a function called \"boolean\" to convert it to a boolean value. This function is built to expect numeric, string or boolean input values, but when \"hidden\" is set, the variable type is \"object\" and since the \"boolean\" function is not designed to expect a value of type \"object\", it always returns false. Since \"hidden\" always evaluates to false, getVisible always returns true;\r\n\r\nI added a simple check at the beginning of the \"boolean\" function to check for type = \"object\" and then cast the input value to integer. ",
+      "PostedDate": "2013-11-14T14:29:00.243-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-11-28T06:42:41.037-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Thank you adolimpio.\r\n\r\nIs there any chance that you will create a patch for the developers?\r\n\r\nThis way, users (like us mortals) will be able to enter the fix to their own code, and the PHPExcel team will enter that fix into the next version.\r\n\r\nPlease?",
+      "PostedDate": "2013-11-28T06:45:40.303-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Submitting patches has always been possible, and is a lot easier since we moved the code repository to github https://github.com/PHPOffice/PHPExcel with its ease of pull requests",
+      "PostedDate": "2013-11-28T07:22:30.79-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

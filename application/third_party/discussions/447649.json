@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "1059037",
+    "ThreadId": "447649",
+    "Html": "Hi,\r<br />\n<br />\nI have set the php page and it works quite fast.\r<br />\n<br />\nBut I have a problem with Turkish characters. And although I set the php script to UTF8 without BOM, when I open the downloaded file in notepad charset looks ANSI. Here is my code:<br />\n<pre><code>&lt;?php\n$Host = &quot;localhost&quot;;\n$User = &quot;xxx&quot;;\n$Password = &quot;&quot;;\n$DBName = &quot;mydb&quot;;\n$TableName = &quot;satislar&quot;;\n\n$link = mysql_connect ($Host, $User, $Password) or die('Could not connect: ' . mysql_error());\nmysql_select_db($DBName) or die('Could not select database');\n//mysql_set_charset($link, 'utf8');//if not by default\n\n$select = &quot;SELECT * FROM satislar&quot;;\n$export = mysql_query($select);\n$fields = mysql_num_fields($export);\n    \nfor ($i = 0; $i &lt; $fields; $i++) {\n$csv_output .= mysql_field_name($export, $i) . &quot;\\t&quot;;\n}\n\nwhile($row = mysql_fetch_row($export)) {\n$line = '';\nforeach($row as $value) {\nif ((!isset($value)) OR ($value == &quot;&quot;)) {\n$value = &quot;\\t&quot;;\n} else {\n$value = str_replace('&quot;', '&quot;&quot;', $value);\n$value = '&quot;' . $value . '&quot;' . &quot;\\t&quot;;\n}\n$line .= $value;\n}\n$data .= trim($line).&quot;\\n&quot;;\n}\n$data = str_replace(&quot;\\r&quot;,&quot;&quot;,$data);\n\nheader(&quot;Content-Type: application/vnd.ms-excel&quot;);\nheader(&quot;Content-Disposition: attachment; filename=Aktif2000_Tum_Satislar.xls&quot;);\nheader(&quot;Pragma: no-cache&quot;);\nheader(&quot;Expires: 0&quot;);\nprint $csv_output.&quot;\\n&quot;.$data;\nexit;\n?&gt;</code></pre>\n\n",
+    "PostedDate": "2013-06-20T01:40:11.55-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1060904",
+    "ThreadId": "447649",
+    "Html": "Try writing a UTF-8 BOM marker to your tab-separated value file before you write any data; consider using PHP's built-in fputcsv() function rather than all this str_replace() and writing tabs by hand; remember that a tab-separated value file is not an xls file; and note that this is a site/board for the PHPExcel library, not a general purpose PHP help site.<br />\n",
+    "PostedDate": "2013-06-25T07:20:25.19-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

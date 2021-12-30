@@ -1,0 +1,122 @@
+[
+  {
+    "Id": "503228",
+    "ThreadId": "229868",
+    "Html": "<p>Im working with a template file that has only one sheet (sheet_template).</p>\r\n<p>How can I create a new Sheet base on the template on sheet_template?</p>",
+    "PostedDate": "2010-10-06T14:20:32.817-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "503242",
+    "ThreadId": "229868",
+    "Html": "<div style=\"color:black;background-color:white\">\r\n<pre>$newSheet = $objPHPExcel-&gt;getSheetByName(<span style=\"color:#a31515\">&quot;sheet_template&quot;</span>)-&gt;copy();\r\n</pre>\r\n</div>\r\n<p>Will create a &quot;shallow&quot; clone of your template sheet. Note that any changes to the &quot;clone&quot; will affect the original template as well.</p>\r\n<p>&nbsp;</p>\r\n<p>To create a completely new sheet as a copy of the original template:</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>$newSheet = <span style=\"color:blue\">clone</span> $objPHPExcel-&gt;getSheetByName(<span style=\"color:#a31515\">&quot;sheet_template&quot;</span>);\r\n$newSheet-&gt;setTitle(<span style=\"color:#a31515\">'New Sheet'</span>);\r\n$newSheetIndex = 1;\r\n$objPHPExcel-&gt;addSheet($newSheet,$newSheetIndex);\r\n</pre>\r\n</div>",
+    "PostedDate": "2010-10-06T14:42:55.2-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "530385",
+    "ThreadId": "229868",
+    "Html": "\r\n<p>I used the method specified by MarkBaker, but what I get is as follows:</p>\r\n<ul>\r\n<li>a copy of sheet A as a new sheet with title I specify for sheet B </li><li>if a create an additional copy (C) then values that I write into sheet C clobber those written to sheet , so that sheets B &amp; C have the same values\r\n</li></ul>\r\n<p>:-(</p>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2010-12-02T15:51:58.117-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "532560",
+    "ThreadId": "229868",
+    "Html": "\r\n<p>I've confirmed this problem with the 1.7.4 code. You'll be pleased to know that it is already fixed in the latest SVN code. I'm discussing when to release this as version 1.7.5 with Maarten, but hopefully it will be the end of this week or early next. In\r\n the meanwhile, it's available to download from the SVN repository: click on the &quot;Source Code&quot; tab, and select &quot;download&quot; from the &quot;latest version&quot; box on the right.</p>\r\n<p>Using the following code:</p>\r\n<div style=\"color:black; background-color:white\">\r\n<div style=\"color:black; background-color:white\">\r\n<pre>$fileName = <span style=\"color:#a31515\">'cloneTest.xls'</span>;\r\n\r\n$objPHPExcel = PHPExcel_IOFactory::load($fileName);\r\n\r\n$A = $objPHPExcel-&gt;getActiveSheet();\r\n\r\n$B = <span style=\"color:blue\">clone</span> $A;\r\n$B-&gt;setTitle(<span style=\"color:#a31515\">'Sheet B'</span>);\r\n$sheetIndex = 1;\r\n$objPHPExcel-&gt;addSheet($B,$sheetIndex);\r\n$B-&gt;getCell(<span style=\"color:#a31515\">'A1'</span>)-&gt;setValue(<span style=\"color:#a31515\">'Mark Baker'</span>);\r\n\r\n$C = <span style=\"color:blue\">clone</span> $B;\r\n$C-&gt;setTitle(<span style=\"color:#a31515\">'Sheet C'</span>);\r\n$sheetIndex = 2;\r\n$objPHPExcel-&gt;addSheet($C,$sheetIndex);\r\n$C-&gt;getCell(<span style=\"color:#a31515\">'A1'</span>)-&gt;setValue(<span style=\"color:#a31515\">'PHPExcel'</span>);\r\n\r\n<span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;table border=&quot;1&quot;&gt;'</span>;\r\n<span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;tr&gt;&lt;td&gt;&lt;b&gt;Sheet A&lt;/b&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Sheet B&lt;/b&gt;&lt;/td&gt;&lt;td&gt;&lt;b&gt;Sheet C&lt;/b&gt;&lt;/td&gt;&lt;/tr&gt;'</span>;\r\n<span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;tr&gt;&lt;td&gt;'</span>;\r\nvar_dump($A-&gt;toArray(null,true,true,true));\r\n<span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;/td&gt;&lt;td&gt;'</span>;\r\nvar_dump($B-&gt;toArray(null,true,true,true));\r\n<span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;/td&gt;&lt;td&gt;'</span>;\r\nvar_dump($C-&gt;toArray(null,true,true,true));\r\n<span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;/td&gt;&lt;/tr&gt;'</span>;\r\n<span style=\"color:blue\">echo</span> <span style=\"color:#a31515\">'&lt;/table&gt;'</span>;\r\n</pre>\r\n</div>\r\n</div>\r\n<p>With the 1.7.4 codebase, this gives:</p>\r\n<table border=\"1\">\r\n<tbody>\r\n<tr>\r\n<td><strong>Sheet A</strong></td>\r\n<td><strong>Sheet B</strong></td>\r\n<td><strong>Sheet C</strong></td>\r\n</tr>\r\n<tr>\r\n<td>\r\n<pre dir=\"ltr\"><strong>array</strong>\r\n  1 <span style=\"color:#888a85\">=&gt;</span> \r\n    <strong>array</strong>\r\n      0 <span style=\"color:#888a85\">=&gt;</span> <span style=\"color:#cc0000\">'PHPExcel'</span>\r\n      1 <span style=\"color:#888a85\">=&gt;</span> <span style=\"color:#cc0000\">'DEF'</span> \r\n      2 <span style=\"color:#888a85\">=&gt;</span> <span style=\"color:#cc0000\">'GHI'</span> \r\n  2 <span style=\"color:#888a85\">=&gt;</span> \r\n    <strong>array</strong>\r\n      0 <span style=\"color:#888a85\">=&gt;</span> <span style=\"color:#cc0000\">'JKL'</span> \r\n      1 <span style=\"color:#888a85\">=&gt;</span> <span style=\"color:#cc0000\">'MNO'</span> \r\n      2 <span style=\"color:#888a85\">=&gt;</span> <span style=\"color:#cc0000\">'PQR'</span> \r\n  3 <span style=\"color:#888a85\">=&gt;</span> \r\n    <strong>array</strong>\r\n      0 <span style=\"color:#888a85\">=&gt;</span> <span style=\"color:#cc0000\">'STU'</span> \r\n      1 <span style=\"color:#888a85\">=&gt;</span> <span style=\"color:#cc0000\">'VWX'</span> \r\n      2 <span style=\"color:#888a85\">=&gt;</span> <span style=\"color:#cc0000\">'YZ_'</span> \r\n</pre>\r\n</td>\r\n<td>\r\n<pre dir=\"ltr\"><strong>array</strong>\r\n  1 <span style=\"color:#888a85\">=&gt;</span> \r\n    <strong>array</strong>\r\n      0 <span style=\"color:#888a85\">=&gt;</span> <span style=\"color:#cc0000\">'PHPExcel'</span>\r\n      1 <span style=\"color:#888a85\">=&gt;</span> <span style=\"color:#cc0000\">'DEF'</span> \r\n      2 <span style=\"color:#888a85\">=&gt;</span> <span style=\"color:#cc0000\">'GHI'</span> \r\n  2 <span style=\"color:#888a85\">=&gt;</span> \r\n    <strong>array</strong>\r\n      0 <span style=\"color:#888a85\">=&gt;</span> <span style=\"color:#cc0000\">'JKL'</span> \r\n      1 <span style=\"color:#888a85\">=&gt;</span> <span style=\"color:#cc0000\">'MNO'</span> \r\n      2 <span style=\"color:#888a85\">=&gt;</span> <span style=\"color:#cc0000\">'PQR'</span> \r\n  3 <span style=\"color:#888a85\">=&gt;</span> \r\n    <strong>array</strong>\r\n      0 <span style=\"color:#888a85\">=&gt;</span> <span style=\"color:#cc0000\">'STU'</span> \r\n      1 <span style=\"color:#888a85\">=&gt;</span> <span style=\"color:#cc0000\">'VWX'</span> \r\n      2 <span style=\"color:#888a85\">=&gt;</span> <span style=\"color:#cc0000\">'YZ_'</span> \r\n</pre>\r\n</td>\r\n<td>\r\n<pre dir=\"ltr\"><strong>array</strong>\r\n  1 <span style=\"color:#888a85\">=&gt;</span> \r\n    <strong>array</strong>\r\n      0 <span style=\"color:#888a85\">=&gt;</span> <span style=\"color:#cc0000\">'PHPExcel'</span>\r\n      1 <span style=\"color:#888a85\">=&gt;</span> <span style=\"color:#cc0000\">'DEF'</span> \r\n      2 <span style=\"color:#888a85\">=&gt;</span> <span style=\"color:#cc0000\">'GHI'</span> \r\n  2 <span style=\"color:#888a85\">=&gt;</span> \r\n    <strong>array</strong>\r\n      0 <span style=\"color:#888a85\">=&gt;</span> <span style=\"color:#cc0000\">'JKL'</span> \r\n      1 <span style=\"color:#888a85\">=&gt;</span> <span style=\"color:#cc0000\">'MNO'</span> \r\n      2 <span style=\"color:#888a85\">=&gt;</span> <span style=\"color:#cc0000\">'PQR'</span> \r\n  3 <span style=\"color:#888a85\">=&gt;</span> \r\n    <strong>array</strong>\r\n      0 <span style=\"color:#888a85\">=&gt;</span> <span style=\"color:#cc0000\">'STU'</span> \r\n      1 <span style=\"color:#888a85\">=&gt;</span> <span style=\"color:#cc0000\">'VWX'</span> \r\n      2 <span style=\"color:#888a85\">=&gt;</span> <span style=\"color:#cc0000\">'YZ_'</span> \r\n</pre>\r\n</td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n<p>With the latest SVN code, it gives:</p>\r\n<table border=\"1\">\r\n<tbody>\r\n<tr>\r\n<td><strong>Sheet A</strong></td>\r\n<td><strong>Sheet B</strong></td>\r\n<td><strong>Sheet C</strong></td>\r\n</tr>\r\n<tr>\r\n<td>\r\n<pre dir=\"ltr\"><strong>array</strong>\r\n  1 <span style=\"color:#888a85\">=&gt;</span> \r\n    <strong>array</strong>\r\n      'A' <span style=\"color:#888a85\">=&gt;</span> <span style=\"color:#cc0000\">'ABC'</span>\r\n      'B' <span style=\"color:#888a85\">=&gt;</span> <span style=\"color:#cc0000\">'DEF'</span>\r\n      'C' <span style=\"color:#888a85\">=&gt;</span> <span style=\"color:#cc0000\">'GHI'</span>\r\n  2 <span style=\"color:#888a85\">=&gt;</span> \r\n    <strong>array</strong>\r\n      'A' <span style=\"color:#888a85\">=&gt;</span> <span style=\"color:#cc0000\">'JKL'</span>\r\n      'B' <span style=\"color:#888a85\">=&gt;</span> <span style=\"color:#cc0000\">'MNO'</span>\r\n      'C' <span style=\"color:#888a85\">=&gt;</span> <span style=\"color:#cc0000\">'PQR'</span>\r\n  3 <span style=\"color:#888a85\">=&gt;</span> \r\n    <strong>array</strong>\r\n      'A' <span style=\"color:#888a85\">=&gt;</span> <span style=\"color:#cc0000\">'STU'</span>\r\n      'B' <span style=\"color:#888a85\">=&gt;</span> <span style=\"color:#cc0000\">'VWX'</span>\r\n      'C' <span style=\"color:#888a85\">=&gt;</span> <span style=\"color:#cc0000\">'YZ_'</span>\r\n</pre>\r\n</td>\r\n<td>\r\n<pre dir=\"ltr\"><strong>array</strong>\r\n  1 <span style=\"color:#888a85\">=&gt;</span> \r\n    <strong>array</strong>\r\n      'A' <span style=\"color:#888a85\">=&gt;</span> <span style=\"color:#cc0000\">'Mark Baker'</span>\r\n      'B' <span style=\"color:#888a85\">=&gt;</span> <span style=\"color:#cc0000\">'DEF'</span>\r\n      'C' <span style=\"color:#888a85\">=&gt;</span> <span style=\"color:#cc0000\">'GHI'</span>\r\n  2 <span style=\"color:#888a85\">=&gt;</span> \r\n    <strong>array</strong>\r\n      'A' <span style=\"color:#888a85\">=&gt;</span> <span style=\"color:#cc0000\">'JKL'</span>\r\n      'B' <span style=\"color:#888a85\">=&gt;</span> <span style=\"color:#cc0000\">'MNO'</span>\r\n      'C' <span style=\"color:#888a85\">=&gt;</span> <span style=\"color:#cc0000\">'PQR'</span>\r\n  3 <span style=\"color:#888a85\">=&gt;</span> \r\n    <strong>array</strong>\r\n      'A' <span style=\"color:#888a85\">=&gt;</span> <span style=\"color:#cc0000\">'STU'</span>\r\n      'B' <span style=\"color:#888a85\">=&gt;</span> <span style=\"color:#cc0000\">'VWX'</span>\r\n      'C' <span style=\"color:#888a85\">=&gt;</span> <span style=\"color:#cc0000\">'YZ_'</span>\r\n</pre>\r\n</td>\r\n<td>\r\n<pre dir=\"ltr\"><strong>array</strong>\r\n  1 <span style=\"color:#888a85\">=&gt;</span> \r\n    <strong>array</strong>\r\n      'A' <span style=\"color:#888a85\">=&gt;</span> <span style=\"color:#cc0000\">'PHPExcel'</span>\r\n      'B' <span style=\"color:#888a85\">=&gt;</span> <span style=\"color:#cc0000\">'DEF'</span>\r\n      'C' <span style=\"color:#888a85\">=&gt;</span> <span style=\"color:#cc0000\">'GHI'</span>\r\n  2 <span style=\"color:#888a85\">=&gt;</span> \r\n    <strong>array</strong>\r\n      'A' <span style=\"color:#888a85\">=&gt;</span> <span style=\"color:#cc0000\">'JKL'</span>\r\n      'B' <span style=\"color:#888a85\">=&gt;</span> <span style=\"color:#cc0000\">'MNO'</span>\r\n      'C' <span style=\"color:#888a85\">=&gt;</span> <span style=\"color:#cc0000\">'PQR'</span>\r\n  3 <span style=\"color:#888a85\">=&gt;</span> \r\n    <strong>array</strong>\r\n      'A' <span style=\"color:#888a85\">=&gt;</span> <span style=\"color:#cc0000\">'STU'</span>\r\n      'B' <span style=\"color:#888a85\">=&gt;</span> <span style=\"color:#cc0000\">'VWX'</span>\r\n      'C' <span style=\"color:#888a85\">=&gt;</span> <span style=\"color:#cc0000\">'YZ_'</span>\r\n</pre>\r\n</td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2010-12-07T15:09:50.353-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "532581",
+    "ThreadId": "229868",
+    "Html": "Glad to know.<br>\r\n<br>\r\nThanks.<br>\r\n<br>\r\n<br>\r\n<br>\r\nMarkBaker &lt;notifications@codeplex.com&gt; wrote:<br>\r\n<br>\r\n&gt;From: MarkBaker<br>\r\n&gt;<br>\r\n&gt;I've confirmed this problem with the 1.7.4 code. You'll be pleased to know that it is already fixed in the latest SVN code.Using the following code:$fileName = 'cloneTest.xls';$objPHPExcel = PHPExcel_IOFactory::load($fileName);$A = $objPHPExcel-&gt;getActiveSheet();$B\r\n = clone $A;$B-&gt;setTitle('Sheet B');$sheetIndex = 1;$objPHPExcel-&gt;addSheet($B,$sheetIndex);$B-&gt;getCell('A1')-&gt;setValue('Mark Baker');$C = clone $B;$C-&gt;setTitle('Sheet C');$sheetIndex = 2;$objPHPExcel-&gt;addSheet($C,$sheetIndex);$C-&gt;getCell('A1')-&gt;setValue('PHPExcel');echo\r\n '\r\n<table border=\"1\">\r\n';echo '\r\n<tbody>\r\n<tr>\r\n<td><b>Sheet A</b></td>\r\n<td><b>Sheet B</b></td>\r\n<td><b>Sheet C</b></td>\r\n</tr>\r\n';echo '\r\n<tr>\r\n<td>';var_dump($A-&gt;toArray(null,true,true,true));echo '</td>\r\n<td>';var_dump($B-&gt;toArray(null,true,true,true));echo '</td>\r\n<td>';var_dump($C-&gt;toArray(null,true,true,true));echo '</td>\r\n</tr>\r\n';echo '\r\n</tbody>\r\n</table>\r\n';With the 1.7.4 codebase, this gives:<br>\r\n&gt;Sheet A Sheet B Sheet C <br>\r\n&gt;array 1 =&gt;array 0 =&gt; &lt;small&gt;string&lt;/small&gt; 'PHPExcel' (length=8) 1 =&gt; &lt;small&gt;string&lt;/small&gt; 'DEF' (length=3) 2 =&gt; &lt;small&gt;string&lt;/small&gt; 'GHI' (length=3) 2 =&gt;array 0 =&gt; &lt;small&gt;string&lt;/small&gt; 'JKL' (length=3) 1 =&gt; &lt;small&gt;string&lt;/small&gt; 'MNO' (length=3) 2 =&gt;\r\n &lt;small&gt;string&lt;/small&gt; 'PQR' (length=3) 3 =&gt;array 0 =&gt; &lt;small&gt;string&lt;/small&gt; 'STU' (length=3) 1 =&gt; &lt;small&gt;string&lt;/small&gt; 'VWX' (length=3) 2 =&gt; &lt;small&gt;string&lt;/small&gt; 'YZ_' (length=3) array 1 =&gt;array 0 =&gt; &lt;small&gt;string&lt;/small&gt; 'PHPExcel' (length=8) 1 =&gt; &lt;small&gt;string&lt;/small&gt;\r\n 'DEF' (length=3) 2 =&gt; &lt;small&gt;string&lt;/small&gt; 'GHI' (length=3) 2 =&gt;array 0 =&gt; &lt;small&gt;string&lt;/small&gt; 'JKL' (length=3) 1 =&gt; &lt;small&gt;string&lt;/small&gt; 'MNO' (length=3) 2 =&gt; &lt;small&gt;string&lt;/small&gt; 'PQR' (length=3) 3 =&gt;array 0 =&gt; &lt;small&gt;string&lt;/small&gt; 'STU' (length=3)\r\n 1 =&gt; &lt;small&gt;string&lt;/small&gt; 'VWX' (length=3) 2 =&gt; &lt;small&gt;string&lt;/small&gt; 'YZ_' (length=3) array 1 =&gt;array 0 =&gt; &lt;small&gt;string&lt;/small&gt; 'PHPExcel' (length=8) 1 =&gt; &lt;small&gt;string&lt;/small&gt; 'DEF' (length=3) 2 =&gt; &lt;small&gt;string&lt;/small&gt; 'GHI' (length=3) 2 =&gt;array 0 =&gt;\r\n &lt;small&gt;string&lt;/small&gt; 'JKL' (length=3) 1 =&gt; &lt;small&gt;string&lt;/small&gt; 'MNO' (length=3) 2 =&gt; &lt;small&gt;string&lt;/small&gt; 'PQR' (length=3) 3 =&gt;array 0 =&gt; &lt;small&gt;string&lt;/small&gt; 'STU' (length=3) 1 =&gt; &lt;small&gt;string&lt;/small&gt; 'VWX' (length=3) 2 =&gt; &lt;small&gt;string&lt;/small&gt; 'YZ_'\r\n (length=3) <br>\r\n&gt;With the latest SVN code, it gives:<br>\r\n&gt;Sheet A Sheet B Sheet C <br>\r\n&gt;array 1 =&gt;array 'A' =&gt; &lt;small&gt;string&lt;/small&gt; 'ABC' (length=3) 'B' =&gt; &lt;small&gt;string&lt;/small&gt; 'DEF' (length=3) 'C' =&gt; &lt;small&gt;string&lt;/small&gt; 'GHI' (length=3) 2 =&gt;array 'A' =&gt; &lt;small&gt;string&lt;/small&gt; 'JKL' (length=3) 'B' =&gt; &lt;small&gt;string&lt;/small&gt; 'MNO' (length=3)\r\n 'C' =&gt; &lt;small&gt;string&lt;/small&gt; 'PQR' (length=3) 3 =&gt;array 'A' =&gt; &lt;small&gt;string&lt;/small&gt; 'STU' (length=3) 'B' =&gt; &lt;small&gt;string&lt;/small&gt; 'VWX' (length=3) 'C' =&gt; &lt;small&gt;string&lt;/small&gt; 'YZ_' (length=3) array 1 =&gt;array 'A' =&gt; &lt;small&gt;string&lt;/small&gt; 'Mark Baker' (length=10)\r\n 'B' =&gt; &lt;small&gt;string&lt;/small&gt; 'DEF' (length=3) 'C' =&gt; &lt;small&gt;string&lt;/small&gt; 'GHI' (length=3) 2 =&gt;array 'A' =&gt; &lt;small&gt;string&lt;/small&gt; 'JKL' (length=3) 'B' =&gt; &lt;small&gt;string&lt;/small&gt; 'MNO' (length=3) 'C' =&gt; &lt;small&gt;string&lt;/small&gt; 'PQR' (length=3) 3 =&gt;array 'A' =&gt;\r\n &lt;small&gt;string&lt;/small&gt; 'STU' (length=3) 'B' =&gt; &lt;small&gt;string&lt;/small&gt; 'VWX' (length=3) 'C' =&gt; &lt;small&gt;string&lt;/small&gt; 'YZ_' (length=3) array 1 =&gt;array 'A' =&gt; &lt;small&gt;string&lt;/small&gt; 'PHPExcel' (length=8) 'B' =&gt; &lt;small&gt;string&lt;/small&gt; 'DEF' (length=3) 'C' =&gt; &lt;small&gt;string&lt;/small&gt;\r\n 'GHI' (length=3) 2 =&gt;array 'A' =&gt; &lt;small&gt;string&lt;/small&gt; 'JKL' (length=3) 'B' =&gt; &lt;small&gt;string&lt;/small&gt; 'MNO' (length=3) 'C' =&gt; &lt;small&gt;string&lt;/small&gt; 'PQR' (length=3) 3 =&gt;array 'A' =&gt; &lt;small&gt;string&lt;/small&gt; 'STU' (length=3) 'B' =&gt; &lt;small&gt;string&lt;/small&gt; 'VWX'\r\n (length=3) 'C' =&gt; &lt;small&gt;string&lt;/small&gt; 'YZ_' (length=3) <br>\r\n&gt; <br>\r\n&gt;<br>\r\n&gt;",
+    "PostedDate": "2010-12-07T15:54:57.95-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "537474",
+    "ThreadId": "229868",
+    "Html": "\r\n<p>I have one question...</p>\r\n<p>I did this the example that MarkBaker provide....</p>\r\n<pre>$newSheet = <span style=\"color:blue\">clone</span> $objPHPExcel-&gt;getSheetByName(<span style=\"color:#a31515\">&quot;sheet_template&quot;</span>);\r\n$newSheet-&gt;setTitle(<span style=\"color:#a31515\">'New Sheet'</span>);\r\n$newSheetIndex = 1;\r\n$objPHPExcel-&gt;addSheet($newSheet,$newSheetIndex);\r\n</pre>\r\n<p>but it fails on copying one imagen that i have in the template, it doesnt copy the template, it shows an red X... like it doesnt find the imagen...</p>\r\n<p>i also get this error with that</p>\r\n<p>&#65279;&#65279;Warning: flose(): supplied argument is not a valid stream resource in $myroot/lib/Classes/PHPExcel/CachedObjectStorage/PHPTemp.php on line 152.</p>\r\n<p>&#65279;&#65279;&#65279;&#65279;&#65279;&#65279;any suggestion...?????</p>\r\n",
+    "PostedDate": "2010-12-17T11:44:40.19-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1090643",
+    "ThreadId": "229868",
+    "Html": "hi, i try you code MarkBaker but show me an error\r<br />\n<br />\nArgument 1 passed to PHPExcel_Cell::attach() must be an instance of PHPExcel_CachedObjectStorage_CacheBase, instance of PHPExcel_Worksheet given, called in C:\\xampp\\htdocs\\sistemanota\\protected\\vendors\\PHPExcel\\CachedObjectStorage\\Memory.php on line 99 and defined<br />\n",
+    "PostedDate": "2013-09-10T06:54:13.377-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1092689",
+    "ThreadId": "229868",
+    "Html": "I'm getting the same error as @yerkicaceres does. Any improvements/workarounds?<br />\n",
+    "PostedDate": "2013-09-14T07:34:52.373-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1092717",
+    "ThreadId": "229868",
+    "Html": "This has been fixed in the develop branch on github<br />\n",
+    "PostedDate": "2013-09-14T11:04:40.053-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1105437",
+    "ThreadId": "229868",
+    "Html": "Hi there, I am running into the same error, so I downloaded the 2.0.0 development branch from github.\r<br />\n<br />\nThe file PHPExcel.php seems to be missing in the dev package, am I missing something here ?\r<br />\n<br />\nThe installation instructions tell me to include PHPExcel.php inside the class dir.\r<br />\n<br />\nWhat am I doing wrong ?<br />\n",
+    "PostedDate": "2013-10-09T05:47:24.837-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1105464",
+    "ThreadId": "229868",
+    "Html": "The 2.0.0 branch should NOT be considered stable, and is first steps toward a complete rewrite which will NOT be backward compatible with the 1.7x branch.... the <code>develop</code> branch has all the latest patches to version 1.7x<br />\n",
+    "PostedDate": "2013-10-09T06:40:22.463-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1105469",
+    "ThreadId": "229868",
+    "Html": "Thanks a lot for the swift reply Mark. That's appreciated a lot. \r<br />\n<br />\nDownloading the 1.7.x dev pack right now. Cheers.<br />\n",
+    "PostedDate": "2013-10-09T06:50:02.55-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1105900",
+    "ThreadId": "229868",
+    "Html": "Confirming the issue is fixed in the 1.7.x dev branch. <br />\n",
+    "PostedDate": "2013-10-10T02:45:56.967-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1200017",
+    "ThreadId": "229868",
+    "Html": "Hi,<br />\nI have copied the develop pack but I still have the issue<br />\n  Argument 1 passed to PHPExcel_Cell::attach() must be an instance of PHPExcel_CachedObjectStorage_CacheBase, instance of PHPExcel_Worksheet given<br />\nwhen I use the Clone function.<br />\nAm I missing something ?<br />\nCheers<br />\n",
+    "PostedDate": "2014-01-28T09:09:48.5-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1200655",
+    "ThreadId": "229868",
+    "Html": "I was having the same problem others have found with clone, and using the dev code fixed it.  Thanks<br />\n",
+    "PostedDate": "2014-01-29T13:15:53.577-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

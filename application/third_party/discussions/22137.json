@@ -1,0 +1,90 @@
+[
+  {
+    "Id": "73833",
+    "ThreadId": "22137",
+    "Html": "\r\nive tried to use the class on a server but how can i do to optimize the memory usage everytime i use this code<br />$objPHPExcel = $objReader-&gt;load(\"pordenes.xlsx\"); <br />i get this error <br />Out of memory (allocated 83623936) (tried to allocate 40 bytes) in <br /><br />ive fixed this on my server increasing the set<i>ini(mem</i>limit \"200m\"); if i dont use at least 200 m i cant use it how can i optimize the memory usage?<br />",
+    "PostedDate": "2008-02-14T06:38:06.057-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "73893",
+    "ThreadId": "22137",
+    "Html": "\r\nI have an memory problem, too.<br />I have to create an Excel2007 File from a large Database content. 54.000 lines at the moment. We choose Excel 2007 to support more than 64.000 lines per worksheet, so it is very importent for us to have support for large files.<br /><br />I get an:<br /><br /><b>Fatal error:</b> Allowed memory size of 1048576000 bytes exhausted (tried to allocate 50331648 bytes) in /Users/velrok/Arbeit/projekte/CallcenterTool/callcentertool/software/trunk/library/external/PHPExcel/Worksheet.php on line 617<br /><br />at  Row 47653 of 53.xxx<br /><br />may it be posibe to implement line by line writing to solve this problem?<br />",
+    "PostedDate": "2008-02-14T09:17:51.377-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "73978",
+    "ThreadId": "22137",
+    "Html": "\r\nHow many columns is each row? Do you have styles enabled?<br />",
+    "PostedDate": "2008-02-14T14:43:02.577-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "74090",
+    "ThreadId": "22137",
+    "Html": "<div class=\"quote\" style=\"border: dotted .1em #aaa; border-left: none; border-right: none; font-style: italic; margin: 1em 0em 2.5em 3em;padding: .2em;\"><br />maartenba wrote:<br />How many columns is each row? Do you have styles enabled?<br /><br /></div><br />I havn't set any style information jet, even if I havn't desabled it explicitly.<br />22 cols per row:<br /><br /><br />Here is some code:<br /><br />$this-&gt;xls = new PHPExcel();<br /><br />\t\t$this-&gt;xls-&gt;setActiveSheetIndex(0);<br />\t\t$sheet = $this-&gt;xls-&gt;getActiveSheet();<br /><br />\t\t$writer = new PHPExcel<i>Writer</i>Excel2007(new PHPExcel());<br /><br />\t\t$rowNo = 1;<br />\t\tforeach($this-&gt;rows as $row){<br /><br />\t\t\t$colNo = 1;<br />\t\t\tforeach($row as $value){<br />\t\t\t\t$coordinate = self::toAlphaNumber($colNo).(string)$rowNo;<br />\t\t\t\t$sheet-&gt;setCellValue($coordinate, utf8_encode($value)); // string typ<br />\t\t\t\t$sheet-&gt;getCell($coordinate)-&gt;setDataType(PHPExcel<i>Cell</i>DataType::TYPE_STRING);<br />\t\t\t\t$colNo++;<br />\t\t\t}<br />\t\t\t$rowNo++;<br />\t\t}<br /><br /><br />                                $writer-&gt;setPHPExcel($this-&gt;xls);<br />\t\t\t\t$writer-&gt;setUseDiskCaching(true);<br />\t\t\t\t$writer-&gt;save(\"php://output\");<br />",
+    "PostedDate": "2008-02-15T05:03:33.737-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "74609",
+    "ThreadId": "22137",
+    "Html": "\r\ndo you read your datasets line by line?<br /><br />you should avoid reading a whole resultset into a phparray because you need a lot of memory and also you will get some speed impact.<br />",
+    "PostedDate": "2008-02-18T04:10:17.47-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "74702",
+    "ThreadId": "22137",
+    "Html": "<div class=\"quote\" style=\"border: dotted .1em #aaa; border-left: none; border-right: none; font-style: italic; margin: 1em 0em 2.5em 3em;padding: .2em;\"><br />kills wrote:<br />do you read your datasets line by line?<br /><br />you should avoid reading a whole resultset into a phparray because you need a lot of memory and also you will get some speed impact.<br /><br /></div><br />I've done some memory measurements:<br /><br />number of rows 39073<br />memory usage before loop 90.25 MB<br />memory usage in Row 2 90.25 MB<br />...<br /><br />memory usage in Row 9896 273.75 MB<br />memory usage in Row 9897 274 MB<br />...<br />memory usage in Row 9953 274.75 MB<br />memory usage in Row 9954 275 MB<br />...<br /><br />so memory usage increases about 1 MB every 57 rows.<br /><br />With holding the <b>hole</b> db Result in one array it consumes about 1/3 (90 MB) of the total memory(300 MB), but the PHPExcel instance consumes about 185 MB for about 9954 rows. There will be even more lines needed in de next years, so only reducing the db query result issn't enough.<br />So it would be nice to be able to save the current PHPExcel instance to disk while appending another instance later.<br /><br />something like:<br /><br />$writer = new PHPExcel<i>2007</i>Writer();<br />$exel = new PHPExcel();<br />// setting some data<br />$writer-&gt;add($exce);<br /><br />$excel = new PHPExcel();<br />// setting some other data<br />$writer-&gt;add($exce);<br /><br />$writer-&gt;save(filename);<br />//assuming one the written file containing the data of bouth excel files<br /><br />would ne nice. <br />",
+    "PostedDate": "2008-02-18T09:45:43.98-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "74888",
+    "ThreadId": "22137",
+    "Html": "\r\nif it is 1/3 of the memory than it is definitly worth to use a dbcursor with *<i>fetch</i>next() etc to reduce memory usage..<br /><br />but you are also right that the PHPExcel Class should also be improved in this direction..<br />(it could be a problem if you handle very big strings.. save numbers as an int/float and not as string will save memory...)<br />",
+    "PostedDate": "2008-02-19T03:48:11.123-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "74905",
+    "ThreadId": "22137",
+    "Html": "<div class=\"quote\" style=\"border: dotted .1em #aaa; border-left: none; border-right: none; font-style: italic; margin: 1em 0em 2.5em 3em;padding: .2em;\"><br />kills wrote:<br />if it is 1/3 of the memory than it is definitly worth to use a dbcursor with *<i>fetch</i>next() etc to reduce memory usage..<br /><br />but you are also right that the PHPExcel Class should also be improved in this direction..<br />(it could be a problem if you handle very big strings.. save numbers as an int/float and not as string will save memory...)<br /><br /></div><br />I'm afraid I have to use strings for numbers, because we need the leading zeros. Allthow the numbers arn't so big, just regular phone numbers and zip codes.<br /><br />Are you planning to improv PHPExcel in this direction? If so how long will it presumably take?<br /><br />Tank's alot for youre fast responses so far.<br />",
+    "PostedDate": "2008-02-19T04:59:25.07-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "74961",
+    "ThreadId": "22137",
+    "Html": "\r\nI'm no developer of the PHPExcel Class so I can't give you an answer..<br />",
+    "PostedDate": "2008-02-19T08:19:33.247-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "76154",
+    "ThreadId": "22137",
+    "Html": "\r\nBetter support of strings vs. numbers would be nice, will create a work item for this.<br />",
+    "PostedDate": "2008-02-25T01:54:50.96-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "76155",
+    "ThreadId": "22137",
+    "Html": "\r\nThis discussion has been copied to a work item. Click here to <a href=\"http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=5516\">go to the work item and continue the discussion</a>.<br />",
+    "PostedDate": "2008-02-25T01:56:18.623-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

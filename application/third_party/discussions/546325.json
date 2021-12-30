@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "1248726",
+    "ThreadId": "546325",
+    "Html": "i am using **<br />\n<blockquote>\nPHPExcel_1.8.0_<br />\n</blockquote>\n**<br />\njust reading from a file and margin it to another field<br />\n<br />\nall working fine but got problem with the formula fields  .. its returns 0 for any formula field<br />\n<br />\nmy code can one tell me how to get the value rather than 0   \n<br />\n<pre><code>$objReader = PHPExcel_IOFactory::createReaderForFile($full_file_withputh);\n            $this-&gt;objPHPExcel = $objReader-&gt;load($full_file_withputh);\n            $row_number=$this-&gt;opobj-&gt;start_row;\nif(isset($this-&gt;opobj-&gt;dataset))   {unset($this-&gt;opobj-&gt;dataset);}\n$this-&gt;opobj-&gt;dataset[$counter][$col_number]=$this-&gt;objPHPExcel-&gt;getActiveSheet(0)-&gt;getCellByColumnAndRow($col_number,$row_number)-&gt;getValue();\n</code></pre>\n\ni have also tried <br />\n<pre><code> $this-&gt;opobj-&gt;dataset[$counter][$col_number]=$this-&gt;objPHPExcel-&gt;getActiveSheet(0)-&gt;getCellByColumnAndRow($col_number,$row_number)-&gt;getCalculatedValue();\n\n</code></pre>\n\nbut it not worked <br />\nactually the function is coming from different sheet that may causes <br />\n",
+    "PostedDate": "2014-05-22T23:58:53.41-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1248732",
+    "ThreadId": "546325",
+    "Html": "From that little information, it's impossible to tell you why. .... but if getValue() is returning a 0 as well, then it strongly suggests that there is no formula in that cell, otherwise getValue() would return the formula. A call of getDataType() against the cell should also return &quot;f&quot; if it contains a formula; if it doesn't then a call of getCalculatedValue() will return the same as a getValue() call.<br />\n<br />\nSo what is the actual formula that you're getting back from the cell?<br />\n",
+    "PostedDate": "2014-05-23T00:07:01.637-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1248813",
+    "ThreadId": "546325",
+    "Html": "I can shay its a loop : of formula as below \r<br />\n<br />\n='Planning Stage Mappings'!J3\r<br />\nJ3 = IFERROR(I3,&quot;&quot;)\r<br />\nI3 =IF(H3=0,&quot;&quot;,H3)\r<br />\nH3 = VLOOKUP(G3,D:E,2,FALSE)\r<br />\nG3  = CONCATENATE(Data!B3,&quot;.&quot;,Data!AN3,&quot;.&quot;,Data!Z3)\r<br />\n<br />\nnow column B3 may contains a text or another function ... <br />\n",
+    "PostedDate": "2014-05-23T04:01:38.587-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1248822",
+    "ThreadId": "546325",
+    "Html": "You can try debugging using the PHPExcel calculation engine debugger as shown in this <a href=\"https://gist.github.com/MarkBaker/5908357\" rel=\"nofollow\">gist</a>\r<br />\n<br />\nBut I see a couple of potential problems: <br />\n<ul>\n<li>There is one known bug in the VLOOKUP function that may affect the calculation</li>\n<li>Row and Column references in formulae aren't fully supported yet (though ranges are), so you may need to modify <code>H3 = VLOOKUP(G3,D:E,2,FALSE)</code> to <code>H3 = VLOOKUP(G3,D1:E1024,2,FALSE)</code> in H3 (adjusting the range for your maximum row number)</li>\n</ul>\n",
+    "PostedDate": "2014-05-23T04:25:13.417-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1249907",
+    "ThreadId": "546325",
+    "Html": "Hi thanks all for the support .... \r<br />\nas i have tried several ways and didn't get the result i am looking for ... so i have changed the the way of reading the file ... their i used php odbc for reading the file <br />\n<pre><code>        $excelFile = realpath($full_file_withputh);\n        $excelDir = dirname($excelFile);\n        $connection = odbc_connect(&quot;Driver={Microsoft Excel Driver (*.xls)};DriverId=790;Dbq=$excelFile;DefaultDir=$excelDir&quot; , '', '');\n        $result = odbc_exec ($connection, &quot;select * from [sheet$] &quot;);\n\n        $row = odbc_fetch_array($result)\n</code></pre>\n\nit by default takes the first row as Field name\r<br />\n<br />\nand its worked   <br />\n",
+    "PostedDate": "2014-05-27T01:57:47.06-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

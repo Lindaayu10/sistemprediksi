@@ -1,0 +1,80 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": "2010-08-30T04:46:29.883-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hi,\n \nI am using the latest version 1.7.3c of PHPExcel library and I've following problem during making an export of database data into Excel format. XDebug apache extension is reporting this error message: \"Fatal error: Maximum function nesting level of '100' reached, aborting!\". Raising the level in XDebug's configs doesn't help. This is a call stack:\n \n#\tTime\tMemory\t\t\tFunction\t\t\t\t\t\t\t\tLocation\n-------------------------------------------------------------------------------------------------------------------------------------------------------------------\n1\t0.0001\t48932\t\t{main}( )\t\t\t\t\t\t\t\t../genEx.php:0\n2\t0.0937\t817432\t\tExportBase->__construct( )\t\t\t\t../genEx.php:128\n3\t4.1821\t16647140\t\tExportBase->generateExcel( )\t\t\t\t../exportbase.inc:92\n4\t4.6287\t18548256\t\tExportBase->copyHeader( )\t\t\t\t../exportbase.inc:154\n5\t4.6291\t18549296\t\tPHPExcel_Style->__clone( )\t\t\t\t../Style.php:0\n6\t4.6292\t18551396\t\tPHPExcel_Style_Font->__clone( )\t\t\t../Font.php:0\n7\t4.6293\t18553000\t\tPHPExcel_Style_Color->__clone( )\t\t\t../Color.php:0\n8\t4.6294\t18554740\t\tPHPExcel_Style_Font->__clone( )\t\t\t../Font.php:0\n9\t4.6296\t18556344\t\tPHPExcel_Style_Color->__clone( )\t\t\t../Color.php:0\n10\t4.6297\t18558084\t\tPHPExcel_Style_Font->__clone( )\t\t\t../Font.php:0\n11\t4.6298\t18559688\t\tPHPExcel_Style_Color->__clone( )\t\t\t../Color.php:0\n12\t4.6299\t18561428\t\tPHPExcel_Style_Font->__clone( )\t\t\t../Font.php:0\n13\t4.6301\t18563032\t\tPHPExcel_Style_Color->__clone( )\t\t\t../Color.php:0\n14\t4.6302\t18564772\t\tPHPExcel_Style_Font->__clone( )\t\t\t../Font.php:0\n15\t4.6304\t18566376\t\tPHPExcel_Style_Color->__clone( )\t\t\t../Color.php:0\n... and so on ...\n \nIMHO there is a problem in the __clone() methods in PHPExcel_Style_* classes. Because each class has the _parent property, such cloning method tries to clone parent as well (and it causes that parent is trying to clone the descendant again). The clone method IMHO should look something like this (added \" && ($key != '_parent')\" condition):\n \npublic function __clone() {\n\t$vars = get_object_vars($this);\n\tforeach ($vars as $key => $value) {\n\t\tif (is_object($value) && ($key != '_parent')) {\n\t\t\t$this->$key = clone $value;\n\t\t} else {\n\t\t\t$this->$key = $value;\n\t\t}\n\t}\n}\n \nWith this fix applied to PHPExcel_Style_Alignment, PHPExcel_Style_Border, PHPExcel_Style_Borders, PHPExcel_Style_Color, PHPExcel_Style_Fill, PHPExcel_Style_Font, PHPExcel_Style_NumberFormat and PHPExcel_Style_Protection classes the error message disappears. Is my fix OK? Could you please fix this problem in your next release version of the library?\n \nThanks for your response,\nMichal Wirth",
+    "LastUpdatedDate": "2013-05-16T05:41:54.897-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Medium",
+      "Severity": 100,
+      "Id": 2
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2010-07-21T04:43:44.583-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "PHPExcel_Style_*::__clone() methods cause cloning loops?",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 13764
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "I think you're right about this: it seems that your solution is logically correct. I'll run some tests with your code, but I believe that it is correct, and not just for the style classes either... so I'll extend my testing to every class that includes a deep clone and that contains a _parent attribute.",
+      "PostedDate": "2010-07-25T05:32:17.573-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-07-25T05:33:00.04-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-07-25T05:34:35.673-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Thank you for your confirmation and for a very quick response. :-)\r\n\r\nI know that there are more classes with the same cloning _parent problem, they just didn't have any impact on my application so I left them out of this fix. Of course they should be fixed too.",
+      "PostedDate": "2010-07-27T08:07:55.84-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-08-14T04:46:08.693-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-08-30T04:46:29.883-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:02:50.77-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:41:54.897-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hi\nI have an application that uploads images then the php script generates an .xlsx file with those images.\n\nTesting on a local wamp server is fine.\n\nHowever on a live linux server the file comes back corrupt.\n\nI have the latest version PhpExcel installed. PHP 5 also. \nThere are no white spaces or tabs at the start of the .xlsx file. \nThe file permissions are fine too. Permission to write the images to server and read them to the Excel sheet.\n\nI can create a text only file and download it with out problems, but I need to insert the images. \nThis is the part of the script for the image insertion\n\n```\nforeach (scandir($images_dir) as $image) {\n\n            $file_data = pathinfo($image);\n            //if the file is a PNG file....\n            if ($file_data['extension'] === 'png') {\n                $objDrawing = new PHPExcel_Worksheet_Drawing();\n                $objDrawing->setWorksheet($objPHPExcel->getActiveSheet());\n                $objDrawing->setName($file_data['filename']);\n                $objDrawing->setPath($images_dir . $file_data['basename']);\n                $objDrawing->setOffsetX($xOffset);\n                $objDrawing->setOffsetY($yOffset);\n\n                //move the y axis past the last picture inserted + some space\n                $imageDims = getimagesize($images_dir . $file_data['basename']);\n                $yOffset = $yOffset + $ySpacing + $imageDims[1];\n            }\n        }\n```\nIf I run the file without this it works file.\n\n\nthis is my writer instance code\n```\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');\n```\n\nand these are my headers\n```\n    header('Pragma: public');\n    header('Expires: 0');\n    header('Cache-Control: must-revalidate, post-check=0, pre-check=0');\n    header('Content-Type: application/vnd.ms-excel;charset=UTF-8;');\n    header('Content-Type: application/octet-stream');\n    header(\"Content-Disposition: attachment;filename=\" . $excel_file);\n    header('Content-Transfer-Encoding: binary');\n```\n\nAs I already mentioned it works fine on my localhost with wamp . As I have googled for hours and tried the ob_clean() function in loads of places in the file, as suggested on sites I had googled. \n\n\nAny ideas...?",
+    "LastUpdatedDate": "2013-08-31T18:09:57.157-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2013-08-31T18:09:57.157-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Excel corrupt using images on Linux",
+    "Type": {
+      "Name": "Unassigned",
+      "Id": 5
+    },
+    "VoteCount": 1,
+    "Id": 20161
+  },
+  "FileAttachments": [],
+  "Comments": []
+}

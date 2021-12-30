@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "1243461",
+    "ThreadId": "544809",
+    "Html": "I have this stupid code (to try to read my file xlsx)<br />\n<pre><code>&lt;head&gt;\n  &lt;link href=&quot;style.css&quot; rel=&quot;stylesheet&quot; type=&quot;text/css&quot;&gt;\n &lt;/head&gt;\n \n&lt;?php\n\necho &quot;&lt;form action=\\&quot;index.php\\&quot; method=\\&quot;POST\\&quot; name=\\&quot;form-select-zona\\&quot;&gt;\\n&quot;;\necho &quot;&lt;select name=\\&quot;zona\\&quot; onchange=\\&quot;submit()\\&quot;&gt;\\n&quot;;\necho &quot;&lt;option value=\\&quot;\\&quot;&gt;Scegli una vista&lt;/option&gt;\\n&quot;;\necho &quot;&lt;option value=\\&quot;2\\&quot;&gt;Anelli Zona 1&lt;/option&gt;\\n&quot;;\necho &quot;&lt;option value=\\&quot;1\\&quot;&gt;Anelli Zona 2&lt;/option&gt;\\n&quot;;\necho &quot;&lt;option value=\\&quot;0\\&quot;&gt;Elenco Completo&lt;/option&gt;\\n&quot;;\necho &quot;&lt;/select&gt;\\n&quot;;\necho &quot;&lt;/form&gt;&quot;;\n\n\nif(isset($_POST) &amp;&amp; $_POST['zona']) \n$zona = $_POST['zona'];\n\nif ($zona == '2') {\n    $text = &quot; di Zona 1&quot;;\n    }\nif ($zona == '1') {\n    $text = &quot; di Zona 2&quot;;\n    }\n\necho &quot;Elenco Anelli&quot;.$text.&quot; in Lavorazione&quot;;\n\n{\n/*\n * PHP Excel - Read a simple 2007 XLSX Excel file\n */\n\n/** Set default timezone (will throw a notice otherwise) */\ndate_default_timezone_set('Europe/Rome');\n\n//$inputFileType = 'Excel5'; \n//$inputFileName = './sampleData/example1.xls'; \n//$sheetname = 'Data Sheet #3'; \n\ninclude 'Classes/PHPExcel.php';\n\n$inputFileName = 'anelli.xlsx';\n\n\n//  Read your Excel workbook\ntry {\n    $inputFileType = PHPExcel_IOFactory::identify($inputFileName);\n    $objReader = PHPExcel_IOFactory::createReader($inputFileType);\n    $objPHPExcel = $objReader-&gt;load($inputFileName);\n} catch (Exception $e) {\n    die('Error loading file &quot;' . pathinfo($inputFileName, PATHINFO_BASENAME) \n    . '&quot;: ' . $e-&gt;getMessage());\n}\n\n//  Get worksheet dimensions\n$sheet = $objPHPExcel-&gt;getSheet(0);\n$highestRow = $sheet-&gt;getHighestRow();\n$highestColumn = $sheet-&gt;getHighestColumn();\n\n// echo $lastRow = $objPHPExcel-&gt;getActiveSheet()-&gt;getHighestRow(); mi restituisce le righe\n\necho &quot;&lt;table&gt;\\n&quot;;\n//  Loop through each row of the worksheet in turn\nfor ($row = 1; $row &lt;= $highestRow; $row++) {\n\n\n\n    echo &quot;&lt;tr&gt;\\n&quot;;\n    //  Read a row of data into an array\n    $rowData = $sheet-&gt;rangeToArray('A' . $row . ':' . $highestColumn . $row, NULL, TRUE, FALSE);\n    \n    //$rowData[0][1] contiene il campo zona\n    //$rowData[0][0] contiene il campo nome anello\n    \nif ($rowData[0][0]&lt;&gt;'' and $rowData[0][1]&lt;&gt; $zona )    {  //stampa solo le righe con la prima colonna completata\n    foreach($rowData[0] as $k=&gt;$v)\n        //echo &quot;Row: &quot;.$row.&quot;- Col: &quot;.($k+1).&quot; = &quot;.$v.&quot;&lt;br /&gt;&quot;;\n        echo &quot;&lt;td&gt;&quot;.$v.&quot;&lt;/td&gt;&quot;;\n    echo &quot;&lt;/tr&gt;\\n&quot;;\n}\n}\necho &quot;&lt;/table&gt;&quot;;\n}\n\n?&gt;</code></pre>\n\nbut, at home (Mac OS 10.9) work with no problem<br />\nAt work (PHP Version 5.2.6 over Windows) the page is blank <br />\n<br />\nwhy ?<br />\n",
+    "PostedDate": "2014-05-09T05:32:52.753-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1316901",
+    "ThreadId": "544809",
+    "Html": "Same here, but it works on Linux?<br />\n",
+    "PostedDate": "2014-10-27T19:01:21.043-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

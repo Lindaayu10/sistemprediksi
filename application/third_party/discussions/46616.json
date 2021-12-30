@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "155767",
+    "ThreadId": "46616",
+    "Html": "<div dir=ltr id=\"result_box\" style=\"text-align:left\">Hello, <br>\r\n<br>\r\nsorry but I have a little trouble with English. <br>\r\n<br>\r\nI have a concern I would like to move from MySQL timestamp format [H]: mm: ss, but I have a concern with a single quote. <br>\r\nexample, $ sheet-&gt; setCellValueByColumnAndRow (1, $ cell, $ hours [$\r\ni] -&gt; eft) will give result as'32: 15:00 in this case the single\r\nquote I can not make a = SUM (). <br>\r\n<br>\r\nCan you help me remove the single quote? <br>\r\n<br>\r\nI already try setCellValueByColumnAndRowExplicit (1, $ cell, $ hours [$\r\ni] -&gt; eft, PHPExcel_Cell_DataType: TYPE_NUMERIC), but without\r\nsuccess. <br>\r\nThank you for your help.<br>\r\n<br>\r\nMaitrePylos<br>\r\n</div>\r\n",
+    "PostedDate": "2009-02-09T05:59:21.65-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "155792",
+    "ThreadId": "46616",
+    "Html": "In Excel, times are stored internally as numbers. Example:<br>\r\n<br>\r\n<code>14:59:10 = 0.624421296296296<br>\r\n</code>\r\n<br>\r\nThe rule is that 1 day = 24 hours corresponds to 1.<br>\r\n<br>\r\n<code>$sheet-&gt;getCell('A1')-&gt;setValue(0.624421296296296);<br>\r\n$sheet-&gt;getStyle('A1')-&gt;getNumberFormat()-&gt;setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_DATE_TIME4);<br>\r\n<br>\r\n</code>It may be a bit cumbersome to convert <code>'14:59:10'</code> to <code>0.624421296296296</code>. But you can do it like this:<br>\r\n<br>\r\nIn MySQL, we have<br>\r\n<br>\r\n<code>\r\nSELECT TIME_TO_SEC( '14:59:10' ) <br>\r\n-&gt; 53950<br>\r\n</code>\r\n<br>\r\nThen, convert from seconds to Excel time like this:<br>\r\n<br>\r\n<code>\r\n53950 / (24 * 3600) = 0.624421296296296<br>\r\n</code>\r\n<br>\r\nYour MySQL query may look something like this:<br>\r\n<br>\r\n<code>\r\n$sql = &quot;SELECT TIME_TO_SEC(`time`) as `sec` FROM `mytable` WHERE `id` = '5'&quot;;<br>\r\n</code>\r\n<br>\r\nStrangely, I think you are the first one asking about how to insert times. In the future there may be a more simple way to do this. Until then, the above method should do the trick.<br>\r\n<br>\r\n",
+    "PostedDate": "2009-02-09T07:16:06.637-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "155917",
+    "ThreadId": "46616",
+    "Html": "There is also the Excel TIME() or TIMEVALUE() functions<br>\r\n<br>\r\n<code>$sheet-&gt;getCell('A1')-&gt;setValue(&quot;=TIME(14,59,10)&quot;);<br>\r\n$sheet-&gt;getStyle('A1')-&gt;getNumberFormat()-&gt;setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_DATE_TIME4);<br>\r\nOR<br>\r\n<span style=\"font-family:courier new\">$sheet-&gt;getCell('A1')-&gt;setValue(&quot;=TIMEVALUE('14:59:10')&quot;);<br>\r\n$sheet-&gt;getStyle('A1')-&gt;getNumberFormat()-&gt;setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_DATE_TIME4);</span></code>\r\n",
+    "PostedDate": "2009-02-09T11:44:00.147-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "156142",
+    "ThreadId": "46616",
+    "Html": "<div dir=ltr id=\"result_box\" style=\"text-align:left\">Hello, <br>\r\n<br>\r\nThank you for your responses. <br>\r\n<br>\r\nKoyama: <br>\r\n<br>\r\nIn MySQL, if I do this, I have errors: <br>\r\n<br>\r\nSUM (TIME_TO_SEC (heures_nbr) / (24 * 3600)) <br>\r\n<br>\r\nResult: 5:30:03 or 634:00:03 This is not the seconds are too much against this by <br>\r\n<br>\r\n$sheet-&gt;setCellValueByColumnAndRow (1, $cell, $hours[$i]-&gt;eft / (24 * 3600)); <br>\r\n<br>\r\nIt's OK:) <br>\r\n<br>\r\nmarkbaker: <br>\r\n<br>\r\n$sheet-&gt;setCellValueByColumnAndRow (1, $cell, &quot;TIMEVALUE = (&quot;. $hours[$i]-&gt;eft .&quot;)&quot;); <br>\r\n<br>\r\nGives this: <br>\r\n<br>\r\nFatal error: Uncaught exception 'Exception' with message 'Incorrect\r\nnumber of arguments in function TIMEVALUE ()' in /\r\nvar/www/pontaury/library/Excel/PHPExcel/Writer/Excel5/Parser.php: 1450\r\nStack trace: # 0 <br>\r\n<br>\r\n<br>\r\nFor NumberFormat I do this: <br>\r\n<br>\r\n$ sheet-&gt; duplicateStyleArray (array ( <br>\r\n'NumberFormat' =&gt; array ( <br>\r\n'code'=&gt;'[ H]: MM: SS')), 'B25: F47'); <br>\r\n<br>\r\nA big thank you to both of you for this help. <br>\r\n<br>\r\nThe issue is resolved for me. <br>\r\n<br>\r\nMaitrePylos</div>\r\n",
+    "PostedDate": "2009-02-10T00:18:03.747-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "156147",
+    "ThreadId": "46616",
+    "Html": "The parameter passed to the TIMEVALUE() function should be a quoted string, so try wrapping your $hours[$i]-&gt;eft in quotes<br>\r\n<br>\r\n$sheet-&gt;setCellValueByColumnAndRow (1, $cell, &quot;TIMEVALUE = ('&quot;. $hours[$i]-&gt;eft .&quot;')&quot;); <br>\r\n",
+    "PostedDate": "2009-02-10T00:54:04.687-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "156210",
+    "ThreadId": "46616",
+    "Html": "<div dir=ltr id=\"result_box\" style=\"text-align:left\">Flawless:) <br>\r\n<br>\r\nto be careful slight error in the code. <br>\r\n<br>\r\n$ sheet-&gt; setCellValueByColumnAndRow (1, $ cell, &quot;=TIMEVALUE( '&quot;. $ hours [$ i] -&gt; eft .&quot;')&quot;); <br>\r\n<br>\r\nBoth ways work and gets the desired result. <br>\r\n<br>\r\nI have just a small concern, using one of your codes, I can not send the file to $writer-&gt;save ( 'php: / / output'); <br>\r\n<br>\r\nI am compelled to record, but this is not very serious. <br>\r\n<br>\r\nAgain thank you for help. <br>\r\n<br>\r\nMaitrePylos</div>\r\n",
+    "PostedDate": "2009-02-10T05:21:57.52-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

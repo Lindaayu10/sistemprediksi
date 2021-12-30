@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "679002",
+    "ThreadId": "274491",
+    "Html": "\r\n<p>I've been trying to get PHPExcel to read each cell in the first row of a spreadsheet. A problem that I have is I cannot iterate through columns because the columns are labeled with letters and I do not know how to iterate through letters. If there was a\r\n way to map numbers to column titles (so that 26 maps to Z, 27 to AA, etc.) it would be helpful.</p>\r\n<p>Another problem is that I can only get the last column in terms of a letter, so I cannot make a comparison to determine if the current column of the iteration is less than the last column of the iteration.</p>\r\n",
+    "PostedDate": "2011-10-01T14:28:07.66-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "679003",
+    "ThreadId": "274491",
+    "Html": "<p>Here is a part of code I use to feed a MySQL database with PHPExcel.</p>\n<p>I use iteration to do it, like this :</p>\n<p>&nbsp;</p>\n<div style=\"color: black; background-color: white;\">\n<pre><span style=\"color: blue;\">require_once</span> <span style=\"color: #a31515;\">'phpexcel/Classes/PHPExcel.php'</span>;\n\n$objReader = PHPExcel_IOFactory::createReader($inputFileType); \n\n$objPHPExcel = $objReader-&gt;load($inputFileName);\n$objWorksheet = $objPHPExcel-&gt;getActiveSheet();\n\n$a = <span style=\"color: blue;\">array</span>();\n\n<span style=\"color: blue;\">foreach</span> ($objWorksheet-&gt;getRowIterator() <span style=\"color: blue;\">as</span> $row) {\n  $cellIterator = $row-&gt;getCellIterator();\n  $cellIterator-&gt;setIterateOnlyExistingCells(false); \n\n  <span style=\"color: blue;\">foreach</span> ($cellIterator <span style=\"color: blue;\">as</span> $cell) {\n    $a[] = $cell-&gt;getValue();\n  }\n\n\t<span style=\"color: green;\">/*\n\tYour cells contents here :\n\t$value_cell_A = $a[0];\n\t$value_cell_B = $a[1];\n\t...\n\t$value_cell_Z = $a[25];\n\t</span><span style=\"color: green;\">$value_cell_AA = $a[26];</span><span style=\"color: green;\"><br /></span><span style=\"color: green;\">        $value_cell_AB = $a[27];</span><span style=\"color: green;\"><br />        etc...\n\n\tthen you can use them in this loop\t\n\t*/</span>\n\n\t<span style=\"color: green;\">// clear the array for the next line</span>\n\t<span style=\"color: blue;\">unset</span>($a);\n}\n\n</pre>\n</div>",
+    "PostedDate": "2011-10-01T14:38:23.65-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "679004",
+    "ThreadId": "274491",
+    "Html": "<p>Thanks for the response, but that code looks like it iterates through each cell of each row, and I only want each cell of the first row. I don't know how to select just the first row with PHPExcel.</p>",
+    "PostedDate": "2011-10-01T14:44:54.813-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "679042",
+    "ThreadId": "274491",
+    "Html": "<p>Easy : you just don't have to iterate the row...</p>\n<p>In my example, the part :</p>\n<pre><pre><span style=\"color: blue;\">foreach</span> ($objWorksheet-&gt;getRowIterator() <span style=\"color: blue;\">as</span> $row) {\n\n}\n</pre>\n</pre>\n<p>is doing this iteration.</p>\n<p>If instead you just read the $row[0] and don't iterate, you'll read the first row and that's all !</p>",
+    "PostedDate": "2011-10-02T00:34:48.523-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "679076",
+    "ThreadId": "274491",
+    "Html": "<p>How do I read row 0? The $row variable was defined during iteration, so if I didn't iterate over the row, $row would be undefined. Is it something like $objWorksheet-&gt;getRowIterator()[0] or $objWorksheet-&gt;row[0]?</p>",
+    "PostedDate": "2011-10-02T06:04:06.99-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "680121",
+    "ThreadId": "274491",
+    "Html": "<p>Here is a simpler way :</p>\n<div style=\"color: black; background-color: white;\">\n<pre><span style=\"color: blue;\">require_once</span> <span style=\"color: #a31515;\">'phpexcel/Classes/PHPExcel.php'</span>;\n\n$objReader = PHPExcel_IOFactory::createReader($inputFileType);\n\n$objPHPExcel = $objReader-&gt;load($inputFileName);\n$objWorksheet = $objPHPExcel-&gt;getActiveSheet();\n$highestRow = $objWorksheet-&gt;getHighestRow();\n$highestColumn = $objWorksheet-&gt;getHighestColumn(); <span style=\"color: green;\">&nbsp;</span>\n$highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn); <span style=\"color: green;\">&nbsp;</span>\n\n$row = 0;\n\n<span style=\"color: blue;\">for</span> ($col = 0; $col &lt;= $highestColumnIndex; ++$col) {\n    <span style=\"color: blue;\">echo</span> $objWorksheet-&gt;getCellByColumnAndRow($col, $row)-&gt;getValue().<span style=\"color: #a31515;\">' - '</span>;\n}\n<span style=\"color: blue;\">echo</span> <span style=\"color: #a31515;\">'&lt;br /&gt;'</span>;\n</pre>\n</div>\n<p>You just have to change the value of $row to read the row you want...</p>",
+    "PostedDate": "2011-10-04T21:48:31.697-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "859866",
+    "ThreadId": "274491",
+    "Html": "<p>&nbsp;</p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>$inputFileType = PHPExcel_IOFactory::identify($target_path);\r\n\t\r\n\t$objReader = PHPExcel_IOFactory::createReader($inputFileType);\r\n    $objReader-&gt;setReadDataOnly(true);\r\n\r\n$objPHPExcel = $objReader-&gt;load($target_path);\r\n<span style=\"color: green;\">//$objWorksheet = $objPHPExcel-&gt;setActiveSheetIndex($dail_sheet);</span>\r\n\t$objWorksheet = $objPHPExcel-&gt;setActiveSheetIndex(0);\r\n\t\r\n\t$highestRow=$objWorksheet-&gt;getHighestDataRow();\r\n\t$highestColumn=$objWorksheet-&gt;getHighestDataColumn();\r\n\t\r\n    \r\n\t$highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn);  \r\n    \r\n\t\r\n$row = 0;\r\n$lowestrow=1;\r\n  <span style=\"color: blue;\">for</span>($row = $lowestrow; $row &lt;= $highestRow; $row++)\r\n      {\r\n    <span style=\"color: blue;\">for</span> ($col = 0; $col &lt;= $highestColumnIndex; ++$col)\r\n      {\r\n\t    <span style=\"color: blue;\">if</span>($objWorksheet-&gt;getCellByColumnAndRow($col, $row)-&gt;getValue()!=<span style=\"color: #a31515;\">\"NULL\"</span>)\r\n\t\t {\r\n\t\t  $lowestrow=$row;\r\n\t\t  $col =$highestColumnIndex;\r\n\t\t  $row = $highestRow;\r\n \t\t }\r\n\t  \r\n\t  \r\n\t  }\r\n\r\n\t  }\r\n\t<span style=\"color: blue;\">echo</span> $lowestrow.<span style=\"color: #a31515;\">\" \"</span>;\r\n\t<span style=\"color: blue;\">echo</span> $highestRow.<span style=\"color: #a31515;\">\" \"</span>;\r\n\t<span style=\"color: blue;\">echo</span> $highestColumn. <span style=\"color: #a31515;\">\" \"</span>; \r\n</pre>\r\n</div>",
+    "PostedDate": "2012-07-10T11:11:49.803-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

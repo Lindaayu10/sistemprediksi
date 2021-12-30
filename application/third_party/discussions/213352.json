@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "445577",
+    "ThreadId": "213352",
+    "Html": "Hey all, I am trying to write an export that takes data from mysql and puts it into excel.\r\n\r\nWhen doing so with just a few rows it works great, but my database has up to 13000 rows. Running the script on that runs out of memory.\r\n\r\nI was wondering what a good way to avoid this is. I tried to use the new caching functions, but to be honest, I am not sure how to do so. Is there any examples of it being used?\r\n\r\nDo I simply add the lines\r\n\r\n$cacheMethod = PHPExcel_CachedObjectStorageFactory::cache_to_discISAM;\r\nPHPExcel_Settings::setCacheStorageMethod($cacheMethod);\r\n\r\nto my code before I create my PHPExcel object?\r\n\r\nAny help would be appreciated. Thanks a ton.",
+    "PostedDate": "2010-05-20T14:35:22.063-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "445889",
+    "ThreadId": "213352",
+    "Html": "So, Ive been testing my memory usage using the different caching methods and for some reason it actually increases when using every caching method. Some increase it more then others. How is that possible? Why is it causing me to use MORE memory.\r\n\r\nMy simple output of 13000 rows of 1 column takes roughly 60MB with no caching, and it takes like 62-65 with, thats all very bizarre to me.\r\n\r\nAny idea what is happening?",
+    "PostedDate": "2010-05-21T07:44:36.35-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "447487",
+    "ThreadId": "213352",
+    "Html": "<p>The problem appears to be memory leaks within some of the writers, and the latest SVN code contains a number of fixes that reduce these problems (although they are not eliminated completely).</p>\r\n<p>When using cell caching, the memory used by the PHPExcel object is reduced, but the writers appear to clone parts of this causing the memory leaks. The changes that I have made reduce the problem without completely eliminating the issue. A script that uses the cell caching should now use less memory than the equivalent script against the 1.7.2 release, whichever writer is being used, but eliminating the memory leaks completely will be an ongoing process.</p>",
+    "PostedDate": "2010-05-26T01:33:24.95-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "448556",
+    "ThreadId": "213352",
+    "Html": "i have the same problem, but didn't can use class PHPExcel_CachedObjectStorageFactory, i have this message Class 'PHPExcel_CachedObjectStorageFactory' not found\r\ni use symfony 1.3 , and plugin sfPhpExcelPlugin 1.0.3",
+    "PostedDate": "2010-05-28T01:33:53.403-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

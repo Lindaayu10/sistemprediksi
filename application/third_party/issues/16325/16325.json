@@ -1,0 +1,39 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hi,\n \nI am using 1.7.6, I was trying to insert a new row with MemoryGZip set as my caching mechanism. It however crashes with a null pointer: It took me a while to figure this out. But I have posted the fix below. Let me know if it's correct. Thanks!\n \nReferenceHelper.php\n \n\t\t// Loop through cells, bottom-up, and change cell coordinates\n\t\twhile (($cellID = ($pNumCols < 0 || $pNumRows < 0) ? array_shift($aCellCollection) : array_pop($aCellCollection))) {\n\t\t\t$cell = $pSheet->getCell($cellID);\n \n\t\t\t// New coordinates\n\t\t\t$newCoordinates = PHPExcel_Cell::stringFromColumnIndex( PHPExcel_Cell::columnIndexFromString($cell->getColumn()) - 1 + $pNumCols ) . ($cell->getRow() + $pNumRows);\n \n\t\t\t// Should the cell be updated? Move value and cellXf index from one cell to another.\n\t\t\tif ((PHPExcel_Cell::columnIndexFromString( $cell->getColumn() ) >= PHPExcel_Cell::columnIndexFromString($beforeColumn)) &&\n\t\t\t\t($cell->getRow() >= $beforeRow)) {\n \n\t\t\t\t// Update cell styles\n\t\t\t\t/**\n\t\t\t\t * ------------ START BUG FIX ----------------\n\t\t\t\t * Since when used with MemoryGZip, $cell->setXFIndex will trigger the detatch() clean up\n\t\t\t\t * (setting its parent to null), we should first reset the XFIndex of the old cell so that it\n\t\t\t\t * gets deallocated before the newCell flushes the storage and mistakenly giving the current\n\t\t\t\t * cell no parent to call notifyCacheController with\n\t\t\t\t */\n\t\t\t\t$cellXfIndex = $cell->getXfIndex();\n\t\t\t\t$cell->setXfIndex(0);\n \n\t\t\t\t//NOTE: THIS WOULD'VE KILL THE CURRENT'S CELL PARENT\n\t\t\t\t$newCell = $pSheet->getCell($newCoordinates);\n\t\t\t\t$newCell->setXfIndex($cellXfIndex);\n\t\t\t\t/**\n\t\t\t\t * ------------ END BUG FIX ----------------\n\t\t\t\t */",
+    "LastUpdatedDate": "2013-02-21T19:02:17.59-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2011-08-02T00:58:01.05-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "With MemoryGZip cache, Worksheet::insertNewRowBefore() causes Cell::notifyCacheController() to have null pointer",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 16325
+  },
+  "FileAttachments": [],
+  "Comments": []
+}

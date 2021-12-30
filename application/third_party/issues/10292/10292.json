@@ -1,0 +1,39 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel",
+      "DisplayName": "PHPExcel"
+    },
+    "ClosedComment": "Fixed in SVN",
+    "ClosedDate": "2009-07-09T12:01:31.05-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "From thread:\nhttp://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=61890\n \n-------\nI'm using PHPExcel for the first time to read/load files. In this application, I may get Excel2007 files, or I may get older files. So I'm using PHPExcel_IOFactory::load() so that it will figure out the file type and handle it appropriately. However, it doesn't look like I can set any options on the reader it uses. For example, I cannot add a ReadFilter or use setReadDataOnly(). Am I correct in this?\n \nIf I add the ability to set these in the PHPExcel_IOFactory::load() method, would anyone else be interested? I could also create a PHPExcel_IOFactory::getReader($pFilename) method to find and return the reader without loading the file. These, especially the latter, would be pretty simple derivations of the load() method.\n \n--------\nI went ahead and tried it out, and it's working for me. Perhaps it wouldn't work for CSV or Serialized readers since they don't have the same interface?\n \n/**\n * Create PHPExcel_Reader_IReader for file using automatic PHPExcel_Reader_IReader resolution\n *\n * @param \tstring \t\t$pFileName\n * @return\tPHPExcel_Reader_IReader\n * @throws \tException\n */\t\npublic static function createReaderForFile($pFilename) {\n\t// Try loading using self::$_autoResolveClasses\n\tforeach (self::$_autoResolveClasses as $autoResolveClass) {\n\t\t$reader = self::createReader($autoResolveClass);\n\t\tif ($reader->canRead($pFilename)) {\n\t\t\treturn $reader;\n\t\t}\n\t}\n\t\t\n\tthrow new Exception(\"Could not automatically determine PHPExcel_Reader_IReader for file.\");\n}\n \nUsage:\n \ntry \n{\n\t$reader = PHPExcel_IOFactory::createReaderForFile($filename);\n\t$reader->setReadDataOnly(true);\n\t$spreadsheet = $reader->load($filename);\n}\ncatch (Exception $e)\n{\n\tdie('no load');\n}\n \n-----------\nRelated work item:\nhttp://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=9701",
+    "LastUpdatedDate": "2013-05-16T05:42:33.503-07:00",
+    "PlannedForRelease": "PHPExcel 1.7.0 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-07-09T11:00:55.16-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Method for getting the correct reader for a certain file",
+    "Type": {
+      "Name": "Feature",
+      "Id": 1
+    },
+    "VoteCount": 1,
+    "Id": 10292
+  },
+  "FileAttachments": [],
+  "Comments": []
+}

@@ -1,0 +1,86 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel",
+      "DisplayName": "PHPExcel"
+    },
+    "ClosedComment": "Fixed in SVN",
+    "ClosedDate": "2009-09-07T13:44:03.247-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Question: Should this\n \nPHPExcel_Cell::setValueBinder( new PHPExcel_Cell_AdvancedValueBinder() );\n$objWorksheet->getCell('A1')->setValue('0004');\n \nresult in this:\n \n1) A1 contains datatype string '0004'\n \nor this:\n \n2) A1 contains numeric 4\n \nCurrently, AdvancedValueBinder says 1), but I think we should let it do 2). Why? Two reasons:\n \n* That is anyway how Excel behaves. When one types 0004 in an ordinary cell it gets stored as a number 4, without even that any format mask gets applied.\n \n* Seen in the light of problems with differing string-to-number implementations in MS Office Excel 2007 and OpenOffice.org we should probably encourage users to achieve zero-padded numbers with the use of setFormatCode('0000') instead of storing as strings. For example, MS Office Excel 2007 says '0004'+'0005' = 9, but OpenOffice.org 3.1.0 says '0004'+'0005' = 0.\n \nMS Office Excel 2007:\nhttp://img29.imageshack.us/img29/7702/ss20090821213015.png\n \nOpenOffice.org 3.1.0\nhttp://img29.imageshack.us/img29/1094/ss20090821213050.png\n \nIf instead values were stored as numbers this would be avoided.\n \nWhat do you guys say?",
+    "LastUpdatedDate": "2013-05-16T05:42:28.097-07:00",
+    "PlannedForRelease": "PHPExcel 1.7.1 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-08-21T12:36:52.63-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "AdvancedValueBinder(): Re-enable zero-padded string-to-number conversion, e.g  '0004' -> 4",
+    "Type": {
+      "Name": "Feature",
+      "Id": 1
+    },
+    "VoteCount": 1,
+    "Id": 10502
+  },
+  "FileAttachments": [
+    {
+      "FileId": 3301,
+      "FileName": "write.xlsx",
+      "DownloadUrl": ".\\3301"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "We should follow the Excel way --> 1)",
+      "PostedDate": "2009-08-23T23:27:16.81-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Maarten, Excel way is 2), right?\r\n\r\nTry this in Excel:\r\n\r\n* Type 0004 in cell A1:\r\nhttp://img19.imageshack.us/img19/8086/ss20090824113842.png\r\n\r\n* Hit enter\r\n\r\n* Cell A1 contains numeric 4 (not string '0004'), that means --> 2)\r\nhttp://img19.imageshack.us/img19/9762/ss20090824113955.png",
+      "PostedDate": "2009-08-24T02:41:22.573-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Related to this is also an issue where numbers such as 0.6 get stored as text because of the leading 0.\r\n\r\nExample:\r\n\r\nPHPExcel_Cell::setValueBinder( new PHPExcel_Cell_AdvancedValueBinder() );\r\n\r\n$sheet->getCell('A1')->setValue(0.6); // <--- number gets stored as text \"0.6\"\r\n\r\nNow, this is clearly an issue, but per previous comment, I still believe the advanced value binder should treat values such as '0004' as a numeric value --> 4.\r\n\r\nHow about I fix this and at the same time update the documentation with an example how to achieve leading zeros via number formats? That should solve all problems which users may have with leading zeros. Good idea? :)",
+      "PostedDate": "2009-09-05T16:44:40.25-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "\"00004\" should become (int)4\r\n\"0.4\" should become (double)0.4\r\n\r\nFixing it sounds good, thanks!",
+      "PostedDate": "2009-09-06T03:51:23.657-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-09-06T05:02:47.357-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-09-07T13:44:03.247-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:03:43.653-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:28.097-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

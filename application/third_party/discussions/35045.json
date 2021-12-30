@@ -1,0 +1,154 @@
+[
+  {
+    "Id": "116483",
+    "ThreadId": "35045",
+    "Html": "Hello,<br>\r\n<br>\r\ni have to read a large xls file with some images in it. Than i have to save the images somewhere.<br>\r\n<br>\r\nIt only seems to work with *.xlx files, is that right? Or is it also posible with Reader5? If not is there a way to convert xls to xlsx?<br>\r\n<br>\r\nI tried somithing like <br>\r\n<br>\r\n$file = &quot;myexcel.xlsx&quot;<br>\r\n<br>\r\n$objReader = new PHPExcel_Reader_Excel2007();<br>\r\n$objPHPExcel = $objReader-&gt;load(&quot;data/uploads/&quot;.$file);<br>\r\n<br>\r\nI know, I can do this (whatever?):<br>\r\n<br>\r\n$objPHPExcel-&gt;getSheet(0)-&gt;getDrawingCollection()-&gt;offsetGet(0);<br>\r\n<br>\r\nor get the number of images like that: <br>\r\n<br>\r\n$objPHPExcel-&gt;getSheet(0)-&gt;getDrawingCollection()-&gt;count();<br>\r\n<br>\r\nBut i don't have a clue how to save each of the images to disk/database or something.<br>\r\n<br>\r\nMaybe someone can give me a detailed hint please? A small example would be great.<br>\r\n<br>\r\nThx<br>\r\n<br>\r\n<br>\r\n<br>\r\n<br>\r\n<br>\r\n",
+    "PostedDate": "2008-09-06T02:27:33.49-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "116503",
+    "ThreadId": "35045",
+    "Html": "Unfortunately you're right... This is not currently possible using the Excel5 reader.<br>\r\n<br>\r\nCan you please send a sample file of what you are trying to read to erik at phpexcel dot net so we have a reference.<br>\r\n",
+    "PostedDate": "2008-09-06T06:40:31.913-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "116592",
+    "ThreadId": "35045",
+    "Html": "A work item has been created for this. Discussion can continue here:<br>\r\n<a href=\"http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=7538\">http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=7538</a><br>\r\n<br>\r\n",
+    "PostedDate": "2008-09-06T22:12:52.32-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "116752",
+    "ThreadId": "35045",
+    "Html": "It sounds like it is possible with reader2007? <br>\r\n<br>\r\nIf that is true, is der a small example for xlsx files?<br>\r\n<br>\r\nThx<br>\r\n",
+    "PostedDate": "2008-09-08T00:00:22.257-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "116858",
+    "ThreadId": "35045",
+    "Html": "Here is the method for reading images from Excel spreadsheets. If you rather want everything saved as PNG you can modify the script so it uses imagepng for all cases <code>.gif</code>, <code>.jpeg</code>, <code>.png</code><br>\r\n<br>\r\n<code>\r\n$reader = new PHPExcel_Reader_Excel2007();<br>\r\n$PHPExcel = $reader-&gt;load('test.xlsx');<br>\r\n$worksheet = $PHPExcel-&gt;getActiveSheet();<br>\r\n<br>\r\n// extract images from worksheet and save files:&nbsp; 0.jpeg, 1.jpeg, 2.png, ...<br>\r\nforeach ($worksheet-&gt;getDrawingCollection() as $i =&gt; $drawing) {<br>\r\n&nbsp;&nbsp; &nbsp;$filename = $drawing-&gt;getPath();<br>\r\n&nbsp;&nbsp; &nbsp;$imagesize = getimagesize($filename);<br>\r\n<br>\r\n&nbsp;&nbsp; &nbsp;switch ($imagesize[2]) {<br>\r\n&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp; &nbsp;case 1:<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$image = imagecreatefromgif($filename);<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;imagegif($image, &quot;$i.gif&quot;);<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;break;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp; &nbsp;case 2:<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$image = imagecreatefromjpeg($filename);<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;imagejpeg($image, &quot;$i.jpeg&quot;);<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;break;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp; &nbsp;case 3:<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$image = imagecreatefrompng($filename);<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;imagepng($image, &quot;$i.png&quot;);<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;break;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp; &nbsp;default:<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;continue 2;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp; &nbsp;}<br>\r\n}<br>\r\n</code>\r\n",
+    "PostedDate": "2008-09-08T06:55:21.71-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "120280",
+    "ThreadId": "35045",
+    "Html": "Hello again,<br>\r\n<br>\r\nI tried to use this code but there is this warning<br>\r\n<br>\r\n<strong>Warning</strong>:  ZipArchive::getFromName() [<a href=\"http://192.168.130.112/app/mon/function.ZipArchive-getFromName\">function.ZipArchive-getFromName</a>]: Invalid or unitialized Zip object in <strong>D:\\wamp\\bin\\php\\php5.2.5\\PEAR\\PHPExcel\\Shared\\ZipStreamWrapper.php</strong> on line <strong>108<br>\r\n<br>\r\n</strong>The question more important is, is it posible to get the linenumber of each image? Imagine an Excelfile with pictures, but not in every row. So I need the number of the row, to say to wich dataset the image belongs.<br>\r\n<br>\r\nThanks again :)<br>\r\n",
+    "PostedDate": "2008-09-22T23:13:08.75-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "120357",
+    "ThreadId": "35045",
+    "Html": "Q1: I don't know what is causing the warning message. Can you upload the file somewhere (after removing sensitive data)?<br>\r\n<br>\r\nQ2: Here is an example how to get coordinates all the images:<br>\r\n<br>\r\n<code>\r\nforeach ($worksheet-&gt;getDrawingCollection() as $i =&gt; $drawing) {<br>\r\n&nbsp;&nbsp;&nbsp; $string = $drawing-&gt;getCoordinates();<br>\r\n&nbsp;&nbsp;&nbsp; // e.g. string(2) &quot;E9&quot;<br>\r\n&nbsp;&nbsp;&nbsp; <br>\r\n&nbsp;&nbsp;&nbsp; $coordinate = PHPExcel_Cell::coordinateFromString($string);<br>\r\n&nbsp;&nbsp;&nbsp; // e.g. array(2) { [0]=&gt;&nbsp; string(1) &quot;E&quot; [1]=&gt;&nbsp; string(1) &quot;9&quot; }<br>\r\n&nbsp;&nbsp;&nbsp; <br>\r\n&nbsp;&nbsp;&nbsp; $col = $coordinate[0]; // e.g. string(1) &quot;E&quot;<br>\r\n&nbsp;&nbsp;&nbsp; $row = $coordinate[1]; // e.g. string(1) &quot;9&quot;<br>\r\n&nbsp;&nbsp;&nbsp; ...<br>\r\n}<br>\r\n</code>\r\n",
+    "PostedDate": "2008-09-23T05:29:54.317-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "120383",
+    "ThreadId": "35045",
+    "Html": "Thx for your help, i got it working for Excel 2007.<br>\r\n<br>\r\nThe Problem with Q1 wars in ZipStreamWraper.php<br>\r\n<br>\r\nAs you can see, this is a function from your class. The thing I did, wars to comment &quot;$url = @parse_url($path);&quot; because it made $url['host']='data' from the path &quot;zip://data/uploads/test1.xlsx#xl/media/image1.png&quot;.<br>\r\nOne word is not a valid host I think ;) The Fix URL part is doing a fine job creating the real host. So it's working now :) I hope to see the 2005 version soon.<br>\r\n<br>\r\n&nbsp;public function stream_open($path, $mode, $options, &amp;$opened_path) {<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Check for mode<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (substr($mode, 0, 1) != 'r') {<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throw new Exception('Mode ' . $mode . ' is not supported. Only read mode is supported.');<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Parse URL<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // $url = @parse_url($path);<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Fix URL<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;if (!is_array($url)) {<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $url['host'] = substr($path, strlen('zip://'));<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $url['path'] = '';<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (strpos($url['host'], '#') !== false) {&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp; if (!isset($url['fragment'])) {<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $url['fragment']&nbsp;&nbsp; &nbsp;= substr($url['host'], strpos($url['host'], '#') + 1) . $url['path'];<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $url['host']&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;= substr($url['host'], 0, strpos($url['host'], '#'));<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; unset($url['path']);<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } <br>\r\n<br>\r\n<br>\r\n",
+    "PostedDate": "2008-09-23T07:57:35.457-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "120457",
+    "ThreadId": "35045",
+    "Html": "Thank you for the report. Problem has been copied to the issue tracker for investigation:<br>\r\n<br>\r\n<a href=\"http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=7657\">http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=7657</a><br>\r\n",
+    "PostedDate": "2008-09-23T12:54:57.573-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "143897",
+    "ThreadId": "35045",
+    "Html": "Fixed per work item #7538<br>\r\n<a href=\"http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=7538\">http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=7538</a><br>\r\n<br>\r\n",
+    "PostedDate": "2009-01-01T15:00:28.873-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "145023",
+    "ThreadId": "35045",
+    "Html": "Thank you for the help. I tried to use the new version. It seems to work with the samples but it doesn't work with my *.xls files. I found some images in my file, which caused a stop in <code>$PHPExcel = $reader-&gt;load('test.xls');</code> without any messages.<br>\r\nIf I remove them, the sample script works. I will provide a sample File.<br>\r\n<br>\r\nWhat do I have to do to save the imagefiles to disk.<br>\r\n<br>\r\n...<br>\r\n<br>\r\n<code>$filename = $drawing-&gt;getPath();<br>\r\n$imagesize = getimagesize($filename);</code><br>\r\n<code><br>\r\nswitch ($imagesize[2]) {<br>\r\n&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp; &nbsp;case 1:<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$image = imagecreatefromgif($filename);<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;imagegif($image, &quot;$i.gif&quot;);<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;break;</code><br>\r\n<br>\r\n... <br>\r\n<br>\r\ndoesn't seem to work.<br>\r\n",
+    "PostedDate": "2009-01-07T05:57:41.817-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "145164",
+    "ThreadId": "35045",
+    "Html": "Yes, right now Excel5 reader just loads images as resources in memory. There is room for improvement.<br>\r\n<br>\r\nHere is the loop for extracting all images from the workbook object. It should be working for both reading xls and xlsx files. You can just change the string <code>'images/'</code> to wherever you want the images saved on the servers hard disk.<br>\r\n<br>\r\n<code>\r\nforeach ($worksheet-&gt;getDrawingCollection() as $drawing) {<br>\r\n&nbsp;&nbsp; &nbsp;// $drawing-&gt;getCoordinates();<br>\r\n<br>\r\n&nbsp;&nbsp; &nbsp;// we have an ordinary drawing (case xlsx)<br>\r\n&nbsp;&nbsp; &nbsp;if ($drawing instanceof PHPExcel_Worksheet_Drawing) {<br>\r\n<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$filename = $drawing-&gt;getPath();<br>\r\n<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;copy($filename, 'images/' . $drawing-&gt;getIndexedFilename());<br>\r\n<br>\r\n&nbsp;&nbsp; &nbsp;// we have a memory drawing (case xls)<br>\r\n&nbsp;&nbsp; &nbsp;} else if ($drawing instanceof PHPExcel_Worksheet_MemoryDrawing) {<br>\r\n<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$image = $drawing-&gt;getImageResource();<br>\r\n<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;// save image to disk<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$renderingFunction = $drawing-&gt;getRenderingFunction();<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;switch ($renderingFunction) {<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;case PHPExcel_Worksheet_MemoryDrawing::RENDERING_JPEG:<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;imagejpeg($image, 'images/' . $drawing-&gt;getIndexedFilename());<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;break;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;case PHPExcel_Worksheet_MemoryDrawing::RENDERING_GIF:<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;imagegif($image, 'images/' . $drawing-&gt;getIndexedFilename());<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;break;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;case PHPExcel_Worksheet_MemoryDrawing::RENDERING_PNG:<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;case PHPExcel_Worksheet_MemoryDrawing::RENDERING_DEFAULT:<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;imagepng($image, 'images/' . $drawing-&gt;getIndexedFilename());<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;break;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}<br>\r\n&nbsp;&nbsp; &nbsp;}<br>\r\n}<br>\r\n</code>\r\n<br>\r\nPlease send me your sample file that is not working so I can investigate the bug.<br>\r\n<br>\r\n",
+    "PostedDate": "2009-01-07T11:35:41.46-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "145471",
+    "ThreadId": "35045",
+    "Html": "Fixed per work item #8860<br>\r\n<a href=\"http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=8860\">http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=8860</a><br>\r\n<br>\r\n",
+    "PostedDate": "2009-01-08T10:18:15.813-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "155039",
+    "ThreadId": "35045",
+    "Html": "Hi, lads!<br>\r\nAt first - great<strong> thanks</strong> for your really GREAT work!<br>\r\n<br>\r\nI've got  the same bug while reading excel5 fle - it can't recognize autofigures, created by excel with error:<br>\r\n<br>\r\n<strong>Fatal error:</strong> Call to undefined method PHPExcel_Shared_Escher_DgContainer_SpgrContainer::setSpgrContainer() in <strong>Q:\\home\\test1.ru\\www\\reader\\Classes\\PHPExcel\\Reader\\Excel5\\Escher.php</strong> on line <strong>473<br>\r\n<br>\r\n</strong>The same error is for <strong>groups of images</strong>, even if they're jpegs, not autofigures.<br>\r\n<br>\r\n<strong>To reproduce:</strong> just create excel5 file, insert two jpgs there, and group them.<br>\r\n<br>\r\nI know - class for reading with excel 5 file format is not developed by you, but still  I'm hoping for solution...:) <br>\r\nAny ideas?<br>\r\n<br>\r\nThanks in advance!<br>\r\n",
+    "PostedDate": "2009-02-06T05:01:02.77-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "155075",
+    "ThreadId": "35045",
+    "Html": "Will check this and try to find solution!<br>\r\n<br>\r\n",
+    "PostedDate": "2009-02-06T07:14:14.823-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "155661",
+    "ThreadId": "35045",
+    "Html": "Work item created to deal with fatal error:<br>\r\n<a href=\"http://www.codeplex.com/PHPExcel/Thread/View.aspx?ThreadId=35045\">http://www.codeplex.com/PHPExcel/Thread/View.aspx?ThreadId=35045</a><br>\r\n<br>\r\nPlease note that PHPExcel does unfortunately not support group shapes. At this stage we are not able to read group shapes with any of readers <code>PHPExcel_Reader_Excel2007</code> and <code>PHPExcel_Reader_Excel5</code>.<br>\r\n",
+    "PostedDate": "2009-02-08T20:11:55.16-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "166872",
+    "ThreadId": "35045",
+    "Html": "Hi Koyama,<br>\r\n<br>\r\nYour article is a great one. Was able to read all the images in an excel sheet.<br>\r\nI have a question.<br>\r\n<br>\r\nCan we get the cell from where the image is being copied.<br>\r\nThe excel sheet has a key-value in Column A and a corresponding Image in column  B<br>\r\n<br>\r\nMy requirement is to save the images with the name as the value from Column A.<br>\r\n<br>\r\nthanks a lot in advance<br>\r\n",
+    "PostedDate": "2009-03-11T05:57:24.577-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "167000",
+    "ThreadId": "35045",
+    "Html": "@santosh18: To get the coordinates of the cell where the image is anchored, try to look at the 7th post in this thread. It is available through<br>\r\n<br>\r\n<code>$drawing-&gt;getCoordinates()</code>;<br>\r\n<br>\r\n",
+    "PostedDate": "2009-03-11T11:14:39.613-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "922515",
+    "ThreadId": "35045",
+    "Html": "\r\n<p>&nbsp;</p>\r\n<div id=\":1qy\">\r\n<div>\r\n<div id=\":1lq\" dir=\"ltr\">Please can someone help me? I can not read pictures XLSX ... Below is my code and the result.</div>\r\n</div>\r\n</div>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>$reader = <span style=\"color:blue\">new</span> PHPExcel_Reader_Excel2007();\n\t\t$PHPExcel = $reader-&gt;load('test.xlsx');\n\t\t$worksheet = $PHPExcel-&gt;getActiveSheet();\n\n\n<span style=\"color:blue\">echo</span><span style=\"color:#a31515\">&quot;&lt;pre&gt;&quot;</span>;print_r($worksheet-&gt;getDrawingCollection());<span style=\"color:blue\">echo</span><span style=\"color:#a31515\">&quot;&lt;/pre&gt;&quot;</span>;<span style=\"color:blue\">exit</span>(1);</pre>\r\n<pre><br></pre>\r\n<pre><br></pre>\r\n<pre><br></pre>\r\n<pre>Return: </pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n<pre>ArrayObject Object\n(\n    [storage:ArrayObject:private] =&gt; Array\n        (\n        )\n\n)\n</pre>\r\n<p>&nbsp;</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><br></pre>\r\n<pre>Whats is Wrong?</pre>\r\n</div>\r\n",
+    "PostedDate": "2012-10-05T09:21:11.277-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

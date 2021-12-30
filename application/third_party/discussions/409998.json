@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "961585",
+    "ThreadId": "409998",
+    "Html": "\r\n<p>Hi,</p>\r\n<p>&nbsp;&nbsp;&nbsp;&nbsp; I'm running PHPExcel 1.7.7 from a Linux server which has a drive mounted through Samba on a windows file server. I normally don't have any sort of problems reading values from the excel spreadsheets, but one particular cell (and\r\n as fate would have it, it's a necessary information) refuses to be read, no matter what I do. The reason for that is that it's protection is set to locked, which makes the getValue and/or getFormattedValue always return null (even though worksheet and spreadsheet\r\n protection is turned off).</p>\r\n<p>I've tried this:</p>\r\n<p></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>$feuilleStub-&gt;getStyle(<span style=\"color:#a31515\">'E6'</span>)-&gt;getProtection()-&gt;setLocked(PHPExcel_Style_Protection::PROTECTION_UNPROTECTED);\r\n<span style=\"color:blue\">echo</span> $feuilleStub-&gt;getCellByColumnAndRow(4,5)-&gt;getValue();\r\n</pre>\r\n</div>\r\n<p></p>\r\n<p>Given that I have well over 300 files to process and that a spot-check revealed all of the files have that specific cell set to locked, I can't very well open each file up and remove the attribute by hand. So what am I supposed to do here?</p>\r\n<p>Thanks in advance,</p>\r\n<p>Osu</p>\r\n",
+    "PostedDate": "2012-12-20T05:45:25.383-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "962277",
+    "ThreadId": "409998",
+    "Html": "\r\n<p><span id=\"AjaxWaitImage\" style=\"visibility:hidden\"></span></p>\r\n<div id=\"TranslationOutput\" dir=\"ltr\">\r\n<div><span>Strange, because I do not believe PHPExcel checks that a cell is protected before to return or not the value.</span></div>\r\n<div><span><span>A point that might explain why: (4.5) is not the cell E6 but the E5 (excerpt from the documentation: In PHPExcel column index is 0-based while row index is 1-based.)\r\n</span><span>That means 'A1' ~ (0.1))</span></span></div>\r\n</div>\r\n",
+    "PostedDate": "2012-12-20T08:27:44.07-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "962782",
+    "ThreadId": "409998",
+    "Html": "\r\n<p>Actually, I made a mistake when pasting the preceding code and forgot to include a line (sorry about that). Here's a more complete version of what I'm doing:</p>\r\n<p></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>$fichier = $reader-&gt;load($dossier2-&gt;getPath() . &quot;/&quot; . $dossier2-&gt;getFilename());<br>$feuilleStub = $fichier-&gt;getSheetByName(&quot;Stub&quot;);<br>$feuilleStub-&gt;getStyle(<span style=\"color:#a31515\">'E6'</span>)-&gt;getProtection()-&gt;setLocked(PHPExcel_Style_Protection::PROTECTION_UNPROTECTED);\r\necho $feuilleStub-&gt;getCellByColumnAndRow(4,5)-&gt;getValue(); //returns &quot;Billing date&quot;, which is the title of the column\r\necho $feuilleStub-&gt;getCellByColumnAndRow(4,6)-&gt;getValue(); //always null because cell is set to locked\r\n</pre>\r\n</div>\r\nThe first line merely displays the title of the column (which works and merely served to confirm I'm actually referencing the right cell). The one that doesn't display anything is the second echo, the one with coordinates (4,6)... which does reference cell\r\n E6. Here's the beginning of the resulting var_dump I took when trying to access the cell (I'll spare you the 30000 lines following).\r\n<p></p>\r\n<p></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>object(PHPExcel_Cell)<span style=\"color:green\">#2095 (8) {</span>\r\n  [<span style=\"color:#a31515\">&quot;_column&quot;</span>:<span style=\"color:#a31515\">&quot;PHPExcel_Cell&quot;</span>:<span style=\"color:blue\">private</span>]=&gt;\r\n  string(1) <span style=\"color:#a31515\">&quot;E&quot;</span>\r\n  [<span style=\"color:#a31515\">&quot;_row&quot;</span>:<span style=\"color:#a31515\">&quot;PHPExcel_Cell&quot;</span>:<span style=\"color:blue\">private</span>]=&gt;\r\n  int(6)\r\n  [<span style=\"color:#a31515\">&quot;_value&quot;</span>:<span style=\"color:#a31515\">&quot;PHPExcel_Cell&quot;</span>:<span style=\"color:blue\">private</span>]=&gt;\r\n  NULL\r\n  [<span style=\"color:#a31515\">&quot;_calculatedValue&quot;</span>:<span style=\"color:#a31515\">&quot;PHPExcel_Cell&quot;</span>:<span style=\"color:blue\">private</span>]=&gt;\r\n  NULL\r\n  [<span style=\"color:#a31515\">&quot;_dataType&quot;</span>:<span style=\"color:#a31515\">&quot;PHPExcel_Cell&quot;</span>:<span style=\"color:blue\">private</span>]=&gt;\r\n  string(4) <span style=\"color:#a31515\">&quot;null&quot;</span>\r\n  [<span style=\"color:#a31515\">&quot;_parent&quot;</span>:<span style=\"color:#a31515\">&quot;PHPExcel_Cell&quot;</span>:<span style=\"color:blue\">private</span>]=&gt;\r\n  object(PHPExcel_Worksheet)<span style=\"color:green\">#2047 (39) {</span>\r\n\r\n........ snip .........\r\n</pre>\r\n</div>\r\n<p></p>\r\n<p>As you can see, the value is indeed null. So anyway, any idea what could be causing this problem?</p>\r\n<p>Thanks in advance,</p>\r\n<p>Osu</p>\r\n",
+    "PostedDate": "2012-12-20T10:30:07.317-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "966041",
+    "ThreadId": "409998",
+    "Html": "\r\n<p>Hmm, wait, you're saying that the workbook, the worksheet is not protected, but that the cell is locked... What exactly is a default workbook (all cells are locked). As a result, focus on this point is unlikely to bring the solution.<br>\r\nWhat does the cell in the original workbook? a simple number? a particular format? A formula? The workbook is made how (I had problems with workbooks created by server software)? xls? xlsx?<br>\r\nThe reading of the workbook as PHPExcel is made by &quot;load&quot; as you write in the piece of code? (no ReadDataOnly, no filter on the sheets or cells,...).<br>\r\nIf you open the workbook in Excel then you save it, does the workbook has the same problem?<br>\r\nI know that you have many workbooks, but already identify the problem.</p>\r\n<p>(&quot;$fichier&quot;, &quot;$dossier&quot; ? Si mon anglais est incompréhensible nous avons probablement une autre langue commune)</p>\r\n",
+    "PostedDate": "2012-12-21T00:52:27.38-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "966721",
+    "ThreadId": "409998",
+    "Html": "\r\n<p>Faut croire qu'on est tous les deux francophones he he he ;). Anyway, pour répondre aux questions (je vais le faire en anglais pour en faire bénéficier le maximum de monde):</p>\r\n<p>1) Your documentation specify three levels of protection. One on the file, one on the sheet and one on the cell. The only one that's defined is the one on the cell (the dreaded 'locked' attribute. Of course, in the software itself, it says that if sheet\r\n protection is activated, this should have no effect whatsoever, but apparently it has for PHPExcel.<br>\r\n<br>\r\n2) The cell itself contains a date in custom format that displays them this way: 1 august 2009. Though I tried accessing different cells on the same line which are all String format and I can't get the value for the exact same reason.<br>\r\n<br>\r\n3) I do believe the workbooks are automatically generated, but I don't know how exactly since I get them from a client website and they're rather protective of their infrastructure.<br>\r\n<br>\r\n4) The file is in XLS format (which is correctly identified with Excel5 by PHPExcel).<br>\r\n<br>\r\n5) In addition, I have specified a filter to avoid reading the entire file. I'm not currently at work though (and probably won't be today for holiday reasons he he he), so I can't remember what I set... but if I set the number of lines to be read to 5, I swear\r\n I'm gonna jump off a bridge ;). I'll keep you posted as soon as I get back to work.<br>\r\n<br>\r\n6) I haven't tried to open and save the workbook to see if the problem persisted.</p>\r\n<p>Anyway, that's about all I can say right now, considering I don't have my source code at home. Still, there's a chance I might get into work today. If I do, you can be certain that the first thing I'll check is that damn filter on the number of lines I'm\r\n actually reading! I swear, the more I think about it, the more I think that's where the problem lies.</p>\r\n<p>Anyway, Joyeux Noel mister francophone ;).</p>\r\n<p>Osu</p>\r\n",
+    "PostedDate": "2012-12-21T03:54:44.067-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "967061",
+    "ThreadId": "409998",
+    "Html": "\r\n<p><span id=\"AjaxWaitImage\" style=\"visibility:hidden\"></span></p>\r\n<div id=\"TranslationOutput\" dir=\"ltr\">\r\n<div><span><span>1) If you create a new workbook with Excel, you have exactly this pattern: the workbook is not protected, the sheets are not protected, all cells are locked.\r\n</span><span>As a result, if this would create a problem for PHPExcel, lot of users complain of inability to read a workbook.</span></span></div>\r\n<div><span>(2) If you have not already play with dates in Excel, this maybe sports (see another discussion on this topic), but at least, you should be able to get a number, and not the value null.</span></div>\r\n<div><span>(5) It is tempting to call into question the filter, indeed ;-)</span></div>\r\n<div><span><br>\r\n</span></div>\r\n<div><span>Joyeux Noël à toi, Merry Christmas to all, with a special thought to </span>\r\n<span>Mark </span><span>that does a great job.</span></div>\r\n</div>\r\n",
+    "PostedDate": "2012-12-21T05:50:12.177-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "967138",
+    "ThreadId": "409998",
+    "Html": "\r\n<p>Okay, you're officially talking to my ghost right now as I jumped off a bridge like I said I would, the reason being this line here:</p>\r\n<p></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>$filterSubset = <span style=\"color:blue\">new</span> MyReadFilter(1, 5, range(<span style=\"color:#a31515\">'A'</span>, <span style=\"color:#a31515\">'E'</span>));\r\n</pre>\r\n</div>\r\n<p></p>\r\n<p>I don't think I need to tell what exactly this does, other than make me feel like bumping my head against the wall. Curiously, when changed to this:</p>\r\n<p></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>$filterSubset = <span style=\"color:blue\">new</span> MyReadFilter(1, 10, range(<span style=\"color:#a31515\">'A'</span>, <span style=\"color:#a31515\">'Z'</span>));\r\n</pre>\r\n</div>\r\n<p></p>\r\n<p>The desired value started appearing like it should have from the start.</p>\r\n<p>On se sent tellement intelligents dans ces situations là ;).</p>\r\n<p>Noyeux Joël et désolé du dérangement he he he.</p>\r\n<p>Osu</p>\r\n",
+    "PostedDate": "2012-12-21T08:59:21.133-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

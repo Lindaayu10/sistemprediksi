@@ -1,0 +1,66 @@
+Index: HTML.php
+===================================================================
+--- HTML.php	(revision 1046)
++++ HTML.php	(revision 1047)
+@@ -284,7 +284,7 @@
+ 	 *
+ 	 * @param	PHPExcel_Worksheet 	$pSheet			PHPExcel_Worksheet
+ 	 * @param	string				$coordinates	Cell coordinates
+-	 * @retrun	string
++	 * @return	string
+ 	 * @throws	Exception
+ 	 */
+ 	private function _writeImageTagInCell(PHPExcel_Worksheet $pSheet, $coordinates) {
+@@ -347,8 +347,16 @@
+ 			$html .= '      }' . "\r\n";
+ 		}
+ 
++		// Fetch sheets
++		$sheets = array();
++		if (is_null($this->_sheetIndex)) {
++			$sheets = $this->_phpExcel->getAllSheets();
++		} else {
++			$sheets[] = $this->_phpExcel->getSheet($this->_sheetIndex);
++		}
++
+ 		// Write styles per sheet
+-		foreach ($this->_phpExcel->getAllSheets() as $sheet) {
++		foreach ($sheets as $sheet) {
+ 			// Calculate hash code
+ 			$hashCode = $sheet->getHashCode();
+ 
+@@ -413,9 +421,13 @@
+ 
+ 			// Calculate cell style hashes
+ 			$cellStyleHashes = new PHPExcel_HashTable();
+-			$cellStyleHashes->addFromSource( $sheet->getStyles() );
+-			for ($i = 0; $i < $cellStyleHashes->count(); ++$i) {
+-				$html .= $this->_createCSSStyle( $cellStyleHashes->getByIndex($i) );
++			$aStyles = $sheet->getStyles();
++			$cellStyleHashes->addFromSource( $aStyles );
++			$addedStyles = array();
++			foreach ($aStyles as $style) {
++				if(isset($addedStyles[$style->_index])) continue;
++				$html .= $this->_createCSSStyle( $style );
++				$addedStyles[$style->_index] = true;
+ 			}
+ 		}
+ 
+@@ -440,7 +452,7 @@
+ 		$html = '';
+ 
+ 		// Create CSS
+-		$html .= '      .style' . $pStyle->getHashCode() . ' {' . "\r\n";
++		$html .= '      .style' . $pStyle->_index . ' {' . "\r\n";
+ 		$html .= $this->_createCSSStyleAlignment($pStyle->getAlignment());
+ 		$html .= $this->_createCSSStyleFont($pStyle->getFont());
+ 		$html .= $this->_createCSSStyleBorders($pStyle->getBorders());
+@@ -688,7 +700,7 @@
+ 
+ 					// Extend CSS class?
+ 					if (array_key_exists($cell->getCoordinate(), $pSheet->getStyles())) {
+-						$cssClass .= ' style' . $pSheet->getStyle($cell->getCoordinate())->getHashCode();
++						$cssClass .= ' style' . $pSheet->getStyle($cell->getCoordinate())->_index;
+ 					}
+ 				} else {
+ 					$cell = new PHPExcel_Cell(

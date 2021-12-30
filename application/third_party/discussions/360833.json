@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "853245",
+    "ThreadId": "360833",
+    "Html": "\r\n<p style=\"padding-left:30px\">Hi.&nbsp; I am attempting to read an Excel 2007 worksheet.&nbsp; I set the memory limit to be unlimited and for it not to time out.&nbsp; Yet, I am still getting the fatal error of allowable memory size limite:</p>\r\n<p style=\"padding-left:30px\">&nbsp;</p>\r\n<p style=\"padding-left:30px\">Fatal error: Allowed memory size of 134217728 bytes exhausted (tried to allocate 32 bytes) in /var/www/html/PHPExcel/Classes/PHPExcel/Cell.php on line 506 Call Stack: 0.0004 638528 1. {main}() /var/www/html/phase1/excel7.php:0 0.0067\r\n 752736 2. PHPExcel_Reader_Excel2007-&gt;load() /var/www/html/phase1/excel7.php:48 11.6364 134161144 3. PHPExcel_Worksheet-&gt;getCell() /var/www/html/PHPExcel/Classes/PHPExcel/Reader/Excel2007.php:1013 11.6364 134162784 4. PHPExcel_Cell::coordinateFromString()\r\n /var/www/html/PHPExcel/Classes/PHPExcel/Worksheet.php:1119 11.6364 134162984 5. preg_match() /var/www/html/PHPExcel/Classes/PHPExcel/Cell.php:506</p>\r\n<p style=\"padding-left:30px\">&nbsp;</p>\r\n<p style=\"padding-left:30px\">Any ideas or help is greatly appreciated.&nbsp; I am at a loss.&nbsp;</p>\r\n<p style=\"padding-left:30px\">&nbsp;</p>\r\n<p style=\"padding-left:30px\">&nbsp;</p>\r\n<p style=\"padding-left:30px\">&lt;?php<br>\r\nini_set(&quot;display_errors&quot;,1); <br>\r\nini_set('memory_limit', '-1');<br>\r\nset_time_limit(0);</p>\r\n<p style=\"padding-left:30px\">&nbsp;</p>\r\n<p style=\"padding-left:30px\">//file type<br>\r\n$inputFileType = 'Excel2007'; <br>\r\n<br>\r\n//get file name<br>\r\n$inputFileName = &quot;../files/samplesheet.xlsx&quot;;<br>\r\n$sheetname = 'testSheet1';<br>\r\n<br>\r\n//check that file exists<br>\r\nif(file_exists($inputFileName))<br>\r\n{<br>\r\n&nbsp;&nbsp;&nbsp; <br>\r\n&nbsp;&nbsp;&nbsp; /**&nbsp; Create a new Reader of the type defined in $inputFileType&nbsp; **/<br>\r\n&nbsp;&nbsp;&nbsp; $objReader = PHPExcel_IOFactory::createReader($inputFileType);<br>\r\n&nbsp;&nbsp;&nbsp; <br>\r\n&nbsp;&nbsp;&nbsp; /**&nbsp; Advise the Reader that we only want to load cell data&nbsp; **/<br>\r\n&nbsp;&nbsp;&nbsp; $objReader-&gt;setReadDataOnly(true);<br>\r\n<br>\r\n&nbsp;&nbsp;&nbsp; /**&nbsp; Advise the Reader of which WorkSheets we want to load&nbsp; **/\r\n<br>\r\n&nbsp;&nbsp;&nbsp; $objReader-&gt;setLoadSheetsOnly($sheetname);<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>\r\n&nbsp;&nbsp;&nbsp; /** Load $inputFileName to a PHPExcel Object&nbsp; **/<br>\r\n&nbsp;&nbsp;&nbsp; $objPHPExcel = $objReader-&gt;load($inputFileName);<br>\r\n&nbsp;&nbsp;&nbsp; <br>\r\n&nbsp;&nbsp;&nbsp; die(&quot;yes!&quot;);<br>\r\n&nbsp;&nbsp;&nbsp; <br>\r\n&nbsp;&nbsp;&nbsp; /** Get number of sheets **/<br>\r\n&nbsp;&nbsp;&nbsp; $total_sheets = $objPHPExcel-&gt;getSheetCount();<br>\r\n&nbsp;&nbsp;&nbsp; <br>\r\n&nbsp;&nbsp;&nbsp; /** Get all sheet names **/<br>\r\n&nbsp;&nbsp;&nbsp; $allSheetName = $objPHPExcel-&gt;getSheetNames();<br>\r\n}<br>\r\n<br>\r\n?&gt;</p>\r\n",
+    "PostedDate": "2012-06-25T08:56:42.38-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "853252",
+    "ThreadId": "360833",
+    "Html": "<p>The error message you're getting:</p>\r\n<p>Fatal error: Allowed memory size of <strong>134217728 </strong>bytes exhausted (tried to allocate 32 bytes)</p>\r\n<p>tells me that your memory is not unlimited, but set at 128MB.</p>\r\n<p>&nbsp;</p>\r\n<p>If you want to reduce memory usage, enable cell caching</p>",
+    "PostedDate": "2012-06-25T09:18:26.683-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "853285",
+    "ThreadId": "360833",
+    "Html": "<p>MarkBaker:</p>\r\n<p>Thanks for responding.</p>\r\n<p>I thought with this code:&nbsp;</p>\r\n<p>ini_set('memory_limit', '-1');</p>\r\n<p>i am able to set my memory limit to be unlimited.</p>\r\n<p>is that not the case?</p>\r\n<p>&nbsp;</p>\r\n<p>How do I enbale cell caching as you suggested?</p>",
+    "PostedDate": "2012-06-25T11:24:03.897-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "853311",
+    "ThreadId": "360833",
+    "Html": "<p>Changing the memory limit from within your code only works if your host hasn't disabled it.</p>\r\n<p>&nbsp;</p>\r\n<p>Use of cell caching is described in section 4.2.1 of the developer documentation</p>",
+    "PostedDate": "2012-06-25T12:39:24.297-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "853537",
+    "ThreadId": "360833",
+    "Html": "<p>Mark -- thanks.&nbsp; you are right about the memory limit.&nbsp; I have the sys admin change the memory limit to 512MB and it is working.&nbsp; And thanks for the direction for the cell caching.&nbsp; That will come in handy.&nbsp; Many thanks.</p>",
+    "PostedDate": "2012-06-25T19:38:37.863-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

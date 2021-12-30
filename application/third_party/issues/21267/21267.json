@@ -1,0 +1,39 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "```\n\tfunction mb_str_replace($search, $replace, $subject) {\n\t\tif(is_array($subject)) {\n\t\t\t$ret = array();\n\t\t\tforeach($subject as $key => $val) {\n\t\t\t\t$ret[$key] = mb_str_replace($search, $replace, $val);\n\t\t\t}\n\t\t\treturn $ret;\n\t\t}\n\n\t\tforeach((array) $search as $key => $s) {\n\t\t\tif($s == '') {\n\t\t\t\tcontinue;\n\t\t\t}\n\t\t\t$r = !is_array($replace) ? $replace : (array_key_exists($key, $replace) ? $replace[$key] : '');\n\t\t\t$pos = mb_strpos($subject, $s, 0, 'UTF-8');\n\t\t\twhile($pos !== false) {\n\t\t\t\t$subject = mb_substr($subject, 0, $pos, 'UTF-8') . $r . mb_substr($subject, $pos + mb_strlen($s, 'UTF-8'), 65535, 'UTF-8');\n\t\t\t\t$pos = mb_strpos($subject, $s, $pos + mb_strlen($r, 'UTF-8'), 'UTF-8');\n\t\t\t}\n\t\t}\n\t\treturn $subject;\n\t}\n```\nadding the following seems to fix the issue:\n```\n && $s !== 0\n```\nso the function would be:\n```\n\tfunction mb_str_replace($search, $replace, $subject) {\n\t\tif(is_array($subject)) {\n\t\t\t$ret = array();\n\t\t\tforeach($subject as $key => $val) {\n\t\t\t\t$ret[$key] = mb_str_replace($search, $replace, $val);\n\t\t\t}\n\t\t\treturn $ret;\n\t\t}\n\n\t\tforeach((array) $search as $key => $s) {\n\t\t\tif($s == '' && $s !== 0) {\n\t\t\t\tcontinue;\n\t\t\t}\n\t\t\t$r = !is_array($replace) ? $replace : (array_key_exists($key, $replace) ? $replace[$key] : '');\n\t\t\t$pos = mb_strpos($subject, $s, 0, 'UTF-8');\n\t\t\twhile($pos !== false) {\n\t\t\t\t$subject = mb_substr($subject, 0, $pos, 'UTF-8') . $r . mb_substr($subject, $pos + mb_strlen($s, 'UTF-8'), 65535, 'UTF-8');\n\t\t\t\t$pos = mb_strpos($subject, $s, $pos + mb_strlen($r, 'UTF-8'), 'UTF-8');\n\t\t\t}\n\t\t}\n\t\treturn $subject;\n\t}\n```",
+    "LastUpdatedDate": "2014-09-01T00:50:57.863-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2014-09-01T00:50:57.863-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "mb_str_replace Fails with ZERO as from text...",
+    "Type": {
+      "Name": "Unassigned",
+      "Id": 5
+    },
+    "VoteCount": 1,
+    "Id": 21267
+  },
+  "FileAttachments": [],
+  "Comments": []
+}

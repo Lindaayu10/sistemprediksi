@@ -1,0 +1,250 @@
+Index: Classes/PHPExcel/Reader/Excel5.php
+===================================================================
+--- Classes/PHPExcel/Reader/Excel5.php	(revision 1112)
++++ Classes/PHPExcel/Reader/Excel5.php	(working copy)
+@@ -189,6 +189,7 @@
+ 	const XLS_Type_SHAREDFMLA			= 0x04bc;
+ 	const XLS_Type_BOF					= 0x0809;
+ 	const XLS_Type_RANGEPROTECTION		= 0x0868;
++	const XLS_Type_SHEETLAYOUT			= 0x0862;
+ 	const XLS_Type_UNKNOWN				= 0xffff;
+ 
+ 	/**
+@@ -721,6 +722,7 @@
+ 					case self::XLS_Type_PANE:					$this->_readPane();						break;
+ 					case self::XLS_Type_MERGEDCELLS:			$this->_readMergedCells();				break;
+ 					case self::XLS_Type_HYPERLINK:				$this->_readHyperLink();				break;
++					case self::XLS_Type_SHEETLAYOUT:			$this->_readSheetLayout();				break;
+ 					case self::XLS_Type_RANGEPROTECTION:		$this->_readRangeProtection();			break;
+ 					//case self::XLS_Type_IMDATA:				$this->_readImData();					break;
+ 					case self::XLS_Type_CONTINUE:				$this->_readContinue();					break;
+@@ -3413,6 +3415,45 @@
+ 	}
+ 
+ 	/**
++	 * Read SHEETLAYOUT record. Stores sheet tab color information.
++	 */
++	private function _readSheetLayout()
++	{
++		$length = $this->_GetInt2d($this->_data, $this->_pos + 2);
++		$recordData = substr($this->_data, $this->_pos + 4, $length);
++
++		// move stream pointer to next record
++		$this->_pos += 4 + $length;
++
++		// local pointer in record data
++		$offset = 0;
++
++		if (!$this->_readDataOnly) {
++			// offset: 0; size: 2; repeated record identifier 0x0862
++
++			// offset: 2; size: 10; not used
++
++			// offset: 12; size: 4; size of record data
++			// Excel 2003 uses size of 0x14 (documented), Excel 2007 uses size of 0x28 (not documented?)
++			$sz = $this->_GetInt4d($recordData, 12);
++
++			switch ($sz) {
++				case 0x14:
++					// offset: 16; size: 2; color index for sheet tab
++					$colorIndex = $this->_GetInt2d($recordData, 16);
++					$color = $this->_readColor($colorIndex);
++					$this->_phpSheet->getTabColor()->setRGB($color['rgb']);
++					break;
++
++				case 0x28:
++					// TODO: Investigate structure for .xls SHEETLAYOUT record as saved by MS Office Excel 2007
++					return;
++					break;
++			}
++		}
++	}
++
++	/**
+ 	 * Read RANGEPROTECTION record
+ 	 * Reading of this record is based on Microsoft Office Excel 97-2000 Binary File Format Specification,
+ 	 * where it is referred to as FEAT record
+Index: Classes/PHPExcel/Writer/Excel5.php
+===================================================================
+--- Classes/PHPExcel/Writer/Excel5.php	(revision 1112)
++++ Classes/PHPExcel/Writer/Excel5.php	(working copy)
+@@ -108,6 +108,13 @@
+ 	private $_str_table;
+ 
+ 	/**
++	 * Color cache. Mapping between RGB value and color index.
++	 *
++	 * @var array
++	 */
++	private $_colors;
++
++	/**
+ 	 * Formula parser
+ 	 *
+ 	 * @var PHPExcel_Writer_Excel5_Parser
+@@ -128,6 +135,7 @@
+ 		$this->_str_total       = 0;
+ 		$this->_str_unique      = 0;
+ 		$this->_str_table       = array();
++		$this->_colors          = array();
+ 		$this->_parser          = new PHPExcel_Writer_Excel5_Parser($this->_BIFF_version);
+ 		
+ 	}
+@@ -153,7 +161,7 @@
+ 
+ 		// Initialise workbook writer
+ 		$this->_writerWorkbook = new PHPExcel_Writer_Excel5_Workbook($this->_phpExcel, $this->_BIFF_version,
+-					$this->_str_total, $this->_str_unique, $this->_str_table, $this->_parser, $this->_tempDir);
++					$this->_str_total, $this->_str_unique, $this->_str_table, $this->_colors, $this->_parser, $this->_tempDir);
+ 
+ 		// Initialise worksheet writers
+ 		$countSheets = count($this->_phpExcel->getAllSheets());
+@@ -162,7 +170,7 @@
+ 			
+ 			$writerWorksheet = new PHPExcel_Writer_Excel5_Worksheet($this->_BIFF_version,
+ 									   $this->_str_total, $this->_str_unique,
+-									   $this->_str_table,
++									   $this->_str_table, $this->_colors,
+ 									   $this->_parser, $this->_tempDir,
+ 									   $phpSheet);
+ 			$this->_writerWorksheets[$i] = $writerWorksheet;
+Index: Classes/PHPExcel/Writer/Excel5/Workbook.php
+===================================================================
+--- Classes/PHPExcel/Writer/Excel5/Workbook.php	(revision 1112)
++++ Classes/PHPExcel/Writer/Excel5/Workbook.php	(working copy)
+@@ -166,11 +166,6 @@
+ 	private $_phpExcel;
+ 
+ 	/**
+-	 * Color cache
+-	 */
+-	private $_colors = array();
+-
+-	/**
+ 	 * Fonts writers
+ 	 *
+ 	 * @var PHPExcel_Writer_Excel5_Font[]
+@@ -233,7 +228,12 @@
+ 	 */
+ 	private $_str_table;
+ 
++	/**
++	 * Color cache
++	 */
++	private $_colors;
+ 
++
+ 	/**
+ 	 * Class constructor
+ 	 *
+@@ -246,7 +246,7 @@
+ 	 */
+ 	public function __construct(PHPExcel $phpExcel = null, $BIFF_version = 0x0600,
+ 												&$str_total,
+-												&$str_unique, &$str_table, $parser, $tempDir = ''
++												&$str_unique, &$str_table, &$colors, $parser, $tempDir = ''
+ 								)
+ 	{
+ 		// It needs to call its parent's constructor explicitly
+@@ -261,6 +261,7 @@
+ 		$this->_str_total       = &$str_total;
+ 		$this->_str_unique      = &$str_unique;
+ 		$this->_str_table       = &$str_table;
++		$this->_colors          = &$colors;
+ 		$this->_setPaletteXl97();
+ 		$this->_tmp_dir         = $tempDir;
+ 		
+@@ -287,6 +288,18 @@
+ 				$this->_parser->_references[] = $ref;  // Register reference with parser
+ 			}
+ 		}
++
++		// Build color cache
++
++		// Sheet tab colors?
++		$countSheets = count($phpExcel->getAllSheets());
++		for ($i = 0; $i < $countSheets; ++$i) {
++			$phpSheet  = $phpExcel->getSheet($i);
++			if ($phpSheet->isTabColorSet()) {
++				$this->_addColor($phpSheet->getTabColor()->getRGB());
++			}
++		}
++
+ 	}
+ 
+ 	/**
+Index: Classes/PHPExcel/Writer/Excel5/Worksheet.php
+===================================================================
+--- Classes/PHPExcel/Writer/Excel5/Worksheet.php	(revision 1112)
++++ Classes/PHPExcel/Writer/Excel5/Worksheet.php	(working copy)
+@@ -195,6 +195,11 @@
+ 	var $_str_table;
+ 
+ 	/**
++	 * Color cache
++	 */
++	private $_colors;
++
++	/**
+ 	 * The temporary dir for storing files
+ 	 * @var string
+ 	 */
+@@ -256,7 +261,7 @@
+ 	 */
+ 	public function __construct($BIFF_version,
+ 												&$str_total,
+-												&$str_unique, &$str_table,
++												&$str_unique, &$str_table, &$colors,
+ 												$parser, $tempDir = '', $phpSheet)
+ 	{
+ 		// It needs to call its parent's constructor explicitly
+@@ -272,6 +277,7 @@
+ 		$this->_str_total		= &$str_total;
+ 		$this->_str_unique		= &$str_unique;
+ 		$this->_str_table		= &$str_table;
++		$this->_colors			= &$colors;
+ 		$this->_parser			= $parser;
+ 		
+ 		$this->_phpSheet = $phpSheet;
+@@ -567,6 +573,7 @@
+ 		}*/
+ 
+ 		if ($this->_BIFF_version == 0x0600) {
++			$this->_storeSheetLayout();
+ 			$this->_storeRangeProtection();
+ 		}
+ 
+@@ -1602,6 +1609,33 @@
+ 	}
+ 
+ 	/**
++	 * Write SHEETLAYOUT record
++	 */
++	private function _storeSheetLayout()
++	{
++		if (!$this->_phpSheet->isTabColorSet()) {
++			return;
++		}
++
++		$recordData = pack(
++			'vvVVVvv'
++			, 0x0862
++			, 0x0000		// unused
++			, 0x00000000	// unused
++			, 0x00000000	// unused
++			, 0x00000014	// size of record data
++			, $this->_colors[$this->_phpSheet->getTabColor()->getRGB()]	// color index
++			, 0x0000		// unused
++		);
++
++		$length = strlen($recordData);
++
++		$record = 0x0862; // Record identifier
++		$header = pack('vv', $record, $length);
++		$this->_append($header . $recordData);
++	}
++	
++	/**
+ 	 * Write BIFF record RANGEPROTECTION
+ 	 * 
+ 	 * Openoffice.org's Documentaion of the Microsoft Excel File Format uses term RANGEPROTECTION for these records

@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "572449",
+    "ThreadId": "247651",
+    "Html": "<p>&nbsp;</p>\n<p>I am attempting to create an xlsx that has 105k rows x 23 cols (2,392,000 cells) . On a 32bit machine I am able to create the report in about 20 minutes and it uses ~1gb of memory.<br /> I take the same code and try to run the report on a 64bit machine and its using well over 2gb before the system just runs out available memory.&nbsp; Any idea why this is the case? Is there a solution?</p>\n<p>I am using memory_gzip caching .&nbsp; I atempted to use phptemp caching but once the temp file size gets to 2gb the script crashes and returns an erorr that says Reached File Size Limit.<br /> Anyone know why it would be writing such a huge file? Any solutions for this?</p>\n<p>&nbsp;</p>\n<p>I am using version 1.7.5</p>\n<p>&nbsp;</p>\n<p>When creating the excel file . I grab the results from the database , then I iterate over the mysql object so that all the data isn't stored into an array.</p>\n<p>As I iterate through each row I write to the excel using setCellValueExplicitByColumnAndRow($i,$start,$value);</p>\n<p>&nbsp;</p>\n<p>Also I am loading an xls template, and writing to that.</p>\n<p>&nbsp;</p>\n<p>Any help will be great!!! THanks in advance.</p>",
+    "PostedDate": "2011-02-25T20:56:13.52-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "573492",
+    "ThreadId": "247651",
+    "Html": "<p>My estimates are that 64-bit PHP adds about 60% to the memory requirements of PHP, compared with the 32-bit version. However, that depends very much on the datatypes in the workbook... the overhead for strings on a 64-bit system is <em>about </em>the same, but numeric values (integer, float, date) need nearly twice as much memory.</p>\r\n<p>For example: a stored PHP integer, which requires 4 bytes on a 32-bit system, needs 8 bytes in a 64-bit system. Every PHP variable has a 40 byte overhead (or so I'm told by the guys involved in PHP's innards) on a 32-bit system, but over 60 bytes on a 64-bit system. This all adds up; so while a 64-bit system should (in theory) be faster, it will inevitably require more memory.</p>\r\n<p>&nbsp;</p>\r\n<p>The 2GB filesize limit (for phptemp) sounds like you have a 32-bit filesystem though. A 64-bit filesystem should remove this limitation</p>\r\n<p>It is possible to use phptemp in a hybrid fashion. By default, using phptemp caching will store the first 1MB of cell data in memory, and only start using disk once it has exceeded this amount. You can change that value by setting the memoryCacheSize argument when initialising the cache, allowing you to take more advantage of available memory, but still limiting memory usage to (for example) 512MB.</p>\r\n<p>In addition, you might find that you can make your code more memory-efficient by setting style information across ranges, or for rows or columns rather than individual cells.</p>",
+    "PostedDate": "2011-02-28T13:20:46.44-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

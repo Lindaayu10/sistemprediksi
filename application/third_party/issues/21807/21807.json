@@ -1,0 +1,39 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I have a template (xlsx) including 2 charts (file have 4 datasheets, both column charts are on datasheet 1) and I just want to export this file again. Everything seems to work fine and the charts are also recognized but the exported excel is corrupt. When I try to open it, Excel remove the charts in the \"open and repair\" action. Any ideas?\n\nI'm using PHPExcel 1.8, that's my code:\n\n$inputFileName = dirname(__FILE__) . '/test.xlsx';\n\n$objPHPExcel = new \\PHPExcel();\n$objReader = \\PHPExcel_IOFactory::createReader('Excel2007');\n$objReader->setIncludeCharts(TRUE);\n$objPHPExcel = $objReader->load($inputFileName);\n\n//test if charts are recognized\nforeach ($objPHPExcel->getWorksheetIterator() as $worksheet) {\n\t\t\t$sheetName = $worksheet->getTitle();\n\t\t\t//var_dump('Worksheet: ' , $sheetName , EOL);\n\n\t\t\t$chartNames = $worksheet->getChartNames();\n\t\t\tif(empty($chartNames)) {\n\t\t\t\t//var_dump('    There are no charts in this worksheet' , EOL);\n\t\t\t} else {\n\t\t\t\tnatsort($chartNames);\n\t\t\t\tforeach($chartNames as $i => $chartName) {\n\t\t\t\t\t$chart = $worksheet->getChartByName($chartName);\n\t\t\t\t\tif (!is_null($chart->getTitle())) {\n\t\t\t\t\t\t$caption = '\"' . implode(' ',$chart->getTitle()->getCaption()) . '\"';\n\t\t\t\t\t} else {\n\t\t\t\t\t\t$caption = 'Untitled';\n\t\t\t\t\t}\n\t\t\t\t\t//var_dump('    ' , $chartName , ' - ' , $caption , EOL);\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\n\nheader('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');\nheader('Content-Disposition: attachment;filename=\"temp.xlsx\"');\nheader('Cache-Control: max-age=0');\n\n$objWriter = \\PHPExcel_IOFactory::createWriter($objPHPExcel, $format['format']);\n$objWriter->setIncludeCharts(TRUE);\n$objWriter->save('php://output');",
+    "LastUpdatedDate": "2015-04-15T04:29:19.84-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2015-04-15T04:29:19.84-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "exporting chart from import failed",
+    "Type": {
+      "Name": "Unassigned",
+      "Id": 5
+    },
+    "VoteCount": 1,
+    "Id": 21807
+  },
+  "FileAttachments": [],
+  "Comments": []
+}

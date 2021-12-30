@@ -1,0 +1,90 @@
+[
+  {
+    "Id": "445049",
+    "ThreadId": "213198",
+    "Html": "<p>I suggest add one more function to Worksheet.php, wich can combine getCellByColumnAndRow and setCellValueByColumnAndRow, but more faster. When use this library for export large data, we need maximum speed. Here my sample:&nbsp;\r\n<div style=\"color:black;background-color:white\">\r\n<pre><span style=\"color:green\">/**\r\n* Custom function\r\n*\r\n* Set cell value at a specific coordinate by using numeric cell coordinates\r\n*\r\n* @param \tstring $pColumn\t\tNumeric column coordinate of the cell\r\n* @param \tstring $pRow\t\tNumeric row coordinate of the cell\r\n* @param\tmixed  $pValue\t\tValue of the cell\r\n* @param\tstring $pDataType\tExplicit data type\r\n* @return\tPHPExcel_Worksheet\r\n*/</span>\r\n<span style=\"color:blue\">public</span> <span style=\"color:blue\">function</span> setCellValueTypeByColumnAndRow($pColumn = 0, $pRow = 0, $pValue = null, $pDataType = PHPExcel_Cell_DataType::TYPE_STRING)\r\n{\r\n\t$columnLetter = PHPExcel_Cell::stringFromColumnIndex($pColumn);\r\n\t$coordinate = $columnLetter . $pRow;\r\n\r\n\t<span style=\"color:blue\">if</span> (!$this-&gt;_cellCollection-&gt;isDataSet($coordinate))\r\n\t{\r\n\t\t$this-&gt;_cellCollection-&gt;addCacheData($coordinate, <span style=\"color:blue\">new</span> PHPExcel_Cell($columnLetter, $pRow, $pValue, $pDataType, $this));\r\n\t\t$this-&gt;_cellCollectionIsSorted = false;\r\n\r\n\t\t<span style=\"color:blue\">if</span> (PHPExcel_Cell::columnIndexFromString($this-&gt;_cachedHighestColumn) &lt; $pColumn)\r\n\t\t\t$this-&gt;_cachedHighestColumn = $columnLetter;\r\n\r\n\t\t<span style=\"color:blue\">if</span> ($this-&gt;_cachedHighestRow &lt; $pRow)\r\n\t\t\t$this-&gt;_cachedHighestRow = $pRow;\r\n\t}\r\n\t<span style=\"color:blue\">else</span>\r\n\t{\r\n\t\t$cell = $this-&gt;_cellCollection-&gt;getCacheData($coordinate);\r\n\t\t$cell-&gt;setValue($pValue);\r\n\t\t$cell-&gt;setDataType($pDataType);\r\n\t}\r\n\r\n\t<span style=\"color:blue\">return</span> $this;\r\n}\r\n\r\n</pre>\r\n</div>\r\n</p>",
+    "PostedDate": "2010-05-19T11:25:32.61-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "445158",
+    "ThreadId": "213198",
+    "Html": "<p>Is this measurably faster than the setCellValueExplicitByColumnAndRow() method?</p>",
+    "PostedDate": "2010-05-19T15:18:51.337-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "445376",
+    "ThreadId": "213198",
+    "Html": "You can test on 7500 cells...\r\nOr you can compare count of actions in my function and count of actions in functions: getCell, setValueExplicit;\r\n\r\nP.S. this is not finished variant of function. It works on 1.7.2, but with 1.7.3 need more work... :)",
+    "PostedDate": "2010-05-20T05:41:05.65-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "583104",
+    "ThreadId": "213198",
+    "Html": "<p>Almost year past from our discussion and looks like developers do not&nbsp;interested in hi-speed data set functions ;)</p>\r\n<p>If any one require this function, here last version, compatible with last versions of PHPExcel (insert it into Worksheet.php):&nbsp;</p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre><span style=\"color: green;\">/**\r\n* Custom function\r\n*\r\n* Set cell value at a specific coordinate by using numeric cell coordinates\r\n*\r\n* @param \tstring $pColumn\t\tNumeric column coordinate of the cell\r\n* @param \tstring $pRow\t\tNumeric row coordinate of the cell\r\n* @param\tmixed  $pValue\t\tValue of the cell\r\n* @param\tstring $pDataType\tExplicit data type\r\n* @return\tPHPExcel_Worksheet\r\n*/</span>\r\n<span style=\"color: blue;\">public</span> <span style=\"color: blue;\">function</span> setCellValueTypeByColumnAndRow($pColumn = 0, $pRow = 0, $pValue = null, $pDataType = PHPExcel_Cell_DataType::TYPE_STRING)\r\n{\r\n\t$columnLetter = PHPExcel_Cell::stringFromColumnIndex($pColumn);\r\n\t$coordinate = $columnLetter . $pRow;\r\n\r\n\t<span style=\"color: blue;\">if</span> (!$this-&gt;_cellCollection-&gt;isDataSet($coordinate))\r\n\t{\r\n\t\t$this-&gt;_cellCollection-&gt;addCacheData($coordinate, $cell = <span style=\"color: blue;\">new</span> PHPExcel_Cell($columnLetter, $pRow, $pValue, $pDataType, $this));\r\n\t\t$this-&gt;_cellCollectionIsSorted = false;\r\n\r\n\t\t<span style=\"color: blue;\">if</span> (PHPExcel_Cell::columnIndexFromString($this-&gt;_cachedHighestColumn) &lt; $pColumn)\r\n\t\t\t$this-&gt;_cachedHighestColumn = $columnLetter;\r\n\r\n\t\t<span style=\"color: blue;\">if</span> ($this-&gt;_cachedHighestRow &lt; $pRow)\r\n\t\t\t$this-&gt;_cachedHighestRow = $pRow;\r\n\t}\r\n\t<span style=\"color: blue;\">else</span>\r\n\t{\r\n\t\t$cell = $this-&gt;_cellCollection-&gt;getCacheData($coordinate);\r\n\t\t$cell-&gt;setValueExplicit($pValue, $pDataType);\r\n\t}\r\n\r\n\t<span style=\"color: blue;\">return</span> $cell;\r\n}\r\n\r\n</pre>\r\n</div>",
+    "PostedDate": "2011-03-19T12:02:30.55-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "848841",
+    "ThreadId": "213198",
+    "Html": "\r\n<p>Hi <a href=\"http://www.codeplex.com/site/users/view/SailorMax\">SailorMax</a>,</p>\r\n<p>I try this method and did some benchmarks:</p>\r\n<p>3822 Cells: Time 3.5947 -&gt; 3.3331</p>\r\n<p>25382 Cells Time:&nbsp; 13.2808 -&gt;12.5732</p>\r\n<p>setCellValueExplicitByColumnAndRow -&gt; setCellValueTypeByColumnAndRow</p>\r\n<p>Testet version PHPExcel 1.7.7 with PHP 5.2</p>\r\n<p>&nbsp;</p>\r\n<p>Greetings</p>\r\n<p>Frank</p>\r\n",
+    "PostedDate": "2012-06-14T01:34:24.547-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "901897",
+    "ThreadId": "213198",
+    "Html": "\r\n<p>Here is my result of test (real life function with using styles and setWidth):</p>\r\n<p>58100 Cells (83 x 700): Time 17sec -&gt; 14sec (difference = 20%) &nbsp;:: PHP 5.2.17, CPU Core 2 DUO 2.4Ghz, 2GB RAM</p>\r\n<p>I think problem in getCell() - too many work with string of coordinate in our case. On input we have X and Y. We don't need in this case check it on &quot;Worksheet reference&quot; (strpos), &quot;Named range&quot; (2 x preg_match) and other exceptions (3 x strpos) &#43; It use&nbsp;setXfIndex().\r\n What I lost without it???</p>\r\n",
+    "PostedDate": "2012-08-21T04:29:26.917-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "952286",
+    "ThreadId": "213198",
+    "Html": "\r\n<p>I use this modifikation since June (in Production) and it works perfekt also with 1.7.8.</p>\r\n<p>It safes arround 20% time for every Excel-File generation.</p>\r\n<p>Lot auf my reports have over 100.000 cells so it safes a lot of time.</p>\r\n",
+    "PostedDate": "2012-12-06T06:31:44.907-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1052096",
+    "ThreadId": "213198",
+    "Html": "Hi Sailormax,\r<br />\n<br />\ndo you have a Version of setCellValueTypeByColumnAndRow that works with the new Version 1.7.9?\r<br />\n<br />\nGreetings \r<br />\n<br />\nFrank<br />\n",
+    "PostedDate": "2013-06-03T04:43:53.703-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1052188",
+    "ThreadId": "213198",
+    "Html": "I trying to change, but in my case version 1.7.9 is totaly broken :/ It doesn't work even with standart functions.<br />\n<br />\ntry put as first line of my function:<br />\n<blockquote>\nreturn $this-&gt;setCellValueExplicitByColumnAndRow($pColumn, $pRow, $pValue, $pDataType);<br />\n</blockquote>\nThis is slower version, but can you test it? Does it work at you? I have many problems like infinite recursion somewhere: <a href=\"http://www.example.com\" rel=\"nofollow\">https://phpexcel.codeplex.com/workitem/19800</a><br />\n<br />\nIf at you it works, try to make next change in my function:<br />\n<blockquote>\n//$this-&gt;_cellCollection-&gt;addCacheData($coordinate, $cell = new PHPExcel_Cell($columnLetter, $pRow, $pValue, $pDataType, $this));\t\t// deprecated<br />\n$this-&gt;_cellCollection-&gt;addCacheData($coordinate, $cell = new PHPExcel_Cell($pValue, $pDataType, $this));<br />\n</blockquote>\nMay be this will fix it, but currently I can't test it :(<br />\n",
+    "PostedDate": "2013-06-03T08:17:40.963-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1052510",
+    "ThreadId": "213198",
+    "Html": "Thanx SailorMax,<br />\n<br />\nI don't use $this-&gt;setCellValueExplicitByColumnAndRow($pColumn, $pRow, $pValue, $pDataType); it is to slow, better is:<br />\n$sheet-&gt;getCell($coordinate)-&gt;setValueExplicit($cell_value, PHPExcel_Cell_DataType::TYPE_STRING);<br />\nIt is much faster then any ByColumnAndRow, because there are some obsolete functions call if you have the coordinate.<br />\n<br />\nBut your Function will be a little bit faster then this, with my litte optimization around 10% faster then getCell()-&gt;setValueExplicit.<br />\nI do this:<br />\n<pre><code>public function setCellValueTypeByColumnAndRow($pColumn = 0, $pRow = 0, $pValue = null, $pDataType = PHPExcel_Cell_DataType::TYPE_STRING, $coordinate)\n{\n  $columnLetter = PHPExcel_Cell::stringFromColumnIndex($pColumn);\n  if(!isset($coordinate[0])) $coordinate   = &quot;{$columnLetter}{$pRow}&quot;;\n\n  if (!$this-&gt;_cellCollection-&gt;isDataSet($coordinate))\n  {\n    #$this-&gt;_cellCollection-&gt;addCacheData($coordinate, $cell = new PHPExcel_Cell($columnLetter, $pRow, $pValue, $pDataType, $this));// deprecated\n    $this-&gt;_cellCollection-&gt;addCacheData($coordinate, $cell = new PHPExcel_Cell($pValue, $pDataType, $this));\n    $this-&gt;_cellCollectionIsSorted = false;\n\n    if (PHPExcel_Cell::columnIndexFromString($this-&gt;_cachedHighestColumn) &lt; $pColumn)\n      $this-&gt;_cachedHighestColumn = $columnLetter;\n\n      if ($this-&gt;_cachedHighestRow &lt; $pRow)\n        $this-&gt;_cachedHighestRow = $pRow;\n      }\n      else\n      {\n      $cell = $this-&gt;_cellCollection-&gt;getCacheData($coordinate);\n        $cell-&gt;setValueExplicit($pValue, $pDataType);\n    }\n\n    return $cell;\n}\n</code></pre>\n\nWith 753.454 Cells, Styles and Tooltips etc. it will be taken 1.000 Seconds, befor it was 1.700 Seconds (around 30 Minutes).<br />\nGreat!<br />\n",
+    "PostedDate": "2013-06-04T01:16:36.153-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1052991",
+    "ThreadId": "213198",
+    "Html": "Try changes described in this issue: <a href=\"https://phpexcel.codeplex.com/workitem/19816\" rel=\"nofollow\">https://phpexcel.codeplex.com/workitem/19816</a>\r<br />\nWith them speed of setCellValueExplicitByColumnAndRow() is almost same as mine function.<br />\n",
+    "PostedDate": "2013-06-05T02:05:02.423-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

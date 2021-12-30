@@ -1,0 +1,81 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hello,\n\nI get an generated excel file containing one sheet with 3 lines filled in\n\ngetHighestRow() returns 1043330\ngetHighestDataRow() returns also 1043330 enven if there is no visible data in any of the cel of this line.\n\nIf I empty the cells of line 1043330, I still have  getHighestDataRow() = 1043330\n\nIf I delete line 1043330, it works and I get getHighestDataRow = 3 !!!!!! (and also getHighestRow)\n\nHere is the file, if somebody find what is going on...\n\nThanks",
+    "LastUpdatedDate": "2014-12-17T03:37:18.927-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2014-12-17T01:17:04.897-08:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "getHighestRow() and getHighestDataRow() sand me the same result",
+    "Type": {
+      "Name": "Unassigned",
+      "Id": 5
+    },
+    "VoteCount": 1,
+    "Id": 21613
+  },
+  "FileAttachments": [
+    {
+      "FileId": 8790,
+      "FileName": "GG SIACIRM_ImportSinistre Transport 151214.xlsx",
+      "DownloadUrl": ".\\8790"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "They may well return the same result.... just because there is no visible data in a cell, doesn't mean that the cell is empty, and getHighestDataRow() is interested in rows that contain any data, visible or otherwise",
+      "PostedDate": "2014-12-17T02:11:32.543-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I use the following code to check value and dataType of each column of the incrimined row :\r\n\r\n```\n$row = $objPHPExcel->getSheetByName($sheetName)->getRowIterator(1043331)->current();\r\n\r\n$cellIterator = $row->getCellIterator();\n$cellIterator->setIterateOnlyExistingCells(false);\r\n\r\n$flValue = 'null';\n$flDataType = 'null';\r\n\r\nforeach ($cellIterator as $cell) {\n    $colIndex = $cell->getColumn();\n    if (!is_null($cell->getValue()))\n    {\n        $flValue = $colIndex.':'.$cell->getValue().';' ;\n    };\n    \n    if ($cell->getDataType() != 'null')\n    {\n        $flDataType = $colIndex.':'.$cell->getDataType().';' ;\n    }     \n    \n}\necho 'flValue : '.$flValue.'<BR>flDataType : '.$flDataType.'<br>';\n```",
+      "PostedDate": "2014-12-17T02:29:11.243-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "and get the results : \nflValue:null\nflDataType:null",
+      "PostedDate": "2014-12-17T02:30:04.167-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "(sorry for the several post, don't find how to edit)\nSo the cells are empty, there is no visible or invisible or whatever data\nDo I miss something? Do I have to check other attributs?\r\n\r\nThanks\r\n\r\n",
+      "PostedDate": "2014-12-17T02:33:33.09-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "A null value in a cell means that it isn't an empty cell, null is a perfectly valid value for an Excel cell",
+      "PostedDate": "2014-12-17T03:10:38.567-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "There is no method currently in PHPExcel to get the highest row/column that doesn't contain \"invisible\" data",
+      "PostedDate": "2014-12-17T03:11:53.843-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Checking null, '' or empty for the values returns always the same answer : there is no data in this line\r\n\r\nI don't know how to find what is going wrong with this line. If an \"invisible\" data exists, there must be a way to found out in which cell it is, and which is the value.\r\n\r\n\nAs I explain, if in Excel I use the \"Empty value\" menu on the line, I still get the error.\n",
+      "PostedDate": "2014-12-17T03:37:18.927-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

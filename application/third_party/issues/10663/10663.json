@@ -1,0 +1,96 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": "2009-10-02T22:46:19.893-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hey guys,\n \nfirst of all - big applause for what you already achieved with this project. I started using PHPExcel a few days ago and am just loving it. Clear documentation, good examples and very cool feature set - managed to build exactly the excel layout I had in mind.\n \nAside from the praises I am struggling with PHPExcel memory consumption. I already read the issues concerning memory usage within loops and tried latest build as well. Unfortunately I am still having trouble. Using current build 28776 - memory usage is 10% lower, but I am still running over 256MB limit for our data output.\n \nI attached a generated document with 50 results. As you can see, we send out tons of data, which have to be styled and formatted. This works perfect for 1-200 results, but we are going to generate min 500 results per file.\n \nMy programming approach so far:\n \n- render logo\n- render meta info\n- render header columns\n- loop rendering result data (\n  - set values\n  - set some styles (color) and links\n  )\n- set styles (background color, borders, formats) for column ranges (using apply from array)\n \nMemory stats for a table with 464 data rows:\n- entering phpexcel 42 MB\n- before loop: 44.25 MB \n- for each loop: 0.25 - 0.5 MB\n- after loop: over 235 mb\n- column ranges allocate to much memory\n \nIs there any way to save memory by coding or applying styles in a different manner? I read something about disk usage, but this goes for writer object only, right?\n \nI tried passing my data as reference or serialized items, which can be looped, but this doesn't make a big difference for overall memory usage (10 MB +/-).\n \nIs there a way to force PHPExcel object to be handled completely on disk or building it using row by row injection or something else (even if it will use more processing time for doing so)?\n \nReally appreciate any hints,\nbests,\nFelix",
+    "LastUpdatedDate": "2013-05-16T05:42:24.093-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-09-19T15:21:39.58-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Memory usage within 1.7 and 2.x (build 28776)",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 10663
+  },
+  "FileAttachments": [
+    {
+      "FileId": 3395,
+      "FileName": "AFNDATTOP090919222003-MAN_Artfacts_TopData_Result.xls",
+      "DownloadUrl": ".\\3395"
+    },
+    {
+      "FileId": 3397,
+      "FileName": "phpexcel_method.php",
+      "DownloadUrl": ".\\3397"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "You have 226 columns. With 500 rows that would be 113,000 cells. Normally, I estimate 1KB PHP memory usage per cell which in this case would be ~ 113MB PHP memory usage needed. This is a very rough estimate, but it might indicate that your current memory usage is a bit high and that your code could be optimized somehow.\r\n\r\nI tried to do a plain read/write with your file containing 60 rows.\r\n\r\ntstartRead = time();\r\n\r\n$file = 'AFNDATTOP090919222003-MAN_Artfacts_TopData_Result.xls';\r\n$excel = PHPExcel_IOFactory::load($file);\r\n\r\n$tendRead = time();\r\n\r\n$tstartWrite = time();\r\n\r\n$writer = PHPExcel_IOFactory::createWriter($excel, 'Excel5');\r\n$writer->save('write.xls');\r\n\r\n$tendWrite = time();\r\n\r\necho 'read took: ' . ($tendRead - $tstartRead) . ' seconds<br>';\r\necho 'write took: ' . ($tendWrite - $tstartWrite) . ' seconds<br>';\r\necho \"Peak memory usage: \" . (memory_get_peak_usage(true) / 1024 / 1024) . \" MB\";\r\nexit;\r\n\r\n-------\r\nResult using latest source code:\r\n\r\nread took: 4 seconds\r\nwrite took: 4 seconds\r\nPeak memory usage: 26 MB\r\n\r\n-------\r\nYou can use this as a rough measure of what is possible in terms of speed/memory in PHPExcel at the moment. Your code should be able to generate the workbook you attached in 4 seconds using at most 26 MB. If the generation time / memory usage is above 4 sec / 26 MB, this is a hint that you can optimize the code in some way.\r\n\r\nYou may try to repeat my test at your server and post back the result. Let's wait for your result and see if it tells us that there is room for improvements.",
+      "PostedDate": "2009-09-20T18:57:48.55-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Hi koyama,\r\n\r\nthanx for your response. I added your speed and memory test for plain read/write results.\r\n\r\nHere is what I got out for 69 rows:\r\n\r\n----\r\n// current generation process\r\n[2009-09-21 12:33:10 | ProductManager] NOTICE: Creating excel result (premium) with 69 results ...\r\n[2009-09-21 12:33:10 | ProductManager] NOTICE: Peak memory usage (process start): 26.25 MB\r\n[2009-09-21 12:33:13 | ProductManager] NOTICE: Peak memory usage (after cell creation): 55.25 MB\r\n[2009-09-21 12:33:13 | ProductManager] NOTICE: Peak memory usage (style head): 58.75 MB\r\n[2009-09-21 12:33:13 | ProductManager] NOTICE: Peak memory usage (style rows): 65.5 MB\r\n[2009-09-21 12:33:14 | ProductManager] NOTICE: Peak memory usage (style/format cols): 66 MB\r\n[2009-09-21 12:33:15 | ProductManager] NOTICE: Peak memory usage (after writing): 74 MB\r\n[2009-09-21 12:33:15 | ProductManager] NOTICE: ... done\r\n\r\n// your speed test using IOFactory for the generated file above (called in the same script, so peak value is not zero)\r\n[2009-09-21 12:33:15 | ProductManager] NOTICE: Speed test excel result (premium) with 69 results ...\r\n[2009-09-21 12:33:15 | ProductManager] NOTICE: Peak memory usage (entering test): 74 MB\r\n[2009-09-21 12:33:17 | ProductManager] NOTICE: Peak memory usage (after reading): 109 MB\r\n[2009-09-21 12:33:18 | ProductManager] NOTICE: read took: 2 seconds\r\n[2009-09-21 12:33:18 | ProductManager] NOTICE: write took: 1 seconds\r\n[2009-09-21 12:33:18 | ProductManager] NOTICE: Peak memory usage (after writing): 117.25 MB\r\n----\r\n\r\nsummarized memory usage:\r\n- Workbook generating: 40 MB\r\n- Workbook writing:  18 MB\r\n\r\n\r\n\r\nHere is what I got out for 503 rows:\r\n\r\n----\r\n// current generation process\r\n[2009-09-21 12:55:50 | ProductManager] NOTICE: Creating excel result (premium) with 503 results ...\r\n[2009-09-21 12:55:50 | ProductManager] NOTICE: Peak memory usage (process start): 44.75 MB\r\n[2009-09-21 12:56:01 | ProductManager] NOTICE: Peak memory usage (after cell creation): 257.5 MB\r\n[2009-09-21 12:56:01 | ProductManager] NOTICE: Peak memory usage (style head): 261 MB\r\n[2009-09-21 12:56:03 | ProductManager] NOTICE: Peak memory usage (style rows): 295.25 MB\r\n[2009-09-21 12:56:06 | ProductManager] NOTICE: Peak memory usage (style/format cols): 295.75 MB\r\n[2009-09-21 12:56:14 | ProductManager] NOTICE: Peak memory usage (after writing): 340.5 MB\r\n[2009-09-21 12:56:14 | ProductManager] NOTICE: ... done\r\n\r\n// your speed test using IOFactory for the generated file above (called in the same script, so peak value is not zero)\r\n[2009-09-21 12:56:14 | ProductManager] NOTICE: Speed test excel result (premium) with 503 results ...\r\n[2009-09-21 12:56:14 | ProductManager] NOTICE: Peak memory usage (entering test): 340.5 MB\r\n[2009-09-21 12:56:24 | ProductManager] NOTICE: Peak memory usage (after reading): 542.5 MB\r\n[2009-09-21 12:56:31 | ProductManager] NOTICE: read took: 10 seconds\r\n[2009-09-21 12:56:31 | ProductManager] NOTICE: write took: 7 seconds\r\n[2009-09-21 12:56:31 | ProductManager] NOTICE: Peak memory usage (after writing): 590.25 MB\r\n----\r\n\r\nsummarized memory usage:\r\n- Workbook generating: 250 MB\r\n- Workbook writing:  55 MB\r\n\r\n\r\n\r\nSo we can spot 2 major memory areas:\r\n- Writing the cells itself (212 MB for 503 results plus small header equals 0.42 MB per row or around 1kb per cell as you expected\r\n- Styling the rows with white background (34.25 MB equals 0.07 MB per row)\r\n\r\nOverall performance is a bit down due to current background processes on my testing machine, but still fine.\r\n\r\nAs far is I understood this is kind of what you expected, right? Is there a way to optimize this using other PHPExcel classes or methods?\r\n\r\nI attached our current method for generating excel workbook.\r\n\r\nBests,\r\nFelix\r\n\r\n\r\n",
+      "PostedDate": "2009-09-21T04:16:20.633-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-09-21T04:16:22.533-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I looked at your code and test results. Bad news is that I think there is not room for much improvement until we have solved the cell cache provider. 100,000 cells is where things start to hurt.\r\n\r\nThere are potentially two ways avoid memory usage from this\r\n- Styling the rows with white background (34.25 MB equals 0.07 MB per row)\r\n\r\n1)\r\nCreate styles explicitly, add them to the workbook and assign style indexes explicitly to the cells. Much like in PEAR:Spreadsheet_Excel_Writer. I can post an example if you want, but this is probably not the technique to be promoted.\r\n\r\n2)\r\nUsing column styles (partly implemented in source code, see work item 7333). Better approach than 1). I wanted to create an example, but I found there was a bug where cell styles were overriding the column styles. I will examine this week whether it can be fixed.\r\n\r\nIn summary, there is a chance you can reduce memory usage by those 34.25 MB. But the big memory reduction is only possible with a future cell caching system. Your example shows that we really need this!",
+      "PostedDate": "2009-09-22T06:23:47.27-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Use of column styles should be possible with today's source code. See example posted today at this work item:\r\nhttp://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=7333\r\n\r\nThis can be used to eliminate memory usage from styling large rectangular cell areas. (those 34.25 MB)\r\n\r\nRemaining excessive memory usage will be possible to eliminate once we have cell caching:\r\nhttp://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=6857\r\n",
+      "PostedDate": "2009-10-02T22:45:52.213-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-10-02T22:46:19.893-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Thanx for updating this issue. I will try new methods and sources on our code once available.\r\n\r\nBests,\r\nFelix",
+      "PostedDate": "2009-10-04T06:19:18.52-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:03:37.9-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:24.093-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

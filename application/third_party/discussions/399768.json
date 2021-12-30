@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "928144",
+    "ThreadId": "399768",
+    "Html": "\r\n<p>I am using Windows XP SP3 with PHPExcel 1.76.</p>\r\n<p>I am writing an application that reads in an XLS file that was created by another program.&nbsp; Whenever I get to the line:</p>\r\n<p></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>$objWorksheet = $objPHPExcel-&gt;setActiveSheetIndex(<span style=\"color:#a31515\">'0'</span>);\r\n</pre>\r\n</div>\r\n<p></p>\r\n<p>it errors out on me with this error: &quot;PHP Fatal error:&nbsp; Uncaught exception 'Exception' with message 'Active sheet index is out of bounds.'&quot;</p>\r\n<p>After much tinkering, I found that if I open that XLS file in Excel and resave it, the application will have no problem with the file.&nbsp; I noticed that it does add a few KB when I resave it, so it must be changing something.&nbsp; Any ideas of how I\r\n can get around this?&nbsp; I tried to open and save it using PHPExcel, but it corrupted the file instead.&nbsp; Here is the code I tried to do that with.</p>\r\n<p></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>$objPHPExcel = $objReader-&gt;load($filename);\r\n\t<span style=\"color:blue\">try</span> {\r\n\t\t$objWorksheet = $objPHPExcel-&gt;setActiveSheetIndex(<span style=\"color:#a31515\">'0'</span>);\r\n\t} <span style=\"color:blue\">catch</span>(Exception $e) {\r\n\t\t$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, <span style=\"color:#a31515\">'Excel5'</span>);\r\n\t\t$objWriter-&gt;save($filename);\r\n\t\t$objPHPExcel = $objReader-&gt;load($filename);\r\n\t\t$objWorksheet = $objPHPExcel-&gt;setActiveSheetIndex(<span style=\"color:#a31515\">'0'</span>);\r\n\t}\r\n</pre>\r\n</div>\r\n<p></p>\r\n<p>Any help would be appreciated.</p>\r\n<p>Thanks</p>\r\n<p>Mike</p>\r\n",
+    "PostedDate": "2012-10-17T09:46:18.733-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "928147",
+    "ThreadId": "399768",
+    "Html": "<p>One idea might be to upgrade to PHPExcel 1.7.8</p>",
+    "PostedDate": "2012-10-17T09:50:13.473-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "928235",
+    "ThreadId": "399768",
+    "Html": "<p>Bummer, that didn't do it.&nbsp; Any other thoughts?</p>\r\n<p>Thanks</p>",
+    "PostedDate": "2012-10-17T11:18:59.203-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "928361",
+    "ThreadId": "399768",
+    "Html": "<p>If that doesn't work, then I have no ideas.... 1.7.8 fixed one known bug that triggered that particular error.</p>\r\n<p>Besides the fact that the active sheet index should be an integer (though using a string containing a 0 shouldn't cause this error)</p>\r\n<p>Can you try&nbsp;dumping the results of&nbsp;an array_keys($objPHPExcel-&gt;getAllSheets()); and $objPHPExcel-&gt;getActiveSheet(); immediately after the load.</p>",
+    "PostedDate": "2012-10-17T14:03:34.347-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

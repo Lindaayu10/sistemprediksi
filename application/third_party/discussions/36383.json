@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "120666",
+    "ThreadId": "36383",
+    "Html": "hi all,<br>\r\n<br>\r\n&nbsp;&nbsp;&nbsp; i am using <br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <br>\r\n$objReader = new PHPExcel_Reader_Excel5();<br>\r\n$objPHPExcel = $objReader-&gt;load(SGL_MOD_DIR . &quot;/sample/classes/Sample.xls&quot;);<br>\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');<br>\r\n$objPHPExcel-&gt;setActiveSheetIndex(0);<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('C9', 'Sample Order');//test if i can edit<br>\r\n$objWriter-&gt;save('test.xls');<br>\r\n<br>\r\nbut it seems the image in the original file is missing.<br>\r\n<br>\r\n<br>\r\nGeorge<br>\r\n",
+    "PostedDate": "2008-09-24T08:56:03.33-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "120673",
+    "ThreadId": "36383",
+    "Html": "I'm afraid that PHPExcel_Reader_Excel5 is currently not reading images, but the problem has been addressed. There are still a couple of hurdles.<br>\r\n<br>\r\n<a href=\"http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=7538\">http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=7538</a><br>\r\n<br>\r\nIf you need this feature for spreadsheet manipulation from template, the solution for you may be to use Excel 2007 template instead of Excel 2003 template. Convert your Sample.xls to Sample.xlsx using MS Office Excel 2007 or MS Office Excel 2003 with SP3 + compatibility pack. PHPExcel_Writer_Excel5 supports images so you can still create xls files with images.<br>\r\n<br>\r\nRelated discussion (reading Excel 2007 files with images):<br>\r\n<a href=\"http://www.codeplex.com/PHPExcel/Thread/View.aspx?ThreadId=35045\">http://www.codeplex.com/PHPExcel/Thread/View.aspx?ThreadId=35045</a>\r\n",
+    "PostedDate": "2008-09-24T09:15:13.603-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "120901",
+    "ThreadId": "36383",
+    "Html": "got it.thanks very much.<br>\r\n<br>\r\ni have one more related question:<br>\r\n<br>\r\nwill the page setting be kept after load(i mean excel5)?<br>\r\nit seems both image and page setting is missgin when i read from xls and save as xls.<br>\r\n<br>\r\n<br>\r\n<br>\r\n",
+    "PostedDate": "2008-09-25T03:54:34.32-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "120907",
+    "ThreadId": "36383",
+    "Html": "PHPExcel_Reader_Excel5 does recognize a good deal of page setup properties. This includes paper size, orientation, page margins, header / footer etc. But these features were added recently so to get this working you will need to latest source of PHPExcel (1.6.3 won't do).<br>\r\nDownload latest source from here:<br>\r\n<a href=\"http://www.codeplex.com/PHPExcel/SourceControl/ListDownloadableCommits.aspx\">http://www.codeplex.com/PHPExcel/SourceControl/ListDownloadableCommits.aspx</a><br>\r\n",
+    "PostedDate": "2008-09-25T04:03:29.373-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "120914",
+    "ThreadId": "36383",
+    "Html": "I have get a lastest version,thanks!<br>\r\n<br>\r\nCan the xlsx template work like php template tech,that we put some tag in the template file,<br>\r\nand it then will be merged with variable data?<br>\r\n<br>\r\nthanks for your reply!!<br>\r\n<br>\r\n<br>\r\n",
+    "PostedDate": "2008-09-25T04:24:09.32-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "120918",
+    "ThreadId": "36383",
+    "Html": "It may not be that hard to get what you want.<br>\r\n<br>\r\nExample:<br>\r\n<br>\r\n<code>\r\n// 2007-read.xlsx contains cells where one has typed &quot;tags&quot; [CUSTOMER_NAME] or [EMAIL]<br>\r\n$customerName = 'John Smith';<br>\r\n$email = 'john@example.org';<br>\r\n<br>\r\n$objReader = new PHPExcel_Reader_Excel2007();<br>\r\n$PHPExcel =&nbsp;</code><code>\r\n$objReader</code><code>-&gt;load('2007-read.xlsx');<br>\r\n$ws = $PHPExcel-&gt;getActiveSheet();<br>\r\n<br>\r\nforeach ($ws-&gt;getCellCollection() as $cell) {<br>\r\n&nbsp;&nbsp;&nbsp; switch ($cell-&gt;getValue()) {<br>\r\n&nbsp;&nbsp;&nbsp; <br>\r\n&nbsp;&nbsp;&nbsp; case '[CUSTOMER_NAME]':<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $cell-&gt;setValue($customerName);<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; break;<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>\r\n&nbsp;&nbsp;&nbsp; case '[EMAIL]':<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $cell-&gt;setValue($email);<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; break;<br>\r\n&nbsp;&nbsp;&nbsp; <br>\r\n&nbsp;&nbsp;&nbsp; default:<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; break;<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; <br>\r\n&nbsp;&nbsp;&nbsp; }<br>\r\n&nbsp;&nbsp;&nbsp; <br>\r\n}<br>\r\n<br>\r\n$objWriter = new PHPExcel_Writer_Excel2007($PHPExcel);<br>\r\n</code><code>\r\n$objWriter</code><code>-&gt;save('2007-write.xlsx');\r\n<br>\r\n</code>\r\n",
+    "PostedDate": "2008-09-25T04:53:49.853-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

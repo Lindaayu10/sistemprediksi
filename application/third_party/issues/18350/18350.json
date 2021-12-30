@@ -1,0 +1,76 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "PHPExcel Info:\n \nI've verified this bug with PHPExcel 1.7.6 / 1.7.7 versions. My code uses the getFormattedValue() method to pull the data into PHP.\n \nDescription:\n \nCells that contain a 10 digit phone number and the format code below will not get the expected formatted value when pulling the data with the getFormattedValue() method.\n \nFormatting Code:\n \n\\(000\") \"000-0000\n \nExamples:\n \nOpen Document Format: With value 5555555555 getFormattedValue() returns 1260588259 instead of (555) 555-5555\n \nExcel:  With value 5555555555 getFormattedValue() returns (5555555555) 5555555555-5555555555 instead of (555) 555-5555\n \n- Christopher Mullins",
+    "LastUpdatedDate": "2013-02-21T19:01:51.643-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2012-07-11T09:55:20.617-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "getFormattedValue() does not return correct value.",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 18350
+  },
+  "FileAttachments": [
+    {
+      "FileId": 6508,
+      "FileName": "Phone Formatted File.xls",
+      "DownloadUrl": ".\\6508"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "Here is file that contains the example above that can be used for verification and testing.",
+      "PostedDate": "2012-07-11T10:45:47.94-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Here's a solution that correctly returns the formatted value for excel files. This code still does not fix the Open document file using the same format.\r\n\r\nFile modified: PHPExcel/Style/NumberFormat.php\r\n\r\nLine number where following code is placed: 683\r\n\r\nif ($format == '(000) 000-0000') { // phone number format\r\n  $areacode = substr(\"{$value}\", 0, 3);\r\n  $exchange = substr(\"{$value}\", 3, 3);\r\n  $number   = substr(\"{$value}\", 6);\r\n  $value = \"({$areacode}) {$exchange}-{$number}\";\r\n} else {\r\n\r\n  // The following existing code should be indented\r\n\r\n  $n = \"/\\[[^\\]]+\\]/\";\r\n  $m = preg_replace($n, '', $format);\r\n  $number_regex = \"/(0+)(\\.?)(0*)/\";\r\n  if (preg_match($number_regex, $m, $matches)) {\r\n    $left = $matches[1];\r\n    $dec = $matches[2];\r\n    $right = $matches[3];\r\n\r\n    // minimun width of formatted number (including dot)\r\n    $minWidth = strlen($left) + strlen($dec) + strlen($right);\r\n\r\n    if ($useThousands) {\r\n      $value = number_format(\r\n        $value\r\n        , strlen($right)\r\n        , PHPExcel_Shared_String::getDecimalSeparator()\r\n        , PHPExcel_Shared_String::getThousandsSeparator()\r\n      );\r\n    } else {\r\n      $sprintf_pattern = \"%0$minWidth.\" . strlen($right) . \"f\";\r\n      $value = sprintf($sprintf_pattern, $value);\r\n    }\r\n\r\n    $value = preg_replace($number_regex, $value, $format);\r\n  }\r\n\r\n  // End of existing code\r\n\r\n}\r\n\r\n",
+      "PostedDate": "2012-07-11T21:58:08.08-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Note: The method modified for the solution above is toFormattedString()\r\n\r\n",
+      "PostedDate": "2012-07-11T22:01:33.697-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "For the OpenDocument issue, see this:\r\n\r\nhttp://phpexcel.codeplex.com/discussions/265145",
+      "PostedDate": "2012-09-24T08:57:45.907-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "For the OpenDocument issue, see this:\r\n\r\nhttp://phpexcel.codeplex.com/discussions/265145",
+      "PostedDate": "2012-09-24T09:04:14.587-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:01:51.643-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

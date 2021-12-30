@@ -1,0 +1,98 @@
+<?php
+
+/** Include path **/
+set_include_path(get_include_path().PATH_SEPARATOR.'../../../Classes/');
+
+
+/** PHPExcel */
+include('PHPExcel.php');
+
+/** PHPExcel_IOFactory */
+include 'PHPExcel/IOFactory.php';
+
+
+// Create new PHPExcel object
+echo 'Create new PHPExcel object<br />';
+$PHPExcelObject = new PHPExcel();
+
+
+// Set properties
+echo 'Set Workbook properties<br /><br />';
+$PHPExcelObject->getProperties()->setCreator("Mark Baker");
+$PHPExcelObject->getProperties()->setLastModifiedBy("Mark Baker");
+$PHPExcelObject->getProperties()->setTitle("DAYS360 Function Example");
+$PHPExcelObject->getProperties()->setSubject("DAYS360 Function Example for Office 2007");
+$PHPExcelObject->getProperties()->setDescription("DAYS360 Function Example document for Office 2007 XLSX, generated using PHP classes.");
+$PHPExcelObject->getProperties()->setKeywords("Office 2007 OpenXML DAYS360 Function Example PHP");
+$PHPExcelObject->getProperties()->setCategory("DAYS360 Function Example");
+
+
+// Set active sheet index to the first sheet, so Excel opens this as the first sheet
+$PHPExcelObject->setActiveSheetIndex(0);
+
+
+// Add some data
+echo 'Add some data<br /><br />';
+$date1 = strtotime(date('01-M-Y',time() + (rand(-3650,-1) * 86400)).' 00:00:00 GMT-1') - 86400;
+$year1 = date('Y',$date1);
+$month1 = date('n',$date1);
+$day1 = date('j',$date1);
+echo 'Setting first randomly generated date value to '.$date1.' ('.date('d-M-Y',$date1).')<br />';
+$date2 = strtotime(date('01-M-Y',time() + (rand(0,3650) * 86400)).' 00:00:00 GMT-1') - 86400;
+$year2 = date('Y',$date2);
+$month2 = date('n',$date2);
+$day2 = date('j',$date2);
+echo 'Setting second randomly generated date value to '.$date2.' ('.date('d-M-Y',$date2).')<br />';
+
+$PHPExcelObject->getActiveSheet()->setCellValue('A1', 'Year');
+$PHPExcelObject->getActiveSheet()->setCellValue('B1', $year1);
+$PHPExcelObject->getActiveSheet()->setCellValue('C1', $year2);
+$PHPExcelObject->getActiveSheet()->setCellValue('A2', 'Month');
+$PHPExcelObject->getActiveSheet()->setCellValue('B2', $month1);
+$PHPExcelObject->getActiveSheet()->setCellValue('C2', $month2);
+$PHPExcelObject->getActiveSheet()->setCellValue('A3', 'Day');
+$PHPExcelObject->getActiveSheet()->setCellValue('B3', $day1);
+$PHPExcelObject->getActiveSheet()->setCellValue('C3', $day2);
+
+$PHPExcelObject->getActiveSheet()->setCellValue('E1', '=DAYS360(DATE(B1,B2,B3),DATE(C1,C2,C3),FALSE)');
+$PHPExcelObject->getActiveSheet()->setCellValue('F1', 'Using NASD Method');
+$PHPExcelObject->getActiveSheet()->setCellValue('E2', '=DAYS360(DATE(B1,B2,B3),DATE(C1,C2,C3),TRUE)');
+$PHPExcelObject->getActiveSheet()->setCellValue('F2', 'Using European Method');
+
+
+// Rename sheet
+echo 'Rename sheet<br /><br />';
+
+$PHPExcelObject->getActiveSheet()->setTitle('DAYS360 Function Example');
+
+
+// Test Calculation
+echo 'Execute the DAYS360 Function<br />';
+$retVal = $PHPExcelObject->getActiveSheet()->getCell('E1')->getCalculatedValue();
+echo 'DAYS360 result is '.$retVal.' Using NASD Method<br />';
+$retVal = $PHPExcelObject->getActiveSheet()->getCell('E2')->getCalculatedValue();
+echo 'DAYS360 result is '.$retVal.' Using European Method<br />';
+
+
+// Save Excel 2007 file
+echo '<br />Write to Excel2007 format<br />';
+
+$objWriter = PHPExcel_IOFactory::createWriter($PHPExcelObject, 'Excel2007');
+$objWriter->save(str_replace('.php', '.xlsx', __FILE__));
+
+
+// Save Excel 5 file
+echo '<br />Write to Excel 5 format<br />';
+
+$objWriter = PHPExcel_IOFactory::createWriter($PHPExcelObject, 'Excel5');
+$objWriter->save(str_replace('.php', '.xls', __FILE__));
+
+
+// Echo memory peak usage
+echo '<hr /><br />';
+echo 'Peak memory usage: '.(memory_get_peak_usage(true) / 1024 / 1024).' MB<br />';
+
+// Echo done
+echo 'Done.';
+
+?>

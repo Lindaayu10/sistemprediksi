@@ -1,0 +1,39 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel_Writer_Excel2007",
+      "DisplayName": "PHPExcel_Writer_Excel2007"
+    },
+    "ClosedComment": "Fixed in SVN",
+    "ClosedDate": "2007-09-03T02:43:30.503-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Investigate:\n \n------------------------------------------------------------------------------------------------\nI use formulas that contain references to cells in other sheets, using Excel 2003 and the Compatibility Pack. \nVersion 1.4.0 produced a document with formula re-calculation on opening. To have 1.4.5 produce the same I had to apply 2 changes:\n \nin Writer/Excel2007/Worksheet.php comment out line 784 --> $objWriter->writeElement('v', '0'); This ensures that when using setPreCalculateFormulas(false); the same behaviour as 1.4.0 is preserved i.e. don't add a <v>0</v> tag. \n \n \nin Writer/Excel2007/Workbook.php comment out line 87 --> $this->_writeBookViews($objWriter, $pPHPExcel); Again this is required to reproduce the 1.4.0 bahaviour. Somehow adding the <workbookView> tag to workbook.xml is breaking the formula re-calculation on opening, It also has the effect of selecting all of the sheet tabs on opening and positioning on the last sheet. This is removed when commenting out the line.\n \n \nHere is a sample code that generates a document that can reproduce the above:\n \nset_include_path(get_include_path() . PATH_SEPARATOR . '../PHPExcell-1.4.5/Classes/');\n \ninclude 'PHPExcel.php';\ninclude 'PHPExcel/Writer/Excel2007.php';\n$out_filename = \"test.xlsx\";\n$objPHPExcel = new PHPExcel();\n \n$objPHPExcel->setActiveSheetIndex(0);\n$objPHPExcel->getActiveSheet()->setTitle('Foglio 1');\n$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(0, 1, 10);\n$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(1, 1, 20);\n$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(2, 1, '=SUM(A1:B1)');\n$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(2, 3, \"='Foglio 2'!C1\");\n \n$objPHPExcel->createSheet();\n$objPHPExcel->setActiveSheetIndex(1);\n$objPHPExcel->getActiveSheet()->setTitle('Foglio 2');\n$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(0, 1, 30);\n$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(1, 1, 40);\n$objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(2, 1, '=SUM(A1:B1)');\n \n$objPHPExcel->setActiveSheetIndex(0);\n \n$objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel);\n$objWriter->setPreCalculateFormulas(false);\n$objWriter->save($out_filename);\n------------------------------------------------------------------------------------------------",
+    "LastUpdatedDate": "2013-05-16T05:43:49.403-07:00",
+    "PlannedForRelease": "PHPExcel 1.5.0 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2007-08-31T03:04:19.43-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Excel2007 vs Excel2003 compatibility pack",
+    "Type": {
+      "Name": "Task",
+      "Id": 2
+    },
+    "VoteCount": 1,
+    "Id": 3217
+  },
+  "FileAttachments": [],
+  "Comments": []
+}

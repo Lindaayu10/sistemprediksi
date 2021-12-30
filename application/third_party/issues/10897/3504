@@ -1,0 +1,180 @@
+--- PHPExcel/Reader/CSV.php.old	2009-11-08 15:23:55.000000000 +0100
++++ PHPExcel/Reader/CSV.php	2009-11-08 16:05:28.000000000 +0100
+@@ -114,23 +114,105 @@
+ 	}
+ 	
+ 	/**
+-	 * Can the current PHPExcel_Reader_IReader read the file?
++	 * Open file and skip BOM if present.
+ 	 *
+-	 * @param 	string 		$pFileName
+-	 * @return 	boolean
+-	 */	
+-	public function canRead($pFilename) 
++	 * @param string $pFilename File to open
++	 * @throws Exception
++	 * @return resource File handle
++	 */
++	private function openFile($pFilename)
+ 	{
+ 		// Check if file exists
+ 		if (!file_exists($pFilename)) {
+ 			throw new Exception("Could not open " . $pFilename . " for reading! File does not exist.");
+ 		}
++
++		// Open file
++		$fileHandle = fopen($pFilename, 'r');
++		if ($fileHandle === false) {
++			throw new Exception("Could not open file $pFilename for reading.");
++		}
++
++		// Skip BOM, if any
++		switch ($this->_inputEncoding) {
++			case 'UTF-8':
++				fgets($fileHandle, 4) == "\xEF\xBB\xBF" ?
++					fseek($fileHandle, 3) : fseek($fileHandle, 0);
++				break;
++
++			default:
++				break;
++		}
++
++		return $fileHandle;
++
++	}
++
++	/**
++	 * Can the current PHPExcel_Reader_IReader read the file? Delimiter is autodetected.
++	 *
++	 * @param 	string 		$pFileName
++	 * @return 	boolean
++	 */	
++	public function canRead($pFilename) {
++		$delimiter = $this->detectDelimiter($pFilename);
++		if ($delimiter !== false) {
++			$this->_delimiter = $delimiter;
++			return true;
++		}
++		return false;
++	}
++
++	/**
++	 * Can the current PHPExcel_Reader_IReader read the file with the given delimiter?
++	 *
++	 * @param 	string 		$pFileName
++	 * @param	string		$delimiter
++	 * @return 	boolean
++	 */	
++	private function canReadWithDelimiter($pFilename, $delimiter) 
++	{
+ 		
+-		// Read sample data (first 2 KB will do)
+-		$fh = fopen($pFilename, 'r');
+-		$data = fread($fh, 2048);
+-		fclose($fh);
++		// Open file and skip BOM if present
++		$fileHandle = $this->openFile($pFilename);
++	
++		$rowLen = null;
++		$result = true;
++		for ($currentRow = 0; $currentRow < 5; $currentRow++) {
++			$rowData = fgetcsv($fileHandle, 0, $delimiter, $this->_enclosure);
++			if ($rowData !== false) {
++				if ($currentRow == 0) { // Set rowLen on first row
++					$rowLen = count($rowData);
++				} else if ($rowLen != count($rowData)) { // If rowLen differs, bail out
++					$result = false;
++					break;
++				}
++			} else { // False result can mean end of file and invalid csv
++				if (!feof($fileHandle)) {
++					$result = false;
++					break;
++				}
++			}
++		}
++
++		fclose($fileHandle);
++		return $result;
++	}
++
++	/**
++	 * Detects the most probable delimiter of pFilename
++	 *
++	 * @param string $pFilename CSV file to detect
++	 * @return string The delimiter if detection succeded, false otherwise
++	 */
++	public function detectDelimiter($pFilename)
++	{
++		// Open file and skip BOM if present
++		$fileHandle = $this->openFile($pFilename);
+ 		
++		$data = fread($fileHandle, 8192);
++		fclose($fileHandle);
++
+ 		// Count delimiters in file
+ 		$delimiterCount = array(
+ 			',' => substr_count($data, ','),
+@@ -139,19 +221,13 @@
+ 			'|' => substr_count($data, '|')
+ 		);
+ 		arsort($delimiterCount, SORT_NUMERIC);
+-		$probableDelimiter = array_shift(array_flip($delimiterCount));
+ 		
+-		// Analyze first few lines and check if field count is equal
+-		$lines = explode("\n", $data);
+-		$fieldCount = null;
+-		for ($i = 0; $i < 5 && $i < count($lines); $i++) {
+-			if (is_null($fieldCount))
+-				$fieldCount = substr_count($lines[$i], $probableDelimiter);
+-			if ($fieldCount != substr_count($lines[$i], $probableDelimiter))
+-				return false;
++		foreach (array_keys($delimiterCount) as $delimiterCandidate) {
++			if ($this->canReadWithDelimiter($pFilename, $delimiterCandidate)) {
++				return $delimiterCandidate;
++			}
+ 		}
+-		
+-		return true;
++		return false;
+ 	}
+ 
+ 	/**
+@@ -216,34 +292,15 @@
+ 	 */
+ 	public function loadIntoExisting($pFilename, PHPExcel $objPHPExcel)
+ 	{
+-		// Check if file exists
+-		if (!file_exists($pFilename)) {
+-			throw new Exception("Could not open " . $pFilename . " for reading! File does not exist.");
+-		}
+-
++		// Open file and skip BOM if present
++		$fileHandle = $this->openFile($pFilename);
++		
+ 		// Create new PHPExcel
+ 		while ($objPHPExcel->getSheetCount() <= $this->_sheetIndex) {
+ 			$objPHPExcel->createSheet();
+ 		}
+ 		$objPHPExcel->setActiveSheetIndex( $this->_sheetIndex );
+ 
+-		// Open file
+-		$fileHandle = fopen($pFilename, 'r');
+-		if ($fileHandle === false) {
+-			throw new Exception("Could not open file $pFilename for reading.");
+-		}
+-
+-		// Skip BOM, if any
+-		switch ($this->_inputEncoding) {
+-			case 'UTF-8':
+-				fgets($fileHandle, 4) == "\xEF\xBB\xBF" ?
+-					fseek($fileHandle, 3) : fseek($fileHandle, 0);
+-				break;
+-
+-			default:
+-				break;
+-		}
+-
+ 		// Loop through file
+ 		$currentRow = 0;
+ 		$rowData = array();

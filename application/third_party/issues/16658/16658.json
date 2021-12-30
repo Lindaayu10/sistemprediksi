@@ -1,0 +1,50 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hello,\n \nUpon reading a specific XLS file I receive the aforementioned error message. (The file is not corrupted and was created by MS Excel, not the PHPExcel library. By the way this is version 1.7.6, the current production.)\n \nTracing the exception I found that the error originates from the load function, specifically line 1009 in the Reader/Excel5.php file. The file here reads:\n \nforeach ($ranges as $range) {\n// $range should look like this one of these\n//\t\tSheet!$A$1:$B$65536\n//\t\tSheet!$A$1:$IV$2\n$explodes = explode('!', $range);\n \nbut when reading my file, the $range variable has values like this:\n(Jegyzokonyv!$A$1:$A$65536\nJegyzokonyv!$A$7:$IV$7)\n \nNotice the opening and closing parenthesis - the second one is causing the error.\n \nI'm by no means an expert in the Excel file format, but I believe that these two ranges are set in the files because some sort of column/row formatting was applied long ago..\n \nSimply trimming the $range variable does the trick for me, but I don't really know if this is a universal/correct solution..\n(I just inserted the line\n$cleanedRange = trim($range, \"()\");\n \nIf you need the exact Excel file for debugging I can send it to you, but I believe this is fairly easily reproducible.\n \nThanks for the great project and keep up the good work!\n \nCheers,\nAdam",
+    "LastUpdatedDate": "2013-02-21T19:02:13-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2011-09-30T18:11:07.74-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Invalid cell coordinate error on reading an Excel5 file",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 16658
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "Hello,\r\n\r\nI'd just like to note that I've upgraded to the current version and started experiencing the same issue.\r\n\r\nPlease change that one line of code at 1116 of Reader/Excel5.php to\r\n\r\n$cleanedRange = trim($range, \"()\");\n$explodes = explode('!', $cleanedRange);\r\n\r\nThanks,\nAdam",
+      "PostedDate": "2012-10-23T09:18:46.277-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:02:13-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

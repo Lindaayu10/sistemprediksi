@@ -1,0 +1,101 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "All",
+      "DisplayName": "All"
+    },
+    "ClosedComment": "Fixed in SVN",
+    "ClosedDate": "2008-09-12T06:43:54.753-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hi.  \n \nI am not sure if there is a flaw in my program or in the PHPExcel image drawing functionality.\n \nI am creating Excel files with tables and charts (images).  I have a class which has a method that takes a PHPExcel_Worksheet object and a reference to a file.  A PHPExcel_Worsheet_drawing object is created and the image is added to it.  I then set the worksheet to the active worksheet of the PHPExcel_Worksheet object.  This method is called each time a chart object is added.  The problem is that when I open the xlsx file it generates I get an error about some content not being available.  Its always the last image.  Also if I set the sheet it sues to always be something other than what the last one should be then the content is loaded by Excel without problems.\n \nI created a simmple function to test everything inline without passing it off to different object and then everything works.  \n \nI attach my spreadsheet as reference.  I looked through the XML but I could not find anything wrong with it.  The image resource is included in it but Excel is not referencing it for some reason.",
+    "LastUpdatedDate": "2013-05-16T05:43:21.187-07:00",
+    "PlannedForRelease": "PHPExcel 1.6.4 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2008-09-04T08:12:10.99-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Worksheet_Drawing bug",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 7514
+  },
+  "FileAttachments": [
+    {
+      "FileId": 2084,
+      "FileName": "Crime.xlsx",
+      "DownloadUrl": ".\\2084"
+    },
+    {
+      "FileId": 2093,
+      "FileName": "test_case.zip",
+      "DownloadUrl": ".\\2093"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "I changed the writer to be Excel5 and it works correctly.  So I believe there is a bug with Excel2007 vesion.",
+      "PostedDate": "2008-09-04T08:46:05.78-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Can you also post a script to reproduce this?",
+      "PostedDate": "2008-09-04T10:06:16.61-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I will put something together tomorrow morning - I am in South Africa (CAT).  Right now the code is in a few files but I think I can put something together which simulates the problem in a single file.\r\n\r\nThanks.\r\nAndrew",
+      "PostedDate": "2008-09-04T15:15:31.843-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I attach a test case.  It contains a php file and three images which are used in the test case.  It is interesting that if I render the table in the last sheet instead of the first sheet it works fine.  The code in the PHP file follows below for easy reference.\r\n\r\nThanks.\r\nAndrew\r\n\r\n<?php\r\n   require_once('PHPExcel.php');\r\n   require_once ('PHPExcel/Writer/Excel2007.php');\r\n\t\r\n\t$report = new Report;\r\n\t\r\n\t$report->addComponent(new Table($report->ObjDraw));\r\n\t$report->addComponent(new Chart($report->ObjDraw, '1.png'));\r\n\t$report->addComponent(new Chart($report->ObjDraw, '2.png'));\r\n\t$report->addComponent(new Chart($report->ObjDraw, '3.png'));\r\n\t\r\n\t$report->doReport();\r\n\t\r\n\tclass Report {\r\n\t\tpublic $ObjDraw;\r\n\t\tpublic $components = array();\r\n\t\t\r\n\t\tfunction __construct(){\r\n\t\t\t$this->ObjDraw = new PHPExcel;\r\n\t\t}\r\n\t\t\r\n\t\tpublic function addComponent($o){\r\n\t\t\tarray_push($this->components, $o);\r\n\t\t}\r\n\t\t\r\n\t\tpublic function doReport(){\r\n\t\t\t$count = 0;\r\n\t\t\t$total = count($this->components);\r\n\t\t\tforeach ($this->components as $o){\r\n\t\t\t\t$o->draw();\r\n\t\t\t\tif ($total > ($count + 1)) {\r\n\t\t\t\t\t$this->ObjDraw->createSheet();\r\n\t\t\t\t\t$this->ObjDraw->setActiveSheetIndex($count + 1);\r\n\t\t\t\t}\r\n\t\t\t\t$count++;\r\n\t\t\t}\r\n\r\n\t\t\theader(\"Content-type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet\");\r\n\t\t\theader('Content-disposition: attachment; filename=test.xlsx');\r\n\t\t\t$writer = new PHPExcel_Writer_Excel2007($this->ObjDraw);\r\n\t\t\t$writer->save('php://output');\r\n\t\t}\r\n\t\t\r\n\t}\r\n\r\n\tclass Table {\r\n\t\tprivate $data = array();\r\n\t\tpublic $ObjDraw;\r\n\t\t\r\n\t\tfunction __construct($o){\r\n\t\t\t$this->ObjDraw = $o;\r\n\t\t\t$this->data = array(0 => array(0 => 1, 1 => 2, 2 => 3, 3 => 6, 4 => 3), 1 => array(0 => 2, 1 => 2, 2=> 3, 3 => 6, 4 => 3));\r\n\t\t}\r\n\t\t\r\n\t\tpublic function setDrawObject($o){\r\n\t\t\t$this->ObjDraw = $o;\r\n\t\t}\r\n\t\t\r\n\t\tfunction draw(){\r\n\t\t\t$colOff = 0;\r\n\t\t\t$rowOff = 1;\r\n\t\t\tforeach ($this->data as $row){\r\n\t\t\t\tforeach ($row as $val){\r\n\t\t\t\t\t$this->ObjDraw->getActiveSheet()->setCellValueByColumnAndRow($colOff, $rowOff, $val); \r\n\t\t\t\t\t$colOff++;\r\n\t\t\t\t}\r\n\t\t\t\t$colOff = 0;\r\n\t\t\t\t$rowOff++;\r\n\t\t\t} \r\n\t\t}\r\n\t}\r\n\t\r\n\tclass Chart {\r\n\t\tprivate $imageLocation = array();\r\n\t\tprivate $ObjDraw;\r\n\t\t\r\n\t\tfunction __construct($o, $imageLocation){\r\n\t\t\t$this->ObjDraw = $o;\r\n\t\t\t$this->imageLocation = $imageLocation;\r\n\t\t}\r\n\t\t\r\n\t\tfunction draw(){\r\n\t\t\t$ObjD = new PHPExcel_Worksheet_Drawing();\r\n\t\t\t$ObjD->setWorksheet($this->ObjDraw->getActiveSheet());\r\n\t\t\t$ObjD->setCoordinates('B4');\r\n\t\t\t$ObjD->setPath($this->imageLocation);\r\n\t\t}\r\n\t}",
+      "PostedDate": "2008-09-05T03:15:42.853-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2008-09-05T03:15:43.29-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2008-09-12T06:40:15.737-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2008-09-12T06:41:02.673-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2008-09-12T06:43:54.753-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:04:54.767-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:43:21.187-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

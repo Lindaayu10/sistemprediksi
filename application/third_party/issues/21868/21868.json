@@ -1,0 +1,50 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": "2015-05-18T16:34:08.12-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Cell formatting (format codes used with the setFormatCode() method) are lost when moving a sheet from one document to another. Symptoms:\n- no cell formatting in xlsx file\n- error notice like: Notice: Undefined offset: 1 in .... PHPExcel.php on line 1065\n- error notice like: Notice: Undefined offset: 1 in .... PHPExcel.php on line 1110\n(referenced error lines in the garbageCollect() method of the file.)\n\nCode to reproduce:\n\nPHPExcel_Cell::setValueBinder( new PHPExcel_Cell_AdvancedValueBinder() );\n$objPHPExcel=new PHPExcel();\n$objPHPExcel->getActiveSheet()->getCell('C7')->setValue('00:05:55');\n$objPHPExcel->getActiveSheet()->getStyle(\"C7\")->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_DATE_TIME4);\n$objPHPExcel->getActiveSheet()->getCell('C8')->setValue('00:04:44');\n$objPHPExcel->getActiveSheet()->getStyle(\"C8\")->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_DATE_TIME4);\n$objPHPExcel2=new PHPExcel();\n$objPHPExcel2->removeSheetByIndex(0);\n$objPHPExcel2->addSheet($objPHPExcel->getActiveSheet());\n$objWriter2 = PHPExcel_IOFactory::createWriter($objPHPExcel2, 'Excel2007');\n$objWriter2 -> save($outputFile); // BAD XLSX + ERROR NOTICES!!!\ndie();",
+    "LastUpdatedDate": "2015-05-18T16:34:08.12-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2015-05-18T14:42:49.743-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Cell format lost when copying sheets",
+    "Type": {
+      "Name": "Unassigned",
+      "Id": 5
+    },
+    "VoteCount": 1,
+    "Id": 21868
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "All you're doing here is copying the data: that's because you're not using the documented function that copies styling as well.\r\n\r\nQuoting from the PHPExcel developer documentation:\r\n\r\n > You can also copy worksheets from one workbook to another, though this is more complex as PHPExcel also has to replicate the styling between the two workbooks. The addExternalSheet() method is provided for this purpose.\r\n\r\n```\n$objClonedWorksheet = clone $objPHPExcel1->getSheetByName('Worksheet 1');\n$objPHPExcel->addExternalSheet($objClonedWorksheet);\n```\n",
+      "PostedDate": "2015-05-18T16:33:55.697-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2015-05-18T16:34:08.12-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

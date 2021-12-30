@@ -1,0 +1,138 @@
+[
+  {
+    "Id": "150873",
+    "ThreadId": "45243",
+    "Html": "Hi,<br>\r\n<br>\r\nI generate an excel5 with 5 cols and 150 rows and it takes about 5 minutes. (I think it is not a hardware problem. My computer has 4 GB RAM, CPU : Intel Core Duo 2 GHz).<br>\r\nEvery thing is ok until the code that generate the excel.<br>\r\n<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; $objWriter = PHPExcel_IOFactory::createWriter($this-&gt;xls, 'Excel5');<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; $tmpfname = tempnam('','xls_');<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$objWriter-&gt;save($tmpfname);<br>\r\n<br>\r\nDo you know how to improve the perfomance of saving the excel?<br>\r\n<br>\r\nThank you.<br>\r\n<br>\r\n",
+    "PostedDate": "2009-01-26T02:41:38.317-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "150875",
+    "ThreadId": "45243",
+    "Html": "The writers are quite slow, it's something we're trying to solve, but it's very difficult.<br>\r\n<br>\r\n5 minutes does sound like a long time for 5 cols and 150 rows. How fast is your script with Excel2007 writer? Are you using images?<br>\r\n<br>\r\n",
+    "PostedDate": "2009-01-26T02:49:45.513-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "150885",
+    "ThreadId": "45243",
+    "Html": "\r\n<br>\r\nI think i found my problem: I setted the columns dimension auto: <br>\r\n<br>\r\n$this-&gt;xls-&gt;getActiveSheet()-&gt;getColumnDimension($cellCol)-&gt;setAutoSize(true);<br>\r\n<br>\r\nThe excel contains 14 cols and 156 rows.<br>\r\n<br>\r\nThe times for generating the file are:<br>\r\n1. without autosize <br>\r\nGenerating Excel2007: 20 sec<br>\r\nGenerating Excel5: 1.02 sec<br>\r\n<br>\r\n<br>\r\n2. With the autosize:<br>\r\nGenerating Excel2007: 4.5 minutes<br>\r\nGenerating Excel5: 4.45 minutes<br>\r\n<br>\r\nMy solution was to eliminate the setautosize for columns. Do you know\r\nother solution using the auto dimensioning the column?<br>\r\n<br>\r\n<br>\r\n<br>\r\nkoyama wrote:\r\n<blockquote cite=\"mid:CO1MSFTVADM01IZS2TR0000400b@CO1MSFTVADM01.SND.RNO.GBL\">\r\n  \r\n  \r\n  <p>From: koyama</p>\r\n  <div id=ThreadNotificationPostBody>The writers are quite slow, it's\r\nsomething we're trying to solve, but it's very difficult.<br>\r\n  <br>\r\n5 minutes does sound like a long time for 5 cols and 150 rows. How fast\r\nis your script with Excel2007 writer? Are you using images?<br>\r\n  <br>\r\n  </div>\r\n  \r\n</blockquote>\r\n",
+    "PostedDate": "2009-01-26T03:18:51.633-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "150898",
+    "ThreadId": "45243",
+    "Html": "Thank you for the notice. I wasn't aware that autoSize was *that* slow. Will check up on this!<br>\r\n<br>\r\n",
+    "PostedDate": "2009-01-26T04:23:14.633-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "151340",
+    "ThreadId": "45243",
+    "Html": "I don't understand why it is so slow. Do you have some code to reproduce this? Or is it possible that you can send me the generated Excel file? (erik at phpexcel dot net)<br>\r\n<br>\r\n",
+    "PostedDate": "2009-01-27T06:44:08.76-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "151349",
+    "ThreadId": "45243",
+    "Html": "\r\ni attached the generated xls.<br>\r\nI will try  to extract the code  from my script which generate the xls\r\nand I will send it to you.<br>\r\n<br>\r\nthank you.<br>\r\n<br>\r\n<br>\r\nkoyama wrote:\r\n<blockquote cite=\"mid:CO1MSFTVADM0103yMJi00004bc6@CO1MSFTVADM01.SND.RNO.GBL\">\r\n  \r\n  \r\n  <p>From: koyama</p>\r\n  <div id=ThreadNotificationPostBody>I don't understand why it is so\r\nslow. Do you have some code to reproduce this? Or is it possible that\r\nyou can send me the generated Excel file? (erik at phpexcel dot net)<br>\r\n  <br>\r\n  </div>\r\n  \r\n</blockquote>\r\n",
+    "PostedDate": "2009-01-27T07:06:32.03-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "151381",
+    "ThreadId": "45243",
+    "Html": "I do notice one weirdness with the Excel file: You have many cell merges that are set incorrectly.<br>\r\n<br>\r\nI tried this:<br>\r\n<br>\r\n<code>\r\n$reader = PHPExcel_IOFactory::createReader('Excel5');<br>\r\n$excel = $reader-&gt;load('sample.xls');<br>\r\n<br>\r\n$sheet = $excel-&gt;getSheet();<br>\r\nvar_dump($sheet-&gt;getMergeCells());<br>\r\n</code>\r\n<br>\r\n<code>\r\nAnd got this:<br>\r\narray(2184) {\r\n[&quot;B2:A2&quot;]=&gt;\r\nstring(5) &quot;B2:A2&quot;\r\n[&quot;C2:A2&quot;]=&gt;\r\nstring(5) &quot;C2:A2&quot;\r\n[&quot;D2:A2&quot;]=&gt;\r\nstring(5) &quot;D2:A2&quot;\r\n[&quot;E2:A2&quot;]=&gt;\r\nstring(5) &quot;E2:A2&quot;\r\n[&quot;F2:A2&quot;]=&gt;\r\nstring(5) &quot;F2:A2&quot;\r\n</code>\r\n<br>\r\n...<br>\r\n<br>\r\nCan you check your script for cell merges and eliminate them?<br>\r\n<br>\r\n",
+    "PostedDate": "2009-01-27T08:20:05.897-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "151500",
+    "ThreadId": "45243",
+    "Html": "\r\nYes, you are right. I made a mistake in my script. Sorry for making you\r\nlose time.<br>\r\nIt's working perfect.<br>\r\n<br>\r\nthanks.<br>\r\n<br>\r\n<br>\r\nkoyama wrote:\r\n<blockquote cite=\"mid:CO1MSFTVADM018IP39l00004cbf@CO1MSFTVADM01.SND.RNO.GBL\">\r\n  \r\n  \r\n  <p>From: koyama</p>\r\n  <div id=ThreadNotificationPostBody>I do notice one weirdness with\r\nthe Excel file: You have many cell merges that are set incorrectly.<br>\r\n  <br>\r\nI tried this:<br>\r\n  <br>\r\n  <code>\r\n$reader = PHPExcel_IOFactory::createReader('Excel5');<br>\r\n$excel = $reader-&gt;load('sample.xls');<br>\r\n  <br>\r\n$sheet = $excel-&gt;getSheet();<br>\r\nvar_dump($sheet-&gt;getMergeCells());<br>\r\n  </code>\r\n  <br>\r\n  <code>\r\nAnd got this:<br>\r\narray(2184) {\r\n[&quot;B2:A2&quot;]=&gt;\r\nstring(5) &quot;B2:A2&quot;\r\n[&quot;C2:A2&quot;]=&gt;\r\nstring(5) &quot;C2:A2&quot;\r\n[&quot;D2:A2&quot;]=&gt;\r\nstring(5) &quot;D2:A2&quot;\r\n[&quot;E2:A2&quot;]=&gt;\r\nstring(5) &quot;E2:A2&quot;\r\n[&quot;F2:A2&quot;]=&gt;\r\nstring(5) &quot;F2:A2&quot;\r\n  </code><br>\r\n...<br>\r\n  <br>\r\nCan you check your script for cell merges and eliminate them?<br>\r\n  <br>\r\n  </div>\r\n  \r\n</blockquote>\r\n",
+    "PostedDate": "2009-01-27T12:58:51.763-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "187299",
+    "ThreadId": "45243",
+    "Html": "I think autoSave is quite slow actually... I tested this with the same code, only difference is with or without autosize on all 13 columns.<br>\r\nThis file has about 1350 rows and one worksheet.<br>\r\n<br>\r\n<pre>12:36:40 Create new PHPExcel object without autosize\r\n12:36:42 Write to Excel2007 format\r\n12:36:42 Save as\r\n12:36:46 Peak memory usage: 25.5 MB\r\n12:36:46 Done writing file.\r\nAction took 6,17801 seconds\r\n\r\n12:36:46 Create new PHPExcel object WITH autosize\r\n12:36:49 Write to Excel2007 format\r\n12:36:49 Run: objWriter-&gt;save() \r\n12:37:44 Done writing file.\r\n12:37:44 Peak memory usage: 101.25 MB\r\nAction took 58,13133 seconds\r\n\r\n12:37:44 Create new PHPExcel object without autosize\r\n12:37:47 Write to Excel5 format\r\n12:37:47 Run: objWriter-&gt;save() \r\n12:37:49 Done writing file.\r\n12:37:49 Peak memory usage: 114 MB\r\nAction took 4,79141 seconds\r\n\r\n12:37:49 Create new PHPExcel object WITH autosize\r\n12:37:52 Write to Excel5 format\r\n12:37:52 Run: objWriter-&gt;save() \r\n12:38:11 Done writing file.\r\n12:38:11 Peak memory usage: 256 MB\r\nAction took 22,24719 seconds\r\n\r\n</pre>\r\n",
+    "PostedDate": "2009-05-06T03:43:57.703-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "187325",
+    "ThreadId": "45243",
+    "Html": "@TimW: As far as I remember, what caused the script to slow down was that one needs e.g.<br>\r\n<br>\r\n<code>$objWorksheet-&gt;mergeCells('A1:B2');</code><br>\r\n<br>\r\nrather than<br>\r\n<br>\r\n<code>$objWorksheet-&gt;mergeCells('B2:A1');</code><br>\r\n<br>\r\nThat means from upper-left cell to lower-right cell.<br>\r\n<br>\r\nCan you check for this kind of reversed merge order in your script?<br>\r\n<br>\r\n",
+    "PostedDate": "2009-05-06T05:06:29.737-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "187327",
+    "ThreadId": "45243",
+    "Html": "I dont use mergeCells at all actually.\r\n",
+    "PostedDate": "2009-05-06T05:11:08.967-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "187329",
+    "ThreadId": "45243",
+    "Html": "\r\nHi,<br>\r\n<br>\r\nMy script had an error merging cells. I fixed that error and now it's\r\nworking fine.<br>\r\n<br>\r\nkoyama wrote:\r\n<blockquote cite=\"mid:CO1MSFTVADM01rBoe2U00004412@CO1MSFTVADM01.SND.RNO.GBL\">\r\n  \r\n  <p>From: koyama</p>\r\n  <div>@TimW: As far as I remember, what caused the script to slow down\r\nwas that one needs e.g.<br>\r\n  <br>\r\n  <code>$objWorksheet-&gt;mergeCells('A1:B2');</code><br>\r\n  <br>\r\nrather than<br>\r\n  <br>\r\n  <code>$objWorksheet-&gt;mergeCells('B2:A1');</code><br>\r\n  <br>\r\nThat means from upper-left cell to lower-right cell.<br>\r\n  <br>\r\nCan you check for this kind of reversed merge order in your script?<br>\r\n  <br>\r\n  </div>\r\n  <div>\r\n  <p>Read the <a href=\"http://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=45243&ANCHOR#Post187325\">full\r\ndiscussion online</a>.</p>\r\n  <p>To add a post to this discussion, reply to this email (<a href=\"mailto:PHPExcel@discussions.codeplex.com?subject=[PHPExcel:45243]\">PHPExcel@discussions.codeplex.com</a>)</p>\r\n  <p>To start a new discussion for this project, email <a href=\"mailto:PHPExcel@discussions.codeplex.com\">PHPExcel@discussions.codeplex.com</a></p>\r\n  <p>You are receiving this email because you subscribed to this\r\ndiscussion on CodePlex. You can <a href=\"http://www.codeplex.com/site/discussions/thread/unsubscribe/45243\">unsubscribe</a>\r\non codePlex.com.</p>\r\n  <p>Please note: Images and attachments will be removed from emails.\r\nAny posts to this discussion will also be available online at\r\ncodeplex.com</p>\r\n  </div>\r\n</blockquote>\r\n",
+    "PostedDate": "2009-05-06T05:11:38.693-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "187353",
+    "ThreadId": "45243",
+    "Html": "Maybe also interesting to know, I am migrating from the (old pear) xls writer to phpExcel.<br>\r\nExactly same xls file creation script takes: &quot;Action took 1,31069 seconds &quot; with old xls writer...<br>\r\n<br>\r\nYou can compare this with the third timing I posted earlier: 4,79 sec.\r\n",
+    "PostedDate": "2009-05-06T06:39:26.367-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "187360",
+    "ThreadId": "45243",
+    "Html": "&gt;&gt; I dont use mergeCells at all actually.<br>\r\n<br>\r\nOk, then the problem must be different from Ovidiu's. I'm afraid that I may need to see the script + the generated Excel file. Can you send them to me? (erik at phpexcel dot net).<br>\r\n<br>\r\n&gt;&gt; Maybe also interesting to know, I am migrating from the (old pear) xls writer&nbsp;to phpExcel.<br>\r\n&gt;&gt; Exactly same xls file creation script takes:&nbsp;&quot;Action took 1,31069 seconds &quot; with old xls writer...<br>\r\n&gt;&gt; You can compare this with the third timing I posted earlier: 4,79 sec.\r\n<br>\r\n<br>\r\nIf you are using many styles, speed and memory performance is likely to get much better with PHPExcel 1.7.0, you can already now try latest source code and compare with PHPExcel 1.6.7. Improvement depends on that you style many cells at once (e.g. using <code>duplicateStyleArray()</code>) instead of styling one cell at a time.<br>\r\n<br>\r\n",
+    "PostedDate": "2009-05-06T06:57:25.597-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "188535",
+    "ThreadId": "45243",
+    "Html": "<p>I did some testing with your scripts and I was able to reproduce the behavior with <code>setAutosize()</code> using PHPExcel 1.6.7. As you noted yourself, this is no longer happening with latest source code so I didn't investigate this too much.<br><br>With that said, I think the high memory usage was caused by &quot;orphan&quot; style objects being created when autoSizes were calculated. This should no longer be happening since we are now using shared styles in PHPExcel.<br><br><strong>Memory.</strong><br>The lower memory usage by PEAR::Spreadsheet_Excel_Writer is primarily possible because it uses disk caching as opposed to PHPExcel which uses a full in-memory representation of the Excel file. We are currently discussing the possibility of offering optional disk caching and database caching. This would also allow processing of large Excel files.<br><a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=6857\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=6857</a><br><br> <strong>Speed.</strong><br>After looking at your script, I do have a single tip for you: Whenever possible (and it normally is), use <code>setValueExplicit()</code> instead of <code>setValue()</code>. When you have many cells, this can speed up your script by 30%.</p>",
+    "PostedDate": "2009-05-09T15:40:09.93-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "188751",
+    "ThreadId": "45243",
+    "Html": "<p>Thanks Koyoma for your detailed answer!<br>setValueExplicit indeed speeds up the script, I also noticed a significant difference between getCellByColumnAndRow (~30% faster) and getCell (slower).<br><br></p>",
+    "PostedDate": "2009-05-11T01:32:10.727-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "456197",
+    "ThreadId": "45243",
+    "Html": "Hello,\r\n\r\nThought I'd just add to this existing thread as I am having the same problem.\r\nI have a sheet that is generated containing about 100columns and about 6500 rows.\r\nIt takes about 11minutes to generate.\r\n\r\nIs this normal?",
+    "PostedDate": "2010-06-16T07:45:48.14-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

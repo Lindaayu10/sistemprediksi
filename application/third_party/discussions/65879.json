@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "224093",
+    "ThreadId": "65879",
+    "Html": "<p><span style=\"text-decoration:underline\"><strong>Background:</strong></span></p>\r\n<p>To save a lot of unnecessary coding and to provide continuity I have setup up a number of XLS and XLST templates that are used for data downloads from my application. These templates have properties like page scaling set to help users print out their data. The templates have a scaling setting of <strong>1 page(s) wide by &lt;blank&gt; tall</strong> (set using the Page Setup... menu in Excel). This has the effect of printing all of the columns on 1 page rather then across multiple pages. The templates are not complex - no formulas, charts, etc.  - just some basic cell formatting (font style, bold for header row, etc.). The sequence of events are:</p>\r\n<ol>\r\n<li>User selects the file type (xls, xlsx) to download.</li>\r\n<li>File type template is read and specific data header &amp; rows are added.</li>\r\n<li>File is saved to the php://output stream for download.</li>\r\n</ol>\r\n<p><span style=\"text-decoration:underline\"><strong>Issue:</strong></span></p>\r\n<p>When using the XLSX (Excel2007) the page scaling properties set in the template (<strong>1 page(s) wide by &lt;blank&gt; tall</strong>) on the downloaded file are reset to the Excel default (<strong>Adjust to 100% normal size</strong>). However, this is NOT the case for XLS (Excel5) downloads. On XLS downloaded files the page scaling properties set in the template are maintained.</p>\r\n<p>In short, here is how I accomplish writing out the Excel2007 document:</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre><span style=\"color:Green\">//OMITTED - Get XLSX template file path</span>\r\n\r\n<span style=\"color:Green\">//Load the template file</span>\r\n$objPhpExcel = PHPExcel_IOFactory::load($template_file);\r\n\r\n<span style=\"color:Green\">//OMITTED - Code to add my data rows WITHOUT changing any of the preset template properties</span>\r\n\r\n<span style=\"color:Green\">//Instantiate the Excel2007 Writer</span>\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPhpExcel, <span style=\"color:#A31515\">'Excel2007'</span>);\r\n<span style=\"color:Green\">//Set office compatibility in case the user has an older version of Excel</span>\r\n$objWriter-&gt;setOffice2003Compatibility(true);\r\n\r\n<span style=\"color:Green\">//OMITTED - Code to set appropriate download headers</span>\r\n\r\n<span style=\"color:Green\">//Save the file to the php://output stream</span>\r\n$objWriter-&gt;save(<span style=\"color:#A31515\">'php://output'</span>);\r\n</pre>\r\n</div>\r\n<p><span style=\"text-decoration:underline\"><strong>Notes:</strong></span></p>\r\n<ul>\r\n<li>The XLSX template files are generated using Excel 2002 with the Compatibility Pack (SP2) installed. On saving then reopening the XLST template files the scaling settings are maintained (e.g. they are not lost when saving the file under the compatibility pack).</li>\r\n<li>The downloaded XLSX file works fine in all other respects. All template document properties and formatting properties are maintained. The downloaded file is not corrupt and and the file opens without any errors.</li>\r\n<li>I have tried disabling the writer's office compatibility setting but to no effect. Scaling settings are not maintained either way.</li>\r\n<li>OS: Windows XP 5.1.2600 SP3</li>\r\n<li>Excel: 2002 (10.6854.6854 ) SP3 w/ Compatibility Pack (SP2)</li>\r\n<li>Web Server: Microsoft-IIS/5.0</li>\r\n<li>PHP Version: 5.2.10</li>\r\n<li>PHPExcel: 1.7.0</li>\r\n</ul>\r\n<p>I'm not sure if this is a bug or something I am doing wrong. Any insight would be appreciated. Thanks!</p>",
+    "PostedDate": "2009-08-16T16:21:28.603-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "224096",
+    "ThreadId": "65879",
+    "Html": "<p>I recall this issue which is exactly what you are describing:<a href=\"http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=7610\"><br> </a></p>\r\n<p><a href=\"http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=7610\">http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=7610</a></p>\r\n<p>According to Maarten, the problem is that the fit-to-width value 1 is stored in some weird place, difficult to extract from some binary data. This was very annoying because one would have to add the <span style=\"font-family:Courier New\">setFitToWidth(1)</span> manually between the read/write of the template. (Note: It only seemed to happen for the value 1, and not 2, 3, etc.)</p>\r\n<p>Now, it is a long time ago I had that issue, so I might like to do some more testing such as checking whether OpenOffice.org 3 is able to read the value correctly. Anyway, it might comfort you that you are not the only one having this problem.</p>",
+    "PostedDate": "2009-08-16T16:50:54.037-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "224099",
+    "ThreadId": "65879",
+    "Html": "<p>Edit: I just checked OpenOffice.org 3, it understands fit-to-width = 1 ok. I think our assumption needs to be checked again and the work item I linked to re-opened. Will investigate this and post back here tomorrow.</p>",
+    "PostedDate": "2009-08-16T17:11:35.593-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "224103",
+    "ThreadId": "65879",
+    "Html": "<p>Thanks for doing that leg work. I have in the interim explicitly coded the following:</p>\r\n<p style=\"padding-left:30px\">$objPHPExcel-&gt;getActiveSheet()-&gt;getPageSetup()-&gt;setFitToWidth(1);</p>\r\n<p>which indeed works to set the downloaded file's scaling settings as per my original intentions. However, as I'm sure you well know, this is not an ideal solution. If at some point I wish to change the scaling settings in my template(s) I'd have to go back and rip out (or change) all this workaround code. Hopefully this is something I (we) are simply misunderstanding and, if not, can be fixed without too much trouble. Really LOVE this product. Thanks for your help and look forward to your findings.</p>",
+    "PostedDate": "2009-08-16T17:38:18.373-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "224116",
+    "ThreadId": "65879",
+    "Html": "<p>Should now be fixed:</p>\r\n<p><a href=\"http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=7610\">http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=7610</a></p>\r\n<p>Fix will be available in source code release tomorrow:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx\">http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx</a></p>",
+    "PostedDate": "2009-08-16T19:13:15.41-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "224418",
+    "ThreadId": "65879",
+    "Html": "<p>Just tested SVN 28490 and the issue seems to be resolved. Thanks so much for your diligence and attention on this. It is truly appreciated!</p>",
+    "PostedDate": "2009-08-17T05:32:09.003-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

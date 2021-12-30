@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "102680",
+    "ThreadId": "30871",
+    "Html": "I am using PHPExcel to generate and store Excel 2007 files as raw (BLOB) data in MySQL database. For this purpose I need the Excel file put inside a PHP string variable before I can save it in the database, but there seems to be no way of doing this without first having to save a temporary file. What I am therefore currently doing is the following:<br>\r\n<br>\r\n<ol>\r\n    <li>Generate PHPExcel object</li>\r\n    <li>Save Excel file in temporary storage using the save() method of PHPExcel_Writer_Excel2007</li>\r\n    <li>Use file_get_contents() function to read the saved file and store it into a string variable, say $str</li>\r\n    <li>Save $str in the database</li>\r\n    <li>Delete the temporary file</li>\r\n</ol>\r\n<br>\r\nAs one can see, I am really not using the file saved to disk for anything.<br>\r\n<br>\r\nTherefore I was looking for some mechanism so I can skip first having to save the Excel file in the file system.<br>\r\n<br>\r\nFor example:<br>\r\n<br>\r\n$str = $objWriter-&gt;getString(); // would be nice if this gave you the raw Excel file as a string<br>\r\n<br>\r\nIs there a way to achieve this without first having to save file to in file system?<br>\r\n<br>\r\nNote: I looked through the documentation as well as all discussion topics to see if this problem has been addressed before. Sorry if I have overlooked something.\r\n",
+    "PostedDate": "2008-07-04T03:14:02.497-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "102684",
+    "ThreadId": "30871",
+    "Html": "You can write to any PHP wrapper (<a href=\"http://nl3.php.net/manual/en/wrappers.php\">http://nl3.php.net/manual/en/wrappers.php</a>), so writing to an in-memory wrapper is possible without needing intermediate file.\r\n",
+    "PostedDate": "2008-07-04T03:37:42.097-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "102821",
+    "ThreadId": "30871",
+    "Html": "Thanks, Maarten, for that link plus quick response. This stuff was new to me so I learned many things from reading that section. While I feel I made some progress, I am still now sure exactly what you had in mind as how to avoid the intermediate file?<br>\r\n<br>\r\nFirst I thought, aha, you are saying that the save method accepts a stream reference so one could do something like this:<br>\r\n<br>\r\n<code>\r\n$fp = fopen('php://memory', 'r+');<br>\r\n$writer-&gt;save($fp); // not working<br>\r\n$str = stream_get_contents($fp);<br>\r\n</code>\r\n<br>\r\nbut that was not the case.<br>\r\n<br>\r\nThen I thought perhaps try some crazy thing like this:<br>\r\n<br>\r\n<code>\r\n$writer-&gt;save('php://memory');<br>\r\n</code>\r\n<br>\r\nbut then how would I grab the stream? Anyway, I got error message (using PHPExcel changeset 13825 from SVN):<br>\r\n<br>\r\n<code>\r\nFatal error: Uncaught exception 'Exception' with message 'Could not close zip file php://memory.' in /opt/lampp/htdocs/dev/current/www/classes/PHPExcel/Writer/Excel2007.php:383 Stack trace: #0 /opt/lampp/htdocs/dev/current/www/test.php(32): PHPExcel_Writer_Excel2007-&gt;save('php://memory') #1 {main} thrown in /opt/lampp/htdocs/dev/current/www/classes/PHPExcel/Writer/Excel2007.php on line 383<br>\r\n</code>\r\n<br>\r\nI would be glad if you could give me a second hint of what you had in mind.<br>\r\n<br>\r\nPerhaps it is just me, but I would find it useful if there was a more direct way of getting the raw Excel file using some method in the writer class. As far as I can see, if you can just get the raw contents you will be in a better position to do whatever you want. Saving the Excel file on disk, in database, or redirecting output to a client browser should all be simple tasks if you have direct access to the raw contents.<br>\r\n<br>\r\nThanks again for your response.<br>\r\n<br>\r\nEDIT: Slightly rephased last paragraph for better clarification.<br>\r\n",
+    "PostedDate": "2008-07-05T04:24:52.393-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "102996",
+    "ThreadId": "30871",
+    "Html": "Then the temporary file will be the solution to choose... Under the hood, output to php://output is doing the same.\r\n",
+    "PostedDate": "2008-07-06T23:08:14.323-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "103026",
+    "ThreadId": "30871",
+    "Html": "Ok, thanks, I will settle with the original solution then.\r\n",
+    "PostedDate": "2008-07-07T03:42:35.683-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "103156",
+    "ThreadId": "30871",
+    "Html": "Got an idea... because I just realized that the output buffer is stackable (<a href=\"http://php.net/manual/en/function.ob-start.php\">http://php.net/manual/en/function.ob-start.php</a>).<br>\r\n<br>\r\nI am currently trying out the following function which does not break contents already sent to the output stream.<br>\r\n<br>\r\n<code>\r\nfunction PHPExcel_get_contents($objPHPExcel, $writerType) {<br>\r\n&nbsp;&nbsp;&nbsp; ob_start();<br>\r\n&nbsp;&nbsp;&nbsp; $writer = PHPExcel_IOFactory::createWriter($objPHPExcel, $writerType);<br>\r\n&nbsp;&nbsp;&nbsp; $writer-&gt;save('php://output');<br>\r\n&nbsp;&nbsp;&nbsp; $contents = ob_get_contents();<br>\r\n&nbsp;&nbsp;&nbsp; ob_end_clean();<br>\r\n&nbsp;&nbsp;&nbsp; return $contents;<br>\r\n}<br>\r\n<br>\r\n// example: How to put the raw Excel 2007 file in string variable?<br>\r\n$objPHPExcel = ...<br>\r\n$str = PHPExcel_get_contents($objPHPExcel, 'Excel2007'); // contains raw data for Excel 2007 file<br>\r\n</code>\r\n<br>\r\nHope I have not overlooked something.<br>\r\n<br>\r\n<strong>\r\nEDIT:</strong><br>\r\nFor some reason which I haven't got my head into the above function it is not working as expected anyway. I cannot write to headers after function call. I'll stick with your original suggestion using a temporary file:<br>\r\n<br>\r\n<code>\r\nfunction PHPExcel_get_contents($objPHPExcel, $writerType) {<br>\r\n&nbsp;&nbsp;&nbsp; $writer = PHPExcel_IOFactory::createWriter($objPHPExcel, $writerType);<br>\r\n&nbsp;&nbsp;&nbsp; $tmpFilename = tempnam('./temp', 'tmp');<br>\r\n&nbsp;&nbsp;&nbsp; $writer-&gt;save($tmpFilename);<br>\r\n&nbsp;&nbsp;&nbsp; $contents = file_get_contents($tmpFilename);<br>\r\n&nbsp;&nbsp;&nbsp; unlink($tmpFilename);<br>\r\n&nbsp;&nbsp;&nbsp; return $contents;<br>\r\n}<br>\r\n</code>\r\n",
+    "PostedDate": "2008-07-07T13:24:15.117-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

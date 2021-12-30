@@ -1,0 +1,50 @@
+[
+  {
+    "Id": "592730",
+    "ThreadId": "252753",
+    "Html": "<p>Hi!</p>\n<p>&nbsp;</p>\n<p>Im searching for a solution to change the directory of the temporary created files from php excel.</p>\n<p>At the moment they will saved into the root directory of the project.</p>\n<p>&nbsp;</p>\n<p>\"$objPHPExcel = new PHPExcel();\" is the object where i fill my stuff into the excel sheet.</p>\n<p>as writer obj ill use \"$objWriter =PHPExcel_IOFactory::createWriter($oPHPExcel, $sExcelType)\"; (execltype = Excel2007)</p>\n<p>if i execute the \"$objWriter-&gt;setTempDir('/path/to/temp/')\" the script will give me the error: \"Fatal error: Call to undefined method PHPExcel_Writer_Excel2007::setTempDir()\"</p>\n<p>without the thempdir method it will create my excelfile without problems, but sometimes there will be some phpxltmp*****.xlsx files in the root.</p>\n<p>is there a solution to set the direcotry for those temporary files into an user-defined directory?</p>\n<p>&nbsp;</p>\n<p>ill use:</p>\n<p>&nbsp;* @category&nbsp;&nbsp; PHPExcel<br /> &nbsp;* @package&nbsp;&nbsp;&nbsp; PHPExcel<br /> &nbsp;* @version&nbsp;&nbsp;&nbsp; 1.7.0, 2009-08-10</p>\n<p>&nbsp;</p>\n<p>Regards</p>",
+    "PostedDate": "2011-04-06T05:27:35.22-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "593511",
+    "ThreadId": "252753",
+    "Html": "<p>There seems no user-defined soultion for.</p>\r\n<p>tmp files will always created in root directory. as i see in code of php excel.</p>\r\n<p>ill build a small workaround:</p>\r\n<p>save file on specified folder \"$objWriter('/path/to/temp/file.tmp')\" and send it to the user with $rFile = fopen('/path/to/temp/file.tmp', 'r'), header(...), fpassthru($rFile).</p>\r\n<p>thx anyways</p>",
+    "PostedDate": "2011-04-07T06:48:51.233-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "593824",
+    "ThreadId": "252753",
+    "Html": "<p>Try</p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>$objWriter-&gt;setUseDiskCaching(true, <span style=\"color: #a31515;\">'/path/to/temp/'</span>);\r\n</pre>\r\n</div>",
+    "PostedDate": "2011-04-07T15:26:43.647-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "593930",
+    "ThreadId": "252753",
+    "Html": "<p>hi!</p>\n<p>thx for your answer!</p>\n<p>&nbsp;</p>\n<p>In a short lookup at the code, ill find no usage of this variable \"_diskCachingDirectory\".</p>\n<p>its possible to set the directory, and it will be set, but i dont see that it will be used for save method.</p>\n<p>&nbsp;</p>\n<p>this is a snippet from class PHPExcel_Writer_Excel2007 -&gt; save() method of version&nbsp; 1.7.3c, 2010-06-01:</p>\n<p>&nbsp;</p>\n<div style=\"color: black; background-color: white;\">\n<pre><span style=\"color: green;\">// If $pFilename is php://output or php://stdout, make it a temporary file...</span>\n$originalFilename = $pFilename;\n<span style=\"color: blue;\">if</span> (strtolower($pFilename) == <span style=\"color: #a31515;\">'php://output'</span> || strtolower($pFilename) == <span style=\"color: #a31515;\">'php://stdout'</span>) {\n    $pFilename = @tempnam(<span style=\"color: #a31515;\">'./'</span>, <span style=\"color: #a31515;\">'phpxltmp'</span>);\n    <span style=\"color: blue;\">if</span> ($pFilename == <span style=\"color: #a31515;\">''</span>) {\n        $pFilename = $originalFilename;\n    }\n}<br /></pre>\n</div>\n<p>in my first case i used \"php://output\" as argument in save method.</p>\n<p>as u can see, there will be always set \"./\" as directory for the temp file - maybe this is solved in following versions of phpexcel. (or im dump and dont check the right code, or associated it wrong)</p>\n<p>at the end of the save method, he will unlink the temp file - so my (core-)problem seems to be an interrupt of script, while outputing the file.</p>\n<p>anyways, we temporary do not use excel export for the moment..</p>\n<p>regards</p>",
+    "PostedDate": "2011-04-07T22:08:04.427-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "593979",
+    "ThreadId": "252753",
+    "Html": "<p>It's not impossible that there are errors in the code, and places where it is incorrectly used, and the specified temp directory should probably be used in the case you've cited.</p>\r\n<p>But there are plenty of blocks within the code where this is used.</p>\r\n<p>The _diskCachingDirectory property is retrieved using the $objWriter-&gt;getDiskCachingDirectory(); method, and a quick search of the code shows that this is being referenced in the Comments, ContentTypes, DocProps, Drawing, Rels, StringTable, Style, Theme, WorkBook and WorkSheet classes used by the Excel2007 Writer.</p>\r\n<p>That one hardcoded reference to ./ appears to be the only one that exists in the Excel2007 Writer. You can modify it to:</p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre><span style=\"color: green;\">// If $pFilename is php://output or php://stdout, make it a temporary file...</span>\r\n$originalFilename = $pFilename;\r\n<span style=\"color: blue;\">if</span> (strtolower($pFilename) == <span style=\"color: #a31515;\">'php://output'</span> || strtolower($pFilename) == <span style=\"color: #a31515;\">'php://stdout'</span>) {\r\n   $pFilename = @tempnam($this-&gt;getDiskCachingDirectory(), <span style=\"color: #a31515;\">'phpxltmp'</span>);\r\n   <span style=\"color: blue;\">if</span> ($pFilename == <span style=\"color: #a31515;\">''</span>) {\r\n      $pFilename = $originalFilename;\r\n   }\r\n}\r\n</pre>\r\n</div>",
+    "PostedDate": "2011-04-08T00:41:24.803-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "647901",
+    "ThreadId": "252753",
+    "Html": "<p>I also hit the problem with the './' being used as temporary directory by the Excel2007 Writer. the modification works fine, I hope this change will be added to the next release.</p>",
+    "PostedDate": "2011-07-26T12:10:51.203-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

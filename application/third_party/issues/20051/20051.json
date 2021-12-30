@@ -1,0 +1,65 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "It seems that when you autoSize a column that has a formula in it, there is an error in Worksheet.php on line 722. I am able to reproduce the error in 1.7.9 with the following simple code.\n\n```\nrequire_once ('PHPExcel.php');\n$excel = new PHPExcel();\n$sheet = $excel->setActiveSheetIndex(0);\n$sheet->setCellValue('A1', '1');\n$sheet->setCellValue('B1', '2');\n$sheet->setCellValue('C1', '=A1+B1');\n$sheet->getColumnDimension('C')->setAutoSize(true);\n\nheader('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');\nheader('Content-Disposition: attachment;filename=\"Test.xlsx\"');\nheader('Cache-Control: max-age=0');\n\n$writer = new PHPExcel_Writer_Excel2007($excel);\n$writer->setPreCalculateFormulas(false);\n$writer->save('php://output');\nexit;\n```",
+    "LastUpdatedDate": "2015-07-26T08:24:55.047-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2013-08-07T20:19:26.897-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Formula column setAutoSize error Worksheet.php 722",
+    "Type": {
+      "Name": "Unassigned",
+      "Id": 5
+    },
+    "VoteCount": 3,
+    "Id": 20051
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "Similar failure in v 1.8.0\n```\r\n\r\nFatal error: Uncaught exception 'PHPExcel_Calculation_Exception' with message 'Net Summary!B8 -> Formula Error: An unexpected error occured' in PHPExcel\\Cell.php:293\nStack trace:\n#0 PHPExcel\\Worksheet.php(754): PHPExcel_Cell->getCalculatedValue()\n#1 PHPExcel\\Writer\\Excel2007\\Worksheet.php(373): PHPExcel_Worksheet->calculateColumnWidths()\n#2 PHPExcel\\Writer\\Excel2007\\Worksheet.php(80): PHPExcel_Writer_Excel2007_Worksheet->_writeCols(Object(PHPExcel_Shared_XMLWriter), Object(PHPExcel_Worksheet))\n#3 PHPExcel\\Writer\\Excel2007.php(304): PHPExcel_Writer_Excel2007_Worksheet->writeWorksheet(Object(PHPExcel_Worksheet), Array, false)\n#4 PHPExcel_Writer_Excel2007->save('trial.xlsx')\r\n\r\n```\r\n\r\nthe only formula in the row is one cell at B8  =SUMIF(A:A,\"XXXX\",C:C)",
+      "PostedDate": "2015-04-29T07:59:08.063-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2015-04-29T08:00:00.68-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Column or row references (like `B:B` or `3:4`) aren't supported in formulae, only ranges like `B1:C1024`",
+      "PostedDate": "2015-04-29T10:47:25.803-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I have the calculation working, just not the setAutoSize.  \nAs for the ranges in formulae, the fix I am so dependent on was in v1.7.4\n```\n2010-08-26 (v1.7.4):\n- Feature:  (MBaker)    Support for row or column ranges in the calculation engine, e.g. =SUM(C:C) or =SUM(1:2)\n                        Also support in the calculation engine for absolute row or column ranges e.g. =SUM($C:$E) or =SUM($3:5)\n```\r\n\r\nOr is this something different from your comment above?  \r\n\r\nThanks for this package btw, very useful and helpful.\n",
+      "PostedDate": "2015-04-29T12:11:18.83-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2015-07-26T08:24:55.047-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

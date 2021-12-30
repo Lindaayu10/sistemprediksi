@@ -1,0 +1,182 @@
+Index: Classes/PHPExcel/Cell.php
+===================================================================
+--- Classes/PHPExcel/Cell.php	(revision 1028)
++++ Classes/PHPExcel/Cell.php	(working copy)
+@@ -115,13 +115,6 @@
+ 	private $_dataValidation;
+ 
+ 	/**
+-	 * Hyperlink
+-	 *
+-	 * @var PHPExcel_Cell_Hyperlink
+-	 */
+-	private $_hyperlink;
+-
+-	/**
+ 	 * Parent worksheet
+ 	 *
+ 	 * @var PHPExcel_Worksheet
+@@ -375,21 +368,27 @@
+      */
+     public function hasHyperlink()
+     {
+-    	return !is_null($this->_hyperlink);
++		if (!isset($this->_parent)) {
++			throw new Exception('Cannot check for hyperlink when cell is not bound to a worksheet');
++		}
++
++		return $this->_parent->hyperlinkExists($this->getCoordinate());
+     }
+ 
+     /**
+      * Get Hyperlink
+      *
++     * @throws Exception
+      * @return PHPExcel_Cell_Hyperlink
+      */
+     public function getHyperlink()
+     {
+-    	if (is_null($this->_hyperlink)) {
+-    		$this->_hyperlink = new PHPExcel_Cell_Hyperlink($this);
+-    	}
++		if (!isset($this->_parent)) {
++			throw new Exception('Cannot get hyperlink for cell that is not bound to a worksheet');
++		}
+ 
+-    	return $this->_hyperlink;
++		$hyperlink = $this->_parent->getHyperlink($this->getCoordinate());
++		return $hyperlink;
+     }
+ 
+     /**
+@@ -401,8 +400,11 @@
+      */
+     public function setHyperlink(PHPExcel_Cell_Hyperlink $pHyperlink = null)
+     {
+-   		$this->_hyperlink	= $pHyperlink;
+-    	$this->_hyperlink->setParent($this);
++		if (!isset($this->_parent)) {
++			throw new Exception('Cannot set hyperlink for cell that is not bound to a worksheet');
++		}
++
++		$this->_parent->setHyperlink($this->getCoordinate(), $pHyperlink);
+     	return $this;
+     }
+ 
+Index: Classes/PHPExcel/ReferenceHelper.php
+===================================================================
+--- Classes/PHPExcel/ReferenceHelper.php	(revision 1028)
++++ Classes/PHPExcel/ReferenceHelper.php	(working copy)
+@@ -277,6 +277,17 @@
+ 		}
+ 
+ 
++		// Update worksheet: hyperlinks
++		$aHyperlinkCollection = array_reverse($pSheet->getHyperlinkCollection(), true);
++		foreach ($aHyperlinkCollection as $key => $value) {
++			$newReference = $this->updateCellReference($key, $pBefore, $pNumCols, $pNumRows);
++			if ($key != $newReference) {
++				$pSheet->setHyperlink( $newReference, $value );
++				$pSheet->setHyperlink( $key, null );
++			}
++		}
++
++
+ 		// Update worksheet: merge cells
+ 		$aMergeCells = array_reverse($pSheet->getMergeCells(), true);
+ 		foreach ($aMergeCells as $key => $value) {
+Index: Classes/PHPExcel/Worksheet.php
+===================================================================
+--- Classes/PHPExcel/Worksheet.php	(revision 1036)
++++ Classes/PHPExcel/Worksheet.php	(working copy)
+@@ -336,6 +336,13 @@
+ 	private $_cachedHighestRow = null;
+ 
+ 	/**
++	 * Hyperlinks. Indexed by cell coordinate, e.g. 'A1'
++	 *
++	 * @var array
++	 */
++	private $_hyperlinkCollection = array();
++
++	/**
+ 	 * Create a new worksheet
+ 	 *
+ 	 * @param PHPExcel 		$pParent
+@@ -2187,6 +2194,63 @@
+     }
+ 
+ 	/**
++	 * Get hyperlink
++	 *
++	 * @param string $pCellCoordinate	Cell coordinate to get hyperlink for
++	 */
++	public function getHyperlink($pCellCoordinate = 'A1')
++	{
++		// return hyperlink if we already have one
++		if (isset($this->_hyperlinkCollection[$pCellCoordinate])) {
++			return $this->_hyperlinkCollection[$pCellCoordinate];
++		}
++
++		// else create hyperlink
++		$cell = $this->getCell($pCellCoordinate);
++		$this->_hyperlinkCollection[$pCellCoordinate] = new PHPExcel_Cell_Hyperlink($cell);
++		return $this->_hyperlinkCollection[$pCellCoordinate];
++	}
++
++	/**
++	 * Set hyperlnk
++	 *
++	 * @param string $pCellCoordinate	Cell coordinate to insert hyperlink
++	 * @param 	PHPExcel_Cell_Hyperlink	$pHyperlink
++	 * @return PHPExcel_Worksheet
++	 */
++	public function setHyperlink($pCellCoordinate = 'A1', PHPExcel_Cell_Hyperlink $pHyperlink = null)
++	{
++		if ($pHyperlink === null) {
++			unset($this->_hyperlinkCollection[$pCellCoordinate]);
++		} else {
++			$this->_hyperlinkCollection[$pCellCoordinate] = $pHyperlink;
++			$pHyperlink->setParent($this->getCell($pCellCoordinate));
++		}
++		return $this;
++	}
++
++	/**
++	 * Hyperlink at a specific coordinate exists?
++	 *
++	 * @param string $pCellCoordinate
++	 * @return boolean
++	 */
++	public function hyperlinkExists($pCoordinate = 'A1')
++	{
++		return isset($this->_hyperlinkCollection[$pCoordinate]);
++	}
++
++	/**
++	 * Get collection of hyperlinks
++	 *
++	 * @return PHPExcel_Cell_Hyperlink[]
++	 */
++	public function getHyperlinkCollection()
++	{
++		return $this->_hyperlinkCollection;
++	}
++
++	/**
+ 	 * Copy worksheet (!= clone!)
+ 	 *
+ 	 * @return PHPExcel_Worksheet
+Index: Classes/PHPExcel/Writer/HTML.php
+===================================================================
+--- Classes/PHPExcel/Writer/HTML.php	(revision 1028)
++++ Classes/PHPExcel/Writer/HTML.php	(working copy)
+@@ -898,7 +898,7 @@
+ 						($pRow + 1),
+ 						'',
+ 						PHPExcel_Cell_DataType::TYPE_NULL,
+-						null
++						$pSheet
+ 					);
+ 				}
+ 

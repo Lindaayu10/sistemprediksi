@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "436349",
+    "ThreadId": "210811",
+    "Html": "<p>Hi there,<br><br>I want to use PHPExcel for a PDF and Excel2007 dump of our forms in PHP. We detected that PHP doesnt round at least 1 specific float.<br>Here is the Code to test:<br><br>&lt;?php<br>echo &quot;&lt;pre&gt;\\n&quot;;<br>$float1 = 580.9299999999999;<br>$string1 = &quot;580.9299999999999&quot;;<br>var_dump($float1);<br>echo &quot;&lt;br&gt;\\n&quot;;<br>var_dump($string1);<br>echo &quot;&lt;br&gt;\\n&quot;;<br><br>require_once 'library/PHPExcel/IOFactory.php';<br><br>var_dump($float1);<br>echo &quot;&lt;br&gt;\\n&quot;;<br>var_dump(round($float1,2));<br>echo &quot;&lt;br&gt;\\n&quot;;<br>var_dump($string1);<br>echo &quot;&lt;br&gt;\\n&quot;;<br><br>die();<br>?&gt;<br><br>What&acute;s going wrong?</p>",
+    "PostedDate": "2010-04-28T00:27:40.28-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "436354",
+    "ThreadId": "210811",
+    "Html": "<p>I don't know what's going on, but what makes you think it has anything to do with PHPExcel?</p>\r\n<p>If I run your script, I get:</p>\r\n<pre><pre style=\"color:black;background-color:white\"><pre>float(580.93)\r\n\r\nstring(17) <span style=\"color:#a31515\">&quot;580.9299999999999&quot;</span>\r\n\r\nfloat(580.93)\r\n\r\nfloat(580.93)\r\n\r\nstring(17) <span style=\"color:#a31515\">&quot;580.9299999999999&quot;</span>\r\n</pre>\r\n</pre>\r\n<pre>If I comment out the require_once line, I get</pre>\r\n</pre>\r\n<pre style=\"color:black;background-color:white\"><pre>float(580.93)\r\n\r\nstring(17) <span style=\"color:#a31515\">&quot;580.9299999999999&quot;</span>\r\n\r\nfloat(580.93)\r\n\r\nfloat(580.93)\r\n\r\nstring(17) <span style=\"color:#a31515\">&quot;580.9299999999999&quot;</span>\r\n</pre>\r\n</pre>\r\n<pre><br></pre>\r\n<p>&nbsp;</p>\r\n<p>What exactly are you expecting to see?</p>\r\n<p>If this is simply a generic issue with computer handling of floating point numbers, take a look at <a href=\"http://en.wikipedia.org/wiki/Floating_point#Accuracy_problems\">this article</a>&nbsp;and be aware that it affects almost every computer language on almost every computer platform</p>",
+    "PostedDate": "2010-04-28T00:46:20.28-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "436362",
+    "ThreadId": "210811",
+    "Html": "I´m seeing:\r\n\r\nfloat(580.93)\r\n\r\n\r\nstring(17) &quot;580.9299999999999&quot;\r\n\r\n\r\nfloat(580.9299999999999)\r\n\r\n\r\nfloat(580.9299999999999)\r\n\r\n\r\nstring(17) &quot;580.9299999999999&quot;\r\n\r\n\r\nI´m using PHP Version:\r\nC:\\Users\\Wehner&gt; php -v\r\nPHP 5.2.11 (cli) (built: Nov  8 2009 15:10:54)\r\nCopyright (c) 1997-2009 The PHP Group\r\nZend Engine v2.2.0, Copyright (c) 1998-2009 Zend Technologies\r\n    with Zend Extension Manager v5.1, Copyright (c) 2003-2009, by Zend Technolog\r\nies\r\n    - with Zend Data Cache v4.0, Copyright (c) 2004-2009, by Zend Technologies [\r\nloaded] [licensed] [disabled]\r\n    - with Zend Utils v1.0, Copyright (c) 2004-2009, by Zend Technologies [loade\r\nd] [licensed] [enabled]\r\n    - with Zend Optimizer+ v4.1, Copyright (c) 1999-2009, by Zend Technologies [\r\nloaded] [licensed] [disabled]\r\n    - with Zend Debugger v5.2, Copyright (c) 1999-2009, by Zend Technologies [lo\r\naded] [licensed] [enabled]\r\n",
+    "PostedDate": "2010-04-28T01:04:58.087-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "436368",
+    "ThreadId": "210811",
+    "Html": "<p>If it really is a concern (and note that this only changes display rathe rthan the internal storage of a number in PHP), edit the Classes/PHPExcel/Calculation/Function.php file, and at around lines 60-63 you'll find a block of code like:</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>$savedPrecision = ini_get(<span style=\"color:#a31515\">'precision'</span>);\r\n<span style=\"color:blue\">if</span> ($savedPrecision &lt; 16) {\r\n ini_set(<span style=\"color:#a31515\">'precision'</span>,16);\r\n}\r\n</pre>\r\n</div>\r\n<p>Simply comment this out.</p>",
+    "PostedDate": "2010-04-28T01:11:15.967-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "436370",
+    "ThreadId": "210811",
+    "Html": "<p>Thanks, it&acute;s working</p>",
+    "PostedDate": "2010-04-28T01:14:22.523-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

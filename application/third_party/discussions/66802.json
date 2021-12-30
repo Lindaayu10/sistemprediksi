@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "227059",
+    "ThreadId": "66802",
+    "Html": "<p>Sorry if I'm asking for something thats already in the documentation, but I've looked everywhere I could without finding much to help.</p>\r\n<p>I just setup PHPExcel with my CakePHP project and it seems to be working great, but I am just unsure on how to use it for my needs. I need to read in an excel 5 file and pretty much pull the data out of it. No formatting and nothing complicated in the spreadsheet, just a few basic columns with strings and currency formatted numbers.</p>\r\n<p>Is there a good way for me to convert a basic excel spreadsheet into an array or something easy to work with? I've printed the dump from getSheet(0), but its not exactly an easy format for me to then import into my MySQL tables.</p>\r\n<p>As I said, sorry if I'm asking a stupid question thats been covered. Pointing me to any docs out there to help with this would be great too.</p>\r\n<p>Thanks.</p>",
+    "PostedDate": "2009-08-24T07:50:22.1-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "227128",
+    "ThreadId": "66802",
+    "Html": "<p>&nbsp;$highestRow&nbsp;&nbsp;= $objWorksheet-&gt;getHighestRow();<br>&nbsp;$highestColumn&nbsp;= $objWorksheet-&gt;getHighestColumn();</p>\r\n<p>&nbsp;$rowData = array();<br>&nbsp;$row = 1;<br>&nbsp;do {<br>&nbsp;&nbsp;$columnData = array();<br>&nbsp;&nbsp;$column = 'A';<br>&nbsp;&nbsp;do {<br>&nbsp;&nbsp;&nbsp;if ($objWorksheet-&gt;cellExists($column.$row)) {<br>&nbsp;&nbsp;&nbsp;&nbsp;$actualValue = $objWorksheet-&gt;getCell($column.$row)-&gt;getValue();<br>&nbsp;&nbsp;&nbsp;&nbsp;$displayValue = $objWorksheet-&gt;getCell($column.$row)-&gt;getCalculatedValue();<br>&nbsp;&nbsp;&nbsp;} else {<br>&nbsp;&nbsp;&nbsp;&nbsp;$actualValue = $displayValue = null;<br>&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;$columnData[] = array( 'columnID'&nbsp;&nbsp;=&gt; $column,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'cellID'&nbsp;&nbsp;&nbsp;=&gt; $column.$row,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'actualValue'&nbsp;=&gt; $actualValue,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'displayValue'&nbsp;=&gt; $displayValue<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; );<br>&nbsp;&nbsp;} while ($column++ != $highestColumn);<br>&nbsp;&nbsp;$rowData[] = array( 'rowID'&nbsp;&nbsp;=&gt; $row,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'columns'&nbsp;=&gt; $columnData<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; );<br>&nbsp;} while ($row++ != $highestRow);</p>",
+    "PostedDate": "2009-08-24T10:11:53.213-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "228047",
+    "ThreadId": "66802",
+    "Html": "<p>Hi, blakej</p>\r\n<p>&nbsp;</p>\r\n<p>Can you share your experience on how to setup PHPExcel with cakePHP? I googled this topic and looks like many people can successfully create an excel file with plain PHP (the test files that come with PHPExcel), but will get a &quot;file corrupted ...&quot; message with cakePHP. I am having the same problem, too. Thanks in advance.</p>\r\n<p>&nbsp;</p>\r\n<p>Tony</p>",
+    "PostedDate": "2009-08-26T10:42:53.143-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "228095",
+    "ThreadId": "66802",
+    "Html": "<p>Thanks Mark. I should be able to tweak that around to fit my needs.</p>\r\n<p>&nbsp;</p>\r\n<p>Tony, so far all I did was copy the PHPExcel files into the vendors directory, then in my controller action I included the lines:</p>\r\n<p>\r\n<p><span style=\"white-space:pre\"> </span>App::import('Vendor', 'phpexcel', array('file' =&gt; 'PHPExcel.php'));</p>\r\n<p><span style=\"white-space:pre\"> </span>App::import('Vendor', 'phpexcelreader', array('file' =&gt; 'PHPExcel'.DS.'Reader'.DS.'Excel5.php'));</p>\r\n<p>Which covered all I needed. I haven't dealt with writing files with it yet, so I'm not sure what all I will need to do to get that working. From the looks of things so far though, that shouldn't be too bad if its anything like reading.</p>\r\n</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>-Blake</p>\r\n<div id=\"_mcePaste\" style=\"left:-10000px;top:0px;width:1px;height:1px;overflow-x:hidden;overflow-y:hidden\"><span style=\"white-space:pre\"> </span>App::import('Vendor', 'phpexcel', array('file' =&gt; 'PHPExcel.php'));</div>\r\n<div id=\"_mcePaste\" style=\"left:-10000px;top:0px;width:1px;height:1px;overflow-x:hidden;overflow-y:hidden\"><span style=\"white-space:pre\"> </span>App::import('Vendor', 'phpexcelreader', array('file' =&gt; 'PHPExcel'.DS.'Reader'.DS.'Excel5.php'));<span style=\"white-space:pre\"> </span>App::import('Vendor', 'phpexcel', array('file' =&gt; 'PHPExcel.php'));</div>\r\n<div id=\"_mcePaste\" style=\"left:-10000px;top:0px;width:1px;height:1px;overflow-x:hidden;overflow-y:hidden\"><span style=\"white-space:pre\"> </span>App::import('Vendor', 'phpexcelreader', array('file' =&gt; 'PHPExcel'.DS.'Reader'.DS.'Excel5.php'));<span style=\"white-space:pre\"> </span>App::import('Vendor', 'phpexcel', array('file' =&gt; 'PHPExcel.php'));</div>\r\n<div id=\"_mcePaste\" style=\"left:-10000px;top:0px;width:1px;height:1px;overflow-x:hidden;overflow-y:hidden\"><span style=\"white-space:pre\"> </span>App::import('Vendor', 'phpexcelreader', array('file' =&gt; 'PHPExcel'.DS.'Reader'.DS.'Excel5.php'));</div>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-08-26T12:22:22.25-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "228380",
+    "ThreadId": "66802",
+    "Html": "<p>Alright so all my reading in the file works great now. But one more question: is there a good way to handle invalid or damaged files? Right now it kills the entire script with &quot;<strong>Fatal error</strong>: Uncaught exception 'Exception' with message....&quot;. Thats not a very friendly error to give users. Just wondering if theres a better way to handle this.</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks,</p>\r\n<p>-Blake</p>",
+    "PostedDate": "2009-08-27T06:32:31.177-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "228384",
+    "ThreadId": "66802",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>blakej wrote:</strong><br>\r\n<p>Alright so all my reading in the file works great now. But one more question: is there a good way to handle invalid or damaged files? Right now it kills the entire script with &quot;<strong>Fatal error</strong>: Uncaught exception 'Exception' with message....&quot;. Thats not a very friendly error to give users. Just wondering if theres a better way to handle this.</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks,</p>\r\n<p>-Blake</p>\r\n</blockquote>\r\n<p>You can use a try-catch block. Try to look at this thread:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=61483\">http://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=61483</a></p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-08-27T06:41:22.947-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "228412",
+    "ThreadId": "66802",
+    "Html": "<p>Thanks. Worked great.</p>",
+    "PostedDate": "2009-08-27T07:44:27.677-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

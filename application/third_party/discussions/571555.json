@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "1320154",
+    "ThreadId": "571555",
+    "Html": "I have made this sheet using PHPExcel \r<br />\ni filled it using an array . \r<br />\n<br />\nit has values in percent form and it treated as text form by default .\r<br />\nhow can i convert my all the columns in to numeric form for so i can apply some math formulas on it .<br />\n<pre><code>   $excel_out_Questions = $this-&gt;outputQuestions($Sets);\n\n   $objPHPExcel-&gt;getActiveSheet()-&gt;fromArray($excel_out_Questions, &quot;&quot; , 'A5');\n\n\n</code></pre>\n\n<img src=\"http://i.stack.imgur.com/ktKuw.png\" alt=\"excel sheet after filling\" />\r<br />\n<br />\n<br />\ni have tried this but it doesn't work ... :/<br />\n<pre><code>  $objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('B434:B444')-&gt;getNumberFormat()-&gt;setFormatCode (PHPExcel_Style_NumberFormat::FORMAT_NUMBER_00);\n\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue( 'B445','=(SUM(B443:B444)-SUM(B434:B440))*100)');\n\n\n</code></pre>\n\nPlease suggest. \r<br />\n<br />\nThanks in advance<br />\n",
+    "PostedDate": "2014-11-07T14:05:51.59-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1320162",
+    "ThreadId": "571555",
+    "Html": "Unless you use <code>setCellValueExplicit()</code>, then PHPExcel uses a <code>value binder</code> to identify the datatype that you are setting in the cell. \r<br />\n<br />\nBy default, this is <code>PHPExcel_Cell_DefaultValueBinder</code>, which performs a very simplistic check on whether the PHP datatype is Null or Boolean, or a numeric value or a string. A value such as <code>37.7%</code> is a PHP string, so will be treated as a string.\r<br />\n<br />\nThere is also an advanced <code>value binder</code> (<code>PHPExcel_Cell_AdvancedValueBinder</code>) that can perform much more sophisticated checks, and is capable of identifying strings containing basic date formats and converting them to an Excel serialized datetime, and setting a number format mask accordingly. It can also detect currency values, fractions, and (most importantly) percentages.\r<br />\n<br />\nIf you pass a string value like <code>37.7%</code> through the advanced value binder, it will divide the numeric part by 100, and set the number format mask to a percentage mask, in exactly the same way as the MS Excel GUI.\r<br />\n<br />\nTo enable the advanced value binder, call<br />\n<pre><code>PHPExcel_Cell::setValueBinder( new PHPExcel_Cell_AdvancedValueBinder() );\n</code></pre>\n\nbefore instantiating your PHPExcel object.\r<br />\n<br />\nYou can find an example of advanced binder usage in <code>/Examples/29advancedvaluebinder.php</code><br />\n",
+    "PostedDate": "2014-11-07T14:40:40.57-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": "2014-11-10T08:09:20.843-08:00"
+  }
+]

@@ -1,0 +1,82 @@
+[
+  {
+    "Id": "151914",
+    "ThreadId": "45529",
+    "Html": "When I try and get the format of an excel 2007 cell, I can't tell the difference between a date and just another number.&nbsp; Same with time and a float.&nbsp; For example, the cell contains 36526, which if it is in date format, that is equal to 01/01/2000, but it also could just be the integer 36526.&nbsp; I am writing a generic reader that doesn't know if the cell should be a date or integer or string or whatever.&nbsp; Is there some method I can call on the cell to get what type it is?<br>\r\n<br>\r\nWhen I call $cell-&gt;getDataType(), I get 'n' back, but that just says it is a number, it doesn't tell me if I need to convert the 36526 to a date or if it should just be a number.<br>\r\n<br>\r\nIs this possible or do I *have* to know that the cell is suppose to be a date, which means I can't write a completely generic program.<br>\r\n<br>\r\nThanks,<br>\r\nShawn<br>\r\n",
+    "PostedDate": "2009-01-28T12:34:17.63-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "151930",
+    "ThreadId": "45529",
+    "Html": "You are correct. There is no dedicated date or time type in Excel. They are just numbers in Excel.<br>\r\n<br>\r\nWhat you need to look at is the number format.<br>\r\n<br>\r\n<code>\r\n$formatCode = $worksheet-&gt;getStyle('A1')-&gt;getNumberFormat()-&gt;getFormatCode();<br>\r\n</code>\r\n<br>\r\nFor example, it may give you this:<br>\r\n<br>\r\n<code>\r\n&quot;[$-F400]h:mm:ss\\ AM/PM&quot;<br>\r\n</code>\r\n<br>\r\nThen you have a date. There is a function which may be useful:<br>\r\n<br>\r\n<code>\r\n$bool = PHPExcel_Shared_Date::isDateTimeFormatCode($formatCode); // true if $formatCode is date/time-like<br>\r\n</code>\r\n<br>\r\nI'm not sure whether this method is bullet proof for filtering dates and times, but you may give it a try. If Mark drop by this thread, he may have something to add.<br>\r\n<br>\r\nNote: Please use latest source code, as date/time reading behavior of PHPExcel has changed since 1.6.5.<br>\r\n<a href=\"http://www.codeplex.com/PHPExcel/SourceControl/ListDownloadableCommits.aspx\">http://www.codeplex.com/PHPExcel/SourceControl/ListDownloadableCommits.aspx</a><br>\r\n<br>\r\n<br>\r\n<br>\r\n",
+    "PostedDate": "2009-01-28T13:05:54.653-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "151931",
+    "ThreadId": "45529",
+    "Html": "I tried looking at the getFormatCode() before and it always returns 'General', so that didn't help.&nbsp; Which is odd, cause I definitely was expecting a different format, like you said.&nbsp; Hopefully Mark will have a solution.&nbsp; Thanks!<br>\r\n",
+    "PostedDate": "2009-01-28T13:12:06.397-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "151933",
+    "ThreadId": "45529",
+    "Html": "Hmm... This is strange. Just checking, were you using <code>$reader-&gt;setReadDataOnly(true)</code> ? That would not reveal formatting.<br>\r\n<br>\r\n",
+    "PostedDate": "2009-01-28T13:19:10.777-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "151934",
+    "ThreadId": "45529",
+    "Html": "Yes, I am.  I commented that line out and I still don't get any <br>formatting.  Here is the code (if there is a better way to do the <br>columnLetterMap please let me know).  I was hoping there would be a <br>function like $worksheet-&gt;getHighestColumnByNumber().<br><br>$columnLetterMap = array(<br>     'A' =&gt; 0,<br>     'B' =&gt; 1,<br>     'C' =&gt; 2,<br>     'D' =&gt; 3,<br>     'E' =&gt; 4,<br>     'F' =&gt; 5,<br>     'G' =&gt; 6,<br>     'H' =&gt; 7,<br>     'I' =&gt; 8,<br>     'J' =&gt; 9,<br>     'K' =&gt; 10,<br>     'L' =&gt; 11,<br>     'M' =&gt; 12<br>);<br><br>$reader = new PHPExcel_Reader_Excel2007();<br>//$reader-&gt;setReadDataOnly(true);<br>$excel = $reader-&gt;load( $file );<br><br>$worksheet = $excel-&gt;getSheet(0);<br><br>$numRows = $worksheet-&gt;getHighestRow();<br>$numCols = $columnLetterMap[$worksheet-&gt;getHighestColumn()];<br><br>for( $row = 1; $row &lt;= $numRows; $row++ ) {<br>     for( $col = 0; $col &lt;= $numCols; $col++ ) {<br>         $cell = $worksheet-&gt;getCellByColumnAndRow( $col, $row );<br>         $style = $worksheet-&gt;getStyleByColumnAndRow( $col, $row );<br><br>         $numberFormat = $style-&gt;getNumberFormat()-&gt;getFormatCode();<br>         print &quot;format: $numberFormat<br>&quot;;<br>     }<br>}<br><br><br><br>koyama wrote:<br>&gt; <br>&gt; <br>&gt; From: koyama<br>&gt; <br>&gt; Hmm... This is strange. Just checking, were you using <br>&gt; |$reader-&gt;setReadDataOnly(true)| ? That would not reveal formatting.<br>&gt; <br>&gt; Read the full discussion online <br>&gt; &lt;http://www.codeplex.com/PHPExcel/Thread/View.aspx?ThreadId=45529&ANCHOR#Post151933&gt;.<br>&gt; <br>&gt; To add a post to this discussion, reply to this email <br>&gt; ([email removed] <br>&gt; &lt;mailto:[email removed]?subject=[PHPExcel:45529]&gt;)<br>&gt; <br>&gt; To start a new discussion for this project, email <br>&gt; [email removed] &lt;mailto:[email removed]&gt;<br>&gt; <br>&gt; You are receiving this email because you subscribed to this discussion <br>&gt; on CodePlex. You can unsubscribe <br>&gt; &lt;http://www.codeplex.com/site/discussions/thread/unsubscribe/45529&gt; on <br>&gt; codePlex.com.<br>&gt; <br>&gt; Please note: Images and attachments will be removed from emails. Any <br>&gt; posts to this discussion will also be available online at codeplex.com<br>&gt;",
+    "PostedDate": "2009-01-28T13:29:11.933-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "151964",
+    "ThreadId": "45529",
+    "Html": "You are asking for alternative to $columnLetterMap. Try like this:<br>\r\n<code><br>\r\nPHPExcel_Cell::columnIndexFromString('A'); // = 1<br>\r\n</code>\r\n<br>\r\nI don't notice any errors. If you don't find the problem, you can try to send me the sheet (erik at phpexcel dot net) ?<br>\r\n<br>\r\n",
+    "PostedDate": "2009-01-28T14:46:52.923-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "151966",
+    "ThreadId": "45529",
+    "Html": "If you open the workbook in Excel, does the cell definitely show a formatted date value (&quot;01/01/2000&quot; or similar) rather than a numeric (36525)?<br>\r\n<br>\r\nAre you running the 1.6.5 production release, or the latest SVN code? We made some changes around 14th/15th January to ensure that dates were correctly identified in the Excel readers<br>\r\n<br>\r\n<br>\r\n$numCols = PHPExcel_Cell::columnIndexFromString($worksheet-&gt;getHighestColumn());<br>\r\nwill return the number of columns in the worksheet as a number rather than a column reference: 1 rather than A, 2 rather than B, etc <br>\r\n<br>\r\n(Looks like Erik beat me to it) \r\n",
+    "PostedDate": "2009-01-28T14:52:32.37-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "151988",
+    "ThreadId": "45529",
+    "Html": "It look like there indeed is something to the problem. It does say 'General' when one asks for number format.<br>\r\n<br>\r\nMark, I have forwarded you the Excel file as received by sgrobins. Could this have something to do with built-in number formats?<br>\r\n<br>\r\n",
+    "PostedDate": "2009-01-28T16:09:01.937-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "152100",
+    "ThreadId": "45529",
+    "Html": "Looking at sheet1 in the xml, cells F2 and G2 are both being treated as $cellDataType of 's' with c['s'] unset, which means it's being treated as a string when read into PHPExcel, rather than as a numeric. No formatting test gets done to see if it is a date\r\n",
+    "PostedDate": "2009-01-29T01:12:07.41-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "152382",
+    "ThreadId": "45529",
+    "Html": "Yeah, it looks like the problem is that the style is not written explicitly in the workbook, but is a built-in style.<br>\r\n<br>\r\nWe have discussed this before, and built-in styles were implemented for Excel 2007 reader, except for dates.<br>\r\n<a href=\"http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=7313\">http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=7313</a><br>\r\n<br>\r\nI have posted a new work item to discuss what we can do about dates:<br>\r\n<a href=\"http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=9102\">http://www.codeplex.com/PHPExcel/WorkItem/View.aspx?WorkItemId=9102</a><br>\r\n",
+    "PostedDate": "2009-01-29T18:27:02.127-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

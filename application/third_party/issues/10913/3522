@@ -1,0 +1,108 @@
+Index: Classes/PHPExcel/Shared/String.php
+===================================================================
+--- Classes/PHPExcel/Shared/String.php	(revision 1244)
++++ Classes/PHPExcel/Shared/String.php	(working copy)
+@@ -49,6 +49,20 @@
+ 	private static $_controlCharacters = array();
+ 
+ 	/**
++	 * Decimal separator
++	 *
++	 * @var string
++	 */
++	private static $_decimalSeparator;
++
++	/**
++	 * Thousands separator
++	 *
++	 * @var string
++	 */
++	private static $_thousandsSeparator;
++
++	/**
+ 	 * Is mbstring extension avalable?
+ 	 *
+ 	 * @var boolean
+@@ -353,4 +367,58 @@
+ 		return false;
+ 	}	//	function convertToNumberIfFraction()
+ 
++	/**
++	 * Get the decimal separator. If it has not yet been set explicitly, try to obtain number
++	 * formatting information from locale.
++	 *
++	 * @return string
++	 */
++	public static function getDecimalSeparator()
++	{
++		if (!isset(self::$_decimalSeparator)) {
++			$localeconv = localeconv();
++			self::$_decimalSeparator = $localeconv['decimal_point'] != ''
++				? $localeconv['decimal_point'] : $localeconv['mon_decimal_point'];
++		}
++		return self::$_decimalSeparator;
++	}
++
++	/**
++	 * Set the decimal separator. Only used by PHPExcel_Style_NumberFormat::toFormattedString()
++	 * to format output by PHPExcel_Writer_HTML and PHPExcel_Writer_PDF
++	 *
++	 * @param string $pValue Character for decimal separator
++	 */
++	public static function setDecimalSeparator($pValue = '.')
++	{
++		self::$_decimalSeparator = $pValue;
++	}
++
++	/**
++	 * Get the thousands separator. If it has not yet been set explicitly, try to obtain number
++	 * formatting information from locale.
++	 *
++	 * @return string
++	 */
++	public static function getThousandsSeparator()
++	{
++		if (!isset(self::$_thousandsSeparator)) {
++			$localeconv = localeconv();
++			self::$_thousandsSeparator = $localeconv['thousands_sep'] != ''
++				? $localeconv['thousands_sep'] : $localeconv['mon_thousands_sep'];
++		}
++		return self::$_thousandsSeparator;
++	}
++
++	/**
++	 * Set the thousands separator. Only used by PHPExcel_Style_NumberFormat::toFormattedString()
++	 * to format output by PHPExcel_Writer_HTML and PHPExcel_Writer_PDF
++	 *
++	 * @param string $pValue Character for thousands separator
++	 */
++	public static function setThousandsSeparator($pValue = ',')
++	{
++		self::$_thousandsSeparator = $pValue;
++	}
++
+ }
+Index: Classes/PHPExcel/Style/NumberFormat.php
+===================================================================
+--- Classes/PHPExcel/Style/NumberFormat.php	(revision 1244)
++++ Classes/PHPExcel/Style/NumberFormat.php	(working copy)
+@@ -690,12 +690,13 @@
+ 							$dec = $matches[2];
+ 							$right = $matches[3];
+ 							if ($useThousands) {
+-								$localeconv = localeconv();
+-								if (($localeconv['thousands_sep'] == '') || ($localeconv['decimal_point'] == '')) {
+-									$value = number_format($value, strlen($right), $localeconv['mon_decimal_point'], $localeconv['mon_thousands_sep']);
+-								} else {
+-									$value = number_format($value, strlen($right), $localeconv['decimal_point'], $localeconv['thousands_sep']);
+-								}
++								$value = number_format(
++									$value
++									, strlen($right)
++									, PHPExcel_Shared_String::getDecimalSeparator()
++									, PHPExcel_Shared_String::getThousandsSeparator()
++								);
++
+ 							} else {
+ 								$sprintf_pattern = "%1." . strlen($right) . "f";
+ 								$value = sprintf($sprintf_pattern, $value);

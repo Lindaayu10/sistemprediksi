@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "1020553",
+    "ThreadId": "437871",
+    "Html": "Hi all,<br />\n<br />\nat the moment my workbook shows the same charts on all worksheets, as long as one worksheet remains named &quot;Worksheet&quot;. The problem is, all charts refer to this one worksheet called &quot;Worksheet&quot;, and I'd like to change that behavior.<br />\n<br />\nI tried different notations for replacing &quot;Worksheet&quot; by the name of my sheets, but without success. $name is used for the name and $tab_count for index.<br />\n<br />\nHere ist the code:<br />\n<pre><code>//  Set the Labels for each data series we want to plot\n//      Datatype\n//      Cell reference for data\n//      Format Code\n//      Number of datapoints in series\n//      Data values\n//      Data Marker\n$dataseriesLabels2 = array(\n    new PHPExcel_Chart_DataSeriesValues('String', 'Worksheet!$B$1', null, 1),\n    new PHPExcel_Chart_DataSeriesValues('String', 'Worksheet!$C$1', null, 1),\n    new PHPExcel_Chart_DataSeriesValues('String', 'Worksheet!$D$1', null, 1),\n);\n\n//  Set the X-Axis Labels\n//      Datatype\n//      Cell reference for data\n//      Format Code\n//      Number of datapoints in series\n//      Data values\n//      Data Marker\n$xAxisTickValues2 = array(\n    new PHPExcel_Chart_DataSeriesValues('String', 'Worksheet!$A$2:$A$13', null, 12),);\n//  Set the Data values for each data series we want to plot\n//      Datatype\n//      Cell reference for data\n//      Format Code\n//      Number of datapoints in series\n//      Data values\n//      Data Marker\n$dataSeriesValues2 = array(\n    new PHPExcel_Chart_DataSeriesValues('Number', 'Worksheet!$B$2:$B$13', null, 12),\n    new PHPExcel_Chart_DataSeriesValues('Number', 'Worksheet!$C$2:$C$13', null, 12),\n    new PHPExcel_Chart_DataSeriesValues('Number', 'Worksheet!$D$2:$D$13', null, 12)\n);\n</code></pre>\n\nCan anyone help me finding the correct syntax?<br />\n<br />\nThanks in advance!<br />\n<br />\nRegards,<br />\nChristian<br />\n",
+    "PostedDate": "2013-03-25T03:53:15.857-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1021687",
+    "ThreadId": "437871",
+    "Html": "No $name or $tab_count in the example...\r<br />\n<br />\nA simple substitution should suffice unless it has spaces in the name.\r<br />\nnew PHPExcel_Chart_DataSeriesValues('String', 'MySheet!$B$1', null, 1),\r<br />\n<br />\nnew PHPExcel_Chart_DataSeriesValues('String', '\\'A Sheet\\'!$B$1', null, 1),<br />\n",
+    "PostedDate": "2013-03-27T04:03:40.75-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1021703",
+    "ThreadId": "437871",
+    "Html": "Hi LWol,\r<br />\n<br />\nthanks for your advice. <br />\n<blockquote>\nNo $name or $tab_count in the example... <br />\n</blockquote>\nRight, I was looking for the right syntax to change &quot;Worksheet&quot; by $name. Sorry for the confusion.\r<br />\n<br />\nIn the meantime, I found a working solution:<br />\n<pre><code>I inserted \n$s_n1=&quot;'&quot;.$t_User_Name.&quot;'!B$1&quot;;   # notice the missing &quot;$&quot; between &quot;!&quot; and the cell identifier.\n$s_n2=&quot;'&quot;.$t_User_Name.&quot;'!C$1&quot;;\n$s_n3=&quot;'&quot;.$t_User_Name.&quot;'!D$1&quot;;\n$s_n4=&quot;'&quot;.$t_User_Name.&quot;'!A$2:A$13&quot;;\n$s_n5=&quot;'&quot;.$t_User_Name.&quot;'!B$2:B$13&quot;;\n$s_n6=&quot;'&quot;.$t_User_Name.&quot;'!C$2:C$13&quot;;\n$s_n7=&quot;'&quot;.$t_User_Name.&quot;'!D$2:D$13&quot;;\nand changed\n$dataseriesLabels2 = array(\n    new PHPExcel_Chart_DataSeriesValues('String', $s_n1, null, 1),\n    new PHPExcel_Chart_DataSeriesValues('String', $s_n2, null, 1),\n    new PHPExcel_Chart_DataSeriesValues('String', $s_n3, null, 1),\n);\n\n$xAxisTickValues2 = array(\n    new PHPExcel_Chart_DataSeriesValues('String', $s_n4, null, 12),);\n\n$dataSeriesValues2 = array(\n    new PHPExcel_Chart_DataSeriesValues('Number', $s_n5, null, 12),\n    new PHPExcel_Chart_DataSeriesValues('Number', $s_n6, null, 12),\n    new PHPExcel_Chart_DataSeriesValues('Number', $s_n7, null, 12)\n);</code></pre>\n\nNow each chart has it`s own Worksheet and no unnecessary &quot;Worksheet&quot; in the workbook.\r<br />\n<br />\nRegards,\r<br />\nChristian<br />\n",
+    "PostedDate": "2013-03-27T04:32:20.713-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

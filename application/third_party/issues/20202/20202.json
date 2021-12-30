@@ -1,0 +1,39 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I use the current PHPExcel.Dev branche and had the same problem in the current stable version 1.7.9.\n\nMy /tmp directory grows and grows. How to get rid of old PHP* -data? I tested on two different VM with two different installations (CentOs + PHP + Apache and another with a fresh Debian to extract the problems; see below).\n\nWith session_save_path I trieyed to change the pass, but it does not work for any reason.\n\nDo get rid of RAM problems I insttalled ZendOptimizer and APC.\n\nThese are the code snippets:\n\n       // PHPExcel expectes UTC!\n        $this->_tz = date_default_timezone_get();\n        date_default_timezone_set('UTC');\n\n        // Caching must be enabled/configured before you load or instantiate any\n        // PHPExcel object\n        $cacheMethod = PHPExcel_CachedObjectStorageFactory::cache_to_phpTemp;\n        $cacheSettings = array('memoryCacheSize ' => '64MB');\n        PHPExcel_Settings::setCacheStorageMethod($cacheMethod, $cacheSettings);\n....\n\n       $this->_objPHPExcel = PHPExcel_IOFactory::load($this->_destionationReportFile);\n....\n        // Save Excel 2007 file\n        $objWriter = new PHPExcel_Writer_Excel2007($this->_objPHPExcel);\n        $objWriter->setUseDiskCaching(true);\n        $objWriter->save($this->_destionationReportFile)\n\n-----------------------------------------------------------------------------------------------------------------------------------------------------------------------\nEnvironment:\nVM debian (fresh installed v7.1); only the PHPExcel project is running on it\n- PHP 5.3.26 (cli) (built: Jun  9 2013 11:37:52)\n- ZendServer (current version)\n\n# free -h\n             total       used       free     shared    buffers     cached\nMem:          3,1G       3,0G        87M         0B       8,9M       1,7G\n\n# php -i | grep -i mem\nZend Guard Loader requires Zend Engine API version 220090626.\nThe Zend Engine API version 220100525 which is installed, is newer.\nContact Zend Technologies at http://www.zend.com/ for a later version of Zend Guard Loader.\n\nZend Memory Manager => enabled\nmemory_limit => 42192M => 42192M\nreport_memleaks => On => On",
+    "LastUpdatedDate": "2013-09-17T02:46:12.237-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2013-09-17T02:46:12.237-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "overflow in the session store",
+    "Type": {
+      "Name": "Unassigned",
+      "Id": 5
+    },
+    "VoteCount": 1,
+    "Id": 20202
+  },
+  "FileAttachments": [],
+  "Comments": []
+}

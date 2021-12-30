@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "245583",
+    "ThreadId": "71957",
+    "Html": "<p>Hi</p>\r\n<p>I am using Zend Framework and trying to put excel file on the browser using the code below.</p>\r\n<p>$objPHPExcel = new PHPExcel();</p>\r\n<p>header('Content-Type: application/vnd.ms-excel');<br>header('Content-Disposition: attachment;filename=&quot;test.xls&quot;');<br>&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br>$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');<br>$objWriter-&gt;save('php://output');</p>\r\n<p>I am getting corrupted excel file. It worked when I tried to not use Zend Framework. Does anyone know what is the problem.</p>\r\n<p>Thanks...</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-10-14T07:06:13.687-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "245585",
+    "ThreadId": "71957",
+    "Html": "<p>Can you upload the corrupt file here: <a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10749\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10749</a></p>\r\n<p>We will inspect it and try to find the problem.</p>",
+    "PostedDate": "2009-10-14T07:11:12.19-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "245588",
+    "ThreadId": "71957",
+    "Html": "<p>Hi I have uploaded the file.</p>\r\n<p>Thanks.</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-10-14T07:23:23.703-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "245620",
+    "ThreadId": "71957",
+    "Html": "<p>The problem is that your PHP script (or an included PHP script) is saved as <strong>UTF-8 with BOM</strong>. It should be saved as <strong>UTF-8 without BOM</strong>. Otherwise it is effectively <strong>echoing 3 bytes</strong> at the start which is enough to corrupt the file so it is opened as plain text in Excel.<br><br></p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>&iuml;&raquo;&iquest;&lt;?php<br><span style=\"color:Green\">// three &quot;invisible&quot; bytes being echoed when script is saved as UTF-8 with BOM</span><br>?&gt;<br></pre>\r\n</div>\r\n<p><br>You may read some technical explanation about BOM:<br><a href=\"http://en.wikipedia.org/wiki/Byte-order_mark\">http://en.wikipedia.org/wiki/Byte-order_mark</a><br><br>Recognize the 3 characteristic bytes when you open the Excel file:</p>\r\n<p><br> <a href=\"http://img246.imageshack.us/img246/9849/ss20091014163815.png\"><img src=\"http://img246.imageshack.us/img246/9849/ss20091014163815.th.png\" border=0 alt=\"\"></a> <br><br>Your solution is to save your scripts as <strong>UTF-8 without BOM</strong>. Check that your text editor is capable of that.<br><br>For example, here is what it should look like in Notepad++ (there they call &quot;UTF-8 without BOM&quot; for &quot;ANSI as UTF-8&quot;)</p>\r\n<p><a href=\"http://img238.imageshack.us/img238/9625/ss20091014164511.png\"><img src=\"http://img238.imageshack.us/img238/9625/ss20091014164511.th.png\" border=0 alt=\"\"></a></p>",
+    "PostedDate": "2009-10-14T07:54:52.607-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "246093",
+    "ThreadId": "71957",
+    "Html": "<p>Hi</p>\r\n<p>I have changed encoding and it worked! Thanks!</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-10-15T08:42:02.847-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

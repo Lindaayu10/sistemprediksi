@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "1128116",
+    "ThreadId": "470897",
+    "Html": "I have this test script that is acting just like my production script except production script pulls from a SQL db. I want to set the cell placement using a variable based off the count of an array. In the script below, (which you can copy and run as an example) I want to set the cell number based off how many of the same car that is in an array. So for an example there are 7 BMW's listed in the array. So I want the Comments: data copied to cell A12 using the code $num=$no+5; $cell='A'.$num;\r<br />\n<br />\nThe problem I am having is it does place it on that line but it also places it 7 more times about it. If there are 4 cars of that type it would place it on the right line but also place it 3 times above it. I just want it to place it once at the desired location. Any help would be great. Here is the code:<br />\n<pre><code>&lt;?PHP\n\nrequire_once 'Classes/PHPExcel.php';\n    include 'Classes/PHPExcel/Writer/Excel2007.php';\n    \n$dataArray= array();\n$cars=array(&quot;Versa&quot;,&quot;Volt&quot;,&quot;Volt&quot;,&quot;Volt&quot;,&quot;Volt&quot;,&quot;Volkswagen&quot;,&quot;Bentley&quot;,&quot;Benz&quot;,&quot;BMW&quot;,&quot;BMW&quot;,&quot;BMW&quot;,&quot;BMW&quot;,&quot;BMW&quot;,&quot;BMW&quot;,&quot;BMW&quot;,&quot;Cobra&quot;,&quot;Cord&quot;,&quot;Daewoo&quot;,&quot;Datsun&quot;,&quot;Dodge&quot;,&quot;Dodge&quot;,&quot;Dixi&quot;);\n\n\n\n\n$objPHPExcel = new PHPExcel();\n$objPHPExcel-&gt;setActiveSheetIndex(0);\n\nwhile (list($var, $val) = each($cars)) {\n\nif ($val!=$id){\n\n$dataArray = array();\n     \n    $objWorksheet = new PHPExcel_Worksheet($objPHPExcel);\n    $objPHPExcel-&gt;addSheet($objWorksheet);\n    $objWorksheet-&gt;setTitle(''. $val);\n        \n        $row_array[$val] = $val;\n        \n        array_push($dataArray,$row_array);\n        $no = count($dataArray);\n        $num=$no+5;\n    $cell='A'.$num;\n    \n$objWorksheet-&gt;setCellValue('A1' , $no);\n$objWorksheet-&gt;setCellValue('A2' , $val);\n$objWorksheet-&gt;setCellValue($cell , 'Comments:');\n$id = $val; \n    }\n    else {\n    \n    \n    \n    $row_array[$val] = $val;\n        $count=count($cars);\n        $count2=count($loc);\n        array_push($dataArray,$row_array);\n    $no = count($dataArray);\n    $num=$no+5;\n    $cell='A'.$num;\n    \n$objWorksheet-&gt;setCellValue('A2' , $no);\n$objWorksheet-&gt;setCellValue('A3' , $val);\n\n$objWorksheet-&gt;setCellValue($cell , 'Comments:');\n    \n    $id = $val; \n    \n    }\n    }\n    \n    // Save Excel 2007 file\n#echo date('H:i:s') . &quot; Write to Excel2007 format\\n&quot;;\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');\nob_end_clean();\n// We'll be outputting an excel file\nheader('Content-type: application/vnd.ms-excel');\n// It will be called file.xls\nheader('Content-Disposition: attachment; filename=&quot;cars.xlsx&quot;');\n$objWriter-&gt;save('php://output');\nExit;\n\n?&gt;</code></pre>\n\n",
+    "PostedDate": "2013-11-22T20:11:01.353-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1128654",
+    "ThreadId": "470897",
+    "Html": "I'm not sure I understood exactly the need, however, you will find below a code that achieves what I understood.\r<br />\nEach mark is on his own sheet, each sheet has one line per vehicle of the mark (recalled in column B), the word 'comment' is a few lines further down.<br />\n<pre><code>&lt;?PHP\nrequire_once 'Excel/PHPExcel.php';//path for my config, rewrite for yours\n//include 'Classes/PHPExcel/Writer/Excel2007.php'; // not needed, lazy loader job\n    \n$cars=array(&quot;Versa&quot;,&quot;Volt&quot;,&quot;Volt&quot;,&quot;Volt&quot;,&quot;Volt&quot;,&quot;Volkswagen&quot;,&quot;Bentley&quot;,&quot;Benz&quot;,&quot;BMW&quot;,&quot;BMW&quot;,&quot;BMW&quot;,&quot;BMW&quot;,&quot;BMW&quot;,&quot;BMW&quot;,&quot;BMW&quot;,&quot;Cobra&quot;,&quot;Cord&quot;,&quot;Daewoo&quot;,&quot;Datsun&quot;,&quot;Dodge&quot;,&quot;Dodge&quot;,&quot;Dixi&quot;);\n\n$objPHPExcel = new PHPExcel();\n$objWorksheet=$objPHPExcel-&gt;setActiveSheetIndex(0);\n$id='';\n$countRows=0;\nwhile (list($var, $val) = each($cars)) {\n    if ($val!=$id &amp;&amp; $id!=''){\n        $objWorksheet-&gt;setTitle($id);\n        $num=$countRows+5;\n        $cell='A'.$num;\n        \n        $objWorksheet-&gt;setCellValue($cell , 'Comments:');\n        \n        $objWorksheet = new PHPExcel_Worksheet($objPHPExcel);\n        $objPHPExcel-&gt;addSheet($objWorksheet);\n        \n        $id = $val;\n        $countRows=0;\n    }//end if\n    if($id=='') $id=$val;//the first car\n    $no = ++$countRows;\n    $objWorksheet-&gt;setCellValue('A'.$no , $no);\n    $objWorksheet-&gt;setCellValue('B'.$no , $id);//Versa, Volt, ...\n}\nif($countRows&gt;0 &amp;&amp; $id!=''){// the last car - if $id=='' the workbook is empty\n    $objWorksheet-&gt;setTitle($id);\n    $num=$countRows+5;\n    $cell='A'.$num;\n    \n    $objWorksheet-&gt;setCellValue($cell , 'Comments:');\n}//end if\n    \n// Save Excel 2007 file\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');\nob_end_clean();\n// We'll be outputting an excel file\nheader('Content-type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'); // note : use correct mime type (not xls for xlsx)\n// It will be called cars.xlsx\nheader('Content-Disposition: attachment; filename=&quot;cars.xlsx&quot;');\n$objWriter-&gt;save('php://output');\nExit;\n\n?&gt;</code></pre>\n\n",
+    "PostedDate": "2013-11-25T04:51:56.117-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": "2013-11-26T05:46:02.97-08:00"
+  },
+  {
+    "Id": "1128854",
+    "ThreadId": "470897",
+    "Html": "Thanks for the help.  I was able to take what you provided above and work it into the prod code.  Thanks for the help!<br />\n",
+    "PostedDate": "2013-11-25T10:57:24.27-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1129547",
+    "ThreadId": "470897",
+    "Html": "(del)<br />\n",
+    "PostedDate": "2013-11-27T04:38:29.97-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

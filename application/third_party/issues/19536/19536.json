@@ -1,0 +1,50 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hi, I have following code that works in excel 5\n\n```\n\n$file_name = 'test.xlss'; //use text.xlsx for Excel2007\n$excel = new PHPExcel();\n\n$excel->setActiveSheetIndex(0)->setTitle('data');\n$sheet = $excel->getActiveSheet();\n\n//add header\n$sheet->setCellValue('A1', 'customer');\n$sheet->setCellValue('B1', 'phone number');\n$sheet->setCellValue('C1', 'registered');\n\n//add data\n$data = array(\n    array('John','123456789','21.2.2008'),\n    array('Michael','234567891','30.5.2010'),\n    array('Bob','345678912','20.2.2003'),\n    array('George','45678912','5.3.2007'),\n);\n$sheet->fromArray($data, NULL, 'A2');\n\n//add autofilter\n$sheet->setAutoFilter($sheet->calculateWorksheetDimension());\n$autoFilter = $sheet->getAutoFilter();\n$autoFilter->getColumn(\"A\")->setFilterType(PHPExcel_Worksheet_AutoFilter_Column::AUTOFILTER_FILTERTYPE_FILTER);\n$autoFilter->getColumn(\"B\")->setFilterType(PHPExcel_Worksheet_AutoFilter_Column::AUTOFILTER_FILTERTYPE_FILTER);\n$autoFilter->getColumn(\"B\")->setFilterType(PHPExcel_Worksheet_AutoFilter_Column::AUTOFILTER_FILTERTYPE_FILTER);\n\n// save file\n$writer = new PHPExcel_Writer_Excel5($excel); //use  new PHPExcel_Writer_Excel2007($excel); for Excel 2007\n$writer->save($file_name);\n```\n\nit throws error exceptions for excel 2007 \n\n```\nNotice: Undefined variable: ruleType in C:\\Program Files\\Tools\\EasyPHP-12.1\\www\\libs\\PHPExcel\\Worksheet\\AutoFilter.php on line 623\n\nNotice: Undefined index: date in C:\\Program Files\\Tools\\EasyPHP-12.1\\www\\libs\\PHPExcel\\Worksheet\\AutoFilter.php on line 660\n\nWarning: array_filter() expects parameter 1 to be array, null given in C:\\Program Files\\Tools\\EasyPHP-12.1\\www\\libs\\PHPExcel\\Worksheet\\AutoFilter.php on line 660\n\n```\n\nDoes anybody know why?",
+    "LastUpdatedDate": "2013-07-09T06:11:04.547-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Unassigned",
+      "Severity": 0,
+      "Id": 0
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2013-03-28T06:01:50.727-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "excel 2007 AUTOFILTER throws error exceptions",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 2,
+    "Id": 19536
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "I also have faced the problem (using PHPExcel version 1.7.9).\nit looks as if ```PHPExcel_Worksheet_AutoFilter_Column_Rule::_ruleType``` is attempted to use w/o being initializing\r\n\r\nfor me it happened for ```case PHPExcel_Worksheet_AutoFilter_Column::AUTOFILTER_FILTERTYPE_FILTER``` in ```PHPExcel_Worksheet_AutoFilter::showHideRows()``` method.\r\n\r\nso I added a check if variable is defined, and now it just skips the rest of the method in case to prevent the issue (which, actually breaks everything - empty XLSX file (all cells are empty) with PHP warning messages before binary data).\r\n\r\nas a side effect - in some cases (when issue happened before I suppose) the resulting XLSX file has no properties (which you can check in MS Explorer).\r\n\r\nfix looks like (method ```PHPExcel_Worksheet_AutoFilter::showHideRows()```):\n```\n. . .\n\t\tswitch ($filterColumn->getFilterType()) {\n\t\t\t\tcase PHPExcel_Worksheet_AutoFilter_Column::AUTOFILTER_FILTERTYPE_FILTER :\n\t\t\t\t\t$ruleValues = array();\n\t\t\t\t\t//\tBuild a list of the filter value selections\n\t\t\t\t\tforeach($rules as $rule) {\n\t\t\t\t\t\t$ruleType = $rule->getRuleType();\n\t\t\t\t\t\t$ruleValues[] = $rule->getValue();\n\t\t\t\t\t}\n\t\t\t\t\t//\tTest if we want to include blanks in our filter criteria\n\t\t\t\t\t$blanks = FALSE;\n\t\t\t\t\t$ruleDataSet = array_filter($ruleValues);\n\t\t\t\t\tif (count($ruleValues) != count($ruleDataSet))\n\t\t\t\t\t\t$blanks = TRUE;\r\n\r\n\t\t\t\t\tif( !isset( $ruleType ) )\t// fixed a stupid NOTICE warning which breaks everything\n\t\t\t\t\t{\n\t\t\t\t\t\tbreak;\n\t\t\t\t\t}\n. . .\n```\r\n\r\nsure it's not any kind of a decent solution, rather a first-aid; but hope I will let me launch my project soon, and probably it will help someone else as well :)",
+      "PostedDate": "2013-07-09T06:07:34.107-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-07-09T06:11:04.547-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

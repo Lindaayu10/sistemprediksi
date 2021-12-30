@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "701510",
+    "ThreadId": "280331",
+    "Html": "<p>Hi,</p>\n<p>Here's my PHP info:</p>\n<p>- System:&nbsp;&nbsp;FreeBSD 7.3-RELEASE-p4</p>\n<p>- PHP Version: 5.2.17</p>\n<p>- Default memory limit: 128M</p>\n<p>- PHPExcel version: 1.7.6</p>\n<p>I haven't been able to find a good answer to this searching, so here's my problem:</p>\n<p>I have a data set of 2000 records, about 30 fields each, that I'm trying to convert to .xls.</p>\n<p>However, while smaller sets of 1000 or less will write the .xls without a problem, my 2000-record set simply dies. &nbsp;No error messages, no out of memory errors, just a blank page in Firefox, \"Internet Explorer cannot display the webpage\" in IE, \"Server sent  no data\" in Chrome.</p>\n<p>My script seems to go fine until this point, where the file is actually written:</p>\n<p>&nbsp;</p>\n<div style=\"color: black; background-color: white;\">\n<pre>$objWriter = <span style=\"color: blue;\">new</span> PHPExcel_Writer_Excel2007($objPHPExcel);\n<span style=\"color: green;\">// die statement still shows up here</span>\n$objWriter-&gt;save($temp_dir.<span style=\"color: #a31515;\">\"/\"</span>.$outfile);\n<span style=\"color: green;\">// die statement will not show if placed here</span>\n</pre>\n</div>\n<p>&nbsp;</p>\n<p>So I have to assume that the problem here is the $objWriter-&gt;save() function. &nbsp;I don't think memory is an issue, as I have tried placing</p>\n<p>&nbsp;</p>\n<pre>var_dump(memory_get_peak_usage(true));</pre>\n<p>&nbsp;</p>\n<p>before the save function and it shows a peak of&nbsp;71303168 being used by the script, which is 50 mb less than the system default - for this script I have set the memory limit as high as 768mb with no success.</p>\n<p>Is there anything that can be done about this, or at least any knowledge of what might be making this happen? &nbsp;I saw a similar topic with no solutions offered other than \"set you memory limit higher\", but unless the save function is using 700mb, that is most definitely not the case here.</p>\n<p>Thanks in advance for your help.</p>",
+    "PostedDate": "2011-11-21T14:42:11.84-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "734828",
+    "ThreadId": "280331",
+    "Html": "<p>Hi, I'm facing the very same problem. Have you solved it?</p>",
+    "PostedDate": "2012-02-01T08:13:32.293-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "734849",
+    "ThreadId": "280331",
+    "Html": "<p>I think it &nbsp;is a memory problem, as the internal memory representation of your data gets copied to the output writer, which causes memory usage to rise. i solved this by buying 24GB of memory ;)</p>\r\n<p>&nbsp;</p>\r\n<p>Try raising your memory limit, and see what it does. Also check the apache error log for crashes of php</p>",
+    "PostedDate": "2012-02-01T08:22:06.737-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "735281",
+    "ThreadId": "280331",
+    "Html": "<p>There's a lot of advice here on the forums about memory usage... I'm not going to repeat it all here, especially as the forum is searchable... but try using cell caching</p>",
+    "PostedDate": "2012-02-01T12:48:06.613-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

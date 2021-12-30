@@ -1,0 +1,65 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "Fixed in SVN",
+    "ClosedDate": "2010-08-30T05:11:18.743-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "So, despite knowing very little about excel, im trying to debug this...I believe it is being caused by the drop down lists and other validations in the spreadsheet. I have traced the error to the data validations loop in the reader/excel2007.php file.\nWhen I print_r the data validation it returns\nSimpleXMLElement Object ( [@attributes] => Array ( [type] => list [allowBlank] => 1 [showInputMessage] => 1 [showErrorMessage] => 1 [sqref] => R16:R65536 ) [formula1] => Years )\nIt then goes through all of cells R16 - R65536 in the loop, running out of memory about half way.\n \nAnd does anyone have an idea of what is happening here? Is the way the validation formula was implemented causing issues when trying to input in the document, or is that a wrong path to be considering.",
+    "LastUpdatedDate": "2013-05-16T05:41:59.393-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "High",
+      "Severity": 150,
+      "Id": 3
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2010-05-13T06:20:14.993-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Memory error...data validation?",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 13025
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "The way the validation formula was implemented is causing the problem: selecting the column rather than a simple range of cells.\r\nHowever. PHPExcel should handle this without creating a complete set of rows to the max of the worksheet format... and the equivalent if a row was selected for data validation. There should be no need for you to change the workbooks that you're reading into PHPExcel.\r\n\r\n\r\nI've done some initial work on this (only the Excel2007 reader so far) to apply the validation only to cells up to the current max row and max column. This may still create some blank cells where they don't already exist within the range to the current highest column or row, but won't create the excessive set of cells up to the 64K rows and 256 columns or (or 1 million rows and 16,384 columns for Excel2007. The small worksheet that I'm testing with (4 columns and 5 rows in a single worksheet) now loads in 6.75MB (including the PHPExcel script) rather than breaking my 256MB PHP memory limit.\r\n\r\nI now need to test this with inserting new rows/columns to ensure that the validation is correctly inherited then, and when creating a new cell within the full validation range; followed by tests with the writers to ensure that they are still correctly writing the data validation with the full range... and I'll need to make these changes for all the appropriate readers/writers (including Excel5, Excel2003XML and OOCalc).\r\n\r\nI'd appreciate if somebody could create and run some tests with workbooks that use a currently selected column or row, a protected range based on a full column or row, and a conditional formatting rule for an entire column or row to see if these features demonstrate the same problem.\r\n",
+      "PostedDate": "2010-05-13T06:42:34.737-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Reader code modified for Excel2007 and Excel5 Readers, now in SVN",
+      "PostedDate": "2010-05-13T15:23:07.5-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-08-30T05:11:18.743-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:02:58.63-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:41:59.393-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

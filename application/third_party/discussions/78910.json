@@ -1,0 +1,66 @@
+[
+  {
+    "Id": "270201",
+    "ThreadId": "78910",
+    "Html": "<p>When I write a timestamp ('10:54:45') to a cell, the timestamp is actually stored in excel as '2009/12/22 10:54:45' . Now I have a whole column of these timestamps and our client requires us to do a sum of them.</p>\r\n<p>This is obviously not working, I must be doing something really stupid here, but I can't seem to figure out what.</p>\r\n<p>I use PHPExcel version 1.7.1</p>\r\n<p>The code I use to write the data to the cells is the following</p>\r\n<p>$this-&gt;objPHPExcel-&gt;getActiveSheet()-&gt;setCellValueByColumnAndRow($column,$rowNr,$timeStamp);<br>$this-&gt;objPHPExcel-&gt;getActiveSheet()-&gt;getStyleByColumnAndRow($column, $rowNr)-&gt;getNumberFormat()-&gt;setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_DATE_TIME8);</p>\r\n<p>&nbsp;</p>\r\n<p>I Initialize the PHPExcel classes with the following code</p>\r\n<p>$objWriter = PHPExcel_IOFactory::createWriter($this-&gt;objPHPExcel, 'Excel2007');<br>$objWriter-&gt;setPreCalculateFormulas(false);<br>$objWriter-&gt;setOffice2003Compatibility(true);</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks in advance guys!</p>\r\n<p>I really love PHPExcel, you guys are doing a great job!</p>",
+    "PostedDate": "2009-12-23T01:00:19.437-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "272102",
+    "ThreadId": "78910",
+    "Html": "<p>How are you setting the value $timeStamp</p>",
+    "PostedDate": "2009-12-31T17:45:36.823-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "272896",
+    "ThreadId": "78910",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>MarkBaker wrote:</strong><br>\r\n<p>How are you setting the value $timeStamp</p>\r\n</blockquote>\r\n<p>$timeStamp =&nbsp;'10:54:45';</p>\r\n<p>&nbsp;</p>\r\n<p>Something like this.</p>",
+    "PostedDate": "2010-01-04T07:02:03.983-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "273251",
+    "ThreadId": "78910",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>NikiVanCleemput wrote:</strong><br>\r\n<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>MarkBaker wrote:</strong><br>\r\n<p>How are you setting the value $timeStamp</p>\r\n</blockquote>\r\n<p>$timeStamp =&nbsp;'10:54:45';</p>\r\n</blockquote>\r\n<p>&nbsp;Actually entering a string value like that won't work, you need to set the cell value as an Excel timestamp value.</p>\r\n<p>One option would be to use the Excel TIME() or TIMEVALUE() functions to calculate the Excel timestamp:</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$timeStamp = PHPExcel_Calculation_Functions::TIME(10,54,45);\r\n</pre>\r\n</div>\r\n<p>or</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$timeStamp = PHPExcel_Calculation_Functions::TIMEVALUE(<span style=\"color:#A31515\">'10:54:45'</span>);\r\n</pre>\r\n</div>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-01-05T03:52:29.117-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "273763",
+    "ThreadId": "78910",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>MarkBaker wrote:</strong><br>\r\n<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>NikiVanCleemput wrote:</strong><br>\r\n<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>MarkBaker wrote:</strong><br>\r\n<p>How are you setting the value $timeStamp</p>\r\n</blockquote>\r\n<p>$timeStamp =&nbsp;'10:54:45';</p>\r\n</blockquote>\r\n<p>&nbsp;Actually entering a string value like that won't work, you need to set the cell value as an Excel timestamp value.</p>\r\n<p>One option would be to use the Excel TIME() or TIMEVALUE() functions to calculate the Excel timestamp:</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$timeStamp = PHPExcel_Calculation_Functions::TIME(10,54,45);\r\n</pre>\r\n</div>\r\n<p>or</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre>$timeStamp = PHPExcel_Calculation_Functions::TIMEVALUE(<span style=\"color:#A31515\">'10:54:45'</span>);\r\n</pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n</blockquote>\r\n<p>I'm using --&gt;&nbsp;<span style=\"font-family:Consolas, 'Courier New', Courier, monospace;white-space:pre\">$timeStamp = PHPExcel_Calculation_Functions::TIMEVALUE(<span style=\"color:#a31515\">'10:54:45'</span>);</span></p>\r\n<p>&nbsp;</p>\r\n<p><span style=\"font-family:Consolas, 'Courier New', Courier, monospace;white-space:pre\">Works very great, thank you!</span></p>\r\n<p>&nbsp;</p>\r\n<p><span style=\"font-family:Consolas, 'Courier New', Courier, monospace;white-space:pre\">Now while I'm still here, 1 more question. If I do a formula like 'SUM(A10:A20)', what formatting can I use to get hours that count more than 24 .</span></p>\r\n<p><span style=\"font-family:Consolas, 'Courier New', Courier, monospace;white-space:pre\">For example '36:12:42' </span></p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-01-06T05:40:03.687-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "274002",
+    "ThreadId": "78910",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>NikiVanCleemput wrote:</strong>\r\n<p><span style=\"font-family:Consolas, 'Courier New', Courier, monospace;white-space:pre\">If I do a formula like 'SUM(A10:A20)', what formatting can I use to get hours that count more than 24 .</span></p>\r\n<p><span style=\"font-family:Consolas, 'Courier New', Courier, monospace;white-space:pre\">For example '36:12:42'&nbsp;</span></p>\r\n</blockquote>\r\n<p>In Excel itself, you'd use [h]:mm:ss as the format mask: try that.</p>",
+    "PostedDate": "2010-01-06T13:38:07.167-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "274225",
+    "ThreadId": "78910",
+    "Html": "<p>Thanks that did the trick.</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks for the help, very much appreciated.</p>",
+    "PostedDate": "2010-01-07T02:21:17.84-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "277022",
+    "ThreadId": "78910",
+    "Html": "<p>I modified AdvancedValueBinder.php so one can also do like in example below.</p>\r\n<p>Example:</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre><span style=\"color:Blue\">require_once</span> <span style=\"color:#A31515\">'PHPExcel/Cell/AdvancedValueBinder.php'</span>;\r\nPHPExcel_Cell::setValueBinder( <span style=\"color:Blue\">new</span> PHPExcel_Cell_AdvancedValueBinder() );\r\n\r\n$excel = <span style=\"color:Blue\">new</span> PHPExcel();\r\n$worksheet = $excel-&gt;getActiveSheet();\r\n\r\n$worksheet-&gt;getCell(<span style=\"color:#A31515\">'A1'</span>)-&gt;setValue(<span style=\"color:#A31515\">'10:54:45'</span>);\r\n</pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=11492\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=11492</a></p>\r\n<p>Try with latest source code tomorrow:</p>\r\n<p><a href=\"http://phpexcel.codeplex.com/SourceControl/list/changesets\">http://phpexcel.codeplex.com/SourceControl/list/changesets</a></p>",
+    "PostedDate": "2010-01-14T00:54:55.187-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

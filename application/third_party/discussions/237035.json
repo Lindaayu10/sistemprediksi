@@ -1,0 +1,90 @@
+[
+  {
+    "Id": "530673",
+    "ThreadId": "237035",
+    "Html": "\r\n<p>Hallo,</p>\r\n<p>I have a script which is generating a large excel 5 file using the pear Spreadsheet/Excel/Writer.php</p>\r\n<p>What i am trying to do is open the file in PHPExcel and then save it as 2007</p>\r\n<p>it works badly</p>\r\n<p>$objPHPExcel = PHPExcel_IOFactory::load(&quot;report_accnr_&quot;.date(&quot;dmY&quot;).&quot;.xls&quot;);<br>\r\necho date('H:i:s') . &quot; Write to Excel2007 format\\n&quot;;<br>\r\n$objPHPExcel-&gt;setActiveSheetIndex(0);<br>\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');<br>\r\n$objWriter-&gt;save(&quot;DailyReport_&quot;.date(&quot;dmY&quot;).&quot;.xlsx&quot;);</p>\r\n<p>it works from the point of view it is saved as a 2007 file BUT its loosing a lot of formulas, these are not complicated formulas but for example</p>\r\n<p>=B30&#43;C30-G30-H30</p>\r\n<p>instead in the 2007 file i have 0</p>\r\n<p>&nbsp;</p>\r\n<p>Is there anyway of avoiding this ? because at the moment it means its unusable.</p>\r\n<p>&nbsp;</p>\r\n<p>Another question - when trying in the above scenario to set the column widths to auto -the following did not seem to work</p>\r\n<p>any ideas why not ?</p>\r\n<p>echo &quot;Excel Sheet count = &quot;,$objPHPExcel-&gt;getSheetCount(),&quot;\\n&quot;;<br>\r\nforeach($objPHPExcel-&gt;getSheetNames() as $idx =&gt; $sheetName) {<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;setActiveSheetIndex($idx);<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $maxCol =$objPHPExcel-&gt;getActiveSheet()-&gt;getHighestColumn();<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; for($i = 0; $i &lt;= $maxcol; $i&#43;&#43;) {<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;getColumnDimension($i)-&gt;setAutoSize(true);<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }<br>\r\n}<br>\r\n$objPHPExcel-&gt;setActiveSheetIndex(0);</p>\r\n<p>thanks</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2010-12-03T06:57:49.217-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "531065",
+    "ThreadId": "237035",
+    "Html": "\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<strong>soupdragon wrote:</strong><br>\r\n<p>I have a script which is generating a large excel 5 file using the pear Spreadsheet/Excel/Writer.php</p>\r\n<p>What i am trying to do is open the file in PHPExcel and then save it as 2007</p>\r\n<p>it works badly</p>\r\n<p>it works from the point of view it is saved as a 2007 file BUT its loosing a lot of formulas</p>\r\n<p>&nbsp;</p>\r\n<p>Is there anyway of avoiding this ? because at the moment it means its unusable.</p>\r\n</blockquote>\r\n<p>&nbsp;This should be &quot;bread and butter&quot; work for PHPExcel, it's what PHPExcel was designed to do: it should simply work. It's&nbsp;obvious that there's something&nbsp;unusual going on here, but without more information, it's difficult to identify what is\r\n wrong, or how it can be fixed. Can PHPExcel read the formulae in an equivalent workbook written by by Excel itself, rather than the one generated using Spreadsheet/Excel/Writer.php? Is it possible to send me a (small) sample of the Spreadsheet/Excel/Writer.php\r\n generated workbook to run through in debug?</p>\r\n<p>&nbsp;</p>\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<strong>soupdragon wrote:</strong><br>\r\n<p>Another question - when trying in the above scenario to set the column widths to auto -the following did not seem to work</p>\r\n<p>any ideas why not ?</p>\r\n<p>echo &quot;Excel Sheet count = &quot;,$objPHPExcel-&gt;getSheetCount(),&quot;\\n&quot;;<br>\r\nforeach($objPHPExcel-&gt;getSheetNames() as $idx =&gt; $sheetName) {<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;setActiveSheetIndex($idx);<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $maxCol =$objPHPExcel-&gt;getActiveSheet()-&gt;getHighestColumn();<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; for($i = 0; $i &lt;= $maxcol; $i&#43;&#43;) {<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;getColumnDimension($i)-&gt;setAutoSize(true);<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }<br>\r\n}<br>\r\n$objPHPExcel-&gt;setActiveSheetIndex(0);</p>\r\n</blockquote>\r\n<p>&nbsp;getHighestColumn() returns the column letter; but your for loop is working with numbers ($i = 0)</p>\r\n<p>Try</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>$maxCol =$objPHPExcel-&gt;getActiveSheet()-&gt;getHighestColumn();\r\n$maxCol&#43;&#43;;\r\n        <span style=\"color:blue\">for</span>($i = <span style=\"color:#a31515\">'A'</span>; $i != $maxcol; $i&#43;&#43;) {\r\n</pre>\r\n</div>\r\n",
+    "PostedDate": "2010-12-04T02:49:43.947-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "531620",
+    "ThreadId": "237035",
+    "Html": "\r\n<p>Using your</p>\r\n<pre>$maxCol =$objPHPExcel-&gt;getActiveSheet()-&gt;getHighestColumn();<br>$maxCol&#43;&#43;;<br>        <span style=\"color:blue\">for</span>($i = <span style=\"color:#a31515\">'A'</span>; $i != $maxcol; $i&#43;&#43;) {<br><br>I get the following</pre>\r\n<p><br>\r\nPHP Fatal error:&nbsp; Uncaught exception 'Exception' with message 'Column string index can not be longer than 3 characters.' in /var/www/html/dailyreport/Classes/PHPExcel/Cell.php:645<br>\r\nStack trace:<br>\r\n#0 /var/www/html/dailyreport/Classes/PHPExcel/Worksheet.php(1093): PHPExcel_Cell::columnIndexFromString('AAAA')</p>\r\n<p>&nbsp;</p>\r\n<p>Which is definately wrong as the highest should be about &quot;BD&quot;</p>\r\n<p>How exactly is it checking highest column ?</p>\r\n",
+    "PostedDate": "2010-12-06T01:38:01.78-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "531671",
+    "ThreadId": "237035",
+    "Html": "The getHighestColumn() and getHighestRow() methods return the <br>\r\n_cachedHighestColumn and _cachedHighestRow properties held against the <br>\r\nworksheet.<br>\r\nWhenever a new cell is added to the worksheet (whether by loading an <br>\r\nexisting workbook or manually adding a cell to a worksheet), the calls <br>\r\nto getCell() and getCellByColumnAndRow() include blocks of code that <br>\r\ncompare the current values of _cachedHighestColumn and _cachedHighestRow <br>\r\nwith the row and column of the new cell. If the new cell address is a <br>\r\nhigher row or column value than the current _cachedHighestColumn or <br>\r\n_cachedHighestRow, then these property values are updated to match those <br>\r\nof the new cell. The setCellValue() and related methods always call <br>\r\ngetCell(), so it shouldn't be possible for any cell creation to bypass <br>\r\nthis update.<br>\r\nWhen deleting cells, the _cachedHighestColumn and _cachedHighestRow <br>\r\nproperties aren't reduced in any way, so if deleting cells they will <br>\r\nstill reflect the highest row and column values that existed prior to <br>\r\nany deletion.<br>\r\nWhen saving a workbook, the garbage collection process that is executed <br>\r\nprior to the actual save updates these properties to reflect the actual <br>\r\nhighest values based on the full set of existing cells in each worksheet.",
+    "PostedDate": "2010-12-06T04:16:57.06-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "531798",
+    "ThreadId": "237035",
+    "Html": "Hallo,<br>\r\n<br>\r\nCan i send you the sample excel to this address ?<br>\r\n<br>\r\nthanks<br>\r\n<br>\r\n<hr id=\"x_x_stopSpelling\">\r\nFrom: [email removed]<br>\r\nTo: [email removed]<br>\r\nDate: Mon, 6 Dec 2010 04:17:07 -0800<br>\r\nSubject: Re: lost formulas when loading excel 5 saving to excel 7 [PHPExcel:237035]<br>\r\n<br>\r\nFrom: MarkBaker<br>\r\n<div id=\"x_x_ecxThreadNotificationPostBody\">The getHighestColumn() and getHighestRow() methods return the\r\n<br>\r\n_cachedHighestColumn and _cachedHighestRow properties held against the <br>\r\nworksheet.<br>\r\nWhenever a new cell is added to the worksheet (whether by loading an <br>\r\nexisting workbook or manually adding a cell to a worksheet), the calls <br>\r\nto getCell() and getCellByColumnAndRow() include blocks of code that <br>\r\ncompare the current values of _cachedHighestColumn and _cachedHighestRow <br>\r\nwith the row and column of the new cell. If the new cell address is a <br>\r\nhigher row or column value than the current _cachedHighestColumn or <br>\r\n_cachedHighestRow, then these property values are updated to match those <br>\r\nof the new cell. The setCellValue() and related methods always call <br>\r\ngetCell(), so it shouldn't be possible for any cell creation to bypass <br>\r\nthis update.<br>\r\nWhen deleting cells, the _cachedHighestColumn and _cachedHighestRow <br>\r\nproperties aren't reduced in any way, so if deleting cells they will <br>\r\nstill reflect the highest row and column values that existed prior to <br>\r\nany deletion.<br>\r\nWhen saving a workbook, the garbage collection process that is executed <br>\r\nprior to the actual save updates these properties to reflect the actual <br>\r\nhighest values based on the full set of existing cells in each worksheet.</div>\r\n<div id=\"x_x_ecxThreadNotificationFooter\">Read the <a target=\"_blank\">full discussion online</a>.<br>\r\nTo add a post to this discussion, reply to this email (<a target=\"_blank\">PHPExcel@discussions.codeplex.com@discussions.codeplex.com</a>)<br>\r\nTo start a new discussion for this project, email <a target=\"_blank\">PHPExcel@discussions.codeplex.com@discussions.codeplex.com</a><br>\r\nYou are receiving this email because you subscribed to this discussion on CodePlex. You can\r\n<a target=\"_blank\">unsubscribe</a> on CodePlex.com.<br>\r\nPlease note: Images and attachments will be removed from emails. Any posts to this discussion will also be available online at CodePlex.com<br>\r\n</div>\r\n",
+    "PostedDate": "2010-12-06T08:23:47.007-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "532236",
+    "ThreadId": "237035",
+    "Html": "\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<strong>soupdragon wrote:</strong><br>\r\n<br>\r\nCan i send you the sample excel to this address ?<br>\r\n<br>\r\n&nbsp;</blockquote>\r\n<p>&nbsp;</p>\r\n<p>Yes, you can</p>\r\n",
+    "PostedDate": "2010-12-07T05:07:57.12-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "532269",
+    "ThreadId": "237035",
+    "Html": "<br>\r\nOk this is a part of the table - main problems turn up on the third sheet<br>\r\n<br>\r\nfor example D 24 has the formula =B24&#43;C24-G24-H24<br>\r\nwhich after opening and saving just gets lost<br>\r\n<br>\r\nthanks for the help<br>\r\n<hr id=\"x_x_stopSpelling\">\r\nFrom: [email removed]<br>\r\nTo: [email removed]<br>\r\nDate: Tue, 7 Dec 2010 05:08:07 -0800<br>\r\nSubject: Re: lost formulas when loading excel 5 saving to excel 7 [PHPExcel:237035]<br>\r\n<br>\r\nFrom: MarkBaker<br>\r\n<div id=\"x_x_ecxThreadNotificationPostBody\">\r\n<blockquote style=\"border:0.1em solid rgb(204,204,204); font-style:italic; padding:0pt 0.25em\">\r\n<strong>soupdragon wrote:</strong><br>\r\n<br>\r\nCan i send you the sample excel to this address ?<br>\r\n<br>\r\n</blockquote>\r\n<br>\r\nYes, you can<br>\r\n</div>\r\n<div id=\"x_x_ecxThreadNotificationFooter\">Read the <a target=\"_blank\">full discussion online</a>.<br>\r\nTo add a post to this discussion, reply to this email (<a target=\"_blank\">PHPExcel@discussions.codeplex.com@discussions.codeplex.com</a>)<br>\r\nTo start a new discussion for this project, email <a target=\"_blank\">PHPExcel@discussions.codeplex.com@discussions.codeplex.com</a><br>\r\nYou are receiving this email because you subscribed to this discussion on CodePlex. You can\r\n<a target=\"_blank\">unsubscribe</a> on CodePlex.com.<br>\r\nPlease note: Images and attachments will be removed from emails. Any posts to this discussion will also be available online at CodePlex.com<br>\r\n</div>\r\n",
+    "PostedDate": "2010-12-07T06:27:36.767-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "532872",
+    "ThreadId": "237035",
+    "Html": "\r\n<p>I really need to see the actual file.</p>\r\n<p>If I create a file containing the formula =B24&#43;C24-G24-H24 it works perfectly correctly. There must be something about the file which is being generated by the pear Spreadsheet/Excel/Writer.php that doesn't read correctly; but without a sample to demonstrate\r\n the problem, I can't even begin to guess.</p>\r\n",
+    "PostedDate": "2010-12-08T06:43:43.537-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "533301",
+    "ThreadId": "237035",
+    "Html": "Ok strange i had attached the file (well part of it)<br>\r\n<br>\r\ntake 2 !<br>\r\n<br>\r\n<hr id=\"x_x_stopSpelling\">\r\nFrom: [email removed]<br>\r\nTo: [email removed]<br>\r\nDate: Wed, 8 Dec 2010 06:43:47 -0800<br>\r\nSubject: Re: lost formulas when loading excel 5 saving to excel 7 [PHPExcel:237035]<br>\r\n<br>\r\nFrom: MarkBaker<br>\r\n<div id=\"x_x_ecxThreadNotificationPostBody\">I really need to see the actual file.<br>\r\nIf I create a file containing the formula =B24&#43;C24-G24-H24 it works perfectly correctly. There must be something about the file which is being generated by the pear Spreadsheet/Excel/Writer.php that doesn't read correctly; but without a sample to demonstrate\r\n the problem, I can't even begin to guess.<br>\r\n</div>\r\n<div id=\"x_x_ecxThreadNotificationFooter\">Read the <a target=\"_blank\">full discussion online</a>.<br>\r\nTo add a post to this discussion, reply to this email (<a target=\"_blank\">PHPExcel@discussions.codeplex.com@discussions.codeplex.com</a>)<br>\r\nTo start a new discussion for this project, email <a target=\"_blank\">PHPExcel@discussions.codeplex.com@discussions.codeplex.com</a><br>\r\nYou are receiving this email because you subscribed to this discussion on CodePlex. You can\r\n<a target=\"_blank\">unsubscribe</a> on CodePlex.com.<br>\r\nPlease note: Images and attachments will be removed from emails. Any posts to this discussion will also be available online at CodePlex.com<br>\r\n</div>\r\n",
+    "PostedDate": "2010-12-09T02:14:17.173-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "533624",
+    "ThreadId": "237035",
+    "Html": "\r\n<p>Still no joy. Try sending to strrev(uk dot co dot demon dot lange at mark).</p>\r\n",
+    "PostedDate": "2010-12-09T13:27:03.423-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "538267",
+    "ThreadId": "237035",
+    "Html": "\r\n<p>have you now received my file ?</p>\r\n<p>&nbsp;</p>\r\n<p>thanks</p>\r\n",
+    "PostedDate": "2010-12-20T06:12:08.917-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

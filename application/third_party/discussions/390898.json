@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "897657",
+    "ThreadId": "390898",
+    "Html": "\r\n<p>i have some(2 for example) different excel2007 files.</p>\r\n<p>And i want to get one worksheet like that:</p>\r\n<p>first_excel_file_with_one_worksheet<br>\r\n--empty line--<br>\r\nsecond_excel_file_with_one_worksheet<br>\r\n--empty line--<br>\r\netc.</p>\r\n<p>Any suggestions?</p>\r\n",
+    "PostedDate": "2012-08-09T10:08:22.38-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "897776",
+    "ThreadId": "390898",
+    "Html": "<p>I'd start by using the addExternalSheet() to move the worksheets from each workbook into separate worksheet's in a single PHPExcel workbook. That will rationalise all the style information from the different workbook.</p>\r\n<p>Once you've done that, you'll need to read the relevant sections from each worksheet into an array (using the toArray() method) and then insert each aray into the one master worksheet at the appropriate position... but you'll need to watch out for any formulae in the copy, and ensure that they're adjusted using the ReferenceHelper's updateFormulaReferences() method. Then, clone the styles from the original worksheet and update them in the relevant range of the master worksheet before deleting the now copied sheet.</p>\r\n<p>Watch out for any images, filters, conditional styles that might need copying as well.</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2012-08-09T13:46:05.797-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "897805",
+    "ThreadId": "390898",
+    "Html": "\r\n<p>Thank you for the answer.</p>\r\n<p>As for now, im doing something like this:</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>$objPHPExcel1 = <span style=\"color:blue\">new</span> PHPExcel();\n<span style=\"color:green\">//adding some content to file1//</span>\n$objReader2 = PHPExcel_IOFactory::createReader(<span style=\"color:#a31515\">'Excel2007'</span>);\n$objPHPExcel2 = $objReader2-&gt;load(<span style=\"color:#a31515\">'SOME_OTHER_XLSX_FILE.xlsx'</span>); <span style=\"color:green\">//open other file</span>\n$list2 = $objPHPExcel2-&gt;setActiveSheetIndex(0); <span style=\"color:green\">//getting its sheet</span>\n$objPHPExcel-&gt;addSheet($list2); <span style=\"color:green\">//adding it to the first file.</span><br></pre>\r\n</div>\r\n<p>So i have a one xlsx file with a lot of worksheets.<br>\r\nAm i need to use addSheet()/AddExternalSheet() here? As i undersand, i should get two WorkSheets's, then get toArray() results of them, and then merge arrays, right?</p>\r\n<div id=\"_mcePaste\" style=\"left:-10000px; top:0px; width:1px; height:1px; overflow:hidden\">\r\n<pre>addSheet</pre>\r\n</div>\r\n",
+    "PostedDate": "2012-08-09T14:57:17.167-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "897953",
+    "ThreadId": "390898",
+    "Html": "<p>Instead of</p>\r\n<p style=\"padding-left: 30px;\">$objPHPExcel-&gt;addSheet($list2); <span style=\"color: green;\">//adding it to the first file.</span></p>\r\n<p>use</p>\r\n<p style=\"padding-left: 30px;\">$objPHPExcel-&gt;addExternalSheet($list2); <span style=\"color: green;\">//adding it to the first file.</span></p>\r\n<p><span style=\"color: #000000;\">otherwise you'll lose any styling and worksheet-level information from the \"secondary\" worksheets (number format masks, merges, filters, etc).</span></p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2012-08-10T02:31:23.053-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

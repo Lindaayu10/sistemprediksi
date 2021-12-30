@@ -1,0 +1,70 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel",
+      "DisplayName": "PHPExcel"
+    },
+    "ClosedComment": "Fixed in version 1.8.0",
+    "ClosedDate": "2014-03-04T03:20:49.353-08:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I have the following four lines:\n\n```\n$objPHPExcel->getActiveSheet()->getStyle('A')->getFont()->setBold(true);\n$objPHPExcel->getActiveSheet()->setCellValue('A3', \"Maximum Score\");\n$objPHPExcel->getActiveSheet()->getStyle('3')->getFont()->setBold(true);\n$objPHPExcel->getActiveSheet()->getStyle('3')->getFont()->getColor()->setARGB(\"FF0000FF\");\n```\n\nAfter adding line 1, I no longer get the blue color in cell A3.  However, if I move line 2 to the end, then the blue color myseriously shows up again. I am not sure which line is causing the issue here. Is there an order of precidence when applying styles?\n\nNot really sure how to check my version, but downloaded PHPExcel a couple of days ago from GIT. Reading changelog.txt I am thinking I probably have v1.7.8.",
+    "LastUpdatedDate": "2014-03-04T03:20:49.353-08:00",
+    "PlannedForRelease": "PHPExcel 1.8.0 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Medium",
+      "Severity": 100,
+      "Id": 2
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2013-02-02T21:30:46.41-08:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Fixed"
+    },
+    "Summary": "Styles interferring with each other",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 2,
+    "Id": 19299
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "Another example:\n```\n// Set font, color etc. different on cells A1, B1 and C1\n$styleA = $activeSheet->getStyle('A1');\n$activeSheet->duplicateStyle($styleA, 'D1:D100');\n$styleB = $activeSheet->getStyle('B1');\n$isSame = ($styleA==$styleB);  // should be false, but always true\n$activeSheet->duplicateStyle($styleB, 'F12:F100');\n// D1:D100, F1:F200 will end up with style from C1\n// Remove this last line and D1:D100 & F1:F100 will both use style from B1\n$activeSheet->duplicateStyle($activeSheet->getStyle('C1'), 'E12:E100');\n```\nColumns D, E and F should have different styles, but all have the style from C1 since it was the last style retrieved.  Changing the retrieval order changes the outcome.\n",
+      "PostedDate": "2013-08-15T08:41:54.24-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-08-15T08:43:39.453-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "First point of note (applies to your first example): row and column styles aren't supported, so the code in your first example is unpredictable\n",
+      "PostedDate": "2013-08-15T11:01:08.423-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Fixed in develop branch on github",
+      "PostedDate": "2013-08-15T15:35:07.42-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-08-15T15:36:54.533-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2014-03-04T03:20:49.353-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

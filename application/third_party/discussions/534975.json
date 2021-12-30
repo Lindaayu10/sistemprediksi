@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "1213966",
+    "ThreadId": "534975",
+    "Html": "Error:\r<br />\n<br />\nFatal error: Allowed memory size of 947912704 bytes exhausted (tried to allocate 385 bytes) in /var/www/pricing/phpexcel/Classes/PHPExcel/CachedObjectStorage/PHPTemp.php on line 65\r<br />\n<br />\nMy source:\r<br />\n<br />\n&lt;?<br />\n<pre><code>/** Error reporting */\nerror_reporting(E_ALL);\n\nini_set('memory_limit', '5000M');\n\n/** Include path **/\nini_set('include_path', ini_get('include_path').';phpexcel/Classes/');\n\n/** PHPExcel */\ninclude 'phpexcel/Classes/PHPExcel.php';\n\n/** PHPExcel_Writer_Excel2007 */\ninclude 'phpexcel/Classes/PHPExcel/Writer/Excel2007.php';\n\n// Initiate cache\n$cacheMethod = PHPExcel_CachedObjectStorageFactory::cache_to_phpTemp;\n$cacheSettings = array( 'memoryCacheSize' =&gt; '5GB');\nPHPExcel_Settings::setCacheStorageMethod($cacheMethod, $cacheSettings);\n\n// Create new PHPExcel object\n//echo date('H:i:s') . &quot; Create new PHPExcel object\\n&quot;;\n$objPHPExcel = new PHPExcel();\n\n// Set properties\n//echo date('H:i:s') . &quot; Set properties\\n&quot;;\n$objPHPExcel-&gt;getProperties()-&gt;setCreator(&quot;Minerva - Pricing&quot;);\n$objPHPExcel-&gt;getProperties()-&gt;setLastModifiedBy(&quot;Minerva - Pricing&quot;);\n$objPHPExcel-&gt;getProperties()-&gt;setTitle(&quot;Office 2007 XLSX Test Document&quot;);\n$objPHPExcel-&gt;getProperties()-&gt;setSubject(&quot;Office 2007 XLSX Test Document&quot;);\n$objPHPExcel-&gt;getProperties()-&gt;setDescription(&quot;Test document for Office 2007 XLSX, generated using PHP classes.&quot;);\n\n// Add some data\n//echo date('H:i:s') . &quot; Add some data\\n&quot;;\n$objPHPExcel-&gt;setActiveSheetIndex(0);\n$objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue('A1', utf8_encode('des_equipe_venda'));\n$objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue('B1', utf8_encode('nova_equipe_venda'));   \n$objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue('C1', utf8_encode('nom_pessoa_empresa'));\n$objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue('D1', utf8_encode('ano'));\n$objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue('E1', utf8_encode('semana'));\n$objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue('F1', utf8_encode('des_categoria_comercial'));\n$objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue('G1', utf8_encode('des_grupo_corte'));\n$objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue('H1', utf8_encode('des_corte_comercial'));\n$objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue('I1', utf8_encode('cod_item'));\n$objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue('J1', utf8_encode('des_item'));\n$objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue('K1', utf8_encode('qtd_item'));\n$objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue('L1', utf8_encode('valor_un_nota'));\n$objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue('M1', utf8_encode('valor_total_nota'));\n$objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue('N1', utf8_encode('valor_un_tabela'));\n$objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue('O1', utf8_encode('valor_total_tabela'));\n$objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue('P1', utf8_encode('valor_un_custo'));\n$objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue('Q1', utf8_encode('valor_total_custo'));\n$objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue('R1', utf8_encode('dif_valor_item_nota_mnrv'));\n$objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue('S1', utf8_encode('valor_dif_tabela_abaixo'));\n$objPHPExcel-&gt;getActiveSheet()-&gt;SetCellValue('T1', utf8_encode('valor_dif_tabela_acima'));\n\n//PREENCHE XLSX\n$vendas = mssql_query(&quot;EXEC [dbpricing].[dbo].[spr_relatorio_base_real_venda_3_anual] '$data_inicio', '$data_fim 23:59:59', NULL;&quot;);\n\n$r = 2;\nwhile ( $row = mssql_fetch_assoc($vendas) ) {\n    $row = array_map('utf8_encode', $row);  \n    $objPHPExcel-&gt;getActiveSheet()-&gt;fromArray($row, NULL, 'A'.$r++);\n}\n\n// Rename sheet\n//echo date('H:i:s') . &quot; Rename sheet\\n&quot;;\n$objPHPExcel-&gt;getActiveSheet()-&gt;setTitle('Base real de vendas');\n\n// Save Excel 2007 file\n//echo date('H:i:s') . &quot; Write to Excel2007 format\\n&quot;;\n$objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel);\n$objWriter-&gt;save(str_replace('.php', '.xlsx', __FILE__));</code></pre>\n\n}\r<br />\n?&gt;\r<br />\n<br />\nCan someone please explain what may be going on...\r<br />\n<br />\nThanks<br />\n",
+    "PostedDate": "2014-02-24T12:33:27.727-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1213998",
+    "ThreadId": "534975",
+    "Html": "<pre><code>$cacheMethod = PHPExcel_CachedObjectStorageFactory::cache_to_phpTemp;\n$cacheSettings = array( 'memoryCacheSize' =&gt; '5GB');\nPHPExcel_Settings::setCacheStorageMethod($cacheMethod, $cacheSettings);</code></pre>\n\nYou're seriously telling PHPExcel to use <strong>5GB</strong> of <strong>physical memory</strong> before it starts to use file caching? Especially when you have  less than <strong>1GB</strong> of physical memory allocated to any PHP process?<br />\n",
+    "PostedDate": "2014-02-24T13:55:38.697-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1214397",
+    "ThreadId": "534975",
+    "Html": "what do you recommend in this case?<br />\n",
+    "PostedDate": "2014-02-25T03:37:35.643-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1214451",
+    "ThreadId": "534975",
+    "Html": "I recommend setting <strong><em>memoryCacheSize</em></strong> to a value a lot lower than the amount of physical memory you have available, like perhaps <code>32M</code><br />\n",
+    "PostedDate": "2014-02-25T04:45:02.09-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1214551",
+    "ThreadId": "534975",
+    "Html": "Hello, <br />\n<br />\nI set the php.ini to <strong>memory_limit</strong> &quot;1000M&quot; and <strong>memoryCacheSize</strong> to &quot;32MB&quot;. <br />\n<br />\nSee error now: <br />\n<br />\nFatal error: Allowed memory size of 947912704 bytes exhausted (tried to allocate 346 bytes) in / var / www / pricing / PHPExcel / Classes / PHPExcel / CachedObjectStorage / PHPTemp.php on line 65 <br />\n<br />\nMy query is returning about 491275 lines. Is it related? <br />\n<br />\nWhat is the recommended setting in this case?<br />\n",
+    "PostedDate": "2014-02-25T06:30:33.937-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

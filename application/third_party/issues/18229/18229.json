@@ -1,0 +1,60 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hi all.\nI create file like:\n \n<?\nini_set('memory_limit','512M');\n...\n$cacheMethod = PHPExcel_CachedObjectStorageFactory::cache_to_phpTe$cacheMethod = PHPExcel_CachedObjectStorageFactory::cache_to_phpTemp;\n$cacheSettings = array('memoryCacheSize' => '32MB');\nPHPExcel_Settings::setCacheStorageMethod($cacheMethod, $cacheSettings);\n \n$objPHPExcel = new PHPExcel();\n$objPHPExcel->getProperties()->setCreator(' ... ')\n->setTitle(' ... ')\n->setDescription(' ... '));\n \n$objPHPExcel->getActiveSheet()->getStyle('3')->getFont()->setBold(true);\n \n//$columns_meta - array with meta information about columns (title, width, etc.)\nforeach(self::$columns_meta as $col => $meta) {\n\t$objPHPExcel->getActiveSheet()->getColumnDimension(PHPExcel_Cell::stringFromColumnIndex($meta['num']-1))->setWidth($meta['width']);\n\t$objPHPExcel->getActiveSheet()->setCellValue(PHPExcel_Cell::stringFromColumnIndex($meta['num']-1) . '3', $meta['title']);\n\t$objPHPExcel->getActiveSheet()->setCellValue(PHPExcel_Cell::stringFromColumnIndex($meta['num']-1) . '4', $meta['num']);\n}\n \n$row = 1;\n \n// count($recordList) ~ 3000\nforeach ($recordList as $rec) {\n\t$objPHPExcel->getActiveSheet()->setCellValue('A' . $row , $rec-> ... );\n\t...\n\t$objPHPExcel->getActiveSheet()->setCellValue('AK' . $row, $rec-> ... );\n \n\t++$row;\n}\necho \"Peak memory usage: \" . (memory_get_peak_usage(true) / 1024 / 1024) . \" MB\"; // 217.25\n \n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');\n$objWriter->setUseDiskCaching(true, '/path/to/temp/');\n$objWriter->setOffice2003Compatibility(true);\n$objWriter->save('fullFileName.xlsx');\n...\n?>\n \nAnd have \"Fatal error:  Allowed memory size of 268435456 bytes exhausted (tried to allocate 84 bytes) in /path/to/PHPExcel/Classes/PHPExcel/CachedObjectStorage/CacheBase.php on line 155\"\n \nI use PHPExcel 1.7.7.\n \nHow can I solve this problem?",
+    "LastUpdatedDate": "2013-02-21T19:01:53.257-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2012-06-15T00:10:51.227-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Out of memory when writing huge file",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 18229
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "Your memory limit is still set to 256M, which means your ini.set is having no effect. Try changing the memory limit in php.ini directly.\r\n\r\nYou can reduce the memory usage significantly by using \r\n\r\n$objPHPExcel->getActiveSheet()->fromArray($data, null, \"A$row\");\r\n\r\nwhere $data is a 2D array of data to dump. Whether this is better a line at a time or the whole 80k cells probably depends on exactly how you're getting it out of the database and how much processing is required for each record. Generally though I've found that outputting a line at a time takes longer but use less memory.",
+      "PostedDate": "2012-06-15T00:59:21.947-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I add ini_set('memory_limit','512M'); to CacheBase.php and ini_set('max_execution_time','60'); to Worksheet.php , it works.\r\n\r\nWith\r\n\r\n$data[] = $rec-> ...;\r\n...\r\n$objPHPExcel->getActiveSheet()->fromArray($data, null, \"A$row\", true);\r\n\r\nalready before \"echo 'Peak memory usage: ' ...\" i get \"Fatal error:  Allowed memory size of 536870912 bytes exhausted (tried to allocate 74 bytes) in /path/to/PHPExcel/Classes/PHPExcel/CachedObjectStorage/PHPTemp.php on line 68\" ...",
+      "PostedDate": "2012-06-15T03:14:27.29-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Try this as well:\r\n\r\n- Assign $objPHPExcel->getActiveSheet() to an object which can be called\r\n- Use Explicit Cell Values\r\n- Style cells using a set of which can be applied to specific areas with rules\r\n- If you are creating multiple sheets then save each sheet separately and then combine them once processing is complete.",
+      "PostedDate": "2012-07-17T14:02:06.82-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:01:53.257-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

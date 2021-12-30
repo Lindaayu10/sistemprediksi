@@ -1,0 +1,106 @@
+[
+  {
+    "Id": "997675",
+    "ThreadId": "432278",
+    "Html": "Hi I am using <a href=\"http://phpexcel.codeplex.com\" rel=\"nofollow\">http://phpexcel.codeplex.com</a> for read and write of excel file. I have graph in excel file when i read it and write new data graph disapear. This the example no 7 i.e 07reader.php but change include file from &quot;05featuredemon.php&quot; to &quot;33chartcreate-bar.php&quot; because i need graph\r<br />\n<br />\nerror_reporting(E_ALL);\r<br />\nini_set('display_errors', TRUE);\r<br />\nini_set('display_startup_errors', TRUE);\r<br />\n<br />\ndefine('EOL',(PHP_SAPI == 'cli') ? PHP_EOL : '&lt;br /&gt;');\r<br />\n<br />\ndate_default_timezone_set('Europe/London');\r<br />\n<br />\n/*<em> Include PHPExcel_IOFactory </em>/\r<br />\nrequire_once '../Classes/PHPExcel/IOFactory.php';\r<br />\n<br />\n<br />\nif (!file_exists(&quot;33chartcreate-bar.xlsx&quot;)) {\r<br />\nexit(&quot;Please run 33chartcreate-bar.php first.&quot; . EOL);\r<br />\n}\r<br />\n<br />\necho date('H:i:s') , &quot; Load from Excel2007 file&quot; , EOL;\r<br />\n$objPHPExcel = PHPExcel_IOFactory::load(&quot;05featuredemo.xlsx&quot;);\r<br />\n<br />\n echo date('H:i:s') , &quot; Write to Excel2007 format&quot; , EOL;\r<br />\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');\r<br />\n$objWriter-&gt;save(str_replace('.php', '.xlsx', <strong>FILE</strong>));\r<br />\necho date('H:i:s') , &quot; File written to &quot; , str_replace('.php', '.xlsx',   pathinfo(<strong>FILE</strong>, PATHINFO_BASENAME)) , EOL;\r<br />\n<br />\n<br />\n// Echo memory peak usage\r<br />\n echo date('H:i:s') , &quot; Peak memory usage: &quot; , (memory_get_peak_usage(true) / 1024 / 1024) , &quot; MB&quot; , EOL;\r<br />\n<br />\n// Echo done\r<br />\necho date('H:i:s') , &quot; Done writing file&quot; , EOL;\r<br />\n echo 'File has been created in ' , getcwd() , EOL;<br />\n",
+    "PostedDate": "2013-02-06T21:58:08.793-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "997716",
+    "ThreadId": "432278",
+    "Html": "You need to explicitly tell PHPExcel to read and to write charts<br />\n<pre><code>$objReader-&gt;setIncludeCharts(TRUE);\n</code></pre>\n\nand<br />\n<pre><code>$objWriter-&gt;setIncludeCharts(TRUE);</code></pre>\n\nas shown in the examples<br />\n",
+    "PostedDate": "2013-02-06T23:32:19.877-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1341078",
+    "ThreadId": "432278",
+    "Html": "I have the same problem as well. \r<br />\nI read and write multiples sheets, but when I write first sheet, everything is fine, after sheet 2, the chart is gone from the first one and so on..\r<br />\n<br />\nI am including charts in both reading and writing, what can be causing this?<br />\n",
+    "PostedDate": "2015-01-12T07:04:46.313-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1341128",
+    "ThreadId": "432278",
+    "Html": "Explain what you mean by <code>I read and write multiples sheets</code>.... you don't read/write sheets, you read/write workbooks (PHPExcel objects)<br />\n",
+    "PostedDate": "2015-01-12T08:46:08.587-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1341166",
+    "ThreadId": "432278",
+    "Html": "Sorry, my english isn't that great...<br />\nI have a excel file with 6 worksheets; I also have several functions that write tables and chart in them.<br />\nThe thing is, when I write the first one, no problem. The charts and table are there.<br />\nWhen I write a second worksheet, the table and charts are there for the current worksheet only, but in the first one, just the table remains and the chart is gone.<br />\nEven though I'm using this:<br />\n<pre><code>$objReader-&gt;setIncludeCharts(TRUE);</code></pre>\n\nHere is my code:<br />\n<pre><code>\n&lt;?php\nrequire_once'PHPExcel.php';\nrequire_once 'ejemplo.php';\ninclude 'PHPExcel/IOFactory.php';\n\n\n$inputFileType = 'Excel5'; \n$inputFileName = 'Create_Sheet.xlsx'; \n\n$sheetname = 'Sistemas Operativos'; \n\n\n$objReader = PHPExcel_IOFactory::createReaderForFile($inputFileName); \n$objReader -&gt;setReadDataOnly(true);\n\n\n$objPHPExcel = $objReader-&gt;load($inputFileName); \n$objReader-&gt;setLoadSheetsOnly($sheetname); \n$objReader-&gt;setIncludeCharts(TRUE);\n\n$sheet = $objPHPExcel-&gt;setActiveSheetIndexByName($sheetname);\n\n\n\n$sheet -&gt;setCellValue('A1', 'Informe de Inventario');       \n        $sheet-&gt;getStyle('A1')-&gt;getFont()-&gt;setBold(false)-&gt;setSize(18); \n    \n        $sheet-&gt;getColumnDimension('A')-&gt;setAutoSize(true);\n        $sheet-&gt;getDefaultRowDimension()-&gt;setRowHeight(-1);\n\n        $sheet -&gt;setCellValue('A2', 'Sistemas Operativos en la Unidad');\n        $sheet-&gt;getStyle('A2')-&gt;getFont()-&gt;setBold(false)-&gt;setSize(11);\n        $sheet -&gt;setCellValue('A3', 'Sistemas Operativos');\n        $sheet -&gt;setCellValue('B3', 'U');\n        $sheet -&gt;setCellValue('C3', 'Bibliotecas ');    \n\n\n\n$sheet-&gt;fromArray($array, null, 'A4');\n\n$sheet-&gt;getColumnDimension('A')-&gt;setAutoSize(true);\n$sheet-&gt;getColumnDimension('B')-&gt;setAutoSize(true);\n$sheet-&gt;getColumnDimension('C')-&gt;setAutoSize(true);\n\n\n$cell = count($array, COUNT_RECURSIVE);\n$cell = (($cell/3)-3);\n$num = ceil($cell);\n\n$labels = array(\n  new PHPExcel_Chart_DataSeriesValues('String', 'Worksheet!$B$4', null, 1),\n  new PHPExcel_Chart_DataSeriesValues('String', 'Worksheet!$C$4', null, 1),\n);\n$categories = array(\n  new PHPExcel_Chart_DataSeriesValues('String', 'Worksheet!$A$5:$A'.($num + 5), null, ($num - 1)),\n  new PHPExcel_Chart_DataSeriesValues('String', 'Worksheet!$A$5:$A'.($num + 5), null, ($num - 1)),\n);\n$values = array(\n  new PHPExcel_Chart_DataSeriesValues('Number', 'Worksheet!$B$5:$B'.($num + 5), null, ($num - 1)),\n  new PHPExcel_Chart_DataSeriesValues('Number', 'Worksheet!$C$5:$C'.($num + 5), null, ($num - 1)),\n);\n$series = new PHPExcel_Chart_DataSeries(\n  PHPExcel_Chart_DataSeries::TYPE_BARCHART,       // plotType\n  PHPExcel_Chart_DataSeries::GROUPING_CLUSTERED,  // plotGrouping\n  array(0, 1),                                    // plotOrder\n  $labels,                                        // plotLabel\n  $categories,                                    // plotCategory\n  $values                                         // plotValues\n);\n\n\n$title1 = new PHPExcel_Chart_Title('Total U');\n\n$series-&gt;setPlotDirection(PHPExcel_Chart_DataSeries::DIRECTION_COL);\n$plotarea = new PHPExcel_Chart_PlotArea(null, array($series));\n$legend = new PHPExcel_Chart_Legend(PHPExcel_Chart_Legend::POSITION_RIGHT, null, false);\n$chart = new PHPExcel_Chart(\n  'chart',                                       // name\n  $title1,                                           // title\n  $legend,                                        // legend\n  $plotarea,                                      // plotArea\n  true,                                           // plotVisibleOnly\n  0,                                              // displayBlanksAs\n  null,                                           // xAxisLabel\n  null                                            // yAxisLabel\n);\n\n\n\n/*-----------------------------Full Graph-------------------------------*/\n\n/*-----------------------------Small Graph-------------------------------*/\n$label = array(\n  new PHPExcel_Chart_DataSeriesValues('String', 'Worksheet!$B$4', null, 1),\n  \n);\n$category = array(\n  new PHPExcel_Chart_DataSeriesValues('String', 'Worksheet!$A$5:$A'.($num + 5), null, ($num - 1)),\n);\n$values2 = array(\n  new PHPExcel_Chart_DataSeriesValues('Number', 'Worksheet!$B$5:$B'.($num + 5), null, ($num - 1)),\n\n);\n$series2 = new PHPExcel_Chart_DataSeries(\n  PHPExcel_Chart_DataSeries::TYPE_BARCHART,       // plotType\n  PHPExcel_Chart_DataSeries::GROUPING_CLUSTERED,  // plotGrouping\n  array(0),                                    // plotOrder\n  $label,                                        // plotLabel\n  $category,                                    // plotCategory\n  $values2                                         // plotValues\n);\n\n//$title2 = new PHPExcel_Chart_Title('Total  ' .($dep));\n$title2 = new PHPExcel_Chart_Title('Total  BIB');\n\n$series2-&gt;setPlotDirection(PHPExcel_Chart_DataSeries::DIRECTION_COL);\n$plotarea2 = new PHPExcel_Chart_PlotArea(null, array($series2));\n$legend2 = new PHPExcel_Chart_Legend(PHPExcel_Chart_Legend::POSITION_RIGHT, null, false);\n$chart2 = new PHPExcel_Chart(\n  'chart2',                                       // name\n   $title2,                                           // title\n  $legend2,                                        // legend\n  $plotarea2,                                      // plotArea\n  true,                                           // plotVisibleOnly\n  0,                                              // displayBlanksAs\n  null,                                           // xAxisLabel\n  null                                            // yAxisLabel\n);\n\n\n\n\n/*-----------------------------Small Graph-------------------------------*/\n\n\n$chart-&gt;setTopLeftPosition('A'.($num+10));\n$chart2-&gt;setTopLeftPosition('K'.($num+10));\n$chart-&gt;setBottomRightPosition('I30');\n$chart2-&gt;setBottomRightPosition('X30');\n$sheet-&gt;addChart($chart);\n$sheet-&gt;addChart($chart2);\n$writer = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');\n$writer-&gt;setIncludeCharts(TRUE);\n$writer-&gt;save('Create_Sheet.xlsx');\n\n$objPHPExcel-&gt;disconnectWorksheets();\n\n\n?&gt;</code></pre>\n\n",
+    "PostedDate": "2015-01-12T10:05:31.163-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1341200",
+    "ThreadId": "432278",
+    "Html": "So you're loading a single sheet from an xls file, adding charts to that sheet, and saving as an xlsx.... I don't see anything in this code to indicate that there should be more than one worksheet in your saved file.<br />\n<br />\nHowever, when creating your charts you make reference to a worksheet called <code>Worksheet</code>, e.g<br />\n<pre><code>$values2 = array(\n  new PHPExcel_Chart_DataSeriesValues('Number', 'Worksheet!$B$5:$B'.($num + 5), null, ($num - 1)),\n\n);</code></pre>\n\nbut the only worksheet that you're loading is called <code>Sistemas Operativos</code>, so that chart won't be able to access any data on the non-existent worksheet<br />\n",
+    "PostedDate": "2015-01-12T11:13:19.613-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1341203",
+    "ThreadId": "432278",
+    "Html": "This is for one sheet only, the others functions are very similar, (that's why I only posted one) the thing is that it erases the chart of the previous sheet.<br />\n<br />\nEach time I only need to access one sheet to write the data and charts.<br />\nLike I said before, the tables that were written before stay in the file, it is only the previous charts that are erased.<br />\n",
+    "PostedDate": "2015-01-12T11:17:07.683-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1341205",
+    "ThreadId": "432278",
+    "Html": "So you're loading a worksheet each time, adding charts, then saving the file? You're not saving to the same filename each time are you?<br />\n",
+    "PostedDate": "2015-01-12T11:32:23.393-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1341207",
+    "ThreadId": "432278",
+    "Html": "Yes! That's how I have to do it actually.<br />\nBut, even if it was the same filename shouldn't erase the work done before.. is it? <br />\n<br />\n(btw thank you so much for replying)<br />\n<br />\n<br />\nedit. tried with different file names, same thing.<br />\n",
+    "PostedDate": "2015-01-12T11:34:54.973-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1341208",
+    "ThreadId": "432278",
+    "Html": "If you save several files with the same filename, then each save will <strong>overwrite</strong> the previous file with that filename.<br />\n<br />\nIf you save with different filenames, then it won't overwrite, because it's a different filename.<br />\n",
+    "PostedDate": "2015-01-12T11:50:12.6-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1341209",
+    "ThreadId": "432278",
+    "Html": "Ok, I know it will overwrite the existing file, but the only thing that it's missing it's the charts, the data written before is fine. <br />\n",
+    "PostedDate": "2015-01-12T11:53:08.907-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1341210",
+    "ThreadId": "432278",
+    "Html": "This is what I'm doing:<br />\n<br />\n1- Open the file-&gt; write a single sheet (charts and tables)-&gt;save<br />\n2- same thing, but now in the &quot;second save&quot;, only charts are missing<br />\n<br />\n<br />\nUsing same and different filenames<br />\n",
+    "PostedDate": "2015-01-12T11:56:04.097-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1414219",
+    "ThreadId": "432278",
+    "Html": "You can use below code to read and write graph on excel :-\r<br />\n<br />\nerror_reporting(E_ALL);\r<br />\ndate_default_timezone_set('Europe/London');\r<br />\nrequire_once '../Classes/PHPExcel/IOFactory.php';\r<br />\nrequire_once '../Classes/PHPExcel.php';\r<br />\n$excel2 = PHPExcel_IOFactory::createReader('Excel2007');\r<br />\n<br />\n/<em>Enable chart read on excel</em>/\r<br />\n$excel2-&gt;setIncludeCharts(TRUE);\r<br />\n/<em>Enable chart read on excel</em>/\r<br />\n<br />\n$excel2 = $excel2-&gt;load('excelname.xlsx'); // Empty Sheet\r<br />\n<br />\n/<em>update cell data if you required </em>/\r<br />\n$excel2-&gt;getActiveSheet()-&gt;setCellValue('B6', '2');\r<br />\n$excel2-&gt;getActiveSheet()-&gt;setCellValue('B7', '1');\r<br />\n$excel2-&gt;getActiveSheet()-&gt;setCellValue('B8', '3');\r<br />\n/<em>-----------------------------</em>/\r<br />\n<br />\n$objWriter = PHPExcel_IOFactory::createWriter($excel2, 'Excel2007');\r<br />\n/<em>Enable chart write on excel</em>/\r<br />\n$objWriter-&gt;setIncludeCharts(TRUE);\r<br />\n/<em>Enable chart write on excel</em>/\r<br />\n$objWriter-&gt;save('excelout.xlsx');<br />\n",
+    "PostedDate": "2015-04-15T02:54:45.49-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

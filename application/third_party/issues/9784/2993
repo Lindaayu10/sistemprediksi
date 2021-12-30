@@ -1,0 +1,141 @@
+Index: HTML.php
+===================================================================
+--- HTML.php	(revision 918)
++++ HTML.php	(working copy)
+@@ -96,6 +96,13 @@
+ 	private $_cssStyles = null;
+ 
+ 	/**
++	 * Array of column widths in points
++	 *
++	 * @var array
++	 */
++	private $_columnWidths = null;
++
++	/**
+ 	 * Create a new PHPExcel_Writer_HTML
+ 	 *
+ 	 * @param 	PHPExcel	$phpExcel	PHPExcel object
+@@ -262,14 +269,11 @@
+ 
+ 		// Loop all sheets
+ 		foreach ($sheets as $sheet) {
+-			// Calculate hash code
+-			$hashCode = $sheet->getHashCode();
+-
+ 			// Get cell collection
+ 			$cellCollection = $sheet->getCellCollection();
+ 
+ 			// Write table header
+-			$html .= $this->_generateTableHeader($hashCode);
++			$html .= $this->_generateTableHeader($sheet);
+ 
+ 	    	// Get worksheet dimension
+ 	    	$dimension = explode(':', $sheet->calculateWorksheetDimension());
+@@ -447,27 +451,28 @@
+ 			// table.sheetXXXXXX td { }
+ 			$css['table.sheet' . $hashCode . ' td'] = $css['table.sheet' . $hashCode];
+ 
+-			// Default column width
+-			$columnDimension = $sheet->getDefaultColumnDimension();
++			// Calculate column widths
++			$sheet->calculateColumnWidths();
+ 
+-			$css['table.sheet' . $hashCode . ' td'] .= 'width: ' . PHPExcel_Shared_Drawing::cellDimensionToPixels($columnDimension->getWidth()) . 'px; ';
+-			if ($columnDimension->getVisible() === false) {
+-				$css['table.sheet' . $hashCode . ' td'] .= 'display: none; ';
+-				$css['table.sheet' . $hashCode . ' td'] .= 'visibility: hidden; ';
++			// col elements, initialize
++			$highestColumnIndex = PHPExcel_Cell::columnIndexFromString($sheet->getHighestColumn()) - 1;
++			for ($column = 0; $column <= $highestColumnIndex; ++$column) {
++				$this->_columnWidths[$hashCode][$column] = 42; // approximation
++				$css['table.sheet' . $hashCode . ' col.col' . $column] = 'width: 42pt';
+ 			}
+ 
+-			// Calculate column widths
+-			$sheet->calculateColumnWidths();
++			// col elements, loop through columnDimensions and set width
+ 			foreach ($sheet->getColumnDimensions() as $columnDimension) {
+-				$column = PHPExcel_Cell::columnIndexFromString($columnDimension->getColumnIndex()) - 1;
+-
+-				// table.sheetXXXXXX td.columnYYYYYY { }
+-				$width = PHPExcel_Shared_Drawing::cellDimensionToPixels($columnDimension->getWidth());
+-				$width = PHPExcel_Shared_Drawing::pixelsToPoints($width);
+-				$css['table.sheet' . $hashCode . ' td.column' . $column] = 'width: ' . $width . 'pt; ';
+-				if ($columnDimension->getVisible() === false) {
+-					$css['table.sheet' . $hashCode . ' td.column' . $column] .= 'display: none; ';
+-					$css['table.sheet' . $hashCode . ' td.column' . $column] .= 'visibility: hidden; ';
++				if (($width = PHPExcel_Shared_Drawing::cellDimensionToPixels($columnDimension->getWidth())) >= 0) {
++					$width = PHPExcel_Shared_Drawing::pixelsToPoints($width);
++					$column = PHPExcel_Cell::columnIndexFromString($columnDimension->getColumnIndex()) - 1;
++					$this->_columnWidths[$hashCode][$column] = $width;
++					$css['table.sheet' . $hashCode . ' col.col' . $column] = 'width: ' . $width . 'pt; ';
++					
++					if ($columnDimension->getVisible() === false) {
++						$css['table.sheet' . $hashCode . ' col.col' . $column] .= 'visibility: collapse; ';
++						$css['table.sheet' . $hashCode . ' col.col' . $column] .= '*display: none; '; // target IE6+7
++					}
+ 				}
+ 			}
+ 
+@@ -661,22 +666,36 @@
+ 	/**
+ 	 * Generate table header
+ 	 *
+-	 * @param 	string	$pIdentifier	Identifier for the table
++	 * @param 	PHPExcel_Worksheet	$pSheet		The worksheet for the table we are writing
+ 	 * @return	string
+ 	 * @throws	Exception
+ 	 */
+-	private function _generateTableHeader($pIdentifier = '') {
++	private function _generateTableHeader($pSheet) {
++		$identifier = $pSheet->getHashCode();
++
+ 		// Construct HTML
+ 		$html = '';
+ 		
+ 		if (!$this->_useInlineCss) {
+-			$html .= '    <table border="0" cellpadding="0" cellspacing="0" class="sheet' . $pIdentifier . '">' . "\r\n";
++			$html .= '    <table border="0" cellpadding="0" cellspacing="0" class="sheet' . $identifier . '">' . "\r\n";
+ 		} else {
+-			$style = isset($this->_cssStyles['table.sheet' . $pIdentifier]) ? $this->_cssStyles['table.sheet' . $pIdentifier] : '';
++			$style = isset($this->_cssStyles['table.sheet' . $identifier]) ? $this->_cssStyles['table.sheet' . $identifier] : '';
+ 			
+ 			$html .= '    <table border="0" cellpadding="0" cellspacing="0" style="' . $style . '">' . "\r\n";
+ 		}
+ 
++		// Write <col> elements
++		$highestColumnIndex = PHPExcel_Cell::columnIndexFromString($pSheet->getHighestColumn()) - 1;
++		for ($i = 0; $i <= $highestColumnIndex; ++$i) {
++			if (!$this->_useInlineCss) {
++				$html .= '        <col class="col' . $i . '">' . "\r\n";
++			} else {
++				$style = isset($this->_cssStyles['table.sheet' . $identifier]) ?
++					$this->_cssStyles['table.sheet' . $identifier . ' col.col' . $i] : '';
++				$html .= '        <col style="' . $style . '">' . "\r\n";
++			}
++		}
++
+ 		// Return
+ 		return $html;
+ 	}
+@@ -837,6 +856,19 @@
+ 						if (!$this->_useInlineCss) {
+ 							$html .= ' class="' . $cssClass . '"';
+ 						} else {
++							//** Necessary redundant code for the sake of PHPExcel_Writer_PDF **
++							// We must explicitly write the width of the <td> element because TCPDF
++							// does not recognize e.g. <col style="width:42pt">;
++							$width = 0;
++							$columnIndex = PHPExcel_Cell::columnIndexFromString($cell->getColumn()) - 1;
++							for ($i = $columnIndex; $i < $columnIndex + $colSpan; ++$i) {
++								if (isset($this->_columnWidths[$sheetHash][$i])) {
++									$width += $this->_columnWidths[$sheetHash][$i];
++								}
++							}
++							$cssClass .= 'width: ' . $width . 'pt; ';
++							//** end of redundant code **
++							
+ 							$html .= ' style="' . $cssClass . '"';
+ 						}
+ 						if ($colSpan > 1) {

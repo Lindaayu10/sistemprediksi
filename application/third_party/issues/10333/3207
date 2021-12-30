@@ -1,0 +1,25 @@
+Index: Classes/PHPExcel/Reader/Excel5.php
+===================================================================
+--- Classes/PHPExcel/Reader/Excel5.php	(revision 1039)
++++ Classes/PHPExcel/Reader/Excel5.php	(working copy)
+@@ -1773,7 +1773,7 @@
+ 			// offset: 3; size: 1; length of the name (character count)
+ 			$nlen = ord($recordData{3});
+ 
+-			// offset: 4; size: 2; size of the formula data
++			// offset: 4; size: 2; size of the formula data (it can happen that this is zero)
+ 			$flen = $this->_GetInt2d($recordData, 4);
+ 
+ 			// offset: 14; size: var; Name (Unicode string without length field)
+@@ -3625,6 +3625,11 @@
+ 	 */
+ 	private function _createFormulaFromTokens($tokens, $additionalData)
+ 	{
++		// empty formula?
++		if (count($tokens) == 0) {
++			return '';
++		}
++
+ 		$formulaStrings = array();
+ 		foreach ($tokens as $token) {
+ 			// initialize spaces

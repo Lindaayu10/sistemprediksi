@@ -1,0 +1,39 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Updating on new 1.7.2 (from 1.7.0) release I get an error very strong to debug:\n \nFatal error: Uncaught exception 'Exception' with message 'Invalid cell coordinate.' in /usr/local/zend/apache2/htdocs/myadmin/include/PHPExcel/Cell.php:519 \nStack trace: \n#0 /usr/local/zend/apache2/htdocs/myadmin/include/PHPExcel/ReferenceHelper.php(529): PHPExcel_Cell::coordinateFromString(''WORKSHEET NAME ...') \n#1 /usr/local/zend/apache2/htdocs/myadmin/include/PHPExcel/ReferenceHelper.php(498): PHPExcel_ReferenceHelper->_updateSingleCellReference(''WORKSHEET NAME...', 'A90', 0, 1) \n#2 /usr/local/zend/apache2/htdocs/myadmin/include/PHPExcel/ReferenceHelper.php(449): PHPExcel_ReferenceHelper->_updateCellRange('B11:AA105,'WORKS...', 'A90', 0, 1) \n#3 /usr/local/zend/apache2/htdocs/myadmin/include/PHPExcel/ReferenceHelper.php(342): PHPExcel_ReferenceHelper->updateCellReference('B11:AA105,'WORKS...', 'A90', 0, 1) \n#4 /usr/local/zend/apache2/htdocs/myadmin/include/PHPExcel/Worksheet.php(1746): PHPExcel_ReferenceHelper->insertNewBefore('A90', 0, 1, Object(PHPExcel_Wo in /usr/local/zend/apache2/htdocs/myadmin/include/PHPExcel/Cell.php on line 51\n \nAfter a few hours I'm isolated the problem and I think it's in Worksheet.php at line 338  (insertNewBefore method):\n \n// Page setup\nif ($pSheet->getPageSetup()->isPrintAreaSet()) {\n\t\t\t$pSheet->getPageSetup()->setPrintArea( $this->updateCellReference($pSheet->getPageSetup()->getPrintArea(), $pBefore, $pNumCols, $pNumRows) );\n}\n \nWhen call updateCellReference get the error. I think the problem is the _printArea property.\nMy value is:\n[_printArea:PHPExcel_Worksheet_PageSetup:private] => B11:AA105,'WORKSHEET NAME'\n \nCan you help me?",
+    "LastUpdatedDate": "2013-02-21T19:03:00.473-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2010-05-05T03:55:21.123-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "insertNewRowBefore issue",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 12941
+  },
+  "FileAttachments": [],
+  "Comments": []
+}

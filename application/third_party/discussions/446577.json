@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "1054901",
+    "ThreadId": "446577",
+    "Html": "Hello,\r<br />\nI'm programming a library that uses a template with graphics that are filled dynamically from php.\r<br />\n<br />\nWith PHPExcel only fill the cells that the chart will use.\r<br />\n<br />\nis it possible?\r<br />\n<br />\nI have done tests but once created. xls, open the file, but the graphics are gone.\r<br />\n<br />\nwhat happens?\r<br />\n<br />\nHere the last fragment of code:\r<br />\n<br />\n$nombreEnt=$_POST['nombreEntidad'];\r<br />\n$direccionEnt=$_POST['direccionEntidad'];\r<br />\n$fehaInforme=&quot;Informe de &quot;.date(&quot;d-m-Y&quot;);\r<br />\n$objPHPExcel-&gt;setActiveSheetIndex(0)\r<br />\n-&gt;setCellValue('A29', $nombreEnt)\t\r<br />\n-&gt;setCellValue('A30', $direccionEnt)\t\t\t\t\t\t\t\t\t\r<br />\n-&gt;setCellValue('A31', $fehaInforme);\t\t\t\r<br />\n<br />\n$nameEntiFile=str_replace(' ', '', $_POST['nombreEntidad']);\r<br />\n$nameFile=date(&quot;Y-m-d&quot;).$nameEntiFile.&quot;.xls&quot;;\t\t\t\r<br />\n\t\t\t\r<br />\nheader('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');\r<br />\nheader('Content-Disposition: attachment;filename=&quot;'.$nameFile.'&quot;');\r<br />\nheader('Cache-Control: max-age=0');\r<br />\n\t\t\t\r<br />\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');\r<br />\n$objWriter-&gt;save('php://output');\r<br />\n<br />\nthank you very much<br />\n",
+    "PostedDate": "2013-06-10T08:09:13.453-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1054972",
+    "ThreadId": "446577",
+    "Html": "I've been reading about this bug and it looks like I use excel5.\r<br />\n<br />\nI did a test with this code and it does not work. I download the template but I deleted the graph that existed in the template.\r<br />\n<br />\nI copy the code for if you can help:<br />\n<pre><code>&lt;?php\n\nrequire_once '../lib/excel/PHPExcel.php'; \n \n /** Error reporting */\nerror_reporting(E_ALL);\n\n\n$objReader = PHPExcel_IOFactory::createReader('Excel2007');\n$objPHPExcel = $objReader-&gt;load(&quot;plantillaTest.xlsx&quot;);\n\n\n $objPHPExcel-&gt;setActiveSheetIndex(0)\n        //duplicamos el estilo de una celda o un rango de ellas\n        //-&gt;duplicateStyle($objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('B6'),'B'.$i)   \n        -&gt;setCellValue('A1', 6)                                 \n        -&gt;setCellValue('A2', 7)\n        -&gt;setCellValue('A3', 8);\n\n\nob_end_clean();//inprescindible\n        \nheader(&quot;Last-Modified: &quot; . gmdate(&quot;D, d M Y H:i:s&quot;) . &quot; GMT&quot;);\nheader(&quot;Cache-Control: no-store, no-cache, must-revalidate&quot;);\nheader(&quot;Cache-Control: post-check=0, pre-check=0&quot;, false);\nheader(&quot;Pragma: no-cache&quot;);\nheader('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');\nheader('Content-Disposition: attachment;filename=&quot;Report.xlsx&quot;');\n\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');\nob_end_clean();//inprescindible\n\n\n$objWriter-&gt;save('php://output');\n\n?&gt;</code></pre>\n\n",
+    "PostedDate": "2013-06-10T10:11:23.42-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1056840",
+    "ThreadId": "446577",
+    "Html": "You specifically need to tell PHPExcel to include charts, both when loading a file and when saving:<br />\n<div style=\"color:Black;background-color:White;\"><pre>\r\n$objReader = PHPExcel_IOFactory::createReader(<span style=\"color:#A31515;\">&#39;Excel2007&#39;</span>);\n$objReader-&gt;setIncludeCharts(TRUE);\n$objPHPExcel = $objReader-&gt;load($inputFileName);\r\n</pre></div>and<br />\n<div style=\"color:Black;background-color:White;\"><pre>\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, <span style=\"color:#A31515;\">&#39;Excel2007&#39;</span>);\n$objWriter-&gt;setIncludeCharts(TRUE);\n$objWriter-&gt;save(<span style=\"color:#A31515;\">&#39;php://output&#39;</span>);\r\n</pre></div>And you're correct - currently only the Excel2007 Reader and Writer support charts<br />\n",
+    "PostedDate": "2013-06-14T05:22:07.563-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

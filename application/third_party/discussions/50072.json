@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "167602",
+    "ThreadId": "50072",
+    "Html": "When using the excel2007 reader with many named ranges and multiple sheets, it takes longer then an hour to read the file.<div>I believe that the problem is that setTitle() is called twice per sheet when reading, and this call, calls the following function which iterates through each worksheet and every cell.</div><div>//PHPExcel_ReferenceHelper::getInstance()-&gt;updateNamedFormulas($this-&gt;getParent(), $oldTitle, $newTitle);</div><div>When loading the excel file, I don;t think that we need to call this function since all the named ranges should be correct, and we should only have to update the named ranges when we actually really change the name of a worksheet using PHPExcel.</div><div>My templates were taking over 80 minutes to load, and when I commented out the line above, it can read the template super fast again.</div><div><br></div><div>I did run across one issue though that I am not sure if it is related.  In worksheet.php, getCell calls extractSheetTitle if it is a worksheet reference.  extractSheetTitle returns 'Main Filtered' but the actual sheet name is Main Filtered.  So getSheetByName fails since there is no sheet called 'Main Filtered'  only Main Filtered.</div><div>extractSheetTitle has //$reference[0] = str_replace(&quot;'&quot;, &quot;&quot;, $reference[0]); commented out since it would not work for names such as Frank's sheet.</div><div>I fixed my problem by  modifying PHPExcel.php modifying getSheetByName to also chec<br><div>if ($this-&gt;_workSheetCollection[$i]-&gt;getTitle() == $pName || &quot;'&quot; . $this-&gt;_workSheetCollection[$i]-&gt;getTitle() . &quot;'&quot;  == $pName)<br></div></div>",
+    "PostedDate": "2009-03-12T19:29:18.057-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "167715",
+    "ThreadId": "50072",
+    "Html": "As for your second paragraph, a work item has been created for that:<br>\r\n<a href=\"http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=9513\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=9513</a><br>\r\n<br>\r\nAs for the slowness of the reader, I think you are right. Will check up on this.<br>\r\n<br>\r\n",
+    "PostedDate": "2009-03-13T05:40:59.173-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "172845",
+    "ThreadId": "50072",
+    "Html": "If you can afford to downgrade to 1.64 it will reduce the execution time but not siginifcantly<br>\r\n",
+    "PostedDate": "2009-03-27T10:19:55.853-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

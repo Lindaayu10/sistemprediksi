@@ -1,0 +1,74 @@
+[
+  {
+    "Id": "166657",
+    "ThreadId": "49790",
+    "Html": "I've reviewed http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=8931.&nbsp; I'm looking to do something similar but I need to exclude certain columns.&nbsp; Basically I need all rows with data but only certain columns, for instance, 1-3, 5, 7, 9-11.&nbsp; Any help would be much appreciated, thanks!<span style=\"display:inline-block;width:99%\" id=\"ctl00_ctl00_MasterContent_Content_CommentsRepeater_ctl00_MessageLabel\"></span><span style=\"display:inline-block;width:99%\" id=\"ctl00_ctl00_MasterContent_Content_CommentsRepeater_ctl00_MessageLabel\"></span><br>\r\n",
+    "PostedDate": "2009-03-10T17:07:05.61-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "167109",
+    "ThreadId": "49790",
+    "Html": "How about simply checking the column index as you loop through the cells?<br>\r\n<br>\r\n<code>$reader = PHPExcel_IOFactory::createReader('Excel2007');<br>\r\n$excel = $reader-&gt;load('read.xlsx');<br>\r\n<br>\r\nforeach ($excel-&gt;getWorkSheetIterator() as $worksheet) {<br>\r\n&nbsp;&nbsp; &nbsp;foreach ($worksheet-&gt;getRowIterator() as $row) {<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$cellIterator = $row-&gt;getCellIterator();<br>\r\n<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;foreach ($cellIterator as $cell) {<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$column = PHPExcel_Cell::columnIndexFromString($cell-&gt;getColumn());<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; if ($column != 4)&nbsp; {<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // do something<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}<br>\r\n&nbsp;&nbsp; &nbsp;}<br>\r\n}<br>\r\n<code>\r\n<br>\r\n</code></code>\r\n",
+    "PostedDate": "2009-03-11T15:46:11.187-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "167132",
+    "ThreadId": "49790",
+    "Html": "I think that helps a bit, but it only returns the column indexes.&nbsp; What if I need to push the associated values into an array?<br>\r\n<br>\r\n&lt;?php<br>\r\n$uploadName = $_REQUEST['upload_file_name'];<br>\r\n<br>\r\n/** Include path **/<br>\r\nset_include_path(get_include_path().PATH_SEPARATOR.'./PHPExcel/Classes/');<br>\r\n//set_include_path(get_include_path() . PATH_SEPARATOR . '/PHPLinq/Classes/');<br>\r\n<br>\r\n/** PHPExcel_IOFactory */<br>\r\ninclude 'PHPExcel/IOFactory.php';<br>\r\n<br>\r\n$filename = &quot;./uploads/&quot; . $uploadName;<br>\r\n$fileInfo = pathinfo($filename);<br>\r\n<br>\r\nswitch (strtolower($fileInfo['extension'])) {<br>\r\n&nbsp;&nbsp; &nbsp;case 'xlsx'&nbsp;&nbsp; &nbsp;: $fileType = 'Excel 2007';<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp; $fileReader = 'Excel2007';<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;break;<br>\r\n&nbsp;&nbsp; &nbsp;case 'xls'&nbsp;&nbsp; &nbsp;: $fileType = 'Excel 5 (BIFF)';<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp; $fileReader = 'Excel5';<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;break;<br>\r\n}<br>\r\n<br>\r\n$objReader = PHPExcel_IOFactory::createReader($fileReader);<br>\r\n$objReader-&gt;setReadDataOnly(true);<br>\r\n$objPHPExcel = $objReader-&gt;load($filename);<br>\r\n<br>\r\n//&nbsp; Select the current worksheet<br>\r\n$objPHPExcel-&gt;setActiveSheetIndex(0);<br>\r\n$objWorksheet = $objPHPExcel-&gt;getActiveSheet();<br>\r\n<br>\r\nforeach ($objWorksheet-&gt;getRowIterator() as $row) {<br>\r\n&nbsp;&nbsp; &nbsp;$cellIterator = $row-&gt;getCellIterator();<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; foreach ($cellIterator as $cell) {<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $column = PHPExcel_Cell::columnIndexFromString($cell-&gt;getColumn());<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if ($column = 1 or $column = 2 or $column = 5 or $column = 10 or $column = 11 <br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; or $column = 15 or $column = 17 or $column = 18 or $column = 25 or $column = 27 or $column = 28 or $column = 29 or $column = 34)&nbsp; {<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //push to array - toArray()<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>\r\n&nbsp;&nbsp;&nbsp; }<br>\r\n}<br>\r\n?&gt;<br>\r\n",
+    "PostedDate": "2009-03-11T16:25:19.083-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "167140",
+    "ThreadId": "49790",
+    "Html": "You can also get the row index:<br>\r\n<br>\r\n<code>\r\n$rowIndex = $cell-&gt;getRow(); // e.g. 1<br>\r\n</code>\r\n<br>\r\nNot sure if this is what you are asking about?<br>\r\n<br>\r\n",
+    "PostedDate": "2009-03-11T16:43:39.897-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "167141",
+    "ThreadId": "49790",
+    "Html": "I've got the indexes but I need the values for all rows returned.&nbsp; <br>\r\n<br>\r\n<code>$cellValue = $cell-&gt;getValue();<br>\r\necho $cellValue;<br>\r\n</code>\r\n<br>\r\nJust gives me A1.&nbsp; I need to push the values from the rows that meet the IF requirements into an array.&nbsp; The toArray() function isn't documented yet and I'm not sure I'm using it correctly with the data being returned.&nbsp; <br>\r\n<br>\r\n<br>\r\n<br>\r\n",
+    "PostedDate": "2009-03-11T16:48:32.317-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "167143",
+    "ThreadId": "49790",
+    "Html": "You mean <code>$cell-&gt;getValue()</code> is giving you the cell coordinate instead of what is inside the cell? This should not be happening? I'm confused.<br>\r\n<br>\r\n",
+    "PostedDate": "2009-03-11T17:04:27.047-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "167144",
+    "ThreadId": "49790",
+    "Html": "I'm sorry, it gives me the VALUE for A1, which in this case is the sheet name.<br>\r\n",
+    "PostedDate": "2009-03-11T17:06:25.343-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "167149",
+    "ThreadId": "49790",
+    "Html": "In your case, I would perhaps not use iterators. Can you try to run this and see if that is what you're looking for?<br>\r\n<br>\r\n<code>\r\n$reader = PHPExcel_IOFactory::createReader('Excel2007');<br>\r\n$reader-&gt;setReadDataOnly(true);<br>\r\n<br>\r\n$excel = $reader-&gt;load('read.xlsx');<br>\r\n$sheet = $excel-&gt;getSheet(0);<br>\r\n<br>\r\n$highestRow = $sheet-&gt;getHighestRow();<br>\r\n$highestColumn = $sheet-&gt;getHighestColumn();<br>\r\n$highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn);<br>\r\n<br>\r\nfor ($row = 1; $row &lt;= $highestRow; ++$row) {<br>\r\n&nbsp;&nbsp; &nbsp;for ($col = 0; $col &lt;= $highestColumnIndex; ++$col) {<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;if (!in_array($col, array(1, 2, 5, 10, 11, 15, 17, 18, 25, 27, 28, 29, 34))) {<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;continue;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$values[$row][$col] = $sheet-&gt;getCellByColumnAndRow($col, $row)-&gt;getValue();<br>\r\n&nbsp;&nbsp; &nbsp;}<br>\r\n}<br>\r\n<br>\r\nvar_dump($values);<br>\r\n</code>\r\n<br>\r\n",
+    "PostedDate": "2009-03-11T17:19:02.22-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "167154",
+    "ThreadId": "49790",
+    "Html": "Ahhh...lifesaver!&nbsp; My columns were off a bit because I started at 1 instead of 0.&nbsp; Can't thank you enough!<br>\r\n<br>\r\n<code>$objReader = PHPExcel_IOFactory::createReader($fileReader);<br>\r\n$objReader-&gt;setReadDataOnly(true);<br>\r\n$objPHPExcel = $objReader-&gt;load($filename);<br>\r\n<br>\r\n//&nbsp; Select the current worksheet<br>\r\n$objPHPExcel-&gt;setActiveSheetIndex(0);<br>\r\n$objWorksheet = $objPHPExcel-&gt;getActiveSheet();<br>\r\n<br>\r\n$highestRow = $objWorksheet-&gt;getHighestRow();<br>\r\n$highestColumn = $objWorksheet-&gt;getHighestColumn();<br>\r\n$highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn);<br>\r\n<br>\r\nfor ($row = 3; $row &lt;= $highestRow; ++$row) {<br>\r\n&nbsp;&nbsp;&nbsp; for ($col = 0; $col &lt;= $highestColumnIndex; ++$col) {<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (!in_array($col, array(0, 1, 4, 9, 10, 14, 16, 17, 24, 26, 27, 28, 33))) {<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; continue;<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $values[$row][$col] = $objWorksheet-&gt;getCellByColumnAndRow($col, $row)-&gt;getValue();<br>\r\n&nbsp;&nbsp;&nbsp; }<br>\r\n}<br>\r\n<br>\r\nvar_dump($values);<br>\r\n</code>\r\n",
+    "PostedDate": "2009-03-11T17:32:55.29-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

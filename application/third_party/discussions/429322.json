@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "985574",
+    "ThreadId": "429322",
+    "Html": "\r\n<p>I am building a spreadsheet with a column that will hold a lot of text. I have set that column to wrap like this</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>$arrStyleContentsFormat = <span style=\"color:blue\">array</span>(\n    <span style=\"color:#a31515\">'font'</span> =&gt; <span style=\"color:blue\">array</span>(\n\t<span style=\"color:#a31515\">'bold'</span> =&gt; false,\n\t<span style=\"color:#a31515\">'size'</span> =&gt; 9\n    ),\n    <span style=\"color:#a31515\">'alignment'</span> =&gt; <span style=\"color:blue\">array</span>(\n        <span style=\"color:#a31515\">'horizontal'</span> =&gt; PHPExcel_Style_Alignment::HORIZONTAL_LEFT,\n\t<span style=\"color:#a31515\">'wrap'</span> =&gt; true,\n    )\n);\n</pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n<p>Then as I loop through and build each row I am specifying a -1 in the rowheight like this</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>$activeSheet-&gt;getRowDimension($intRowCount)-&gt;setRowHeight(-1);</pre>\r\n</div>\r\n<p>However when the spreadsheet prints the rows are small and I cannot see all the text.&nbsp;</p>\r\n<p>I am also tried using AutoSize, but that only extends the width, not the height.</p>\r\n<p>I am using PHPExcel 1.7.7 on Windows 7 x64.</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks</p>\r\n",
+    "PostedDate": "2013-01-11T10:30:40.107-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1289625",
+    "ThreadId": "429322",
+    "Html": "There's also a problem setting autoHeight in phpExcel examples: 01simple.php<br />\n<br />\nHere's the code:<br />\n<pre><code>&lt;?php\nrequire_once dirname(__FILE__) . '/../Classes/PHPExcel.php';\n$objPHPExcel = new PHPExcel();\n$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('A8', &quot;Hello\\nWorld&quot;);\n$objPHPExcel-&gt;getActiveSheet()-&gt;getRowDimension(8)-&gt;setRowHeight(-1);\n$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle('A8')-&gt;getAlignment()-&gt;setWrapText(true);\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');\n$objWriter-&gt;save(str_replace('.php', '.xlsx', __FILE__));</code></pre>\n\nIf I open this xlsx file in Microsoft Excel Viewer everything works fine.<br />\nThe problem starts when I'm trying to open it with LibreOffice Calc. It shows only one line of the &quot;Hello World&quot; text.<br />\n<img src=\"https://dl.dropboxusercontent.com/u/1285980/phpExcel/03_preview.png\" alt=\"Image\" /><br />\n<br />\nIf I open this file in LibreOffice set autoHeight and resave it then it works good:<br />\n<img src=\"https://dl.dropboxusercontent.com/u/1285980/phpExcel/05_preview.png\" alt=\"Image\" /><br />\n<br />\nSo the problem is with phpExcel which doesn't put all the info into the file.<br />\nI don't know how to fix this, so I've created a full review of this bug (with example files):<br />\n<a href=\"https://dl.dropboxusercontent.com/u/1285980/phpExcel/all.zip\" rel=\"nofollow\">https://dl.dropboxusercontent.com/u/1285980/phpExcel/all.zip</a><br />\n<h1>EDIT1 Difference in sharedStrings.xml</h1>\nphpExcel:<br />\n<pre><code>&lt;sst xmlns=&quot;http://schemas.openxmlformats.org/spreadsheetml/2006/main&quot; uniqueCount=&quot;1&quot;&gt;&lt;si&gt;&lt;t&gt;Hello\nWorld&lt;/t&gt;&lt;/si&gt;&lt;/sst&gt;</code></pre>\n\nLibreOffice:<br />\n<pre><code>&lt;sst count=&quot;1&quot; uniqueCount=&quot;1&quot; xmlns=&quot;http://schemas.openxmlformats.org/spreadsheetml/2006/main&quot;&gt;&lt;si&gt;&lt;t&gt;Hello&amp;#10;World&lt;/t&gt;&lt;/si&gt;&lt;/sst&gt;</code></pre>\n\n<h1>EDIT2 Difference in sheet1.xml</h1>\nphpExcel:<br />\n<pre><code>&lt;sheetData&gt;&lt;row r=&quot;1&quot; spans=&quot;1:1&quot;&gt;&lt;c r=&quot;A1&quot; s=&quot;1&quot; t=&quot;s&quot;&gt;&lt;v&gt;0&lt;/v&gt;&lt;/c&gt;&lt;/row&gt;&lt;/sheetData&gt;</code></pre>\n\nLibreOffice:<br />\n<pre><code>&lt;sheetData&gt;&lt;row collapsed=&quot;false&quot; customFormat=&quot;false&quot; customHeight=&quot;false&quot; hidden=&quot;false&quot; ht=&quot;28.35&quot; outlineLevel=&quot;0&quot; r=&quot;1&quot;&gt;&lt;c r=&quot;A1&quot; s=&quot;1&quot; t=&quot;s&quot;&gt;&lt;v&gt;0&lt;/v&gt;&lt;/c&gt;&lt;/row&gt;&lt;/sheetData&gt;</code></pre>\n\n",
+    "PostedDate": "2014-08-13T04:34:51.23-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1289745",
+    "ThreadId": "429322",
+    "Html": "<strong>Solved by editing file &quot;phpoffice\\phpexcel\\Classes\\PHPExcel\\Writer\\Excel2007\\Worksheet.php&quot; (lines 1001:1004):</strong><br />\nAll I did was adding else block like this...<br />\n<pre><code>private function _writeSheetData(PHPExcel_Shared_XMLWriter $objWriter = null, PHPExcel_Worksheet $pSheet = null, $pStringTable = null)\n(...)\n                    // Row dimensions\n                    if ($rowDimension-&gt;getRowHeight() &gt;= 0) {\n                        $objWriter-&gt;writeAttribute('customHeight', '1');\n                        $objWriter-&gt;writeAttribute('ht', PHPExcel_Shared_String::FormatNumber($rowDimension-&gt;getRowHeight()));\n                    } else {\n                        $objWriter-&gt;writeAttribute('customHeight', 'false');\n                        $objWriter-&gt;writeAttribute('ht', '0');\n                    }\n(...)</code></pre>\n\nI've noticed that many params have no <em>else block</em>, but in here only 'ht' attribute was needed. <strong>It now works with LibreOffice! :-)</strong><br />\n",
+    "PostedDate": "2014-08-13T10:02:19.63-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1317367",
+    "ThreadId": "429322",
+    "Html": "I have the same problem and this solution does not help me... Does anybody have other suggestions?<br />\n",
+    "PostedDate": "2014-10-29T08:32:45.743-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

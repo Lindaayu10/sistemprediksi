@@ -1,0 +1,34 @@
+[
+  {
+    "Id": "487379",
+    "ThreadId": "225568",
+    "Html": "<p>Hello everybody.</p>\r\n<p>&nbsp;</p>\r\n<p>I have plugged in your Library into CodeIgniter and everything seems to work like a charm (the examples, smaller tests by myself etc).</p>\r\n<p>Here is what i try to do:</p>\r\n<ol>\r\n<li>Load data from a MsSQL Server (via Propel)</li>\r\n<li>Iterate over the data<br><ol>\r\n<li>Print each chunk</li>\r\n</ol></li>\r\n<li>Save the file</li>\r\n<li>Send it to the user</li>\r\n</ol>\r\n<p>(I also tried combining parts 3. &amp; 4. via php://output)</p>\r\n<p>I get a maximum_runtime_exceeded exception and the corresponding apache2 process is using</p>\r\n<ul>\r\n<li>CPU  \r\n<ul>\r\n<li>100% for about a minute</li>\r\n<li>5-10% after that</li>\r\n</ul>\r\n</li>\r\n<li>RAM  \r\n<ul>\r\n<li>20-50% for about a minute</li>\r\n<li>100% after that</li>\r\n</ul>\r\n</li>\r\n</ul>\r\n<p>I let those threads live for around 5 to 30 Min (adjusting max_runtime in php.ini if needed) and there was no end.</p>\r\n<p>When i insert a <strong>die();</strong> in my script (before 3. starts) the script finishes after around 1:20.</p>\r\n<p>Fetching the data (<strong>die();</strong> after part 1) takes around 6-10 seconds.</p>\r\n<p>&nbsp;</p>\r\n<p>I already tried Excel2007, Excel 2005 and HTML but none of them worked.</p>\r\n<p>Document details:</p>\r\n<ul>\r\n<li>Around 2k rows  \r\n<ul>\r\n<li>Actually there are 10-15 rows that a repeated over and over again with different texts inside the cells</li>\r\n</ul>\r\n</li>\r\n<li>Around 6-10 columns</li>\r\n<li>Huge amount of styling (Everything, from background-colors to underline)  \r\n<ul>\r\n<li>The styling is the same every iteration, and every iteration, as mentioned above, is around 10-15 rows</li>\r\n</ul>\r\n</li>\r\n<li>One worksheet</li>\r\n</ul>\r\n<p>Layouting is a guideline and can NOT be altered.</p>\r\n<p>&nbsp;</p>\r\n<p>I have some ideas to speed up the saving process (or at least make it finish in an acceptable amount of time):</p>\r\n<ul>\r\n<li>Templating  \r\n<ul>\r\n<li>Can i read a template, parse my data, append the compiled template to my worksheet and repeat?</li>\r\n</ul>\r\n</li>\r\n<li>Flushing  \r\n<ul>\r\n<li>Is there a possibility to append the current state of the worksheet to a file and repeat?</li>\r\n</ul>\r\n</li>\r\n<li>Caching  \r\n<ul>\r\n<li>As runtime for filling the cells is <em>only</em> around one minute, maybe i can use any of the caching mechanisms to ease the saving?</li>\r\n</ul>\r\n</li>\r\n</ul>\r\n<p>Please tell me, what idea, if any, would work. Do you have any other suggestions?</p>\r\n<p>[EDIT]</p>\r\n<p>Sorry, i forgot to mention some hardware details:</p>\r\n<ul>\r\n<li>Development Server \r\n<ul>\r\n<li>Ubuntu 10.04 Server inside a VM</li>\r\n<li>300 MB of RAM</li>\r\n<li>40 GB HDD</li>\r\n<li>PHP 5.3 with MsSQL Extension</li>\r\n</ul>\r\n</li>\r\n<li>Production Server \r\n<ul>\r\n<li>Debian 4.0 inside a VM</li>\r\n<li>Dynamic RAM, expect it to be around 1 GB</li>\r\n<li>50 GB HDD</li>\r\n<li>PHP 5.3 with MsSQL Extension</li>\r\n</ul>\r\n</li>\r\n<li>MsSQL Server</li>\r\n</ul>\r\n<p>[/EDIT]</p>\r\n<p>Thanks for your time,</p>\r\n<p>Timetrick</p>",
+    "PostedDate": "2010-08-31T23:55:59.9-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "487468",
+    "ThreadId": "225568",
+    "Html": "<p>Hi again,</p>\r\n<p>I'm sorry that i've stolen your time.</p>\r\n<p>I fixed the issue and it was not a phpExcel one.</p>\r\n<p>I just messed up the row counting and had 3.4 * 10 ^ 28 rows. (and this was ... not what i wanted...)</p>\r\n<p>&nbsp;</p>\r\n<p>Thank you for your incredible helpful tool.</p>",
+    "PostedDate": "2010-09-01T02:36:34.713-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "487514",
+    "ThreadId": "225568",
+    "Html": "<p>I have some ideas to speed up the saving process (or at least make it finish in an acceptable amount of time):</p>\r\n<ul>\r\n<li>Templating \r\n<ul>\r\n<li>Can i read a template, parse my data, append the compiled template to my worksheet and repeat? </li>\r\n</ul>\r\n</li>\r\n</ul>\r\n<p>Perfectly feasible, and various users do load templates that they can then populate with data.</p>\r\n<p>&nbsp;</p>\r\n<ul>\r\n<li>Flushing \r\n<ul>\r\n<li>Is there a possibility to append the current state of the worksheet to a file and repeat? </li>\r\n</ul>\r\n</li>\r\n</ul>\r\n<p>Not really practical: Excel2007 files are zipped, and this can't be handled via an append, only when the &quot;sub-files&quot; have been completely generated can the whole be zipped. Could theoretically be done for the different stream in an Excel5 file, would require a complete rewrite from scratch of the writer.</p>\r\n<p>&nbsp;</p>\r\n<ul>\r\n<li>Caching \r\n<ul>\r\n<li>As runtime for filling the cells is <em>only</em> around one minute, maybe i can use any of the caching mechanisms to ease the saving? </li>\r\n</ul>\r\n</li>\r\n</ul>\r\n<p>The Cell Caching methods reduce memory requirements, but at a cost in execution speed, so can't be used to speed up execution</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-09-01T04:42:08.767-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "487524",
+    "ThreadId": "225568",
+    "Html": "<p>Thank you for your information,</p>\r\n<p>though i do not understand how i can use templating when the resulting file is different in length each time.</p>\r\n<p>Iam parsing a &quot;database dump&quot; to the excel file (with improved styling...)</p>\r\n<p>Lets say, there are 15k records in the database, and each record results in 10 rows of data (from the database...)</p>\r\n<p>PHP loops through all those records and parses these 10 rows for each.</p>\r\n<p>Can i take these 10 lines as a template and load the template, fill it, append it, load fill and append it again and so on?</p>\r\n<p>If i can, how can i do so, and would it be faster than just appending the lines over and over again?</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks,</p>\r\n<p>Timetrick</p>",
+    "PostedDate": "2010-09-01T04:52:45.19-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

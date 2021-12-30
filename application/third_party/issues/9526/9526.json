@@ -1,0 +1,81 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel",
+      "DisplayName": "PHPExcel"
+    },
+    "ClosedComment": "Fixed in SVN",
+    "ClosedDate": "2009-03-17T00:23:23.95-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hi,\n \nI just recently started using PHPExcel and the only negative experience with it was the not so good performance when saving a file\n(with Writer Excel5 in my case).\n \nI then did a little bit of profiling to find the function where most of the time is spent. And there were two functions which really used most\nof the time. One is HashTable::addFromSource and the other one Worksheet::garbageCollect. After taking a closer look at the two\nfunctions it seems that the excessive (and probably mostly unnecessary) use of getHashCode is to blame.\n \nI developed a patch for each function which basically caches the hashCode and does not calculate it over again (the objects do not\nchange in this functions and thus the hashCodes shouldn't change). But I'm not completely sure whether this doesn't have any side effects\nand works with all writers. So I would appreciate if someone with more experience with the internals would have a look at the patches ;-)\n \nI tested this patch with a couple of my real life applications (several thousand cells, no pictures or formulas) and the time to save those files\nwas reduced to about 10-15 percent of the time needed without the patch (from 45 sec to about 5 sec and from 65 sec to 10 sec :-)\n \nOliver",
+    "LastUpdatedDate": "2013-05-16T05:42:49.81-07:00",
+    "PlannedForRelease": "PHPExcel 1.6.7 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-03-16T18:20:37.18-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Performance improvement when saving file",
+    "Type": {
+      "Name": "Task",
+      "Id": 2
+    },
+    "VoteCount": 1,
+    "Id": 9526
+  },
+  "FileAttachments": [
+    {
+      "FileId": 2869,
+      "FileName": "patch_PHPExcel_1.6.6.diff",
+      "DownloadUrl": ".\\2869"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "Thanks for the patch!\r\n\r\nThe patch indeed speeds up things, but it is not 100% guaranteed that PHPExcel works correctly with it. The HashTable object actually fills the hashindexes on each object, so using hashindex in there is risky.\r\nGarbage collector not only checks if a style exists, but also has to clean up styles if they are equal to the default style. More CPU, but lots less memory.\r\n\r\nWill investigate if we are going to implement the patch as-is...",
+      "PostedDate": "2009-03-17T00:00:37.983-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Patch will be partially implemented.",
+      "PostedDate": "2009-03-17T00:22:15.777-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-03-17T00:22:16.37-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-03-17T00:23:03.12-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-03-17T00:23:23.95-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:04:14.95-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:49.81-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

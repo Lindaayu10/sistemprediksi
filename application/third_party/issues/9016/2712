@@ -1,0 +1,31 @@
+Index: ReferenceHelper.php
+===================================================================
+--- ReferenceHelper.php	(revision 761)
++++ ReferenceHelper.php	(working copy)
+@@ -435,17 +435,15 @@
+      */
+     public function updateNamedFormulas(PHPExcel $pPhpExcel, $oldName = '', $newName = '') {
+     	foreach ($pPhpExcel->getWorksheetIterator() as $sheet) {
+-	    	foreach ($sheet->getRowIterator() as $row) {
+-	    		foreach ($row->getCellIterator() as $cell) {
+-	    			if (!is_null($cell) && $cell->getDataType() == PHPExcel_Cell_DataType::TYPE_FORMULA) {
+-	    				$formula = $cell->getValue();
+-	    				if (strpos($formula, $oldName) !== false) {
+-	    					$formula = str_replace($oldName, $newName, $formula);
+-	    					$cell->setValue($formula, false);
+-	    				}
+-	    			}
+-	    		}
+-	    	}
++			foreach ($sheet->getCellCollection() as $cell) {
++				if (!is_null($cell) && $cell->getDataType() == PHPExcel_Cell_DataType::TYPE_FORMULA) {
++					$formula = $cell->getValue();
++					if (strpos($formula, $oldName) !== false) {
++						$formula = str_replace($oldName, $newName, $formula);
++						$cell->setValue($formula, false);
++					}
++				}
++			}
+     	}
+     }
+ 

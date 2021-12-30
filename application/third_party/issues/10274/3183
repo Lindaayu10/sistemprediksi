@@ -1,0 +1,77 @@
+Index: PHPExcel/Reader/Excel5.php
+===================================================================
+--- PHPExcel/Reader/Excel5.php	(revision 1031)
++++ PHPExcel/Reader/Excel5.php	(working copy)
+@@ -4324,38 +4324,47 @@
+ 	 */
+ 	private function _readSheetRangeByRefIndex($index)
+ 	{
+-		// we are assuming that ref index refers to internal workbook
+-		// in general, this is wrong, fix later
+ 		if (isset($this->_ref[$index])) {
+ 
+-			// check if we have deleted 3d reference
+-			if ($this->_ref[$index]['firstSheetIndex'] == 0xFFFF or $this->_ref[$index]['lastSheetIndex'] == 0xFFFF) {
+-				throw new Exception('Deleted sheet reference');
+-			}
++			$type = $this->_externalBooks[$this->_ref[$index]['externalBookIndex']]['type'];
++			
++			switch ($type) {
++				case 'internal':
++					// check if we have a deleted 3d reference
++					if ($this->_ref[$index]['firstSheetIndex'] == 0xFFFF or $this->_ref[$index]['lastSheetIndex'] == 0xFFFF) {
++						throw new Exception('Deleted sheet reference');
++					}
+ 
+-			// we have normal sheet range (collapsed or uncollapsed)
+-			$firstSheetName = $this->_sheets[$this->_ref[$index]['firstSheetIndex']]['name'];
+-			$lastSheetName = $this->_sheets[$this->_ref[$index]['lastSheetIndex']]['name'];
++					// we have normal sheet range (collapsed or uncollapsed)
++					$firstSheetName = $this->_sheets[$this->_ref[$index]['firstSheetIndex']]['name'];
++					$lastSheetName = $this->_sheets[$this->_ref[$index]['lastSheetIndex']]['name'];
+ 
+-			if ($firstSheetName == $lastSheetName) {
+-				// collapsed sheet range
+-				$sheetRange = $firstSheetName;
+-			} else {
+-				$sheetRange = "$firstSheetName:$lastSheetName";
+-			}
++					if ($firstSheetName == $lastSheetName) {
++						// collapsed sheet range
++						$sheetRange = $firstSheetName;
++					} else {
++						$sheetRange = "$firstSheetName:$lastSheetName";
++					}
+ 
+-			// escape the single-quotes
+-			$sheetRange = str_replace("'", "''", $sheetRange);
++					// escape the single-quotes
++					$sheetRange = str_replace("'", "''", $sheetRange);
+ 
+-			// if there are special characters, we need to enclose the range in single-quotes
+-			// todo: check if we have identified the whole set of special characters
+-			// it seems that the following characters are not accepted for sheet names
+-			// and we may assume that they are not present: []*/:\?
+-			if (preg_match("/[ !\"@#£$%&{()}<>=+'|^,;-]/", $sheetRange)) {
+-				$sheetRange = "'$sheetRange'";
++					// if there are special characters, we need to enclose the range in single-quotes
++					// todo: check if we have identified the whole set of special characters
++					// it seems that the following characters are not accepted for sheet names
++					// and we may assume that they are not present: []*/:\?
++					if (preg_match("/[ !\"@#£$%&{()}<>=+'|^,;-]/", $sheetRange)) {
++						$sheetRange = "'$sheetRange'";
++					}
++
++					return $sheetRange;
++					break;
++
++				default:
++					// TODO: external sheet support
++					throw new Exception('Excel5 reader only supports internal sheets in fomulas');
++					break;
+ 			}
+-
+-			return $sheetRange;
+ 		}
+ 		return false;
+ 	}

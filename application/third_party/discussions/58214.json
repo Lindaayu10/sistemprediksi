@@ -1,0 +1,154 @@
+[
+  {
+    "Id": "196834",
+    "ThreadId": "58214",
+    "Html": "<p>Hi everyone,</p>\r\n<p>I developed an large reporting system for an company with PHPExcel. It is one of the best PHP classes I found outthere.<br>Now, the company contacted me because they have a huge problem.</p>\r\n<p>They have an specific template (2 tables - 1 cover table, 1 entries table) for this excel reports, which allows 40 report entries per page. In my script, I read this template file and add this as an external sheet to the new worksheet and fill in the data.</p>\r\n<p>Now, they have to generate reports with about 2000+ entries. Their requirement is, that every report page should have an own table in the worksheet. With about 2000 entries, we speak about 50 tables in ONE worksheet. And this is a huge problem for PHPExcel. <br>Normally, PHPExcel can manage 10 - 20 tables in one worksheet without crashing. I set the memory limit on my localhost to 512MB / 1024MB and the script execution to 500 seconds. EVERY time with more than 20 tables to generate, fatal errors occur.<br><br>If I won't embed the template file, I can generate this many tables. But my experience is, that PHPExcel have also problems with COMPLEX styling and MANY styling-code.</p>\r\n<p>So my question is:<br><strong>Is there a clever trick to generate so large excel files with a template?</strong></p>\r\n<p>Even if I take my business logic out of the source code, the script crashes. So here is a bit sourcecode:<br><br>&lt;?php<br>$phpExcel = new PHPExcel();<br>$reader = PHPExcel_IOFactory::createReader('Excel5');<br>$excel = $reader-&gt;load('template/template1.xls');<br><br>// Cover<br>$sheet = $excel-&gt;getSheet(0);<br>$phpExcel-&gt;addExternalSheet($sheet);<br>$phpExcel-&gt;removeSheetByIndex(0);<br>$phpExcel-&gt;setActiveSheetIndex(0);<br><br>// Entries<br>$sheetResults = $excel-&gt;getSheet(0);<br>$objPHPExcel-&gt;addExternalSheet($sheetResults);<br>$objPHPExcel-&gt;setActiveSheetIndex(1);<br><br>for($i=1;$i&lt;=50;$i++) {<br>$sheetName = 'Entries '.$i;<br>$cloned = $objPHPExcel-&gt;getActiveSheet()-&gt;copy();<br>$cloned-&gt;setTitle($sheetName);<br>$cloned-&gt;setShowGridlines(false);<br><br>// BUSINESS LOGIC<br><br>$phpExcel-&gt;addSheet($cloned);<br>}<br><br>$objPHPExcel-&gt;removeSheetByIndex(1);<br>$objPHPExcel-&gt;setActiveSheetIndex(0);<br><br>$fileNameResult = 'reports/'.$reportName.'.xls';<br> $objWriter = PHPExcel_IOFactory::createWriter($phpExcel, 'Excel5');<br>$objWriter-&gt;save($fileNameResult);<br><br><br><br>Do you have any suggestions?</p>",
+    "PostedDate": "2009-06-02T07:10:57.323-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "196940",
+    "ThreadId": "58214",
+    "Html": "<p>What version of PHPExcel are you using?</p>",
+    "PostedDate": "2009-06-02T11:37:27.177-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "197187",
+    "ThreadId": "58214",
+    "Html": "<p>I'm using Version 1.6.6</p>",
+    "PostedDate": "2009-06-03T03:50:57.113-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "197191",
+    "ThreadId": "58214",
+    "Html": "<p>It should be possible to get this problem solved as follows.<br> <br> 1. For a start, try with latest source code on your development machine. PHPExcel 1.6.7 won't suffice. Get latest source code from here:<br> <a href=\"../SourceControl/ListDownloadableCommits.aspx\">http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx</a><br> <br> 2. It may turn out that styles are suddenly messed up. I'm not sure, but try and report back the results. Hopefully, things speed up, and script uses less memory.<br> <br> 3. In the meantime, I will look at the styling issues. The problem is that right now <span style=\"font-family:Courier New\">addExternalSheet()</span> may break styling.</p>",
+    "PostedDate": "2009-06-03T04:15:34.44-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "197571",
+    "ThreadId": "58214",
+    "Html": "<p>You may try with latest source code when it's available in a few hours. <span style=\"font-family:Courier New\">addExternalSheet()</span>should be working now.</p>\r\n<p><a href=\"../SourceControl/ListDownloadableCommits.aspx\">http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx</a></p>",
+    "PostedDate": "2009-06-03T22:58:03.62-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "197588",
+    "ThreadId": "58214",
+    "Html": "<p>Thanks in advance.<br>I'll test it today :-)</p>",
+    "PostedDate": "2009-06-03T23:48:05.063-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "198879",
+    "ThreadId": "58214",
+    "Html": "<p>Well, after a weekend full of testing, I can say this:<br>Adding up to 5 sheets is no problem. But if this number is higher, I'll get an &quot;503 Service Temporarily Unavailable&quot; error.</p>\r\n<p>A typical procedure is this (adding 1 cover sheet and 5 result sheets):</p>\r\n<p>08.06.2009 08:22:38 - start<br>08.06.2009 08:22:38 - cover<br>08.06.2009 08:22:39 - result sheets<br>08.06.2009 08:23:37 - save<br>08.06.2009 08:23:38 - end</p>\r\n<p>After a look in my server log, I (maybe) found the key for the 503 error: There are many fatal errors like &quot;Out of memory&quot;, &quot;Allowed memory size of 1073741824 bytes exhausted&quot;, ...</p>\r\n<p>Any suggestions?<br>Thanks in advance for your great work.</p>",
+    "PostedDate": "2009-06-07T23:38:58.843-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "199007",
+    "ThreadId": "58214",
+    "Html": "<p>Hmm, it sounds quite incredible that the script is using 1GB of memory. I am not sure where $objPHPExcel is coming from in your script?</p>\r\n<p>You are welcome to send me some sample files (template, final generated workbooks), maybe I can get a better understanding. (erik at phpexcel dot net)</p>",
+    "PostedDate": "2009-06-08T06:15:39.98-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "199105",
+    "ThreadId": "58214",
+    "Html": "<p>Hmm, i'm having the same kind of problem trying to generate an excel sheet with about 5000 rows x 10 cols</p>\r\n<p>PHP Fatal error:&nbsp; Allowed memory size of 1073741824 bytes exhausted (tried to allocate 67 bytes) in /usr/share/php5/PHPExcel-1.6.7/Style.php on line 468</p>\r\n<p>I personnaly use this function i've created in a class that extends PHPExcel :</p>\r\n<p>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; /**<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;* @param $entetes (array) First line of excel sheet<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;* @param $data (array(array)) Contains all the lines of the sheet<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;*/<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; public function excelFromArray($data, $entetes = false) {<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $rowNum = 1;//Rows start at 1<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; if(is_array($entetes)) {//create the header<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $colNum = 0;<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; foreach($entetes as $col) {<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $cellcoord = PHPExcel_Cell::stringFromColumnIndex($colNum).$rowNum;<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $this-&gt;getActiveSheet()-&gt;setCellValue($cellcoord, $col);<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $colNum++;<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $rowNum++;<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $this-&gt;hasEntete = true;<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; foreach($data as $row) {//add data<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $colNum = 0;//Cols start at 0, 0=A<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; foreach($row as $col) {<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $cellcoord = PHPExcel_Cell::stringFromColumnIndex($colNum).$rowNum;<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $this-&gt;getActiveSheet()-&gt;setCellValue($cellcoord, $col);<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $colNum++;<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $rowNum++;<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $this-&gt;height = $rowNum-1;<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $this-&gt;width = $colNum-1;<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $this-&gt;defaultStyleIt();//applies default style<br>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }</p>\r\n<p>Am i doing something wrong or is it just normal ?</p>",
+    "PostedDate": "2009-06-08T09:20:05.863-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "199151",
+    "ThreadId": "58214",
+    "Html": "<p>@Laukoko: 1GB memory usage indeed sounds high. It looks like you are using PHPExcel 1.6.7? If you are using styles it may help to use latest source code which contains some optimizations.<br> <br> Can you download latest source code from here and report back results:<br> <a href=\"../SourceControl/ListDownloadableCommits.aspx\">http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx</a></p>",
+    "PostedDate": "2009-06-08T10:42:47.42-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "199418",
+    "ThreadId": "58214",
+    "Html": "<p><span style=\"text-decoration:underline\"><strong>Here's my report :</strong></span></p>\r\n<p><em>Data :</em></p>\r\n<p style=\"padding-left:30px\">Cols : 28<br>Rows : 5568</p>\r\n<p><em>ini_set('memory_limit','1024M');<br>ini_set('max_execution_time','600');</em></p>\r\n<p>\r\n<hr>\r\n</p>\r\n<p><em><strong>Using PHPExcel-1.6.7</strong></em></p>\r\n<p><em>Treating data:</em> 5.00s<br><em>PHP Fatal error:&nbsp; Allowed memory size of 1073741824 bytes exhausted (tried to allocate 12 bytes) in /usr/share/php5/PHPExcel-1.6.7/Style/Border.php on line 96<strong><br></strong></em></p>\r\n<p>\r\n<hr>\r\n</p>\r\n<p><em><strong>Using PHPExcel-27838</strong></em></p>\r\n<p><em>Treating data:</em> 5.83s<br><em>Generating file:</em> 37.5s<br><em>memory_get_peak_usage:</em> 221M</p>\r\n<p>\r\n<hr>\r\n</p>\r\n<p>&nbsp;</p>\r\n<p>Tested about 3 times each. PHPExcel-1.6.7 even crashed once. Your latest source is way more optimized. Hope you'll be releasing a stable version soon.</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-06-09T02:15:52.163-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "199819",
+    "ThreadId": "58214",
+    "Html": "<p>@Laukoko: Thanks for your feedback. For now you should be able to use latest source. It should be stable. PHPExcel is approximately releases bi-monthly so next release would be around start of July, I think.</p>",
+    "PostedDate": "2009-06-09T22:36:07.207-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "262059",
+    "ThreadId": "58214",
+    "Html": "<p>I'm also running into problems with excessive memory usage. I'm using version 1.7.1 to open a 4mb Excel spreadsheet, with about 16 worksheet, each with up to 200 rows... it's using about 332mb</p>\r\n<p>I'm wondering are there a way to just load worksheet separately? so we don't have to use too much memory at once...</p>\r\n<p>thanks</p>",
+    "PostedDate": "2009-11-30T15:21:27.7-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "269825",
+    "ThreadId": "58214",
+    "Html": "<p>Hi All,</p>\r\n<p>I have problem with this error code,</p>\r\n<p><strong>Fatal error</strong>:  Out of memory (allocated 573046784) (tried to allocate 1008 bytes) in <strong>D:\\webroot\\1.7.1\\Classes\\PHPExcel\\Cell.php</strong> on line <strong>996</strong></p>\r\n<p>I'm using version 1.7.1 to open 4MB Excel Spreadsheet 2007, 1 worksheet up to 147710 rows and 6 coloumn.</p>\r\n<p>my php.ini memory_limit = 1024M&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; Maximum amount of memory a script may consume (16MB)</p>\r\n<p>this is my code</p>\r\n<p>&nbsp;</p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre><span style=\"color:Blue\">require_once</span> <span style=\"color:#A31515\">'../Classes/PHPExcel/Reader/Excel2007.php'</span>;\r\n\r\n$objReader = <span style=\"color:Blue\">new</span> PHPExcel_Reader_Excel2007();\r\n$objReader-&gt;setLoadSheetsOnly( <span style=\"color:#A31515\">&quot;Sheet1&quot;</span> );\r\n$objPHPExcel = $objReader-&gt;load(<span style=\"color:#A31515\">&quot;singpost.xlsx&quot;</span>);\r\n$objWorksheet = $objPHPExcel-&gt;getActiveSheet();\r\n\r\n$highestColumnIndex = PHPExcel_Cell::columnIndexFromString($highestColumn); <span style=\"color:Green\">// e.g. 5</span>\r\n\r\n<span style=\"color:Blue\">echo</span> <span style=\"color:#A31515\">'&lt;table&gt;'</span> . <span style=\"color:#A31515\">&quot;\\n&quot;</span>;\r\n\t<span style=\"color:Blue\">echo</span> <span style=\"color:#A31515\">'&lt;tr&gt;'</span> . <span style=\"color:#A31515\">&quot;\\n&quot;</span>;\r\n\t<span style=\"color:Blue\">for</span> ($col = 0; $col &lt;= 6; ++$col) {\r\n\t\t<span style=\"color:Blue\">echo</span> <span style=\"color:#A31515\">'&lt;td&gt;'</span> . $objWorksheet-&gt;getCellByColumnAndRow($col, 1)-&gt;getValue() . <span style=\"color:#A31515\">'&lt;/td&gt;'</span> . <span style=\"color:#A31515\">&quot;\\n&quot;</span>;\r\n\t}\r\n\t<span style=\"color:Blue\">echo</span> <span style=\"color:#A31515\">'&lt;/tr&gt;'</span> . <span style=\"color:#A31515\">&quot;\\n&quot;</span>;\r\n<span style=\"color:Blue\">for</span> ($row = 2; $row &lt;= 20; ++$row) {\r\n\t<span style=\"color:Blue\">echo</span> <span style=\"color:#A31515\">'&lt;tr&gt;'</span> . <span style=\"color:#A31515\">&quot;\\n&quot;</span>;\r\n\t<span style=\"color:Blue\">for</span> ($col = 0; $col &lt;= 6; ++$col) {\r\n\t\t<span style=\"color:Blue\">echo</span> <span style=\"color:#A31515\">'&lt;td&gt;'</span> . $objWorksheet-&gt;getCellByColumnAndRow($col, $row)-&gt;getValue() . <span style=\"color:#A31515\">'&lt;/td&gt;'</span> . <span style=\"color:#A31515\">&quot;\\n&quot;</span>;\r\n\t}\r\n\t<span style=\"color:Blue\">echo</span> <span style=\"color:#A31515\">'&lt;/tr&gt;'</span> . <span style=\"color:#A31515\">&quot;\\n&quot;</span>;\r\n}\r\n<span style=\"color:Blue\">echo</span> <span style=\"color:#A31515\">'&lt;/table&gt;'</span> . <span style=\"color:#A31515\">&quot;\\n&quot;</span>;\r\n</pre>\r\n</div>\r\n<p>&nbsp;</p>\r\n<p>Help please...</p>\r\n<p>Thanks..</p>\r\n<p>-waterbomm-</p>",
+    "PostedDate": "2009-12-21T23:39:15.05-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "279397",
+    "ThreadId": "58214",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>waterbomm wrote:</strong><br>\r\n<p>Hi All,</p>\r\n<p>I have problem with this error code,</p>\r\n<p><strong>Fatal error</strong>:  Out of memory (allocated 573046784) (tried to allocate 1008 bytes) in <strong>D:\\webroot\\1.7.1\\Classes\\PHPExcel\\Cell.php</strong> on line <strong>996</strong></p>\r\n<p>I'm using version 1.7.1 to open 4MB Excel Spreadsheet 2007, 1 worksheet up to 147710 rows and 6 coloumn.</p>\r\n<p>my php.ini memory_limit = 1024M&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ; Maximum amount of memory a script may consume (16MB)</p>\r\n</blockquote>\r\n<p>You have almost 900,000 cells. This is quite big a workbook for PHPExcel. It would probable need 900MB memory to read that (around 1KB per cell). This is something we are aware of. Hopefully, we are getting closer to a solution.</p>",
+    "PostedDate": "2010-01-20T03:20:50.88-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "493268",
+    "ThreadId": "58214",
+    "Html": "<p>Hi, I think I have a similar problem when exporting a large file.</p>\r\n<p>I have to export ten files, each with the same formatting and the same columns. Each file contains a single worksheet, of 40 columns, and up to 20,000 lines. If I restrict the objects to 1,000 lines, everything works well. However, your excellent memory_get_peak_usage routine shows me that this uses up almost all of the 128MB I am allocated from the company server.</p>\r\n<p>Unfortunately, I am never going to be able to get 1GB+ out of them!</p>\r\n<p>Is there a way to append to files, so that I could perhaps write 1000 lines at a time?</p>",
+    "PostedDate": "2010-09-14T05:00:50.01-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "493281",
+    "ThreadId": "58214",
+    "Html": "<p>@certando</p>\r\n<p>I've written on this several times before:</p>\r\n<p>20,000 rows and 40 columns = 800,000 cells,&nbsp; with an average memory requirement of 1k/cell (dependent on string content), and double that figure when writing, plus a code footprint of 10MB-25MB, gives a memory requirement of 782MB * 2 + 25 = 1,589MB.</p>\r\n<p>There is no way to append to files unless you're using the CSV writer. Try using cell caching, which can potentially reduce&nbsp;your memory requirements&nbsp;to about 560MB.</p>",
+    "PostedDate": "2010-09-14T05:56:06.007-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "493318",
+    "ThreadId": "58214",
+    "Html": "<p>&nbsp;</p>\r\n<p>Thanks for your suggestions - I will drop back to the .csv driver if I can't get the .xlsx going - but it would be a shame to miss out on the opportunity to pre-load formulae, formatting, and filtering.</p>\r\n<p>&nbsp;</p>\r\n<p>In the meantime, I am experimenting with your suggestion of working with caching. It has allowed me to pass the 1000 line mark, but then I reached another problem. The error message is</p>\r\n<p>&quot;<strong>Fatal error</strong>:  Maximum execution time of 60 seconds exceeded in <strong>C:\\xampp\\htdocs\\CTP\\local\\Classes\\PHPExcel\\Cell.php</strong> on line <strong>805&quot;</strong>. My execution timeout is set to 120sec, confirmed by phpinfo().</p>\r\n<p>&nbsp;</p>\r\n<p>I apologise for posting this here (I did search in the forum, but failed), but do you know if there is anything in the classes which could override my default execution timeout?</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-09-14T07:22:12.037-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "493322",
+    "ThreadId": "58214",
+    "Html": "<p>Cell caching&nbsp;is a trade-off between reducing the memory footprint, and increasing the execution time.</p>\r\n<p>PHPExcel doesn't provide any internal mechanism for overriding the default execution timeout because this is&nbsp;built into standard&nbsp;PHP. It can be modified either in php.ini by changing the value for</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>max_execution_time = 60\r\n</pre>\r\n</div>\r\n<p>or within your code using</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>set_time_limit(240);\r\n</pre>\r\n</div>\r\n<p>will set the maximum execution time to 240 seconds</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>set_time_limit(0);\r\n</pre>\r\n</div>\r\n<p>will make it unlimited (although your web server may well have its own limit, typically 300 seconds)</p>",
+    "PostedDate": "2010-09-14T07:31:08.957-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

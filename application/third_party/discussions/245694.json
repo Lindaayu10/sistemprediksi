@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "564895",
+    "ThreadId": "245694",
+    "Html": "\r\n<p>Got this from my host:</p>\r\n<p><span style=\"color:#0000ff\">It appears that you've had multiple (PHPExcel.98444d54d0670c2370.23896367.cache) files inside your [/tmp] directory. These files were 134MB each and quickly filled up your [/tmp] directory. We can increase the size of your [/tmp]\r\n partition, however first we wanted to ensure that any code you might be running using PHPExcel is not incorrectly configured causing such large cache files. If there is something configured incorrectly raising the [/tmp] partitions usable disk-space could\r\n lead to further issues of that just filling up as well.</span><br>\r\n<br>\r\n<span style=\"color:#0000ff\">Please review your usage of PHPExcel in your scripts and let us know if you expect these large cache files to consistently fill up your [/tmp] partition.</span></p>\r\n<p><span style=\"color:#0000ff\"><span style=\"color:#000000\">Here is the code I use in my scripts:</span></span></p>\r\n<p></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>    set_include_path(get_include_path() . PATH_SEPARATOR . <span style=\"color:#a31515\">'PHPExcel/Classes/'</span>); \r\n    <span style=\"color:blue\">require_once</span> <span style=\"color:#a31515\">'PHPExcel/Classes/PHPExcel.php'</span>;\r\n    <span style=\"color:blue\">require_once</span> <span style=\"color:#a31515\">'PHPExcel/Classes/PHPExcel/IOFactory.php'</span>;\r\n    $cacheMethod = PHPExcel_CachedObjectStorageFactory::cache_to_discISAM;\r\n    PHPExcel_Settings::setCacheStorageMethod($cacheMethod);\r\n    $objReader = PHPExcel_IOFactory::createReaderForFile($<span style=\"color:blue\">file</span>);\r\n    $objReader-&gt;setReadDataOnly(true);\r\n    $objPHPExcel  = $objReader-&gt;load($<span style=\"color:blue\">file</span>);\r\n    $objWorksheet = $objPHPExcel-&gt;getActiveSheet();\r\n\r\n</pre>\r\n</div>\r\n<p></p>\r\n<p><br>\r\nWhat am I doing wrong to make this happen?</p>\r\n<p>Also what *is* the best caching method to use because I have several users that need to import large, 2MB&#43;, spreadsheets.</p>\r\n",
+    "PostedDate": "2011-02-11T13:22:00.463-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "564910",
+    "ThreadId": "245694",
+    "Html": "<p>How can I set the directory where the cache files are stored? Right now hey are not in the actual /var/tmp, which is my actual tmp directory but it /tmp which is symbolic for /usr/tmpDSK.</p>\r\n<p>I've disabled Excel imports, they'll have to be done manually by conversion to tab-delimited, until I can get this worked out.</p>",
+    "PostedDate": "2011-02-11T14:00:08.413-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "564920",
+    "ThreadId": "245694",
+    "Html": "<p>DiskISAM uses the temporary directory identified by a call to sys_get_temp_dir(). There is currently no method to set the temporary directory manually.</p>\r\n<p>There are a few issues with this PHP function, that was only introduced in PHP 5.2.1, especially if PHP is being run with the suhosin patch.</p>\r\n<p>To get round these issues, we do have a customised version of the function in the PHPExcel_Shared_File class. I've modified the DiskISAM class to use this customised version rather than the standard sys_get_temp_dir(). Hopefully this will resolve your problem.</p>",
+    "PostedDate": "2011-02-11T14:23:39.393-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "564922",
+    "ThreadId": "245694",
+    "Html": "This discussion has been copied to a work item. Click <a href=\"http://phpexcel.codeplex.com/workitem/15312\">here</a> to go to the work item and continue the discussion.",
+    "PostedDate": "2011-02-11T14:24:42.41-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "564927",
+    "ThreadId": "245694",
+    "Html": "<blockquote style=\"padding-bottom: 0px; font-style: italic; margin: 0.25em 1em 0px; padding-left: 0.25em; padding-right: 0.25em; padding-top: 0px; border: #ccc 0.1em solid;\"><strong>mrbaseball34 wrote:</strong><br />\r\n<p>Also what *is* the best caching method to use because I have several users that need to import large, 2MB+, spreadsheets.</p>\r\n</blockquote>\r\n<p>That's not something that I can tell you, because it's totally dependent on your environment: for example, WinCache is very efficient, but requires you to be running on a Windows/IIS server, with WinCache enabled. Nor does everybody have APC or memcache enabled, and these also have limitations on the amount of memory available, but they are also good for reducing the memory used by large workbooks (though I find memcache too slow on my servers... others may not have that problem). For my production environments, PHPTemp is the best method for me (with a 256MB base memory), but I have complete control of my production servers, and lots of memory. On the development box where I'm typing this, APC is the best.</p>\r\n<p>Each method has its own advantages and drawbacks, and each trades off memory against speed in different proportions. If you run from the CLI, and speed isn't critical to your application, then diskISAM is a reasonable choice. Running from Apache, APC or memcache might be better.</p>\r\n<p>I don't know your server circumstances, or the requirements of your applications/users; so I can't advise you which method is best for you. That's why I provide the range of different methods, so that you can make your own choice.</p>",
+    "PostedDate": "2011-02-11T14:38:49.423-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "565174",
+    "ThreadId": "245694",
+    "Html": "<p>If there are large files being created in that directory, then why is there not GC cleaning them up after they are done? Or how about reusing the files so there are not so many?</p>\n<p>That would be the best way to handle this.</p>",
+    "PostedDate": "2011-02-12T09:51:56.393-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "565177",
+    "ThreadId": "245694",
+    "Html": "<blockquote style=\"padding-bottom: 0px; font-style: italic; margin: 0.25em 1em 0px; padding-left: 0.25em; padding-right: 0.25em; padding-top: 0px; border: #ccc 0.1em solid;\"><strong>Mrbaseball34 wrote:</strong><br />\r\n<p>If there are large files being created in that directory, then why is there not GC cleaning them up after they are done? Or how about reusing the files so there are not so many?</p>\r\n<p>That would be the best way to handle this.</p>\r\n</blockquote>\r\n<p><br />I don't know why not, permissions perhaps. The logic in the code should clean up all cache files that are created: this is defined in the destructor for the PHPExcel_CachedObjectStorage_DiscISAM class.</p>",
+    "PostedDate": "2011-02-12T10:06:23.987-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

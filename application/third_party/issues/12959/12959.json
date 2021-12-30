@@ -1,0 +1,70 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "Changes for the 1.7.5 release have improved both the memory usage and the speed of the library, making the current codebase the as fast and efficient as the 1.7.1 release, while retaining all the additional functionality &#40;including cell caching for improving memory usage still further&#41;.Every effor will be made in the future to ensure that new code is as efficient &#40;in terms of both memory and speed or execution&#41; as possible.",
+    "ClosedDate": "2011-01-02T06:30:33.62-08:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Hi,\n \nBetween r46471 and the next release, the time for parse xlsm file doubled.\n \nSorry, can't share my xlsm file.\n \n\tforeach ($objPHPExcel->getWorksheetIterator() as $worksheet)\n\t{\n\t\t$footprint = \"\";\n\t\t$num = intval(str_replace(\"S\", \"\", $worksheet->getTitle()));\n\t\tforeach ($worksheet->getRowIterator() as $row)\n\t\t{\n\t\t\t$cellIterator = $row->getCellIterator();\n\t\t\t$cellIterator->setIterateOnlyExistingCells(True); // Loop all cells, even if it is not set\n\t\t\tforeach ($cellIterator as $cell)\n\t\t\t{\n\t\t\t\tif (!is_null($cell) && in_array($cell->getCoordinate(), $ValidationCoordinate))\n\t\t\t\t{\n\t\t\t\t\t$footprint = $footprint.$cell->getCalculatedValue();\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t\t$footprint = md5($footprint);\n\t\t\n\t\tif($lvmd->getEmpreinte($num) == null || $lvmd->getDeclaratifState($num) == 'NE' || ($lvmd->getDeclaratifState($num) != 'NE' && $lvmd->getEmpreinte($num) != $footprint))\n\t\t{\n\t\t\tif($lvmd->getDeclaratifState($num) != 'NE')\n\t\t\t\t$error++;\n\t\t\t$lvmd->setDeclaratifState($num, 'EN');\n\t\t\t$lvmd->setDeclaratifEmpreinte($num, $footprint);\n\t\t}\n\t\t\n\t\t$empreinte[$num] = $footprint;\n\t\t$maxws = ($num > $maxws) ? $num : $maxws;\n\t}\n \n \nI've 53 sheets.",
+    "LastUpdatedDate": "2013-05-16T05:42:00.563-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2010-05-07T05:39:06.577-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Double parsing time",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 12959
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "It's the \r\n$objPHPExcel = $objReader->load($filename);\r\n\r\n15 seconds with the r46471, 28 seconds with the latest source code. Without change in my code.",
+      "PostedDate": "2010-05-07T05:51:02.753-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "The significant change to the codebase between the r46471 and r47201 releases was the initial version of the cell caching code. The purpose of this change is to allow the use of cell caching outside of PHP memory in order to reduce the memory footprint of large worksheets. As expected with this change, there is an associated tradeoff in performance. However, taking twice as long to load a workbook seems excessive, and doesn't match with my own test results: Using default cache settings, I'm getting timings of 39% slower for reading an xls file, 48% slower for modifying cells, and between 4% and 7% slower for writing (depending which writer is being used).\r\nThe only other change that could affect performance since then has been a change to the calculation engine for handling cyclic references in formulae, but this has a negligeable overhead with the default settings (throw an exception when a cyclic reference is detected).\r\n\r\nMy testing of this feature has revealed certain inefficiencies in the way that the loaders create cells within the worksheets, with a lot of the code being executed several times for each cell; and I'm looking at how this duplication of work can be eliminated... which should reduce some of the overhead of cell caching.",
+      "PostedDate": "2010-05-07T12:37:13.273-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Parsing time double when i use xlsM (or xlsX) file.\r\n\r\nMy results :\r\nWith a 19 sheets xlsm file :\r\nold PHPExcel : 4s\r\nnew PHPExcel : 6s\r\nresult : +50%\r\n\r\nWith a 53 sheets xlsm file :\r\nold PHPExcel : 14s\r\nnew PHPExcel : 28s\r\nresult : +100%\r\n\r\nIt's only the load() time.\r\n\r\nAll the sheet have the same size (every time the same model)",
+      "PostedDate": "2010-05-10T02:23:35.987-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2011-01-02T06:30:33.62-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:03:00.103-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:00.563-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

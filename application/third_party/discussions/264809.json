@@ -1,0 +1,90 @@
+[
+  {
+    "Id": "641013",
+    "ThreadId": "264809",
+    "Html": "\r\n<p>Hi</p>\r\n<p>Is there a best way to sanitize all incoming spreadsheet data?</p>\r\n<p>Concerned about security, etc</p>\r\n<p>Thanks</p>\r\n",
+    "PostedDate": "2011-07-12T05:02:08.453-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "736968",
+    "ThreadId": "264809",
+    "Html": "<p>Any thoughts on this?</p>\r\n<p>I'd like to run the incoming file and data through a number of filters before posting to mysql and was wondering if anyone can recommend a good approach</p>",
+    "PostedDate": "2012-02-02T08:55:21.207-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "753824",
+    "ThreadId": "264809",
+    "Html": "<p>I just use this for the data...</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>$str = preg_replace('/\r\n     [\\x09\\x0A\\x0D\\x20-\\x7E]            <span style=\"color: green;\"># ASCII</span>\r\n   | [\\xC2-\\xDF][\\x80-\\xBF]             <span style=\"color: green;\"># non-overlong 2-byte</span>\r\n   |  \\xE0[\\xA0-\\xBF][\\x80-\\xBF]        <span style=\"color: green;\"># excluding overlongs</span>\r\n   | [\\xE1-\\xEC\\xEE\\xEF][\\x80-\\xBF]{2}  <span style=\"color: green;\"># straight 3-byte</span>\r\n   |  \\xED[\\x80-\\x9F][\\x80-\\xBF]        <span style=\"color: green;\"># excluding surrogates</span>\r\n   |  \\xF0[\\x90-\\xBF][\\x80-\\xBF]{2}     <span style=\"color: green;\"># planes 1-3</span>\r\n   | [\\xF1-\\xF3][\\x80-\\xBF]{3}          <span style=\"color: green;\"># planes 4-15</span>\r\n   |  \\xF4[\\x80-\\x8F][\\x80-\\xBF]{2}     <span style=\"color: green;\"># plane 16</span>\r\n/<span style=\"color: #a31515;\">', '</span>', $str); <span style=\"color: green;\">// <a title=\"Multilingual form encoding\" href=\"http://www.w3.org/International/questions/qa-forms-utf-8\" target=\"_blank\">http://www.w3.org/International/questions/qa-forms-utf-8</a></span><br /><br />$str = addslashes($str); <br /></pre>\r\n</div>\r\n</p>",
+    "PostedDate": "2012-02-10T11:29:15.827-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "760611",
+    "ThreadId": "264809",
+    "Html": "<p>Hello&nbsp; i'm concerned about security too.</p>\r\n<p>Scott do you apply this code after the getCell(), getValue() calls?</p>\r\n<p>I am just doing something like strip_tags().</p>\r\n<p>Isnt that regular expression a little heavy on memory resources(if you apply it on every cell value)?</p>",
+    "PostedDate": "2012-02-13T06:27:22.513-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "760628",
+    "ThreadId": "264809",
+    "Html": "<p>I do it after getValue(), not sure about memory, but our data goes to a system that will choke on any invalid UTF-8 in strings.</p>",
+    "PostedDate": "2012-02-13T06:38:01.243-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "760669",
+    "ThreadId": "264809",
+    "Html": "<p>sure its useful if you are importing in a db.Thanks for sharing that.</p>",
+    "PostedDate": "2012-02-13T06:58:51.89-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "827311",
+    "ThreadId": "264809",
+    "Html": "<p>I'm worried about memory too, some users might upload files with say 5000 rows of data and each cell needs to be checked.</p>\n<p>Would there be a way to extract the raw data first using php or perl and then submit it to a some sort of filter perhaps?</p>\n<p>Thanks</p>",
+    "PostedDate": "2012-04-23T06:25:17.773-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "941002",
+    "ThreadId": "264809",
+    "Html": "\r\n<p>regarding the line:</p>\r\n<p>[\\x09\\x0A\\x0D\\x20-\\x7E]&nbsp;&nbsp;&nbsp;&nbsp; # ASCII</p>\r\n<p>do you mean that all ascii characters would be removed from incoming data?</p>\r\n<p><span style=\"color:green\"><span style=\"color:#000000\">what i'm trying to do is</span></span><span style=\"color:green\"><span style=\"color:#000000\"> (1)\r\n</span></span>allow only a few spcified ascii characters and symbols, (2) exclude certain words or phrases like the word &quot;hate&quot;, and (3) sanitize any command-type stuff</p>\r\n<p>would this be possible?</p>\r\n<p><span style=\"color:#000000\">thanks</span></p>\r\n",
+    "PostedDate": "2012-11-13T07:07:54.333-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "942159",
+    "ThreadId": "264809",
+    "Html": "\r\n<p>Sounds like you are trying to filter the actual cell data characters against a white list. Then filtering the cell data words against a black list.</p>\r\n<p>1) You can use preg_replace (php command) to remove any characters that do not exist in your white list of 'valid' characters.</p>\r\n<p>2) You can use str_replace (php command) to remove any words/phrases from the data. You black list would be an array of words/phrases you wish to remove. Make sure your list is ordered with the longest phrases first and then the single words last.</p>\r\n<p>3) See number 2 above.</p>\r\n<p>- Christopher Mullins</p>\r\n",
+    "PostedDate": "2012-11-15T07:40:52.463-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "942833",
+    "ThreadId": "264809",
+    "Html": "\r\n<p>yes, thanks :)</p>\r\n<p>1. should i remove the ASCII part of the original preg_replace above?</p>\r\n<p>2. also, what does the first preg_replace above do? (i'm not yet familiar with hex things)</p>\r\n<pre>$str = preg_replace('/\n     [\\x09\\x0A\\x0D\\x20-\\x7E]            <span style=\"color:green\"># ASCII</span>\n   | [\\xC2-\\xDF][\\x80-\\xBF]             <span style=\"color:green\"># non-overlong 2-byte</span>\n   |  \\xE0[\\xA0-\\xBF][\\x80-\\xBF]        <span style=\"color:green\"># excluding overlongs</span>\n   | [\\xE1-\\xEC\\xEE\\xEF][\\x80-\\xBF]{2}  <span style=\"color:green\"># straight 3-byte</span>\n   |  \\xED[\\x80-\\x9F][\\x80-\\xBF]        <span style=\"color:green\"># excluding surrogates</span>\n   |  \\xF0[\\x90-\\xBF][\\x80-\\xBF]{2}     <span style=\"color:green\"># planes 1-3</span>\n   | [\\xF1-\\xF3][\\x80-\\xBF]{3}          <span style=\"color:green\"># planes 4-15</span>\n   |  \\xF4[\\x80-\\x8F][\\x80-\\xBF]{2}     <span style=\"color:green\"># plane 16</span>\n/<span style=\"color:#a31515\">', '</span>', $str); <span style=\"color:green\">// <a title=\"Multilingual form encoding\" href=\"http://www.w3.org/International/questions/qa-forms-utf-8\" target=\"_blank\">http://www.w3.org/International/questions/qa-forms-utf-8</a></span><br><br>$str = addslashes($str);<br><br>3. so i guess i'd be doing three filters, (1) filter using the first preg_replace provided above, (2) filter for allowed ascii characters, and (3) filter for un-allowed words or phrases<br><br>sound about right?<br><br>thanks<br></pre>\r\n",
+    "PostedDate": "2012-11-16T08:22:03.527-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "943085",
+    "ThreadId": "264809",
+    "Html": "\r\n<p>1) This seems to be an encoding thing which I'm not sure about. Someone else might be able to give you an answer on that.</p>\r\n<p>2) preg_replace('&lt;Pattern to search for&gt;', &lt;String to replace patterns with&gt;, &lt;string variable to search in&gt;)</p>\r\n<p>The first argument is a Perl Regular Expression (PREG) which appears to be a list of patterns connected with an inclusive or symbol, so...</p>\r\n<p>[\\x09\\x0A\\x0D\\x20-\\x7E] - Find any of these ASCII characters ASCII Values [9, 10, 14, 32 - 126] or</p>\r\n<p>[\\xC2-\\xDF][\\x80-\\xBF] - Find any [194 - 223, 128 - 191] or</p>\r\n<p>\\xE0[\\xA0-\\xBF][\\x80-\\xBF] - Find any matching: 224[160 - 191][128 - 191] or</p>\r\n<p>[\\xE1-\\xEC\\xEE\\xEF][\\x80-\\xBF]{2} - Find any matching: [225 - 236, 238, 239][128 - 191] minimum of 2 characters or</p>\r\n<p>\\xED[\\x80-\\x9F][\\x80-\\xBF] - Find any matching: 237[128 - 159][128 - 191] or</p>\r\n<p>\\xF0[\\x90-\\xBF][\\x80-\\xBF]{2} - Find any matching: 240[144 - 191][128 - 191] or</p>\r\n<p>[\\xF1-\\xF3][\\x80-\\xBF]{3} - Find any matching: [241 - 243][128 - 191] minimum of 3 characters or</p>\r\n<p>\\xF4[\\x80-\\x8F][\\x80-\\xBF]{2} - Find any matching: 244[128 - 191][128 - 191] minimum of 2 characters</p>\r\n<p>The second argument is an empty string so anything matching the above pattern would be removed from the string.</p>\r\n<p>3) Since you have an example using the OR symbol (|) you could created a couple of preg_replace commands to take</p>\r\n<p>care of everything if your Black List rarely changes.</p>\r\n<p>- Christopher Mullins</p>\r\n",
+    "PostedDate": "2012-11-16T17:22:13.287-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

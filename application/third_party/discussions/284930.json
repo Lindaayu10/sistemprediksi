@@ -1,0 +1,74 @@
+[
+  {
+    "Id": "720228",
+    "ThreadId": "284930",
+    "Html": "<p>Hello</p>\n<p>I have a question about looping sheets in one Workbook.<br /> The export in excel works fine with one only sheet, but when i have more recordset from the same db query then i want to get for every recordset on sheet in a workbook.<br /> <br /></p>\n<p>&nbsp;</p>\n<div style=\"color: black; background-color: white;\">\n<pre>\tmysql_connect($serverDB,$userDB,$passDB); \n\tmysql_select_db($databDB) <span style=\"color: blue;\">or</span> <span style=\"color: blue;\">die</span> (<span style=\"color: #a31515;\">\"No connection\"</span>);\n\n\t$id_acores = $_GET[<span style=\"color: #a31515;\">'id'</span>];\n\t$regstock \t= $_GET[<span style=\"color: #a31515;\">'regstock'</span>];\n\t$code_acores \t= $_GET[<span style=\"color: #a31515;\">'codeAcore'</span>];\n\n\t<span style=\"color: blue;\">require_once</span> <span style=\"color: #a31515;\">'lib/phpexcel/Classes/PHPExcel.php'</span>;\n\t<span style=\"color: blue;\">require_once</span> <span style=\"color: #a31515;\">'lib/phpexcel/Classes/PHPExcel/Cell/AdvancedValueBinder.php'</span>;\n\t<span style=\"color: blue;\">require_once</span> <span style=\"color: #a31515;\">'lib/phpexcel/Classes/PHPExcel/IOFactory.php'</span>;\n\t<span style=\"color: blue;\">require_once</span> <span style=\"color: #a31515;\">'lib/phpexcel/Classes/PHPExcel/RichText.php'</span>;\n\t<span style=\"color: blue;\">require_once</span> <span style=\"color: #a31515;\">'lib/phpexcel/Classes/PHPExcel/Worksheet/Drawing.php'</span>;\n\n\t$objPHPExcel = <span style=\"color: blue;\">new</span> PHPExcel();\n\n\t$objPHPExcel-&gt;getProperties()-&gt;setCreator(<span style=\"color: #a31515;\">\"Test\"</span>)\n\t\t\t\t\t\t -&gt;setLastModifiedBy(<span style=\"color: #a31515;\">\"Test\"</span>)\n\t\t\t\t\t\t -&gt;setTitle(<span style=\"color: #a31515;\">\"Export\"</span>)\n\t\t\t\t\t\t -&gt;setSubject(<span style=\"color: #a31515;\">\"Resultat\"</span>)\n\t\t\t\t\t\t -&gt;setDescription(<span style=\"color: #a31515;\">\"Running Order Export\"</span>)\n\t\t\t\t\t\t -&gt;setKeywords(<span style=\"color: #a31515;\">\"RGD\"</span>)\n\t\t\t\t\t\t -&gt;setCategory(<span style=\"color: #a31515;\">\"Results\"</span>);\n\t<span style=\"color: green;\">//Only a Codesnippet</span>\n\t$abfrage0 = \"SELECT DISTINCT acores.id_acores ...\";\n\t$ergebnis0 = mysql_query($abfrage0) <span style=\"color: blue;\">or</span> <span style=\"color: blue;\">die</span>(<span style=\"color: #a31515;\">\"Query failed with error: \"</span>.mysql_error());\n\t...\n\n\t<span style=\"color: blue;\">while</span>\n\t($abfrage0 = mysql_fetch_array($ergebnis0))\t\t\t \n\t{\n\t$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(<span style=\"color: #a31515;\">'A2'</span>, <span style=\"color: #a31515;\">'Nom Du Bureau:'</span>);\n\t$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(<span style=\"color: #a31515;\">'A3'</span>, <span style=\"color: #a31515;\">'Code Du Bureau:'</span>);\n\t$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(<span style=\"color: #a31515;\">'A4'</span>, <span style=\"color: #a31515;\">'Nom du Caissier:'</span>);\n\t$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(<span style=\"color: #a31515;\">'A7'</span>, <span style=\"color: #a31515;\">'MOTIF DE LA REGULARISATION:'</span>);\n\t$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(<span style=\"color: #a31515;\">'E2'</span>, <span style=\"color: #a31515;\">'Date Bureau:'</span>);\n\t$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(<span style=\"color: #a31515;\">'B2'</span> . $abfrage, $libBureau);\n\t$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(<span style=\"color: #a31515;\">'B3'</span> . $abfrage, $codeRegate);\n\t$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(<span style=\"color: #a31515;\">'B4'</span>, <span style=\"color: #a31515;\">''</span>);\n\t$regdate = formatdateslash($regstock);\n\t$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(<span style=\"color: #a31515;\">'F2'</span> . $abfrage, $regdate);\n\t$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(<span style=\"color: #a31515;\">'A8'</span> . $abfrage, $motif_regularisation);\n\t$objPHPExcel-&gt;getActiveSheet()-&gt;mergeCells(<span style=\"color: #a31515;\">'A7:F7'</span>);\n\t$objPHPExcel-&gt;getActiveSheet()-&gt;mergeCells(<span style=\"color: #a31515;\">'A8:F8'</span>);\n\n\t$objWorksheet = <span style=\"color: blue;\">new</span> PHPExcel_Worksheet($objPHPExcel);\n\t$objPHPExcel-&gt;addSheet($objWorksheet);\n\t$objWorksheet-&gt;setTitle(<span style=\"color: #a31515;\">''</span>. $codeRegate);\n\t}\n\theader(<span style=\"color: #a31515;\">'Content-Type: application/vnd.ms-excel'</span>);\n\theader(<span style=\"color: #a31515;\">'Content-Disposition: attachment;filename=\"export_rgd_total.xls\"'</span>);\n\theader(<span style=\"color: #a31515;\">'Cache-Control: max-age=0'</span>);\n\n\t$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, <span style=\"color: #a31515;\">'Excel5'</span>);\n\n\t$objWriter-&gt;save(<span style=\"color: #a31515;\">'php://output'</span>);\n\n\t<span style=\"color: green;\">//$objWriter = new PHPExcel_Writer_Excel5($objPHPExcel);</span>\n\t$objWriter-&gt;save(<span style=\"color: #a31515;\">'export/rgd/'</span>. $codeRegate .<span style=\"color: #a31515;\">'.xls'</span>);\n\n</pre>\n</div>\n<p>&nbsp;</p>\n<p>I try with a while to looping all recordset and to get one sheet for one recordset.</p>\n<p>The query works fine, tested with phpmyadmin.</p>\n<p>In this example i get 4 recordsets and the export create 4 Worksheet in one Workbook, but</p>\n<p>1. only the first worksheets has has one recordset the other three worksheets are empty</p>\n<p>2. The name of the sheets are the variable of '$codeRegate', who is everytime different., but he repeat everytime the first $codeRegate, so when the first $coderegate calls 01400 then i get for the second sheet 01400 1 and not 75480.</p>\n<p><br /> I f you have any idea?<br /> <br /> Thanks in advance<br /> <br /> Achillix</p>",
+    "PostedDate": "2012-01-04T03:32:30.507-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "727083",
+    "ThreadId": "284930",
+    "Html": "<p>Hello again.</p>\r\n<p>Is there no body who has an idea?</p>\r\n<p>Please help me</p>\r\n<p>&nbsp;</p>\r\n<p>THX</p>\r\n<p>&nbsp;</p>\r\n<p>Achillix</p>",
+    "PostedDate": "2012-01-18T07:33:28.517-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "727088",
+    "ThreadId": "284930",
+    "Html": "<p>I think you have to change the active sheet to the newly added sheet. Otherwise your sql result rows are all added to the first worksheet.</p>\r\n<p>&nbsp;</p>\r\n<p>btw, german var names, english messages, with french data... nice ;)</p>",
+    "PostedDate": "2012-01-18T07:40:41.9-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "727090",
+    "ThreadId": "284930",
+    "Html": "<p>I am german but i work in France.</p>\r\n<p>THX for your reply i will try them.</p>\r\n<p>greetings</p>\r\n<p>&nbsp;</p>\r\n<p>Achillix</p>",
+    "PostedDate": "2012-01-18T07:47:19-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "727444",
+    "ThreadId": "284930",
+    "Html": "<p>Many Thanks for your help.<br />I have change the code from:</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>\t<span style=\"color: blue;\">while</span>\r\n\t($abfrage0 = mysql_fetch_array($ergebnis0))\t\t\t \r\n\t{\r\n\r\n\t$objWorksheet = <span style=\"color: blue;\">new</span> PHPExcel_Worksheet($objPHPExcel);\r\n\t$objPHPExcel-&gt;addSheet($objWorksheet);\r\n\t$objWorksheet-&gt;setTitle(<span style=\"color: #a31515;\">''</span>. $codeRegate);\r\n\t$objWorksheet-&gt;getTabColor()-&gt;setRGB(<span style=\"color: #a31515;\">'f98933'</span>);\r\n\t\t...\r\n\t$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(<span style=\"color: #a31515;\">'B2'</span> . $abfrage, $libBureau);\r\n\t$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(<span style=\"color: #a31515;\">'B3'</span> . $abfrage, $codeRegate);\r\n\t$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(<span style=\"color: #a31515;\">'B4'</span>, <span style=\"color: #a31515;\">''</span>);\r\n\t$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(<span style=\"color: #a31515;\">'B5'</span> . $abfrage, $acoreTelephone);\r\n\t$objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue(<span style=\"color: #a31515;\">'B6'</span> . $abfrage, $acoreEmail);\r\n\t...\r\n\t}\r\n</pre>\r\n</div>\r\n</p>\r\n<p>to:</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>\t<span style=\"color: blue;\">while</span>\r\n\t($abfrage0 = mysql_fetch_array($ergebnis0))\t\t\t \r\n\t{\r\n\r\n\t$objWorksheet = <span style=\"color: blue;\">new</span> PHPExcel_Worksheet($objPHPExcel);\r\n\t$objPHPExcel-&gt;addSheet($objWorksheet);\r\n\t$objWorksheet-&gt;setTitle(<span style=\"color: #a31515;\">''</span>. $codeRegate);\r\n\t$objWorksheet-&gt;getTabColor()-&gt;setRGB(<span style=\"color: #a31515;\">'f98933'</span>);\r\n\t...\r\n\t$objWorksheet-&gt;setCellValue(<span style=\"color: #a31515;\">'B2'</span> . $abfrage, $libBureau);\r\n\t$objWorksheet-&gt;setCellValue(<span style=\"color: #a31515;\">'B3'</span> . $abfrage, $codeRegate);\r\n\t$objWorksheet-&gt;setCellValue(<span style=\"color: #a31515;\">'B4'</span>, <span style=\"color: #a31515;\">''</span>);\r\n\t$objWorksheet-&gt;setCellValue(<span style=\"color: #a31515;\">'B5'</span> . $abfrage, $acoreTelephone);\r\n\t$objWorksheet-&gt;setCellValue(<span style=\"color: #a31515;\">'B6'</span> . $abfrage, $acoreEmail);\r\n\t...\r\n\t}\r\n</pre>\r\n</div>\r\nand now he create the sheets and he put the data inside.<br />But now i have other problems.<br /><br />1. In every sheet i get the same recordset(the first recordset only from my query) <br />2. He increment everytime the same Sheetname like 01400, 01400 1. But it must be 01400, 75480.<br /><br />Many thanks for your help and if you have any idea what i do wrong with the two points above?<br /><br />Cheers<br /><br />Achillix</p>",
+    "PostedDate": "2012-01-19T01:27:56.65-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "727458",
+    "ThreadId": "284930",
+    "Html": "<p>the resultrow from your query is stored in $abfrage0, however, in the while loop you use $abfrage instead, which possibly contains the result of a different query ;)</p>",
+    "PostedDate": "2012-01-19T01:54:40.607-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "727589",
+    "ThreadId": "284930",
+    "Html": "<p>You are right, i'm blind, sorry<br /> It works now.</p>\n<p>\n<div style=\"color: black; background-color: white;\">\n<pre>\t<span style=\"color: blue;\">while</span>\n\t($abfrage0 = mysql_fetch_assoc($ergebnis0))\t\t\t \n\t{\n\n\t$cr \t\t= \t$abfrage0[<span style=\"color: #a31515;\">'code_regate'</span>];\n\t$lib \t\t= \t$abfrage0[<span style=\"color: #a31515;\">'libelle'</span>];\n\t$tel \t\t= \t$abfrage0[<span style=\"color: #a31515;\">'telephone'</span>];\n\t$email \t\t= \t$abfrage0[<span style=\"color: #a31515;\">'mail'</span>];\n\t$dreg \t\t= \t$abfrage0[<span style=\"color: #a31515;\">'date_regularisation'</span>];\n\t$astock \t= \t$abfrage0[<span style=\"color: #a31515;\">'ancien_stock'</span>];\n\t$nstock \t= \t$abfrage0[<span style=\"color: #a31515;\">'nouveau_stock'</span>];\n\t$motif\t \t= \t$abfrage0[<span style=\"color: #a31515;\">'motif_regularisation'</span>];\n\n\t$objWorksheet = <span style=\"color: blue;\">new</span> PHPExcel_Worksheet($objPHPExcel);\n\t$objPHPExcel-&gt;addSheet($objWorksheet);\n\t$objWorksheet-&gt;setTitle(<span style=\"color: #a31515;\">''</span>. $cr);\n\t$objWorksheet-&gt;getTabColor()-&gt;setRGB(<span style=\"color: #a31515;\">'f98933'</span>);\n\t...\n\t$objWorksheet-&gt;setCellValue(<span style=\"color: #a31515;\">'B2'</span> , $lib);\n\t$objWorksheet-&gt;setCellValue(<span style=\"color: #a31515;\">'B3'</span> ,  $cr);\n\t$objWorksheet-&gt;setCellValue(<span style=\"color: #a31515;\">'B4'</span>, <span style=\"color: #a31515;\">''</span>);\n\t$objWorksheet-&gt;setCellValue(<span style=\"color: #a31515;\">'B5'</span> , $tel);\n\t$objWorksheet-&gt;setCellValue(<span style=\"color: #a31515;\">'B6'</span> , $email);\n\t...\n</pre>\n</div>\n</p>\n<p><br /> But and that is my last question, why he creates at the beginning an empty sheet calls '<strong>Worksheet</strong>'. How can i remove them?<br /> I tried: <br /> &nbsp;&nbsp;&nbsp; <strong>$objWorksheet-&gt;removeSheetByIndex(0);</strong><br /> but doesn't works<br /> Thanks you very much for your help<br /> <br /> cheers<br /> <br /> Achillix</p>",
+    "PostedDate": "2012-01-19T06:28:27.2-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "727597",
+    "ThreadId": "284930",
+    "Html": "<p>I think it creates a default sheet at the beginning because you cannot have an empty workbook. I would say that $objPHPExcel-&gt;removeSheetByIndex(0); should work though ;)</p>",
+    "PostedDate": "2012-01-19T06:38:25.81-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "727607",
+    "ThreadId": "284930",
+    "Html": "<p>Yes it works, it was my mistake, i have put it in a while before ;-)</p>\r\n<p>Many Thanks for your help</p>\r\n<p>cheers</p>\r\n<p>achillix</p>",
+    "PostedDate": "2012-01-19T06:48:27.893-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

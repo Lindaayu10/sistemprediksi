@@ -1,0 +1,66 @@
+[
+  {
+    "Id": "1067213",
+    "ThreadId": "449731",
+    "Html": "Currently, I'm making a program for my job that uses PHPexcel to basically take all of the data from an excel sheet, make a new excel sheet and format it to text, and transfer all of the data from the old excel sheet.<br />\n<br />\nMy php has to be able to take in the values from the old excel sheet and parse them correctly, especially dates/numbers/etc.<br />\n<br />\nEverything is working fine except for the dates. For some reason when I get the formatted value of the cell; it does not match the date format in the first sheet. Specifically a value like this: 12/31/2099 . For some reason, it reads the formatcode incorrectly as mm-dd-yy and outputs 12-31-99. This is extremely frustrating and I've scoured half of the internet for an answer. Help please; I'm not sure what the issue is! Code:<br />\n<pre><code>&lt;?php\n$spreadSheet=$_FILES[&quot;filebrowser&quot;][&quot;tmp_name&quot;];\n/** PHPExcel_IOFactory */\nrequire_once 'Classes/PHPExcel/IOFactory.php';\nrequire_once 'Classes/PHPExcel/Shared/Date.php';\n$objReader = PHPExcel_IOFactory::createReader('Excel2007');\n//Create temporary sheet from uploaded file data\n$objPHPExcel = $objReader-&gt;load($spreadSheet);\n$sheet = $objPHPExcel-&gt;getActiveSheet();\n$sheet-&gt;setTitle(&quot;Original Data&quot;);\n$data=$sheet-&gt;getCell(&quot;D9&quot;)-&gt;getFormattedValue();\n\nvar_dump($data);\nexit;?&gt;\n</code></pre>\n\nD9 is a cell with DATE format and a value of 12/31/2099. This code prints 12-31-99...<br />\nI also cannot explicitly define the format string, this is because the user can enter different types of formats mm-dd-yyyy, mm/dd/yyyy, m-d-Y, etc. I really need some help here, so any at all is very much appreciated.<br />\n",
+    "PostedDate": "2013-07-11T12:51:07.887-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1067295",
+    "ThreadId": "449731",
+    "Html": "Without seeing an example, I can't explain what's happening. Is it possible to upload a sample file that demonstrates this behaviour: the date format mask for those fields should be a straight text value, making it difficult for me to understand why it's being changed in any way.<br />\n",
+    "PostedDate": "2013-07-11T17:12:44.727-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1067517",
+    "ThreadId": "449731",
+    "Html": "I uploaded it as parse date wrong. Here ya go:<br />\n<a href=\"https://www.codeplex.com/Download/AttachmentDownload.ashx?ProjectName=phpexcel&amp;WorkItemId=10749&amp;FileAttachmentId=7061\" rel=\"nofollow\">https://www.codeplex.com/Download/AttachmentDownload.ashx?ProjectName=phpexcel&WorkItemId=10749&FileAttachmentId=7061</a><br />\n",
+    "PostedDate": "2013-07-12T06:58:26.077-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1068463",
+    "ThreadId": "449731",
+    "Html": "The dates in your example file use an adaptable format. \r<br />\nThis type of format is written to the file in US version. When you open the file in Excel, the application takes into account the format defined in the control panel and tailors.\r<br />\nIf you want to reproduce this operation directly in php, I think you should implement what Excel do : make a transcript between the US and the desired local format (there are two formats date and two time formats).<br />\n",
+    "PostedDate": "2013-07-15T08:15:24.033-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1068524",
+    "ThreadId": "449731",
+    "Html": "Is there a simple way around this? What bothers me is that it obviously parses it correctly if the date is entered in a TEXT format. But when you specify DATE in the number format dropdown, it breaks it. Again; I can't necessarily specify a format. It needs to be parsed correctly and give leverage to the user.<br />\n",
+    "PostedDate": "2013-07-15T09:34:10.04-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1068846",
+    "ThreadId": "449731",
+    "Html": "When you loop the cells, tests whether it is a date/time format (with PHPExcel_Shared_Date::isDateTime()).\r<br />\nIf so, reads the format ($sheet-&gt;getStyle ('A1')-&gt;getNumberFormat()-&gt;getFormatCode()), compares it to the adaptable formats, if there is one of these formats, computes the value in imposing the formatting:\r<br />\n[...]\r<br />\ncase 'mm-dd-yy':\r<br />\n$FormattedValue = PHPExcel_Style_NumberFormat:toFormattedString ($Cell-&gt;getValue(), PHPExcel_Style_NumberFormat::FORMAT_DATE_YYYYMMDD2);\r<br />\nbreak;\r<br />\n[...]\r<br />\nReplaces the format of output by the one desired, using constants or by explicitly passing a string.\r<br />\nIf this is not an adaptable format, use getFormattedValue().\r<br />\nI do not have in mind other adaptable formats. To know them, created a little workbook with values of test using these formats (there is a &quot;*&quot; in front) and then look for the chain used (directly in the file or using PHPExcel).<br />\n",
+    "PostedDate": "2013-07-16T00:31:49.963-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1069573",
+    "ThreadId": "449731",
+    "Html": "I can't replace the date format though. That leverages the programmer rather than the user. It's critical that the format stay in the format that they specify.<br />\n",
+    "PostedDate": "2013-07-17T08:37:46.36-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1070420",
+    "ThreadId": "449731",
+    "Html": "No. I never suggested that the programmer imposes his views.\r<br />\n<br />\nI suggested you to reproduce the behavior of Excel so that the textual representation is that the user expect.<br />\n",
+    "PostedDate": "2013-07-19T04:19:12.463-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

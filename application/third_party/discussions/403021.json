@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "940884",
+    "ThreadId": "403021",
+    "Html": "\r\n<p>Hey guys, I'm new to PHPExcel and fighting for the last hours to get a valid output file to download. I took&nbsp;01simple.php and&nbsp;01simple-download-xlsx.php from the docs, the first one generating a valid XLSX on the file system, the second one making\r\n the client download a file which looks ok when opened with a text editor (i.e. starting with the PK mark, no readable error message or anything).</p>\r\n<p>Debugging this problem I merged the two files into one and the last few lines read:</p>\r\n<p></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><span style=\"color:green\">// Redirect output to a client's web browser (Excel2007)</span>\r\nheader(<span style=\"color:#a31515\">'Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'</span>);\r\nheader(<span style=\"color:#a31515\">'Content-Disposition: attachment;filename=&quot;01simple.xlsx&quot;'</span>);\r\nheader(<span style=\"color:#a31515\">'Cache-Control: max-age=0'</span>);\r\n\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, <span style=\"color:#a31515\">'Excel2007'</span>);\r\n\r\n$objWriter-&gt;save(<span style=\"color:#a31515\">'php://output'</span>);\r\n$objWriter-&gt;save(str_replace(<span style=\"color:#a31515\">'.ctp'</span>, <span style=\"color:#a31515\">'.xls'</span>, <span style=\"color:blue\">__FILE__</span>));\r\n\r\n<span style=\"color:blue\">exit</span>;\r\n</pre>\r\n</div>\r\n<p></p>\r\n<p>The line with php://output makes the client download a file which Excel complains is corrupted while the line with str_replace works perfectly fine.</p>\r\n<p>I'm looking for ways to get the downloaded file to work. Any suggestions? Could it be encoding? I'm using UTF8 without BOM for all my project files as the website is not displayed correctly otherwise.</p>\r\n<p>&nbsp;</p>\r\n<p>On another note: Which directories need read and/or write access for PHPExcel to work when only having downloadable files?</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks,</p>\r\n<p>Daniel</p>\r\n",
+    "PostedDate": "2012-11-13T04:07:46.107-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "941009",
+    "ThreadId": "403021",
+    "Html": "\r\n<p>Tracing the problem some more, I think it's an encoding problem rather than an I/O problem. When I open the downloaded XLSX with TextWrangler it says 'Incorrectly formed UTF-8'. But why would this only appear when downloading the file? I have also tried\r\n changing the encoding of the PHP files I'm using to UTF-8 rather than UTF-8 w/o BOM, which didn't change anything.</p>\r\n<p>Any suggestions?</p>\r\n<p>(I didn't change PHPExcel files, so I'm assuming after installation they're still UTF-8.)</p>\r\n",
+    "PostedDate": "2012-11-13T07:23:51.17-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "943568",
+    "ThreadId": "403021",
+    "Html": "\r\n<p>Normally, this error means that you're echoing something from your scrip in addition to the actual Excel file directed to php://output. This can normally be identified by opening the downloaded file in a text editor and looking for anything unusual at the\r\n beginning or end of the file. This could be leading or trailing whitespace characters such as spaces, tabs, new lines; or sometimes a BOM heading from a PHP scipt; or may be PHP error messages</p>\r\n",
+    "PostedDate": "2012-11-18T08:07:52.783-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

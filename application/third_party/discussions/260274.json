@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "623259",
+    "ThreadId": "260274",
+    "Html": "<p>Hi all,</p>\n<p>&nbsp;</p>\n<p>First, lets me say thanks for the great work on PHPExcel !! It sure helped me a lot.</p>\n<p>&nbsp;</p>\n<p>Now, i&acute;m really in need os some assitance: im creating an sort of backup routine for a project, need to pick some data on the DB and write do a XLS document.I limited the query to 500 entries at a time, what means that i have to put 500 lines per time on  the worksheet. The great problem is when&nbsp; load the file: even with a filter telling the chunk i want to work, it look like that returns the entire table. So, even limiting the numbers of line, i keep getting memory leak everytime, and i only have about 40  MB to work with this script.</p>\n<p>&nbsp;</p>\n<p>So i am asking if there is a workaround this problem. I searched this forum for a solution, encountered how to create a filter, but everytime i call the load method, it keeps returning the entire worksheet.</p>\n<p>I&acute;ll post the part of code that i use the class:</p>\n<p>//this part i found in this forum, if i recall it right. Credits to the original poster. this part is the filter creation</p>\n<p>class MyReadFilter implements PHPExcel_Reader_IReadFilter{<br /> &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; private $min;<br /> &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; private $max;<br /> &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; public function setRows($startRow, $chunkSize) {<br /> &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $this-&gt;min&nbsp;&nbsp;&nbsp; = $startRow;<br /> &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $this-&gt;max&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = $this-&gt;min + $chunkSize;<br /> &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }&nbsp;&nbsp;&nbsp; &nbsp;<br /> &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; public function readCell( $column, $row, $worksheetName = '') {<br /> &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; if ($row == 1 || $row &gt;= $this-&gt;min || $row &lt;= $this-&gt;max) {<br /> &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; return true;<br /> &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; }<br /> &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; return false;<br /> &nbsp;&nbsp;&nbsp; }<br /> &nbsp;&nbsp;&nbsp; }</p>\n<p>//... and now my code, adapting the code from the same source</p>\n<p>// $k, in this code, is a iterator that I use to calculate position, the \"500\" hardcoded in the code below is my chunk per iteration</p>\n<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $objReader = PHPExcel_IOFactory::createReader(\"Excel5\");<br /> &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $worksheetNames = $objReader-&gt;listWorksheetNames(\"./excel/$file_name.xls\");<br /> &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $objReader-&gt;setLoadSheetsOnly($worksheetNames[0]);</p>\n<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // here is the delimiter of the chunk of data i want to manipulate, write in the worksheet<br /> &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $chunkFilter-&gt;setRows(((($k-1)*500)+2),(((($k-1)*500)+2)+499));<br /> &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $objReader-&gt;setReadFilter($chunkFilter);<br /> &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $objReader-&gt;setReadDataOnly(true);<br /> &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; $excel = $objReader-&gt;load(\"./excel/$nome_arquivo.xls\");</p>\n<p>Any help is greatly appreciated, thanks in advance !!</p>\n<p>&nbsp;</p>\n<p>PS: The version im working with is 1.7.6, on PHP 5.3 -&nbsp; Sorry for the lack of information</p>",
+    "PostedDate": "2011-06-05T17:34:28.633-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "623571",
+    "ThreadId": "260274",
+    "Html": "<p>Here is my implementation of the read filter using a custom method I added to the readers.</p>\n<p>http://phpexcel.codeplex.com/discussions/259971</p>\n<p>This implementation reads the current maximum memory to estimate the chunk size.</p>\n<p>Addendum: I just realized that you are creating spreadsheets instead of reading them. My implementation only works with reading spreadsheets.</p>\n<p>- Christopher Mullins</p>",
+    "PostedDate": "2011-06-06T09:21:31.573-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "623654",
+    "ThreadId": "260274",
+    "Html": "<p>Just a heads up, 40MB is not valid for this library. I was battling this earlier, and for large workbooks I have assigned 500MB and upto 1GB of RAM for the script when it needs it. Just assign more RAM, only sollution.</p>",
+    "PostedDate": "2011-06-06T11:41:31.96-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "623854",
+    "ThreadId": "260274",
+    "Html": "<p>I read your code, and gonna make sure to use it sometime to test and so. Thanks for the reply and for the ( great ) example about reading the worksheet.</p>\r\n<p>&nbsp;</p>\r\n<p>Best Regards</p>",
+    "PostedDate": "2011-06-06T17:42:58.627-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "623855",
+    "ThreadId": "260274",
+    "Html": "<p>About the RAM, gonna contact the web host and see what i can do, but i think that i can&acute;t do much... Thanks for the reply, gonna have it in consideration.</p>",
+    "PostedDate": "2011-06-06T17:44:22.97-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

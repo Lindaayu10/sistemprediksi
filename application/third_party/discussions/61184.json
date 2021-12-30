@@ -1,0 +1,130 @@
+[
+  {
+    "Id": "207478",
+    "ThreadId": "61184",
+    "Html": "<p>On a sheet that I can't share, and can't figure out what portion of the sheet makes it happen, I get this error over and over:</p>\r\n<p><strong>Warning</strong>:  mb_convert_encoding() [<a href=\"https://extranet.virtual/function.mb-convert-encoding\">function.mb-convert-encoding</a>]: Illegal character encoding specified in <strong>/mnt/hgfs/svn/ezyield_v3/library/D2EApplication/_packages/PHPExcel/Shared/String.php</strong> on line <strong>233</strong></p>\r\n<p>It doesn't happen when I save the sheet with OpenOffice, but does happen with Mac Excel.</p>\r\n<p>On this bug, I can say that 2.6.5 did not have the problem, but 2.6.7 does. (I did not try 2.6.6.)&nbsp; I will post more if I can figure out why this happens.</p>",
+    "PostedDate": "2009-07-01T04:07:52.33-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "207488",
+    "ThreadId": "61184",
+    "Html": "<p>For the sake of debugging, can you try to change that line 233 in PHPExcel/Shared/String.php from this<br> <br> <span style=\"font-family:Courier New\">$value = mb_convert_encoding($value, $to, $from);</span><br> <br> to this<br> <br> <span style=\"font-family:Courier New\">var_dump($value, $to, $from); $value = mb_convert_encoding($value, $to, $from);</span><br> <br> and report back what it dumps?</p>",
+    "PostedDate": "2009-07-01T05:01:58.37-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "207490",
+    "ThreadId": "61184",
+    "Html": "<p>string(9) &quot;Worksheet&quot; string(5) &quot;UTF-8&quot; string(0) &quot;&quot; <br> <strong>Warning</strong>:  mb_convert_encoding() [<a href=\"https://extranet.virtual/function.mb-convert-encoding\">function.mb-convert-encoding</a>]: Illegal character encoding specified in <strong>/mnt/hgfs/svn/ezyield_v3/library/D2EApplication/_packages/PHPExcel/Shared/String.php</strong> on line <strong>233</strong><br> string(12) &quot;Calculations&quot; string(5) &quot;UTF-8&quot; string(0) &quot;&quot; <br> <strong>Warning</strong>:  mb_convert_encoding() [<a href=\"https://extranet.virtual/function.mb-convert-encoding\">function.mb-convert-encoding</a>]: Illegal character encoding specified in <strong>/mnt/hgfs/svn/ezyield_v3/library/D2EApplication/_packages/PHPExcel/Shared/String.php</strong> on line <strong>233</strong><br> string(10) &quot;Percentage&quot; string(5) &quot;UTF-8&quot; string(0) &quot;&quot; <br> <strong>Warning</strong>:  mb_convert_encoding() [<a href=\"https://extranet.virtual/function.mb-convert-encoding\">function.mb-convert-encoding</a>]: Illegal character encoding specified in <strong>/mnt/hgfs/svn/ezyield_v3/library/D2EApplication/_packages/PHPExcel/Shared/String.php</strong> on line <strong>233</strong><br> string(3) &quot;Sat&quot; string(5) &quot;UTF-8&quot; string(0) &quot;&quot; <br> <strong>Warning</strong>:  mb_convert_encoding() [<a href=\"https://extranet.virtual/function.mb-convert-encoding\">function.mb-convert-encoding</a>]: Illegal character encoding specified in <strong>/mnt/hgfs/svn/ezyield_v3/library/D2EApplication/_packages/PHPExcel/Shared/String.php</strong> on line <strong>233</strong><br> string(8) &quot;Addition&quot; string(5) &quot;UTF-8&quot; string(0) &quot;&quot; <br> <strong>Warning</strong>:  mb_convert_encoding() [<a href=\"https://extranet.virtual/function.mb-convert-encoding\">function.mb-convert-encoding</a>]: Illegal character encoding specified in <strong>/mnt/hgfs/svn/ezyield_v3/library/D2EApplication/_packages/PHPExcel/Shared/String.php</strong> on line <strong>233</strong><br> string(3) &quot;Sun&quot; string(5) &quot;UTF-8&quot; string(0) &quot;&quot; <br> <strong>Warning</strong>:  mb_convert_encoding() [<a href=\"https://extranet.virtual/function.mb-convert-encoding\">function.mb-convert-encoding</a>]: Illegal character encoding specified in <strong>/mnt/hgfs/svn/ezyield_v3/library/D2EApplication/_packages/PHPExcel/Shared/String.php</strong> on line <strong>233</strong><br> string(3) &quot;Mon&quot; string(5) &quot;UTF-8&quot; string(0) &quot;&quot; <br> <strong>Warning</strong>:  mb_convert_encoding() [<a href=\"https://extranet.virtual/function.mb-convert-encoding\">function.mb-convert-encoding</a>]: Illegal character encoding specified in <strong>/mnt/hgfs/svn/ezyield_v3/library/D2EApplication/_packages/PHPExcel/Shared/String.php</strong> on line <strong>233</strong><br> string(3) &quot;Tue&quot; string(5) &quot;UTF-8&quot; string(0) &quot;&quot; <br> <strong>Warning</strong>:  mb_convert_encoding() [<a href=\"https://extranet.virtual/function.mb-convert-encoding\">function.mb-convert-encoding</a>]: Illegal character encoding specified in <strong>/mnt/hgfs/svn/ezyield_v3/library/D2EApplication/_packages/PHPExcel/Shared/String.php</strong> on line <strong>233</strong></p>\r\n<p>It looks like every text string on the sheet is listed, but I've only given a sample here.</p>",
+    "PostedDate": "2009-07-01T05:08:03.157-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "207516",
+    "ThreadId": "61184",
+    "Html": "<p>Thanks, this is beginning to make sense. Looks like the Excel file is BIFF5, there are apparently some problematic character sets on Mac that are not supported by the conversion functions available in PHP. At least that is what I can read in the code comments.<br> <br> Can you try to locate this line within <span style=\"font-family:Courier New\">_readCodepage</span> in <span style=\"font-family:Courier New\">PHPExcel/Reader/Excel5.php</span> :<br> <br> <span style=\"font-family:Courier New\">switch ($codepage) {</span><br> <br> and replace it with<br> <br> <span style=\"font-family:Courier New\">var_dump($codepage); switch ($codepage) {</span><br> <br> and report back the result.</p>",
+    "PostedDate": "2009-07-01T06:09:58.23-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "207563",
+    "ThreadId": "61184",
+    "Html": "<p>Ah.&nbsp; Hmm...</p>\r\n<p>int(10000)</p>\r\n<p>So, 'Apple Roman', which isn't supported by iconv apparently.</p>",
+    "PostedDate": "2009-07-01T07:54:18.06-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "207572",
+    "ThreadId": "61184",
+    "Html": "<p>I just checked that. It appears after all to be supported by iconv. I think it may not have been supported previously.<br> <br> You can view supported character sets by typing this at the command prompt:<br> <span style=\"font-family:Courier New\">iconv -l</span><br> <br> Now, the problem is that PHPExcel is using mbstring as primary library to handle character set conversions. But mbstring does not support Mac OS Roman:<br> <a href=\"http://php.net/manual/en/mbstring.supported-encodings.php\">http://php.net/manual/en/mbstring.supported-encodings.php</a><br> <br> Your example tells us that we must update PHPExcel to give priority to iconv over mbsring. Will fix this today.</p>",
+    "PostedDate": "2009-07-01T08:09:23.977-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "207577",
+    "ThreadId": "61184",
+    "Html": "<p>Awesome!&nbsp; Thanks!</p>",
+    "PostedDate": "2009-07-01T08:20:02.793-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "207591",
+    "ThreadId": "61184",
+    "Html": "<p>Get patch here:<br> <a href=\"../WorkItem/View.aspx?WorkItemId=10229\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10229</a><br> <br> Or just wait and download source code release tomorrow:<br> <a href=\"../SourceControl/ListDownloadableCommits.aspx\">http://phpexcel.codeplex.com/SourceControl/ListDownloadableCommits.aspx</a></p>",
+    "PostedDate": "2009-07-01T09:00:12.79-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "615282",
+    "ThreadId": "61184",
+    "Html": "<p>I just downloaded the latest source code, which you supplied in the second link. However, the error that wccrawford names does still occur when I process an Excel xls created on a Mac.</p>",
+    "PostedDate": "2011-05-19T08:37:55.237-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "615308",
+    "ThreadId": "61184",
+    "Html": "<p>I just wanted to reiterate my thanks for the quick fix 2 years ago, and state that it did indeed solve my particular problem at the time. &nbsp;</p>\r\n<p>Unfortunately, I'm not in a position to test whether the bug is back, or it's something else this time. &nbsp;(I no longer have access to that code and materials.)</p>\r\n<p>I wasn't sure if that information would be useful for solving Curunir's problem, so I thought I'd post it just in case.</p>\r\n<p>Good luck!</p>",
+    "PostedDate": "2011-05-19T08:55:27.447-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "899517",
+    "ThreadId": "61184",
+    "Html": "\r\n<p>I'm still getting</p>\r\n<p>&quot;mb_convert_encoding(): Illegal character encoding specified - /.../PHPExcel/Classes/PHPExcel/Shared/String.php (501)&quot;</p>\r\n<p>in version v1.7.7</p>\r\n<p>&nbsp;</p>\r\n<p>Any ideas?</p>\r\n<p>&nbsp;</p>\r\n<p>Thanks in advance,</p>\r\n<p>Alex</p>\r\n",
+    "PostedDate": "2012-08-15T07:01:31.237-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "899606",
+    "ThreadId": "61184",
+    "Html": "<p>Suggests that either the fromEncoding value isn't correct for the encoding of the string, or that the toEncoding doesn't support one of the characters in the string, or that your system's <span class=\"productname\">libmbfl doesn't support the encoding</span>. Can you try putting some debug statements in to determine what encodings are being converted to what?</p>",
+    "PostedDate": "2012-08-15T09:51:12.787-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "899825",
+    "ThreadId": "61184",
+    "Html": "\r\n<p>In ConvertEncoding($value, $to, $from):</p>\r\n<p>$value is &quot;Ex-Europe 2013&quot;</p>\r\n<p>$to is &quot;UTF-8&quot;<br>\r\n$from is &quot;MAC&quot;</p>\r\n<p>Note: &quot;iconv -l&quot; lists both these.</p>\r\n<p>Note: $ port list | grep mbstring<br>\r\nphp54-mbstring&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; @5.4.5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lang/php<br>\r\nphp53-mbstring&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; @5.3.15&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lang/php<br>\r\nphp5-mbstring&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; @5.3.15&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; php/php5-mbstring</p>\r\n<p>The last one is being used I think:</p>\r\n<p>$ php --version<br>\r\nPHP 5.3.15 (cli) (built: Aug 16 2012 11:04:32)</p>\r\n",
+    "PostedDate": "2012-08-16T01:58:43.48-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "899928",
+    "ThreadId": "61184",
+    "Html": "<p>Ok, so I tried to switch my system to use php54 and that screwed everything up and I couldn't go back to an older version; so in the end I ended up deleting everything php in macports and starting over.</p>\r\n<p>And.. now it works! Aparently there was some conflict or too-old version of mbstring running or something?</p>\r\n<p>Anyway, thanks.</p>",
+    "PostedDate": "2012-08-16T07:05:45.483-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "907347",
+    "ThreadId": "61184",
+    "Html": "<p>It is ridiculous. I found that if you just want to read the data. Solution is</p>\r\n<p>Use Open Office to open the xls, and change the font to any font for the whole sheet, then you will be able to read the data.</p>\r\n<p>...</p>",
+    "PostedDate": "2012-09-01T11:44:36.687-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "907788",
+    "ThreadId": "61184",
+    "Html": "<p>Aaaand it's back :)</p>\r\n<p>DEBUG - 2012-09-03 15:44:35 --&gt; mb_convert_encoding-&gt;From: MAC To: UTF-8<br />DEBUG - 2012-09-03 15:44:35 --&gt; mb_convert_encoding(): Illegal character encoding specified - /Users/alex/src/osa/application/libraries/PHPExcel/Classes/PHPExcel/Shared/String.php (502)</p>\r\n<p>Really weird, didn't do anything to my config. Only thing I can think of is that the machine rebooted since last time I tried?</p>",
+    "PostedDate": "2012-09-03T06:48:35.977-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

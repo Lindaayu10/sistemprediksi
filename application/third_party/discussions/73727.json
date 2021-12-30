@@ -1,0 +1,98 @@
+[
+  {
+    "Id": "252108",
+    "ThreadId": "73727",
+    "Html": "<p><strong>phpexcel 1.7.1</strong></p>\r\n<p><strong>&nbsp;</strong></p>\r\n<p><strong>D:\\MYOA\\webroot\\module\\phpexcel\\Classes\\PHPExcel\\Calculation\\Functions.php</strong> on line <strong>10119</strong><br><br><strong>Warning</strong>: Invalid argument supplied for foreach() in <strong>D:\\MYOA\\webroot\\module\\phpexcel\\Classes\\PHPExcel\\Calculation\\Functions.php</strong> on line <strong>10126</strong><br><br><strong>Notice</strong>: Undefined variable: endColumnKey in <strong>D:\\MYOA\\webroot\\module\\phpexcel\\Classes\\PHPExcel\\Calculation\\Functions.php</strong> on line <strong>10130</strong></p>",
+    "PostedDate": "2009-11-01T03:09:33.19-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "252225",
+    "ThreadId": "73727",
+    "Html": "<p>Latest code (available tomorrow am) should work correctly with the OFFSET() function</p>",
+    "PostedDate": "2009-11-01T16:30:15.303-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "252390",
+    "ThreadId": "73727",
+    "Html": "<p>Thanks!</p>\r\n<p><span>use &quot;=offset(A5,0,3)&quot;, OK!</span></p>\r\n<p><span>but &quot;=SUM(C2:OFFSET(A2,0,3))&quot; error!</span></p>\r\n<p><span>&nbsp;</span></p>\r\n<p><span><strong>Fatal error</strong>: Uncaught exception 'Exception' with message 'Cell coordinate can not be zero-length string.' in D:\\MYOA\\webroot\\module\\phpexcel\\Classes\\PHPExcel\\Cell.php:517 Stack trace: #0 D:\\MYOA\\webroot\\module\\phpexcel\\Classes\\PHPExcel\\Calculation.php(2580): PHPExcel_Cell::coordinateFromString('') #1 D:\\MYOA\\webroot\\module\\phpexcel\\Classes\\PHPExcel\\Calculation.php(1935): PHPExcel_Calculation-&gt;_processTokenStack(Array, 'A12', Object(PHPExcel_Cell)) #2 D:\\MYOA\\webroot\\module\\phpexcel\\Classes\\PHPExcel\\Calculation.php(1802): PHPExcel_Calculation-&gt;_calculateFormulaValue('=SUM(C5:OFFSET(...', 'A12', Object(PHPExcel_Cell)) #3 D:\\MYOA\\webroot\\module\\phpexcel\\Classes\\PHPExcel\\Cell.php(301): PHPExcel_Calculation-&gt;calculateCellValue(Object(PHPExcel_Cell), true) #4 D:\\MYOA\\webroot\\module\\phpexcel\\Tests\\05featuredemo.inc.php(93): PHPExcel_Cell-&gt;getCalculatedValue() #5 {main} thrown in <strong>D:\\MYOA\\webroot\\module\\phpexcel\\Classes\\PHPExcel\\Cell.php</strong> on line <strong>517</strong></span></p>\r\n<p><span><strong>can your help me!</strong></span></p>",
+    "PostedDate": "2009-11-02T05:23:43.953-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "252409",
+    "ThreadId": "73727",
+    "Html": "<p>That formula is never going to work in PHPExcel without a complete rewrite of the calculation engine.</p>\r\n<p>All PHPExcel functions return values (or arrays of values), so&nbsp;OFFSET(A2,0,3) will return the contents of cell A5, which is normally the behaviour that is required when OFFSET() is used.</p>\r\n<p>SUM(C2:OFFSET(A2,0,3)) requires the OFFSET() function&nbsp;to return the cell reference for A5, not the value contained there, effectively giving you the formula SUM(C2:A5), so it all comes down to a question of context.</p>\r\n<p>&nbsp;</p>\r\n<p>Used in most contexts, OFFSET() should return values; but in a few contexts, it should return a reference instead. The parser in PHPExcel is a basic LR (Left to Right) parser rather than a more sophisticated LALR (Look-Ahead Left to Right) parser: the latter would be able to identify the context, and whether any given function should return a value of a reference; but this would require a lot more code to implement within the parser itself, and would come with a performance overhead (not to mention a complete rewrite of the function library as well).</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-11-02T06:14:34.003-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "252635",
+    "ThreadId": "73727",
+    "Html": "<p>thanks</p>\r\n<p>but : OFFSET(A2,0,3))=D2 or A5??</p>\r\n<p>if &quot;D2&quot; then &nbsp;SUM(C2:OFFSET(A2,0,3))-&gt;SUM(C2:D2)&nbsp; it's ok.&nbsp;</p>\r\n<p>if &quot;A5&quot; then SUM(C2:OFFSET(A2,0,3))-&gt;SUM(C2:A5) it's error.</p>\r\n<p>witch??</p>\r\n<p>in excel2003&nbsp;&nbsp;&nbsp; '=SUM(C2:OFFSET(A2,0,3))' is OK</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-11-02T19:24:14.717-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "252690",
+    "ThreadId": "73727",
+    "Html": "<p>Apologies, yes.</p>\r\n<p>Syntax for OFFSET is rows then columns rather than columns then rows, so OFFSET(A2,0,3))=D2</p>\r\n<p>But the fact still remains that (without significant rewrite of the calculation engine) PHPExcel returns the value of the cell, not the address/reference of the cell; but SUM(C2:OFFSET(A2,0,3)) requires the reference to give C2:D2</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-11-03T00:57:40.357-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "252701",
+    "ThreadId": "73727",
+    "Html": "<p>thanks!</p>\r\n<p>that SUM(C2:OFFSET(A2,0,3)) don't&nbsp; work work&nbsp;&nbsp;correctly in &nbsp;PHPExce?</p>\r\n<p>&nbsp;have other way?</p>",
+    "PostedDate": "2009-11-03T01:19:57.76-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "252711",
+    "ThreadId": "73727",
+    "Html": "<p>I'm looking at alternative possibilities</p>\r\n<p>Setting a cell (e.g. B1) value to</p>\r\n<pre>=&quot;C2:&quot;&amp;ADDRESS(ROW(A1)+0,COLUMN(A1)+3,4)</pre>\r\n<p>and then using</p>\r\n<pre>=SUM(INDIRECT(B1))</pre>\r\n<p>may work</p>\r\n<p>But I've not tested it yet</p>",
+    "PostedDate": "2009-11-03T01:37:41.667-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "252813",
+    "ThreadId": "73727",
+    "Html": "<p>OK</p>\r\n<p>thanks</p>\r\n<p>set 'P5'=SUM(D6:INDIRECT(ADDRESS(ROW(D6),COLUMN(D6)+5,4,1)));</p>\r\n<p>$ActiveSheet-&gt;getCell('P5')-&gt;getCalculatedValue() = <span style=\"color:#ff0000\">#N/A</span></p>\r\n<p><span style=\"color:#ff0000\">it's error</span></p>\r\n<p><span style=\"color:#ff0000\">why?</span></p>",
+    "PostedDate": "2009-11-03T06:20:35.09-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "252856",
+    "ThreadId": "73727",
+    "Html": "<blockquote style=\"border:solid .1em #ccc;font-style:italic;margin:.25em 1em 0 1em;padding:0 .25em 0 .25em\"><strong>tn987 wrote:</strong><br>\r\n<p>\r\n<p><span style=\"color:#ff0000\">&nbsp;</span></p>\r\n<span style=\"color:#ff0000\">it's error</span></p>\r\n<p><span style=\"color:#ff0000\">why?</span></p>\r\n</blockquote>\r\n<p>I have no idea why, I wasn't even sure whether it would retun anything or simply go into a permanent loop, although you haven't imlemented it as I expected.</p>\r\n<pre>=SUM(INDIRECT(&quot;D6:&quot;&amp;ADDRESS(ROW(D6),COLUMN(D6)+5,4,1)));</pre>\r\n<p>Without setting up a test spreadsheet and stepping through the code a line at a time, I'm unlikely to be able to provide you with an answer.</p>\r\n<p>&nbsp;</p>\r\n<p>While the PHPExcel calculation engine and function library attempts to replicate Excel's behaviour in most regards, we make no guarantess that it will work identically to Excel in every regard; and definitely not when using the more esoteric functions such as OFFSET and INDIRECT. I'll have a look and see what I can do, but to provide any solution I'm going to have to convert the calculation engine to a Look-Ahead parser, which is a complicated task, will take some time, and will adversely affect performance and memory usage.</p>",
+    "PostedDate": "2009-11-03T07:42:06.437-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "528970",
+    "ThreadId": "73727",
+    "Html": "\r\n<p>1 Year Later.</p>\r\n<p>Is there any OFFSET()&nbsp;functionality? Or an alternative?</p>\r\n",
+    "PostedDate": "2010-11-30T12:01:41.9-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "529096",
+    "ThreadId": "73727",
+    "Html": "\r\n<blockquote style=\"border:solid .1em #ccc; font-style:italic; margin:.25em 1em 0 1em; padding:0 .25em 0 .25em\">\r\n<strong>noeleri wrote:</strong><br>\r\n<p>1 Year Later.</p>\r\n<p>Is there any OFFSET()&nbsp;functionality? Or an alternative?</p>\r\n</blockquote>\r\n<p>&nbsp;Fixes were implemented to the OFFSET() in the 1.7.3 release. Do these solve your problem?</p>\r\n",
+    "PostedDate": "2010-11-30T15:19:52.027-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

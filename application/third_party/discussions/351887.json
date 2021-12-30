@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "822310",
+    "ThreadId": "351887",
+    "Html": "<p>Hi all!</p>\n<p>I've a problem trying to format this string (seems a float but it is a string code) in excel5:</p>\n<p>00.45984584</p>\n<p>as a text.</p>\n<p>I'm using Ubuntu 11.10 with PHPExcel 1.7.6 and LibreOffice Calc 3.4.4 OOO340m1 (Build:402) to test the script</p>\n<p>&nbsp;</p>\n<div style=\"color: black; background-color: white;\">\n<pre>&lt;?php\n<span style=\"color: blue;\">require_once</span> <span style=\"color: #a31515;\">'../Classes/PHPExcel.php'</span>;\n<span style=\"color: blue;\">require_once</span> <span style=\"color: #a31515;\">'../Classes/PHPExcel/IOFactory.php'</span>;\n\n$objPHPExcel = <span style=\"color: blue;\">new</span> PHPExcel();\n$objPHPExcel -&gt; setActiveSheetIndex(0);\n$sheetPHPExcel = $objPHPExcel -&gt; getActiveSheet();\n$sheetPHPExcel -&gt; getStyle(<span style=\"color: #a31515;\">'A'</span>) -&gt; getNumberFormat() -&gt; setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_TEXT);\n<span style=\"color: #008000;\">// PHPExcel_Cell::setValueBinder(new PHPExcel_Cell_AdvancedValueBinder());</span><br /><br />$cellCoord = <span style=\"color: #a31515;\">'A1'</span>;\n<span style=\"color: green;\">// $sheetPHPExcel -&gt; getStyle($cellCoord) -&gt; getNumberFormat() -&gt; setFormatCode('@');</span>\n$sheetPHPExcel -&gt; setCellValue($cellCoord, <span style=\"color: #a31515;\">\"000.10290\"</span>);\n\ndate_default_timezone_set(<span style=\"color: #a31515;\">'Europe/Rome'</span>);\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, <span style=\"color: #a31515;\">'Excel5'</span>);\n\n$filename = date(<span style=\"color: #a31515;\">'Y-m-d'</span>) . <span style=\"color: #a31515;\">\"_test.xls\"</span>;\nheader(<span style=\"color: #a31515;\">\"Pragma: public\"</span>);\nheader(<span style=\"color: #a31515;\">\"Expires: 0\"</span>);\nheader(<span style=\"color: #a31515;\">\"Cache-Control: must-revalidate, post-check=0, pre-check=0\"</span>);\nheader(<span style=\"color: #a31515;\">\"Content-Type: application/force-download\"</span>);\nheader(<span style=\"color: #a31515;\">\"Content-Type: application/octet-stream\"</span>);\nheader(<span style=\"color: #a31515;\">\"Content-Type: application/download\"</span>);\nheader(<span style=\"color: #a31515;\">\"Content-Disposition: attachment;filename=\"</span> . $filename);\nheader(<span style=\"color: #a31515;\">\"Content-Transfer-Encoding: binary \"</span>);\n$objWriter -&gt; save(<span style=\"color: #a31515;\">'php://output'</span>);\n?&gt;\n</pre>\n</div>\n<p>&nbsp;</p>\n<p>&nbsp;</p>\n<p>As you can see (commented in //) I'm trying to use all possible configurations but nothing worked for me.</p>\n<p>My final excel displays a float like 0,45984584 (here in Italy) cell (checking cell format it seems to be TEXT!!! Auch!). But this is a string code 00.45984584!</p>\n<p>So? Can someone help me?</p>",
+    "PostedDate": "2012-04-11T03:20:36.3-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "822550",
+    "ThreadId": "351887",
+    "Html": "<div style=\"background-color: white; color: black;\">\n<pre><div style=\"color: black; background-color: white;\"><pre>$sheetPHPExcel -&gt; setCellValueExplicit(\r\n    $cellCoord, \r\n    <span style=\"color: #a31515;\">\"000.10290\"</span>, \r\n    PHPExcel_Cell_DataType::TYPE_STRING\r\n);\r\n</pre>\n</div>\n</pre>\n</div>",
+    "PostedDate": "2012-04-11T12:26:26.627-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "822762",
+    "ThreadId": "351887",
+    "Html": "<p>Thank you for your answer!<br /><br />I tried this solution before, but the problem is that LibreOffice Calc 3.4.4 OOO340m1 (Build:402) displays the number correctly, but when you look at the cell content the value is:<br /><br />'000.10290<br /><br />with a leading ' (apostrophe).<br /><br />No other solutions?</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2012-04-12T00:15:13.523-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "822832",
+    "ThreadId": "351887",
+    "Html": "<p>That <strong>is </strong>the solution.... try entering a string&nbsp;containing \"000.10290\"&nbsp;manually in MS Excel or Open/Libre Office Calc or Gnumeric. They all require you to prefix it with ' to force it to be treated as a string... and in all cases it appears correctly in the sheet, and has a ' prefixed when you look at the cell contents. This is how all those spreadsheets work.</p>",
+    "PostedDate": "2012-04-12T03:44:15.453-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "822838",
+    "ThreadId": "351887",
+    "Html": "<p>Using format/cell in Libre Office -&gt; Text (code @) you can force a string&nbsp;containing \"000.10290\" to be 000.10290 without leading '</p>\n<p>Have a look at this file</p>\n<p><a title=\"test excel file\" href=\"http://wildnove.com/tests/2012-04-12_test-1.xls\" target=\"_blank\">http://wildnove.com/tests/2012-04-12_test-1.xls</a></p>\n<p>created with (your help)</p>\n<pre>$sheetPHPExcel -&gt; setCellValueExplicit(\n    'A1', \n    \"000.10290\", \n    PHPExcel_Cell_DataType::TYPE_STRING\n);</pre>\n<p>and then edited (the B1 cell) with LibreOffice Calc 3.4.4 OOO340m1 (Build:402).</p>\n<p>The two cells are different...</p>\n<p>Thank you for your patience</p>",
+    "PostedDate": "2012-04-12T03:54:58.103-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "823115",
+    "ThreadId": "351887",
+    "Html": "<p>The MS Excel GUI allows you to set a cell content that could otherwise be interpreted as a number, boolean, or date in two ways if you want it to remain text: either format the cell as Text and then enter your value, or prefix the value with a single quote when you enter it.</p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre><span style=\"color: green;\">// Add some data, we will force the datatype to string here</span>\r\n$objPHPExcel-&gt;getActiveSheet()\r\n    -&gt;setCellValueExplicit(\r\n        <span style=\"color: #a31515;\">'A1'</span>,\r\n        <span style=\"color: #a31515;\">'0123.456789'</span>,\r\n        PHPExcel_Cell_DataType::TYPE_STRING\r\n    )\r\n    -&gt;setCellValueExplicit(\r\n        <span style=\"color: #a31515;\">'B1'</span>,\r\n        <span style=\"color: #a31515;\">'0123.456789'</span>,\r\n        PHPExcel_Cell_DataType::TYPE_STRING\r\n&nbsp;&nbsp;&nbsp; -&gt;setCellValueExplicit(<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span style=\"color: #a31515;\">'C1'</span>,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span style=\"color: #a31515;\">'0123.456789'</span>,<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; PHPExcel_Cell_DataType::TYPE_STRING<br />    );\r\n<span style=\"color: green;\">// Set cell B1 to use General format explicitly</span><br />$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(<span style=\"color: #a31515;\">'B1'</span>)<br />&nbsp;&nbsp;&nbsp; -&gt;getNumberFormat()<br />&nbsp;&nbsp;&nbsp; -&gt;setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_GENERAL);\r\n<span style=\"color: green;\">// Set cell C1 to use Text format explicitly</span>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;getStyle(<span style=\"color: #a31515;\">'C1'</span>)\r\n    -&gt;getNumberFormat()\r\n    -&gt;setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_TEXT);\r\n</pre>\r\n</div>\r\n<p>When I open this file in MS Excel (2010), A1 is formatted \"General\" and has content \"0123.456789\", cell B1 is formatted \"General\" and has content \"0123.456789\", while cell C1 is formatted \"Text\" and has content \"0123.456789\". In all three cases, Excel has an information alert warning me that \"The number in this cell is formatted as text or preceded by an apostrophe\" and offering me the choice of converting to a number, ignore error, edit in formula bar, etc. All appear in the cell edit bar as \"0123.456789\".</p>\r\n<p>If I open the file in Gnumeric (v1.10.14), A1 is formatted \"General\" and has content \"0123.456789\", cell B1 is formatted \"General\" and has content \"0123.456789\", while cell C1 is formatted \"Text\" and has content \"0123.456789\". Cells A1 and B1 appear in the cell edit bar as \"'0123.456789\" (with a leading ') while cell C1 appears as \"0123.456789\" (without a leading ').</p>\r\n<p>If I open the file in&nbsp;Libre Office&nbsp;(v3.4.4), A1 is formatted \"Number/General\" and has content \"0123.456789\", cell B1 is formatted \"Number/General\" and has content \"0123.456789\", while cell C1 is formatted \"Text/@\" and has content \"0123.456789\". Cells A1 and B1 appear in the cell edit bar as \"'0123.456789\" (with a leading ') while cell C1 appears as \"0123.456789\" (without a leading ').</p>\r\n<p>Earlier version of Excel display the same behaviour as Gnumeric and Libre Office, with the cell edit bar showing the leading ' if the cell is formatted General (which is the default format unless Excel itself has specifically applied a formatting based on the content you entered into the cell such as converting to a date or percentage, etc).</p>",
+    "PostedDate": "2012-04-12T13:42:24.003-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "828837",
+    "ThreadId": "351887",
+    "Html": "<p>Thank you for the exhaustive response!</p>\r\n<p>Regards</p>\r\n<p>Marco</p>",
+    "PostedDate": "2012-04-26T03:12:30.477-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

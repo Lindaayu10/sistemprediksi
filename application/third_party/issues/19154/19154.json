@@ -1,0 +1,105 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I am using PHPExcel extension for read/write excel files. Now I have a problem with reading the date format from excel file. In the excel file, for the date column, the data is \"12/31/2012\". ie \"mm/dd/yyyy\".\n\n\n                $objPHPExcel = new PHPExcel();\n                $inputFileName = 'uploads/'.$filename;\n                $objPHPExcel = PHPExcel_IOFactory::load($inputFileName);\n                $sheetData = $objPHPExcel->getActiveSheet()->toArray(null, true, true, true);\n\n\nThis is the code I am using to read the excel file. When I print the $sheetData array, the date is showing as \"12-31-12\". ie, \"mm-dd-yy\"\n\nNote that, only some excel files are showing this strange result.",
+    "LastUpdatedDate": "2014-03-18T10:07:44.407-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2013-01-08T04:03:38.23-08:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Phpexcel Date Problem",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 3,
+    "Id": 19154
+  },
+  "FileAttachments": [],
+  "Comments": [
+    {
+      "Message": "Is the date held as a string or as an Excel datetime stamp value?",
+      "PostedDate": "2013-01-08T04:28:27.033-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Checked the Excel sheet and found that, it is datetime stamp. 12/31/2012. Strange thing is that, When I edit any other filed in that excel and save it. Then the parsing thing works perfectly. \r\n\r\nAlso I have created a new excel sheet and copied all the content from the excel( which makes issue) and checked the parsing. It works.",
+      "PostedDate": "2013-01-08T05:56:37.713-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Only some of the excel files are causing issue with the date field. Anyone know why this is happening?  ",
+      "PostedDate": "2013-01-08T23:26:50.263-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Can anybody tell me, \"12/31/2012\". ie \"mm/dd/yyyy\" field in Excel will become \"12-31-12\". ie, \"mm-dd-yy\" when I parse it. Anyone please help!",
+      "PostedDate": "2013-01-10T01:24:54.517-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "@MarkBaker I found a partial solution from the PHPExcel documentation.\r\n\r\n[code] PHPExcel_Cell::setValueBinder( new PHPExcel_Cell_AdvancedValueBinder() );\r\n\r\n$objPHPExcel->getActiveSheet()\n            ->getStyle('K2')\n            ->getNumberFormat()\n            ->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_DATE_XLSXCUSTOM);\r\n\r\n[/code]\r\n\r\nand in NumberFormat.php file, I have set the \r\n\r\n[code]\nconst FORMAT_DATE_XLSXCUSTOM\t\t\t= 'mm/dd/yyyy';\n[/code]\r\n\r\nBut, This is for only getStyle('K2').. that means,, K2,, there are so many K2, K3, etc... From the documentation, I came to know that, we can set a specific range, like getStyle('K2:K1000')... But how can I get the exact count \"K(n)\" cells.. means the (n)... Is there a method for that? ",
+      "PostedDate": "2013-01-18T04:39:01.86-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Got it.. \r\n\r\n          $highestRow = $objPHPExcel->getActiveSheet()->getHighestRow(); \r\n\r\nThe issue seems to be fixed now.",
+      "PostedDate": "2013-01-21T00:49:13.83-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-01-21T20:42:26.627-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-01-21T21:20:21.35-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:01:31.457-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I'm actually getting this same error and it is very annoying.\nOur site is using an import feature and using PHPExcel\nWell for some reason all the dates are being imported in MM-DD-YY format\nthis format FAILS in strtotime()\r\n\r\n i actually semi-fixed the problem using this: $date = DateTime::createFromFormat('m-d-y', $hm['birthday']);\r\n\r\nbut this \"guesses\" the year 2000 instead of 1900s for example 11-31-44 instead of 11/31/1944 it guesses 11/31/2044\r\n\r\nThis seems like a PHPExcel bug?? IS IT?? What can I do to fix this problem?",
+      "PostedDate": "2013-02-27T23:34:23.09-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Here is what I came up with to hackishly fix my problem. Keep in mind the user sets his own column for the date.\r\n\r\n```\n       if (preg_match('%(?P<month>[0-1]?[0-2])(-|/)(?P<day>[0-3][0-9])(-|/)(?P<shortyear>\\\\d\\\\d)%im', $hm['birthday'], $match)) {\n         //if last 2 digits is less than or equal to the current year, guess in the 2000s\n         if ($match['shortyear'] <= date('y')){\n           $prefix_year = '20';\n         }else{\n           //otherwise \"guess\" in the 1900s since it is a birthday\n           $prefix_year = '19';\n         }\n         $birthday = $match['month'].'/'.$match['day'].'/'.$prefix_year.$match['shortyear'];\n         $stt_bday = strtotime($birthday);\n      }else{\n         $stt_bday = strtotime($hm['birthday']);\n      }\n```",
+      "PostedDate": "2013-02-28T00:13:41.46-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-28T00:19:36.787-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "the previous review has a little error in preg_match:\r\n\r\n\nif (preg_match('%(?P<month>[0-1]?[0-__9__])(-|/)(?P<day>[0-3][0-9])(-|/)(?P<shortyear>\\\\d\\\\d)%im', $hm['birthday'], $match)) {\n         //if last 2 digits is less than or equal to the current year, guess in the 2000s\n         if ($match['shortyear'] <= date('y')){\n           $prefix_year = '20';\n         }else{\n           //otherwise \"guess\" in the 1900s since it is a birthday\n           $prefix_year = '19';\n         }\n         $birthday = $match['month'].'/'.$match['day'].'/'.$prefix_year.$match['shortyear'];\n         $stt_bday = strtotime($birthday);\n      }else{\n         $stt_bday = strtotime($hm['birthday']);\n      }",
+      "PostedDate": "2014-03-18T10:07:44.407-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

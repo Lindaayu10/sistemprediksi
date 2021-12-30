@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "563488",
+    "ThreadId": "245323",
+    "Html": "\r\n<p>Dear all,</p>\r\n<p>I have experienced a problem with loading a CSV file into an array when using the PHPExcel_Worksheet::toArray method. The &quot;empty cells&quot; were skipped, and as the array is numerical, this caused problems whit interpretation of the data. BTW: the same happens\r\n when the &quot;cell&quot; only containes a space.</p>\r\n<p>Example CSV file (cell C2 is empty):</p>\r\n<pre>A,B,C,D\r\n1,2,,4</pre>\r\n<p>PHP code:</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>$reader = <span style=\"color:blue\">new</span> PHPExcel_Reader_CSV();\r\n$e = $reader-&gt;load($f[<span style=\"color:#a31515\">'tmp_name'</span>]);\r\n$sheet = $e-&gt;getSheet(0);\r\n$data = $sheet-&gt;toArray(<span style=\"color:#a31515\">&quot;&quot;</span>,false,false);</pre>\r\n</div>\r\n<p>Result:</p>\r\n<pre>$data = Array(\r\n         0 =&gt; Array(\r\n               0 =&gt; 'A',\r\n               1 =&gt; 'B',\r\n               2 =&gt; 'C',\r\n               3 =&gt; 'D'\r\n         ),\r\n         1 =&gt; Array(\r\n               0 =&gt; 1,\r\n               1 =&gt; 2,\r\n               2 =&gt; 4\r\n         )\r\n)</pre>\r\n<p>I've tried to fix this with setting the delimiter, different encodings or the enclosure (which isn't there), but nothing made a difference. Ultimately I've decided to read the data by using the iterator methods, which worked, but that's a lot more to code...</p>\r\n<p>I do not have this problem with xls or xlsx files with empty cells.</p>\r\n<p>Have other also experienced this problem?</p>\r\n<p>Best regards,</p>\r\n<p>Henri</p>\r\n",
+    "PostedDate": "2011-02-09T11:32:15.55-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "563603",
+    "ThreadId": "245323",
+    "Html": "\r\n<p>This problem has been resolved in the latest SVN code.</p>\r\n<p>var_dump($data) returns:</p>\r\n<pre dir=\"ltr\"><strong>array</strong>\r\n  0 <span style=\"color:#888a85\">=&gt;</span> \r\n    <strong>array</strong>\r\n      0 <span style=\"color:#888a85\">=&gt;</span> &lt;small&gt;string&lt;/small&gt; <span style=\"color:#cc0000\">'A'</span> <em>(length=1)</em>\r\n      1 <span style=\"color:#888a85\">=&gt;</span> &lt;small&gt;string&lt;/small&gt; <span style=\"color:#cc0000\">'B'</span> <em>(length=1)</em>\r\n      2 <span style=\"color:#888a85\">=&gt;</span> &lt;small&gt;string&lt;/small&gt; <span style=\"color:#cc0000\">'C'</span> <em>(length=1)</em>\r\n      3 <span style=\"color:#888a85\">=&gt;</span> &lt;small&gt;string&lt;/small&gt; <span style=\"color:#cc0000\">'D'</span> <em>(length=1)</em>\r\n  1 <span style=\"color:#888a85\">=&gt;</span> \r\n    <strong>array</strong>\r\n      0 <span style=\"color:#888a85\">=&gt;</span> &lt;small&gt;float&lt;/small&gt; <span style=\"color:#f57900\">1</span>\r\n      1 <span style=\"color:#888a85\">=&gt;</span> &lt;small&gt;float&lt;/small&gt; <span style=\"color:#f57900\">2</span>\r\n      2 <span style=\"color:#888a85\">=&gt;</span> &lt;small&gt;string&lt;/small&gt; <span style=\"color:#cc0000\">''</span> <em>(length=0)</em>\r\n      3 <span style=\"color:#888a85\">=&gt;</span> &lt;small&gt;float&lt;/small&gt; <span style=\"color:#f57900\">4</span>\r\n</pre>\r\n",
+    "PostedDate": "2011-02-09T14:26:00.847-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "565053",
+    "ThreadId": "245323",
+    "Html": "<p>Thanks!</p>",
+    "PostedDate": "2011-02-12T01:00:45.927-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

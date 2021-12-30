@@ -1,0 +1,82 @@
+[
+  {
+    "Id": "709147",
+    "ThreadId": "282219",
+    "Html": "<p>Every sheet i export in pdf create an additional blank and empty page .... anyone know why?</p>\n<p>Even if i don't write values in cells that might be on a second page...</p>\n<p>&nbsp;</p>\n<p>&nbsp;&nbsp; $objPHPExcel-&gt;createSheet(NULL,1);<br /> &nbsp;&nbsp; $objPHPExcel-&gt;setActiveSheetIndex(1);<br /> &nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setTitle(\"mia_mia\");<br /> &nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('A1','2 sheet');<br /> &nbsp;&nbsp; $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('B2','2 sheet B2');</p>\n<p>&nbsp;&nbsp;&nbsp; $objWriter = new PHPExcel_Writer_PDF($objPHPExcel);<br /> &nbsp;&nbsp;&nbsp; $objWriter-&gt;writeAllSheets();<br /> &nbsp;&nbsp;&nbsp; $objWriter-&gt;save(\"antantan.pdf\");</p>\n<p>&nbsp;</p>\n<p>(edited) no matter how many pages has the document (2-3-4 ....) exporter adds one more blank page to every sheet...</p>\n<p>(ex: if i have 2 sheets...first with 2 pages of data and second with one page of data i will have a 5 page PDF )</p>",
+    "PostedDate": "2011-12-07T22:16:37.463-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "709683",
+    "ThreadId": "282219",
+    "Html": "<p>Seems like everyone has just renounced at the PDF functions of PHPExcel. All you guyz work with mPDF?</p>",
+    "PostedDate": "2011-12-08T21:58:25.197-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "709847",
+    "ThreadId": "282219",
+    "Html": "<p>Even I would renounce tcPDF if I could. mPDF is far better, and domPDF is also improving too... but the mPDF license means we can't switch to that without restricting the PHPExcel license as well, and domPDF isn't quite mature enough yet. I'm looking at a compromise where we allow you to specify which of the three libraries you want to use (but you'd need to install tcPDF, mPDF or domPDF yourself), and then remove the embedded PDF library completely from the PHPExcel distribution.</p>",
+    "PostedDate": "2011-12-09T05:40:02.787-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "710730",
+    "ThreadId": "282219",
+    "Html": "<p>Thanks :)....i'll have to go with mPDF considering that you guyz all recomended that. (including you Mark :) ).</p>\n<p>So....exporting to html and then using mPDF right.</p>\n<p>Could someone provide a few lines crashcourse if possible? Thanks :).</p>\n<p>Pretty please? ;;)</p>",
+    "PostedDate": "2011-12-11T22:03:50.607-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "710947",
+    "ThreadId": "282219",
+    "Html": "<p>Here is a basic HTML to mPDF...</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre><span style=\"color: blue;\">include</span>(<span style=\"color: #a31515;\">\"includes/mpdf/mpdf.php\"</span>);\r\n\r\n$mpdf = <span style=\"color: blue;\">new</span> mPDF(<span style=\"color: #a31515;\">'c'</span>, <span style=\"color: #a31515;\">'Letter-L'</span>);\r\n\r\n$mpdf-&gt;WriteHTML($html);\r\n\r\n$mpdf-&gt;Output();\r\n</pre>\r\n</div>\r\n</p>",
+    "PostedDate": "2011-12-12T08:07:34.177-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "711422",
+    "ThreadId": "282219",
+    "Html": "<p>That i can get from every website i find searching google for mPDF...</p>\r\n<p>i meant how to interrelate the PHPExcel obj with the mPDF library...</p>\r\n<p>output the HTML writer and then use it with WriteHTML? Or i have to manually form the html to be passed to mPDF? (separately from the already existant excel \"template\")</p>\r\n<p>P.S. It's plausible that i get on this discussion at heightened levels of tiredness and my comprehension levels drop to those of a 2'year old...so if that's the case excuse me :)</p>",
+    "PostedDate": "2011-12-13T05:53:04.037-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "712891",
+    "ThreadId": "282219",
+    "Html": "<p>I do it manually to fine-tune, but you can pass HTML made by PHPExcel right to it.</p>",
+    "PostedDate": "2011-12-15T12:19:58.76-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "838796",
+    "ThreadId": "282219",
+    "Html": "<p>Sorry for pushing this, but i have the exact same problem generating PDF from XLS.For every Page i generate, there is a blank one too.</p>\r\n<p>The Problem has nothing to do with my specific code because it happens actually with the demo scripts of phpexcel too.</p>\r\n<p>PHP: 5.3.9 - Zend Server 5.6.0</p>\r\n<p>Apache/2.2.20 (Ubuntu)</p>\r\n<p>I understand, that putting out HTML and then converting it to PDF with another library solves the Problem, but I kind of expect this to work out of the box ;)</p>\r\n<p>Any ideas? Thanks!</p>",
+    "PostedDate": "2012-05-21T01:56:25.747-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "852190",
+    "ThreadId": "282219",
+    "Html": "<p>I solved this problem for my self by changing the line in the PDF save function.</p>\r\n<p>Its in the Classes/PHPExcel/Writer/PDF.php file line 283.&nbsp;version<span> </span>1.7.6, 2011-02-27</p>\r\n<p>From:</p>\r\n<p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>$pdf-&gt;SetAutoPageBreak(true,$printMargins-&gt;getBottom() * 72);\r\n</pre>\r\n</div>\r\n</p>\r\n<p>To:</p>\r\n<p>\r\n<pre>$pdf-&gt;SetAutoPageBreak(false,$printMargins-&gt;getBottom() * 72);</pre>\r\n</p>",
+    "PostedDate": "2012-06-21T09:12:13.94-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "852359",
+    "ThreadId": "282219",
+    "Html": "<p>This should not be an issue in the latest develop branch code on github</p>",
+    "PostedDate": "2012-06-21T14:39:31.593-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

@@ -1,0 +1,116 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel_Writer_HTML",
+      "DisplayName": "PHPExcel_Writer_HTML"
+    },
+    "ClosedComment": "Fixed in SVN",
+    "ClosedDate": "2009-08-26T12:02:08.817-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "From thread:\nhttp://phpexcel.codeplex.com/Thread/View.aspx?ThreadId=66414\n----\n \nIn Excel it is possible to specify color in the number format. Example:\n \n0.00_ ;[Red]\\-0.00\\\n \nAllowed colors:\n[Black] [Blue] [Cyan] [Green] [Magenta] [Red] [White] [Yellow]\n \nWould it be possible to let the color show up in HTML/PDF output? Currently it doesn't.\n \nWe have PHPExcel_Style_NumberFormat::toFormattedString(), but it only returns the plain text result. No color.\n \n \nEnvironment:\n----\nPHPExcel 1.7.0",
+    "LastUpdatedDate": "2013-05-16T05:42:28.64-07:00",
+    "PlannedForRelease": "PHPExcel 1.7.1 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-08-20T17:42:28.84-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Colored number format support, e.g. [Red], in HTML/PDF output",
+    "Type": {
+      "Name": "Feature",
+      "Id": 1
+    },
+    "VoteCount": 1,
+    "Id": 10493
+  },
+  "FileAttachments": [
+    {
+      "FileId": 3309,
+      "FileName": "HTML.php",
+      "DownloadUrl": ".\\3309"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "Maarten, do you have a suggestion how to implement this?",
+      "PostedDate": "2009-08-20T17:43:40.683-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "This is somewhat related to the other work item on multiple number formats... http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10492\r\n\r\nAnyway: this should be possible in a few steps, I guess:\r\n- Not sure, but I think 2 sections is the maximum?\r\n- Check if we have a numeric value\r\n- If yes: check if it is < 0. If < 0, use the second part as format string. If not, use the first part.\r\n- When format string is determined, strip off the color code and format the value using the rest of the format string\r\n- Put a <span style=\"color: ....\"> around the value if a color code was specified.",
+      "PostedDate": "2009-08-20T22:48:48.12-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Ok, that means we can perhaps go for a solution with an extra switch at the end:\r\n\r\nPHPExcel_Style_NumberFormat::toFormattedString($string, $boolHTML = false)\r\n\r\nworking as follows:\r\n\r\n$boolHTML=true => return as HTML with <span> tag if there is an associated color\r\n$boolHTML=false => return as plain text with no color information\r\n\r\nThat way the function will be compatible with the earlier definition in case some are actually using it. I will look at this feature if that is a solution we can agree on.",
+      "PostedDate": "2009-08-20T22:57:38.857-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Wooops... I meant:\r\n\r\nPHPExcel_Style_NumberFormat::toFormattedString($string, $format, $boolHTML = false)",
+      "PostedDate": "2009-08-20T22:59:01.5-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Perhaps we should not use that switch :-) What if we had another file format that does not support <span> but uses <font color=x>?\r\n\r\nHow about: PHPExcel_Style_NumberFormat::toFormattedString($string, $format, $callBack = null)\r\n\r\n$callback could point to a function:\r\nfunction formatCallback($string, $format, $formattedString);\r\n\r\nformatCallback() will then be called with the same parameters as PHPExcel_Style_NumberFormat::toFormattedString(), and an extra parameter which is the output that PHPExcel_Style_NumberFormat::toFormattedString() would normally give. The callback can then add some extra processing to the format before PHPExcel_Style_NumberFormat::toFormattedString() returns the result.\r\n\r\nExample:\r\nPHPExcel_Style_NumberFormat::toFormattedString(-123, '0.00_ ;[Red]\\-0.00\\', array($htmlWriterInstance, 'formatColor'))\r\n--> performs formatting\r\n--> calls $htmlWriterInstance->formatColors(-123, '0.00_ ;[Red]\\-0.00\\', '[Red]-123,00')\r\n--> returns the callback function's result",
+      "PostedDate": "2009-08-21T01:26:01.81-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "This is much better! There was something I didn't like about the other solution, but I couldn't come up with this. Will try to implement it!",
+      "PostedDate": "2009-08-21T01:57:52.193-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Hey Guys.\r\nI was using PHPExcel and had the same issue with colored Numberformatting in HTMLWriter.\r\n\r\nI fixed it. You can try it out with following  edited HTML.php\r\n\r\nI added the following to the php file:\r\n\r\n\t\t\t\t\t\t// Convert UTF8 data to PCDATA\t\t\t\t\t\t\r\n\t\t\t\t\t\t// COLOR FILTERING\r\n\t\t\t\t\t\t\r\n\t\t\t\t\t\t$color = '';\r\n\t\t\t\t\t\t\r\n\t\t\t\t\t\t$color_regex = \"/^\\[[a-zA-Z]+\\]/\";\r\n\t\t\t\t\t\tif (preg_match($color_regex, $cellData, $matches)) {\r\n\t\t\t\t\t\t\t$color\t\t\t\t=\tstr_replace(\"[\", \"\", $matches[0]);\r\n\t\t\t\t\t\t\t$color\t\t\t\t=\tstr_replace(\"]\", \"\", $color);\r\n\t\t\t\t\t\t\t\r\n\t\t\t\t\t\t\t$cellData\t\t\t=\tpreg_replace($color_regex, \"\", $cellData);\r\n\t\t\t\t\t\t\t$cellData\t\t\t=\thtmlspecialchars($cellData);\r\n\t\t\t\t\t\t} else\r\n\t\t\t\t\t\t\t$cellData = htmlspecialchars($cellData);\r\n\r\n...\r\n...\r\n...\r\n\r\n\t\t\t\t\t// Cell data\r\n\t\t\t\t\tif (!empty($color))\r\n\t\t\t\t\t\t$html .= \"<span style=\\\"color: $color;\\\">\".$cellData.\"</span>\";",
+      "PostedDate": "2009-08-25T07:31:15.16-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-08-25T07:31:17.94-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-08-25T14:09:41.61-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "wega, thank you for your fix. I will try to generalize your patch according to comment by Maarten.",
+      "PostedDate": "2009-08-26T04:24:44.913-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-08-26T12:02:08.817-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Solution is looking good!",
+      "PostedDate": "2009-08-26T23:00:36.893-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:03:44.367-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:28.64-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

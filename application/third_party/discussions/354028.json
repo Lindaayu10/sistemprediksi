@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "830238",
+    "ThreadId": "354028",
+    "Html": "\r\n<p>Hello.</p>\r\n<p>I am having difficulty writing a particular formula to a spreadsheet with PHPExcel. The formula is part of a Bloomberg add-on tool for Excel, for example the Excel formula to return the last trading price of Apple stock is given by:</p>\r\n<p></p>\r\n<pre><div style=\"color:black; background-color:white\"><pre>=BDP(<span style=\"color:#a31515\">&quot;AAPL US Equity&quot;</span>,<span style=\"color:#a31515\">&quot;px last&quot;</span>)\r\n</pre>\r\n</div>\r\n<br></pre>\r\n<p></p>\r\n<p>This formula works fine and well in my Excel, but trying to insert this formula via PHPExcel throws the following error:</p>\r\n<table dir=\"ltr\" border=\"1\" cellspacing=\"0\" cellpadding=\"1\">\r\n<tbody>\r\n<tr>\r\n<th colspan=\"5\" align=\"left\"><span>( ! )</span>&nbsp;Fatal error: Uncaught exception 'Exception' with message 'Worksheet!B1 -&gt; Formula Error: Unexpected ,' in C:\\wamp\\www\\handbook\\Classes\\PHPExcel\\Cell.php on line&nbsp;<em>288</em></th>\r\n</tr>\r\n<tr>\r\n<th colspan=\"5\" align=\"left\"><span>( ! )</span>&nbsp;Exception: Worksheet!B1 -&gt; Formula Error: Unexpected , in C:\\wamp\\www\\handbook\\Classes\\PHPExcel\\Cell.php on line&nbsp;<em>288</em></th>\r\n</tr>\r\n<tr>\r\n<th colspan=\"5\" align=\"left\">Call Stack</th>\r\n</tr>\r\n<tr>\r\n<th align=\"center\">#</th>\r\n<th align=\"left\">Time</th>\r\n<th align=\"left\">Memory</th>\r\n<th align=\"left\">Function</th>\r\n<th align=\"left\">Location</th>\r\n</tr>\r\n<tr>\r\n<td align=\"center\" bgcolor=\"#eeeeec\">1</td>\r\n<td align=\"center\" bgcolor=\"#eeeeec\">0.0006</td>\r\n<td align=\"right\" bgcolor=\"#eeeeec\">721352</td>\r\n<td bgcolor=\"#eeeeec\">{main}( )</td>\r\n<td title=\"C:\\wamp\\www\\handbook\\include\\buy.php\" bgcolor=\"#eeeeec\">..\\buy.php<strong>:</strong>0</td>\r\n</tr>\r\n<tr>\r\n<td align=\"center\" bgcolor=\"#eeeeec\">2</td>\r\n<td align=\"center\" bgcolor=\"#eeeeec\">0.1517</td>\r\n<td align=\"right\" bgcolor=\"#eeeeec\">10394960</td>\r\n<td bgcolor=\"#eeeeec\">PHPExcel_Writer_Excel2007-&gt;save( )</td>\r\n<td title=\"C:\\wamp\\www\\handbook\\include\\buy.php\" bgcolor=\"#eeeeec\">..\\buy.php<strong>:</strong>89</td>\r\n</tr>\r\n<tr>\r\n<td align=\"center\" bgcolor=\"#eeeeec\">3</td>\r\n<td align=\"center\" bgcolor=\"#eeeeec\">0.1929</td>\r\n<td align=\"right\" bgcolor=\"#eeeeec\">10737456</td>\r\n<td bgcolor=\"#eeeeec\">PHPExcel_Writer_Excel2007_Worksheet-&gt;writeWorksheet( )</td>\r\n<td title=\"C:\\wamp\\www\\handbook\\Classes\\PHPExcel\\Writer\\Excel2007.php\" bgcolor=\"#eeeeec\">\r\n..\\Excel2007.php<strong>:</strong>266</td>\r\n</tr>\r\n<tr>\r\n<td align=\"center\" bgcolor=\"#eeeeec\">4</td>\r\n<td align=\"center\" bgcolor=\"#eeeeec\">0.1934</td>\r\n<td align=\"right\" bgcolor=\"#eeeeec\">10737968</td>\r\n<td bgcolor=\"#eeeeec\">PHPExcel_Writer_Excel2007_Worksheet-&gt;_writeSheetData( )</td>\r\n<td title=\"C:\\wamp\\www\\handbook\\Classes\\PHPExcel\\Writer\\Excel2007\\Worksheet.php\" bgcolor=\"#eeeeec\">\r\n..\\Worksheet.php<strong>:</strong>82</td>\r\n</tr>\r\n<tr>\r\n<td align=\"center\" bgcolor=\"#eeeeec\">5</td>\r\n<td align=\"center\" bgcolor=\"#eeeeec\">0.1982</td>\r\n<td align=\"right\" bgcolor=\"#eeeeec\">10823048</td>\r\n<td bgcolor=\"#eeeeec\">PHPExcel_Writer_Excel2007_Worksheet-&gt;_writeCell( )</td>\r\n<td title=\"C:\\wamp\\www\\handbook\\Classes\\PHPExcel\\Writer\\Excel2007\\Worksheet.php\" bgcolor=\"#eeeeec\">\r\n..\\Worksheet.php<strong>:</strong>930</td>\r\n</tr>\r\n<tr>\r\n<td align=\"center\" bgcolor=\"#eeeeec\">6</td>\r\n<td align=\"center\" bgcolor=\"#eeeeec\">0.1983</td>\r\n<td align=\"right\" bgcolor=\"#eeeeec\">10823176</td>\r\n<td bgcolor=\"#eeeeec\">PHPExcel_Cell-&gt;getCalculatedValue( )</td>\r\n<td title=\"C:\\wamp\\www\\handbook\\Classes\\PHPExcel\\Writer\\Excel2007\\Worksheet.php\" bgcolor=\"#eeeeec\">\r\n..\\Worksheet.php<strong>:</strong>984</td>\r\n</tr>\r\n</tbody>\r\n</table>\r\n<p>&nbsp;</p>\r\n<p>Here is the relevant section of my code:</p>\r\n<p></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><span style=\"color:green\">// $new_ref is a reference number</span>\r\n$cell_ticker = sprintf(<span style=\"color:#a31515\">'A'</span>.$new_ref);\r\n$cell_value = sprintf(<span style=\"color:#a31515\">'B'</span>.$new_ref);\r\n\r\n$formula = sprintf(<span style=\"color:#a31515\">'=BDP('</span>.$cell_ticker.<span style=\"color:#a31515\">',&quot;px last&quot;)'</span>);\r\n\r\n$objSheet-&gt;getCell($cell_ticker)-&gt;setValue($ticker);\r\n$objSheet-&gt;getCell($cell_value)-&gt;setValue($formula);\r\n        \r\n<span style=\"color:green\">// write the file</span>\r\n$objWriter-&gt;save(<span style=\"color:#a31515\">'valuations.xlsx'</span>);\r\n</pre>\r\n</div>\r\n<p></p>\r\n<p>I know that the formula DOES work in my Excel (since I have the Bloomberg add-on installed), so I just need PHPExcel to stop throwing this error, and write the formula as it is! Why doesn't it like the comma?</p>\r\n<p>&nbsp;</p>\r\n<p>I am using version PHPExcel Version 1.7.6 and PHP version 5.3.8 (local WAMP server).</p>\r\n<p>&nbsp;</p>\r\n<p>Any help would be really appreciated.&nbsp;Thanks,</p>\r\n<p>Ian</p>\r\n",
+    "PostedDate": "2012-04-30T08:46:15.81-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "830970",
+    "ThreadId": "354028",
+    "Html": "<p>Add-ins function packages are not supported, so PHPExcel doesn't recognise the function as it's a non-standard function.</p>\r\n<p>By default, when writing a workbook, PHPExcel pre-calculates all formulae in the workbook, so it's trying to calculate the BDP function and failing because it isn't a valid (standard) function. Try diabling pre-calculation in your writer before saving.</p>\r\n<div style=\"color: black; background-color: white;\">\r\n<pre>$objWriter-&gt;setPreCalculateFormulas(FALSE);\r\n</pre>\r\n</div>\r\n<p>However, because PHPExcel discards any features that it doesn't understand, it's probable that you'll lose the Bloomberg add-on tools.</p>",
+    "PostedDate": "2012-05-02T00:55:33.653-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "831561",
+    "ThreadId": "354028",
+    "Html": "<p>Thanks for your reply Mark.</p>\r\n<p>Just as you said, this did allow PHPExel to write the formula in, though when I open the spreadsheet it is there as text, rather than automatically calculates the value of the formula. Plus, it has the rather unfortunate side-effect of deleting all of the other BDP formulas already in the spreadsheet!! So I am guessing there is probably no solution to my problem.&nbsp;Thanks anyway for your help.</p>",
+    "PostedDate": "2012-05-03T04:36:35.557-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1364775",
+    "ThreadId": "354028",
+    "Html": "Hello!\r<br />\n<br />\nHas anyone found the solution for this?<br />\n",
+    "PostedDate": "2015-03-16T15:00:31.293-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1364938",
+    "ThreadId": "354028",
+    "Html": "There is no solution in PHPExcel, unless either I or somebody else writes it, and I'be never seen any sign of anybody else trying to make any changes to support external formulae.<br />\n",
+    "PostedDate": "2015-03-16T15:38:05.827-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

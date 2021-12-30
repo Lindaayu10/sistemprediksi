@@ -1,0 +1,24 @@
+Index: Classes/PHPExcel/Cell/AdvancedValueBinder.php
+===================================================================
+--- Classes/PHPExcel/Cell/AdvancedValueBinder.php	(revision 893)
++++ Classes/PHPExcel/Cell/AdvancedValueBinder.php	(working copy)
+@@ -78,12 +78,19 @@
+ 			
+ 			// Check for date
+ 			if (strtotime($value) !== false) {
++				// make sure we have UTC for the sake of strtotime
++				$saveTimeZone = date_default_timezone_get();
++				date_default_timezone_set('UTC');
++				
+ 				// Convert value to Excel date
+ 				$cell->setValueExplicit( PHPExcel_Shared_Date::PHPToExcel(strtotime($value)), PHPExcel_Cell_DataType::TYPE_NUMERIC);
+ 				
+ 				// Set style
+ 				$cell->getParent()->getStyle( $cell->getCoordinate() )->getNumberFormat()->setFormatCode( PHPExcel_Style_NumberFormat::FORMAT_DATE_YYYYMMDD2 );
+ 				
++				// restore original value for timezone
++				date_default_timezone_set($saveTimeZone);
++				
+ 				return true;
+ 			}
+ 		}

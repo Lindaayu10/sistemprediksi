@@ -1,0 +1,26 @@
+diff --git a/classes/phpexcel/shared/drawing.php b/classes/phpexcel/shared/drawing.php
+index 85c847b..8b51a01 100644
+--- a/classes/phpexcel/shared/drawing.php
++++ b/classes/phpexcel/shared/drawing.php
+@@ -71,17 +71,15 @@ class PHPExcel_Shared_Drawing
+ 		// Font name and size
+ 		$name = $pDefaultFont->getName();
+ 		$size = $pDefaultFont->getSize();
++		$width = PHPExcel_Shared_Font::$defaultColumnWidths[$name][$size]['width'];
++		$px = PHPExcel_Shared_Font::$defaultColumnWidths[$name][$size]['px'];
+ 		if (isset(PHPExcel_Shared_Font::$defaultColumnWidths[$name][$size])) {
+ 			// Exact width can be determined
+-			return $pValue
+-				* PHPExcel_Shared_Font::$defaultColumnWidths[$name][$size]['width']
+-				/ PHPExcel_Shared_Font::$defaultColumnWidths[$name][$size]['px'];
++			return $pValue * $width / $px ;
+ 		} else {
+ 			// We don't have data for this particular font and size, use approximation by
+ 			// extrapolating from Calibri 11
+-			return $pValue * 11
+-				* PHPExcel_Shared_Font::$defaultColumnWidths['Calibri'][11]['width']
+-				/ PHPExcel_Shared_Font::$defaultColumnWidths['Calibri'][11]['px'] / $size;
++			return ($pValue * 11 * $width / $px) / $size;
+ 		}
+ 
+ 	}

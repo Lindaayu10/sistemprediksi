@@ -1,0 +1,111 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "Fixed in SVN",
+    "ClosedDate": "2010-10-12T11:54:30.07-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I downloaded 1.7.4 and I'm having trouble reading values from an excel file where cells contain one character strings.\n \nHere's a testcase I'm using:\n \n\t$phpExcelObj = new PHPExcel();\n\t$excel = new PHPExcel();\n\t$worksheet = $excel->getActiveSheet();\t\n\t$worksheet->getCell('A1')->setValue('A');\n\t$worksheet->getCell('B1')->setValue('B');\n\t$worksheet->getCell('C1')->setValue('C1');\n\t$worksheet->getCell('D1')->setValue('D1');\n \n\tvar_dump($worksheet->getCell('A1')->getValue());\n\tvar_dump($worksheet->getCell('B1')->getValue());\n\tvar_dump($worksheet->getCell('C1')->getValue());\n\tvar_dump($worksheet->getCell('D1')->getValue());\n \nI'm expecting this:\n \nstring(1) \"A\" \nstring(1) \"B\" \nstring(2) \"C1\" \nstring(2) \"D1\" \n \nbut am seeing this:\n \nstring(0) \"\" \nstring(0) \"\" \nstring(2) \"C1\" \nstring(2) \"D1\" \n \nThanks for looking into this.",
+    "LastUpdatedDate": "2013-05-16T05:41:51.983-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2010-09-13T14:44:11.147-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Trouble reading one character string",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 14233
+  },
+  "FileAttachments": [
+    {
+      "FileId": 4842,
+      "FileName": "bugTestNew.php",
+      "DownloadUrl": ".\\4842"
+    },
+    {
+      "FileId": 4850,
+      "FileName": "String.php",
+      "DownloadUrl": ".\\4850"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "Executed the following code:\r\n\r\n$objPHPExcel = new PHPExcel();\r\n$objPHPExcel->setActiveSheetIndex(0);\r\n\r\n$worksheet = $objPHPExcel->getActiveSheet();\r\n$worksheet->getCell('A1')->setValue('A');\r\n$worksheet->getCell('B1')->setValue('B');\r\n$worksheet->getCell('C1')->setValue('C1');\r\n$worksheet->getCell('D1')->setValue('D1');\r\n\r\nvar_dump($worksheet->getCell('A1')->getValue());\r\nvar_dump($worksheet->getCell('B1')->getValue());\r\nvar_dump($worksheet->getCell('C1')->getValue());\r\nvar_dump($worksheet->getCell('D1')->getValue());\r\n\r\n\r\nExpected:\r\n\r\nstring(1) \"A\"\r\nstring(1) \"B\"\r\nstring(2) \"C1\"\r\nstring(2) \"D1\"\r\n\r\n\r\nResult:\r\n\r\nstring(1) \"A\"\r\nstring(1) \"B\"\r\nstring(2) \"C1\"\r\nstring(2) \"D1\"\r\n\r\nCan you please double check your results. There is no logical reason why PHPExcel should handle cells containing a single character any differently to multiple characters... to PHP (and correspondingly to PHPExcel) it is just a string.\r\nI've attached my test file for you to compare with your own",
+      "PostedDate": "2010-09-14T02:24:15.26-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I ran you code and received the same output as when I ran it.\r\n\r\nstring(0) \"\" \r\nstring(0) \"\" \r\nstring(2) \"C1\" \r\nstring(2) \"D1\"\r\n\r\nI'm wondering now if maybe something is wrong with our php environment. I'm attempting to run this code on another machine to see what happens.",
+      "PostedDate": "2010-09-14T09:50:05.313-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I ran your test case on another machine and got the correct results. I think something wrong on the machine I was testing on originally. Thanks for looking at this with me.",
+      "PostedDate": "2010-09-14T13:54:33.257-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-09-16T06:22:13.233-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I have the same bug with version 1.7.4\r\nI have php 5.2.0 it's iconv_substr('A', 0, 1, 'UTF-8') bug\r\nYou must change the PHPExcel/Shared/String.php with the file attach\r\nThe only change is line 306\r\nif (!@iconv('UTF-8', 'UTF-16LE', 'x')) {\r\nto\r\nif (!@iconv_substr('A', 0, 1, 'UTF-8')) {",
+      "PostedDate": "2010-09-16T06:22:14.373-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Thank you gorfou... I could have spent ages trying to track that problem down, especially as every test environment that I use (while I have various versions of PHP on both Linux and Windows) doesn't seem subject to this bug. Not sure how it managed to escape notice, especially as the comment in the code has the correct test. I've fixed it in the SVN code...\r\n\r\nI'll be interested to learn if this is the root cause of the 31 character sheet name bug... PHP using the wrong character count in PHPExcel_Shared_String::CountCharacters because the script is using iconv_strlen() when it shouldn't be.",
+      "PostedDate": "2010-09-16T09:53:21.273-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-09-16T09:53:49.777-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Please read the comment \"gorfou  wrote Sep 16 at 9:22 AM\"\r\n\r\nYou must change the PHPExcel/Shared/String.php with the file attach\r\nThe only change is line 306\r\nif (!@iconv('UTF-8', 'UTF-16LE', 'x')) {\r\nto\r\nif (!@iconv_substr('A', 0, 1, 'UTF-8')) { \r\n\r\n\r\nIt even shows the correct code in the comments on line 304.",
+      "PostedDate": "2010-09-28T06:57:17.027-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "My apologies. MarkBaker, you have already acknowledged the fix. I was reading the comments in the wrong order.",
+      "PostedDate": "2010-09-29T06:00:15.397-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-10-12T11:54:30.07-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:02:45.18-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:41:51.983-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "682064",
+    "ThreadId": "275305",
+    "Html": "\r\n<p>Hello,</p>\r\n<p>I have a few questions but first of all, I think this question should be put in the &quot;General questions&quot; part. But where can I find the &quot;general question&quot; part/menu item? Ooh I believe that I see it, is it the 'User Forum'?</p>\r\n<p>I have download the 1.7.6, the 1.7.6 with documentation and the PEAR...</p>\r\n<p>I'm using XAMMP and I have a Linux hosting provider. But how do I implement the library? Where can I find this documentation. I think I have to copy it somewhere in the PHP/PEAR directory but I'm not shure.</p>\r\n<p>I'm reading the documentation and I see the there for example: &quot;See Examples/Reader/exampleReader16.php for a working example of this code.&quot;\r\n<strong>But where can I find these examples</strong>, so that I can see how it works? Or do I not looking good?</p>\r\n<p><strong>Then my real question is:</strong></p>\r\n<p>I webmaster of a volleybal club. The member registration is done in excel. I'm writing now a login-, uploading-, and downloading script. I want also that if somebody uploads the member excel file, he can press on button &quot;update site&quot; then the excel file\r\n must converted to csv and then I have a php mysql script which filling the table members.</p>\r\n<p>Question is: Is it posible without opening the xls member file&nbsp; to this to a&nbsp; member .csv file? Or if I want to have it in csv then I to read the cell content so as written in the documentation, write this in memory or to a csv file, and then run\r\n my MySQL script?</p>\r\n<p>I hope that someone can help me</p>\r\n<p>Thanks in advance.</p>\r\n<p>Nico</p>\r\n<div></div>\r\n",
+    "PostedDate": "2011-10-10T05:35:26.987-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "682066",
+    "ThreadId": "275305",
+    "Html": "<p>try looking in the /docs dir for docs, or perhaps the /examples dir for examples.</p>\r\n<p>&nbsp;</p>\r\n<p>The whole idea of a library is that you don't have to implement it, you can just use its functionality. As for your site, I seems unlogical to convert an excel spreadsheet to a csv file and then import that. i would rather just read the xls file, and write the values straight to the database.</p>",
+    "PostedDate": "2011-10-10T05:39:43.337-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "682075",
+    "ThreadId": "275305",
+    "Html": "<p>I have find the file install.txt and I think I can handle it now by myself.</p>\n<p>Ooh that's better idea yeah in stead of converting the excel to csv:</p>\n<p>for (\"all members\") {</p>\n<p>mysql_query(\"INSERT INTO members (id, name, street,&nbsp; etc) VALUES ('','\" . $name . \"', '\" . $street . \"', '\" . $etc . \"', '\" . etc . \"')\");</p>\n<p>}</p>",
+    "PostedDate": "2011-10-10T05:56:39.77-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "682079",
+    "ThreadId": "275305",
+    "Html": "<p>remember to implement proper escaping and input validation (or else you leave yourself open to all kind of nastiness, remember little Bobby Tables). Either use for example mysql_real_escape_string and something like sprintf to build your queries, or use a more sophisticated db layer like php's PDO.</p>\r\n<p>&nbsp;</p>\r\n<p>Have a look in the Tests dir for some examples (for example 07reader.php)</p>",
+    "PostedDate": "2011-10-10T06:08:44.957-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "682085",
+    "ThreadId": "275305",
+    "Html": "<p>I have programming experience but I'm certainly not a guru at PHP. But do you mean like this:</p>\r\n<p>....&nbsp; VALUES ('','\" . mysql_real_escape_string($name) . \"', '\" . mysql_real_escape_string($street) . \"', '\" . $etc</p>\r\n<p>Or do you mean something else? No I don't remember little Bobby Tables? I will google on \"building queries sprintf\" and \"PHP PDO\", because I don't know what that is.</p>",
+    "PostedDate": "2011-10-10T06:18:40.877-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "682089",
+    "ThreadId": "275305",
+    "Html": "<p>for bobby tables I refer to xkcd &nbsp;:)</p>\n<p><a href=\"http://xkcd.com/327/\">http://xkcd.com/327/</a></p>\n<p>&nbsp;</p>\n<p>example of pdo:</p>\n<p>&nbsp;</p>\n<div style=\"color: black; background-color: white;\">\n<pre>$db = <span style=\"color: blue;\">new</span> PDO(<span style=\"color: #a31515;\">'mysqli://dbserver/db'</span>, <span style=\"color: #a31515;\">'root'</span>, <span style=\"color: #a31515;\">'secretpw'</span>);\n\n$stmt = $fb-&gt;prepare(<span style=\"color: #a31515;\">'INSERT INTO sometable(name, address) VALUES(:name, :address)'</span>);\n$stmt-&gt;bindParam(<span style=\"color: #a31515;\">':name'</span>, $name);\n$stmt-&gt;bindParam(<span style=\"color: #a31515;\">':address'</span>, $address);\n$stmt-&gt;execute();\n</pre>\n</div>\n<p>&nbsp;</p>\n<p>This will make sure different data types are properly inserted. If you really want to stick to the procedural functions, then mysql_real_escape_string() is the way to go. Remember to use the link resource returned by mysql_connect, so real_escape_String  actually knows the parameters of your db connection.</p>",
+    "PostedDate": "2011-10-10T06:27:29.037-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "683094",
+    "ThreadId": "275305",
+    "Html": "<p>Hello borft,</p>\n<p>In the meantime I have read a tutorial about PDO and I'm gonna use it in combination with PHPExcel. I have found the examples etc.</p>\n<p>Thanks for the advise/tip</p>\n<p>Nico</p>",
+    "PostedDate": "2011-10-12T05:50:04.357-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

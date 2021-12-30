@@ -1,0 +1,71 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel",
+      "DisplayName": "PHPExcel"
+    },
+    "ClosedComment": "",
+    "ClosedDate": "2010-05-11T00:59:12.027-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "When using PHPExcel on IBM AIX, its iconv() calls will not work as intended.\n \nThis was discovered in phpMyAdmin bug #2974687 (https://sourceforge.net/tracker/index.php?func=detail&aid=2974687&group_id=23067&atid=377408) where Excel workbook exports of table contents got no column names on the first line, cell data was missing here and there (especially if containing non-ASCII characters) and warnings from Excel that something was not quite right with the XLS/XLSX file.\n \nOur current setup is AIX 5.3, PHP 5.2.13, phpMyAdmin 3.3.1 (PHPExcel 1.7.0 according to PHPExcel.php header).\n \nThe easy workaround is to make sure that PHPExcel falls back to mbstring or other methods for its string manipulations when all the following critera are met:\n \n* PHP is running on operating system \"AIX\"\n* The iconv implementation is reported as \"unknown\"\n* The iconv version is reported as \"unknown\"\n \n...which indicates the IBM AIX version of iconv.\n \nAttaching a simple patch to Shared/String.php which addresses this.\nPlease note that if one does have the GNU version of iconv on AIX, the \"disabling\" of the patch will (automatically) not apply and iconv() will be functional and used.",
+    "LastUpdatedDate": "2017-11-27T22:26:12.203-08:00",
+    "PlannedForRelease": "PHPExcel 1.7.3 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2010-04-07T08:00:53.7-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "IBM AIX iconv() will not work, should revert to mbstring etc. instead",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 12538
+  },
+  "FileAttachments": [
+    {
+      "FileId": 4133,
+      "FileName": "String.php.diff",
+      "DownloadUrl": ".\\4133"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "Thanks, the fix has been applied.",
+      "PostedDate": "2010-04-07T18:05:23.94-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2010-05-11T00:59:12.027-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:03:03.17-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:02.36-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2017-11-27T22:26:12.203-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

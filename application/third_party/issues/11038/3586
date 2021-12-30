@@ -1,0 +1,61 @@
+180a181,238
+> 	function unichr($u) {
+>     		return mb_convert_encoding('&#' . intval(hexdec($u)) . ';', 'UTF-8', 'HTML-ENTITIES');
+> 	}
+> 
+> 	private function decodeSylkString($sylkString) {
+> 		$accents = array('a' => array('', 'E0', 'E1', '', '', '', '', '',
+> 						'E4', '', '', '', '', '', '', ''),
+> 				'e' => array('', 'E8', 'E9',  '', '', '', '', '',
+> 						'CB', '', '', '', '', '', '', ''),
+> 				'o' => array('', 'F2', 'F3', '', '', '', '', '',
+> 						'F6', '', '', '', '', '', '', ''),
+> 				'u' => array('', 'F9', 'FA', '', '', '', '', '',
+> 						'FC', '', '', '', '', '', '', ''),
+> 				'A' => array('', 'C0', 'C1', '', '', '', '', '',
+> 						'C4', '', '', '', '', '', '', ''),
+> 				'E' => array('', 'C8', 'C9', '', '', '', '', '',
+> 						'C4', '', '', '', '', '', '', ''),
+> 				'O' => array('', 'D2', 'D3', '', '', '', '', '',
+> 						'D6', '', '', '', '', '', '', ''),
+> 				'U' => array('', 'D9', 'DA', '', '', '', '', '',
+> 						'DC', '', '', '', '', '', '', ''),
+> 				' ' => array('', '60', 'B4', '', '', '', '', '',
+> 						'', '', '', '', '', '', '', ''));
+> 		$specialChars = array('7B' => 'DF');
+> 		$decString = '';
+> 		$startPos = 0;
+> 		while (($pos = strpos($sylkString, chr(27).'N', $startPos)) != FALSE){
+> 			$decString .= substr($sylkString, $startPos, $pos - $startPos);
+> 			$mod = ord($sylkString[$pos+2]);
+> 			if ($mod >= hexdec('40') && $mod <= hexdec('4F')) {
+> 				$idx = $mod - hexdec('40');
+> 				$baseChar = $sylkString[$pos+3];
+> 				$char = $baseChar;
+> 				if (isset($accents[$baseChar]) && !empty($accents[$baseChar][$idx])) {
+> 					$char = $this->unichr($accents[$baseChar][$idx]);
+> 				} else {
+> 					echo "<missing Accent: ".dechex($mod).", $baseChar, $pos>$sylkString\n";
+> 				}
+> 				$decString .= $char;
+> 				$startPos = $pos + 4; 
+> 			} else if (($mod >= hexdec('21') && $mod <= hexdec('3F')) ||
+> 				($mod >= hexdec('50') && $mod <= hexdec('7E'))){ 
+> 				$char = '';
+> 				if (isset($specialChars[strtoupper(dechex($mod))])) {
+> 					$char = $this->unichr($specialChars[strtoupper(dechex($mod))]);
+> 				} else {
+> 					echo "<missing special character: ".dechex($mod).", $pos>$sylkString\n";
+> 				}
+> 				$decString .= $char;
+> 				$startPos = $pos + 3; 
+> 			}
+> 		}
+> 		if ($decString == '') {
+> 			return $sylkString;
+> 		} else {
+> 			return $decString.substr($sylkString, $startPos);
+> 		}
+> 	}
+339a398
+> 				$cellData = $this->decodeSylkString($cellData);

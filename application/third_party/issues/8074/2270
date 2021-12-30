@@ -1,0 +1,86 @@
+Index: Classes/PHPExcel/ReferenceHelper.php
+===================================================================
+--- Classes/PHPExcel/ReferenceHelper.php	(revision 629)
++++ Classes/PHPExcel/ReferenceHelper.php	(working copy)
+@@ -98,6 +98,7 @@
+ 		foreach ($aTemp as $key => $value) {
+ 			$aCellCollection[$key] = clone $value;
+ 		}*/
++		$pSheet->sortCellCollection();
+ 		$aCellCollection = $pSheet->getCellCollection();
+ 
+     	// Get coordinates of $pBefore
+Index: Classes/PHPExcel/Worksheet.php
+===================================================================
+--- Classes/PHPExcel/Worksheet.php	(revision 629)
++++ Classes/PHPExcel/Worksheet.php	(working copy)
+@@ -340,6 +340,33 @@
+ 	}
+ 
+ 	/**
++	 * Sort the collection of cells
++	 */
++	public function sortCellCollection()
++	{
++        if (!$this->_cellCollectionIsSorted) {
++		    // uasort is very slow, use a key sort to improve speeds.
++			$indexed = array();
++			foreach (array_keys($this->_cellCollection) as $index) {
++				$rowNum = $this->_cellCollection[$index]->getRow();
++				$colNum = PHPExcel_Cell::columnIndexFromString($this->_cellCollection[$index]->getColumn());
++
++				// Columns are limited to ZZZ (18278), so 20000 is plenty to assure no conflicts
++				$key =  $rowNum * 20000 + $colNum;
++
++				$indexed[$key] = $index;//&$this->_cellCollection[$index];
++			}
++			ksort($indexed);
++			// rebuild cellCollection from the sorted index
++			$newCellCollection = array();
++		    foreach($indexed as $index) {
++		        $newCellCollection[$index] = $this->_cellCollection[$index];
++			}
++			$this->_cellCollection = $newCellCollection;
++        }
++	}
++
++	/**
+ 	 * Get collection of cells
+ 	 *
+ 	 * @return PHPExcel_Cell[]
+@@ -349,12 +376,6 @@
+         // Garbage collect...
+         $this->garbageCollect();
+ 
+-        // Re-order cell collection?
+-        if (!$this->_cellCollectionIsSorted) {
+-        	uasort($this->_cellCollection, array('PHPExcel_Cell', 'compareCells'));
+-			$this->_cellCollectionIsSorted = true;
+-        }
+-
+ 		return $this->_cellCollection;
+ 	}
+ 
+@@ -775,6 +796,10 @@
+      */
+     public function getCell($pCoordinate = 'A1')
+     {
++    	if (is_string($pCoordinate) && isset($this->_cellCollection[ $pCoordinate ])) {
++    		return $this->_cellCollection[ $pCoordinate ];
++    	}
++
+     	// Worksheet reference?
+ 		if (strpos($pCoordinate, '!') !== false) {
+ 			$worksheetReference = PHPExcel_Worksheet::extractSheetTitle($pCoordinate, true);
+Index: Classes/PHPExcel/Writer/Excel2007/StringTable.php
+===================================================================
+--- Classes/PHPExcel/Writer/Excel2007/StringTable.php	(revision 629)
++++ Classes/PHPExcel/Writer/Excel2007/StringTable.php	(working copy)
+@@ -76,6 +76,7 @@
+ 			$aFlippedStringTable = $this->flipStringTable($aStringTable);
+ 			
+ 	        // Loop trough cells
++	        $pSheet->sortCellCollection();
+ 	        $cellCollection = $pSheet->getCellCollection();
+ 	        foreach ($cellCollection as $cell) {
+ 	        	if (!is_object($cell->getValue()) &&

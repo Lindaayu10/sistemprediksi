@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "682517",
+    "ThreadId": "275437",
+    "Html": "\r\n<p>First of all, thank you for this great library!</p>\r\n<p><br>\r\nNow, to my problem.</p>\r\n<p>Let's say we have an Excel file with multiple sheets and there are merged cells in all sheets. The following works as expected:</p>\r\n<p></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre>$objWriter-&gt;writeAllSheets();\r\n<span style=\"color:blue\">print</span> $objWriter-&gt;generateSheetData();\r\n</pre>\r\n</div>\r\n<p></p>\r\n<p>But when you generate HTML only for selected sheet (for example in a loop), colspans and rowspans are rendered correctly only for the first sheet:</p>\r\n<p></p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre style=\"color:black\"><span style=\"color:blue\">for</span>($i = 0; $i &lt; $sheet_count; $i&#43;&#43;) {\r\n  $objWriter-&gt;setSheetIndex($i);<br><span style=\"color:blue\">  print </span>$objWriter-&gt;generateSheetData();</pre>\r\n<pre>}</pre>\r\n</div>\r\n<p></p>\r\n<p>It seems like one way to fix this is to locate function generateSheetData() in HTML.php and change this line:<br>\r\n</p>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><span style=\"color:blue\">if</span> (!$this-&gt;_spansAreCalculated) {\r\n</pre>\r\n</div>\r\n<br>\r\nto this:<br>\r\n<div style=\"color:black; background-color:white\">\r\n<pre><span style=\"color:blue\">if</span> ($this-&gt;_sheetIndex !== null || !$this-&gt;_spansAreCalculated) {\r\n</pre>\r\n</div>\r\n<br>\r\n<br>\r\nIs there a bug or am I using this library in a wrong way?\r\n<p></p>\r\n",
+    "PostedDate": "2011-10-11T04:24:51.72-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1478929",
+    "ThreadId": "275437",
+    "Html": "Yes! This completely solved an issue I was having where I needed to be able to specify which sheets I was outputting, and the merged cells weren't resulting in colspans on any but the first sheet. Thank you paulih.\r<br />\n<br />\nPlease, someone, add this fix to the production code.<br />\n",
+    "PostedDate": "2016-07-14T09:21:21.42-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

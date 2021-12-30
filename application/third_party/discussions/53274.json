@@ -1,0 +1,74 @@
+[
+  {
+    "Id": "179227",
+    "ThreadId": "53274",
+    "Html": "So it seems that CakePHP causes problems when trying to use PHPExcel.  If I run the following function outside of cakePHP it works fine.  The instant i place it in cake, when excel trys to open the file it says &quot;Excel cannot open the file'MyDB.xlsx' because the file format or file extension is not valid.  Verify the file has not been corrupted and that the extension matches the format of the file.&quot;  Now with the one not living inside of cake I'm able to unzip the file and see all the xml files inside.  The one that comes from cake has a corrupt zip file. <br>\r\n<br>\r\nMy question, does anyone know how to debug that?  I know it's not my php install's fault because the script works outside of cakePHP.  Any feedback would be greatly appreaciated.<br>\r\n<br>\r\n&lt;pre&gt;<br>\r\n<p>                require_once 'PHPExcel.php';</p>\r\n<p>                /** PHPExcel_Cell_AdvancedValueBinder */<br>\r\n                require_once 'PHPExcel/Cell/AdvancedValueBinder.php';</p>\r\n<p>                /** PHPExcel_IOFactory */<br>\r\n                require_once 'PHPExcel/IOFactory.php';</p>\r\n<p>                // Set value binder<br>\r\n                PHPExcel_Cell::setValueBinder( new PHPExcel_Cell_AdvancedValueBinder() );</p>\r\n<p>                // Create new PHPExcel object<br>\r\n                $objPHPExcel = new PHPExcel();<br>\r\n                $objPHPExcel-&gt;getProperties()-&gt;setTitle(&quot;My DB Export&quot;);<br>\r\n                $objPHPExcel-&gt;getProperties()-&gt;setSubject(&quot;My DB Export&quot;);<br>\r\n                $objPHPExcel-&gt;getProperties()-&gt;setKeywords(&quot;My DB office 2007 openxml php&quot;);</p>\r\n<p>                // Add some data<br>\r\n                $objPHPExcel-&gt;setActiveSheetIndex(0);</p>\r\n<p>                $hfer = '&amp;C&amp;HExported from My DB Unclassified/FOUO';<br>\r\n                $objPHPExcel-&gt;getActiveSheet()-&gt;getHeaderFooter()-&gt;setOddHeader($hfer);<br>\r\n                $objPHPExcel-&gt;getActiveSheet()-&gt;getHeaderFooter()-&gt;setOddFooter($hfer);</p>\r\n<p>                $objPHPExcel-&gt;getActiveSheet()-&gt;setCellValue('A1','MaitrePylos');</p>\r\n<p>                // redirect output to client browser</p>\r\n<p>                header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');<br>\r\n                header('Content-Disposition: attachment;filename=&quot;MyDB.xlsx&quot;');<br>\r\n                header('Cache-Control: max-age=0');</p>\r\n<p>                $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');<br>\r\n                $objWriter-&gt;save('php://output');<br>\r\n&lt;/pre&gt;</p>\r\n",
+    "PostedDate": "2009-04-14T14:09:56.837-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "179244",
+    "ThreadId": "53274",
+    "Html": "I didn't implement in my project, but the following piece of code seems to work:<div><br></div><div>&lt;?php</div><div><div>//the constant VENDORS should be the path we want</div><div>//but cake was setting it incorrectly</div><div>$vendorPath = APP . 'vendors'. DS;</div><div>ini_set('include_path', ini_get('include_path') . PATH_SEPARATOR . $vendorPath);</div><div><br></div><div>App::import('Vendor', 'phpexcel', array('file' =&gt; 'PHPExcel.php'));<br></div><div>App::import('Vendor', 'phpexcelwriter', array('file' =&gt; 'PHPExcel'.DS.'Writer'.DS.'Excel2007.php')); // loads PHPExcel/Writer/Excel2007.php</div><div><br></div><div>// Create new PHPExcel object</div><div>$objPHPExcel = new PHPExcel();</div><div><br></div><div>/* </div><div> * Your code goes here</div><div> */</div><div>?&gt;</div><div><br></div><div>Hope this helps</div></div>",
+    "PostedDate": "2009-04-14T15:00:41.177-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "179263",
+    "ThreadId": "53274",
+    "Html": "Don't get me wrong, the code runs just fine, but the file it outputs is a corrupt zip file.\r\n",
+    "PostedDate": "2009-04-14T15:33:39.11-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "179312",
+    "ThreadId": "53274",
+    "Html": "did some more investigating.  The file is created fine, but when it gets sent to the browser it gets truncated.  So it's either a timeout issue, or a buffer issue..\r\n",
+    "PostedDate": "2009-04-14T17:57:01.67-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "228246",
+    "ThreadId": "53274",
+    "Html": "<p>Hi, analogrithems</p>\r\n<p>Not sure you have solved the problem or not. After a little trial-and-error, I found the problem is the header() part. After adding the following, it seemed to work ok.</p>\r\n<p>header('Content-Length: ' . filesize('filepath/filename'));</p>\r\n<p>Good luck,</p>\r\n<p>Tony</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2009-08-26T23:03:45.73-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "434206",
+    "ThreadId": "53274",
+    "Html": "<p>I just wanted to state that I have tried to implement PHPExcel in CakePHP and am having the exact same issue.&nbsp; There is a <a title=\"Simple Excel Spreadh Sheet Helper at the bakery\" href=\"http://bakery.cakephp.org/articles/view/simple-excel-spreadsheet-helper\">CakePHP helper</a> that uses PHPExcel so I know it can work, but I have no idea why the author's installation works and not mine.&nbsp; I am running the same version of CakePHP - 1.2.4.&nbsp; Any suggestions?</p>",
+    "PostedDate": "2010-04-22T06:57:37.023-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "434278",
+    "ThreadId": "53274",
+    "Html": "<p>Alright this was my solution:</p>\r\n<p>There was a space after a closing ?&gt; tag in one of my component files that was adding a space to the beginning of my view.&nbsp; This space was throwing off the output and corrupting the file.</p>",
+    "PostedDate": "2010-04-22T10:23:24.29-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "563190",
+    "ThreadId": "53274",
+    "Html": "\r\n<p>bbdanzig, could you explain what spaces in what component files ?? I seem to be facing the same issue.</p>\r\n",
+    "PostedDate": "2011-02-09T02:26:03.567-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "583940",
+    "ThreadId": "53274",
+    "Html": "<p>Thank tou bbdanzig, I had the same trouble.</p>\r\n<p>If I included/required a specific file (that contained only a class) the file had problems. If I saved the file in Excel5 format it would be corrupt when opened and in 2007 format it wouldn't open at all.</p>\r\n<p>After reading some other ppl having the same problem, I opened the 2007 version in Notepad... to my surprise the beginning of the file had 3 spaces before any content. Upon deleting them, the file was OK.</p>\r\n<p>So I started too look in my class file for the spaces but they were nowhere to be found. It was only until I read your last reply that I realised to look after the ?&gt; . It would seem that they were taken as html and included in the xls.</p>\r\n<p>So... thank you again :)</p>",
+    "PostedDate": "2011-03-21T12:52:58.493-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

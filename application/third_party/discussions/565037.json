@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "1298451",
+    "ThreadId": "565037",
+    "Html": "<pre><code>The constructor of PHPExcel_Chart_DataSeriesValues is:\n\nconstruct   (       \n$dataType = self::DATASERIES_TYPE_NUMBER,\n$dataSource = null,\n$formatCode = null,\n$pointCount = 0,\n$dataValues = array(),\n$marker = null \n)</code></pre>\n\nI try to insert formatCode in this way:<br />\n<pre><code>$xAxisTickValues = array(\nnew PHPExcel_Chart_DataSeriesValues('String', 'worksheet!$A$2:$A$9', 'yyyy-mm-dd hh:mm:ss', NULL, 4));</code></pre>\n\nbut it does not work? what is wrong here?\r<br />\n<br />\nI use PHPExcel_Chart_DataSeries::TYPE_SCATTERCHART.\r<br />\n<br />\nWhen I not use 'formatCode' my x-axis shows raw excel datetimes: 41760,41761..,and so on?instead of 2014-05-01 00:00:00,2014-05-01 12:00:00,..,\r<br />\n<br />\nDoes anyone have an good example on how to insert date and time on the x-axis in PHPExcel?\r<br />\nsee my chart on stackoverflow:<a href=\"http://stackoverflow.com/questions/25618255/set-datetime-on-x-axis-in-phpexcel\" rel=\"nofollow\">TEXT</a><br />\n",
+    "PostedDate": "2014-09-03T00:30:51.663-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1298545",
+    "ThreadId": "565037",
+    "Html": "I found a solution by making a hack in PHPExcel/Writer/Excel2007/Chart.php line 493<br />\n<pre><code>    //$objWriter-&gt;writeAttribute('formatCode', &quot;General&quot;);\n       $objWriter-&gt;writeAttribute('formatCode', &quot;dd/mm/yy\\ hh:mm:ss;@&quot;);</code></pre>\n\nChange the formatCode to  &quot;dd/mm/yy\\ hh:mm:ss;@&quot;\r<br />\nbut why is &quot;General&quot; hard-coded !?<br />\n",
+    "PostedDate": "2014-09-03T05:42:51.723-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

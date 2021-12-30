@@ -1,0 +1,146 @@
+[
+  {
+    "Id": "60298",
+    "ThreadId": "18404",
+    "Html": "\r\nPlease check your e-mail or contact me.<br />",
+    "PostedDate": "2007-11-28T12:00:27.76-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "98505",
+    "ThreadId": "18404",
+    "Html": "Hi maartenba,<br>\r\n<br>\r\nAfter experiencing several memory issues myself and looking around the discussion board this particular discussion seems the most appropriate to follow up on. I'll suffice to say that I run into memory problems too in sheets with only a few hundred cells.<br>\r\n<br>\r\nWas there any follow up on retiolum's suggestion?<br>\r\n<br>\r\nJuice <br>\r\n<br>\r\nedit: a few thousand cells, not a few hundred\r\n",
+    "PostedDate": "2008-06-12T10:37:42.34-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "98535",
+    "ThreadId": "18404",
+    "Html": "Retiolum's solution was indeed a good one, but was breaking object references in some occasions. Still looking for a good shot on memory usage...\r\n",
+    "PostedDate": "2008-06-12T12:58:39.583-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "98553",
+    "ThreadId": "18404",
+    "Html": "Thanks for the info Maarten,<br>\r\n<br>\r\nIs it possible for you to give me a bit of guidance as to where (say, a class / method reference) object reference breaking would occur or a specific section where you are looking at improving memory usage? After spending some time on the net your package seems to outperform anything else I've seen and between building something of my own (ouch!) and helping something good get better I would rather pick the latter. I'll be happy to spend some time looking for solutions and any directions into localizing the issue would be very helpful.<br>\r\n<br>\r\n11 columns with 500 rows with border style and fill style still fail here on memory issues. Without the styles it works fine (or at least doesn't hit a ceiling yet) so it helps some and localizes somewhat. Is styles and the creation of circular references where I need to be looking for improving memory management?<br>\r\n<br>\r\nJuice<br>\r\n<br>\r\n",
+    "PostedDate": "2008-06-12T14:12:24.927-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "98643",
+    "ThreadId": "18404",
+    "Html": "You can write some __destruct() functions on classes like Worksheet, Cell and Style which destroy parent/child relations.&nbsp;This helps memory management (a few kilobytes on 05featuredemo.php).\r\n",
+    "PostedDate": "2008-06-12T23:43:54.82-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "98647",
+    "ThreadId": "18404",
+    "Html": "Thanks for the pinpoint. Makes sense.&nbsp;I'll look into it and see I can produce some results.<br>\r\n<br>\r\nJuice\r\n",
+    "PostedDate": "2008-06-12T23:55:41-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "98917",
+    "ThreadId": "18404",
+    "Html": "<p>Hi Maarten,</p>\r\n<p>I set out for some research on memory consumption in PHPExcel. I’ll share with you what I found assuming that some of it must be old news to you. Appologies for that. Consider it catching up.</p>\r\n<p>I followed your lead and looked for circular references. Before I did that however I made sure that I was actually getting memory errors that I could search for. The following code does just that:</p>\r\n<blockquote dir=ltr style=\"margin-right:0px\">\r\n<p>$objPHPExcel = new PHPExcel();<br>\r\n$objPHPExcel-&gt;setActiveSheetIndex(0);</p>\r\n<p>echo memory_get_usage().&quot;\\n&quot;;</p>\r\n<p>$objPHPExcel-&gt;getActiveSheet()-&gt;duplicateStyleArray(<br>\r\n&nbsp;&nbsp; array('fill'&nbsp;&nbsp;&nbsp; =&gt; array(<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'type'&nbsp;&nbsp;&nbsp; =&gt; PHPExcel_Style_Fill::FILL_SOLID,<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'color'&nbsp;&nbsp; =&gt; array('argb' =&gt; 'FFCCFFCC')),<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'borders' =&gt; array(<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'left'&nbsp;&nbsp;&nbsp; =&gt; array('style' =&gt; PHPExcel_Style_Border::BORDER_THIN),<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'right'&nbsp;&nbsp; =&gt; array('style' =&gt; PHPExcel_Style_Border::BORDER_THIN),<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 'bottom'&nbsp; =&gt; array('style' =&gt; PHPExcel_Style_Border::BORDER_THIN))<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ),<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;A1:K500&quot;<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; );</p>\r\n</blockquote>\r\n<p>If I run this I get:</p>\r\n<blockquote dir=ltr style=\"margin-right:0px\">\r\n<p>3435512 <br>\r\nFatal error: Allowed memory size of 33554432 bytes exhausted (tried to allocate 288 bytes) in C:\\xampp\\htdocs\\libraries\\PHPExcel\\Style\\Border.php on line 340</p>\r\n</blockquote>\r\n<p>I ran through the code, constructs and methods, and found two circular references:</p>\r\n<blockquote dir=ltr style=\"margin-right:0px\">\r\n<p dir=ltr>- PHPExcel-&gt;_workSheetCollection references PHPExcel_Worksheet objects and they all reference back to the PHPExcel object through their _parent property.<br>\r\n- PHPExcel_Worksheet-&gt;_cellCollection references PHPExcel_Cell objects and they all reference back to the PHPExcel_Worksheet object through their _parent property.</p>\r\n</blockquote>\r\n<p>So, basically, if we were to do the following:</p>\r\n<blockquote dir=ltr style=\"margin-right:0px\">\r\n<p>$obj = new PHPexcel();<br>\r\n... fill lots of cells or make lots of worksheets ...<br>\r\nunset($obj)</p>\r\n</blockquote>\r\n<p>then the whole Workbook would stay in memory because of the circular references that still exist. Bad.</p>\r\n<p>We could ofcourse work around this by introducing a Destroy method in PHPExcel which we call ourselves, much like C++'s delete (I know it's yuk and not PHP style but I'm trying to figure out what works first, then what works best)</p>\r\n<blockquote dir=ltr style=\"margin-right:0px\">\r\n<p>PHPExcel::Destroy() {<br>\r\n&nbsp;&nbsp; foreach($this-&gt;_workSheetCollection as $index =&gt; $dummy) {<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $this-&gt;_workSheetCollection[$index]-&gt;Destroy();<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $this-&gt;_workSheetCollection[$index] = null;<br>\r\n&nbsp;&nbsp; }<br>\r\n}</p>\r\n<p>PHPExcel_Worksheet::Destroy() {<br>\r\n&nbsp;&nbsp; foreach($this-&gt;_cellCollection as $index =&gt; $dummy) {<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $this-&gt;_cellCollection[$index] = null;<br>\r\n&nbsp;&nbsp; }<br>\r\n}</p>\r\n</blockquote>\r\n<p>I made a test file to verify this and it appears to work. It makes sense for it to work as we ask the owner of a collection to break the circle for each child. Sure, it's not in line with PHP's garbage collection (not needing programmers intervention and all) but it may give some folks an exit strategy for their memory problems and it does not interfere with the existing API. Also, even if PHP's GC ever gets better this code may become useless, but never invalid. (BTW, after doing a few tests it seems to me that doing something in __destruct() may be an additional option but the real issue at hand seems to be that either something (PHP's GC) or somebody (the programmer) has to initiate the destruct sequence to begin with. Only then will __destruct() be called.)<br>\r\n<br>\r\nMy problem with this solution, however, is that it fixes a problem that is not causing my memory failure :( After all, this only applies if we want to get rid of the Workbook and my code is nowhere near trying to get rid of the Workbook. It already fails at duplicateStyleArray(). I actually removed the circular references from the PHPExcel and PHPExcel_Workbook code (and commented out code that required the reference) and I still get the error. The trace goes PHPExcel::getActiveSheet()-&gt;PHPExcel_Worksheet::duplicateStyleArray()-&gt;PHPExcel_Worksheet::duplicateStyleArray()-&gt;PHPExcel_Worksheet::getStyle() and that's where the memory consumptions appears to come into display. The lines...</p>\r\n<blockquote dir=ltr style=\"margin-right:0px\">\r\n<p dir=ltr style=\"margin-right:0px\">...<br>\r\n$this-&gt;getCell($pCellCoordinate);<br>\r\n...<br>\r\n$newStyle = clone $this-&gt;getDefaultStyle();<br>\r\n...</p>\r\n</blockquote>\r\n<p>...basically cause a whole lot of objects to be created through constructors and the cloning of the default style. Nothing gets deleted, nowhere, so we don't want any refcount to get to 0 so I'm not worried about circular references here. What I do see is that A1:K500 is 5500 cells in total which amounts to:</p>\r\n<blockquote dir=ltr style=\"margin-right:0px\">\r\n<p>- 5.500 PHPExcel_Cell class objects<br>\r\n- 5.500 PHPExcel_Style&nbsp;class objects<br>\r\n- 5.500 PHPExcel_Style_Fill&nbsp;class objects<br>\r\n- 5.500 PHPExcel_Style_Font&nbsp;class objects<br>\r\n- 5.500 PHPExcel_Style_Borders&nbsp;class objects<br>\r\n- 38.500 PHPExcel_Style_Border&nbsp;class objects<br>\r\n- 5.500 PHPExcel_Style_Alignment&nbsp;class objects<br>\r\n- 5.500 PHPExcel_Style_NumberFormat&nbsp;class objects<br>\r\n- 5.500 PHPExcel_Style_Protection&nbsp;class objects<br>\r\n- 55.000 PHPExcel_Style_Color&nbsp;class objects</p>\r\n</blockquote>\r\n<p dir=ltr>Equals 137.500 class objects to populate 5500 cells. With available memory taken into account each object should be no more than (33554432 - 3435512) / 137.500 = 219 bytes each on average including overhead.</p>\r\n<p>So, one thing would be to increase memory. I tuned a bit and found that the above code works fine if the memory_limit directive is set to 57M. So effectively each object consumes (59768832 - 3435512) / 137.500 = 410 bytes each on average including overhead.</p>\r\n<p>And... that doesn't sound too odd, given the wealth of options one can configure for each cell.</p>\r\n<p>All in all, it seems to me that:</p>\r\n<blockquote dir=ltr style=\"margin-right:0px\">\r\n<p>A) The problem of circular references appears solvable. What I suggest is not necessarily beautiful, however practical. Truth is, I believe 99% of PHPExcel users will not have multiple iterations of creation and destruction of PHPExcel or PHPExcel_Workbook objects within the scope of a single HTTP Request. So, I am suggestion that they may not even be running the consequences of poor GC by PHP at all.</p>\r\n<p>B) We all need to get more memory or alternatively we find a way to reduce the number of PHPExcel_Style_* objects or make each of them smaller in size. I do have some ideas that could work like on-demand-creation and so forth but before I elaborate I rather fully understand the issue we're dealing with.</p>\r\n</blockquote>\r\n<p>That's all I have for now.</p>\r\n<p>Compliments on the code. I enjoyed reading it and I'm amazed by the functionality.</p>\r\n<p>I'm looking forward to hearing your thoughts.</p>\r\n<p>Juice</p>\r\n<p>PS: Is this the proper place to continue this discussion?</p>\r\n",
+    "PostedDate": "2008-06-14T15:16:12.083-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "99010",
+    "ThreadId": "18404",
+    "Html": "This is the proper place, but I suggest we continue this by e-mail.\r\n",
+    "PostedDate": "2008-06-15T23:20:47.737-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "154916",
+    "ThreadId": "18404",
+    "Html": "How do I implement this stuff? I coded an app that creates a sheet from a template, and while testing (5 sheet) it worked decent, but trying real data (15) it takes for ever :( Whats the best way to increase performance on something like my code below. The php.ini memory is set for 750mb, but the server memory doesn't seem to be the prob, its 100% CPU usage.<br>\r\n<br>\r\nHeres the output first number is the time through the loop, second is elapsed:<br>\r\nStarting Build <br>\r\nThis run 1 Running: 1<br>\r\nThis run 6 Running: 7<br>\r\nThis run 13 Running: 21<br>\r\nThis run 18 Running: 39<br>\r\nThis run 23 Running: 62<br>\r\nThis run 28 Running: 91<br>\r\nThis run 32 Running: 123<br>\r\nThis run 38 Running: 161<br>\r\nThis run 43 Running: 204<br>\r\nThis run 50 Running: 254<br>\r\nThis run 56 Running: 310<br>\r\nThis run 62 Running: 372<br>\r\nThis run 68 Running: 440<br>\r\nThis run 72 Running: 512<br>\r\nThis run 75 Running: 587<br>\r\n<br>\r\n<strong>Fatal error</strong>:  Maximum execution time of 600 seconds exceeded in <strong>PHPExcel\\Classes\\PHPExcel\\Writer\\Excel5\\Parser.php</strong> on line <strong>914</strong><br>\r\n<br>\r\n<br>\r\n<br>\r\nforeach ($quotes as $k=&gt;&amp;$worksheet) {<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$this-&gt;objPHPExcel-&gt;createSheet();<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$this-&gt;objPHPExcel-&gt;setActiveSheetIndex($this-&gt;ActiveSheetIndex);<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$fname = explode(&quot; &quot;, &amp;$worksheet['Quote Factory']);<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$name = trim($fname[0]) . ' ' .trim(&amp;$worksheet['box_name']);<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$this-&gt;objPHPExcel-&gt;getActiveSheet()-&gt;setTitle($name);<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$row = 1;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;while ($max_rows &gt;= $row) {<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$this-&gt;excel_row($templates[$row], &amp;$worksheet);<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$row++;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;unset($templates[$row]);<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$this-&gt;ActiveSheetIndex++;<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;$factory = $worksheet['Factory Name'];<br>\r\n&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;unset($quotes[$k]);<br>\r\n&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &nbsp;}<br>\r\n<br>\r\n<br>\r\nI tried:<br>\r\n<blockquote style=\"margin-right:0px\" dir=ltr>\r\n<p>function destroy<blockquote style=\"margin-right:0px\" dir=ltr>\r\n<p>PHPExcel::Destroy() {<br>\r\n&nbsp;&nbsp; foreach($this-&gt;_workSheetCollection as $index =&gt; $dummy) {<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $this-&gt;_workSheetCollection[$index]-&gt;Destroy();<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $this-&gt;_workSheetCollection[$index] = null;<br>\r\n&nbsp;&nbsp; }<br>\r\n}</p>\r\n<p>PHPExcel_Worksheet::Destroy() {<br>\r\n&nbsp;&nbsp; foreach($this-&gt;_cellCollection as $index =&gt; $dummy) {<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $this-&gt;_cellCollection[$index] = null;<br>\r\n&nbsp;&nbsp; }<br>\r\n}</p>\r\n</blockquote></p>\r\n<p>OR<br>\r\nfunction __destroy(){</p>\r\n<p>foreach($this-&gt;_workSheetCollection as $index =&gt; $dummy) {<br>\r\n<blockquote style=\"margin-right:0px\" dir=ltr>\r\n<p>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $this-&gt;_workSheetCollection[$index]-&gt;Destroy();<br>\r\n&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; $this-&gt;_workSheetCollection[$index] = null;<br>\r\n&nbsp;&nbsp; }</p>\r\n</blockquote></p>\r\n</blockquote><br>\r\n",
+    "PostedDate": "2009-02-05T19:22:54.663-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "155062",
+    "ThreadId": "18404",
+    "Html": "Got it down to 30 seconds by <br>\r\nFirst doing a loop to <br>\r\n$objPHPExcel-&gt;createSheet();<br>\r\nand<br>\r\n$objPHPExcel-&gt;getActiveSheet()-&gt;setTitle($name);<br>\r\n<br>\r\nThe sheets, then just going throug the loop above without create and set title? <br>\r\n<br>\r\nStrange, bug in one of those? <br>\r\n<br>\r\n<br>\r\n<br>\r\n\r\n",
+    "PostedDate": "2009-02-06T06:24:49.41-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "155192",
+    "ThreadId": "18404",
+    "Html": "setTitle() bug is fixed in the source code release tomorrow morning.\r\n",
+    "PostedDate": "2009-02-06T13:12:39.577-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "157635",
+    "ThreadId": "18404",
+    "Html": "Thanks for all your hard work. I used your base to build a template system and parser. You can import all the sheets into mysql, it looks for $$Vars and then replaces those with DB columns and data. I automated a sheet that would have taken weeks to recreate in about 10 minutes with the final code :) Ive spit out hundreds of cases with the template already.<br>\r\n<br>\r\nIts certainly not as elegant as yours, but just wanted to say thanks the help :)<br>\r\n",
+    "PostedDate": "2009-02-13T22:10:42.807-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "210359",
+    "ThreadId": "18404",
+    "Html": "<p>Hi everybody,</p>\r\n<p>I had the same problem, because for a project I need to open an excel file hundreds of different times (5MB of more memory each time).</p>\r\n<p>My solution is a bit rude (and could be optimized), because I had no time, but very effective.</p>\r\n<p>I placed the next function in a few key classes (PHPExcel, Worksheet, and few others), and called it manually (once) from PHPExcel, when I needed it no more</p>\r\n<p>&nbsp;</p>\r\n<p>\r\n<div style=\"color:Black;background-color:White\">\r\n<pre><span style=\"color:Blue\">public</span> <span style=\"color:Blue\">function</span> Destroyer() {\r\n\t\t\t$ClassVars = get_object_vars($<span style=\"color:Blue\">this</span>);\r\n\t\t\t<span style=\"color:Blue\">foreach</span> ($ClassVars <span style=\"color:Blue\">as</span> $VarName =&gt; $VarValue) {\r\n\t\t\t\t<span style=\"color:Blue\">if</span> ($VarName == <span style=\"color:#A31515\">'_parent'</span>) <span style=\"color:Blue\">continue</span>;\r\n\t\t\t\t\r\n\t\t\t\t<span style=\"color:Blue\">if</span> (is_object($VarValue)) {\r\n\t\t\t\t\t<span style=\"color:Blue\">if</span> (in_array(<span style=\"color:#A31515\">'Destroyer'</span>,get_class_methods(get_class($VarValue))))\r\n\t\t\t\t\t\t$VarValue-&gt;Destroyer();\r\n\t\t\t\t}\r\n\t\t\t\t<span style=\"color:Blue\">if</span> (is_array($VarValue)) {\r\n\t\t\t\t\t<span style=\"color:Blue\">foreach</span> ($VarValue <span style=\"color:Blue\">as</span> $ArrayID =&gt; $ArrayValue) {\r\n\t\t\t\t\t\t<span style=\"color:Blue\">if</span> (is_object($ArrayValue)) {\r\n\t\t\t\t\t\t\t<span style=\"color:Blue\">if</span> (in_array(<span style=\"color:#A31515\">'Destroyer'</span>,get_class_methods(get_class($ArrayValue))))\r\n\t\t\t\t\t\t\t\t$ArrayValue-&gt;Destroyer();\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t\t\r\n\t\t\t\t\t\t<span style=\"color:Blue\">if</span> (is_array($ArrayValue)) {\r\n\t\t\t\t\t\t\t<span style=\"color:Blue\">foreach</span> ($ArrayValue <span style=\"color:Blue\">as</span> $ArrayID2 =&gt; $ArrayValue2) {\r\n\t\t\t\t\t\t\t\t<span style=\"color:Blue\">if</span> (is_object($ArrayValue2)) {\r\n\t\t\t\t\t\t\t\t\t<span style=\"color:Blue\">if</span> (in_array(<span style=\"color:#A31515\">'Destroyer'</span>,get_class_methods(get_class($ArrayValue2))))\r\n\t\t\t\t\t\t\t\t\t\t$ArrayValue2-&gt;Destroyer();\r\n\t\t\t\t\t\t\t\t}\r\n\t\t\t\t\t\t\t}\r\n\t\t\t\t\t\t}\r\n\t\t\t\t\t}\r\n\t\t\t\t}\r\n\t\t\t\t<span style=\"color:Blue\">unset</span>($<span style=\"color:Blue\">this</span>-&gt;$VarName);\r\n\t\t\t}\r\n\t\t}\t\r\n</pre>\r\n</div>\r\n</p>",
+    "PostedDate": "2009-07-09T04:30:06.423-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "210382",
+    "ThreadId": "18404",
+    "Html": "<p>@WhiteCubes: Thank you for posting your solution. I linked to this thread from this related issue<br> <a href=\"../WorkItem/View.aspx?WorkItemId=10032\">http://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=10032</a><br> <br> In the long run I hope that we can avoid custom destroyers because many will probably find it difficult to implement these, but until then, your solution is very valuable.</p>",
+    "PostedDate": "2009-07-09T06:08:32.143-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "437586",
+    "ThreadId": "18404",
+    "Html": "I faced this memory leak issue while I was creating spreadsheets in a loop and writing them. Indeed, as mentioned in this thread, there are a lot of circular references. \r\n<br>\r\n@whisper's solution does help but only to some extent, coz the circular references extend beyond the worksheet collection. But he was the first to see the direction!\r\n<br>\r\n\r\n@WhiteCubes's solution saved my day. Many thanks to you! Now I am able to generate 100s of excel sheets at constant memory. \r\n<br>\r\n\r\nFor information's sake I'm mentioning the classes where I included the 'Destroyer' function mentioned in @Whitecube's post. \r\n\r\n\r\n<pre>\r\nPHPExcel\r\nPHPExcel_Worksheet\r\nPHPExcel_Style\r\nPHPExcel_Style_Font\r\nPHPExcel_Style_Fill\r\nPHPExcel_Style_Borders\r\nPHPExcel_Style_Alignment\r\nPHPExcel_Style_NumberFormat\r\nPHPExcel_Style_Protection\r\n</pre>\r\n\r\n\r\nUsing version 1.7.2 here",
+    "PostedDate": "2010-04-30T08:33:48.8-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "437695",
+    "ThreadId": "18404",
+    "Html": "<p>I'm currently implementing the destroy() method as part of the changes that I'm doing for cell caching: mainly because it needs to work rather differently when the different caching methods are in use.</p>",
+    "PostedDate": "2010-04-30T13:56:59.617-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "438236",
+    "ThreadId": "18404",
+    "Html": "<p>I'm glad it turned to be usefull ;-)</p>",
+    "PostedDate": "2010-05-03T01:47:30.613-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "453546",
+    "ThreadId": "18404",
+    "Html": "<p>@WhiteCubes: It looks like this is what I need. I have a similar issue where I open an Excel file, paste several thousand lines of cells into it using a loop, and save it when done. Every time I run this line, memory used is increased by about 95kB:</p>\r\n<p>$objPHPExcel-&gt;setActiveSheetIndex(0)-&gt;setCellValue(&quot;$column$row&quot;, &quot;$value&quot;);</p>\r\n<p>I added the Destroyer function to Worksheet.php, but what do you mean by &quot;and called it manually (once) from PHPExcel, when I needed it no more&quot;? I'm not sure where to call it from.</p>\r\n<p>&nbsp;</p>",
+    "PostedDate": "2010-06-09T07:20:19.853-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

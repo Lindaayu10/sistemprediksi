@@ -1,0 +1,86 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": "2009-08-20T06:59:42.287-07:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Upon parsing a spreadsheet with around 9000 rows and 6 columns I get the error Fatal error:  Exception thrown without a stack frame in Unknown on line 0\n \nNot other information is given. \n \nIf the format is xls or xlsx the error is the same. I use php version 5.2.8.\n \nI have no additional information to offer.",
+    "LastUpdatedDate": "2013-05-16T05:42:30.56-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-08-14T16:05:47.093-07:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Fatal error:  Exception thrown without a stack frame in Unknown on line 0",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 10456
+  },
+  "FileAttachments": [
+    {
+      "FileId": 3272,
+      "FileName": "test-sheet.xls",
+      "DownloadUrl": ".\\3272"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "Can you provide some example code to reproduce?",
+      "PostedDate": "2009-08-17T00:41:42.65-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "This problem was introduced when we switched from version 1.6.4 to version 1.7.0. We can also replicate this on both php 5.2.8 and 5.3.0.\r\n\r\nIn previous versions we frequently saw memory allocation errors with large sheets. In 1.7.0 we do not. \r\n\r\nWe use PHPExcel in an application that relies heavily on Zend Framework v1.9.1.\r\n\r\nIf we try to var_dump the entire $worksheet object, we get zend_mm_heap corrupted errors in our logs. I assume this is due to some internal php limitation of the size of objects that can be var_dump'ed.\r\n\r\nThe problem exists for both OOXML and BIFF files, I.e it makes no difference if we use a type PHPExcel_Reader_Excel5 or PHPExcel_Reader_Excel2007 reader.\r\n\r\nI attach the problem sheet. Smaller (30 rows) sheets are not a problem.\r\n\r\nHere is some simplified code:\r\n\r\n----\r\n\r\n$reader = new PHPExcel_Reader_Excel5;\r\n$peObj = $reader->load($tmpfilename);\r\n\r\n$worksheetid = 0;   \r\n\r\n// Everything fine until this point. No errors if we stop here...\r\n\r\n/*\r\nFor reference:\r\n\r\n$sheetNames = $peObj->getSheetNames();\r\nvar_dump($sheetNames); // yields:\r\n \r\narray(1) {\r\n  [0]=>\r\n  string(15) \"Rates and Codes\"\r\n}\r\n\r\n*/\r\n                   \r\n$worksheet = $peObj->getSheet($worksheetid);  // This is the trouble maker.... that gets us the \"Fatal\" error.\r\n\r\n----\r\n\r\nWe can still access various things in the fetch worksheet object. For instance: \r\n\r\n// -- Function that generates a datatable array content (var Data) --\r\n  // --    for the content of a spreadsheet during the id process    --\r\n                                                                  \r\n  function buildWorksheetJSArray($worksheet, $jsary){\r\n\r\n    $endcolumn = $worksheet->getHighestColumn();                               // Get last column in sheet\r\n    $endrow = $worksheet->getHighestRow();                                     // Get last row in sheet\r\n    \r\n    $cell_s = \"%s:\\\"%s\\\"\";                                                     // Set the cell string format\r\n    $row_s = \"{%s}\";                                                           // Set the row string format\r\n\r\n    for($beginrow = 1; $beginrow <= $endrow; $beginrow++){                     // Cycle trhough the rows\r\n                                     \r\n      $columns = array();                                                      // Empty/init the columns array\r\n    \r\n      $columns[] = sprintf($cell_s, \"id\", $beginrow);                          // Add the cell with the row number (id)\r\n\r\n      for($begincolumn = 'A'; $begincolumn <= $endcolumn; $begincolumn++){     // Cycle through the columns in a particular row\r\n  \r\n        $cellId = $begincolumn.$beginrow;                                      // Set the Cell ID (easy)\r\n        $cell = $worksheet->getCell($cellId);                                  // Get the cell\r\n        $value = $cell->getValue();                                            // Extract the cells value\r\n\r\n        if(PHPExcel_Shared_Date::isDateTime($cell) && $value != 0){            // If the cell is of Type date and not empty (0)\r\n   \r\n          $value = date(\"Y/m/d\", $value);                                      // Format it nicely from Timestamp\r\n        }\r\n\r\n        $columns[] = sprintf($cell_s, $begincolumn, $value);                   // Add the cell to the columns array\r\n      }\r\n\r\n      $row = implode(\", \", $columns);                                          // Join the cells in a row with commas\r\n      $rows[] = sprintf($row_s, $row);                                         // Add the row to the rows array\r\n    }\r\n    $jsary = implode(\",\\n\", $rows);                                            // Join rows with commas\r\n\r\n    return true;\r\n  }\r\n\r\nAbove function works just fine.\r\n\r\nWe are not however able to store the $worksheet object in a session variable - we use Zend_Session for this.\r\n\r\n\r\n/Lasse\r\n\r\n",
+      "PostedDate": "2009-08-17T07:51:29.533-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-08-17T07:51:36.69-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I've been trying to reproduce (on Windows), no success... var_dump works perfectly.\r\n\r\nTo store the sheet in session, you can perhaps use the Serialized writer and store it on a temporary disk location?",
+      "PostedDate": "2009-08-18T00:24:43.71-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Hi,\r\n\r\nJust to round this one off. This was ultimately a problem with the session system and not PHPExcel. The phpexcel object serializes just fine.\r\n\r\nThe underlying problem was that we are using MySQL for session storage. We do this via the Zend Framework's Zend_Session class.\r\n\r\nWhereas the blob field in MySQL was large enough, it turns out that the mysql variable max_allowed_packet in /etc/my.cnf was set to 8M. Our session variables, including the phpexcel object was around 3 times bigger.\r\n\r\nAfter changing the value to 128M the problem went away.\r\n\r\nSorry for the confusion. PHP / Zend was not very descriptive of the problem.\r\n\r\n/Lasse\r\n",
+      "PostedDate": "2009-08-20T05:13:21.48-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-08-20T06:59:42.287-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:03:46.79-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:30.56-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

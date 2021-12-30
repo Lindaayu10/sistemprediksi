@@ -1,0 +1,66 @@
+[
+  {
+    "Id": "938522",
+    "ThreadId": "402403",
+    "Html": "\r\n<p>Hi</p>\r\n<p>I'm having a problem I can see other people have got, but haven't been able to find a solution yet.</p>\r\n<p>I can't open the generated Excel file in Excel (Nor on Mac or Windows), only if I save it to the server first.</p>\r\n<p>I've looked for any addtional echo's or so, that could generate premature output, but there's nothing there. And as far as I can see, php_zip is enabled.</p>\r\n<p>The warning I get is</p>\r\n<p>ZipArchive::open(): Unable to access php://output in PHPExcel/Writer/Excel2007.php</p>\r\n<p>And</p>\r\n<p>Fatal Error: Uncaught exception 'Exception' with message 'Could not open php://output for writing' in PHPExcel/Writer/Excel2007.php:248 Stack trace:#0</p>\r\n",
+    "PostedDate": "2012-11-08T06:03:34.637-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "938827",
+    "ThreadId": "402403",
+    "Html": "<p>php://output is one of the standard <a href=\"http://php.net/manual/en/wrappers.php.php\">PHP stream wrappers</a>&nbsp;and I've not encountered any circumstance where it should not be available. It sounds more like a fundamental problem in PHP than in PHPExcel: as far as PHPExcel is concerned php://output is just another file stream, though one that should always be available.</p>\r\n<p>&nbsp;</p>\r\n<p>Does anybody else have this problem?</p>",
+    "PostedDate": "2012-11-08T14:46:22.643-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "988607",
+    "ThreadId": "402403",
+    "Html": "\r\n<p>I have exactly the same problem as MartinHjort described.</p>\r\n<p>I found out that the PHP SAFE MODE caused this problem. PHPExcel could not write to the tmp folder. But after deactivating SAFE MODE I got another error:&nbsp;</p>\r\n<p><strong>Fatal error</strong><span>: Uncaught exception 'Exception' with message 'Could not close zip file php://output.' in /home/.sites/92/site955/web/library/PHPExcel/PHPExcel/Writer/Excel2007.php:378 Stack trace: #0 /home/.sites/92/site955/web/test/memberlist.php(98):\r\n PHPExcel_Writer_Excel2007-&gt;save('php://output') #1 {main} thrown in&nbsp;</span><strong>/home/.sites/92/site955/web/library/PHPExcel/PHPExcel/Writer/Excel2007.php</strong><span>&nbsp;on line&nbsp;</span><strong>378</strong></p>\r\n<p>Does anybody have a solution for this problem?</p>\r\n",
+    "PostedDate": "2013-01-18T02:41:17.633-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "988616",
+    "ThreadId": "402403",
+    "Html": "\r\n<p>Check permissions in the temp folder</p>\r\n",
+    "PostedDate": "2013-01-18T03:00:50.353-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "988621",
+    "ThreadId": "402403",
+    "Html": "\r\n<p>I don't really have access to the temp folder, or at least it's getting complicated with my provider.</p>\r\n<p>As a workaround I activated SAFE MODE again and I save the file in the working directory of the php file and open it using the&nbsp;readfile command. This works as expected.&nbsp;</p>\r\n",
+    "PostedDate": "2013-01-18T03:12:50.683-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1038931",
+    "ThreadId": "402403",
+    "Html": "As of PHP 5.3.0, php_zip is built-in. The extension is not working anymore. Directing your ZipArchive to the PHPExcel built-in zip archive (add 'PHPExcel_Settings::setZipClass(PHPExcel_Settings::PCLZIP);' before the call to the save function) will solve the problem with writing excel files in Excel2007 format. The only problem that exists is the fact that some unreadable content will be included causing excel to give a warning on opening the file, asking to repair the file. Just say 'yes' and you will have a readable excel file. Something to correct in future versions?<br />\n",
+    "PostedDate": "2013-05-03T01:26:29.643-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1200258",
+    "ThreadId": "402403",
+    "Html": "I also have the same problem and no idea how to fix it.  I can manipulate files in other ways on this website and this code also worked on another development server.\r<br />\n<br />\nI have checked all permissions to the /QS-admin and to /QS-admin/excel.\r<br />\n<br />\nI tried this from mrbladergroen ... now I get a different error.  \r<br />\n<pre><code>Fatal error: Uncaught exception 'Exception' with message 'Error zipping files : PCLZIP_ERR_READ_OPEN_FAIL (-2) : Unable to open archive '/QS-admin/excel/QuiltsExport_123792273.xlsx' in wb mode' in /home/marepinta/wsqspokane.org/www/QS-admin/Classes/PHPExcel/Shared/ZipArchive.php:108 Stack trace: #0 /home/marepinta/wsqspokane.org/www/QS-admin/Classes/PHPExcel/Writer/Excel2007.php(253): PHPExcel_Shared_ZipArchive-&gt;addFromString('[Content_Types]...', '&lt;?xml version=&quot;...') #1 /home/marepinta/wsqspokane.org/www/QS-admin/exporter.php(292): PHPExcel_Writer_Excel2007-&gt;save('/QS-admin/excel...') #2 {main} thrown in /home/marepinta/wsqspokane.org/www/QS-admin/Classes/PHPExcel/Shared/ZipArchive.php on line 108</code></pre>\n\nI'm looking for some help with troubleshooting.  What steps to take to isolate the problem and then be able to move forward :)\r<br />\n<br />\nthanks!<br />\n",
+    "PostedDate": "2014-01-28T19:38:42.393-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1200260",
+    "ThreadId": "402403",
+    "Html": "read a few more archived posts about this problem.\r<br />\n<br />\nsomeone said to pay attention to folder addresses.\r<br />\n<br />\nI changed the virtual folder to actual folder address and now it works.  Thanks!!\r<br />\n<br />\nfor newbies ... this means I changed:\r<br />\n<br />\n/QS-admin/excel/[new filename]\r<br />\n<br />\nto \r<br />\n<br />\n/home/marepinta/wsqspokane.org/www/QS-admin/excel/[new filename]<br />\n",
+    "PostedDate": "2014-01-28T19:56:12.06-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

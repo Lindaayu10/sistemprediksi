@@ -1,0 +1,116 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "PHPExcel_Writer_Excel2007",
+      "DisplayName": "PHPExcel_Writer_Excel2007"
+    },
+    "ClosedComment": "Unable to fix.",
+    "ClosedDate": "2009-02-24T09:24:42.1-08:00",
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Try a plain read/write with attached file. Cell 'A1' holds the formula =3+\"hello\"\n \nThis is not a very useful formula, but nevertheless valid in Excel.\n \nTest (plain read/write):\n----\n$reader = new PHPExcel_Reader_Excel2007();\n$excel = $reader->load('read.xlsx');\n \n$sheet = $excel->getSheet(0);\nvar_dump($sheet->getCell('A1')->getValue());\nvar_dump($sheet->getCell('A1')->getCalculatedValue());\n \n$writer = new PHPExcel_Writer_Excel2007($excel);\n$writer->save('write.xlsx');\n \nExpected result:\n----\nstring(10) \"=3+\"hello\"\"\nstring(7) \"#VALUE!\"\n \nActual result:\n----\nstring(10) \"=3+\"hello\"\"\nstring(10) \"=3+\"hello\"\"\n \nEnvironment:\n----\nPHPExcel 1.6.5 (and Source Code 25409)",
+    "LastUpdatedDate": "2013-05-16T05:42:53.007-07:00",
+    "PlannedForRelease": "PHPExcel 1.6.6 Production",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-02-24T05:08:51.893-08:00",
+    "Status": {
+      "Name": "Closed",
+      "Id": 4
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Adding a string and a number in a formula gives corrupt file with PHPExcel_Writer_Excel2007",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 9339
+  },
+  "FileAttachments": [
+    {
+      "FileId": 2774,
+      "FileName": "read.xlsx",
+      "DownloadUrl": ".\\2774"
+    },
+    {
+      "FileId": 2775,
+      "FileName": "write.xlsx",
+      "DownloadUrl": ".\\2775"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "The biggest problem here is that the resulting file is corrupt, not so much that the calculated value is incorrect.",
+      "PostedDate": "2009-02-24T05:13:33.687-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Will fix this one tomorrow.",
+      "PostedDate": "2009-02-24T06:21:19.227-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Affraid a fix is not possible... PHP just ALWAYS converts \"Hello\" to string, which is 0. 3 + 0 = 3 and is correct PHP syntax.\r\nWill add this in documentation.",
+      "PostedDate": "2009-02-24T09:11:22.767-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-02-24T09:11:23.47-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "5.2.3.\tFormulas involving numbers and text\r\nFormulas involving numbers and text may produce unexpected results or even unreadable file contents. For example, the formula '=3+\"Hello \"' is expected to produce an error in Excel (#VALUE!). Due to the fact that PHP converts “Hello” to a numeric value (zero), the result of this formula is evaluated as 3 instead of evaluating as an error. This also causes the Excel document being generated as containing unreadable content. \r\n\r\nReference for this behaviour in PHP:\r\nhttp://be.php.net/manual/en/language.types.string.php#language.types.string.conversion \r\n",
+      "PostedDate": "2009-02-24T09:19:42.37-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-02-24T09:24:42.1-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Ok I see, but if your explanation holds, what I don't understand is why, instead of the actual result, we don't get the following?\r\n\r\nstring(10) \"=3+\"hello\"\"\r\nint(3)",
+      "PostedDate": "2009-02-24T09:54:15.313-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Do you mean to see these results (formula, 3) on command line or in Excel?",
+      "PostedDate": "2009-02-24T12:10:16.1-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I mean command line. If you try the script as is, I believe you are arguing that\r\n\r\necho $sheet->getCell('A1')->getCalculatedValue();\r\n\r\nshould give '3' while it in fact gives '=3+\"hello\"'\r\n",
+      "PostedDate": "2009-02-24T12:34:48.69-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "$objPHPExcel->getActiveSheet()->setCellValue('A1', '=3+\"Hello\"');\r\nvar_dump($objPHPExcel->getActiveSheet()->getCell('A1')->getValue());\r\nvar_dump($objPHPExcel->getActiveSheet()->getCell('A1')->getCalculatedValue());\r\n\r\nThis one actually outputs int(3)",
+      "PostedDate": "2009-02-25T00:15:44.787-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "It does. And I'm surprised after trying your example. In that case something strange is going on when reading that template \"read.xlsx\" when you try the test script. Do you have an explanation for that?",
+      "PostedDate": "2009-02-25T00:57:55.74-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:04:19.4-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-05-16T05:42:53.007-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Excel2007 reader reads excel 2007 files normaly, but I've stumbled upon xlsx file which has namespaces in XML. (example: <?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\"?><x:worksheet xmlns:x=\"http://sc....), see the x:worksheet, namespace is x.\nNow, simpleXML handles this is this way that element names are somehow available like alias (eg. XML->x->worksheet), so I've added a simple solution to Excel2007 reader:\n \n$namespaces = $xmlSheet->getNameSpaces();\nif (count($namespaces) == 1){\n    $namespace = reset($namespaces);\n    /** \n     * Get namespace as xmlSheet \n     */\n    $xmlSheet = $xmlSheet->children($namespace);\n}\nelse {\n    if (count($namespaces) > 0)\n      throw new Exception('Do not know how to handle ' . count($namespaces) . ' namespaces');\n}\n \nOk, now xmlSheet is mapped to that namespace and all is fine ... except, the simpleXML feature of reading property values as an array stops working so I had to change all property getters to use property access methods, example:\nPrevious code:\n$xmlSheet->sheetViews->sheetView['zoomScale']\nBecomes :\n$xmlSheet->sheetViews->sheetView->attributes()->zoomScale\nNow that is working. Do you think this would be worthy to create a patch for for any SimpleXML usage in the project, so namespaces would be supported and property handling would be done through attributes() accessor?\n \nKind regards,\nDejan Markic",
+    "LastUpdatedDate": "2013-02-21T19:02:54.487-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2010-06-07T03:36:56.69-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Excel 2007 XML problem with XML namespaces and property reading",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 1,
+    "Id": 13473
+  },
+  "FileAttachments": [],
+  "Comments": []
+}

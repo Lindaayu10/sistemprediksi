@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "496755",
+    "ThreadId": "228080",
+    "Html": "<p>I have an .xls sheet with approximately 4000 rows, I have written a php script to process each row and based on criteria, create an array of rows to be deleted.</p>\r\n<p>The processing of the 4000 rows takes approximately 30 seconds, but the calls to delete approximately 1000 non-contigous rows times out after 15 minutes.</p>\r\n<p>I did an experiment with a smaller file, a .xls with 25 rows and 7 deletes. The load/process time is 3 seconds, but the deletes bring the total to 45 seconds.</p>\r\n<p>Is there a better way to process deletes? Here is a sample snipit where things slow:</p>\r\n<p>foreach ($rowsToDelete as $k =&gt; $v)<br>{<br>&nbsp;//echo $v.&quot;&lt;br&gt;&quot;;<br>&nbsp;$activeSheet-&gt;removeRow($v, 1);</p>\r\n<p>}</p>",
+    "PostedDate": "2010-09-21T16:57:04.657-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "496903",
+    "ThreadId": "228080",
+    "Html": "<p>Removing rows (or columns) is inherently slow because, not only does the code logic remove the cells and renumber the row of every cell that lies below the deleted row, it also checks through every cell in the worksheet looking for formulae that reference cells in the deleted row (or below) and adjusts them to match the new row numbers... likewise with any named ranges, cell validation rules, autofilters, etc. It's actually doing&nbsp; great deal of work. Similarly, inserting new rows/columns as also very intensive.</p>\r\n<p>One way you might improve the speed of execution is to delete the rows in reverse order... so instead of deleting row 10, then row 20, then row 30... delete row 30 first, then row 20, then row 10.</p>\r\n<p>It's also faster if you can delete rows in contiguous blocks where possible, so if you want to delete rows 1-4, 6-8 and 12,</p>\r\n<div style=\"color:black;background-color:white\">\r\n<pre>$activeSheet-&gt;removeRow(12, 1);\r\n$activeSheet-&gt;removeRow(6, 3);\r\n$activeSheet-&gt;removeRow(1, 4);\r\n</pre>\r\n</div>\r\n<p>It's still not going to be instantaneous, but should be quicker</p>",
+    "PostedDate": "2010-09-22T02:00:55.493-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

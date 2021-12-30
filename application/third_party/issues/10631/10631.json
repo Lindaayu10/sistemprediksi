@@ -1,0 +1,71 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "Not sure if this is a bug or a feature?!?\n \nThe attached file demonstrates:\nMerging a block of block of cells (B2:C3), the applying a border style to cell B2.\nApplying a border style to cell E2, then merging a block of cells (E2:F3).\nMerging a block of block of cells (B2:C3), the applying a border style to a range of cells (B2:C3).\n \nIn the first two cases, the border stle only applies to the top left cell in the merged range.\nOnly in the case of the third example does the border style to the full merged area.\n \nIs this expected behaviour?",
+    "LastUpdatedDate": "2013-02-21T19:03:38.737-08:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2009-09-15T13:41:18.483-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Border Style on Merged Cells",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 4,
+    "Id": 10631
+  },
+  "FileAttachments": [
+    {
+      "FileId": 3383,
+      "FileName": "mergeTest.php",
+      "DownloadUrl": ".\\3383"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "I'd say this may be \"known\" behavior rather \"expected\" behavior. But we should try to fix this.\r\n\r\nCase 3)\r\nThe recommended way to style a group of merged cells\r\n\r\nCase 1)\r\nIllustrates a case where PHPExcel is able to create a workbook that cannot be created in Excel. It should not be possible to have merged cells with different borders on the edges. We are probably lucky that it is not opening as corrupt.\r\n\r\nI am trying to promote this way of thinking:\r\n$objPHPExcel->getActiveSheet()->getStyle('E2')->applyFromArray($style);\r\n\r\ngetStyle('E2') is a shorcut for:\r\na) selecting cell E2\r\nb) launching the Excel style dialog (aka style supervisor)\r\n\r\nIn the event that E2 participates in a group of merged cells, what I say should happen is that the selection is automatically expanded, to, say E2:F3. Because in Excel it is not possible to select a single cell from merged cell group. This feature has not been implemented in PHPExcel. But there is work item \"Cell range selection\"\r\nhttp://phpexcel.codeplex.com/WorkItem/View.aspx?WorkItemId=9932\r\n\r\nOnce we get that work item fixed it will only take one line in getStyle() to fix Case 1)\r\n\r\nCase 2)\r\nI had not thought about this. I guess we will have to establish the rules in Excel what happens with cell styles when one merges cells with conflicting style properties. A quick test says that the upper left cell wins at least for the background color. For borders it may be different. We will have to fix the mergeCells() method to reflect the rules in Excel.\r\n\r\n",
+      "PostedDate": "2009-09-15T14:41:18.9-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2009-10-13T09:46:27.69-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2011-10-31T10:06:26.337-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2012-11-27T09:04:02.16-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:03:38.737-08:00",
+      "Id": -2147483648
+    }
+  ]
+}

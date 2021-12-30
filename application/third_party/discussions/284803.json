@@ -1,0 +1,58 @@
+[
+  {
+    "Id": "719725",
+    "ThreadId": "284803",
+    "Html": "\r\n<p>Hello,</p>\r\n<p>Often we have a cell with some styles already set and we need to set additional style. For example, the text in the cell may be bold and have a number format specified. And later we want to add background color to that cell.</p>\r\n<p>Currently if we set a style with background color it will completely overwrite current cell style (bold &#43; number format) and the cell will have only background &nbsp;color.</p>\r\n<p>This results in creating many styles for all the possible cases, causing verbose duplicate code and making a programmer nervous :)</p>\r\n<p>We can create many little styles for all the cases to use them as building bricks in creating complex style using array_merge_recursive() (see this post for details: http://thelab.athome-training.com/daily_snippet/A-method-for-applying-styles-to-a-cell-with-PHPExcel-and-array-merge-recursive\r\n ) but it's still far not a perfect solution.</p>\r\n<p>Some libraries for working with Excel offer a feature to merge cell styles, so you can take 2 styles and merge them.</p>\r\n<p>The pseudo code can look like this:</p>\r\n<p>$style = PHPExcel_Style::mergeStyles($cell-&gt;getStyle(), $additionalStyle);</p>\r\n<p>$worksheet-&gt;setStyle($style, $cell);</p>\r\n<p>or even better:</p>\r\n<p>$worksheet-&gt;mergeStyle($cellRange, $additionalStyle);</p>\r\n",
+    "PostedDate": "2012-01-03T02:04:40.727-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "719727",
+    "ThreadId": "284803",
+    "Html": "<p>what's the difference with an array_merge? ;) Someway or another the additional style attributes have to be merged with existing ones, and overwrite them. If you hide this complexity from the developer I think it would introduce unexpected behaviour, as well as a performance penalty.</p>",
+    "PostedDate": "2012-01-03T02:10:35.33-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "719738",
+    "ThreadId": "284803",
+    "Html": "<p>The difference with an array_merge_recursive() is that to use&nbsp;array_merge_recursive() you must have all the necessary styles as arrays.</p>\n<p>What if I don't like to declare styles in array form?</p>\n<p>What if I want to combine the styles dynamically? For example, I need to add background for a cell and I don't know what styles have been previously set for &nbsp;that cell - how do I use array_merge_recursive() in this situation?</p>\n<p>Also, how it will introduce unexpected behavior? Can you explain? It will introduce unexpected behavior only if you name the function inappropriately. But if you give the function the right name, its behavior will be as expected :)</p>\n<p>As for performance penalty - we just need an appropriate name + comments (which will be shown in documentation also).</p>\n<p>I will give you another example:</p>\n<p>You have a worksheet with different data. Now you want to apply background color for the whole column (that has different data with different styles in its cells). How will you do it?</p>",
+    "PostedDate": "2012-01-03T03:00:47.42-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "719788",
+    "ThreadId": "284803",
+    "Html": "<p>I'll consider adding a toArray() method to the Style class.</p>\n<p>If I added a mergeStyles() method, it would effectively use style arrays purely for efficiency.</p>\n<div style=\"background-color: white; color: black;\">\n<pre>$worksheet-&gt;mergeStyle($cellRange, $additionalStyle);\r\n</pre>\n</div>\n<p>Would you expect this to \"add\" the $additionalStyle (e.g. set all cells in the defined $cellRange to bold, while retaining any existing style settings for those cells)? or to create a single \"merged\" style object/array from the styles of all the cells in the defined $cellRange (e.g. if A1 was bold, A2 italic, B1 was red and B2 was bordered, you'd want a returned style of bold, italic, red and bordered)? I'd assume the former, but can't be certain. If the former, then how should different number format masks be handled?</p>",
+    "PostedDate": "2012-01-03T05:49:59.16-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "719849",
+    "ThreadId": "284803",
+    "Html": "<p>Yes, I mean the former. We can also think about the best name for the function.</p>\r\n<p>If some of the cells in the range already have some number format and we want to add additional style that has a number format specified, then the number format should be overwritten for those cells. I also asked other developers on such a behavior and they agree.</p>\r\n<p>As for API for this feature I can show you how it is implemented in different .NET libraries (I worked with all of them).</p>\r\n<p>&nbsp;</p>\r\n<p>In Aspose.Cells library such feature is implemented with the following function:</p>\r\n<p>public void ApplyStyle(Style style, StyleFlag flag);</p>\r\n<p>(see here for details: http://www.aspose.com/documentation/.net-components/aspose.cells-for-.net/aspose.cells.range.applystyle.html )</p>\r\n<p>so you can write like this:</p>\r\n<p>range.ApplyStyle(style, new StyleFlag { Borders = true });</p>\r\n<p>and it means only borders will be merged.</p>\r\n<p>&nbsp;</p>\r\n<p>In TMS FlexCel library (though I don't like their API and performance) it is implemented in a similar way:</p>\r\n<p><span class=\"keyword\">public</span> <span class=\"keyword\">void</span> <span class=\"identifier\">SetCellFormat</span>( \t<a href=\"http://msdn2.microsoft.com/en-us/library/td2s409d\" target=\"_blank\">int</a> <span class=\"parameter\">row1</span>, \t<a href=\"http://msdn2.microsoft.com/en-us/library/td2s409d\" target=\"_blank\">int</a> <span class=\"parameter\">col1</span>, \t<a href=\"http://msdn2.microsoft.com/en-us/library/td2s409d\" target=\"_blank\">int</a> <span class=\"parameter\">row2</span>, \t<a href=\"http://msdn2.microsoft.com/en-us/library/td2s409d\" target=\"_blank\">int</a> <span class=\"parameter\">col2</span>, \t<a href=\"mk:@MSITStore:C:\\Users\\Pasha\\Documents\\TMSSoftware\\FlexCelNET\\Documentation\\FlexCel.chm::/html/b2ac2acb-1947-7d48-1937-33189ee429b3.htm\">TFlxFormat</a> <span class=\"parameter\">newFormat</span>, \t<a href=\"mk:@MSITStore:C:\\Users\\Pasha\\Documents\\TMSSoftware\\FlexCelNET\\Documentation\\FlexCel.chm::/html/29c420d4-f4a2-892f-37e5-f6510b5c280f.htm\">TFlxApplyFormat</a> <span class=\"parameter\">applyNewFormat</span> )</p>\r\n<p>and &nbsp;<a href=\"mk:@MSITStore:C:\\Users\\Pasha\\Documents\\TMSSoftware\\FlexCelNET\\Documentation\\FlexCel.chm::/html/29c420d4-f4a2-892f-37e5-f6510b5c280f.htm\">TFlxApplyFormat</a> have bool properties to specify which style parts should be merged.</p>\r\n<p>&nbsp;</p>\r\n<p>But the best API (imho) for controlling cell styles is when you control Excel through COM. This API is copied in the SpreadsheetGear library, so you can set additional styles like this:</p>\r\n<p>range.Font.Bold = true; // voil&agrave;! only bold style is applied for a range of cells, keeping other styles untouched.</p>",
+    "PostedDate": "2012-01-03T07:39:17.123-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "732193",
+    "ThreadId": "284803",
+    "Html": "<p>Mark, is there any news regarding this topic?</p>",
+    "PostedDate": "2012-01-29T02:01:13.977-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1130215",
+    "ThreadId": "284803",
+    "Html": "You can check <a href=\"https://phpexcel.codeplex.com/workitem/20467\" rel=\"nofollow\">https://phpexcel.codeplex.com/workitem/20467</a><br />\n",
+    "PostedDate": "2013-11-29T02:24:27.46-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

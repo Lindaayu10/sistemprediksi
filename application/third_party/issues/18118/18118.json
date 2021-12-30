@@ -1,0 +1,96 @@
+{
+  "WorkItem": {
+    "AffectedComponent": {
+      "Name": "",
+      "DisplayName": ""
+    },
+    "ClosedComment": "",
+    "ClosedDate": null,
+    "CommentCount": 0,
+    "Custom": null,
+    "Description": "I know that SUMPRODUCT is not implemented in PHPExcel internal calculator, but I have no choice, but to use this formula, because I need clients to enter quantity of the product they need and total sum to be calculated. Is there any way to make PHPExcel not to write \"Not implemnted\" value to the cell, so EXCEL can calculate formula by itself?\nI tried $objWriter->setPreCalculateFormulas(false); but that seems to have no effect.\nHere is example Excel file:\nhttp://www.grand-fair.ru/mbk/book_price/626 \nBroken formula is in tel cell K5\nI have to use Exce5 writer, since Excel2007 takes more memory, and I get \"not enough memory\" error on large files",
+    "LastUpdatedDate": "2013-09-25T02:38:21.07-07:00",
+    "PlannedForRelease": "",
+    "ReleaseVisibleToPublic": false,
+    "Priority": {
+      "Name": "Low",
+      "Severity": 50,
+      "Id": 1
+    },
+    "ProjectName": "PHPExcel",
+    "ReportedDate": "2012-05-24T05:34:49.183-07:00",
+    "Status": {
+      "Name": "Proposed",
+      "Id": 1
+    },
+    "ReasonClosed": {
+      "Name": "Unassigned"
+    },
+    "Summary": "Can't use SUMPRODUCT formula",
+    "Type": {
+      "Name": "Issue",
+      "Id": 3
+    },
+    "VoteCount": 2,
+    "Id": 18118
+  },
+  "FileAttachments": [
+    {
+      "FileId": 6432,
+      "FileName": "price_Komiksyi__Manga.xls",
+      "DownloadUrl": ".\\6432"
+    }
+  ],
+  "Comments": [
+    {
+      "Message": "The link appears to be broken, so I attach Excel file",
+      "PostedDate": "2012-05-24T05:42:51.987-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "The SUMPRODUCT() function is implemented in PHPExcel's internal calculation engine.\r\n\r\nExcel BIFF Files (those read or written by the Excel5 Reader and Writer) currently cannot use any functions defined in Extension packs, even if those functions are standard in Excel2003 and above. SUMPRODUCT() is among these functions, so it cannot be read from or written to .xls files.\r\n\r\nI'm also surprised that the Excel2007 Reader/Writer take more memory than Excel5... all my own tests have shown the reverse as the test results in http://phpexcel.codeplex.com/discussions/234150?ProjectName=phpexcel show.\r\n",
+      "PostedDate": "2012-05-24T16:13:18.357-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I see, I tried Excel2007 format again, but still getting out of memory error. Is there any possible solution for Excel5 Writer to mark cell somehow so that Excel will recalculate it?",
+      "PostedDate": "2012-06-26T11:51:57.353-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Next time try to run your tests on a larger files, my script takes about 1Gb of RAM on Excel5 Writer",
+      "PostedDate": "2012-06-26T11:53:43.683-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "Both Excel5 and Excel2007 Writers have the setPreCalculateFormulas(FALSE) method, which tells the writer not to calculate formulae so the onus is then on MS Excel (or spreadsheet program of choice) to recalculate when the saved file is opened",
+      "PostedDate": "2012-06-26T13:21:37.603-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "However setPreCalculateFormulas(FALSE) will have a very limited effect on memory usage",
+      "PostedDate": "2012-06-26T13:24:24.513-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I'm using this code, but SUMPRODUCT still produces \"#VALUE\", but it works normally, after I edit formula in EXCEL\r\n$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5'); \r\n$objWriter->setPreCalculateFormulas(false);",
+      "PostedDate": "2012-06-30T21:29:44.537-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-02-21T19:01:56.497-08:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "I have the same problem and i can reproduce it with this very simple script:\r\n\r\n```\n$newfile = new PHPExcel();\n$worksheet = $newfile->setActiveSheetIndex(0);\r\n\r\n$worksheet->setCellValue('A2', 10);\n$worksheet->setCellValue('B2', 15);\n$worksheet->setCellValue('C2', 40);\n$worksheet->setCellValue('D2', 20);\n$worksheet->setCellValue('A3', 11);\n$worksheet->setCellValue('B3', 25);\n$worksheet->setCellValue('C3', 13);\n$worksheet->setCellValue('D3', 45);\n$worksheet->setCellValue('A1', '=SUMPRODUCT(A2:D2;A3:D3)');\r\n\r\n$excelWriter = PHPExcel_IOFactory::createWriter($newfile, 'Excel2007');\n$excelWriter->setPreCalculateFormulas(false);\n$excelWriter->save('Generated.xlsx');\n```\r\n\r\nWithout \"$excelWriter->setPreCalculateFormulas(false);\" i have an exception.\nWith \"$excelWriter->setPreCalculateFormulas(false);\" i have not exception, but a corrupted generated file that excel can't open.\r\n\r\nSome suggestion?\nThx",
+      "PostedDate": "2013-09-25T02:23:45.097-07:00",
+      "Id": -2147483648
+    },
+    {
+      "Message": "",
+      "PostedDate": "2013-09-25T02:38:21.07-07:00",
+      "Id": -2147483648
+    }
+  ]
+}

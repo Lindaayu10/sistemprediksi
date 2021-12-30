@@ -1,0 +1,66 @@
+[
+  {
+    "Id": "533715",
+    "ThreadId": "237813",
+    "Html": "\r\n<p>Hi,</p>\r\n<p>I have a strange problem.</p>\r\n<p>If I unzip the PHPExcel soucre file named 1.7.4.zip on my computer (Windows XP) and I run the Tests/01simple-download-xls.php it works fine. However, as soon as&nbsp; modify this file, it stop working (I mean I still can download the file but Excel do not\r\n regognize it. I tried with 2 different versions of MS Excel). When I modify the file, I save it in UTF-8 format (using Windows Notepad) since the file seams already in UTF-8 format.</p>\r\n<p>If I save the file in ANSI format, it will start back to work except that I do not see miscellaneous glyphs characters ('&eacute;&agrave;&egrave;&ugrave;&acirc;&ecirc;&icirc;&ocirc;&ucirc;&euml;&iuml;&uuml;&yuml;&auml;&ouml;&uuml;&ccedil;') anymore in the\r\n output Excel file.</p>\r\n<p>Is somebody could help me since I need to export UTF-8 characters to an Excel5 XLS file and for the moment, nothing seams to work... :-(</p>\r\n<p>Thanks in advance anyway.</p>\r\n<p>Guylain Plante</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2010-12-09T18:24:16.31-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "533886",
+    "ThreadId": "237813",
+    "Html": "\r\n<p>OK, I finally found a work arround. I put the following 2 lines of code before redirecting output to the client browser and it looks that it fixed the problem. Probably that strange characters were sent to the browser. So, calling ob_end_clean() seams to\r\n clean the output buffer before sending the excel document. ob_start() is also important to reopen the output buffer.</p>\r\n<p>...</p>\r\n<p>ob_end_clean(); // Added by me<br>\r\nob_start(); // Added by me</p>\r\n<p>// Redirect output to a clients web browser (Excel5)<br>\r\nheader('Content-Type: application/vnd.ms-excel');<br>\r\n...</p>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2010-12-10T06:35:54.603-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "534002",
+    "ThreadId": "237813",
+    "Html": "\r\n<p>Finally, this work arround seams to work only when the web server is on Linux.</p>\r\n<p>I still have the problem under Windows...</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2010-12-10T09:47:35.697-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "534041",
+    "ThreadId": "237813",
+    "Html": "\r\n<p>When you save the file, ensure that you save it as UTF-8 <strong>without </strong>\r\na BOM marker. Your modifications are failing because PHP will treat the BOM marker as output, which will then trigger an error when your script tries to send the headers, and this error display gets included in the Excel file that is generated. Using output\r\n buffering is preventing this output from occuring before the headers, so there won't be any error, but the BOM marker itself will still be included in the Excel file that is generated.</p>\r\n",
+    "PostedDate": "2010-12-10T10:54:25.127-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "534072",
+    "ThreadId": "237813",
+    "Html": "\r\n<p>Hi Mark,</p>\r\n<p>Thank you for your answer. I better understand now.</p>\r\n<p>1) I will try that. Do I have to use a special editor to be able to save my php file\r\n<strong>without</strong> BOM information since my Windows NotePad editor does not seam to have that option.</p>\r\n<p>2) Just for your information I edited the corrupted excel file and I saw 6 BOM back to back. Here is the beginning of the file:</p>\r\n<p><span style=\"color:#ff0000\">EF BB BF EF BB BFEF BB BFEF BB BFEF BB BFEF BB BF</span> D0 CF 11</p>\r\n<p>After I removed the red part using an Hex File Editor, my excel fine worked just fine. So, I hope that saving my php file without BOM will correct the problem. I will let you know.</p>\r\n<p>Thanks again.</p>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2010-12-10T11:37:56.833-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "534115",
+    "ThreadId": "237813",
+    "Html": "\r\n<p>If you're on Windows, then WordPad&nbsp;should allow you to save a file as UTF-8 without a BOM. Alternatively, most PHP IDEs will offer this option as well.</p>\r\n",
+    "PostedDate": "2010-12-10T12:43:11.25-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "534120",
+    "ThreadId": "237813",
+    "Html": "\r\n<p>Ok, I downloaded the editor Notepad&#43;&#43; and saved the file without BOM but unfortunately, I still had several BOM at the beginning of the excel file. So, to fix it, now I'm removing BOM directly into PHP and it seams to work just fine. Here is my code:</p>\r\n<p>function removeAllBOM($str=&quot;&quot;)<br>\r\n{<br>\r\n&nbsp;$tmpstr = $str;&nbsp;<br>\r\n&nbsp;while ((substr($tmpstr, 0,3) == pack(&quot;CCC&quot;,0xef,0xbb,0xbf)))<br>\r\n&nbsp;{<br>\r\n&nbsp; $tmpstr=substr($tmpstr, 3);<br>\r\n&nbsp;}&nbsp;<br>\r\n&nbsp;return $tmpstr;<br>\r\n}</p>\r\n<p>...</p>\r\n<p>$objWriter-&gt;save('php://output');<br>\r\n$out1 = ob_get_contents();<br>\r\n$out1 = removeAllBOM($out1);<br>\r\nob_end_clean();<br>\r\nob_start();<br>\r\necho $out1;</p>\r\n<p>...</p>\r\n<p>That time I got something that seam to work each time.</p>\r\n<p>Thanks for you help.</p>\r\n<p>&nbsp;</p>\r\n<p>&nbsp;</p>\r\n",
+    "PostedDate": "2010-12-10T12:46:14.89-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "534127",
+    "ThreadId": "237813",
+    "Html": "\r\n<p>Check any other files that you might be including to see if they contain a BOM or not</p>\r\n",
+    "PostedDate": "2010-12-10T12:53:31.337-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]

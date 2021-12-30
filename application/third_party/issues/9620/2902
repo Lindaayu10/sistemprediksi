@@ -1,0 +1,435 @@
+<?php
+
+echo ini_get('display_errors');
+
+if (!ini_get('display_errors')) {
+    ini_set('display_errors', 1);
+}
+
+echo ini_get('display_errors');
+
+require_once 'Collection.php';
+require_once 'PHPExcel.php';
+require_once 'PHPExcel/Writer/Excel2007.php';
+
+$objPHPExcel = new PHPExcel();
+
+define(STARTYEAR, "08");
+define(STARTMONTH, "10");
+define(NUMROWS, 6);
+define(NUMMONTHS, 4);
+
+$reportArray = array("Site-Built Zonal",
+			"Site-Built Furnace",
+			"Site-Built Hydronic",
+			"Manufactured Zonal",
+			"Manufactured Furnace",
+			"Manufactured Hydronic");
+$columnArray = array("A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","AA","AB","AC","AD","AE","AF","AG","AH","AI","AJ","AK","AL","AM","AN","AO","AP","AQ","AR","AS","AT","AU","AV","AW","AX","AY","AZ","BA","BB","BC");
+$sheetNum = 0;
+$totalLineNbr = 0;
+
+function getMonthTitles(){
+	$counter = 0;
+	$month = STARTMONTH;
+	$year = STARTYEAR;
+	$month_names = array("Jan-","Feb-","Mar-","Apr-","May-","Jun-","Jul-","Aug-","Sep-","Oct-","Nov-","Dec-");
+	$rtnArray = new Collection();
+    while ($counter < NUMMONTHS){
+		if ($month > 12){
+			$month = 1;
+			$year ++;
+		}
+		
+		$rtnString = $month_names[$month-1];
+		if ($year == 8)	$rtnString = $rtnString . "08";
+		if ($year == 9)	$rtnString = $rtnString . "09";
+		if ($year > 9) $rtnString = $rtnString . $year;
+		//echo $rtnString;
+		$rtnArray->add($rtnString);
+		$month ++;
+		$counter ++;
+	}
+	return $rtnArray;
+}
+
+$objPHPExcel->getProperties()->setCreator("Fluid Market Strategies");
+$objPHPExcel->getProperties()->setLastModifiedBy("Ben Sandberg");
+$objPHPExcel->getProperties()->setTitle("Administrative Extended Export");
+$objPHPExcel->getProperties()->setSubject("Monthly Reports");
+$objPHPExcel->getProperties()->setDescription("NW Ductless Heat Pump Administrative Monthly Exports & Totals");
+
+/*
+* Set up the default, Summary sheet.
+*/
+$objPHPExcel->setActiveSheetIndex($sheetNum);
+$objPHPExcel->getActiveSheet()->setTitle('Summary');
+
+$objPHPExcel->getActiveSheet()->getDefaultStyle()->getFont()->setSize(12);
+$objPHPExcel->getActiveSheet()->getDefaultStyle()->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+for($rowNum = 1; $rowNum <= 23; $rowNum++) $objPHPExcel->getActiveSheet()->getRowDimension($rowNum)->setRowHeight(15);
+for($colChar = "A"; $colChar <= "C"; $colChar++) $objPHPExcel->getActiveSheet()->getColumnDimension($colChar)->setWidth(15);
+
+/* Cell Merging */
+$objPHPExcel->getActiveSheet()->mergeCells('A3:B3');
+$objPHPExcel->getActiveSheet()->mergeCells('A4:B4');
+$objPHPExcel->getActiveSheet()->mergeCells('A5:B5');
+$objPHPExcel->getActiveSheet()->mergeCells('A6:B6');
+$objPHPExcel->getActiveSheet()->mergeCells('A7:B7');
+$objPHPExcel->getActiveSheet()->mergeCells('A8:B8');
+$objPHPExcel->getActiveSheet()->mergeCells('A9:B9');
+$objPHPExcel->getActiveSheet()->mergeCells('A10:B10');
+$objPHPExcel->getActiveSheet()->mergeCells('A23:B23');
+
+/* Set up all the default values */
+$objPHPExcel->getActiveSheet()->SetCellValue('A1', 'Summary');
+
+$objPHPExcel->getActiveSheet()->SetCellValue('A3', 'Home Type');
+$objPHPExcel->getActiveSheet()->SetCellValue('C3', 'Total Installed');
+$objPHPExcel->getActiveSheet()->SetCellValue('A4', 'Site-built Zonal');
+$objPHPExcel->getActiveSheet()->SetCellValue('A5', 'Site-built Furnace');
+$objPHPExcel->getActiveSheet()->SetCellValue('A6', 'Site-built Hydronic');
+$objPHPExcel->getActiveSheet()->SetCellValue('A7', 'Manufactured Home Zonal');
+$objPHPExcel->getActiveSheet()->SetCellValue('A8', 'Manufactured Home Furnace');
+$objPHPExcel->getActiveSheet()->SetCellValue('A9', 'Manufactured Home Hydronic');
+$objPHPExcel->getActiveSheet()->SetCellValue('A10', 'Totals');
+
+$lastCol = NUMMONTHS+2;
+$objPHPExcel->getActiveSheet()->SetCellValue('C4', '=SUM(D4:'.$columnArray[$lastCol].'4)');
+$objPHPExcel->getActiveSheet()->SetCellValue('C5', '=SUM(D5:'.$columnArray[$lastCol].'5)');
+$objPHPExcel->getActiveSheet()->SetCellValue('C6', '=SUM(D6:'.$columnArray[$lastCol].'6)');
+$objPHPExcel->getActiveSheet()->SetCellValue('C7', '=SUM(D7:'.$columnArray[$lastCol].'7)');
+$objPHPExcel->getActiveSheet()->SetCellValue('C8', '=SUM(D8:'.$columnArray[$lastCol].'8)');
+$objPHPExcel->getActiveSheet()->SetCellValue('C9', '=SUM(D9:'.$columnArray[$lastCol].'9)');
+$objPHPExcel->getActiveSheet()->SetCellValue('C10', '=SUM(C4:C9)');
+
+$objPHPExcel->getActiveSheet()->SetCellValue('A13', 'Heating Zone');
+$objPHPExcel->getActiveSheet()->SetCellValue('B13', 'Cooling Zone');
+$objPHPExcel->getActiveSheet()->SetCellValue('C13', 'Total Installed');
+$objPHPExcel->getActiveSheet()->SetCellValue('A14', '1');
+$objPHPExcel->getActiveSheet()->SetCellValue('B14', '1');
+$objPHPExcel->getActiveSheet()->SetCellValue('A15', '1');
+$objPHPExcel->getActiveSheet()->SetCellValue('B15', '2');
+$objPHPExcel->getActiveSheet()->SetCellValue('A16', '1');
+$objPHPExcel->getActiveSheet()->SetCellValue('B16', '3');
+$objPHPExcel->getActiveSheet()->SetCellValue('A17', '2');
+$objPHPExcel->getActiveSheet()->SetCellValue('B17', '1');
+$objPHPExcel->getActiveSheet()->SetCellValue('A18', '2');
+$objPHPExcel->getActiveSheet()->SetCellValue('B18', '2');
+$objPHPExcel->getActiveSheet()->SetCellValue('A19', '2');
+$objPHPExcel->getActiveSheet()->SetCellValue('B19', '3');
+$objPHPExcel->getActiveSheet()->SetCellValue('A20', '3');
+$objPHPExcel->getActiveSheet()->SetCellValue('B20', '1');
+$objPHPExcel->getActiveSheet()->SetCellValue('A21', '3');
+$objPHPExcel->getActiveSheet()->SetCellValue('B21', '2');
+$objPHPExcel->getActiveSheet()->SetCellValue('A22', '3');
+$objPHPExcel->getActiveSheet()->SetCellValue('B22', '3');
+$objPHPExcel->getActiveSheet()->SetCellValue('A23', 'Totals');
+$objPHPExcel->getActiveSheet()->SetCellValue('C14', '=SUM(D14:'.$columnArray[$lastCol].'14)');
+$objPHPExcel->getActiveSheet()->SetCellValue('C15', '=SUM(D15:'.$columnArray[$lastCol].'15)');
+$objPHPExcel->getActiveSheet()->SetCellValue('C16', '=SUM(D16:'.$columnArray[$lastCol].'16)');
+$objPHPExcel->getActiveSheet()->SetCellValue('C17', '=SUM(D17:'.$columnArray[$lastCol].'17)');
+$objPHPExcel->getActiveSheet()->SetCellValue('C18', '=SUM(D18:'.$columnArray[$lastCol].'18)');
+$objPHPExcel->getActiveSheet()->SetCellValue('C19', '=SUM(D19:'.$columnArray[$lastCol].'19)');
+$objPHPExcel->getActiveSheet()->SetCellValue('C20', '=SUM(D20:'.$columnArray[$lastCol].'20)');
+$objPHPExcel->getActiveSheet()->SetCellValue('C21', '=SUM(D21:'.$columnArray[$lastCol].'21)');
+$objPHPExcel->getActiveSheet()->SetCellValue('C22', '=SUM(D22:'.$columnArray[$lastCol].'22)');
+$objPHPExcel->getActiveSheet()->SetCellValue('C23', '=SUM(C14:C22)');
+
+/* Formatting for the Home Type header fields */
+$objPHPExcel->getActiveSheet()->getStyle('A3')->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+$objPHPExcel->getActiveSheet()->getStyle('B3')->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+$objPHPExcel->getActiveSheet()->getStyle('A3')->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+$objPHPExcel->getActiveSheet()->getStyle('A3')->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+
+$objPHPExcel->getActiveSheet()->getStyle('C3')->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+$objPHPExcel->getActiveSheet()->getStyle('C3')->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+$objPHPExcel->getActiveSheet()->getStyle('C3')->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+$objPHPExcel->getActiveSheet()->getStyle('C3')->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+$objPHPExcel->getActiveSheet()->duplicateStyle($objPHPExcel->getActiveSheet()->getStyle('C3'), 'C10');
+$objPHPExcel->getActiveSheet()->duplicateStyle($objPHPExcel->getActiveSheet()->getStyle('C3'), 'C23');
+
+$objPHPExcel->getActiveSheet()->getStyle('C4')->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+$objPHPExcel->getActiveSheet()->getStyle('C4')->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+$objPHPExcel->getActiveSheet()->duplicateStyle($objPHPExcel->getActiveSheet()->getStyle('C4'), 'C5:C9');
+$objPHPExcel->getActiveSheet()->duplicateStyle($objPHPExcel->getActiveSheet()->getStyle('C4'), 'C14:C22');
+
+$objPHPExcel->getActiveSheet()->getStyle('A3')->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
+$objPHPExcel->getActiveSheet()->getStyle('A3')->getFill()->getStartColor()->setARGB('FFCCCCCC');
+$objPHPExcel->getActiveSheet()->getStyle('A4')->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
+$objPHPExcel->getActiveSheet()->getStyle('A4')->getFill()->getStartColor()->setARGB('FFCCCCFF');
+$objPHPExcel->getActiveSheet()->getStyle('C3')->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
+$objPHPExcel->getActiveSheet()->getStyle('C3')->getFill()->getStartColor()->setARGB('FFCCFFFF');
+$objPHPExcel->getActiveSheet()->getStyle('C3')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+$objPHPExcel->getActiveSheet()->getStyle('C13')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+
+$objPHPExcel->getActiveSheet()->getStyle('A4')->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+$objPHPExcel->getActiveSheet()->duplicateStyle($objPHPExcel->getActiveSheet()->getStyle('A4'), 'A5:A9');
+$objPHPExcel->getActiveSheet()->getStyle('B4')->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+$objPHPExcel->getActiveSheet()->duplicateStyle($objPHPExcel->getActiveSheet()->getStyle('B4'), 'B5:B9');
+
+/* Formatting for Home Type Totals */
+$objPHPExcel->getActiveSheet()->getStyle('A10')->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+$objPHPExcel->getActiveSheet()->getStyle('A10')->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+$objPHPExcel->getActiveSheet()->getStyle('A10')->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+$objPHPExcel->getActiveSheet()->getStyle('B10')->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+
+$objPHPExcel->getActiveSheet()->getStyle('A10')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+$objPHPExcel->getActiveSheet()->getStyle('A23')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+
+/****************
+* HZ & CZ Report
+****************/
+$objPHPExcel->getActiveSheet()->getStyle('A13')->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
+$objPHPExcel->getActiveSheet()->getStyle('A13')->getFill()->getStartColor()->setARGB('FFCCCCCC');
+$objPHPExcel->getActiveSheet()->getStyle('A13')->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+$objPHPExcel->getActiveSheet()->getStyle('A13')->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+$objPHPExcel->getActiveSheet()->getStyle('A13')->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+$objPHPExcel->getActiveSheet()->getStyle('A13')->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+$objPHPExcel->getActiveSheet()->getStyle('A13')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+$objPHPExcel->getActiveSheet()->duplicateStyle($objPHPExcel->getActiveSheet()->getStyle('A13'), 'B13');
+$objPHPExcel->getActiveSheet()->duplicateStyle($objPHPExcel->getActiveSheet()->getStyle('C3'), 'C13');
+
+$objPHPExcel->getActiveSheet()->getStyle('A14')->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
+$objPHPExcel->getActiveSheet()->getStyle('A14')->getFill()->getStartColor()->setARGB('FFCCCCFF');
+$objPHPExcel->getActiveSheet()->getStyle('A14')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+$objPHPExcel->getActiveSheet()->getStyle('A14')->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+$objPHPExcel->getActiveSheet()->getStyle('A14')->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+$objPHPExcel->getActiveSheet()->duplicateStyle($objPHPExcel->getActiveSheet()->getStyle('A14'), 'A14:B22');
+
+/* HZ & CZ Totals */
+$objPHPExcel->getActiveSheet()->duplicateStyle($objPHPExcel->getActiveSheet()->getStyle('A10'), 'A23');
+$objPHPExcel->getActiveSheet()->duplicateStyle($objPHPExcel->getActiveSheet()->getStyle('B10'), 'B23');
+
+/* Special -- Month data for SUMMARY tab/sheet. */
+$myArray=getMonthTitles();
+$myArray->first();
+for($i = 0; $i < NUMMONTHS; $i++) {
+	$myIndex = $i+3;
+	$myCell = $columnArray[$myIndex];
+	$cellValue = $myArray->next();
+	$objPHPExcel->getActiveSheet()->SetCellValue($myCell.'3', $cellValue);
+	$objPHPExcel->getActiveSheet()->SetCellValue($myCell.'13', $cellValue);
+	
+	$objPHPExcel->getActiveSheet()->getStyle($myCell.'3')->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
+	$objPHPExcel->getActiveSheet()->getStyle($myCell.'3')->getFill()->getStartColor()->setARGB('FFCCCCCC');
+	$objPHPExcel->getActiveSheet()->getStyle($myCell.'3')->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+	$objPHPExcel->getActiveSheet()->getStyle($myCell.'3')->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+	$objPHPExcel->getActiveSheet()->getStyle($myCell.'10')->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+	$objPHPExcel->getActiveSheet()->getStyle($myCell.'10')->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+	$objPHPExcel->getActiveSheet()->SetCellValue($myCell.'10', "=SUM(".$myCell."4:".$myCell."9)");
+	
+	$objPHPExcel->getActiveSheet()->getStyle($myCell.'13')->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
+	$objPHPExcel->getActiveSheet()->getStyle($myCell.'13')->getFill()->getStartColor()->setARGB('FFCCCCCC');
+	$objPHPExcel->getActiveSheet()->getStyle($myCell.'13')->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+	$objPHPExcel->getActiveSheet()->getStyle($myCell.'13')->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+	$objPHPExcel->getActiveSheet()->getStyle($myCell.'23')->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+	$objPHPExcel->getActiveSheet()->getStyle($myCell.'23')->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+	$objPHPExcel->getActiveSheet()->SetCellValue($myCell.'23', "=SUM(".$myCell."14:".$myCell."22)");
+	
+	$nTMP = NUMMONTHS-1;
+	if($i == $nTMP) {
+		$objPHPExcel->getActiveSheet()->getStyle($myCell.'3')->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+		$objPHPExcel->getActiveSheet()->getStyle($myCell.'4')->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+		$objPHPExcel->getActiveSheet()->getStyle($myCell.'5')->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+		$objPHPExcel->getActiveSheet()->getStyle($myCell.'6')->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+		$objPHPExcel->getActiveSheet()->getStyle($myCell.'7')->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+		$objPHPExcel->getActiveSheet()->getStyle($myCell.'8')->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+		$objPHPExcel->getActiveSheet()->getStyle($myCell.'9')->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+		$objPHPExcel->getActiveSheet()->getStyle($myCell.'10')->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+		
+		$objPHPExcel->getActiveSheet()->getStyle($myCell.'13')->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+		$objPHPExcel->getActiveSheet()->getStyle($myCell.'14')->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+		$objPHPExcel->getActiveSheet()->getStyle($myCell.'15')->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+		$objPHPExcel->getActiveSheet()->getStyle($myCell.'16')->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+		$objPHPExcel->getActiveSheet()->getStyle($myCell.'17')->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+		$objPHPExcel->getActiveSheet()->getStyle($myCell.'18')->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+		$objPHPExcel->getActiveSheet()->getStyle($myCell.'19')->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+		$objPHPExcel->getActiveSheet()->getStyle($myCell.'20')->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+		$objPHPExcel->getActiveSheet()->getStyle($myCell.'21')->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+		$objPHPExcel->getActiveSheet()->getStyle($myCell.'22')->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+		$objPHPExcel->getActiveSheet()->getStyle($myCell.'23')->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+	}
+}
+
+
+
+/********************************************
+* Begin to generate the individual reports. *
+********************************************/
+foreach ($reportArray as $report) {
+	$objPHPExcel->createSheet();
+	$sheetNum++;
+	$objPHPExcel->setActiveSheetIndex($sheetNum);
+	$objPHPExcel->getActiveSheet()->setTitle($report); /* Set the Sheet's Title */
+	$objPHPExcel->getActiveSheet()->getDefaultStyle()->getFont()->setSize(12); /* Set the default font size. */
+	$objPHPExcel->getActiveSheet()->getDefaultStyle()->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+	$objPHPExcel->getActiveSheet()->getColumnDimension('A')->setWidth(27); /* Set the first column width, with all the names, to large. */
+	$objPHPExcel->getActiveSheet()->SetCellValue('A1', $report." Report");
+	$objPHPExcel->getActiveSheet()->SetCellValue('A3', "Utility Name");
+	$objPHPExcel->getActiveSheet()->SetCellValue('B3', "HZ");
+	$objPHPExcel->getActiveSheet()->SetCellValue('C3', "CZ");
+	$objPHPExcel->getActiveSheet()->getStyle('A1')->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
+	$objPHPExcel->getActiveSheet()->getStyle('A1')->getFill()->getStartColor()->setARGB('FFFFFF00');
+	
+	$objPHPExcel->getActiveSheet()->getStyle('A3')->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
+	$objPHPExcel->getActiveSheet()->getStyle('A3')->getFill()->getStartColor()->setARGB('FFCCCCCC');
+	$objPHPExcel->getActiveSheet()->getStyle('A3')->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+	$objPHPExcel->getActiveSheet()->getStyle('A3')->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+	$objPHPExcel->getActiveSheet()->getStyle('A3')->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+	//$objPHPExcel->getActiveSheet()->getStyle('A3')->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+	
+	$objPHPExcel->getActiveSheet()->getStyle('B3')->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
+	$objPHPExcel->getActiveSheet()->getStyle('B3')->getFill()->getStartColor()->setARGB('FFCCCCCC');
+	$objPHPExcel->getActiveSheet()->getStyle('B3')->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+	$objPHPExcel->getActiveSheet()->getStyle('B3')->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+	//$objPHPExcel->getActiveSheet()->getStyle('B3')->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+	$objPHPExcel->getActiveSheet()->getStyle('B3')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+	
+	$objPHPExcel->getActiveSheet()->getStyle('C3')->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
+	$objPHPExcel->getActiveSheet()->getStyle('C3')->getFill()->getStartColor()->setARGB('FFCCCCCC');
+	$objPHPExcel->getActiveSheet()->getStyle('C3')->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+	$objPHPExcel->getActiveSheet()->getStyle('C3')->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+	$objPHPExcel->getActiveSheet()->getStyle('C3')->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+	$objPHPExcel->getActiveSheet()->getStyle('C3')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+
+/* Start of Header Months Output */
+	$myArray=getMonthTitles();
+	$myArray->first();
+	for($i = 0; $i < NUMMONTHS; $i++) {
+		$myIndex = $i+3;
+		$myCell = $columnArray[$myIndex].'3';
+		$cellValue = $myArray->next();
+		$objPHPExcel->getActiveSheet()->SetCellValue($myCell, $cellValue);
+		$objPHPExcel->getActiveSheet()->getStyle($myCell)->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
+		$objPHPExcel->getActiveSheet()->getStyle($myCell)->getFill()->getStartColor()->setARGB('FFCCCCCC');
+		$objPHPExcel->getActiveSheet()->getStyle($myCell)->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+		$objPHPExcel->getActiveSheet()->getStyle($myCell)->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+		//$objPHPExcel->getActiveSheet()->getStyle($myCell)->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+		$objPHPExcel->getActiveSheet()->getStyle($myCell)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+	}
+	
+	$myIndex = NUMMONTHS+3;
+	$myCell = $columnArray[$myIndex].'3';
+	$objPHPExcel->getActiveSheet()->getStyle($myCell)->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
+	$objPHPExcel->getActiveSheet()->getStyle($myCell)->getFill()->getStartColor()->setARGB('FFCCFFFF');
+	$objPHPExcel->getActiveSheet()->getStyle($myCell)->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+	$objPHPExcel->getActiveSheet()->getStyle($myCell)->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+	$objPHPExcel->getActiveSheet()->getStyle($myCell)->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+	$objPHPExcel->getActiveSheet()->getStyle($myCell)->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+	$objPHPExcel->getActiveSheet()->getStyle($myCell)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+	$objPHPExcel->getActiveSheet()->SetCellValue($myCell, "Total Installed");
+
+/*************
+* Row Output *
+*************/
+
+	for($rowNum = 0; $rowNum < NUMROWS; $rowNum++) {
+		$dataLine = $rowNum+4;
+		$objPHPExcel->getActiveSheet()->getStyle('A'.$dataLine)->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+		//$objPHPExcel->getActiveSheet()->getStyle('A'.$dataLine)->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+		//$objPHPExcel->getActiveSheet()->getStyle('A'.$dataLine)->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+		
+		//$objPHPExcel->getActiveSheet()->getStyle('B'.$dataLine)->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+		//$objPHPExcel->getActiveSheet()->getStyle('B'.$dataLine)->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+		//$objPHPExcel->getActiveSheet()->getStyle('C'.$dataLine)->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+		$objPHPExcel->getActiveSheet()->getStyle('C'.$dataLine)->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+
+		//$objPHPExcel->getActiveSheet()->getStyle('D'.$dataLine)->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+		//$objPHPExcel->getActiveSheet()->getStyle('D'.$dataLine)->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+		
+		for($i = 0; $i < NUMMONTHS; $i++) {
+			$myIndex = $i+3;
+			$myCell = $columnArray[$myIndex].$dataLine;
+			//echo $myCell;
+			//$objPHPExcel->getActiveSheet()->duplicateStyle($objPHPExcel->getActiveSheet()->getStyle('B4'), $myCell);
+			//$objPHPExcel->getActiveSheet()->getStyle($myCell)->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+			//$objPHPExcel->getActiveSheet()->getStyle($myCell)->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+		}
+
+		/*
+		 * Total Column
+		 */
+		$totalColumnIndex = NUMMONTHS+3; //This sets a var to the number of months we need, plus 3, to get the total field column letter.
+		$myCell = $columnArray[$totalColumnIndex].$dataLine;
+		$totalColumnIndex2 = $totalColumnIndex-1;
+		$objPHPExcel->getActiveSheet()->SetCellValue($myCell, "=SUM(D".$dataLine.":".$columnArray[$totalColumnIndex2].$dataLine.")");
+		//$objPHPExcel->getActiveSheet()->getStyle($myCell)->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+		$objPHPExcel->getActiveSheet()->getStyle($myCell)->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+		$objPHPExcel->getActiveSheet()->getStyle($myCell)->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+	}
+
+/*************
+* Total Line *
+*************/
+	$totalLine = NUMROWS+4;
+	$totalLineNbr = $totalLine;
+	$objPHPExcel->getActiveSheet()->getStyle('A'.$totalLine)->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
+	$objPHPExcel->getActiveSheet()->getStyle('A'.$totalLine)->getFill()->getStartColor()->setARGB('FFFFCC00');
+	$objPHPExcel->getActiveSheet()->getStyle('A'.$totalLine)->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+	$objPHPExcel->getActiveSheet()->getStyle('A'.$totalLine)->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+	$objPHPExcel->getActiveSheet()->getStyle('A'.$totalLine)->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+	//$objPHPExcel->getActiveSheet()->getStyle('A'.$totalLine)->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+	$objPHPExcel->getActiveSheet()->SetCellValue('A'.$totalLine, "Total");
+
+	$objPHPExcel->getActiveSheet()->getStyle('B'.$totalLine)->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
+	$objPHPExcel->getActiveSheet()->getStyle('B'.$totalLine)->getFill()->getStartColor()->setARGB('FFFFCC00');
+	$objPHPExcel->getActiveSheet()->getStyle('B'.$totalLine)->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+	$objPHPExcel->getActiveSheet()->getStyle('B'.$totalLine)->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+	//$objPHPExcel->getActiveSheet()->getStyle('B'.$totalLine)->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+
+	$objPHPExcel->getActiveSheet()->getStyle('C'.$totalLine)->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
+	$objPHPExcel->getActiveSheet()->getStyle('C'.$totalLine)->getFill()->getStartColor()->setARGB('FFFFCC00');
+	$objPHPExcel->getActiveSheet()->getStyle('C'.$totalLine)->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+	$objPHPExcel->getActiveSheet()->getStyle('C'.$totalLine)->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+	$objPHPExcel->getActiveSheet()->getStyle('C'.$totalLine)->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+
+/* Columns of Monthly data, starting with D */
+	for($i = 0; $i < NUMMONTHS; $i++) {
+		$myIndex = $i+3;
+		$myCell = $columnArray[$myIndex].$totalLine;
+		$objPHPExcel->getActiveSheet()->getStyle($myCell)->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
+		$objPHPExcel->getActiveSheet()->getStyle($myCell)->getFill()->getStartColor()->setARGB('FFFFCC00');
+		$objPHPExcel->getActiveSheet()->getStyle($myCell)->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+		$objPHPExcel->getActiveSheet()->getStyle($myCell)->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+		//$objPHPExcel->getActiveSheet()->getStyle($myCell)->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+		$shortTotal = $totalLine-1;
+		$objPHPExcel->getActiveSheet()->SetCellValue($columnArray[$myIndex].$totalLine, "=SUM(".$columnArray[$myIndex]."4:".$columnArray[$myIndex].$shortTotal.")"); // SUM from 4 on.
+	}
+
+/* Total Column */
+	$myIndex = NUMMONTHS+3;
+	$myCell = $columnArray[$myIndex].$totalLine;
+	$objPHPExcel->getActiveSheet()->getStyle($myCell)->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
+	$objPHPExcel->getActiveSheet()->getStyle($myCell)->getFill()->getStartColor()->setARGB('FFFFCC00');
+	$objPHPExcel->getActiveSheet()->getStyle($myCell)->getBorders()->getBottom()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+	$objPHPExcel->getActiveSheet()->getStyle($myCell)->getBorders()->getTop()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+	$objPHPExcel->getActiveSheet()->getStyle($myCell)->getBorders()->getRight()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+	$objPHPExcel->getActiveSheet()->getStyle($myCell)->getBorders()->getLeft()->setBorderStyle(PHPExcel_Style_Border::BORDER_THICK);
+	$shortTotal = $totalLine-1;
+	$objPHPExcel->getActiveSheet()->SetCellValue($columnArray[$myIndex].$totalLine, "=SUM(".$columnArray[$myIndex]."4:".$columnArray[$myIndex].$shortTotal.")"); // read from 4 on.
+/*
+	for($rowNum = 1; $rowNum <= 5; $rowNum++) {
+		$objPHPExcel->getActiveSheet()->getRowDimension($rowNum)->setRowHeight(15);
+	}
+*/
+	$objPHPExcel->getActiveSheet()->getColumnDimension($columnArray[$myIndex])->setAutoSize(true);
+}
+
+$objPHPExcel->setActiveSheetIndex(0);
+for($i = 0; $i < NUMMONTHS; $i++) {
+	$myIndex = $i+3;
+	$myCell = $columnArray[$myIndex];
+	$objPHPExcel->getActiveSheet()->SetCellValue($myCell.'4', "='".$reportArray[0]."'.".$myCell.$totalLineNbr);
+	$objPHPExcel->getActiveSheet()->SetCellValue($myCell.'5', "='".$reportArray[1]."'.".$myCell.$totalLineNbr);
+	$objPHPExcel->getActiveSheet()->SetCellValue($myCell.'6', "='".$reportArray[2]."'.".$myCell.$totalLineNbr);
+	$objPHPExcel->getActiveSheet()->SetCellValue($myCell.'7', "='".$reportArray[3]."'.".$myCell.$totalLineNbr);
+	$objPHPExcel->getActiveSheet()->SetCellValue($myCell.'8', "='".$reportArray[4]."'.".$myCell.$totalLineNbr);
+	$objPHPExcel->getActiveSheet()->SetCellValue($myCell.'9', "='".$reportArray[5]."'.".$myCell.$totalLineNbr);
+}
+
+/* OUTPUT */
+$objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel);
+//$objWriter->setOffice2003Compatibility(true); //Make sure to be compatible with pre-Office2007.
+$objWriter->save(str_replace('.php', '.xlsx', __FILE__)); //Outputs FILENAME.xlsx
+?>

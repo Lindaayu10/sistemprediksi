@@ -1,0 +1,241 @@
+<style type="text/css">
+	/*Begin: CSS*/
+
+	
+	tr{
+		text-align:center;
+	}
+
+	td,th{
+		vertical-align: center;
+		padding: 8px;
+		border: 2px solid black;
+	}
+	
+	/*Column Colors*/
+	
+	#required{
+		background-color: #D9EAD3;		
+	}
+	
+	#requiredBySome{
+		background-color: #C9DAF8;		
+	}
+	
+	#optional{
+		background-color: #E6B8AF;		
+	}
+
+	/*End: CSS*/
+</style>
+
+<html>
+	<body>
+		<?php
+	
+			
+			// Version
+			define('VERSION', '1.5.6.4');
+			
+			/** Error reporting */
+			error_reporting(E_ALL);
+
+			/** Include path **/
+			ini_set('include_path', ini_get('include_path').';../Classes/');
+
+			/** PHPExcel */
+			include 'Classes/PHPExcel.php';
+
+			/** PHPExcel_Writer_Excel2007 */
+			include 'Classes/PHPExcel/Writer/Excel2007.php';
+			
+			// Database 
+
+			$db = mysqli_connect(DB_HOSTNAME,DB_USERNAME,DB_PASSWORD, DB_DATABASE);
+			 if (!$db) {
+				 die('Could not connect: ' . mysqli_error($db));
+			 }
+			 			 
+			 mysqli_select_db($db,DB_DATABASE);
+			/*TESTING PURPOSES*/
+			
+			//Date Report Page	
+				echo "<h1 align=\"center\">Products</h1>
+				<br>
+					
+				<table border=\"1 solid black\" align=\"center\">
+					 <tr>
+						<th id='required'>Unique ID</th>
+						<th id='required'>Title</th>
+						<th id='required'>Description</th>
+						<th id='required'>Product URL</th>
+						<th id='required'>Image URL</th>
+						<th id='required'>Availability</th>
+						<th id='required'>Current Price</th>
+						<th id='requiredBySome'>Mpn</th>
+						<th id='requiredBySome'>Brand</th>
+						<th id='optional'>Shipping Weight</th>
+						<th id='optional'>Availability Date</th>
+					 </tr>";
+			 
+			 $productSQL = 	"SQL FROM DATABASE";
+							
+			 $productQuery = mysqli_query($db,$productSQL);
+			 
+			
+			// Create new PHPExcel object
+			$objPHPExcel = new PHPExcel();
+			
+			// Set properties
+			$objPHPExcel->getProperties()->setCreator("Creator Name");
+			$objPHPExcel->getProperties()->setLastModifiedBy("Name");
+			$objPHPExcel->getProperties()->setTitle("Office 2007 XLSX Product Document");
+			$objPHPExcel->getProperties()->setSubject("Office 2007 XLSX Product Document");
+			$objPHPExcel->getProperties()->setDescription("Product document for Office 2007 XLSX, generated using PHP classes.");
+
+			//Formatting Excel Sheet
+			$objPHPExcel->getActiveSheet()->getStyle('A1:K1')->getFont()->setBold(true);
+			
+			$objPHPExcel->getActiveSheet()->getColumnDimension('A')->setWidth(14);
+			$objPHPExcel->getActiveSheet()->getColumnDimension('B')->setWidth(50);
+			$objPHPExcel->getActiveSheet()->getColumnDimension('C')->setWidth(100);
+			$objPHPExcel->getActiveSheet()->getColumnDimension('D')->setWidth(85);
+			$objPHPExcel->getActiveSheet()->getColumnDimension('E')->setWidth(85);
+			$objPHPExcel->getActiveSheet()->getColumnDimension('F')->setWidth(20);
+			$objPHPExcel->getActiveSheet()->getColumnDimension('G')->setWidth(20);
+			$objPHPExcel->getActiveSheet()->getColumnDimension('H')->setWidth(14);
+			$objPHPExcel->getActiveSheet()->getColumnDimension('I')->setWidth(20);
+			$objPHPExcel->getActiveSheet()->getColumnDimension('J')->setWidth(20);
+			$objPHPExcel->getActiveSheet()->getColumnDimension('K')->setWidth(20);
+			
+		
+			//FILL COLOR HEADERS
+		
+			$objPHPExcel->getActiveSheet()->getStyle('A1:G1')->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
+			$objPHPExcel->getActiveSheet()->getStyle('A1:G1')->getFill()->getStartColor()->setARGB(PHPExcel_Style_Color::COLOR_LIGHTGRAYISHGREEN);
+		
+			$objPHPExcel->getActiveSheet()->getStyle('H1:I1')->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
+			$objPHPExcel->getActiveSheet()->getStyle('H1:I1')->getFill()->getStartColor()->setARGB(PHPExcel_Style_Color::COLOR_LIGHTGRAYISHBLUE);
+			
+			$objPHPExcel->getActiveSheet()->getStyle('J1:K1')->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
+			$objPHPExcel->getActiveSheet()->getStyle('J1:K1')->getFill()->getStartColor()->setARGB(PHPExcel_Style_Color::COLOR_VERYSOFTRED);
+		
+			//FILL COLOR COLUMNS
+			
+			$objPHPExcel->getActiveSheet()->getStyle('A:G')->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
+			$objPHPExcel->getActiveSheet()->getStyle('A:G')->getFill()->getStartColor()->setARGB(PHPExcel_Style_Color::COLOR_LIGHTGRAYISHGREEN);
+			
+			$objPHPExcel->getActiveSheet()->getStyle('H:I')->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
+			$objPHPExcel->getActiveSheet()->getStyle('H:I')->getFill()->getStartColor()->setARGB(PHPExcel_Style_Color::COLOR_LIGHTGRAYISHBLUE);
+			
+			$objPHPExcel->getActiveSheet()->getStyle('J:K')->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
+			$objPHPExcel->getActiveSheet()->getStyle('J:K')->getFill()->getStartColor()->setARGB(PHPExcel_Style_Color::COLOR_VERYSOFTRED);
+			
+			//Borders
+			$styleThinBlackBorderOutline = array(
+												'borders' => array(
+													'outline' => array(
+														'style' => PHPExcel_Style_Border::BORDER_THIN,
+													),
+												),
+											);
+			
+			$objPHPExcel->getActiveSheet()->getStyle('A1')->applyFromArray($styleThinBlackBorderOutline);
+			$objPHPExcel->getActiveSheet()->getStyle('B1')->applyFromArray($styleThinBlackBorderOutline);
+			$objPHPExcel->getActiveSheet()->getStyle('C1')->applyFromArray($styleThinBlackBorderOutline);
+			$objPHPExcel->getActiveSheet()->getStyle('D1')->applyFromArray($styleThinBlackBorderOutline);
+			$objPHPExcel->getActiveSheet()->getStyle('E1')->applyFromArray($styleThinBlackBorderOutline);
+			$objPHPExcel->getActiveSheet()->getStyle('F1')->applyFromArray($styleThinBlackBorderOutline);
+			$objPHPExcel->getActiveSheet()->getStyle('G1')->applyFromArray($styleThinBlackBorderOutline);
+			$objPHPExcel->getActiveSheet()->getStyle('H1')->applyFromArray($styleThinBlackBorderOutline);
+			$objPHPExcel->getActiveSheet()->getStyle('I1')->applyFromArray($styleThinBlackBorderOutline);
+			$objPHPExcel->getActiveSheet()->getStyle('J1')->applyFromArray($styleThinBlackBorderOutline);
+			$objPHPExcel->getActiveSheet()->getStyle('K1')->applyFromArray($styleThinBlackBorderOutline);
+			
+			
+			//Table Headers
+			$objPHPExcel->setActiveSheetIndex(0);
+			$objPHPExcel->getActiveSheet()->SetCellValue('A1', 'Unique ID');
+			$objPHPExcel->getActiveSheet()->SetCellValue('B1', 'Title');
+			$objPHPExcel->getActiveSheet()->SetCellValue('C1', 'Description');
+			$objPHPExcel->getActiveSheet()->SetCellValue('D1', 'Product URL');
+			$objPHPExcel->getActiveSheet()->SetCellValue('E1', 'Image URL');
+			$objPHPExcel->getActiveSheet()->SetCellValue('F1', 'Availability');
+			$objPHPExcel->getActiveSheet()->SetCellValue('G1', 'Current Price');
+			$objPHPExcel->getActiveSheet()->SetCellValue('H1', 'Mpn');
+			$objPHPExcel->getActiveSheet()->SetCellValue('I1', 'Brand');
+			$objPHPExcel->getActiveSheet()->SetCellValue('J1', 'Shipping Weight');
+			$objPHPExcel->getActiveSheet()->SetCellValue('K1', 'Availability Date');
+			
+			$row_NUM = 2;
+			while($product = mysqli_fetch_array($productQuery)) {	
+			 
+					$product_DescriptionSQL= "SQL";
+					$product_DescriptionQuery = mysqli_query($db,$product_DescriptionSQL);
+					$product_Description = mysqli_fetch_array($product_DescriptionQuery);
+					
+					$manufacturerSQL= "SQL";
+					$manufacturerQuery = mysqli_query($db,$manufacturerSQL);
+					$manufacturer = mysqli_fetch_array($manufacturerQuery);
+					
+					$stock_statusSQL= "SQL";
+					$stock_statusQuery = mysqli_query($db,$stock_statusSQL);
+					$stock_status = mysqli_fetch_array($stock_statusQuery);
+					
+					echo "<tr>
+							<td id='required'>"  		. $product['model'] 					.	"</td>
+							<td id='required'>"  		. $product_Description['name'] 			.	"</td>
+							<td id='required'>"  		. $product_Description['description']	.	"</td>
+							<td id='required'>"  		. " " 									.	"</td>
+							<td id='required'>"  		. $product['image'] 					.	"</td>
+							<td id='required'>"  		. $stock_status['name']					.	"</td>
+							<td id='required'>"  		. $product['price']						.	"</td>
+							<td id='requiredBySome'>"   . $product['model']						.	"</td>
+							<td id='requiredBySome'>" 	. $manufacturer['name']					.	"</td>
+							<td id='optional'>" 		. $product['weight']					.	"</td>
+							<td id='optional'>"  		. $product['date_available']			.	"</td>
+						 </tr>";
+					
+					// Add some data
+					$objPHPExcel->getActiveSheet()->SetCellValue('A' . $row_NUM, $product['model']);
+					$objPHPExcel->getActiveSheet()->SetCellValue('B' . $row_NUM, $product_Description['name']);
+					$objPHPExcel->getActiveSheet()->SetCellValue('C' . $row_NUM, $product_Description['description']);
+					$objPHPExcel->getActiveSheet()->SetCellValue('D' . $row_NUM, ' ');
+					$objPHPExcel->getActiveSheet()->SetCellValue('E' . $row_NUM, $product['image']);
+					$objPHPExcel->getActiveSheet()->SetCellValue('F' . $row_NUM, $stock_status['name']);
+					$objPHPExcel->getActiveSheet()->SetCellValue('G' . $row_NUM, $product['price']);
+					$objPHPExcel->getActiveSheet()->SetCellValue('H' . $row_NUM, $product['model']);
+					$objPHPExcel->getActiveSheet()->SetCellValue('I' . $row_NUM, $manufacturer['name']	);
+					$objPHPExcel->getActiveSheet()->SetCellValue('J' . $row_NUM, $product['weight']);
+					$objPHPExcel->getActiveSheet()->SetCellValue('K' . $row_NUM, $product['date_available']);
+					
+					//Apply Outline Border
+					$objPHPExcel->getActiveSheet()->getStyle('A' . $row_NUM)->applyFromArray($styleThinBlackBorderOutline);
+					$objPHPExcel->getActiveSheet()->getStyle('B' . $row_NUM)->applyFromArray($styleThinBlackBorderOutline);
+					$objPHPExcel->getActiveSheet()->getStyle('C' . $row_NUM)->applyFromArray($styleThinBlackBorderOutline);
+					$objPHPExcel->getActiveSheet()->getStyle('D' . $row_NUM)->applyFromArray($styleThinBlackBorderOutline);
+					$objPHPExcel->getActiveSheet()->getStyle('E' . $row_NUM)->applyFromArray($styleThinBlackBorderOutline);
+					$objPHPExcel->getActiveSheet()->getStyle('F' . $row_NUM)->applyFromArray($styleThinBlackBorderOutline);
+					$objPHPExcel->getActiveSheet()->getStyle('G' . $row_NUM)->applyFromArray($styleThinBlackBorderOutline);
+					$objPHPExcel->getActiveSheet()->getStyle('H' . $row_NUM)->applyFromArray($styleThinBlackBorderOutline);
+					$objPHPExcel->getActiveSheet()->getStyle('I' . $row_NUM)->applyFromArray($styleThinBlackBorderOutline);
+					$objPHPExcel->getActiveSheet()->getStyle('J' . $row_NUM)->applyFromArray($styleThinBlackBorderOutline);
+					$objPHPExcel->getActiveSheet()->getStyle('K' . $row_NUM)->applyFromArray($styleThinBlackBorderOutline);
+					
+					$row_NUM++;
+			 }
+
+			// Rename sheet
+			$objPHPExcel->getActiveSheet()->setTitle('Products');
+
+					
+			// Save Excel 2007 file
+			$objWriter = new PHPExcel_Writer_Excel2007($objPHPExcel);
+			$objWriter->save(str_replace('.php', '.xlsx', __FILE__));
+			 
+			 echo "</table>";
+	
+			mysqli_close($db);
+			?>
+	</body>
+</html>

@@ -1,0 +1,66 @@
+[
+  {
+    "Id": "1220110",
+    "ThreadId": "538241",
+    "Html": "Hello,\r<br />\n<br />\nI am trying to loop from G1 to AJ5. If I write a foreach loop: \r<br />\nforeach (range('G', 'AJ') as $column) {<br />\n<pre><code>        for ($row = 1; $row &lt;= 5; $row++) {\n            $cellIndex = $column.$row;\n   }</code></pre>\n\n}\r<br />\n<br />\nAJ will be recognized as A instead...<br />\n",
+    "PostedDate": "2014-03-06T16:28:41.553-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1220113",
+    "ThreadId": "538241",
+    "Html": "PHPs range() function doesn't work like that. It can do single letters since they can be indexed as ascii codes.<br />\n<br />\nYou could do range(getColumnIndex('G'), getColumnIndex('AJ')) and then reverse the index reference inside the loop if you needed it.<br />\n<br />\nNote: getColumnIndex() is just a generic function call as an example. You'll have to find the proper one from PHPExcel or make your own.<br />\n<br />\n-- Christopher Mullins <br />\n",
+    "PostedDate": "2014-03-06T17:03:04.467-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1220165",
+    "ThreadId": "538241",
+    "Html": "<pre><code>    $firstColumn = 'G';\n    $lastColumn = 'AJ';\n\n    $lastColumn++;\n    for($column = $firstColumn; $column !== $lastColumn; $column++) {\n        ... do stuff\n    }</code></pre>\n\nor if you're using PHP 5.5, you can use Generators:<br />\n<pre><code>    function excelColumnRange($lower, $upper) {\n        ++$upper;\n        for ($i = $lower; $i != $upper; ++$i) {\n            yield $i;\n        }\n    }\n\n    foreach (excelColumnRange('G', 'AJ') as $column) {\n        ... do stuff\n    }</code></pre>\n\n",
+    "PostedDate": "2014-03-07T00:02:57.993-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1220366",
+    "ThreadId": "538241",
+    "Html": "Thank you guys for the reply. Here is the solution:<br />\n<pre><code>    for ($column = 'G'; $column != 'AJ'; $column++) {\n\n        for ($row = 1; $row &lt;= $endRow; $row++) {\n            $cellIndex = $column.$row;\n                    }\n            }</code></pre>\n\n",
+    "PostedDate": "2014-03-07T09:28:54.14-08:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1222681",
+    "ThreadId": "538241",
+    "Html": "Hello! you might have already solved this, however i have a function that lets you handle any excel column letter as numbers. You might find it useful, i use it to loop though files that need a diferent amount of labels created every time... \r<br />\n<br />\nHere it is:<br />\n<pre><code>//This function is for converting Numbers to Letters that are compatible with Excel, and Excel writter for cell selection\nfunction num_to_letter($num, $uppercase = TRUE)\n{\n    $num -= 1;\n    $letter =   chr(($num % 26) + 97);\n    if ($num &gt;= 26) {\n        $letter = num_to_letter(floor($num/26),$uppercase).$letter;\n    }\n    return      ($uppercase ? strtoupper($letter) : $letter); \n}</code></pre>\n\n",
+    "PostedDate": "2014-03-14T02:29:18.3-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1222709",
+    "ThreadId": "538241",
+    "Html": "Why not simply use the built in <code>PHPExcel_Cell::columnIndexFromString()</code> and <code>PHPExcel_Cell::stringFromColumnIndex()</code> methods?<br />\n",
+    "PostedDate": "2014-03-14T03:48:13.293-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1224991",
+    "ThreadId": "538241",
+    "Html": "Hi, I use thisd code for columns:\r<br />\n$lastColumn = 90;\r<br />\nfor ($i=0;$i&lt;$lastColumn;$i++) {<br />\n<pre><code>$column = chr(65+$i);</code></pre>\n\n}\r<br />\nNow you can refer to columns with the $column variable<br />\n",
+    "PostedDate": "2014-03-20T13:12:46.597-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  },
+  {
+    "Id": "1225031",
+    "ThreadId": "538241",
+    "Html": "As I said, why not simply use the built in <code>PHPExcel_Cell::columnIndexFromString()</code> and <code>PHPExcel_Cell::stringFromColumnIndex()</code> methods? These aren't limited to the range A-Z, or to the range A-ZZ, but support the full MS Excel range of columns.<br />\n",
+    "PostedDate": "2014-03-20T15:42:04.84-07:00",
+    "UserRole": null,
+    "MarkedAsAnswerDate": null
+  }
+]
