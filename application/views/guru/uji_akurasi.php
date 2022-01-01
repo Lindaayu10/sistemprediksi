@@ -74,11 +74,11 @@
                 data-parent="#accordionSidebar">
                 <div class="bg-white py-2 collapse-inner rounded">
                     <!-- <h6 class="collapse-header">Prediksi:</h6> -->
-                    <a class="collapse-item" href="<?= base_url("guru/hasil") ?>">Hasil</a>
                     <a class="collapse-item" href="kriteria">Kriteria</a>
                     <a class="collapse-item" href="datatrining">Data Training</a>
                     <a class="collapse-item" href="datatesting">Data Testing</a>
-                    <a class="collapse-item" href="uji_akurasi">Uji Akurasi</a>
+                    <a class="collapse-item" href="uji_akurasi">Hasil Perhitungan</a>
+                    <a class="collapse-item" href="<?= base_url("guru/hasil") ?>">Hasil Pengujian</a>
                 </div>
             </div>
         </li>
@@ -129,11 +129,10 @@
   <div class="container-fluid">
     <!-- Page Heading -->
       <div class="text-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-black-800">UJI AKURASI</h1>
+        <h1 class="h3 mb-0 text-black-800">Hasil Perhitungan Algoritma Naive Bayes</h1>
       </div>
   <!-- Content Row -->
   <div class="row">
-     
     <!-- Begin Page Content -->
     <div class="container-fluid">
         <?php
@@ -199,22 +198,16 @@
         ?>
  <div class="row">
     <div class="col-md-12">
-        <!--UPLOAD EXCEL FORM-->
-        <form method="post" enctype="multipart/form-data" action="<?= site_url('guru/Uji_akurasi/excel') ?>">
             <div class="form-group">
-                    <label>Import data from excel</label>
-                    <input name="file_uji" type="file" class="form-control">
-            </div>
-            <div class="form-group">
-                <input name="submit" type="submit" value="Upload Data" class="btn btn-success">
-                <a href="<?= base_url('guru/uji_akurasi/delete') ?>" class="btn btn-danger">
-                    <i class="fa fa-trash-o"></i> Delete Data
-                </a>
+                
                 <a href="<?= base_url('guru/uji_akurasi/naivebayes') ?>" class="btn btn-secondary active font-weight-bold">
-                    <i class="fa fa-check"></i> Uji Akurasi
+                    <i class="fa fa-check"></i> View Hasil Perhitungan
                 </a>
                 <a href="<?php echo site_url('guru/uji_akurasi/add') ?>" class="btn btn-success">
                     <i class="fas fa-plus"> Test Predict</i>
+                </a>
+                <a href="<?= base_url('guru/uji_akurasi/delete') ?>" class="btn btn-danger">
+                    <i class="fa fa-trash-o"></i> Delete Data
                 </a>
             </div>
         </form>
@@ -226,14 +219,8 @@
                     display_success($pesan_success);
                 }
                 
-                $akurasi_testing = $akurasi->akurasi_testing ?? false;
-                if ($akurasi_testing) {
-                    $akurasi_testing = $akurasi_testing * 100;
-                }else{
-                    $akurasi_testing = '-';
-                }
 
-                echo "Jumlah data: " . count($uji_akurasi) . " | Akurasi Testing: ".$akurasi_testing."% <br>";
+                echo "Jumlah data: " . count($uji_akurasi) . "<br>";
                 if ($jumlah == 0) {
                     echo "Data kosong...";
                 } 

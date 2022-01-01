@@ -74,11 +74,11 @@
                 data-parent="#accordionSidebar">
                 <div class="bg-white py-2 collapse-inner rounded">
                     <!-- <h6 class="collapse-header">Prediksi:</h6> -->
-                    <a class="collapse-item" href="<?= base_url("guru/hasil") ?>">Hasil</a>
                     <a class="collapse-item" href="kriteria">Kriteria</a>
                     <a class="collapse-item" href="datatrining">Data Training</a>
                     <a class="collapse-item" href="datatesting">Data Testing</a>
-                    <a class="collapse-item" href="uji_akurasi">Uji Akurasi</a>
+                    <a class="collapse-item" href="uji_akurasi">Hasil Perhitungan</a>
+                    <a class="collapse-item" href="<?= base_url("guru/hasil") ?>">Hasil Pengujian</a>
                 </div>
             </div>
         </li>
@@ -222,20 +222,15 @@
             <?php echo form_error('predikat_asli') ?>
           </div>
         </div>    
-        <br>
-      <input class="btn btn-success" type="submit" name="btn" value="Save" />
+      <input class="btn btn-primary" type="submit" name="btn" value="Save" />
   </div>
 </div>
-
 </div>
-
 </div>
 
 		</form>
           </tbody>
         </table>
-
-
       </div>
     </div>
   </div>

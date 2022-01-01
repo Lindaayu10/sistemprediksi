@@ -13,7 +13,7 @@
 
   <!-- Custom fonts for this template-->
   <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
-<link href="<?php echo base_url('assets/fontawesome-free/css/all.min.css') ?>" rel="stylesheet" type="text/css">
+  <link href="<?php echo base_url('assets/fontawesome-free/css/all.min.css') ?>" rel="stylesheet" type="text/css">
 
   <!-- Custom styles for this template-->
   <!-- <link rel="stylesheet" href="<?//= base_url() ?>assets/css/bootstrap.css"> -->
@@ -73,11 +73,11 @@
                 data-parent="#accordionSidebar">
                 <div class="bg-white py-2 collapse-inner rounded">
                     <!-- <h6 class="collapse-header">Prediksi:</h6> -->
-                    <a class="collapse-item" href="<?= base_url("guru/hasil") ?>">Hasil</a>
                     <a class="collapse-item" href="kriteria">Kriteria</a>
                     <a class="collapse-item" href="datatrining">Data Training</a>
                     <a class="collapse-item" href="datatesting">Data Testing</a>
-                    <a class="collapse-item" href="uji_akurasi">Uji Akurasi</a>
+                    <a class="collapse-item" href="uji_akurasi">Hasil Perhitungan</a>
+                    <a class="collapse-item" href="<?= base_url("guru/hasil") ?>">Hasil Pengujian</a>
                 </div>
             </div>
         </li>
@@ -157,10 +157,9 @@
 
     <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
 
-      <tbody>
     <form action="<?php base_url('guru/dataguru/add') ?>" method="post" enctype="multipart/form-data" >
-<div class="container">
-<div class="row">
+  <div class="container">
+  <div class="row">
   <div class="col-md-4">
       <div class="form-group">
       <input class="form-control <?php echo form_error('id_guru') ? 'is-invalid':'' ?>" name="id_guru" placeholder="name" type="hidden" />
@@ -182,16 +181,6 @@
           <?php echo form_error('nama_guru') ?>
         </div>
       </div>
-
-       <div class="form-group">
-        <label for="name">Email*</label>
-        <input class="form-control <?php echo form_error('email_guru') ? 'is-invalid':'' ?>"
-         type="text" name="email_guru" placeholder="email" />
-        <div class="invalid-feedback">
-          <?php echo form_error('email_guru') ?>
-        </div>
-      </div>
-
        <div class="form-group">
         <label for="name">Jabatan*</label>
         <input class="form-control <?php echo form_error('jabatan') ? 'is-invalid':'' ?>"
@@ -202,13 +191,8 @@
       </div>
       </div>
   </div>
-  <div class="col-md-4">
-<br>
-      <input class="btn btn-success" type="submit" name="btn" value="Add" />
-
-  </div>
+  <input class="btn btn-primary" type="submit" name="btn" value="Add" />
 </div>
-
 </div>
               </form>
           </tbody>
@@ -220,11 +204,11 @@
 </div>
 <!-- /.container-fluid -->
 </div>
-    </div>
-    <!-- End of Content Wrapper -->
+</div>
+<!-- End of Content Wrapper -->
 
-  </div>
-  <!-- End of Page Wrapper -->
+</div>
+<!-- End of Page Wrapper -->
 
 
   <!-- Scroll to Top Button-->
@@ -242,7 +226,6 @@
             <span aria-hidden="true">×</span>
           </button>
         </div>
-        <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
         <div class="modal-footer">
           <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
           <a class="btn btn-primary" href="<?php echo base_url() ?>Dashboard/logout">Logout</a>
@@ -281,5 +264,3 @@
 </body>
 
 </html>
-
-

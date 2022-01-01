@@ -15,9 +15,6 @@
 	<link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
 	<link href="<?php echo base_url('assets/fontawesome-free/css/all.min.css') ?>" rel="stylesheet" type="text/css">
 
-	<!-- Custom styles for this template-->
-	<!-- <link rel="stylesheet" href="<? //= base_url() 
-										?>assets/css/bootstrap.css"> -->
 	<link href="<?= base_url() ?>assets/css/sb-admin-2.min.css" rel="stylesheet">
 
 </head>
@@ -72,11 +69,11 @@
 				<div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
 					<div class="bg-white py-2 collapse-inner rounded">
 						<!-- <h6 class="collapse-header">Prediksi:</h6> -->
-						<a class="collapse-item" href="<?= base_url("guru/hasil") ?>">Hasil</a>
-						<a class="collapse-item" href="kriteria">Kriteria</a>
-						<a class="collapse-item" href="datatrining">Data Training</a>
-						<a class="collapse-item" href="datatesting">Data Testing</a>
-						<a class="collapse-item" href="uji_akurasi">Uji Akurasi</a>
+                    <a class="collapse-item" href="kriteria">Kriteria</a>
+                    <a class="collapse-item" href="datatrining">Data Training</a>
+                    <a class="collapse-item" href="datatesting">Data Testing</a>
+                    <a class="collapse-item" href="uji_akurasi">Hasil Perhitungan</a>
+                    <a class="collapse-item" href="<?= base_url("guru/hasil") ?>">Hasil Pengujian</a>
 					</div>
 				</div>
 			</li>
@@ -124,13 +121,12 @@
 
 				</nav>
 				<div class="container-fluid">
-					<div class="d-sm-flex align-items-center justify-content-between mb-4">
-						<h1 class="h3 mb-0 text-gray-800">Hasil Pengujian</h1>
-					</div>
+					<ul class="nav nav-tabs">
+					  <li class="nav-item">
+					    <a class="nav-link active" href="<?= base_url("guru/hasil") ?>">Hasil Pengujian</a>
+					  </li>
+					</ul>
 					<div class="card shadow mb-4">
-						<div class="card-header">
-							Hasil Uji Confusion Matrix
-						</div>
 						<div class="card-body">
 							<div class="table-responsive">
 								<table class="table table-striped">
@@ -163,22 +159,21 @@
 										</tr>
 									</tbody>
 								</table>
-								<h4>Hasil Akurasi : <?= $accuracy ?> %</h4>
+								<h5>Hasil Akurasi : <?= $accuracy ?> %</h5>
 
 							</div>
 						</div>
 					</div>
+					<ul class="nav nav-tabs">
+					  <li class="nav-item">
+					    <a class="nav-link active" href="<?= base_url("guru/validasi") ?>">Validasi Sistem</a>
+					  </li>
+					</ul>
 					<div class="card shadow mb-4">
-						<div class="card-header">
-							Hasil Uji Validasi
-						</div>
 						<div class="card-body">
 							<div class="table-responsive">
 							  <div class="panel panel-default">
-
                                 <div class="panel-body">
-                                <h4>Total Data = <?php echo $countAll ;?> </h4>
-                                <hr>
                                 <div class="col">
                                     <table class="table table-bordered">
                                         <thead>
@@ -211,8 +206,9 @@
                                         </tbody>
                                     </table>
                                     <hr>
-                                    <h3> Kesimpulan : </h3>
-                                    <h4>Kinerja Sistem mencapai <b><?php echo round($persen_sesuai,2);?>% </b> </h3>
+                                    <h4>Kesimpulan : </h4>
+                                    <h5>Total Data = <?php echo $countAll ;?> </h5>
+                                    <h5>Kinerja Sistem mencapai <b><?php echo round($persen_sesuai,2);?>% </b></h5>
                                 </div>
                             </div>
 							</div>

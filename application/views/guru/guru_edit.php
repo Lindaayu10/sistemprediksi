@@ -73,11 +73,11 @@
                 data-parent="#accordionSidebar">
                 <div class="bg-white py-2 collapse-inner rounded">
                     <!-- <h6 class="collapse-header">Prediksi:</h6> -->
-                    <a class="collapse-item" href="<?= base_url("guru/hasil") ?>">Hasil</a>
                     <a class="collapse-item" href="kriteria">Kriteria</a>
                     <a class="collapse-item" href="datatrining">Data Training</a>
                     <a class="collapse-item" href="datatesting">Data Testing</a>
-                    <a class="collapse-item" href="uji_akurasi">Uji Akurasi</a>
+                    <a class="collapse-item" href="uji_akurasi">Hasil Perhitungan</a>
+                    <a class="collapse-item" href="<?= base_url("guru/hasil") ?>">Hasil Pengujian</a>
                 </div>
             </div>
         </li>
@@ -164,7 +164,6 @@
       <tbody>
 <form action="<?php base_url("guru/dataguru/edit") ?>" method="post" Senctype="multipart/form-data" >
 
-
 <div class="container">
 <div class="row">
   <div class="col-md-4">
@@ -173,35 +172,33 @@
     <div class="form-group">
       <label for="name">NIK*</label>
       <input class="form-control <?php echo form_error('nik') ? 'is-invalid':'' ?>"
-       type="text" name="nik" placeholder="name" />
+       type="text" name="nik" placeholder="nik" />
       <div class="invalid-feedback">
         <?php echo form_error('nik') ?>
       </div>
     </div>
-     <div class="form-group">
-    <label for="name">Nama Guru*</label>
-    <input class="form-control <?php echo form_error('nama_guru') ? 'is-invalid':'' ?>"
+    <div class="form-group">
+      <label for="name">Nama Guru*</label>
+      <input class="form-control <?php echo form_error('nama_guru') ? 'is-invalid':'' ?>"
      type="text" name="nama_guru" placeholder="name" />
     <div class="invalid-feedback">
       <?php echo form_error('nama_guru') ?>
     </div>
   </div>
-
   <div class="form-group">
-    <label for="name">Email Guru*</label>
-    <input class="form-control <?php echo form_error('email_guru') ? 'is-invalid':'' ?>"
-     type="text" name="email_guru" placeholder="email_guru" />
+      <label for="name">Jabatan*</label>
+      <input class="form-control <?php echo form_error('jabatan') ? 'is-invalid':'' ?>"
+     type="text" name="jabatan" placeholder="jabatan" />
     <div class="invalid-feedback">
-      <?php echo form_error('email_guru') ?>
+      <?php echo form_error('jabatan') ?>
     </div>
   </div>
-  </div>
-<br>
   <input class="btn btn-success" type="submit" name="btn" value="Save" />
-
+  </div>
+  </div>
+  </div>
   </div>
 </div>
-
 </div>
     </form>
           </tbody>

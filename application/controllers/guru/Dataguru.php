@@ -11,7 +11,6 @@ class Dataguru extends CI_Controller
         $this->load->library('form_validation');
     }
 
-
     public function index()
     {
 
@@ -71,10 +70,4 @@ class Dataguru extends CI_Controller
             redirect(site_url('guru/dataguru'));
         }
     }
-
-    //public function logout()
-    //{
-      //  $this->session->sess_destroy();
-        //redirect('beranda');
-    //}
 }

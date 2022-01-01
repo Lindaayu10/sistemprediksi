@@ -15,9 +15,6 @@
 	<link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
 	<link href="<?php echo base_url('assets/fontawesome-free/css/all.min.css') ?>" rel="stylesheet" type="text/css">
 
-	<!-- Custom styles for this template-->
-	<!-- <link rel="stylesheet" href="<? //= base_url() 
-																		?>assets/css/bootstrap.css"> -->
 	<link href="<?= base_url() ?>assets/css/sb-admin-2.min.css" rel="stylesheet">
 
 </head>
@@ -30,14 +27,7 @@
 		<ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 			<!-- Sidebar - Brand -->
 			<div class="sidebar-brand align-left">
-				<img alt="image" src="<?php echo base_url() ?>assets/img/logosd2.png" width="80px" height="60px" align-left>
 			</div>
-			<!-- Sidebar - Brand -->
-			<!--  <a class="sidebar-brand d-flex align-items-center justify-content-center" href="#">
-        <div class="sidebar-brand">
-        </div>
-        <div class="sidebar-brand-text-mx-3"><img src="<?= base_url() ?>assets/img/logosd2.png" width="70px" height="60px"></div>
-      </a> -->
 
 			<!-- Divider -->
 			<hr class="sidebar-divider my-0">
@@ -75,11 +65,11 @@
 				<div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
 					<div class="bg-white py-2 collapse-inner rounded">
 						<!-- <h6 class="collapse-header">Prediksi:</h6> -->
-						<a class="collapse-item" href="<?= base_url("guru/hasil") ?>">Hasil</a>
-						<a class="collapse-item" href="<?= base_url("guru/kriteria") ?>">Kriteria</a>
-						<a class="collapse-item" href="<?= base_url("guru/datatrining") ?>">Data Training</a>
-						<a class="collapse-item" href="<?= base_url("guru/datatesting") ?>">Data Testing</a>
-						<a class="collapse-item" href="<?= base_url("guru/uji_akurasi") ?>">Uji Akurasi</a>
+                    <a class="collapse-item" href="kriteria">Kriteria</a>
+                    <a class="collapse-item" href="datatrining">Data Training</a>
+                    <a class="collapse-item" href="datatesting">Data Testing</a>
+                    <a class="collapse-item" href="uji_akurasi">Hasil Perhitungan</a>
+                    <a class="collapse-item" href="<?= base_url("guru/hasil") ?>">Hasil Pengujian</a>
 					</div>
 				</div>
 			</li>
@@ -93,135 +83,135 @@
 		<!-- Content Wrapper -->
 		<div id="content-wrapper" class="d-flex flex-column">
 
-			<!-- Main Content -->
-			<div id="content">
+		<!-- Main Content -->
+		<div id="content">
 
-				<!-- Topbar -->
-				<nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+			<!-- Topbar -->
+			<nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
 
-					<!-- Sidebar Toggle (Topbar) -->
-					<button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
-						<i class="fa fa-bars"></i>
-					</button>
+				<!-- Sidebar Toggle (Topbar) -->
+				<button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+					<i class="fa fa-bars"></i>
+				</button>
 
-					<!-- Topbar Navbar -->
-					<ul class="navbar-nav ml-auto">
+				<!-- Topbar Navbar -->
+				<ul class="navbar-nav ml-auto">
 
-						<!-- Nav Item - User Information -->
-						<li class="nav-item dropdown no-arrow">
-							<a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-								<span class="mr-2 d-none d-lg-inline text-gray-600 small">Selamat Datang <b><?php echo $this->session->userdata("nama_user") ?></span>
-								<img class="img-profile rounded-circle" src="<?= base_url() ?>assets/img/340br.jpg">
+					<!-- Nav Item - User Information -->
+					<li class="nav-item dropdown no-arrow">
+						<a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+							<span class="mr-2 d-none d-lg-inline text-gray-600 small">Selamat Datang <b><?php echo $this->session->userdata("nama") ?></span>
+							<img class="img-profile rounded-circle" src="<?= base_url() ?>assets/img/340br.jpg">
+						</a>
+						<!-- Dropdown - User Information -->
+						<div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
+							<a class="dropdown-item" href="<?php echo base_url() ?>guru/logout" data-toggle="modal" data-target="#logoutModal">
+								<i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+								Log Out
 							</a>
-							<!-- Dropdown - User Information -->
-							<div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
-								<a class="dropdown-item" href="<?php echo base_url() ?>guru/logout" data-toggle="modal" data-target="#logoutModal">
-									<i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-									Log Out
-								</a>
+						</div>
+					</li>
+
+				</ul>
+
+			</nav>
+			<!-- End of Topbar -->
+
+			<!-- Begin Page Content -->
+			<div class="container-fluid">
+
+				<!-- Page Heading -->
+				<div class="text-center justify-content-between mb-4">
+					<h1 class="h3 mb-0 text-black-800">Sistem Prediksi Tingkat Prestasi Siswa Sekolah Dasar</h1>
+					<p>
+					<h3>Menggunakan Metode Algoritma Naive Bayes</h3>
+				</div>
+
+				<!-- Content Row -->
+				<div class="row">
+
+					<!-- Earnings (Monthly) Card Example -->
+					<div class="col-xl-3 col-md-6 mb-4">
+						<div class="card border-left-primary shadow h-100 py-2">
+							<div class="card-body">
+								<div class="row no-gutters align-items-center">
+									<div class="col mr-2">
+										<div class="text-xs font-weight-bold text-success text-uppercase mb-1">Data Siswa</div>
+										<div class="h5 mb-0 font-weight-bold text-gray-800">
+											<?= $siswa ?>
+										</div>
+									</div>
+									<div class="col-auto">
+										<i class="fas fa-clipboard-list fa-2x text-gray-300"> </i>
+									</div>
+								</div>
 							</div>
-						</li>
-
-					</ul>
-
-				</nav>
-				<!-- End of Topbar -->
-
-				<!-- Begin Page Content -->
-				<div class="container-fluid">
-
-					<!-- Page Heading -->
-					<div class="text-center justify-content-between mb-4">
-						<h1 class="h3 mb-0 text-black-800">Sistem Prediksi Tingkat Prestasi Siswa Sekolah Dasar</h1>
-						<p>
-						<h3>Menggunakan Metode Algoritma Naive Bayes</h3>
+						</div>
 					</div>
 
-					<!-- Content Row -->
-					<div class="row">
-
-						<!-- Earnings (Monthly) Card Example -->
-						<div class="col-xl-3 col-md-6 mb-4">
-							<div class="card border-left-primary shadow h-100 py-2">
-								<div class="card-body">
-									<div class="row no-gutters align-items-center">
-										<div class="col mr-2">
-											<div class="text-xs font-weight-bold text-success text-uppercase mb-1">Data Siswa</div>
-											<div class="h5 mb-0 font-weight-bold text-gray-800">
-												<?= $siswa ?>
-											</div>
+					<!-- Earnings (Monthly) Card Example -->
+					<div class="col-xl-3 col-md-6 mb-4">
+						<div class="card border-left-success shadow h-100 py-2">
+							<div class="card-body">
+								<div class="row no-gutters align-items-center">
+									<div class="col mr-2">
+										<div class="text-xs font-weight-bold text-success text-uppercase mb-1">Data Training</div>
+										<div class="h5 mb-0 font-weight-bold text-gray-800">
+											<?= $trining ?>
 										</div>
-										<div class="col-auto">
-											<i class="fas fa-clipboard-list fa-2x text-gray-300"> </i>
-										</div>
+									</div>
+									<div class="col-auto">
+										<i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
 									</div>
 								</div>
 							</div>
 						</div>
+					</div>
 
-						<!-- Earnings (Monthly) Card Example -->
-						<div class="col-xl-3 col-md-6 mb-4">
-							<div class="card border-left-success shadow h-100 py-2">
-								<div class="card-body">
-									<div class="row no-gutters align-items-center">
-										<div class="col mr-2">
-											<div class="text-xs font-weight-bold text-success text-uppercase mb-1">Data Training</div>
-											<div class="h5 mb-0 font-weight-bold text-gray-800">
-												<?= $trining ?>
-											</div>
-										</div>
-										<div class="col-auto">
-											<i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-
-						<!-- Earnings (Monthly) Card Example -->
-						<div class="col-xl-3 col-md-6 mb-4">
-							<div class="card border-left-info shadow h-100 py-2">
-								<div class="card-body">
-									<div class="row no-gutters align-items-center">
-										<div class="col mr-2">
-											<div class="text-xs font-weight-bold text-info text-uppercase mb-1">Data Testing</div>
-											<div class="row no-gutters align-items-center">
-												<div class="col-auto">
-													<div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">
-														<?= $testing ?>
-													</div>
+					<!-- Earnings (Monthly) Card Example -->
+					<div class="col-xl-3 col-md-6 mb-4">
+						<div class="card border-left-info shadow h-100 py-2">
+							<div class="card-body">
+								<div class="row no-gutters align-items-center">
+									<div class="col mr-2">
+										<div class="text-xs font-weight-bold text-info text-uppercase mb-1">Data Testing</div>
+										<div class="row no-gutters align-items-center">
+											<div class="col-auto">
+												<div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">
+													<?= $testing ?>
 												</div>
 											</div>
 										</div>
-										<div class="col-auto">
-											<i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
-										</div>
+									</div>
+									<div class="col-auto">
+										<i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
 									</div>
 								</div>
 							</div>
 						</div>
+					</div>
 
-						<!-- Pending Requests Card Example -->
-						<div class="col-xl-3 col-md-6 mb-4">
-							<div class="card border-left-warning shadow h-100 py-2">
-								<div class="card-body">
-									<div class="row no-gutters align-items-center">
-										<div class="col mr-2">
-											<div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Hasil Prediksi</div>
-											<div class="h5 mb-0 font-weight-bold text-gray-800">
-												<?= $hasil ?>
-											</div>
+					<!-- Pending Requests Card Example -->
+					<div class="col-xl-3 col-md-6 mb-4">
+						<div class="card border-left-warning shadow h-100 py-2">
+							<div class="card-body">
+								<div class="row no-gutters align-items-center">
+									<div class="col mr-2">
+										<div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Hasil Prediksi</div>
+										<div class="h5 mb-0 font-weight-bold text-gray-800">
+											<?= $hasil ?>
 										</div>
-										<div class="col-auto">
-											<i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
-										</div>
+									</div>
+									<div class="col-auto">
+										<i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
 									</div>
 								</div>
 							</div>
 						</div>
 					</div>
 				</div>
-				<!-- End of Content Wrapper -->
+			</div>
+			<!-- End of Content Wrapper -->
 
 			</div>
 			<!-- End of Page Wrapper -->
@@ -252,7 +242,7 @@
 			<footer class="sticky-footer bg-white">
 				<div class="container my-auto">
 					<div class="copyright text-center my-auto">
-						<span>&copy; <?= date('Y'); ?> - 2021 - Sistem Prediksi - All Right Reservered</span>
+						<span>&copy; <?= date('Y'); ?> - Sistem Prediksi - All Right Reservered</span>
 					</div>
 				</div>
 			</footer>

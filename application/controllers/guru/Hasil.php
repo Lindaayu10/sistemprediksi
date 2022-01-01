@@ -24,9 +24,7 @@ class Hasil extends CI_Controller
 
 			$data['accuracy'] = $data["total_t_f"] / $data["total_k"] * 100;
 
-			// k fold val
-
-			
+			// validasi
 			$allVal = $this->model_hasil->getAll();
 			$true = 1;
 			$false = 1;
@@ -52,55 +50,4 @@ class Hasil extends CI_Controller
 			redirect("auth/index");
 		}
 	}
-
-	//mmenambahkan data ke database
-	public function add()
-	{
-		$hasil = $this->model_hasil;
-		$validation = $this->form_validation;
-		$validation->set_rules($hasil->rules());
-
-		if ($validation->run()) {
-			$hasil->save();
-			$this->session->set_flashdata('success', 'Berhasil disimpan');
-		}
-
-		$this->load->view("guru/hasil_new");
-	}
-
-	//mengedit data ke database
-	public function edit($id_hasil = null)
-	{
-		if (!isset($id_hasil)) redirect('guru/hasil');
-
-		$hasil = $this->model_hasil;
-		$validation = $this->form_validation;
-		$validation->set_rules($hasil->rules());
-
-		if ($validation->run()) {
-			$hasil->update();
-			$this->session->set_flashdata('success', 'Berhasil disimpan');
-		}
-
-		$data["hasil"] = $hasil->getById($id_hasil);
-		if (!$data["hasil"]) show_404();
-
-		$this->load->view("guru/hasil_edit", $data);
-	}
-
-	//menghapus data di database
-	public function delete($id_hasil = null)
-	{
-		if (!isset($id_hasil)) show_404();
-
-		if ($this->model_hasil->delete($id_hasil)) {
-			redirect(site_url('guru/hasil'));
-		}
-	}
-
-	//public function logout()
-	//{
-	//  $this->session->sess_destroy();
-	//redirect('beranda');
-	//}
 }

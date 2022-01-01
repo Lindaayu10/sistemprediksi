@@ -15,10 +15,6 @@
   <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
   <link href="<?php echo base_url('assets/fontawesome-free/css/all.min.css') ?>" rel="stylesheet" type="text/css">
 
-  <!-- Custom styles for this template-->
-  <!--<link rel="stylesheet" href="<?= base_url() ?>assets/css/bootstrap.css">
-  <link href="<? //= base_url() 
-              ?>assets/css/sb-admin-2.min.css" rel="stylesheet">-->
   <link href="<?= base_url() ?>assets/css/sb-admin-2.min.css" rel="stylesheet">
 
 </head>
@@ -44,7 +40,7 @@
 
       <!-- Nav Item - Dashboard -->
       <li class="nav-item active">
-        <a class="nav-link" href="admin/dashboard">
+        <a class="nav-link" href="<?php echo base_url() ?>admin/dashboard">
           <i class="fas fa-fw fa-tachometer-alt"></i>
           <span>Dashboard</span></a>
       </li>
@@ -75,8 +71,8 @@
         <div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
           <div class="bg-white py-2 collapse-inner rounded">
             <!-- <h6 class="collapse-header">Prediksi:</h6> -->
-            <a class="collapse-item" href="<?= base_url("admin/Admin_hasil") ?>">Hasil</a>
-            <a class="collapse-item" href="<?= base_url("guru/uji_akurasi") ?>">Uji Akurasi</a>
+                  <a class="collapse-item" href="<?= base_url("admin/Admin_ujiakurasi") ?>">Hasil Perhitungan</a>
+                  <a class="collapse-item" href="<?= base_url("admin/Admin_hasil") ?>">Hasil Pengujian</a>
           </div>
         </div>
       </li>
@@ -87,11 +83,8 @@
           <i class="fas fa-fw fa-glyphicon fa-user"></i>
           <span>User</span></a>
       </li>
-
-
       <!-- Divider -->
       <hr class="sidebar-divider d-none d-md-block">
-
 
     </ul>
     <!-- End of Sidebar -->

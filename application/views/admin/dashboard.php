@@ -14,12 +14,7 @@
 	<!-- Custom fonts for this template-->
 	<link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
 	<link href="<?php echo base_url('assets/fontawesome-free/css/all.min.css') ?>" rel="stylesheet" type="text/css">
-
-	<!-- Custom styles for this template-->
-	<!-- <link rel="stylesheet" href="<? //= base_url() 
-																		?>assets/css/bootstrap.css"> -->
 	<link href="<?= base_url() ?>assets/css/sb-admin-2.min.css" rel="stylesheet">
-
 
 </head>
 
@@ -37,7 +32,6 @@
 				</div>
 				<div class="sidebar-brand-text mx-3">ADMIN</div>
 			</a>
-
 
 			<!-- Divider -->
 			<hr class="sidebar-divider my-0">
@@ -75,8 +69,8 @@
 				<div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
 					<div class="bg-white py-2 collapse-inner rounded">
 						<!-- <h6 class="collapse-header">Prediksi:</h6> -->
-						<a class="collapse-item" href="<?= base_url("admin/Admin_hasil") ?>">Hasil</a>
-						<a class="collapse-item" href="<?= base_url("admin/Admin_ujiakurasi") ?>">Uji Akurasi</a>
+			            <a class="collapse-item" href="<?= base_url("admin/Admin_ujiakurasi") ?>">Hasil Perhitungan</a>
+			            <a class="collapse-item" href="<?= base_url("admin/Admin_hasil") ?>">Hasil Pengujian</a>
 					</div>
 				</div>
 			</li>
@@ -286,7 +280,7 @@
 			<footer class="sticky-footer bg-white">
 				<div class="container my-auto">
 					<div class="copyright text-center my-auto">
-						<span>&copy; <?= date('Y'); ?> - 2021 - Sistem Prediksi - All Right Reservered</span>
+						<span>&copy; <?= date('Y'); ?> - Sistem Prediksi - All Right Reservered</span>
 					</div>
 				</div>
 			</footer>

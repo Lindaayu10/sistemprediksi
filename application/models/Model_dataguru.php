@@ -6,7 +6,6 @@ class Model_dataguru extends CI_Model
     public $id_guru;
     public $nik;
     public $nama_guru;
-    public $email_guru;
     public $jabatan;
 
     //cek validasi
@@ -22,10 +21,6 @@ class Model_dataguru extends CI_Model
             'label' => 'Nama_guru',
             'rules' => 'required'],
 
-            ['field' => 'email_guru',
-            'label' => 'email_guru',
-            'rules' => 'required'],
-
             ['field' => 'jabatan',
             'label' => 'jabatan',
             'rules' => 'required']
@@ -39,13 +34,12 @@ class Model_dataguru extends CI_Model
     }
 
     //fungsi check username & password login
-    function check_login($table, $field1, $field2, $field3)
+    function check_login($table, $field1, $field2)
     {
         $this->db->select('*');
         $this->db->from($table);
         $this->db->where($field1);
         $this->db->where($field2);
-        $this->db->where($field3);
 
         $this->db->limit(1);
         $query = $this->db->get();
@@ -75,7 +69,6 @@ class Model_dataguru extends CI_Model
         $this->id_guru = $post["id_guru"];
         $this->nik = $post["nik"];
         $this->nama_guru = $post["nama_guru"];
-        $this->email_guru = $post["email_guru"];
         $this->jabatan = $post["jabatan"];
           // $password = md5($this->input->post('password'));
 
@@ -89,7 +82,6 @@ class Model_dataguru extends CI_Model
         $this->id_guru = $post["id_guru"];
         $this->nik = $post["nik"];
         $this->nama_guru = $post["nama_guru"];
-        $this->email_guru = md5($_POST['email_guru']);
         $this->jabatan = $post["jabatan"];
         
         $this->db->update($this->_table, $this, array('id_guru' => $post['id_guru']));

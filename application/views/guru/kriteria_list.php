@@ -15,9 +15,6 @@
   <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
 <link href="<?php echo base_url('assets/fontawesome-free/css/all.min.css') ?>" rel="stylesheet" type="text/css">
   
-
-  <!-- Custom styles for this template-->
-  <!-- <link rel="stylesheet" href="<?//= base_url() ?>assets/css/bootstrap.css"> -->
   <link href="<?= base_url() ?>assets/css/sb-admin-2.min.css" rel="stylesheet">
 
 </head>
@@ -73,12 +70,12 @@
             <div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities"
                 data-parent="#accordionSidebar">
                 <div class="bg-white py-2 collapse-inner rounded">
-                    <!-- <h6 class="collapse-header">Prediksi:</h6> -->
-                    <a class="collapse-item" href="<?= base_url("guru/hasil") ?>">Hasil</a>
+                    <<!-- <h6 class="collapse-header">Prediksi:</h6> -->
                     <a class="collapse-item" href="kriteria">Kriteria</a>
                     <a class="collapse-item" href="datatrining">Data Training</a>
                     <a class="collapse-item" href="datatesting">Data Testing</a>
-                    <a class="collapse-item" href="uji_akurasi">Uji Akurasi</a>
+                    <a class="collapse-item" href="uji_akurasi">Hasil Perhitungan</a>
+                    <a class="collapse-item" href="<?= base_url("guru/hasil") ?>">Hasil Pengujian</a>
                 </div>
             </div>
         </li>
@@ -142,8 +139,8 @@
       </div>
 
       <!-- DataTales Example -->
-      <div class="card shadow mb-4">
-        <div class="card-header py-3">
+      <div class="card shadow">
+        <div class="card-header py-1">
           <h6 class="m-0 font-weight-bold text-primary">
             <a href="<?php echo site_url('guru/kriteria/add') ?>"><i class="fas fa-plus"></i> Add New</a>
           </h6>
@@ -156,12 +153,9 @@
                 <th>ID</th>
                 <th>Kode Kriteria</th>
                 <th>Nama Kriteria</th>
-                <th>Action</th>
               </tr>
             </thead>
-
             <tbody>
-
               <?php foreach ($kriteria as $k): ?>
                 <tr>
                   <td width="20">
@@ -170,15 +164,9 @@
                <td width="80">
                     <?php echo $k->kode_kriteria ?>
                   </td>                    
-                  <td width="150">
+                  <td width="80">
                     <?php echo $k->nama_kriteria ?>
                   </td>
-                  <td width="150">
-                    <a href="<?php echo site_url('guru/kriteria/edit/'.$k->id_kriteria) ?>"
-                     class="btn btn-primary"><i class="fas fa-edit"></i> Edit</a>
-                     <a href="<?php echo site_url('guru/kriteria/delete/'.$k->id_kriteria) ?>"
-                       class="btn btn-danger"><i class="fas fa-trash"></i> Delete</a>
-                     </td>
                    </tr>
                  <?php endforeach; ?>
 

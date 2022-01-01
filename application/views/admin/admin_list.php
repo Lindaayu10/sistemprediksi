@@ -74,8 +74,8 @@
 				<div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
 					<div class="bg-white py-2 collapse-inner rounded">
 						<!-- <h6 class="collapse-header">Prediksi:</h6> -->
-						<a class="collapse-item" href="<?= base_url("admin/Admin_hasil") ?>">Hasil</a>
-						<a class="collapse-item" href="<?= base_url("guru/uji_akurasi") ?>">Uji Akurasi</a>
+			            <a class="collapse-item" href="<?= base_url("guru/uji_akurasi") ?>">Hasil Perhitungan</a>
+			            <a class="collapse-item" href="<?= base_url("admin/Admin_hasil") ?>">Hasil Pengujian</a>
 					</div>
 				</div>
 			</li>
